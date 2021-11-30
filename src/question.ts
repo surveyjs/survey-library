@@ -87,14 +87,7 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    var locCommentText = this.createLocalizableString(
-      "commentText",
-      this,
-      true
-    );
-    locCommentText.onGetTextCallback = (text: string): string => {
-      return !!text ? text : surveyLocalization.getString("otherItemText");
-    };
+    this.createLocalizableString("commentText", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -535,10 +528,7 @@ export class Question extends SurveyElement
    * Use it to get or set the comment value.
    */
   public get commentText(): string {
-    return this.getLocalizableStringText(
-      "commentText",
-      surveyLocalization.getString("otherItemText")
-    );
+    return this.getLocalizableStringText("commentText");
   }
   public set commentText(val: string) {
     this.setLocalizableStringText("commentText", val);
@@ -1452,7 +1442,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("isAnswered", val);
   }
   protected updateIsAnswered(): void {
+    const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
+    if(oldVal !== this.isAnswered) {
+      this.updateQuestionCss();
+    }
   }
   protected getIsAnswered(): boolean {
     return !this.isEmpty();
@@ -1714,6 +1708,7 @@ export class Question extends SurveyElement
       newValue = this.valueFromDataCallback(newValue);
     }
     this.setQuestionValue(this.valueFromData(newValue));
+    this.updateIsAnswered();
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
@@ -1785,7 +1780,7 @@ export class Question extends SurveyElement
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
   //IValidatorOwner

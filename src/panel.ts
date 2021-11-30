@@ -388,11 +388,10 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < elements.length; i++) {
       oldElements.push(elements[i]);
     }
-    var newElements = Helpers.randomizeArray<IElement>(oldElements);
-    this.elements.splice(0, this.elements.length);
-    for (var i = 0; i < newElements.length; i++) {
-      this.elements.push(newElements[i]);
-    }
+    const newElements = Helpers.randomizeArray<IElement>(oldElements);
+    this.setArrayPropertyDirectly("elements", newElements, false);
+    this.updateRows();
+    this.updateVisibleIndexes();
     this.isRandomizing = false;
   }
   /**
@@ -691,7 +690,7 @@ export class PanelModelBase extends SurveyElement
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
 

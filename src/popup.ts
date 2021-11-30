@@ -228,11 +228,13 @@ export class PopupBaseViewModel extends Base {
       const background = <HTMLElement>this.container.children[0];
       const popupContainer = <HTMLElement>background.children[0];
       const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+      const popupComputedStyle = window.getComputedStyle(popupContainer);
+      const margin = (parseFloat(popupComputedStyle.marginLeft)||0) + (parseFloat(popupComputedStyle.marginRight)||0);
       let height =
         popupContainer.offsetHeight -
         scrollContent.offsetHeight +
         scrollContent.scrollHeight;
-      const width = popupContainer.offsetWidth;
+      const width = popupContainer.offsetWidth + margin;
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
@@ -267,6 +269,15 @@ export class PopupBaseViewModel extends Base {
         if (!!newVerticalDimensions) {
           this.height = newVerticalDimensions.height + "px";
           pos.top = newVerticalDimensions.top;
+        }
+        const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
+          pos.left,
+          width,
+          window.innerWidth,
+          this.model.horizontalPosition
+        );
+        if (!!newHorizontalDimensions) {
+          pos.left = newHorizontalDimensions.left;
         }
       }
       this.left = pos.left + "px";

@@ -101,10 +101,13 @@ export class LocalizableString implements ILocalizableString {
       res = this.getValue(settings.defaultLocaleName);
     }
     if (!res && !!this.localizationName) {
-      res = surveyLocalization.getString(this.localizationName);
+      res = this.getLocalizationStr();
     }
     if (!res) res = "";
     return res;
+  }
+  private getLocalizationStr(): string {
+    return !!this.localizationName ? surveyLocalization.getString(this.localizationName): "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();
@@ -254,12 +257,10 @@ export class LocalizableString implements ILocalizableString {
     if (!this.owner || !this.useMarkdown) return false;
     var renderedText = this.calculatedText;
     if (!renderedText) return false;
+    if(!!this.localizationName && renderedText === this.getLocalizationStr()) return false;
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
-    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(
-      renderedText,
-      this.name
-    );
+    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText, this.name);
     return (<any>this).htmlValues[loc] ? true : false;
   }
   public getHtmlValue(): string {

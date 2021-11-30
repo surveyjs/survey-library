@@ -5483,6 +5483,11 @@ QUnit.test("Check isAnswered property", function(assert) {
   q4.value = [];
   assert.notOk(q4.cssTitle.indexOf("answer") > 0);
 
+  assert.notOk(q4.isAnswered, "q4 is not answered");
+  survey.setValue("q4", [1]);
+  assert.ok(q4.isAnswered, "q4 is answered");
+  assert.ok(q4.cssTitle.indexOf("answer") > 0);
+
   survey.css.question.titleOnAnswer = prevStyle;
 });
 QUnit.test("question.startWithNewLine", function(assert) {
@@ -5625,4 +5630,22 @@ QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
   assert.equal(survey.locale, "da", "da locale");
   assert.equal(question.getLocale(), "da", "da locale");
   assert.equal(question.otherPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
+  survey.locale = "";
+});
+QUnit.test("Dropdown optionsCaption localization", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "dropdown",
+        name: "q1"
+      }
+    ]
+  });
+  survey.locale = "";
+  var question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.optionsCaption, "Choose...", "default locale");
+  survey.locale = "de";
+  assert.equal(question.optionsCaption, "Bitte auswählen...", "locale = de");
+  survey.locale = "";
+  assert.equal(question.optionsCaption, "Choose...", "default locale, #2");
 });

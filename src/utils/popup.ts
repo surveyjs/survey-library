@@ -62,6 +62,40 @@ export class PopupUtils {
     return result;
   }
 
+  public static updateHorizontalDimensions(
+    left: number,
+    width: number,
+    windowWidth: number,
+    horizontalPosition: HorizontalPosition
+  ) {
+    let newWidth = width, newLeft = left;
+
+    if(horizontalPosition === "center") {
+      if (left < 0) {
+        newLeft = 0;
+        newWidth = Math.min(width, windowWidth);
+      } else if (width + left > windowWidth) {
+        newLeft = windowWidth - width;
+        newLeft = Math.max(newLeft, 0);
+        newWidth = Math.min(width, windowWidth);
+      }
+    }
+
+    if(horizontalPosition === "left") {
+      if (left < 0) {
+        newLeft = 0;
+        newWidth = Math.min(width, windowWidth);
+      }
+    }
+    if(horizontalPosition === "right") {
+      if (width + left > windowWidth) {
+        newWidth = windowWidth - left;
+      }
+    }
+
+    return { width: newWidth, left: newLeft };
+  }
+
   public static updateVerticalPosition(
     targetRect: ClientRect,
     height: number,

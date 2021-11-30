@@ -9,6 +9,9 @@
             //"source.organizeImports": true, // be vare of https://github.com/microsoft/vscode-typescript-tslint-plugin/issues/51
         }
     },
+    "[html]": {
+        "editor.formatOnSave": false
+    },
     // "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
     // "typescript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
     // "typescript.format.insertSpaceBeforeFunctionParenthesis": false,

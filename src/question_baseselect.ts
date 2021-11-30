@@ -34,10 +34,7 @@ export class QuestionSelectBase extends Question {
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   constructor(name: string) {
     super(name);
-    var noneItemText = this.createLocalizableString("noneText", this, true);
-    noneItemText.onGetTextCallback = function(text) {
-      return !!text ? text : surveyLocalization.getString("noneItemText");
-    };
+    var noneItemText = this.createLocalizableString("noneText", this, true, "noneItemText");
     this.noneItemValue.locOwner = this;
     this.noneItemValue.setLocText(noneItemText);
 
@@ -58,13 +55,10 @@ export class QuestionSelectBase extends Question {
     });
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
-    var locOtherText = this.createLocalizableString("otherText", this, true);
-    this.createLocalizableString("otherErrorText", this, true);
+    var locOtherText = this.createLocalizableString("otherText", this, true, "otherItemText");
+    this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
-    locOtherText.onGetTextCallback = function(text) {
-      return !!text ? text : surveyLocalization.getString("otherItemText");
-    };
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
       return this.createItemValue(value);
     };
@@ -152,10 +146,7 @@ export class QuestionSelectBase extends Question {
    * Use this property to set the different text for none item.
    */
   public get noneText(): string {
-    return this.getLocalizableStringText(
-      "noneText",
-      surveyLocalization.getString("noneItemText")
-    );
+    return this.getLocalizableStringText("noneText");
   }
   public set noneText(val: string) {
     this.setLocalizableStringText("noneText", val);
@@ -558,10 +549,7 @@ export class QuestionSelectBase extends Question {
    * Use this property to set the different text for other item.
    */
   public get otherText(): string {
-    return this.getLocalizableStringText(
-      "otherText",
-      surveyLocalization.getString("otherItemText")
-    );
+    return this.getLocalizableStringText("otherText");
   }
   public set otherText(val: string) {
     this.setLocalizableStringText("otherText", val);
@@ -578,10 +566,7 @@ export class QuestionSelectBase extends Question {
    * The text that shows when the other item is choosed by the other input is empty.
    */
   public get otherErrorText(): string {
-    return this.getLocalizableStringText(
-      "otherErrorText",
-      surveyLocalization.getString("otherRequiredError")
-    );
+    return this.getLocalizableStringText("otherErrorText");
   }
   public set otherErrorText(val: string) {
     this.setLocalizableStringText("otherErrorText", val);

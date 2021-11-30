@@ -200,7 +200,7 @@ export var defaultV2Css = {
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element-with-frame sd-question sd-row__question",
     root: "sd-imagepicker",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
@@ -209,6 +209,8 @@ export var defaultV2Css = {
     itemDisabled: "sd-imagepicker__item--disabled",
     itemHover: "sd-imagepicker__item--allowhover",
     label: "sd-imagepicker__label",
+    itemDecorator: "sd-imagepicker__item-decorator",
+    imageContainer: "sd-imagepicker__image-container",
     itemControl: "sd-imagepicker__control",
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",

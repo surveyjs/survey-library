@@ -17,13 +17,16 @@
     border-radius: calcSize(0.5);
   }
 }
-.sd-imagepicker__control + div {
+.sd-imagepicker__item-decorator {
   position: relative;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
 }
-.sd-imagepicker__item--checked .sd-imagepicker__control + div::before {
+.sd-imagepicker__image-container {
+  position: relative;
+}
+.sd-imagepicker__item--checked .sd-imagepicker__image-container::before {
   display: block;
   position: absolute;
   content: " ";
@@ -39,7 +42,7 @@
   background-size: 22px 16px;
   background-color: white;
 }
-.sd-imagepicker__item--error .sd-imagepicker__control + div::before {
+.sd-imagepicker__item--error .sd-imagepicker__image-container::before {
   display: block;
   position: absolute;
   content: " ";

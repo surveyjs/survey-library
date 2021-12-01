@@ -232,7 +232,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private getFirstUnknownIndex(newValue: any): number {
     if (!Array.isArray(newValue)) return -1;
     for (var i = 0; i < newValue.length; i++) {
-      if (this.hasUnknownValue(newValue[i])) return i;
+      if (this.hasUnknownValue(newValue[i], false, false)) return i;
     }
     return -1;
   }

@@ -237,10 +237,22 @@ export abstract class DragDropCore<T> extends Base {
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 
-    let top = scrollableParentNode.getBoundingClientRect().top;
-    let bottom = scrollableParentNode.getBoundingClientRect().bottom;
-    let left = scrollableParentNode.getBoundingClientRect().left;
-    let right = scrollableParentNode.getBoundingClientRect().right;
+    let top: number;
+    let bottom: number;
+    let left: number;
+    let right: number;
+
+    if (scrollableParentNode.tagName === "HTML") {
+      top = 0;
+      bottom = document.documentElement.clientHeight;
+      left = 0;
+      right = document.documentElement.clientWidth;
+    } else {
+      top = scrollableParentNode.getBoundingClientRect().top;
+      bottom = scrollableParentNode.getBoundingClientRect().bottom;
+      left = scrollableParentNode.getBoundingClientRect().left;
+      right = scrollableParentNode.getBoundingClientRect().right;
+    }
 
     const repeat = () => {
       if (clientY - top <= startScrollBoundary) {

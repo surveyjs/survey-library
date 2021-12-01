@@ -69,7 +69,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       component: "sv-action-bar-item-dropdown",
       css: "sv-dots",
       innerCss: "sv-dots__item",
-      iconName: "icon-dots",
+      iconName: "icon-more",
       visible: false,
       action: (item: any) => {
         this.dotsItemPopupModel.toggleVisibility();

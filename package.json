@@ -62,7 +62,7 @@
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "prepare": "husky install"
   },
-  "version": "1.8.79",
+  "version": "1.9.0",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

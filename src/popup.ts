@@ -234,7 +234,8 @@ export class PopupBaseViewModel extends Base {
         popupContainer.offsetHeight -
         scrollContent.offsetHeight +
         scrollContent.scrollHeight;
-      const width = popupContainer.offsetWidth + margin;
+      const width = popupContainer.offsetWidth;
+      const widthMargins = popupContainer.offsetWidth + margin;
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
@@ -272,7 +273,7 @@ export class PopupBaseViewModel extends Base {
         }
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
-          width,
+          widthMargins,
           window.innerWidth,
           this.model.horizontalPosition
         );

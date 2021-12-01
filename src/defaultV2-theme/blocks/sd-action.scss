@@ -1,7 +1,12 @@
-.sd-action.sd-action {
+.sd-action {
   padding: calcSize(1) calcSize(3);
   color: $primary;
   border-radius: calcSize(12.5);
+  font-weight: 600;
+  font-style: normal;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
+  outline: none;
 }
 .sd-action.sd-action--negative {
   color: $red;
@@ -21,7 +26,10 @@
 svg.sd-action--icon {
   fill: $foreground-light;
 }
-.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover {
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover,
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus
+{
+  outline: none;
   background-color: $primary-light;
   cursor: pointer;
   opacity: 1;

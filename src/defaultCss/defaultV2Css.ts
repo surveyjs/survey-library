@@ -57,7 +57,8 @@ export var defaultV2Css = {
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
-    panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row"
+    panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
+    progressBtnIcon: "icon-progressbuttonv2",
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
@@ -295,7 +296,7 @@ export var defaultV2Css = {
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
     noFileChosen: "sd-description sd-file__no-file-chosen",
-    chooseFile: "sd-file__btn sd-file__choose-btn",
+    chooseFile: "sd-file__btn sd-file__choose-btn sd-action",
     disabled: "sd-file__choose-btn--disabled",
     removeButton: "sd-hidden",
     removeButtonBottom: "sd-file__btn sd-file__clean-btn",
@@ -305,7 +306,6 @@ export var defaultV2Css = {
     defaultImage: "sd-file__default-image",
     removeFileButton: "sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
-
   },
   signaturepad: {
     root: "sd-signaturepad sjs_sp_container",

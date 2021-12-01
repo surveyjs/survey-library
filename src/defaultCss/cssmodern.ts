@@ -56,7 +56,8 @@ export var modernCss = {
     panelWrapper: "sv-paneldynamic__panel-wrapper",
     panelWrapperInRow: "sv-paneldynamic__panel-wrapper--in-row",
     separatorV2: "sv-hidden",
-    footer: "sv-hidden"
+    progressBtnIcon: "icon-progressbutton",
+    footer: ""
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",

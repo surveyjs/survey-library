@@ -244,6 +244,8 @@ export class StylesManager {
       "margin-top: 0; margin-left: 1.25em;",
     ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
       "box-sizing: border-box; display: inline-block; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+    ".sv_main .sv-paneldynamic__prev-btn svg, .sv_main .sv-paneldynamic__next-btn svg":
+      "width: 0.7em; height: 0.7em; display: block;",
     ".sv_main .sv-paneldynamic__prev-btn":
       "left: -1.3em; transform: rotate(90deg);",
     ".sv_main .sv-paneldynamic__next-btn ":

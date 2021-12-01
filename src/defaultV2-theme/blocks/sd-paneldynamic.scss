@@ -72,6 +72,10 @@
     clear: both;
     .sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
         display: block;
+        svg {
+          width: calcSize(2);
+          height: calcSize(2);
+        }
     }
     .sd-paneldynamic__add-btn, .sd-paneldynamic__progress-text, .sd-paneldynamic__progress--bottom {
         display: initial;
@@ -104,6 +108,9 @@
     display: none;
     width: 16px;
     height: 16px;
+    .sv-svg-icon {
+        display: block;
+    }
 }
 .sd-paneldynamic__next-btn {
     transform: rotate(180deg);

@@ -5607,6 +5607,35 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
+QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "choices": ["item1", "item2"]
+      },
+      {
+        "type": "checkbox",
+        "name": "question1",
+        "hasOther": true,
+        "choices": [
+          "item1",
+          {
+            "value": "item2",
+            "visibleIf": "{question2} = 'item1'"
+          },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("question1");
+  survey.data = { question2: "item1", question1: ["item1", "item2"] };
+  assert.deepEqual(question.value, ["item1", "item2"], "value is set correctly");
+  assert.equal(question.isOtherSelected, false, "Other is not selected");
+  assert.equal(question.isItemSelected(question.choices[1]), true, "second item is selected");
+});
 QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
   var survey = new SurveyModel({
     questions: [

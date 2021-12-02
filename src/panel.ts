@@ -1974,6 +1974,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   public focusIn = () => {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
+  public getContainerCss() {
+    return new CssClassBuilder().append(this.cssClasses.panel.container).append(this.cssClasses.panel.withFrame, this.hasFrameV2).toString();
+  }
 }
 
 Serializer.addClass(

@@ -115,17 +115,6 @@
 .sd-paneldynamic__next-btn {
     transform: rotate(180deg);
 }
-.sd-question--paneldynamic {
-    padding-top: 0;
-}
-.sd-question--paneldynamic > .sd-question__header--location--top {
-    padding-top: calcSize(4);
-    padding-bottom: calcSize(4);
-}
-.svc-question__content > .sd-question--paneldynamic > .sd-question__header--location--top {
-    padding-bottom: calcSize(2);
-    padding-top: 0;
-}
 .svc-question__content .sd-paneldynamic__panel-wrapper {
     padding: 0;
 }

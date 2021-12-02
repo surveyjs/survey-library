@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="question.isVisible"
-    :class="question.cssClasses.panel.container"
+    :class="question.getContainerCss()"
     :style="rootStyle"
   >
     <survey-element-title :element="question" :css="css"/>

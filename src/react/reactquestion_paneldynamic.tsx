@@ -104,7 +104,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.cssClasses.root}>
-        <hr className={this.question.cssClasses.separatorV2} />
         {navTop}
         <div style={style}>{panels}</div>
         {navBottom}

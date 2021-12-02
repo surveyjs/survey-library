@@ -35,10 +35,12 @@
     border-radius: 10px;
   }
 }
-.sd-question--matrixdropdown,
-.sd-question--matrixdynamic {
+.sd-question--table {
   & >.sd-question__content > div > div[style*="overflow-x: scroll"] {
     padding: 2px;
     margin: -2px;
+  }
+  & >.sd-question__content {
+    padding: 20px 0;
   }
 }

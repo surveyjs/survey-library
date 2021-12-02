@@ -677,4 +677,18 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     keys.push("title");
     keys.push("description");
   }
+
+  protected get isDefaultV2Theme() {
+    return this.survey && this.survey.getCss().root == "sd-root-modern";
+  }
+
+  public get isErrorsModeTooltip() {
+    return this.isDefaultV2Theme;
+  }
+  public get hasParent() {
+    return (this.parent && !this.parent.isPage) || (this.parent === undefined);
+  }
+  protected get hasFrameV2() {
+    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode;
+  }
 }

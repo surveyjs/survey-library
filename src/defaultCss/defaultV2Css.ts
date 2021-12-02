@@ -28,7 +28,8 @@ export var defaultV2Css = {
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     description: "sd-description sd-panel__description",
-    container: "sd-element-with-frame sd-panel sd-row__panel",
+    container: "sd-element sd-panel sd-row__panel",
+    withFrame: "sd-element--with-frame",
     content: "sd-panel__content",
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
@@ -36,7 +37,7 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text"
   },
   paneldynamic: {
-    mainRoot: "sd-element-with-frame sd-element-with-frame--paneldynamic sd-question--paneldynamic sd-question sd-row__question",
+    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-question--complex sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -53,7 +54,6 @@ export var defaultV2Css = {
     progressBar: "sd-progress__bar",
     progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
-    separatorV2: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
@@ -74,8 +74,9 @@ export var defaultV2Css = {
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
   question: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question",
-    flowRoot: "sd-element-with-frame sd-question sd-row__question sd-row__question--flow",
+    mainRoot: "sd-element sd-question sd-row__question",
+    flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
+    withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",
     answered: "sd-question--answered",
     header: "sd-question__header",
@@ -151,7 +152,7 @@ export var defaultV2Css = {
     column: "sd-selectbase__column"
   },
   boolean: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--boolean",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
     root: "sv_qcbc sv_qbln",
     item: "sd-boolean",
     itemOnError: "sd-boolean--error",
@@ -201,7 +202,7 @@ export var defaultV2Css = {
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question",
+    mainRoot: "sd-element sd-question sd-row__question",
     root: "sd-imagepicker",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
@@ -219,7 +220,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment"
   },
   matrix: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
     root: "sd-table",
     rowError: "sd-matrix__row--error",
@@ -238,7 +239,7 @@ export var defaultV2Css = {
     cellTextDisabled: "sd-matrix__text--disabled"
   },
   matrixdropdown: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--matrixdropdown",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     root: "sd-table",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -246,7 +247,7 @@ export var defaultV2Css = {
 
   },
   matrixdynamic: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--matrixdynamic",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",

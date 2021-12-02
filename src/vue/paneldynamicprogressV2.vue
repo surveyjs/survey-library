@@ -7,7 +7,7 @@
           role="progressbar"
         ></div>
       </div>
-      <hr :class="question.cssClasses.separatorV2"/>
+      <hr :class="question.cssClasses.separator"/>
       <div :class="question.cssClasses.footerButtonsContainer">
         <button
           type="button"

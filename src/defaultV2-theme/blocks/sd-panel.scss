@@ -21,12 +21,14 @@
 }
 .sd-row > div > .sd-row__panel { 
   & > .sd-panel__title {
+    padding-top: calcSize(4);
     padding-bottom: calcSize(4);
   }
   & > .sd-panel__title + .sd-panel__description {
-    margin-top: calcSize(-4);
+    margin-top: calcSize(-8);
   }
   & > .sd-panel__description {
+    padding-top: calcSize(4);
     padding-bottom: 32px;
   }
   & > .sd-panel__title ~ .sd-panel__content::before ,

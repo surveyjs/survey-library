@@ -35,8 +35,22 @@
   > .sv-vue-row-additional-div
   > div
   > .sd-element-with-frame--paneldynamic {
+  padding-top: 0;
   padding-bottom: 0;
 }
+
+.sd-page
+  > .sd-row:not(.sd-row--multiple)
+  > div
+  > .sd-element-with-frame.sd-panel,
+.sd-page
+  > .sd-row:not(.sd-row--multiple)
+  > .sv-vue-row-additional-div
+  > div
+  > .sd-element-with-frame.sd-panel {
+    padding-top: 0;
+}
+
 .sd-question--paneldynamic {
   position: relative;
 }

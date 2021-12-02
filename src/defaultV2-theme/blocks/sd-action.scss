@@ -1,4 +1,4 @@
-.sd-action {
+.sd-action.sd-action {
   padding: calcSize(1) calcSize(3);
   color: $primary;
   border-radius: calcSize(12.5);
@@ -11,14 +11,14 @@
 .sd-action.sd-action--negative {
   color: $red;
 }
-.sd-action--disabled {
+.sd-action.sd-action--disabled {
   color: $foreground;
   opacity: 0.25;
 }
 .sd-action.sd-action--icon {
   padding: calcSize(1);
 }
-.sd-action--icon {
+.sd-action.sd-action--icon {
   use {
     fill: $foreground-light;
   }

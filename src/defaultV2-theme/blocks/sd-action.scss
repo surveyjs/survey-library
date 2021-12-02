@@ -27,7 +27,7 @@ svg.sd-action--icon {
   fill: $foreground-light;
 }
 .sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover,
-.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus-visible
 {
   outline: none;
   background-color: $primary-light;

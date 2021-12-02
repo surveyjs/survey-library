@@ -33,8 +33,8 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         this.renderItem(
           item,
           i,
-          (event: PointerEvent)=>{ this.question.handleKeydown.call(this.question, event, item); },
-          (event: PointerEvent)=>{ this.question.handlePointerDown.call(this.question, event, item, event.currentTarget); },
+          (event: PointerEvent) => { this.question.handleKeydown.call(this.question, event, item); },
+          (event: any) => { event.persist(); this.question.handlePointerDown.call(this.question, event, item, event.currentTarget); },
           this.question.cssClasses,
           this.question.getItemClass(item),
           this.question

@@ -249,7 +249,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.insertGhostElementIntoSurvey();
   }
 
-  protected doStartDrag(): void {
+  protected onStartDrag(): void {
     this.ghostSurveyElement = this.createGhostSurveyElement();
   }
 

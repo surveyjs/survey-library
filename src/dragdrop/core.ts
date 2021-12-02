@@ -3,6 +3,7 @@ import { Base, EventBase } from "../base";
 import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
+import { IsMobile } from "survey-core";
 
 export abstract class DragDropCore<T> extends Base {
   @property({
@@ -46,12 +47,69 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
+    if (IsMobile) {
+      this.startLongTapProcessing(event, draggedElement, parentElement, draggedElementNode);
+      return;
+    }
+    this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
+  }
+
+  //long tap
+  private timeoutID: any;
+  private startX: number;
+  private startY: number;
+  private currentX: number;
+  private currentY: number;
+  private startLongTapProcessing(
+    event: PointerEvent,
+    draggedElement: any,
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
+  ): void {
+    this.startX = event.pageX;
+    this.startY = event.pageY;
+    document.addEventListener("pointerup", this.stopLongTap);
+    document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    this.timeoutID = setTimeout(() => {
+      (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = "none"; // TODO ref to properly NODE ELEMENT to disable scroll
+      this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
+      this.stopLongTap();
+    }, 500);
+  }
+  private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
+    this.currentX = pointerMoveEvent.pageX;
+    this.currentY = pointerMoveEvent.pageY;
+    if (!this.isMicroMovement) return;
+    this.stopLongTap();
+  }
+  // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
+  private get isMicroMovement() {
+    const delta = 50;
+    const diffX = Math.abs(this.currentX - this.startX);
+    const diffY = Math.abs(this.currentY - this.startY);
+    return diffX < delta && diffY < delta;
+  }
+  private stopLongTap = () => {
+    clearTimeout(this.timeoutID);
+    this.timeoutID = null;
+    document.removeEventListener("pointerup", this.stopLongTap);
+    document.removeEventListener("pointermove", this.stopLongTap);
+    (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = ""; // TODO ref to properly NODE ELEMENT to disable scroll
+  }
+  // EO long tap
+
+  private doStartDrag(
+    event: PointerEvent,
+    draggedElement: any,
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
+  ): void {
     if (event.which === 3) return; //right mouse btn
 
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
-    this.doStartDrag();
+    this.onStartDrag();
 
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
@@ -121,7 +179,7 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected doStartDrag(): void { }
+  protected onStartDrag(): void { }
 
   protected getShortcutText(draggedElement: IShortcutText): string {
     return draggedElement.shortcutText;

@@ -29,6 +29,7 @@ div:only-child > .sd-element--with-frame {
   position: relative;
 }
 .sd-question__erbox--above-question {
+  margin-top: calcSize(-4);
   margin-bottom: calcSize(3);
   width: 100%;
   color: $red;
@@ -148,11 +149,18 @@ div:only-child > .sd-element--with-frame {
   width: calc(100% + 80px);
 }
 
-.sd-question--complex
-.svc-question__content > .sd-question--complex > .sd-question__header--location--top {
+.sd-question--complex .svc-question__content > .sd-question--complex > .sd-question__header--location--top {
   padding-bottom: calcSize(2);
   padding-top: 0;
   &:after {
     display: none;
+  }
+}
+.sd-question--complex {
+  .sd-question__erbox--above-question {
+    margin-top: 0;
+    & ~ .sd-question__header--location--top{
+      padding-top: calcSize(1);
+    }
   }
 }

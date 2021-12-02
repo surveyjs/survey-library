@@ -6,14 +6,16 @@
 }
 .sd-panel {
   position: relative;
-  .svc-row {
-    margin-top: 8px;
-  }
   .sd-row {
-    margin-top: 8px;
+    margin-top: calcSize(1);
   }
   .sd-row:first-child {
     margin-top: 0;
+  }
+  .svc-row {
+    .sd-row {
+      margin-top: calcSize(2);
+    }  
   }
 }
 .sd-panel__required-text {

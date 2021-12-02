@@ -5,13 +5,16 @@
   box-sizing: border-box;
   margin-top: calcSize(2);
 }
+.sd-page > .sd-row--multiple,
+.svc-row > .sd-row--multiple {
+  background: $background;
+  box-shadow: 0px 1px 2px $shadow-inner;
+  border-radius: calcSize(0.5);
+}
 .sd-page > .sd-row--multiple {
   padding: 0 calcSize(5) calcSize(4);
   margin: 0;
   margin-top: calcSize(2);
-  background: $background;
-  box-shadow: 0px 1px 2px $shadow-inner;
-  border-radius: calcSize(0.5);
 }
 .sd-row--multiple {
   gap: 16px;
@@ -21,6 +24,10 @@
   .sd-question {
     padding-right: 0 !important;
   } 
+}
+.svc-row .sd-row--multiple {
+  margin: 0;
+  margin-top: calcSize(2);
 }
 .svc-row--multiple {
   .sd-row--multiple {

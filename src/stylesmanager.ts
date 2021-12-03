@@ -349,8 +349,8 @@ export class StylesManager {
     ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container": "position: static; border-radius: 4px;",
     ".sv-popup--modal .sv-popup_shadow": "padding: calc(4 * 8px);",
-    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
-    ".sv-popup_shadow": "filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); width: 100%; height: 100%;",
+    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
+    ".sv-popup_shadow": "filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); width: 100%; height: 100%; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
       "height: 6px; width: 6px; background-color: #f3f3f3;",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":

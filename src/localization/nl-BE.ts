@@ -1,5 +1,5 @@
 import { surveyLocalization } from "../surveyStrings";
-import {dutchSurveyStrings} from "./dutch";
+import { dutchSurveyStrings } from "./dutch";
 
 /**
  * This is initialized as a copy of the Dutch strings, when they start to deviate a choice has to be made:

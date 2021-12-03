@@ -56,7 +56,6 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1080);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
-    await t.debug();
     await takeScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())

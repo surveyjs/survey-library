@@ -60,6 +60,7 @@ export interface IMatrixDropdownData {
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
+  getParentTextProcessor(): ITextProcessor;
   getSharedQuestionByName(
     columnName: string,
     row: MatrixDropdownRowModelBase
@@ -162,10 +163,12 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
   constructor(
     protected row: MatrixDropdownRowModelBase,
-    protected variableName: string
+    protected variableName: string,
+    private parentTextProcessor: ITextProcessor
   ) {
     super(variableName);
   }
+  protected getParentTextProcessor(): ITextProcessor { return this.parentTextProcessor; }
   protected get survey(): ISurvey {
     return this.row.getSurvey();
   }
@@ -216,7 +219,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     this.subscribeToChanges(value);
     this.textPreProcessor = new MatrixDropdownRowTextProcessor(
       this,
-      MatrixDropdownRowModelBase.RowVariableName
+      MatrixDropdownRowModelBase.RowVariableName, !!data ? data.getParentTextProcessor() : null
     );
     this.showHideDetailPanelClick = () => {
       this.showHideDetailPanel();
@@ -2110,6 +2113,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         false
       );
     }
+  }
+  getParentTextProcessor(): ITextProcessor {
+    if(!this.parentQuestion || !this.parent) return null;
+    const data = (<any>this.parent).data;
+    if(!!data && !!data.getTextProcessor)
+      return data.getTextProcessor();
+    return null;
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;

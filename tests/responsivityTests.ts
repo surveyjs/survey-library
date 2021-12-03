@@ -89,7 +89,7 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(model.renderedActions[1].isVisible, false, "hidden 2");
   assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
   assert.equal(model.renderedActions[3].isVisible, true, "dots visible");
-  assert.equal(model.renderedActions[3].iconName, "icon-dots", "dimension 50");
+  assert.equal(model.renderedActions[3].iconName, "icon-more", "dimension 50");
   assert.equal(item1.mode, "popup", "dimension 50");
   assert.equal(item2.mode, "popup", "dimension 50");
 

@@ -20,6 +20,7 @@
       v-bind:style="{ left: model.left, top: model.top, height: model.height }"
       v-on:click="clickInside"
     >
+      <div class="sv-popup_shadow">
       <span
         v-show="model.showPointer"
         v-bind:style="{
@@ -68,6 +69,7 @@
         </button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 <script lang="ts">

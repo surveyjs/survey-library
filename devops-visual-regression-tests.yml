@@ -17,7 +17,7 @@ pool:
   vmImage: 'windows-latest'
 
 jobs:
-- job: Screenshot Tests
+- job: Screenshot_Tests
   steps:
   - checkout: self
 

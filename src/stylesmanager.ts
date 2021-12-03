@@ -347,23 +347,19 @@ export class StylesManager {
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup":
       "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh; outline: none;",
-    ".sv-popup--modal":
-      "display: flex; align-items: center; justify-content: center;",
-    ".sv-popup--modal .sv-popup__container":
-      "position: static; filter: none; padding: calc(4 * 8px);",
-    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); padding: calc(1 * 8px) 0; background: white; border-radius: 4px; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
     ".sv-popup__scrolling-content": "overflow: auto;",
+    ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
+    ".sv-popup--modal .sv-popup__container": "position: static; border-radius: 4px;",
+    ".sv-popup--modal .sv-popup_shadow": "padding: calc(4 * 8px);",
+    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
+    ".sv-popup_shadow": "filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); width: 100%; height: 100%; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
       "height: 6px; width: 6px; background-color: #f3f3f3;",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
       "background: rgba(25, 179, 148, 0.1);",
     ".sv-popup__content": "min-width: 100%;",
-    ".sv-popup--show-pointer.sv-popup--top":
-      "transform: translateY(calc(-1 * 8px));",
     ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer":
       "transform: translate(calc(-1 * 8px)) rotate(180deg);",
-    ".sv-popup--show-pointer.sv-popup--bottom":
-      "transform: translateY(calc(1 * 8px));",
     ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer":
       "transform: translate(calc(-1 * 8px), calc(-1 * 8px));",
     ".sv-popup--show-pointer.sv-popup--right":
@@ -1346,11 +1342,7 @@ export class StylesManager {
         Object.keys(ThemeCss).forEach((selector) => {
           let cssRuleText = ThemeCss[selector];
           Object.keys(theme).forEach(
-            (colorVariableName) =>
-              (cssRuleText = cssRuleText.replace(
-                new RegExp("\\" + colorVariableName, "g"),
-                theme[colorVariableName]
-              ))
+            (colorVariableName) => (cssRuleText = cssRuleText.replace(new RegExp("\\" + colorVariableName, "g"), theme[colorVariableName]))
           );
           try {
             sheet.insertRule(

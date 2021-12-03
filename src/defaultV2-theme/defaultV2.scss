@@ -56,6 +56,9 @@
 
 .sv-popup.sv-popup--modal {
   .sv-popup__container {
+    filter: drop-shadow(0px 2px 6px $shadow-medium);
+  }
+  .sv-popup_shadow {
     filter: drop-shadow(0px calcSize(1) calcSize(2) $shadow-medium);
   }
   .sv-popup__footer {

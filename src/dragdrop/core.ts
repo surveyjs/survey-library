@@ -68,23 +68,75 @@ export abstract class DragDropCore<T> extends Base {
   ): void {
     this.startX = event.pageX;
     this.startY = event.pageY;
-    document.addEventListener("pointerup", this.stopLongTap);
-    document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
+
+    this.stopLongTap();
     this.timeoutID = setTimeout(() => {
       (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = "none"; // TODO ref to properly NODE ELEMENT to disable scroll
+      window.addEventListener("pointermove", (e) => { e.preventDefault(); console.log("pointermove-disabled"); }, { passive: false });
+      window.addEventListener("touchmove", (e) => { e.preventDefault(); console.log("touchmove-disabled"); }, { passive: false });
       this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
       this.stopLongTap();
-    }, 500);
+    }, 1000);
+
+    document.addEventListener("pointerup", this.stopLongTap);
+    document.addEventListener("touchmove", this.stopLongTapIfMoveEnough);
   }
+  private disableScroll111 = () => {
+    // left: 37, up: 38, right: 39, down: 40,
+    // spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+    var keys: any = { 37: 1, 38: 1, 39: 1, 40: 1 };
+
+    function preventDefault(e: any) {
+      e.preventDefault();
+    }
+
+    function preventDefaultForScrollKeys(e: any) {
+      if (keys[e.keyCode]) {
+        preventDefault(e);
+        return false;
+      }
+    }
+
+    // modern Chrome requires { passive: false } when adding event
+    var supportsPassive = false;
+    try {
+      window.addEventListener("test", null, Object.defineProperty({}, "passive", {
+        get: function () { supportsPassive = true; }
+      }));
+    } catch (e) { }
+
+    var wheelOpt = supportsPassive ? { passive: false } : false;
+    var wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
+
+    // call this to Disable
+    function disableScroll() {
+      window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+      // window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+      window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+      window.addEventListener("keydown", preventDefaultForScrollKeys, false);
+    }
+
+    // call this to Enable
+    function enableScroll() {
+      // window.removeEventListener("DOMMouseScroll", preventDefault, false);
+      // // window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
+      // (<any>window).removeEventListener("touchmove", preventDefault, wheelOpt);
+      // window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
+    }
+    this.enableScroll111 = enableScroll;
+
+    disableScroll();
+  }
+  private enableScroll111: any;
   private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
-    if (!this.isMicroMovement) return;
+    //  if (!this.isMicroMovement) return;
     this.stopLongTap();
   }
   // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
   private get isMicroMovement() {
-    const delta = 50;
+    const delta = 10;
     const diffX = Math.abs(this.currentX - this.startX);
     const diffY = Math.abs(this.currentY - this.startY);
     return diffX < delta && diffY < delta;
@@ -93,7 +145,7 @@ export abstract class DragDropCore<T> extends Base {
     clearTimeout(this.timeoutID);
     this.timeoutID = null;
     document.removeEventListener("pointerup", this.stopLongTap);
-    document.removeEventListener("pointermove", this.stopLongTap);
+    document.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
     (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = ""; // TODO ref to properly NODE ELEMENT to disable scroll
   }
   // EO long tap
@@ -421,6 +473,8 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
     this.parentElement = null;
     this.scrollIntervalId = null;
+
+    //IsMobile && this.enableScroll111();
   };
 
   protected doClear(): void { }

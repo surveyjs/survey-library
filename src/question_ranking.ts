@@ -20,6 +20,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
+    // console.log("rnkng-sych-1");
+
+    // window.addEventListener("touchstart", (e) => { console.log("touchstart"); }, { passive: false });
+    // window.addEventListener("pointerdown", (e) => { console.log("pointerdown"); }, { passive: false });
+
+    // window.addEventListener("pointermove", (e) => { e.preventDefault(); console.log("pointermove"); }, { passive: false });
+    // window.addEventListener("touchmove", (e) => { e.preventDefault(); console.log("touchmove"); }, { passive: false });
+
+    // window.addEventListener("touchend", (e) => { console.log("touchend"); }, { passive: false });
+    // window.addEventListener("pointerup", (e) => { console.log("pointerup"); }), { passive: false };
   }
 
   public getType(): string {

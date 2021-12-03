@@ -22,8 +22,7 @@
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
           :class="question.cssClasses.itemControl"
-        />
-        <div :class="question.cssClasses.itemDecorator">
+        /><div :class="question.cssClasses.itemDecorator">
           <div :class="question.cssClasses.imageContainer">
             <img
               v-if="question.contentMode === 'image'"
@@ -41,8 +40,7 @@
               :height="question.renderedImageHeight"
               v-bind:style="{ objectFit: question.imageFit }"
             ></video>
-          </div>
-          <span
+          </div><span
             v-if="question.showLabel"
             :title="item.locText.renderedHtml"
             :class="question.cssClasses.itemText"

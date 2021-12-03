@@ -114,8 +114,10 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             aria-invalid={this.question.ariaInvalid}
             aria-describedby={this.question.ariaDescribedBy}
           />
-          <div>
-            {control}
+          <div className={this.question.cssClasses.itemDecorator}>
+            <div className={this.question.cssClasses.imageContainer}>
+              {control}
+            </div>
             {text}
           </div>
         </label>

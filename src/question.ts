@@ -74,12 +74,6 @@ export class Question extends SurveyElement
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  public get isErrorsModeTooltip() {
-    return this.survey && this.survey.getCss().root == "sd-root-modern";
-  }
-  public get hasParent() {
-    return this.parent && !this.parent.isPage;
-  }
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -658,6 +652,7 @@ export class Question extends SurveyElement
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
+      .append(cssClasses.withFrame, this.hasFrameV2)
       .toString();
   }
   public get cssHeader(): string {

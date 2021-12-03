@@ -311,6 +311,9 @@ export class PanelModelBase extends SurveyElement
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
+  get hasDescription(): boolean {
+    return !!this.description;
+  }
   protected canShowTitle(): boolean { return true; }
   get _showDescription(): boolean {
     return (
@@ -1970,6 +1973,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
+  }
+  public getContainerCss() {
+    return new CssClassBuilder().append(this.cssClasses.panel.container).append(this.cssClasses.panel.withFrame, this.hasFrameV2).toString();
   }
 }
 

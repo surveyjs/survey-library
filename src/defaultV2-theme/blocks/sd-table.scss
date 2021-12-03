@@ -11,6 +11,7 @@
   font-weight: normal;
   font-size: calcSize(2);
   line-height: calcSize(3);
+  padding-top: calcSize(2);
   padding-bottom: calcSize(2);
   color: $foreground;
   text-align: center;
@@ -22,7 +23,8 @@
 .sd-table__cell:not(:last-child) {
   padding-right: calcSize(2);
 }
-.sd-table__cell--actions, .sd-matrixdynamic__add-btn {
+.sd-table__cell--actions,
+.sd-matrixdynamic__add-btn {
   .sv-action-bar {
     overflow: visible;
   }
@@ -30,7 +32,7 @@
     width: calcSize(2);
   }
 }
-.svc-question__content .sd-table__cell--actions{
+.svc-question__content .sd-table__cell--actions {
   .sv-action-bar-item:disabled {
     background: $background;
     opacity: 1;
@@ -39,10 +41,9 @@
     }
   }
 }
-.sd-table__cell--actions{
+.sd-table__cell--actions {
   white-space: nowrap;
   .sv-action-bar {
-    opacity: 0.5;
     padding: 0;
   }
   .sv-action:not(:last-child) > .sv-action__content {

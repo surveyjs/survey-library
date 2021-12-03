@@ -1,5 +1,10 @@
 <template>
   <div :class="!element.isPanel ? element.getRootCss() : null">
+    <survey-errors
+      v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
+      :element="element"
+      :location="'top'"
+    />
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnLeftTop"
       :element="element"

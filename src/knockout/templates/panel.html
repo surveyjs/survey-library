@@ -1,12 +1,14 @@
 <script type="text/html" id="survey-panel">
   <div
-    data-bind="attr: { id: id }, css: cssClasses.panel.container, event: {focusin: focusIn}"
+    data-bind="attr: { id: id }, css: $data.getContainerCss(), event: {focusin: focusIn}"
   >
     <!-- ko component: { name: 'survey-element-title', params: {element: $data } } --><!-- /ko -->
+    <!-- ko if: hasDescription -->
     <div data-bind="css: cssClasses.panel.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->
     </div>
+    <!-- /ko -->
     <!-- ko template: { name: 'survey-question-errors', data: $data } -->
     <!-- /ko -->
     <!-- ko if: state != "collapsed" -->

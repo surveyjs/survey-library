@@ -123,7 +123,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     return (
       <>
-        {errorsAboveQuestion}
         <div
           ref={this.rootRef}
           id={question.id}
@@ -132,6 +131,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           role={question.ariaRole}
           aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
         >
+          {errorsAboveQuestion}
           {headerTop}
           <div className={question.cssContent} style={contentStyle}>
             {errorsTop}

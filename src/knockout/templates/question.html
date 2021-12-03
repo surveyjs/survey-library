@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-question">
-<!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
-  <!-- ko template: { name: 'survey-question-errors', data: question } -->
-  <!-- /ko -->
-<!-- /ko -->
 <div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
+  <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
+    <!-- ko template: { name: 'survey-question-errors', data: question } -->
+    <!-- /ko -->
+  <!-- /ko -->
   <!-- ko if: question.hasTitleOnLeftTop -->
     <!--ko template: { name: 'survey-question-title', data: question  } -->
     <!-- /ko -->

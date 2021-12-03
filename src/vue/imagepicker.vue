@@ -22,27 +22,33 @@
           :aria-invalid="question.ariaInvalid"
           :aria-describedby="question.ariaDescribedBy"
           :class="question.cssClasses.itemControl"
-        /><div>
-          <img
-            v-if="question.contentMode === 'image'"
-            :class="question.cssClasses.image"
-            :src="item.imageLink"
-            :width="question.renderedImageWidth"
-            :height="question.renderedImageHeight"
-            v-bind:style="{ objectFit: question.imageFit }"
-            :alt="item.locText.renderedHtml"
-          /><video controls
-            v-if="question.contentMode === 'video'"
-            :class="question.cssClasses.image"
-            :src="item.imageLink"
-            :width="question.renderedImageWidth"
-            :height="question.renderedImageHeight"
-            v-bind:style="{ objectFit: question.imageFit }"
-          ></video><span
+        />
+        <div :class="question.cssClasses.itemDecorator">
+          <div :class="question.cssClasses.imageContainer">
+            <img
+              v-if="question.contentMode === 'image'"
+              :class="question.cssClasses.image"
+              :src="item.imageLink"
+              :width="question.renderedImageWidth"
+              :height="question.renderedImageHeight"
+              v-bind:style="{ objectFit: question.imageFit }"
+              :alt="item.locText.renderedHtml"
+            /><video controls
+              v-if="question.contentMode === 'video'"
+              :class="question.cssClasses.image"
+              :src="item.imageLink"
+              :width="question.renderedImageWidth"
+              :height="question.renderedImageHeight"
+              v-bind:style="{ objectFit: question.imageFit }"
+            ></video>
+          </div>
+          <span
             v-if="question.showLabel"
             :title="item.locText.renderedHtml"
             :class="question.cssClasses.itemText"
-            ><survey-string :locString="item.locText" /></span
+            >
+              <survey-string :locString="item.locText" />
+            </span
           ></div>
       </label>
     </div>

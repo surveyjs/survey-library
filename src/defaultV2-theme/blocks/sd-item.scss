@@ -12,16 +12,15 @@
   box-shadow: inset 0px 1px 2px $border-inside;
   background: $background-for-editors;
   border: none;
-  svg {
-    display: none;
-  }
   flex-shrink: 0;
 }
-.sd-item--checked .sd-item__decorator,
+.sd-item--checked .sd-item__decorator {
+  box-shadow: none;
+}
 .sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover:hover .sd-item__decorator {
-  border: 2px $green solid;
-  box-shadow: none;
+  box-shadow: 0 0 0 2px $primary;
+  outline: none;
 }
 .sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover:hover .sd-item__decorator {

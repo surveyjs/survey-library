@@ -5,17 +5,35 @@
   box-sizing: border-box;
   margin-top: calcSize(2);
 }
-.sd-page > .sd-row--multiple {
-  padding: calcSize(5) calcSize(5) calcSize(4);
+.sd-page > .sd-row--multiple,
+.svc-row > .sd-row--multiple {
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcSize(0.5);
 }
-.sd-row--multiple {
-  gap: 8px;
-  overflow: auto;
+.sd-page > .sd-row--multiple {
+  padding: 0 calcSize(5) calcSize(4);
+  margin: 0;
+  margin-top: calcSize(2);
 }
-
+.sd-row--multiple {
+  gap: 16px;
+  overflow: auto;
+  padding: 2px;
+  margin: -2px;
+  .sd-question {
+    padding-right: 0 !important;
+  } 
+}
+.svc-row .sd-row--multiple {
+  margin: 0;
+  margin-top: calcSize(2);
+}
+.svc-row--multiple {
+  .sd-row--multiple {
+    gap: 8px;
+  }
+}
 :not(.svc-row--ghost)>.sd-row {
   min-height: 50px;
 }

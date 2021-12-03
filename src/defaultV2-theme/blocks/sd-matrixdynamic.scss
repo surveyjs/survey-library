@@ -1,10 +1,16 @@
-.sd-matrixdynamic__add-btn {
-  color: $primary;
- }
- .sd-matrixdynamic__remove-btn {
-  color: $red;
- }
- .sd-matrixdynamic__btn {
+.sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
+  margin-left: calcSize(-3);
+}
+.sd-matrixdynamic__footer:last-child {
+  padding-top: calcSize(2);
+}
+.sd-matrixdynamic__footer:first-child {
+  padding-bottom: calcSize(2);
+}
+.sv-action-bar-item.sd-matrixdynamic__remove-btn {
+  opacity: 0.5;
+}
+.sd-matrixdynamic__btn {
   appearance: none;
   background: transparent;
   border: none;
@@ -13,7 +19,7 @@
   font-family: $font-family;
   font-weight: 600;
   padding: calcSize(1) 0;
- }
+}
 .sd-matrixdynamic__drag-element {
   padding: calcSize(2);
   &:hover {
@@ -29,7 +35,12 @@
     border-radius: 10px;
   }
 }
-.sd-table__cell--row-text {
-  font-weight: 600;
-  text-align: left;
+.sd-question--table {
+  & >.sd-question__content > div > div[style*="overflow-x: scroll"] {
+    padding: 2px;
+    margin: -2px;
+  }
+  & >.sd-question__content {
+    padding: 20px 0;
+  }
 }

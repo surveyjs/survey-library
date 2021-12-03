@@ -131,14 +131,16 @@ function getIconNameFromProxy(iconName: string): string {
 }
 
 function createSvg(
-  size: number,
+  size: number | string,
   width: number,
   height: number,
   iconName: string,
   svgElem: any
 ) {
-  svgElem.style.width = (size || width || 16) + "px";
-  svgElem.style.height = (size || height || 16) + "px";
+  if(size !== "auto") {
+    svgElem.style.width = (size || width || 16) + "px";
+    svgElem.style.height = (size || height || 16) + "px";
+  }
   const node: any = svgElem.childNodes[0];
   const realIconName = getIconNameFromProxy(iconName);
   node.setAttributeNS(

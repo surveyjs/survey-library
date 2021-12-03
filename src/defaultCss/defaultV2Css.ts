@@ -28,7 +28,8 @@ export var defaultV2Css = {
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     description: "sd-description sd-panel__description",
-    container: "sd-element-with-frame sd-panel sd-row__panel",
+    container: "sd-element sd-panel sd-row__panel",
+    withFrame: "sd-element--with-frame",
     content: "sd-panel__content",
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
@@ -36,28 +37,28 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text"
   },
   paneldynamic: {
-    mainRoot: "sd-element-with-frame sd-element-with-frame--paneldynamic sd-question sd-row__question",
+    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-question--complex sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
-    button: "sd-paneldynamic__btn",
-    buttonRemove: "sd-paneldynamic__remove-btn",
+    button: "sd-action sd-paneldynamic__btn",
+    buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
     progressTop: "sd-paneldynamic__progress sd-paneldynamic__progress--top",
     progressBottom:
       "sd-paneldynamic__progress sd-paneldynamic__progress--bottom",
-    buttonPrev: "sd-paneldynamic__prev-btn",
-    buttonNext: "sd-paneldynamic__next-btn",
+    buttonPrev: "sd-paneldynamic__prev-btn sd-action--icon sd-action",
+    buttonNext: "sd-paneldynamic__next-btn sd-action--icon sd-action",
     progressContainer: "sd-paneldynamic__progress-container",
     progress: "sd-progress",
     progressBar: "sd-progress__bar",
     progressText: "sd-paneldynamic__progress-text",
     separator: "sd-paneldynamic__separator",
-    separatorV2: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
-    panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row"
+    panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
+    progressBtnIcon: "icon-progressbuttonv2",
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
@@ -73,8 +74,9 @@ export var defaultV2Css = {
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
   question: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question",
-    flowRoot: "sd-element-with-frame sd-question sd-row__question sd-row__question--flow",
+    mainRoot: "sd-element sd-question sd-row__question",
+    flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
+    withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",
     answered: "sd-question--answered",
     header: "sd-question__header",
@@ -150,7 +152,7 @@ export var defaultV2Css = {
     column: "sd-selectbase__column"
   },
   boolean: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-question--boolean",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
     root: "sv_qcbc sv_qbln",
     item: "sd-boolean",
     itemOnError: "sd-boolean--error",
@@ -186,7 +188,7 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     control: "sd-input sd-dropdown",
     selectWrapper: "",
-    other: "sd-input sd-comment",
+    other: "sd-input sd-comment sd-selectbase__other",
     onError: "sd-input--error",
     label: "sd-selectbase__label",
     item: "sd-item sd-radio sd-selectbase__item",
@@ -200,7 +202,7 @@ export var defaultV2Css = {
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element sd-question sd-row__question",
     root: "sd-imagepicker",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
@@ -209,6 +211,8 @@ export var defaultV2Css = {
     itemDisabled: "sd-imagepicker__item--disabled",
     itemHover: "sd-imagepicker__item--allowhover",
     label: "sd-imagepicker__label",
+    itemDecorator: "sd-imagepicker__item-decorator",
+    imageContainer: "sd-imagepicker__image-container",
     itemControl: "sd-imagepicker__control",
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
@@ -216,7 +220,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment"
   },
   matrix: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
     root: "sd-table",
     rowError: "sd-matrix__row--error",
@@ -235,7 +239,7 @@ export var defaultV2Css = {
     cellTextDisabled: "sd-matrix__text--disabled"
   },
   matrixdropdown: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     root: "sd-table",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -243,12 +247,12 @@ export var defaultV2Css = {
 
   },
   matrixdynamic: {
-    mainRoot: "sd-element-with-frame sd-question sd-row__question sd-scrollable",
+    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
-    button: "sd-matrixdynamic__btn",
+    button: "sd-action sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",
     detailButtonExpanded: "sd-table__cell--detail-button--expanded",
@@ -257,9 +261,10 @@ export var defaultV2Css = {
     detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     buttonAdd: "sd-matrixdynamic__add-btn",
-    buttonRemove: "sd-matrixdynamic__remove-btn",
+    buttonRemove: "sd-action--icon sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
+    footer: "sd-matrixdynamic__footer"
   },
   rating: {
     root: "sd-rating",
@@ -292,7 +297,7 @@ export var defaultV2Css = {
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
     noFileChosen: "sd-description sd-file__no-file-chosen",
-    chooseFile: "sd-file__btn sd-file__choose-btn",
+    chooseFile: "sd-file__btn sd-file__choose-btn sd-action",
     disabled: "sd-file__choose-btn--disabled",
     removeButton: "sd-hidden",
     removeButtonBottom: "sd-file__btn sd-file__clean-btn",
@@ -302,7 +307,6 @@ export var defaultV2Css = {
     defaultImage: "sd-file__default-image",
     removeFileButton: "sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
-
   },
   signaturepad: {
     root: "sd-signaturepad sjs_sp_container",

@@ -213,8 +213,8 @@ export var defaultBootstrapCss = {
     progressText: "sv-paneldynamic__progress-text",
     panelWrapper: "sv_p_wrapper",
     panelWrapperInRow: "sv_p_wrapper_in_row",
-    separatorV2: "sv-hidden",
-    footer: "sv-hidden"
+    footer: "",
+    progressBtnIcon: "icon-progressbutton"
   },
   multipletext: {
     root: "sv_q_mt table",

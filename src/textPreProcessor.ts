@@ -130,6 +130,7 @@ export class QuestionTextProcessor implements ITextProcessor {
       ? <Question>this.panel.getQuestionByValueName(name)
       : null;
   }
+  protected getParentTextProcessor(): ITextProcessor { return null; }
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
     return false;
   }
@@ -160,8 +161,8 @@ export class QuestionTextProcessor implements ITextProcessor {
   }
   processText(text: string, returnDisplayValue: boolean): string {
     text = this.textPreProcessor.process(text, returnDisplayValue);
-    var survey = this.survey;
-    return survey ? survey.processText(text, returnDisplayValue) : text;
+    text = this.processTextCore(this.getParentTextProcessor(), text, returnDisplayValue);
+    return this.processTextCore(this.survey, text, returnDisplayValue);
   }
   processTextEx(text: string, returnDisplayValue: boolean): any {
     text = this.processText(text, returnDisplayValue);
@@ -173,5 +174,9 @@ export class QuestionTextProcessor implements ITextProcessor {
     res.hasAllValuesOnLastRun =
       res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
     return res;
+  }
+  private processTextCore(textProcessor: ITextProcessor, text: string, returnDisplayValue: boolean) {
+    if(!textProcessor) return text;
+    return textProcessor.processText(text, returnDisplayValue);
   }
 }

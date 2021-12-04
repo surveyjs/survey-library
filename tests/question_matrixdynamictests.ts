@@ -6990,3 +6990,32 @@ QUnit.test("matrix beginUpdate/endUpdate", function (assert) {
   assert.equal(matrix.visibleRows.length, 3, "visibleRows.length, #3 - unlock Update");
   assert.equal(matrix.visibleRows[0].cells.length, 3, "visibleRows[0]: 3 columns, #3 - unloc Update");
 });
+QUnit.test("TextProcessing matrix in panel dynamic, Bug#3491",
+  function(assert) {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "root_q1", defaultValue: "root_val1" },
+        {
+          type: "paneldynamic",
+          name: "root",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1", defaultValue: "panel_val1" },
+            {
+              type: "matrixdynamic",
+              name: "matrix",
+              rowCount: 1,
+              cellType: "text",
+              columns: [{ name: "col1", defaultValue: "col_val1" }]
+            }
+          ],
+        },
+      ],
+    });
+    const matrix: QuestionMatrixDynamicModel = survey.getQuestionByName("root").panels[0].questions[1];
+    const row = matrix.visibleRows[0];
+    const textProc = row.getTextProcessor();
+    assert.equal(textProc.processText("{root_q1}", false), "root_val1", "root_q1");
+    assert.equal(textProc.processText("{row.col1}", false), "col_val1", "row.col1");
+    assert.equal(textProc.processText("{panel.q1}", false), "panel_val1", "panel.q1");
+  });

@@ -37,8 +37,10 @@ export abstract class DragDropCore<T> extends Base {
   private scrollIntervalId: number = null;
   protected allowDropHere = false;
 
+  private preventScrolling = false;
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
+    const self = this;
   }
 
   public startDrag(
@@ -48,7 +50,12 @@ export abstract class DragDropCore<T> extends Base {
     draggedElementNode?: HTMLElement
   ): void {
     if (IsMobile) {
-      this.startLongTapProcessing(event, draggedElement, parentElement, draggedElementNode);
+      this.startLongTapProcessing(
+        event,
+        draggedElement,
+        parentElement,
+        draggedElementNode
+      );
       return;
     }
     this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
@@ -69,71 +76,30 @@ export abstract class DragDropCore<T> extends Base {
     this.startX = event.pageX;
     this.startY = event.pageY;
 
-    this.stopLongTap();
     this.timeoutID = setTimeout(() => {
-      (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = "none"; // TODO ref to properly NODE ELEMENT to disable scroll
-      window.addEventListener("pointermove", (e) => { e.preventDefault(); console.log("pointermove-disabled"); }, { passive: false });
-      window.addEventListener("touchmove", (e) => { e.preventDefault(); console.log("touchmove-disabled"); }, { passive: false });
-      this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
+      this.doStartDrag(
+        event,
+        draggedElement,
+        parentElement,
+        draggedElementNode
+      );
       this.stopLongTap();
     }, 1000);
 
-    document.addEventListener("pointerup", this.stopLongTap);
-    document.addEventListener("touchmove", this.stopLongTapIfMoveEnough);
+    window.addEventListener("pointerup", this.stopLongTap, {
+      passive: false,
+    });
+    window.addEventListener("pointermove", this.stopLongTapIfMoveEnough, {
+      passive: false,
+    });
   }
-  private disableScroll111 = () => {
-    // left: 37, up: 38, right: 39, down: 40,
-    // spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
-    var keys: any = { 37: 1, 38: 1, 39: 1, 40: 1 };
-
-    function preventDefault(e: any) {
-      e.preventDefault();
-    }
-
-    function preventDefaultForScrollKeys(e: any) {
-      if (keys[e.keyCode]) {
-        preventDefault(e);
-        return false;
-      }
-    }
-
-    // modern Chrome requires { passive: false } when adding event
-    var supportsPassive = false;
-    try {
-      window.addEventListener("test", null, Object.defineProperty({}, "passive", {
-        get: function () { supportsPassive = true; }
-      }));
-    } catch (e) { }
-
-    var wheelOpt = supportsPassive ? { passive: false } : false;
-    var wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
-
-    // call this to Disable
-    function disableScroll() {
-      window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
-      // window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
-      window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
-      window.addEventListener("keydown", preventDefaultForScrollKeys, false);
-    }
-
-    // call this to Enable
-    function enableScroll() {
-      // window.removeEventListener("DOMMouseScroll", preventDefault, false);
-      // // window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
-      // (<any>window).removeEventListener("touchmove", preventDefault, wheelOpt);
-      // window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
-    }
-    this.enableScroll111 = enableScroll;
-
-    disableScroll();
-  }
-  private enableScroll111: any;
   private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
+    pointerMoveEvent.preventDefault();
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
-    //  if (!this.isMicroMovement) return;
+    if (this.isMicroMovement) return;
     this.stopLongTap();
-  }
+  };
   // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
   private get isMicroMovement() {
     const delta = 10;
@@ -141,13 +107,12 @@ export abstract class DragDropCore<T> extends Base {
     const diffY = Math.abs(this.currentY - this.startY);
     return diffX < delta && diffY < delta;
   }
-  private stopLongTap = () => {
+  private stopLongTap = (e?: any) => {
     clearTimeout(this.timeoutID);
     this.timeoutID = null;
-    document.removeEventListener("pointerup", this.stopLongTap);
-    document.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
-    (<HTMLElement>document.querySelector(".sv-ranking")).style.touchAction = ""; // TODO ref to properly NODE ELEMENT to disable scroll
-  }
+    window.removeEventListener("pointerup", this.stopLongTap);
+    window.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
+  };
   // EO long tap
 
   private doStartDrag(
@@ -156,6 +121,10 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
+    if (IsMobile) {
+      this.preventScrolling = true;
+      (<any>window)["preventScrolling"] = true;
+    }
     if (event.which === 3) return; //right mouse btn
 
     this.draggedElement = draggedElement;
@@ -172,11 +141,13 @@ export abstract class DragDropCore<T> extends Base {
     document.body.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
-    document.addEventListener("pointermove", this.dragOver);
-    document.addEventListener("pointercancel", this.handlePointerCancel);
-    document.addEventListener("keydown", this.handleEscapeButton);
-    document.addEventListener("pointerup", this.drop);
-    this.draggedElementShortcut.addEventListener("pointerup", this.drop);
+    window.addEventListener("pointermove", this.dragOver);
+    // window.addEventListener("touchcancel", this.handlePointerCancel);
+    window.addEventListener("keydown", this.handleEscapeButton);
+    window.addEventListener("pointerup", this.drop);
+    // this.draggedElementShortcut.addEventListener("pointerup", this.drop, {
+    //   passive: false,
+    // });
   }
 
   private dragOver = (event: PointerEvent) => {
@@ -195,7 +166,10 @@ export abstract class DragDropCore<T> extends Base {
 
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, dropTargetNode);
+    const isDropTargetValid = this.isDropTargetValid(
+      this.dropTarget,
+      dropTargetNode
+    );
 
     this.doDragOver(dropTargetNode);
 
@@ -208,6 +182,8 @@ export abstract class DragDropCore<T> extends Base {
 
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
+
+    // return; TODO after that point we loose scroll disable .... isBottom prop: framework update problem; 
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
@@ -231,13 +207,17 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected onStartDrag(): void { }
+  protected onStartDrag(): void {}
 
   protected getShortcutText(draggedElement: IShortcutText): string {
     return draggedElement.shortcutText;
   }
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
+  protected createDraggedElementShortcut(
+    text: string,
+    draggedElementNode?: HTMLElement,
+    event?: PointerEvent
+  ): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.className = this.getDraggedElementClass();
@@ -248,8 +228,8 @@ export abstract class DragDropCore<T> extends Base {
     return "sv-dragged-element-shortcut";
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement): void { }
-  protected afterDragOver(dropTargetNode?: HTMLElement): void { }
+  protected doDragOver(dropTargetNode?: HTMLElement): void {}
+  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
 
   public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
@@ -387,7 +367,7 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = (): void => { };
+  protected doBanDropHere = (): void => {};
 
   protected getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -445,7 +425,9 @@ export abstract class DragDropCore<T> extends Base {
     return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
-  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
     const result: HTMLElement =
       dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
       dragOverNode.closest(this.dropTargetDataAttributeName);
@@ -457,10 +439,10 @@ export abstract class DragDropCore<T> extends Base {
   protected clear = () => {
     cancelAnimationFrame(this.scrollIntervalId);
 
-    document.removeEventListener("pointermove", this.dragOver);
-    document.removeEventListener("pointercancel", this.handlePointerCancel);
-    document.removeEventListener("keydown", this.handleEscapeButton);
-    document.removeEventListener("pointerup", this.drop);
+    window.removeEventListener("pointermove", this.dragOver);
+    window.removeEventListener("touchcancel", this.handlePointerCancel);
+    window.removeEventListener("keydown", this.handleEscapeButton);
+    window.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     document.body.removeChild(this.draggedElementShortcut);
 
@@ -474,8 +456,11 @@ export abstract class DragDropCore<T> extends Base {
     this.parentElement = null;
     this.scrollIntervalId = null;
 
-    //IsMobile && this.enableScroll111();
+    if (IsMobile) {
+      this.preventScrolling = false;
+      (<any>window)["preventScrolling"] = false;
+    }
   };
 
-  protected doClear(): void { }
+  protected doClear(): void {}
 }

@@ -20,16 +20,55 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
-    // console.log("rnkng-sych-1");
+    console.log("rnkng-sych-008");
 
-    // window.addEventListener("touchstart", (e) => { console.log("touchstart"); }, { passive: false });
-    // window.addEventListener("pointerdown", (e) => { console.log("pointerdown"); }, { passive: false });
+    window.addEventListener(
+      "touchmove",
+      (event) => {
+        console.log(
+          `touchmove preventScrolling: ${(<any>window)["preventScrolling"]}`
+        );
+        if (!(<any>window)["preventScrolling"]) {
+          return;
+        }
 
-    // window.addEventListener("pointermove", (e) => { e.preventDefault(); console.log("pointermove"); }, { passive: false });
-    // window.addEventListener("touchmove", (e) => { e.preventDefault(); console.log("touchmove"); }, { passive: false });
+        // Prevent scrolling
+        event.preventDefault();
+      },
+      { passive: false }
+    );
 
-    // window.addEventListener("touchend", (e) => { console.log("touchend"); }, { passive: false });
-    // window.addEventListener("pointerup", (e) => { console.log("pointerup"); }), { passive: false };
+    window.addEventListener(
+      "pointermove",
+      (event) => {
+        console.log(
+          `pointermove preventScrolling: ${(<any>window)["preventScrolling"]}`
+        );
+        if (!(<any>window)["preventScrolling"]) {
+          return;
+        }
+
+        // Prevent scrolling
+        event.preventDefault();
+      },
+      { passive: false }
+    );
+
+    window.addEventListener(
+      "scroll",
+      (event) => {
+        console.log(
+          `scroll preventScrolling: ${(<any>window)["preventScrolling"]}`
+        );
+        if (!(<any>window)["preventScrolling"]) {
+          return;
+        }
+
+        // Prevent scrolling
+        event.preventDefault();
+      },
+      { passive: false }
+    );
   }
 
   public getType(): string {
@@ -45,9 +84,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
-    const dropTargetIndex = this.rankingChoices.indexOf(
-      this.currentDropTarget
-    );
+    const dropTargetIndex = this.rankingChoices.indexOf(this.currentDropTarget);
 
     return new CssClassBuilder()
       .append(super.getItemClassCore(item, options))
@@ -383,7 +420,7 @@ Serializer.addClass(
       isSerializable: false,
     },
   ],
-  function () {
+  function() {
     return new QuestionRankingModel("");
   },
   "checkbox"

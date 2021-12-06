@@ -86,7 +86,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         textStyle={this.textStyle}
         index={index}
         isChecked={value === item.value}
-        role="presentation"
       />
     );
     const survey = this.question.survey as ReactSurveyModel;

@@ -8,7 +8,7 @@
     <!--ko template: { name: 'survey-question-title', data: question  } -->
     <!-- /ko -->
   <!-- /ko -->
-  <div data-bind="visible: !question.isCollapsed, css: question.cssContent">
+  <div data-bind="visible: !question.isCollapsed, css: question.cssContent" role="presentation">
     <!-- ko if: question.errorLocation === 'top' && !question.isErrorsModeTooltip -->
       <!-- ko template: { name: 'survey-question-errors', data: question } -->
       <!-- /ko -->

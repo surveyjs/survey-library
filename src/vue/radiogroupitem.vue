@@ -6,7 +6,6 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        :aria-checked="question.renderedValue === item.value ? 'true' : 'false'"
         :aria-required="question.ariaRequired"
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"

@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
 
-  <fieldset data-bind="css: question.koCss().root" role="radiogroup">
+  <fieldset data-bind="css: question.koCss().root">
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
@@ -32,6 +32,7 @@
     <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.ariaItemLabel(item) }">
       <input
         type="radio"
+        aria-hidden="true"
         data-bind="attr: { name: question.questionName, id: question.getItemId(item)}, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
       />
       <!-- ko if: question.koCss().materialDecorator -->

@@ -101,8 +101,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
-    const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
-    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, "tooltip"): null;
+    const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, "") : null;
+    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, "tooltip") : null;
 
     var errorsTop =
       this.creator.questionErrorLocation() === "top" && !this.question.isErrorsModeTooltip
@@ -133,7 +133,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         >
           {errorsAboveQuestion}
           {headerTop}
-          <div className={question.cssContent} style={contentStyle}>
+          <div className={question.cssContent} style={contentStyle} role="presentation">
             {errorsTop}
             {questionRender}
             {comment}
@@ -243,17 +243,17 @@ export class SurveyElementErrors extends ReactSurveyElement {
   private tooltipRef: React.RefObject<HTMLDivElement>;
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if(this.props.location == "tooltip") {
-      if(this.tooltipRef.current && !this.tooltipManager) {
+    if (this.props.location == "tooltip") {
+      if (this.tooltipRef.current && !this.tooltipManager) {
         this.tooltipManager = new TooltipManager(this.tooltipRef.current);
       }
-      if(!!this.tooltipManager && !this.tooltipRef.current) {
+      if (!!this.tooltipManager && !this.tooltipRef.current) {
         this.disposeTooltipManager();
       }
     }
   }
   componentWillUnmount() {
-    if(!!this.tooltipManager) {
+    if (!!this.tooltipManager) {
       this.disposeTooltipManager();
     }
   }

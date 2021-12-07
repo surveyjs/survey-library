@@ -23,10 +23,6 @@ export class Survey extends SurveyElementBase<any, any>
     StylesManager.applyTheme(value);
   }
   protected survey: ReactSurveyModel;
-  private isCurrentPageChanged: boolean = false;
-  private onCurrentPageChangedHandler = (sender: any, options: any): any => {
-    this.isCurrentPageChanged = true;
-  };
 
   constructor(props: any) {
     super(props);
@@ -49,10 +45,6 @@ export class Survey extends SurveyElementBase<any, any>
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (this.isCurrentPageChanged) {
-      this.isCurrentPageChanged = false;
-      this.survey.scrollToTopOnPageChange();
-    }
     this.updateSurvey(this.props, prevProps);
   }
   componentDidMount() {
@@ -67,7 +59,6 @@ export class Survey extends SurveyElementBase<any, any>
     super.componentWillUnmount();
     if (this.survey) {
       this.survey.stopTimer();
-      this.survey.onCurrentPageChanged.remove(this.onCurrentPageChangedHandler);
     }
   }
   doRender(): JSX.Element {
@@ -311,7 +302,6 @@ export class Survey extends SurveyElementBase<any, any>
         self.setState(self.state);
       }
     });
-    this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
   }
 
   //ISurveyCreator

@@ -93,11 +93,6 @@ div:only-child > .sd-element--with-frame {
   width: calc(50% - 3 * #{$base-unit});
   padding-left: calcSize(3);
 }
-
-.sd-question__num {
-  vertical-align: top;
-  white-space: nowrap;
-}
 .sd-question__required-text {
   vertical-align: top;
 }
@@ -175,4 +170,9 @@ div:only-child > .sd-element--with-frame {
   margin-left: calcSize(-4);
   text-align: right;
   box-sizing: border-box;
+  white-space: nowrap;
+}
+div > .sd-question__num {
+  display: block;
+  float: left;
 }

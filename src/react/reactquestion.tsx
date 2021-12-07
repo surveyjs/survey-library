@@ -1,5 +1,13 @@
 import * as React from "react";
-import { Base, SurveyElement, SurveyError, Question, QuestionMatrixDropdownRenderedCell, doKey2ClickUp, TooltipManager } from "survey-core";
+import {
+  Base,
+  SurveyElement,
+  SurveyError,
+  Question,
+  QuestionMatrixDropdownRenderedCell,
+  doKey2ClickUp,
+  TooltipManager,
+} from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
@@ -73,7 +81,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       var el = this.rootRef.current;
       if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
-        el.setAttribute("name", this.question.name);
+        el.setAttribute("data-name", this.question.name);
         if (this.question.afterRender) {
           this.question.afterRender(el);
         }
@@ -101,15 +109,23 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
-    const errorsAboveQuestion = this.question.isErrorsModeTooltip && !this.question.hasParent ? this.renderErrors(cssClasses, ""): null;
-    const errorsTooltip = this.question.isErrorsModeTooltip && this.question.hasParent ? this.renderErrors(cssClasses, "tooltip"): null;
+    const errorsAboveQuestion =
+      this.question.isErrorsModeTooltip && !this.question.hasParent
+        ? this.renderErrors(cssClasses, "")
+        : null;
+    const errorsTooltip =
+      this.question.isErrorsModeTooltip && this.question.hasParent
+        ? this.renderErrors(cssClasses, "tooltip")
+        : null;
 
     var errorsTop =
-      this.creator.questionErrorLocation() === "top" && !this.question.isErrorsModeTooltip
+      this.creator.questionErrorLocation() === "top" &&
+      !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "top")
         : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom" && !this.question.isErrorsModeTooltip
+      this.creator.questionErrorLocation() === "bottom" &&
+      !this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
@@ -133,7 +149,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         >
           {errorsAboveQuestion}
           {headerTop}
-          <div className={question.cssContent} style={contentStyle}>
+          <div
+            className={question.cssContent}
+            style={contentStyle}
+            role="presentation"
+          >
             {errorsTop}
             {questionRender}
             {comment}
@@ -187,7 +207,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected renderHeader(question: Question): JSX.Element {
     var cssClasses = question.cssClasses;
-    var title = question.hasTitle ? <TitleElement element={question}></TitleElement> : null;
+    var title = question.hasTitle ? (
+      <TitleElement element={question}></TitleElement>
+    ) : null;
     var description = question.hasDescriptionUnderTitle
       ? this.renderDescription(cssClasses)
       : null;
@@ -243,17 +265,17 @@ export class SurveyElementErrors extends ReactSurveyElement {
   private tooltipRef: React.RefObject<HTMLDivElement>;
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if(this.props.location == "tooltip") {
-      if(this.tooltipRef.current && !this.tooltipManager) {
+    if (this.props.location == "tooltip") {
+      if (this.tooltipRef.current && !this.tooltipManager) {
         this.tooltipManager = new TooltipManager(this.tooltipRef.current);
       }
-      if(!!this.tooltipManager && !this.tooltipRef.current) {
+      if (!!this.tooltipManager && !this.tooltipRef.current) {
         this.disposeTooltipManager();
       }
     }
   }
   componentWillUnmount() {
-    if(!!this.tooltipManager) {
+    if (!!this.tooltipManager) {
       this.disposeTooltipManager();
     }
   }
@@ -271,7 +293,13 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
 
     return (
-      <div role="alert" aria-live="polite" className={this.element.cssError} id={this.id} ref={this.tooltipRef}>
+      <div
+        role="alert"
+        aria-live="polite"
+        className={this.element.cssError}
+        id={this.id}
+        ref={this.tooltipRef}
+      >
         {errors}
       </div>
     );
@@ -306,7 +334,7 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
     super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
-  protected doAfterRender() { }
+  protected doAfterRender() {}
   protected canRender(): boolean {
     return !!this.question;
   }
@@ -323,8 +351,14 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected renderContent(): JSX.Element {
     var errorsLocation = this.creator.questionErrorLocation();
     var errors = this.renderErrors(errorsLocation);
-    var errorsTop = errorsLocation === "top" && !this.question.isErrorsModeTooltip ? errors : null;
-    var errorsBottom = errorsLocation === "bottom" && !this.question.isErrorsModeTooltip ? errors : null;
+    var errorsTop =
+      errorsLocation === "top" && !this.question.isErrorsModeTooltip
+        ? errors
+        : null;
+    var errorsBottom =
+      errorsLocation === "bottom" && !this.question.isErrorsModeTooltip
+        ? errors
+        : null;
     var renderedQuestion = this.renderQuestion();
     return (
       <>
@@ -361,7 +395,9 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
-    var errorsTooltip = this.question.isErrorsModeTooltip ? this.renderErrors("tooltip") : null;
+    var errorsTooltip = this.question.isErrorsModeTooltip
+      ? this.renderErrors("tooltip")
+      : null;
     return (
       <td
         ref={this.cellRef}

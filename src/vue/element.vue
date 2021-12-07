@@ -1,5 +1,5 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null">
+  <div :class="!element.isPanel ? element.getRootCss() : null" role="presentation">
     <survey-errors
       v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
       :element="element"

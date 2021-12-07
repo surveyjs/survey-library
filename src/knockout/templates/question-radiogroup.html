@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
 
-  <fieldset data-bind="css: question.koCss().root" role="radiogroup">
+  <fieldset data-bind="css: question.koCss().root" role="presentation">
     <!-- ko ifnot: question.hasColumns -->
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
@@ -9,7 +9,7 @@
     <!-- /ko -->
     <!-- ko if: question.hasColumns -->
     <!-- ko foreach: question.columns -->
-    <div data-bind="css: question.getColumnClass()">
+    <div data-bind="css: question.getColumnClass()" role="presentation">
       <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender } -->
         <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
         <!-- /ko -->
@@ -28,11 +28,11 @@
   </fieldset>
 </script>
 <script type="text/html" id="survey-radiogroup-item">
-  <div data-bind="css: question.getItemClass(item), attr: { 'aria-checked': question.ariaItemChecked(item), 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }" role="radio">
+  <div role="presentation" data-bind="css: question.getItemClass(item)">
     <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.ariaItemLabel(item) }">
       <input
         type="radio"
-        data-bind="attr: { name: question.questionName, id: question.getItemId(item)}, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
+        data-bind="attr: { name: question.questionName, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
       />
       <!-- ko if: question.koCss().materialDecorator -->
       <span data-bind="css: question.koCss().materialDecorator">

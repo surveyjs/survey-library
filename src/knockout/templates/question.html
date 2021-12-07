@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-<div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, name: question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
+<div data-bind="css: question.koRootCss(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }, attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
   <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->
@@ -8,7 +8,7 @@
     <!--ko template: { name: 'survey-question-title', data: question  } -->
     <!-- /ko -->
   <!-- /ko -->
-  <div data-bind="visible: !question.isCollapsed, css: question.cssContent">
+  <div data-bind="visible: !question.isCollapsed, css: question.cssContent" role="presentation">
     <!-- ko if: question.errorLocation === 'top' && !question.isErrorsModeTooltip -->
       <!-- ko template: { name: 'survey-question-errors', data: question } -->
       <!-- /ko -->

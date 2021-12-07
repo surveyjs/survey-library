@@ -153,14 +153,14 @@ frameworks.forEach((framework) => {
     const addRowFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
-    const relativeTypeSelect = Selector("div[name='relativeType'] select");
+    const relativeTypeSelect = Selector("div[data-name='relativeType'] select");
     const relativeTypeOption = relativeTypeSelect.find("option");
-    const ageSelect = Selector("div[name='liveage'] select");
+    const ageSelect = Selector("div[data-name='liveage'] select");
     const ageOption = ageSelect.find("option");
-    const deceasedAgeSelect = Selector("div[name='deceasedage'] select");
+    const deceasedAgeSelect = Selector("div[data-name='deceasedage'] select");
     const deceasedAgeOption = deceasedAgeSelect.find("option");
     const addRowSelector = Selector("button");
-    const relativeillnessSelect = Selector("div[name='relativeillness'] select");
+    const relativeillnessSelect = Selector("div[data-name='relativeillness'] select");
     const relativeillnessOption = relativeillnessSelect.find("option");
 
     await t.click("input[value=\"Yes\"]")
@@ -186,7 +186,7 @@ frameworks.forEach((framework) => {
       .click(deceasedAgeSelect)
       .click(deceasedAgeOption.withText("42"))
       .expect(deceasedAgeSelect.value).eql("42")
-      .click("div[name='causeofdeathknown'] input[value=\"No\"]")
+      .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
       .click(".sv-paneldynamic__prev-btn")
       .click(".sv-paneldynamic__prev-btn")
 
@@ -195,7 +195,7 @@ frameworks.forEach((framework) => {
       .click(relativeillnessSelect)
       .click(relativeillnessOption.withText("Diabetes"))
       .expect(relativeillnessSelect.value).eql("Diabetes")
-      .typeText("div[name='relativeillness'] input[type=\"text\"]", "Type 2")
+      .typeText("div[data-name='relativeillness'] input[type=\"text\"]", "Type 2")
 
       .click(".sv-paneldynamic__next-btn")
       .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))

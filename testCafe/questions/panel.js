@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
 
   test(`expand collapse title`, async (t) => {
     const panelTitle = Selector("h4").withText("Panel 1");
-    const contentItem = Selector("[name='question2']");
+    const contentItem = Selector("[data-name='question2']");
 
     assert.equal(await contentItem.visible, true);
     await t.click(panelTitle);
@@ -131,7 +131,7 @@ frameworks.forEach((framework) => {
     var newTitle = 'MyText';
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
+
     var outerSelector = `.sv_p_title`;
     var innerSelector = `.sv-string-editor`
     await t

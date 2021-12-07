@@ -2679,10 +2679,12 @@ export class SurveyModel extends SurveyElementCore
       page.focusFirstQuestion();
     }
   }
-  scrollToTopOnPageChange() {
+  scrollToTopOnPageChange(doScroll: boolean = true): void {
     var page = this.activePage;
     if (!page) return;
-    page.scrollToTop();
+    if(doScroll) {
+      page.scrollToTop();
+    }
     if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
       page.focusFirstQuestion();
     }
@@ -3972,7 +3974,12 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onUpdateChoiceItemCss.fire(this, options);
   }
+  private isFirstPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
+    if(!this.isDesignMode) {
+      this.scrollToTopOnPageChange(!this.isFirstPageRendering);
+    }
+    this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,

@@ -38,3 +38,5 @@ svgbundle.html
 coverage/**/*
 
 /.angular/cache
+visualRegressionTests/screenshots
+visualRegressionTests/artifacts

@@ -51,7 +51,7 @@
     "dev": "concurrently \"http-server -p 8080 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/",
     "pre-push-check": "npm run lint && npm run testsingle && npm run test:markup",
-    "lint": "eslint ./src --quiet",
+    "lint": "eslint ./src --quiet && eslint ./testCafe --quiet && eslint ./visualRegressionTests --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "test:knockout": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js",
     "test:react": "karma start ./build-scripts/survey-react/karma.conf.react.js",
@@ -89,11 +89,13 @@
     "concurrently": "^5.2.0",
     "copy-webpack-plugin": "4.0.1",
     "css-loader": "^3.6.0",
+    "devextreme-screenshot-comparer": "^2.0.11",
     "dotenv": "4.0.0",
     "dts-bundle": "0.7.2",
     "eslint": "^7.32.0",
     "eslint-cli": "^1.1.1",
     "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-surveyjs": "file:eslint-surveyjs",
     "eslint-plugin-vue": "^7.16.0",
     "file-loader": "0.10.0",
     "generate-json-webpack-plugin": "^1.0.0",
@@ -148,8 +150,7 @@
     "webpack-dev-server": "^3.11.0",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.7.3",
-    "webpack-svgstore-plugin": "4.0.1",
-    "devextreme-screenshot-comparer": "^2.0.11"
+    "webpack-svgstore-plugin": "4.0.1"
   },
   "husky": {
     "hooks": {

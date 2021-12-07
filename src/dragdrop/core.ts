@@ -49,15 +49,15 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
-    if (IsMobile) {
-      this.startLongTapProcessing(
-        event,
-        draggedElement,
-        parentElement,
-        draggedElementNode
-      );
-      return;
-    }
+    // if (IsMobile) {
+    //   this.startLongTapProcessing(
+    //     event,
+    //     draggedElement,
+    //     parentElement,
+    //     draggedElementNode
+    //   );
+    //   return;
+    // }
     this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
   }
 
@@ -183,7 +183,6 @@ export abstract class DragDropCore<T> extends Base {
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
-    // return; TODO after that point we loose scroll disable .... isBottom prop: framework update problem; 
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;

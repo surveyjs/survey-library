@@ -1244,7 +1244,7 @@ export class QuestionSelectBase extends Question {
     return this.hasOther && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
-    return this.survey.getCss()[this.getType()].itemSvgIconId;
+    return this.cssClasses.itemSvgIconId;
   }
 
   public ariaItemLabel(item: ItemValue) {

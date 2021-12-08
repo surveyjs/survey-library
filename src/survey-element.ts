@@ -202,6 +202,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
         this.updateTitleActions();
       } else {
         this.updateExpandAction();
+        this.updateElementCss(false);
       }
       if (this.stateChangedCallback) this.stateChangedCallback();
     }

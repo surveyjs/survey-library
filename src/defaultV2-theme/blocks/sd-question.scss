@@ -1,5 +1,5 @@
 .svc-logic-question-value,
-div:only-child > .sd-element--with-frame {
+div:only-child > .sd-element--with-frame:not(.sd-question--collapsed) {
   border-radius: calcSize(0.5);
   box-sizing: border-box;
   padding-left: calcSize(5);
@@ -17,7 +17,7 @@ div:only-child > .sd-element--with-frame {
     padding-bottom: 0;
   }
 }
-.svc-logic-question-value, .sd-element {
+.svc-logic-question-value, .sd-element:not(.sd-question--collapsed) {
   padding-top: calcSize(4);
 }
 .sd-element {
@@ -171,8 +171,78 @@ div:only-child > .sd-element--with-frame {
   text-align: right;
   box-sizing: border-box;
   white-space: nowrap;
+  & + span:not(.sv-string-viewer) {
+    display: none;
+  }
 }
 div > .sd-question__num {
   display: block;
   float: left;
+}
+
+.sd-question--collapsed {
+  .sd-question__header {
+    padding: 16px 40px;
+    box-sizing: border-box;
+    background-color: $background;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .sd-question__header:hover {
+    background-color: $background-dim-light;
+  }
+}
+.sd-question .sv-title-actions {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: start;
+  .sv-action-bar {
+    margin: 0;
+    padding: 0;
+    margin-left: -40px;
+    min-width: auto;
+  }
+  .sd-question__num {
+    margin-left: 0;
+    width: auto;
+    padding: 0;
+  }
+  div > .sd-question__num {
+    float: none;
+    display: initial;
+  }
+  .sv-action {
+    &:not(:last-child)>.sv-action__content {
+      padding-right: 0;
+    }
+    .sv-expand-action.sv-action-bar-item {
+      width: calcSize(5);
+      height: calcSize(3);
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-left: calcSize(2);
+      &:hover {
+        background-color: transparent;
+      }
+      &:active {
+        opacity: 1;
+      }
+      &:before {
+        content: "";
+        display: inline-block;
+        background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 14L5 13L10 8L5 3L6 2L12 8L6 14Z' fill='%23909090'/%3E%3C/svg%3E%0A");        background-repeat: no-repeat;
+        background-position: center center;
+        height: 16px;
+        width: 16px;
+        margin: auto;
+      }
+    }
+    .sv-expand-action--expanded.sv-action-bar-item{
+      transform: none;
+      &::before {
+        transform: rotate(90deg);
+      }
+    }
+  }
 }

@@ -101,7 +101,8 @@ export var defaultV2Css = {
     footer: "sd-question__footer",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
-    disabled: "sd-question--disabled"
+    disabled: "sd-question--disabled",
+    collapsed: "sd-question--collapsed"
   },
   image: { root: "sd-image", image: "sv_image_image" },
   error: {

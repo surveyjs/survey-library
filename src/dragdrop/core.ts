@@ -49,15 +49,15 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
-    // if (IsMobile) {
-    //   this.startLongTapProcessing(
-    //     event,
-    //     draggedElement,
-    //     parentElement,
-    //     draggedElementNode
-    //   );
-    //   return;
-    // }
+    if (IsMobile) {
+      this.startLongTapProcessing(
+        event,
+        draggedElement,
+        parentElement,
+        draggedElementNode
+      );
+      return;
+    }
     this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
   }
 
@@ -115,6 +115,54 @@ export abstract class DragDropCore<T> extends Base {
   };
   // EO long tap
 
+  private touchStartOn = (el: any, x = 0, y = 0, type?: any) => {
+    let e: any;
+    try {
+      e = document.createEvent("TouchEvent");
+      e.initTouchEvent(type || "touchstart", true, true);
+    }
+    catch (err) {
+      try {
+        e = document.createEvent("UIEvent");
+        e.initUIEvent(type || "touchstart", true, true);
+      }
+
+      catch (err) {
+        e = document.createEvent("Event");
+        e.initEvent(type || "touchstart", true, true);
+      }
+    }
+    e.targetTouches = [
+      { pageX: x },
+      { pageY: y }
+    ];
+    el.dispatchEvent(e);
+  }
+
+  private touchEndOn = (el: any, x = 0, y = 0, type?: any) => {
+    let e: any;
+    try {
+      e = document.createEvent("TouchEvent");
+      e.initTouchEvent(type || "touchend", true, true);
+    }
+    catch (err) {
+      try {
+        e = document.createEvent("UIEvent");
+        e.initUIEvent(type || "touchend", true, true);
+      }
+
+      catch (err) {
+        e = document.createEvent("Event");
+        e.initEvent(type || "touchend", true, true);
+      }
+    }
+    e.targetTouches = [
+      { pageX: x },
+      { pageY: y }
+    ];
+    el.dispatchEvent(e);
+  }
+
   private doStartDrag(
     event: PointerEvent,
     draggedElement: any,
@@ -139,6 +187,22 @@ export abstract class DragDropCore<T> extends Base {
       event
     );
     document.body.append(this.draggedElementShortcut);
+
+    if (IsMobile) {
+      // const touchEndEvent = new Event("touchend");
+      // const touchStartEvent = new Event("touchstart");
+      // event.target.dispatchEvent(touchEndEvent);
+      // this.draggedElementShortcut.dispatchEvent(touchStartEvent);
+
+      this.touchEndOn(document, 10, 10);
+      this.touchEndOn(document, 10, 10, "pointerup");
+      this.touchEndOn(document, 10, 10, "pointermove");
+      console.log("attempt-w3ws!");
+      this.touchStartOn(document, 10, 10);
+      this.touchStartOn(document, 10, 10, "pointerdown");
+      this.touchStartOn(document, 10, 10, "pointermove");
+    }
+
     this.moveShortcutElement(event);
 
     window.addEventListener("pointermove", this.dragOver);
@@ -183,7 +247,6 @@ export abstract class DragDropCore<T> extends Base {
     this.allowDropHere = true;
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
-
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
     this.afterDragOver(dropTargetNode);
@@ -206,7 +269,7 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected onStartDrag(): void {}
+  protected onStartDrag(): void { }
 
   protected getShortcutText(draggedElement: IShortcutText): string {
     return draggedElement.shortcutText;
@@ -227,8 +290,8 @@ export abstract class DragDropCore<T> extends Base {
     return "sv-dragged-element-shortcut";
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement): void {}
-  protected afterDragOver(dropTargetNode?: HTMLElement): void {}
+  protected doDragOver(dropTargetNode?: HTMLElement): void { }
+  protected afterDragOver(dropTargetNode?: HTMLElement): void { }
 
   public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
@@ -366,7 +429,7 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
   };
 
-  protected doBanDropHere = (): void => {};
+  protected doBanDropHere = (): void => { };
 
   protected getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -461,5 +524,5 @@ export abstract class DragDropCore<T> extends Base {
     }
   };
 
-  protected doClear(): void {}
+  protected doClear(): void { }
 }

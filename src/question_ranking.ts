@@ -20,62 +20,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
-    console.log("rnkng-sych-444444445");
-
-    window.addEventListener(
-      "touchstart",
-      (event) => {
-        // console.log(
-        //   `touchstart preventScrolling: ${(<any>window)["preventScrolling"]}`
-        // );
-        if (!(<any>window)["preventScrolling"]) {
-          return;
-        }
-
-        // Prevent scrolling
-        event.preventDefault();
-      },
-      { passive: false }
-    );
-
-    window.addEventListener(
-      "pointerdown",
-      (event) => {
-        // console.log(
-        //   `pointerdown preventScrolling: ${(<any>window)["preventScrolling"]}`
-        // );
-        if (!(<any>window)["preventScrolling"]) {
-          return;
-        }
-
-        // Prevent scrolling
-        event.preventDefault();
-      },
-      { passive: false }
-    );
+    console.log("rnkng-sych-001`");
 
     window.addEventListener(
       "touchmove",
       (event) => {
-        // console.log(
-        //   `touchmove preventScrolling: ${(<any>window)["preventScrolling"]}`
-        // );
-        if (!(<any>window)["preventScrolling"]) {
-          return;
-        }
-
-        // Prevent scrolling
-        event.preventDefault();
-      },
-      { passive: false }
-    );
-
-    window.addEventListener(
-      "pointermove",
-      (event) => {
-        // console.log(
-        //   `pointermove preventScrolling: ${(<any>window)["preventScrolling"]}`
-        // );
+        console.log(
+          `touchmove preventScrolling: ${(<any>window)["preventScrolling"]}`
+        );
         if (!(<any>window)["preventScrolling"]) {
           return;
         }
@@ -89,15 +41,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     window.addEventListener(
       "scroll",
       (event) => {
-        // console.log(
-        //   `scroll preventScrolling: ${(<any>window)["preventScrolling"]}`
-        // );
-        if (!(<any>window)["preventScrolling"]) {
-          return;
-        }
-
-        // Prevent scrolling
-        event.preventDefault();
+        console.dir(event.target);
       },
       { passive: false }
     );
@@ -452,7 +396,7 @@ Serializer.addClass(
       isSerializable: false,
     },
   ],
-  function() {
+  function () {
     return new QuestionRankingModel("");
   },
   "checkbox"

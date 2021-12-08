@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
@@ -11,7 +11,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export class QuestionTextBase extends Question {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("placeHolder", this);
   }
   protected isTextValue(): boolean {
     return true;
@@ -36,16 +35,9 @@ export class QuestionTextBase extends Question {
   /**
    * Use this property to set the input place holder.
    */
-  public get placeHolder(): string {
-    return this.getLocalizableStringText("placeHolder");
-  }
-  public set placeHolder(val: string) {
-    this.setLocalizableStringText("placeHolder", val);
-    this.calcRenderedPlaceHolder();
-  }
-  get locPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("placeHolder");
-  }
+  @property({ localizable: true, onSet: (val, target) => target.calcRenderedPlaceHolder() })
+  public placeHolder: string;
+  
   public getType(): string {
     return "textbase";
   }

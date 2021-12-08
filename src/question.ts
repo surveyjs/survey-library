@@ -1439,7 +1439,7 @@ export class Question extends SurveyElement
   protected updateIsAnswered(): void {
     const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
-    if (oldVal !== this.isAnswered) {
+    if(oldVal !== this.isAnswered) {
       this.updateQuestionCss();
     }
   }

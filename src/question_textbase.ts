@@ -1,7 +1,5 @@
 import { Question } from "./question";
 import { property, Serializer } from "./jsonobject";
-import { QuestionFactory } from "./questionfactory";
-import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
@@ -37,7 +35,7 @@ export class QuestionTextBase extends Question {
    */
   @property({ localizable: true, onSet: (val, target) => target.calcRenderedPlaceHolder() })
   public placeHolder: string;
-  
+
   public getType(): string {
     return "textbase";
   }

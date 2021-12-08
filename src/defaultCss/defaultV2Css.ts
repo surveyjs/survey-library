@@ -28,16 +28,18 @@ export var defaultV2Css = {
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     description: "sd-description sd-panel__description",
-    container: "sd-element sd-panel sd-row__panel",
+    container: "sd-element sd-element--complex sd-panel sd-row__panel",
     withFrame: "sd-element--with-frame",
     content: "sd-panel__content",
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
     footer: "sd-panel__footer",
-    requiredText: "sd-panel__required-text"
+    requiredText: "sd-panel__required-text",
+    header: "sd-panel__header sd-element__header sd-element__header--location-top",
+    collapsed: "sd-element--collapsed"
   },
   paneldynamic: {
-    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-question--complex sd-row__question",
+    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -79,9 +81,9 @@ export var defaultV2Css = {
     withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",
     answered: "sd-question--answered",
-    header: "sd-question__header",
+    header: "sd-question__header sd-element__header",
     headerLeft: "sd-question__header--location--left",
-    headerTop: "sd-question__header--location--top",
+    headerTop: "sd-question__header--location-top sd-element__header--location-top",
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
@@ -102,7 +104,7 @@ export var defaultV2Css = {
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
     disabled: "sd-question--disabled",
-    collapsed: "sd-question--collapsed"
+    collapsed: "sd-element--collapsed"
   },
   image: { root: "sd-image", image: "sv_image_image" },
   error: {
@@ -221,7 +223,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment"
   },
   matrix: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
     root: "sd-table",
     rowError: "sd-matrix__row--error",
@@ -240,7 +242,7 @@ export var defaultV2Css = {
     cellTextDisabled: "sd-matrix__text--disabled"
   },
   matrixdropdown: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     root: "sd-table",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -248,7 +250,7 @@ export var defaultV2Css = {
 
   },
   matrixdynamic: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",

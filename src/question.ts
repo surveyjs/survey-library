@@ -830,10 +830,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("rightIndent", val);
   }
   get paddingLeft(): string {
-    return this.getPropertyValue("paddintLeft", "");
+    return this.getPropertyValue("paddingLeft", "");
   }
   set paddingLeft(val: string) {
-    this.setPropertyValue("paddintLeft", val);
+    this.setPropertyValue("paddingLeft", val);
   }
   get paddingRight(): string {
     return this.getPropertyValue("paddingRight", "");

@@ -4717,6 +4717,43 @@ QUnit.test("customWidgets camel name", function (assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("customwidget and supportGoNextPageAutomatic", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "test_nextpage",
+    supportGoNextPageAutomatic: true,
+    isFit: (question) => {
+      return question.getType() == "test_nextpage";
+    },
+  });
+  if (!Serializer.findClass("test_nextpage")) {
+    Serializer.addClass("test_nextpage", [], null, "empty");
+  }
+  const survey = new SurveyModel({
+    goNextPageAutomatic: true,
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "test_nextpage",
+        name: "q2",
+      },
+    ],
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.customWidget.name, "test_nextpage", "custom widget is applied");
+  assert.equal(q2.customWidget.supportGoNextPageAutomatic, true, "custom widget supportGoNextPageAutomatic is true");
+  assert.equal(q2.supportGoNextPageAutomatic(), true, "q2 supportGoNextPageAutomatic is true");
+  assert.equal(survey.state, "running", "Survey is empty");
+  survey.setValue("q1", "val1");
+  assert.equal(survey.state, "running", "q2 is empty");
+  survey.setValue("q2", "val2");
+  assert.equal(survey.state, "completed", "survey is completed");
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
   var readOnlyCounter = 0;

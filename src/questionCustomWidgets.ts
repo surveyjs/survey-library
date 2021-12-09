@@ -70,6 +70,9 @@ export class QuestionCustomWidget {
   public get pdfRender() {
     return this.widgetJson.pdfRender;
   }
+  public get supportGoNextPageAutomatic(): boolean {
+    return this.widgetJson.supportGoNextPageAutomatic === true;
+  }
 }
 
 export class CustomWidgetCollection {

@@ -1732,6 +1732,7 @@ export class Question extends SurveyElement
     return false;
   }
   public supportGoNextPageAutomatic(): boolean {
+    if(!!this.customWidget) return this.customWidget.supportGoNextPageAutomatic === true;
     return false;
   }
   public supportGoNextPageError(): boolean {

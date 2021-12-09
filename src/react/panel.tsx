@@ -29,7 +29,6 @@ export class SurveyPanel extends SurveyPanelBase {
     );
     const style = {
       paddingLeft: this.panel.innerPaddingLeft,
-      display: !this.panel.isCollapsed ? "block" : "none",
     };
     let content: JSX.Element = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {

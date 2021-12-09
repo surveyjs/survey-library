@@ -312,11 +312,13 @@ export var defaultV2Css = {
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
   },
   signaturepad: {
+    mainRoot: "sd-element sd-question sd-question--signature sd-row__question",
     root: "sd-signaturepad sjs_sp_container",
     small: "sd-row__question--small",
-    controls: "sjs_sp_controls",
+    controls: "sjs_sp_controls sd-signaturepad__controls",
     placeholder: "sjs_sp_placeholder",
-    clearButton: "sjs_sp_clear"
+    clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
+    clearButtonIconId: "icon-clear"
   },
   saveData: {
     root: "",

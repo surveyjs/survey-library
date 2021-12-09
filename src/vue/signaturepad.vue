@@ -21,7 +21,8 @@
         :class="question.cssClasses.clearButton"
         :title="question.clearButtonCaption"
       >
-        ✖
+        <span v-if="!question.cssClasses.clearButtonIconId">✖</span>
+        <sv-svg-icon :iconName="question.cssClasses.clearButtonIconId" :size="'auto'"></sv-svg-icon>
       </button>
     </div>
   </div>

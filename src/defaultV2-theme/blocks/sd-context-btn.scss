@@ -1,0 +1,30 @@
+.sd-context-btn {
+  background-color: $background;
+  padding: calcSize(1.5);
+  border-radius: calcSize(12.5);
+  border: none;
+  svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+  }
+  use {
+    fill: $foreground-light;
+  }
+  cursor: pointer;
+}
+.sd-context-btn:focus-visible,
+.sd-context-btn:hover{
+  use {
+    fill: $primary;
+  }
+  &.sd-context-btn--negative {
+    use {
+      fill: $red;
+    }
+  }
+
+}
+.sd-context-btn:disabled {
+  opacity: 0.25;
+}

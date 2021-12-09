@@ -341,7 +341,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     } else {
       var rows = this.matrix.visibleRows;
       for (var i = 0; i < rows.length; i++) {
-        this.headerRow.cells.push(this.createTextCell(rows[i].locText));
+        const cell = this.createTextCell(rows[i].locText);
+        cell.row = rows[i];
+        this.headerRow.cells.push(cell);
       }
       if (this.matrix.hasFooter) {
         this.headerRow.cells.push(

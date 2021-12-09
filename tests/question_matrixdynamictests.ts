@@ -3187,7 +3187,8 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells.length, 4, "3 rows + columns");
   assert.equal(cells[0].hasTitle, false, "empty for header");
   assert.equal(cells[1].locTitle.renderedHtml, "row1", "row1");
-  assert.equal(cells[3].locTitle.renderedHtml, "row3", "row1");
+  assert.equal(cells[1].row.rowName, "row1", "row is set in vertical column");
+  assert.equal(cells[3].locTitle.renderedHtml, "row3", "row3");
 });
 
 QUnit.test("matrix dynamic + renderedTable.headerRow", function (assert) {

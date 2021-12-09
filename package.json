@@ -26,6 +26,7 @@
     "build_angular_prod": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType prod",
     "build_dev": "concurrently \"npm run build_knockout_dev\" \"npm run build_react_dev\" \"npm run build_angular_dev\" \"npm run build_jquery_dev\" \"npm run build_vue_dev\" \"npm run build_core_dev\"",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\" \"npm run build_core_prod\"",
+    "build": "npm run build_prod && concurrently \"npm run build_knockout_ui\" \"npm run build_react_ui\"",
     "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
     "watch_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev --watch",

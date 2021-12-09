@@ -340,7 +340,6 @@ export class Question extends SurveyElement
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
     if (!this.survey) return;
-    this.clearCssClasses();
     this.survey.questionCreated(this);
     if (isLight !== true) {
       this.runConditions();

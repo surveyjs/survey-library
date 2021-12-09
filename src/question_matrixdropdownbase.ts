@@ -2059,6 +2059,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
     return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
   }
+  public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
+    return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
+  }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;
     const isPanelShowing = this.getIsDetailPanelShowing(row);

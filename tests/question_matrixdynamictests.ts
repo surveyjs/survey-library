@@ -5329,7 +5329,7 @@ QUnit.test(
 QUnit.test("Detail panel, get/set values", function (assert) {
   var survey = new SurveyModel({});
   survey.css = {
-    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2" },
+    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2", detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
   };
   survey.addNewPage("p1");
   var matrix = new QuestionMatrixDynamicModel("q1");
@@ -5365,6 +5365,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "icon1",
     "detail button is closed"
   );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon1",
+    "detail button has collapsed icon"
+  );
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(
     matrix.visibleRows[0].isDetailPanelShowing,
@@ -5376,6 +5381,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1 icon2",
     "detail button is opened"
+  );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon2",
+    "detail button has expanded icon"
   );
   assert.equal(
     matrix.visibleRows[0].detailPanel.questions.length,
@@ -5415,6 +5425,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1",
     "detail button is closed again"
+  );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon1",
+    "detail button has collapsed icon again"
   );
 });
 QUnit.test("Detail panel in matrix dropdown, get/set values", function (assert) {

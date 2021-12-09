@@ -94,7 +94,7 @@ export class Question extends SurveyElement
     });
     this.registerFunctionOnPropertyValueChanged("isRequired", () => {
       this.locTitle.onChanged();
-      this.cssClassesValue = undefined;
+      this.clearCssClasses();
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
@@ -340,6 +340,7 @@ export class Question extends SurveyElement
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
     if (!this.survey) return;
+    this.clearCssClasses();
     this.survey.questionCreated(this);
     if (isLight !== true) {
       this.runConditions();
@@ -721,7 +722,7 @@ export class Question extends SurveyElement
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     if (reNew) {
       this.updateQuestionCss(true);
     }

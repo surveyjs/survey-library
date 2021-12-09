@@ -3914,3 +3914,33 @@ QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
   assert.equal(exp.value, true, "exp");
 });
 
+QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "isRequired": true
+              }
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "panelCount": 1,
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+  const question = nestedPanel.panels[0].getQuestionByName("q1");
+  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
+});
+

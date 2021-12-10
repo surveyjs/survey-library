@@ -15,7 +15,7 @@ ko.components.register("sv-svg-icon", {
             ko.unwrap(params.width),
             ko.unwrap(params.height),
             iconName,
-            componentInfo.element.childNodes[0]
+            componentInfo.element.querySelector("svg")
           );
         }
       });

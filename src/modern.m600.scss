@@ -33,7 +33,7 @@
               table.sv-matrixdynamic {
                 td {
                   &:before {
-                    content: attr(title);
+                    content: attr(data-responsive-title);
                   }
                 }
               }
@@ -43,7 +43,7 @@
                     display: inline;
                   }
                   &:after {
-                    content: attr(title);
+                    content: attr(data-responsive-title);
                   }
                 }
                 .sv-matrix__cell {

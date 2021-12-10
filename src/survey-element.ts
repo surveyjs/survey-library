@@ -365,6 +365,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
+    if(!!this.survey) {
+      this.clearCssClasses();
+    }
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
@@ -463,6 +466,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected updateElementCssCore(cssClasses: any) { }
   public get cssError(): string { return ""; }
   public updateElementCss(reNew?: boolean) {
+    this.clearCssClasses();
+  }
+  protected clearCssClasses() {
     this.cssClassesValue = undefined;
   }
   protected getIsLoadingFromJson(): boolean {

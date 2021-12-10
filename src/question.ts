@@ -94,7 +94,7 @@ export class Question extends SurveyElement
     });
     this.registerFunctionOnPropertyValueChanged("isRequired", () => {
       this.locTitle.onChanged();
-      this.cssClassesValue = undefined;
+      this.clearCssClasses();
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
@@ -721,7 +721,7 @@ export class Question extends SurveyElement
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     if (reNew) {
       this.updateQuestionCss(true);
     }

@@ -75,6 +75,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public supportNone(): boolean {
     return false;
   }
+  public isAnswerCorrect(): boolean {
+    if(!this.multiSelect) return super.isAnswerCorrect();
+    return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
+  }
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */

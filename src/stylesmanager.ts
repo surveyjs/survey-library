@@ -454,11 +454,11 @@ export class StylesManager {
       media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table:not(.sv_q_matrix) td:before": {
-      style: "content: attr(title);",
+      style: "content: attr(data-responsive-title);",
       media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.sv_q_matrix td:after": {
-      style: "content: attr(title); padding-left: 1em",
+      style: "content: attr(data-responsive-title); padding-left: 1em",
       media: "@media (max-width: 600px)",
     },
     ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .radio label, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .checkbox label": {

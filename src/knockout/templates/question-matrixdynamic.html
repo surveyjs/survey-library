@@ -133,7 +133,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { title: headers }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle() }"
   >
     <div data-bind="visible: question.isVisible">
       <!-- ko if: $data.showErrorOnTop && !$data.question.isErrorsModeTooltip-->

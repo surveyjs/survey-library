@@ -39,7 +39,7 @@
               v-if="!question.hasCellText"
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
-              :title="column.locText.renderedHtml"
+              :data-responsive-title="column.locText.renderedHtml"
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >
@@ -58,10 +58,7 @@
                   :aria-describedby="question.ariaDescribedBy"
                 />
                 <span :class="question.cssClasses.materialDecorator">
-                  <svg
-                    :class="question.cssClasses.itemDecorator"
-                    viewBox="-12 -12 24 24"
-                  >
+                  <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
                     <circle r="6" cx="0" cy="0" />
                   </svg>
                 </span>

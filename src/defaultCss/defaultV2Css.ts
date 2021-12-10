@@ -244,9 +244,13 @@ export var defaultV2Css = {
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
+    detailButton: "sd-table__cell--detail-button",
+    detailButtonExpanded: "sd-table__cell--detail-button--expanded",
+    detailIcon: "sd-detail-panel__icon",
+    detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
-
+    actionsCell: "sd-table__cell sd-table__cell--actions"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",

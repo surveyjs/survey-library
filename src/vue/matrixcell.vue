@@ -1,7 +1,8 @@
 <template>
   <td
     :class="cell.className"
-    :title="getHeaders()"
+    :data-responsive-title="getHeaders()"
+    :title="cell.getTitle()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
   >
@@ -17,11 +18,7 @@
       :css="question.survey.css"
     ></component>
     <div v-if="cell.hasQuestion">
-      <survey-errors
-        v-if="hasErrorsOnTop"
-        :element="cell.question"
-        :location="'top'"
-      />
+      <survey-errors v-if="hasErrorsOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -71,7 +68,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
+import {
+  Question,
+  QuestionMatrixDropdownRenderedCell,
+  CssClassBuilder,
+} from "survey-core";
 
 @Component
 export class MatrixCell extends Vue {
@@ -113,16 +114,12 @@ export class MatrixCell extends Vue {
       .toString();
   }
   mounted() {
-    if (!this.cell.hasQuestion || !this.question || !this.question.survey)
-      return;
+    if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     this.onVisibilityChanged();
     var self = this;
-    this.cell.question.registerFunctionOnPropertyValueChanged(
-      "isVisible",
-      function () {
-        self.onVisibilityChanged();
-      }
-    );
+    this.cell.question.registerFunctionOnPropertyValueChanged("isVisible", function () {
+      self.onVisibilityChanged();
+    });
     var options = {
       cell: this.cell.cell,
       cellQuestion: this.cell.question,

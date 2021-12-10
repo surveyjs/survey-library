@@ -41,7 +41,7 @@
             <!-- /ko -->
             <!-- ko if: !question.hasCellText -->
             <td
-              data-bind="attr: { title: $data.locText.renderedHtml }, css: question.koCss().cell"
+              data-bind="attr: { 'data-responsive-title': $data.locText.renderedHtml }, css: question.koCss().cell"
             >
               <label data-bind="css: question.getItemClass(row, $data)">
                 <input

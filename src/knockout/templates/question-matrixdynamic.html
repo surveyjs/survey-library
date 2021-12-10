@@ -59,7 +59,10 @@
             <!-- /ko -->
             <!-- ko if: $data.hasPanel -->
             <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
-              <!-- ko template: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } -->
+              <!-- ko component: { name: $data.panel.survey.getElementWrapperComponentName($data.panel), 
+                params: { componentData:  $data.panel.survey.getElementWrapperComponentData($data.panel), 
+                templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koElementAfterRender } } } 
+              -->
               <!-- /ko -->
             </td>
             <!-- /ko -->

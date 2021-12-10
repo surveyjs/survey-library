@@ -365,6 +365,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
+    if(!!this.survey) {
+      this.clearCssClasses();
+    }
   }
   protected get surveyImpl() {
     return this.surveyImplValue;

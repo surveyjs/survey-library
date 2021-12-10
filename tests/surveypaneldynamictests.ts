@@ -3943,4 +3943,43 @@ QUnit.test("cssClasses for a question in nested panel dynamic", function (assert
   const question = nestedPanel.panels[0].getQuestionByName("q1");
   assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
 });
+QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+              },
+              {
+                "type": "text",
+                "name": "q2",
+                "startWithNewLine": false
+              }
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "panelCount": 1,
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+  const panel = nestedPanel.panels[0];
+  const question = panel.getQuestionByName("q1");
+  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
+  assert.equal(panel.rows.length, 1, "There is one row");
+  const row = panel.rows[0];
+  assert.equal(row.visibleElements.length, 2, "There are two visible elements");
+  assert.ok(panel.cssClasses.row, "panel classes has value");
+  assert.ok(row.getRowCss(), "There are values");
+});
 

@@ -7,15 +7,21 @@ export var SvgIconViewModel: any;
 ko.components.register("sv-svg-icon", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
+      let iconName = ko.unwrap(params.iconName);
       ko.computed(() => {
-        createSvg(
-          ko.unwrap(params.size),
-          ko.unwrap(params.width),
-          ko.unwrap(params.height),
-          ko.unwrap(params.iconName),
-          componentInfo.element.childNodes[0]
-        );
+        if(iconName) {
+          createSvg(
+            ko.unwrap(params.size),
+            ko.unwrap(params.width),
+            ko.unwrap(params.height),
+            iconName,
+            componentInfo.element.querySelector("svg")
+          );
+        }
       });
+      return {
+        hasIcon: iconName
+      };
     },
   },
   template: template,

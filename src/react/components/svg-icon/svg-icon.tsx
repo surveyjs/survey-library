@@ -10,13 +10,14 @@ export class SvgIcon extends React.Component<any, any> {
   }
 
   updateSvg() {
-    createSvg(
-      this.props.size,
-      this.props.width,
-      this.props.height,
-      this.props.iconName,
-      this.svgIconRef.current
-    );
+    if(this.props.iconName)
+      createSvg(
+        this.props.size,
+        this.props.width,
+        this.props.height,
+        this.props.iconName,
+        this.svgIconRef.current
+      );
   }
   componentDidUpdate() {
     this.updateSvg();
@@ -24,9 +25,11 @@ export class SvgIcon extends React.Component<any, any> {
   render() {
     return (
       <span className={this.props.className} onClick={this.props.onClick}>
-        <svg className={"sv-svg-icon"} ref={this.svgIconRef} role="img">
-          <use></use>
-        </svg>
+        {
+          this.props.iconName ?
+            <svg className={"sv-svg-icon"} ref={this.svgIconRef} role="img"><use></use></svg>
+            : null
+        }
       </span>
     );
   }

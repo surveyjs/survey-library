@@ -222,6 +222,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       MatrixDropdownRowModelBase.RowVariableName, !!data ? data.getParentTextProcessor() : null
     );
     this.showHideDetailPanelClick = () => {
+      if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
     this.idValue = MatrixDropdownRowModelBase.getId();
@@ -2058,6 +2059,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
     const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
     return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
+  }
+  public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
+    return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
   }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;

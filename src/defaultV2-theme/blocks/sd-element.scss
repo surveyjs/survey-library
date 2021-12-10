@@ -61,6 +61,39 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   left: calcSize(-5);
   width: calc(100% + 80px);
 }
+
+.sd-element--nested {
+  &.sd-element--complex {
+    & > .sd-element__header--location-top {
+      padding-bottom: 16px;
+      &:after {
+        bottom: -16px;
+      }
+    }
+  }
+  &.sd-panel, &.sd-question--paneldynamic {
+    border: 1px solid #EAEAEA;
+    box-sizing: border-box;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin-top: 32px;
+    & > .sd-element__header--location-top {
+      padding-top: 16px;
+      padding-bottom: 16px;
+      &:after {
+        left: -40px;
+        width: calc(100% + 80px);
+        bottom: -16px;
+      }
+    }
+  }
+  &.sd-panel:not(.sd-element--collapsed) {
+    padding-bottom: 40px;
+  }
+}
+
+
+//need refactor
 .sd-element .sv-title-actions {
   flex-direction: row-reverse;
   justify-content: flex-end;

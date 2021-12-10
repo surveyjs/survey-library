@@ -36,7 +36,8 @@ export var defaultV2Css = {
     footer: "sd-panel__footer",
     requiredText: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
-    collapsed: "sd-element--collapsed"
+    collapsed: "sd-element--collapsed",
+    nested: "sd-element--nested"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -104,7 +105,8 @@ export var defaultV2Css = {
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
     disabled: "sd-question--disabled",
-    collapsed: "sd-element--collapsed"
+    collapsed: "sd-element--collapsed",
+    nested: "sd-element--nested",
   },
   image: { root: "sd-image", image: "sv_image_image" },
   error: {

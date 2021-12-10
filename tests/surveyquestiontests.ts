@@ -3566,6 +3566,39 @@ QUnit.test(
   }
 );
 
+QUnit.test("QuestionImagePicker.isAnswerCorrect function", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: true,
+      correctAnswer: [1, 2],
+      choices: [1, 2, 3, 4, 5],
+    },
+    question
+  );
+  question.value = [2, 1];
+  assert.equal(question.isAnswerCorrect(), true, "[1,2]== [2, 1] for image picker");
+  question.value = [2, 3];
+  assert.equal(question.isAnswerCorrect(), false, "[1,2]!= [2, 3] for image picker");
+  question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: false,
+      correctAnswer: 2,
+      choices: [1, 2, 3, 4, 5],
+    },
+    question
+  );
+  question.value = 1;
+  assert.equal(question.isAnswerCorrect(), false, "1 <> 2");
+  question.value = 2;
+  assert.equal(question.isAnswerCorrect(), true, "2 = 2");
+});
+
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {

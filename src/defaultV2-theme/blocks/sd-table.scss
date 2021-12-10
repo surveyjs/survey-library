@@ -41,6 +41,24 @@
     }
   }
 }
+
+.sd-table__cell--actions {
+  width: 0;
+}
+
+.sd-table__cell--detail-button {
+  border: none;
+  background: transparent;
+  width: calcSize(4);
+  height: calcSize(4);
+  padding: calcSize(1);
+  svg {
+    width: calcSize(2);
+    height: calcSize(2);
+    fill: $foreground-light;
+  }
+}
+
 .sd-table__cell--actions {
   white-space: nowrap;
   .sv-action-bar {

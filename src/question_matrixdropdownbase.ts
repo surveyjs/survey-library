@@ -222,6 +222,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       MatrixDropdownRowModelBase.RowVariableName, !!data ? data.getParentTextProcessor() : null
     );
     this.showHideDetailPanelClick = () => {
+      if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
     this.idValue = MatrixDropdownRowModelBase.getId();

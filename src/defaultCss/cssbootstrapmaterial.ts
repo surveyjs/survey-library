@@ -285,14 +285,12 @@ export var defaultBootstrapMaterialCss = {
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
+    fileSign: "sv_q_file_sign",
     removeFile: "sv_q_file_remove",
-    removeFileSvg: "sv-hidden",
     fileDecorator: "sv-hidden",
-    fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

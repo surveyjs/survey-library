@@ -320,7 +320,6 @@ export var modernCss = {
     other: "sv-comment sv-question__other",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
-    fileSign: "sv-hidden",
     fileSignBottom: "sv-file__sign",
     fileDecorator: "sv-file__decorator",
     fileInput: "sv-visuallyhidden",
@@ -331,10 +330,10 @@ export var modernCss = {
     removeButtonBottom: "sv-btn sv-file__clean-btn",
     removeFile: "sv-hidden",
     removeFileSvg: "sv-file__remove-svg",
+    removeFileSvgIconId: "icon-removefile",
     wrapper: "sv-file__wrapper",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv-signaturepad sjs_sp_container",

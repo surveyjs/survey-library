@@ -108,7 +108,12 @@ export var defaultV2Css = {
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
   },
-  image: { root: "sd-image", image: "sv_image_image" },
+  image: {
+    mainRoot: "sd-question--image",
+    root: "sd-image",
+    image: "sv_image_image",
+    withFrame: ""
+  },
   error: {
     root: "sd-question__erbox",
     icon: "",

@@ -652,7 +652,7 @@ export class Question extends SurveyElement
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.collapsed, this.state == "collapsed")
+      .append(cssClasses.collapsed, !!this.isCollapsed)
       .append(cssClasses.withFrame, this.hasFrameV2)
       .append(cssClasses.nested, !this.hasFrameV2 && !this.isDesignMode)
       .toString();

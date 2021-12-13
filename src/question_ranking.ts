@@ -20,31 +20,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
-    console.log("rnkng-sych-001`");
-
-    window.addEventListener(
-      "touchmove",
-      (event) => {
-        console.log(
-          `touchmove preventScrolling: ${(<any>window)["preventScrolling"]}`
-        );
-        if (!(<any>window)["preventScrolling"]) {
-          return;
-        }
-
-        // Prevent scrolling
-        event.preventDefault();
-      },
-      { passive: false }
-    );
-
-    window.addEventListener(
-      "scroll",
-      (event) => {
-        console.dir(event.target);
-      },
-      { passive: false }
-    );
   }
 
   public getType(): string {

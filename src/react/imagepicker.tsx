@@ -113,8 +113,8 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             aria-describedby={this.question.ariaDescribedBy}
           />
           <div className={this.question.cssClasses.itemDecorator}>
-            <div className={this.question.cssClasses.imageContainer} 
-              style={{width:this.question.renderedImageWidth, height: this.question.renderedImageHeight}}
+            <div className={this.question.cssClasses.imageContainer}
+              style={{ width: this.question.renderedImageWidth, height: this.question.renderedImageHeight }}
             >
               {control}
             </div>

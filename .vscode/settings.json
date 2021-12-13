@@ -7,8 +7,10 @@
         "editor.codeActionsOnSave": {
             "source.fixAll": true,
             //"source.organizeImports": true, // be vare of https://github.com/microsoft/vscode-typescript-tslint-plugin/issues/51
-        }
+        },
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
+    
     "[html]": {
         "editor.formatOnSave": false
     },
@@ -17,6 +19,7 @@
     // "typescript.format.insertSpaceBeforeFunctionParenthesis": false,
     // "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
     // "javascript.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
     "eslint.format.enable": true,

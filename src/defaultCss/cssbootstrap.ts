@@ -279,13 +279,11 @@ export var defaultBootstrapCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
     removeFile: "sv_q_file_remove",
-    removeFileSvg: "sv-hidden",
     fileDecorator: "sv-hidden",
-    fileSignBottom: "sv-hidden",
+    fileSign: "sv_q_file_sign",
     removeButtonBottom: "sv-hidden",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

@@ -1,6 +1,6 @@
 export var surveyCss: any = {
   currentType: "",
-  getCss: function() {
+  getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
     if (!loc) loc = defaultStandardCss;
     return loc;
@@ -290,15 +290,12 @@ export var defaultStandardCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv-visuallyhidden",
     removeFile: "sv_q_file_remove",
-    removeFileSvg: "sv-hidden",
     fileDecorator: "sv-file__decorator",
-    fileSignBottom: "sv-hidden",
-    removeButtonBottom: "sv-hidden",
+    fileSign: "sv_q_file_sign",
     chooseFile: "sv_q_file_choose_button",
     noFileChosen: "sv_q_file_placeholder",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden",
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

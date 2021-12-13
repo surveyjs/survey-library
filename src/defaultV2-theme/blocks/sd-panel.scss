@@ -3,6 +3,7 @@
   line-height: calcSize(3);
   font-size: calcSize(2);
   margin: 0;
+  outline: none;
 }
 .sd-panel {
   position: relative;
@@ -20,30 +21,4 @@
 }
 .sd-panel__required-text {
   color: $red;
-}
-.sd-row > div > .sd-row__panel { 
-  & > .sd-panel__title {
-    padding-top: calcSize(4);
-    padding-bottom: calcSize(4);
-  }
-  & > .sd-panel__title + .sd-panel__description {
-    margin-top: calcSize(-8);
-  }
-  & > .sd-panel__description {
-    padding-top: calcSize(4);
-    padding-bottom: 32px;
-  }
-  & > .sd-panel__title ~ .sd-panel__content::before ,
-  & > .sd-panel__description ~ .sd-panel__content::before{
-      content: ' ';
-      display: block;
-      height: 1px;
-      background-color: #eaeaea;
-      position: absolute;
-      left: 0;
-      right: 0;
-  }
-}
-.svc-question__content > .sd-panel > .sd-panel__content {
-  margin-top: calcSize(2);
 }

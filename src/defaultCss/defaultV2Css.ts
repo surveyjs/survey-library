@@ -28,16 +28,19 @@ export var defaultV2Css = {
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     description: "sd-description sd-panel__description",
-    container: "sd-element sd-panel sd-row__panel",
+    container: "sd-element sd-element--complex sd-panel sd-row__panel",
     withFrame: "sd-element--with-frame",
     content: "sd-panel__content",
     icon: "sd-panel__icon",
     iconExpanded: "sd-panel__icon--expanded",
     footer: "sd-panel__footer",
-    requiredText: "sd-panel__required-text"
+    requiredText: "sd-panel__required-text",
+    header: "sd-panel__header sd-element__header sd-element__header--location-top",
+    collapsed: "sd-element--collapsed",
+    nested: "sd-element--nested"
   },
   paneldynamic: {
-    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-question--complex sd-row__question",
+    mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -79,9 +82,9 @@ export var defaultV2Css = {
     withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",
     answered: "sd-question--answered",
-    header: "sd-question__header",
+    header: "sd-question__header sd-element__header",
     headerLeft: "sd-question__header--location--left",
-    headerTop: "sd-question__header--location--top",
+    headerTop: "sd-question__header--location-top sd-element__header--location-top",
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
@@ -101,7 +104,9 @@ export var defaultV2Css = {
     footer: "sd-question__footer",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
-    disabled: "sd-question--disabled"
+    disabled: "sd-question--disabled",
+    collapsed: "sd-element--collapsed",
+    nested: "sd-element--nested",
   },
   image: { root: "sd-image", image: "sv_image_image" },
   error: {
@@ -220,7 +225,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment"
   },
   matrix: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
     root: "sd-table",
     rowError: "sd-matrix__row--error",
@@ -239,7 +244,7 @@ export var defaultV2Css = {
     cellTextDisabled: "sd-matrix__text--disabled"
   },
   matrixdropdown: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     root: "sd-table",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -253,7 +258,7 @@ export var defaultV2Css = {
     actionsCell: "sd-table__cell sd-table__cell--actions"
   },
   matrixdynamic: {
-    mainRoot: "sd-element sd-question sd-row__question sd-question--complex sd-question--table",
+    mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -297,7 +302,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment",
     placeholderInput: "sd-visuallyhidden",
     preview: "sd-file__preview",
-    fileSign: "sd-hidden",
+    fileSign: "",
     fileList: "sd-file__list",
     fileSignBottom: "sd-file__sign",
     fileDecorator: "sd-file__decorator",
@@ -305,23 +310,31 @@ export var defaultV2Css = {
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
     noFileChosen: "sd-description sd-file__no-file-chosen",
-    chooseFile: "sd-file__btn sd-file__choose-btn sd-action",
+    chooseFile: "sd-file__choose-btn",
+    chooseFileAsText: "sd-action sd-file__choose-btn--text",
+    chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
+    chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
-    removeButton: "sd-hidden",
-    removeButtonBottom: "sd-file__btn sd-file__clean-btn",
+    removeButton: "",
+    removeButtonBottom: "sd-context-btn sd-context-btn--negative sd-file__btn sd-file__clean-btn",
+    removeButtonIconId: "icon-clear",
     removeFile: "sd-hidden",
-    removeFileSvg: "sd-hidden",
+    removeFileSvg: "",
+    removeFileSvgIconId: "icon-delete",
     wrapper: "sd-file__wrapper",
     defaultImage: "sd-file__default-image",
-    removeFileButton: "sd-file__remove-file-button",
+    removeFileButton: "sd-context-btn sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
+    imageWrapper: "sd-file__image-wrapper"
   },
   signaturepad: {
+    mainRoot: "sd-element sd-question sd-question--signature sd-row__question",
     root: "sd-signaturepad sjs_sp_container",
     small: "sd-row__question--small",
-    controls: "sjs_sp_controls",
+    controls: "sjs_sp_controls sd-signaturepad__controls",
     placeholder: "sjs_sp_placeholder",
-    clearButton: "sjs_sp_clear"
+    clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
+    clearButtonIconId: "icon-clear"
   },
   saveData: {
     root: "",

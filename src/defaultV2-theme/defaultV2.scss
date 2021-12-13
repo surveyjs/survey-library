@@ -1,5 +1,6 @@
 @import "./variables.scss";
 
+@import "blocks/sd-element.scss";
 @import "blocks/sd-question.scss";
 @import "blocks/sd-input.scss";
 @import "blocks/sd-comment.scss";
@@ -31,6 +32,7 @@
 @import "blocks/sd-body.scss";
 @import "blocks/sd-multipletext.scss";
 @import "blocks/sd-action.scss";
+@import "blocks/sd-context-btn.scss";
 @import "../common-styles/sv-actionbar.scss";
 @import "../common-styles/sv-popup.scss";
 @import "../common-styles/sv-list.scss";

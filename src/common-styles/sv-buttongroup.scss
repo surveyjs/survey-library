@@ -5,6 +5,7 @@ $background-dim: var(--background-dim, #f3f3f3);
 $base-unit: var(--base-unit, 8px);
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 $background: var(--background, #fff);
+$foreground: var(--foreground, #161616);
 
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});
@@ -36,6 +37,7 @@ $background: var(--background, #fff);
   background: $background;
   cursor: pointer;
   overflow: hidden;
+  color: $foreground;
   position: relative;
   &:not(:first-of-type) {
     margin-left: -1px;

@@ -12,21 +12,17 @@
   border-radius: calcSize(0.5);
 }
 .sd-page > .sd-row--multiple {
-  padding: 0 calcSize(5) calcSize(4);
-  margin: 0;
-  margin-top: calcSize(2);
+  padding: 0 calcSize(5) calcSize(5);
 }
 .sd-row--multiple {
   gap: 16px;
-  overflow: auto;
-  padding: 2px;
-  margin: -2px;
+  margin-top: calcSize(2);
   .sd-question {
     padding-right: 0 !important;
   } 
 }
 .svc-row .sd-row--multiple {
-  margin: 0;
+  overflow: auto;
   margin-top: calcSize(2);
 }
 .svc-row--multiple {

@@ -948,7 +948,7 @@ export class PanelModelBase extends SurveyElement
   public updateRows() {
     if (this.isLoadingFromJson) return;
     for (var i = 0; i < this.elements.length; i++) {
-      if(this.elements[i].isPanel) {
+      if (this.elements[i].isPanel) {
         (<PanelModel>this.elements[i]).updateRows();
       }
     }
@@ -1450,8 +1450,8 @@ export class PanelModelBase extends SurveyElement
     var destRow = this.dragDropFindRow(dest);
     if (!destRow) return true;
 
-    if(settings.supportCreatorV2 && this.isDesignMode) {
-      if(destRow.elements.length > 1)
+    if (settings.supportCreatorV2 && this.isDesignMode) {
+      if (destRow.elements.length > 1)
         return this.dragDropAddTargetToExistingRow(
           dragDropInfo,
           destRow,
@@ -1507,16 +1507,16 @@ export class PanelModelBase extends SurveyElement
       index == 0 &&
       !dragDropInfo.isBottom) {
 
-      if(this.isDesignMode && settings.supportCreatorV2) {
+      if (this.isDesignMode && settings.supportCreatorV2) {
 
       }
       else
-      if(destRow.elements[0].startWithNewLine) {
+      if (destRow.elements[0].startWithNewLine) {
         if (destRow.index > 0) {
           dragDropInfo.isBottom = true;
           destRow = destRow.panel.rows[destRow.index - 1];
           dragDropInfo.destination =
-            destRow.elements[destRow.elements.length - 1];
+              destRow.elements[destRow.elements.length - 1];
           return this.dragDropAddTargetToExistingRow(
             dragDropInfo,
             destRow,
@@ -1599,11 +1599,11 @@ export class PanelModelBase extends SurveyElement
   public needResponsiveWidth() {
     let result = false;
     this.elements.forEach((e) => {
-      if(e.needResponsiveWidth())
+      if (e.needResponsiveWidth())
         result = true;
     });
     this.rows.forEach((r) => {
-      if(r.elements.length > 1)
+      if (r.elements.length > 1)
         result = true;
     });
 
@@ -1964,7 +1964,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public needResponsiveWidth() {
-    if(this.startWithNewLine) {
+    if (this.startWithNewLine) {
       return true;
     }
     else
@@ -1975,7 +1975,11 @@ export class PanelModel extends PanelModelBase implements IElement {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
   public getContainerCss() {
-    return new CssClassBuilder().append(this.cssClasses.panel.container).append(this.cssClasses.panel.withFrame, this.hasFrameV2).toString();
+    return new CssClassBuilder().append(this.cssClasses.panel.container)
+      .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
+      .append(this.cssClasses.panel.nested, !!(this.parent && this.parent.isPanel && !this.isDesignMode))
+      .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
+      .toString();
   }
 }
 

@@ -150,3 +150,20 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
     q2: [2, 3],
   });
 });
+QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: ["a", "b"],
+        correctAnswer: ["b", "a"]
+      },
+    ],
+  });
+  var q = <QuestionRankingModel>survey.getQuestionByName("q1");
+  q.value = ["a", "b"];
+  assert.equal(q.isAnswerCorrect(), false, "Answer is not correct");
+  q.value = ["b", "a"];
+  assert.equal(q.isAnswerCorrect(), true, "Answer is correct");
+});

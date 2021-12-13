@@ -14,6 +14,11 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public getType(): string {
     return "radiogroup";
   }
+
+  public get ariaRole(): string {
+    return "radiogroup";
+  }
+
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -47,7 +52,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false }],
-  function() {
+  function () {
     return new QuestionRadiogroupModel("");
   },
   "checkboxbase"

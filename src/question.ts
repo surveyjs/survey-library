@@ -74,12 +74,6 @@ export class Question extends SurveyElement
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  public get isErrorsModeTooltip() {
-    return this.survey && this.survey.getCss().root == "sd-root-modern";
-  }
-  public get hasParent() {
-    return this.parent && !this.parent.isPage;
-  }
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -100,7 +94,7 @@ export class Question extends SurveyElement
     });
     this.registerFunctionOnPropertyValueChanged("isRequired", () => {
       this.locTitle.onChanged();
-      this.cssClassesValue = undefined;
+      this.clearCssClasses();
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
@@ -658,6 +652,9 @@ export class Question extends SurveyElement
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
+      .append(cssClasses.collapsed, !!this.isCollapsed)
+      .append(cssClasses.withFrame, this.hasFrameV2)
+      .append(cssClasses.nested, !this.hasFrameV2 && !this.isDesignMode)
       .toString();
   }
   public get cssHeader(): string {
@@ -726,7 +723,7 @@ export class Question extends SurveyElement
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     if (reNew) {
       this.updateQuestionCss(true);
     }
@@ -835,10 +832,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("rightIndent", val);
   }
   get paddingLeft(): string {
-    return this.getPropertyValue("paddintLeft", "");
+    return this.getPropertyValue("paddingLeft", "");
   }
   set paddingLeft(val: string) {
-    this.setPropertyValue("paddintLeft", val);
+    this.setPropertyValue("paddingLeft", val);
   }
   get paddingRight(): string {
     return this.getPropertyValue("paddingRight", "");

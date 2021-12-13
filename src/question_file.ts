@@ -413,6 +413,8 @@ export class QuestionFileModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.chooseFile)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.chooseFileAsText, !this.isAnswered)
+      .append(this.cssClasses.chooseFileAsIcon, this.isAnswered)
       .toString();
   }
   public getReadOnlyFileCss(): string {
@@ -469,7 +471,7 @@ export class QuestionFileModel extends Question {
     this.onChange(src);
   }
   doClean = (event: any) => {
-    var src = event.target || event.srcElement;
+    var src = event.currentTarget || event.srcElement;
     if (this.needConfirmRemoveFile) {
       var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
       if (!isConfirmed) return;

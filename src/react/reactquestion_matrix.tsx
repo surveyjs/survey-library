@@ -168,7 +168,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            title={column.locText.renderedHtml}
+            data-responsive-title={column.locText.renderedHtml}
             className={this.question.cssClasses.cell}
           >
             <label className={itemClass}>

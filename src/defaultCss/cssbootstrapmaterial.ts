@@ -220,8 +220,8 @@ export var defaultBootstrapMaterialCss = {
     progressText: "sv-paneldynamic__progress-text",
     panelWrapper: "sv_p_wrapper",
     panelWrapperInRow: "sv_p_wrapper_in_row",
-    separatorV2: "sv-hidden",
-    footer: "sv-hidden"
+    progressBtnIcon: "icon-progressbutton",
+    footer: ""
   },
   multipletext: {
     root: "sv_q_mt table",
@@ -285,14 +285,12 @@ export var defaultBootstrapMaterialCss = {
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
+    fileSign: "sv_q_file_sign",
     removeFile: "sv_q_file_remove",
-    removeFileSvg: "sv-hidden",
     fileDecorator: "sv-hidden",
-    fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden",
     dragAreaPlaceholder: "sv-hidden",
     fileList: "",
-    defaultImage: "sv-hidden"
   },
   signaturepad: {
     root: "sv_q_signaturepad sjs_sp_container",

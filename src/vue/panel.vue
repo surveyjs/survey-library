@@ -1,12 +1,14 @@
 <template>
   <div
     v-if="question.isVisible"
-    :class="question.cssClasses.panel.container"
+    :class="question.getContainerCss()"
     :style="rootStyle"
   >
-    <survey-element-title :element="question" :css="css"/>
-    <div :class="question.cssClasses.panel.description">
-      <survey-string :locString="question.locDescription" />
+    <div v-if="question.hasTitle || question.hasDescription" :class="question.cssClasses.panel.header">
+      <survey-element-title :element="question" :css="css"/>
+      <div v-if="question.hasDescription" :class="question.cssClasses.panel.description">
+        <survey-string :locString="question.locDescription" />
+      </div>
     </div>
     <survey-errors :element="question" />
     <div

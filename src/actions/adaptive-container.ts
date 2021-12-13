@@ -69,13 +69,19 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       component: "sv-action-bar-item-dropdown",
       css: "sv-dots",
       innerCss: "sv-dots__item",
-      iconName: "icon-dots",
+      iconName: "icon-more",
       visible: false,
       action: (item: any) => {
         this.dotsItemPopupModel.toggleVisibility();
       },
       popupModel: this.dotsItemPopupModel
     });
+    this.dotsItemPopupModel.onHide = () => {
+      this.dotsItem.pressed = false;
+    };
+    this.dotsItemPopupModel.onShow = () => {
+      this.dotsItem.pressed = true;
+    };
   }
   protected onSet() {
     this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));

@@ -2,39 +2,62 @@
 	"root": true,
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "ecmaVersion": 12,
-        "sourceType": "module"
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 12,
+		"sourceType": "module"
 	},
 	"plugins": [
-	  "vue",
-	  "react",
-	  "@typescript-eslint"
+		"vue",
+		"react",
+		"@typescript-eslint",
+		"surveyjs"
 	],
 	"extends": [
-	  "eslint:recommended",
-	  "plugin:@typescript-eslint/eslint-recommended",
-	  "plugin:@typescript-eslint/recommended",
-	  "plugin:react/recommended",
-	  "plugin:vue/essential"
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:react/recommended",
+		"plugin:vue/essential"
 	],
-	"rules": { 
+	"rules": {
+		"surveyjs/no-test-only": 2,
 		"no-console": 2, // Remember, this means error!
-		"indent": ["error", 2, { "SwitchCase": 1,  "MemberExpression": 1,  "CallExpression": { "arguments": 1 } }], 
+		"indent": [
+			"error",
+			2,
+			{
+				"SwitchCase": 1,
+				"MemberExpression": 1,
+				"CallExpression": {
+					"arguments": 1
+				}
+			}
+		],
 		"no-trailing-spaces": "error",
-		"no-multi-spaces": "error", 
-		"block-spacing": "error", 
+		"no-multi-spaces": "error",
+		"block-spacing": "error",
 		"comma-spacing": "error",
 		"key-spacing": "error",
 		"semi-spacing": "error",
-
-		"object-curly-spacing": ["error", "always"], 
-		"space-before-blocks": ["error", "always"], 
-		"space-in-parens": ["error", "never"],
-		"array-bracket-spacing": ["error", "never"],
-		"computed-property-spacing": "error", 
+		"object-curly-spacing": [
+			"error",
+			"always"
+		],
+		"space-before-blocks": [
+			"error",
+			"always"
+		],
+		"space-in-parens": [
+			"error",
+			"never"
+		],
+		"array-bracket-spacing": [
+			"error",
+			"never"
+		],
+		"computed-property-spacing": "error",
 		// "keyword-spacing": ["error", { 
 		// 	"overrides": { 
 		// 		"if": { "after": false }, 
@@ -47,13 +70,24 @@
 		// 		"catch": { "after": false }
 		// 	} 
 		// }],
-		"no-multiple-empty-lines": [ "error", { "max": 1 } ],
-		"no-whitespace-before-property": "error", 
+		"no-multiple-empty-lines": [
+			"error",
+			{
+				"max": 1
+			}
+		],
+		"no-whitespace-before-property": "error",
 		// sub group: semicolons
-		"semi": ["error", "always"],  "semi": "error",
-		"no-extra-semi": ["error"],
-
-		"@typescript-eslint/member-delimiter-style": ["error", 
+		"semi": [
+			"error",
+			"always"
+		],
+		"semi": "error",
+		"no-extra-semi": [
+			"error"
+		],
+		"@typescript-eslint/member-delimiter-style": [
+			"error",
 			{
 				"multiline": {
 					"delimiter": "comma",
@@ -74,11 +108,15 @@
 			}
 		],
 		"no-case-declarations": "off",
-		"quotes": ["error", "double", { "avoidEscape": true }],
-
-
+		"quotes": [
+			"error",
+			"double",
+			{
+				"avoidEscape": true
+			}
+		],
 		"no-useless-escape": "off",
-	// group: add in future
+		// group: add in future
 		"@typescript-eslint/no-var-requires": "off", // TODO add ignores
 		"no-unexpected-multiline": "off",
 		"no-constant-condition": "off",
@@ -91,8 +129,8 @@
 		"no-prototype-builtins": "off",
 		"prefer-spread": "off",
 		//sub group: var definition:
-		"no-var": "off",  
-		"prefer-const": "off", 
+		"no-var": "off",
+		"prefer-const": "off",
 		"@typescript-eslint/no-use-before-define": "off",
 		"no-unsafe-finally": "off",
 		//"curly": [ "error", "multi-line", "consistent" ], 
@@ -107,13 +145,12 @@
 		"@typescript-eslint/consistent-type-assertions": "off",
 		"@typescript-eslint/no-inferrable-types": "off",
 		// group: usless rules
-		"no-empty": "off", 
+		"no-empty": "off",
 		"@typescript-eslint/no-empty-interface": "off",
 		"@typescript-eslint/no-empty-function": "off",
 		"@typescript-eslint/ban-types": "off",
 		// group: ok
 		//"@typescript-eslint/consistent-type-assertions": [ "error", { "assertionStyle": "angle-bracket" }],
-
 		"linebreak-style": [
 			"off",
 			"windows"

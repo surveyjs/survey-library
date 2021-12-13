@@ -52,8 +52,8 @@ frameworks.forEach(framework => {
   test(`check one line`, async t => {
     const isOneLine = ClientFunction(
       () =>
-        document.querySelector("div[name='city']").parentNode.style.flex === "1 1 50%" &&
-        document.querySelector("div[name='state']").parentNode.style.flex === "1 1 50%"
+        document.querySelector("div[data-name='city']").parentNode.style.flex === "1 1 50%" &&
+        document.querySelector("div[data-name='state']").parentNode.style.flex === "1 1 50%"
     );
     const isCountRight = ClientFunction(
       () => document.querySelectorAll(".sv_q").length === 6

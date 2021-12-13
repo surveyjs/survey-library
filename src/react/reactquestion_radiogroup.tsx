@@ -31,8 +31,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       );
     }
     return (
-      <fieldset role="radiogroup"
+      <fieldset
         className={cssClasses.root}
+        role="presentation"
         ref={(fieldset) => (this.control = fieldset)}
       >
         {this.question.hasColumns
@@ -49,7 +50,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         this.renderItem(item, value, cssClasses, "" + ci + ii)
       );
       return (
-        <div key={"column" + ci} className={this.question.getColumnClass()}>
+        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
           {items}
         </div>
       );
@@ -156,14 +157,13 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return (
       <div
         className={itemClass}
-        role="radio"
-        aria-checked={this.isChecked}
-        aria-required={this.question.ariaRequired}
-        aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
+        role="presentation"
       >
         <label className={labelClass} aria-label={locText.renderedHtml}>
           <input
+            aria-required={this.question.ariaRequired}
+            aria-invalid={this.question.ariaInvalid}
+            aria-describedby={this.question.ariaDescribedBy}
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"
@@ -176,12 +176,12 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator}>
-                { this.question.itemSvgIcon ?
+                {this.question.itemSvgIcon ?
                   <svg
                     className={this.cssClasses.itemDecorator}
                   >
                     <use xlinkHref={this.question.itemSvgIcon}></use>
-                  </svg>:
+                  </svg> :
                   null
                 }
               </span> :

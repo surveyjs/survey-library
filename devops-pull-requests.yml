@@ -37,8 +37,8 @@ steps:
 
   - script: |
       cd $(Build.SourcesDirectory)/survey-library
-      npm run testsingle
-    displayName: "run unit tests"
+      npm run pre-push-check
+    displayName: "run pre-push-check"
 
   - script: |
       cd $(Build.SourcesDirectory)/survey-library

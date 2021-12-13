@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionSignaturePadModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -30,7 +31,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
             className={cssClasses.clearButton}
             title={this.question.clearButtonCaption}
           >
-            ✖
+            {this.question.cssClasses.clearButtonIconId ? <SvgIcon iconName={this.question.cssClasses.clearButtonIconId} size={"auto"}></SvgIcon> : <span>✖</span>}
           </button>
         </div>
       </div>

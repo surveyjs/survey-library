@@ -1,5 +1,6 @@
 import * as React from "react";
-import { QuestionFileModel, confirmAction, detectIEOrEdge, loadFileFromBase64, Base } from "survey-core";
+import { QuestionFileModel } from "survey-core";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
@@ -59,7 +60,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonCaption}
       >
-        {this.question.chooseButtonCaption}
+        <span>{this.question.chooseButtonCaption}</span>
+        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
       </label>
     );
     if (this.question.isEmpty()) {
@@ -85,17 +87,17 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderClearButton(className: string): JSX.Element {
-    return !this.question.isEmpty() && !this.isDisplayMode ? (
+    return !this.question.isEmpty() && !this.isDisplayMode && !!className? (
       <button type="button" onClick={this.question.doClean} className={className}>
-        {this.question.cleanButtonCaption}
+        <span>{this.question.cleanButtonCaption}</span>
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"}></SvgIcon>: null }
       </button>
     ) : null;
   }
-  protected renderPreview(): JSX.Element {
-    if (!this.question.previewValue) return null;
-    var previews = this.question.previewValue.map((val, index) => {
-      if (!val) return null;
-      var fileSign = (
+  protected renderFileSign(className: string, val: any): JSX.Element {
+    if(!className || !val.name) return null;
+    return (
+      <div className={className}>
         <a
           href={val.content}
           onClick={event => {
@@ -107,41 +109,41 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         >
           {val.name}
         </a>
-      );
+      </div>
+    );
+  }
+  protected renderPreview(): JSX.Element {
+    if (!this.question.previewValue) return null;
+    var previews = this.question.previewValue.map((val, index) => {
+      if (!val) return null;
       return (
         <span
           key={this.question.inputId + "_" + index}
           className={this.question.cssClasses.preview}
         >
-          {val.name ? (
-            <div className={this.question.cssClasses.fileSign}>{fileSign}</div>
-          ) : null}
-          {this.question.canPreviewImage(val) ? (
-            <img
-              src={val.content}
-              height={this.question.imageHeight}
-              width={this.question.imageWidth}
-              alt="File preview"
-            />
-          ) : (<img className={this.question.cssClasses.defaultImage} height={this.question.imageHeight} width={this.question.imageWidth}/>)}
-          {val.name && !this.question.isReadOnly ? (
-            <div className={this.question.cssClasses.removeFileButton} onClick={() => this.question.doRemoveFile(val)}>
-              <span
-                className={this.question.cssClasses.removeFile}
-              >
-                {this.question.removeFileCaption}
-              </span>
-              <svg
-                className={this.question.cssClasses.removeFileSvg}
-                viewBox="0 0 16 16"
-              >
-                <path d="M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z M11,10l-1,1L8,9l-2,2l-1-1l2-2L5,6l1-1l2,2l2-2l1,1L9,8 L11,10z" />
-              </svg>
-            </div>
-          ) : null}
-          <div className={this.question.cssClasses.fileSignBottom}>
-            {fileSign}
+          {this.renderFileSign(this.question.cssClasses.fileSign, val)}
+          <div className={this.question.cssClasses.imageWrapper}>
+            {this.question.canPreviewImage(val) ? (
+              <img
+                src={val.content}
+                height={this.question.imageHeight}
+                width={this.question.imageWidth}
+                alt="File preview"
+              />
+            ) : (<img className={this.question.cssClasses.defaultImage} height={this.question.imageHeight} width={this.question.imageWidth}/>)}
+            {val.name && !this.question.isReadOnly ? (
+              <div className={this.question.cssClasses.removeFileButton} onClick={() => this.question.doRemoveFile(val)}>
+                <span
+                  className={this.question.cssClasses.removeFile}
+                >
+                  {this.question.removeFileCaption}
+                </span>
+                {(this.question.cssClasses.removeFileSvgIconId) ?
+                  (<SvgIcon iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>): null }
+              </div>
+            ) : null}
           </div>
+          {this.renderFileSign(this.question.cssClasses.fileSignBottom, val)}
         </span>
       );
     });

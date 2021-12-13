@@ -495,6 +495,7 @@ Serializer.addClass(
     {
       name: "max",
       dependsOn: "inputType",
+      nextToProperty: "*min",
       visibleIf: function(obj: any) {
         return !!obj && obj.isMinMaxType;
       },

@@ -1,5 +1,5 @@
 <template>
-  <fieldset role="radiogroup" :class="question.cssClasses.root">
+  <fieldset role="presentation" :class="question.cssClasses.root">
     <survey-radiogroup-item
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"
@@ -12,6 +12,7 @@
       v-if="question.hasColumns"
       v-for="(column, colIndex) in question.columns"
       :class="question.getColumnClass()"
+      role="presentation"
     >
       <survey-radiogroup-item
         v-for="(item, index) in column"

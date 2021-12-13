@@ -64,7 +64,6 @@ $base-unit: var(--base-unit, 8px);
   font-family: $font-family;
   overflow-x: hidden;
   white-space: nowrap;
-  border: 1px solid transparent;
 }
 
 button.sv-action-bar-item {
@@ -81,17 +80,15 @@ button.sv-action-bar-item {
 }
 
 //hovered state
-.sv-action-bar-item:hover {
+.sv-action-bar-item:hover,
+.sv-action-bar-item:focus-visible {
+  outline: none;
   background-color: $background-dim;
 }
 
 //pressed state
 .sv-action-bar-item:active {
   opacity: 0.5;
-}
-
-.sv-action-bar-item:focus {
-  outline: none;
 }
 
 //disabled state

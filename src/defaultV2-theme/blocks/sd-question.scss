@@ -119,8 +119,9 @@
   box-sizing: border-box;
   white-space: nowrap;
   flex-shrink: 0;
-  & + span:not(.sv-string-viewer):not([data-key="num-sp"]) {
-    display: none;
+  & + span:not(.sv-string-viewer) {
+    float: left;
+    width: 0;
   }
 }
 div > .sd-question__num {

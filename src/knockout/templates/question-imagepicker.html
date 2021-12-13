@@ -13,9 +13,9 @@
             <input style="display: none;" data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
             />
             <div data-bind="css: question.koCss().itemDecorator">
-                <div data-bind="css: question.koCss().imageContainer">
+                <div data-bind="css: question.koCss().imageContainer, style: {width: question.renderedImageWidth, height: question.renderedImageHeight}">
                   <!-- ko if: question.contentMode === "image" -->
-                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
+                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
                   <!-- /ko -->
                   <!-- ko if: question.contentMode === "video" -->
                   <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }"></video>

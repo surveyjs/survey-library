@@ -25,6 +25,9 @@
 }
 .sd-imagepicker__image-container {
   position: relative;
+  width: 200px;
+  height: 150px;
+  padding-top: 10px;
 }
 .sd-imagepicker__item--checked .sd-imagepicker__image-container::before {
   display: block;

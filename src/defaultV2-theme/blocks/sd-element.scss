@@ -113,6 +113,10 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
     margin-left: 0;
     width: auto;
     padding: 0;
+    & + span:not(.sv-string-viewer)[data-key="num-sp"] {
+        float: none;
+        width: auto;
+    }
   }
   div > .sd-question__num {
     float: none;

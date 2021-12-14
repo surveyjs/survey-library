@@ -36,9 +36,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
-    const dropTargetIndex = this.rankingChoices.indexOf(
-      this.currentDropTarget
-    );
+    const dropTargetIndex = this.rankingChoices.indexOf(this.currentDropTarget);
 
     return new CssClassBuilder()
       .append(super.getItemClassCore(item, options))

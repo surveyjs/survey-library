@@ -7,18 +7,20 @@ import { IsMobile } from "../utils/is-mobile";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
-window.addEventListener(
-  "touchmove",
-  (event) => {
-    if (!DragDropCore.PreventScrolling) {
-      return;
-    }
+if(typeof window !== "undefined") {
+  window.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!DragDropCore.PreventScrolling) {
+        return;
+      }
 
-    // Prevent scrolling
-    event.preventDefault();
-  },
-  { passive: false }
-);
+      // Prevent scrolling
+      event.preventDefault();
+    },
+    { passive: false }
+  );
+}
 
 export abstract class DragDropCore<T> extends Base {
   @property({

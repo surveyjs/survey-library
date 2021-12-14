@@ -7,9 +7,7 @@ export var surveyLocalization = {
   localeNames: <{ [index: string]: any }>{},
   supportedLocales: <Array<any>>[],
   get currentLocale() {
-    return this.currentLocaleValue === this.defaultLocaleValue
-      ? ""
-      : this.currentLocaleValue;
+    return this.currentLocaleValue === this.defaultLocaleValue ? "" : this.currentLocaleValue;
   },
   set currentLocale(val: string) {
     if (val === "cz") val = "cs";
@@ -25,15 +23,14 @@ export var surveyLocalization = {
   getLocaleStrings(loc: string): any {
     return this.locales[loc];
   },
-  getCurrentStrings(): any {
-    var loc = this.currentLocale
-      ? this.locales[this.currentLocale]
-      : this.locales[this.defaultLocale];
+  getCurrentStrings(locale?: string): any {
+    let loc = locale && this.locales[locale];
+    if (!loc) loc = this.currentLocale ? this.locales[this.currentLocale] : this.locales[this.defaultLocale];
     if (!loc) loc = this.locales[this.defaultLocale];
     return loc;
   },
-  getString: function (strName: string) {
-    var loc = this.getCurrentStrings();
+  getString: function (strName: string, locale: string = null) {
+    var loc = this.getCurrentStrings(locale);
     if (!loc[strName]) loc = this.locales[this.defaultLocale];
     var result = loc[strName];
     if (result === undefined) {

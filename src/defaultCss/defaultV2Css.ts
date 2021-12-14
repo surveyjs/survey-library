@@ -111,7 +111,12 @@ export var defaultV2Css = {
   image: {
     mainRoot: "sd-question--image",
     root: "sd-image",
-    image: "sv_image_image",
+    image: "sd_image_image",
+    withFrame: ""
+  },
+  html: {
+    mainRoot: "sd-question--html",
+    root: "sd-html",
     withFrame: ""
   },
   error: {

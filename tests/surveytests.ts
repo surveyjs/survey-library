@@ -14354,3 +14354,20 @@ QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
   survey.currentPageNo = 1;
   assert.equal(counter, 0, "onQuestionAdded is not fired");
 });
+QUnit.test("Set values into radiogroup and checkbox questions before creating them", function (assert) {
+  const survey = new SurveyModel();
+  survey.data = { q1: 1, q2: [1, 2] };
+  survey.fromJSON({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+      { type: "checkbox", name: "q2", choices: [1, 2, 3] },
+    ]
+  });
+  assert.deepEqual(survey.data, { q1: 1, q2: [1, 2] }, "Survey data is correct");
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.equal(q1.value, 1, "radiogroup value");
+  assert.deepEqual(q2.value, [1, 2], "checkbox value");
+  assert.equal(q1.renderedValue, 1, "radiogroup rendered value");
+  assert.deepEqual(q2.renderedValue, [1, 2], "checkbox rendered value");
+});

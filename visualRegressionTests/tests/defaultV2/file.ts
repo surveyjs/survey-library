@@ -1,7 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
 import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
-import { surveyStrings } from "survey-analytics";
 
 const title = "File Screenshot";
 

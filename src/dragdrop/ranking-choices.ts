@@ -102,6 +102,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     choices.splice(draggedElementIndex, 1);
     choices.splice(dropTargetIndex, 0, this.draggedElement);
     this.parentElement.setPropertyValue("rankingChoices", choices);
+    //return;
     this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
     if (draggedElementIndex !== dropTargetIndex) {

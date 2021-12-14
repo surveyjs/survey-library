@@ -3,6 +3,22 @@ import { Base, EventBase } from "../base";
 import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
+import { IsMobile } from "../utils/is-mobile";
+
+// WebKit requires cancelable `touchmove` events to be added as early as possible
+// see https://bugs.webkit.org/show_bug.cgi?id=184250
+window.addEventListener(
+  "touchmove",
+  (event) => {
+    if (!DragDropCore.PreventScrolling) {
+      return;
+    }
+
+    // Prevent scrolling
+    event.preventDefault();
+  },
+  { passive: false }
+);
 
 export abstract class DragDropCore<T> extends Base {
   @property({
@@ -16,6 +32,8 @@ export abstract class DragDropCore<T> extends Base {
   protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire({}, {});
   }
+
+  public static PreventScrolling = false;
 
   public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
   public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
@@ -36,6 +54,7 @@ export abstract class DragDropCore<T> extends Base {
   private scrollIntervalId: number = null;
   protected allowDropHere = false;
 
+  private preventScrolling = false;
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
   }
@@ -46,12 +65,89 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
+    if (IsMobile) {
+      this.startLongTapProcessing(
+        event,
+        draggedElement,
+        parentElement,
+        draggedElementNode
+      );
+      return;
+    }
+    this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
+  }
+
+  //long tap
+  private timeoutID: any;
+  private startX: number;
+  private startY: number;
+  private currentX: number;
+  private currentY: number;
+  // save event.target node from the frameworks update. See  https://stackoverflow.com/questions/33298828/touch-move-event-dont-fire-after-touch-start-target-is-removed
+  private savedTargetNode: any;
+
+  private startLongTapProcessing(
+    event: PointerEvent,
+    draggedElement: any,
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
+  ): void {
+    this.startX = event.pageX;
+    this.startY = event.pageY;
+
+    this.timeoutID = setTimeout(() => {
+      this.doStartDrag(
+        event,
+        draggedElement,
+        parentElement,
+        draggedElementNode
+      );
+      this.savedTargetNode = event.target;
+      this.savedTargetNode.className = "sv-visuallyhidden";
+      document.body.appendChild(this.savedTargetNode);
+      this.stopLongTap();
+    }, 500);
+
+    document.addEventListener("pointerup", this.stopLongTap);
+    document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
+  }
+  private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
+    pointerMoveEvent.preventDefault();
+    this.currentX = pointerMoveEvent.pageX;
+    this.currentY = pointerMoveEvent.pageY;
+    if (this.isMicroMovement) return;
+    this.stopLongTap();
+  };
+  // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
+  private get isMicroMovement() {
+    const delta = 5;
+    const diffX = Math.abs(this.currentX - this.startX);
+    const diffY = Math.abs(this.currentY - this.startY);
+    return diffX < delta && diffY < delta;
+  }
+  private stopLongTap = (e?: any) => {
+    clearTimeout(this.timeoutID);
+    this.timeoutID = null;
+    document.removeEventListener("pointerup", this.stopLongTap);
+    document.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
+  };
+  // EO long tap
+
+  private doStartDrag(
+    event: PointerEvent,
+    draggedElement: any,
+    parentElement?: any,
+    draggedElementNode?: HTMLElement
+  ): void {
+    if (IsMobile) {
+      DragDropCore.PreventScrolling = true;
+    }
     if (event.which === 3) return; //right mouse btn
 
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
 
-    this.doStartDrag();
+    this.onStartDrag();
 
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.draggedElementShortcut = this.createDraggedElementShortcut(
@@ -66,7 +162,9 @@ export abstract class DragDropCore<T> extends Base {
     document.addEventListener("pointercancel", this.handlePointerCancel);
     document.addEventListener("keydown", this.handleEscapeButton);
     document.addEventListener("pointerup", this.drop);
-    this.draggedElementShortcut.addEventListener("pointerup", this.drop);
+    if (!IsMobile) {
+      this.draggedElementShortcut.addEventListener("pointerup", this.drop);
+    }
   }
 
   private dragOver = (event: PointerEvent) => {
@@ -85,7 +183,10 @@ export abstract class DragDropCore<T> extends Base {
 
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
-    const isDropTargetValid = this.isDropTargetValid(this.dropTarget, dropTargetNode);
+    const isDropTargetValid = this.isDropTargetValid(
+      this.dropTarget,
+      dropTargetNode
+    );
 
     this.doDragOver(dropTargetNode);
 
@@ -121,13 +222,17 @@ export abstract class DragDropCore<T> extends Base {
     );
   }
 
-  protected doStartDrag(): void { }
+  protected onStartDrag(): void { }
 
   protected getShortcutText(draggedElement: IShortcutText): string {
     return draggedElement.shortcutText;
   }
 
-  protected createDraggedElementShortcut(text: string, draggedElementNode?: HTMLElement, event?: PointerEvent): HTMLElement {
+  protected createDraggedElementShortcut(
+    text: string,
+    draggedElementNode?: HTMLElement,
+    event?: PointerEvent
+  ): HTMLElement {
     const draggedElementShortcut = document.createElement("div");
     draggedElementShortcut.innerText = text;
     draggedElementShortcut.className = this.getDraggedElementClass();
@@ -237,10 +342,22 @@ export abstract class DragDropCore<T> extends Base {
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 
-    let top = scrollableParentNode.getBoundingClientRect().top;
-    let bottom = scrollableParentNode.getBoundingClientRect().bottom;
-    let left = scrollableParentNode.getBoundingClientRect().left;
-    let right = scrollableParentNode.getBoundingClientRect().right;
+    let top: number;
+    let bottom: number;
+    let left: number;
+    let right: number;
+
+    if (scrollableParentNode.tagName === "HTML") {
+      top = 0;
+      bottom = document.documentElement.clientHeight;
+      left = 0;
+      right = document.documentElement.clientWidth;
+    } else {
+      top = scrollableParentNode.getBoundingClientRect().top;
+      bottom = scrollableParentNode.getBoundingClientRect().bottom;
+      left = scrollableParentNode.getBoundingClientRect().left;
+      right = scrollableParentNode.getBoundingClientRect().right;
+    }
 
     const repeat = () => {
       if (clientY - top <= startScrollBoundary) {
@@ -323,7 +440,9 @@ export abstract class DragDropCore<T> extends Base {
     return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
-  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
     const result: HTMLElement =
       dragOverNode.querySelector(this.dropTargetDataAttributeName) ||
       dragOverNode.closest(this.dropTargetDataAttributeName);
@@ -351,6 +470,11 @@ export abstract class DragDropCore<T> extends Base {
     this.isBottom = null;
     this.parentElement = null;
     this.scrollIntervalId = null;
+
+    if (IsMobile) {
+      document.body.removeChild(this.savedTargetNode);
+      DragDropCore.PreventScrolling = false;
+    }
   };
 
   protected doClear(): void { }

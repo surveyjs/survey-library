@@ -4,7 +4,7 @@ This article describes how SurveyJS Library works, its concepts and main functio
 
 We recommend that you use the [SurveyJS Creator](https://surveyjs.io/create-survey) to create a survey without any coding.
 
-For information about integrating a survey into a web page, refer to the [Add Survey into your Web Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) article.
+For information about integrating a survey into a web page, refer to the [Add Survey into your Web Page](https://surveyjs.io/Documentation/Library?id=get-started) article.
 
 Please visit our [what's new page](https://surveyjs.io/WhatsNew) to see what we have added recently or what is coming soon.
 

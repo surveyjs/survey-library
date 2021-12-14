@@ -1,4 +1,9 @@
-import { Serializer, QuestionFactory, QuestionRankingModel, ItemValue } from "survey-core";
+import {
+  Serializer,
+  QuestionFactory,
+  QuestionRankingModel,
+  ItemValue,
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionRanking extends QuestionRankingModel {
@@ -12,20 +17,21 @@ export class QuestionRanking extends QuestionRankingModel {
     this._implementor = undefined;
     super.dispose();
   }
-  public koHandleKeydown = (data:ItemValue, event:KeyboardEvent) => {
+  public koHandleKeydown = (data: ItemValue, event: KeyboardEvent) => {
     this.handleKeydown(event, data);
     return true;
-  }
-  public koHandlePointerDown = (data:ItemValue, event:PointerEvent)=>{
+  };
+  public koHandlePointerDown = (data: ItemValue, event: PointerEvent) => {
+    event.preventDefault();
     this.handlePointerDown(event, data, <HTMLElement>event.currentTarget);
     return true;
-  }
+  };
 }
 
 Serializer.overrideClassCreator("ranking", function() {
   return new QuestionRanking("");
 });
-QuestionFactory.Instance.registerQuestion("ranking", name => {
+QuestionFactory.Instance.registerQuestion("ranking", (name) => {
   const q = new QuestionRanking(name);
   q.choices = QuestionFactory.DefaultChoices;
   return q;

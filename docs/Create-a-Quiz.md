@@ -112,6 +112,6 @@ To show information about time left, set the [survey.showTimerPanelMode](https:/
 
 ## Step 4. Integrate a Quiz Into Your Web Application
 
-SurveyJS quiz does not differ from any other survey. You may integrate it or use it on our service in the same way as for any other survey. Refer to the [Getting Started Page](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page) for more information. 
+SurveyJS quiz does not differ from any other survey. You may integrate it or use it on our service in the same way as for any other survey. Refer to the [Getting Started Page](https://surveyjs.io/Documentation/Library?id=get-started) for more information. 
 
 To see a quiz in action, try the [Quiz](https://surveyjs.io/Examples/Library/?id=survey-quiz) example.

@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.root">
+  <div :class="question.getFileRootCss()">
     <input
       :class="question.cssClasses.fileInput"
       v-if="!question.isReadOnly"

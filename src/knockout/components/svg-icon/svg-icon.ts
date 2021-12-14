@@ -7,8 +7,8 @@ export var SvgIconViewModel: any;
 ko.components.register("sv-svg-icon", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      let iconName = ko.unwrap(params.iconName);
       ko.computed(() => {
+        const iconName = ko.unwrap(params.iconName);
         if(iconName) {
           createSvg(
             ko.unwrap(params.size),
@@ -20,7 +20,7 @@ ko.components.register("sv-svg-icon", {
         }
       });
       return {
-        hasIcon: iconName
+        hasIcon: params.iconName
       };
     },
   },

@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
       question.allowMultiple = true;
       question.clear();
     })();
-    await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read me.txt", "files/Flamingo.png"]);
+    await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
     await takeScreenshot("file-question-multiple.png", questionRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())

@@ -64,6 +64,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
       padding: 4px;
       border-radius: 4px;
+      background: white;
     `;
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
@@ -74,7 +75,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     controlsNode.style.display = "none";
     imageContainerNode.style.width = imageNode.width + "px";
     imageContainerNode.style.height = imageNode.height + "px";
+
     imageNode.style.objectFit = "cover";
+    imageNode.style.borderRadius = "4px";
 
     draggedElementShortcut.appendChild(imageNode);
 

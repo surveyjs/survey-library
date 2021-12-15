@@ -109,13 +109,13 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
   },
   image: {
-    mainRoot: "sd-question--image",
+    mainRoot: "sd-question sd-question--image",
     root: "sd-image",
     image: "sd_image_image",
     withFrame: ""
   },
   html: {
-    mainRoot: "sd-question--html",
+    mainRoot: "sd-question sd-question--html",
     root: "sd-html",
     withFrame: ""
   },

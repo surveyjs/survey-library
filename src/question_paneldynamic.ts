@@ -230,6 +230,10 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
+    this.createLocalizableString("placeHolder", this, true, "paneldynamicPlaceHolder");
+    this.registerFunctionOnPropertyValueChanged("panels", ()=>{
+      this.updateQuestionCss();
+    });
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
@@ -1605,6 +1609,9 @@ export class QuestionPanelDynamicModel extends Question
       .getString("panelDynamicProgressText")
       ["format"](this.currentIndex + 1, rangeMax);
   }
+  protected getCssRoot(): string {
+    return new CssClassBuilder().append(super.getCssRoot(this.cssClasses)).append(this.cssClasses.empty, this.panelCount == 0).toString();
+  }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper)
@@ -1637,6 +1644,12 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
       .toString();
   }
+  public set locPlaceHolder(val: any) {
+    this.setLocalizableStringText("placeHolder", val);
+  }
+  public get locPlaceHolder(): LocalizableString {
+    return this.getLocalizableString("placeHolder");
+  }
 }
 
 Serializer.addClass(
@@ -1653,6 +1666,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
+    { name: "placeHolder:text", visible: false, serializationProperty: "locPlaceHolder" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

@@ -40,7 +40,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       />
     );
     return (
-      <div className={this.question.cssClasses.root}>
+      <div className={this.question.getFileRootCss()}>
         {fileInput}
         {fileDecorator}
         {clearButton}

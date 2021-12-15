@@ -67,7 +67,7 @@ Models are specified by model definitions (JSON objects). For example, the follo
 
 ```js
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -118,7 +118,7 @@ import { StylesManager, Model } from 'survey-vue';
 StylesManager.applyTheme("modern");
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -192,7 +192,7 @@ import { Survey, StylesManager, Model } from 'survey-vue';
 StylesManager.applyTheme("modern");
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -270,7 +270,7 @@ import { Survey, StylesManager, Model } from 'survey-vue';
 StylesManager.applyTheme("modern");
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"

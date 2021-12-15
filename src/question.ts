@@ -1082,6 +1082,9 @@ export class Question extends SurveyElement
   public onSurveyLoad(): void {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
+    if(this.isEmpty()) {
+      this.initDataFromSurvey();
+    }
   }
   protected onSetData(): void {
     super.onSetData();

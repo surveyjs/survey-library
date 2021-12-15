@@ -94,7 +94,7 @@ Models are specified by model definitions (JSON objects). For example, the follo
 
 ```js
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -131,7 +131,7 @@ import { Component, OnInit } from '@angular/core';
 import { Model, StylesManager } from "survey-angular";
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -199,7 +199,7 @@ import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"
@@ -267,7 +267,7 @@ import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
 const surveyJson = {
-  questions: [{
+  elements: [{
     name: "FirstName",
     title: "Enter your first name:",
     type: "text"

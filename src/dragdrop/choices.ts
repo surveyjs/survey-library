@@ -14,7 +14,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     event: PointerEvent
   ): HTMLElement {
     if (this.parentElement.getType() === "imagepicker") {
-      return super.createDraggedElementShortcut(text, draggedElementNode);
+      return this.createImagePickerShortcut(text, draggedElementNode, event);
     }
     const draggedElementShortcut:any = document.createElement("div");
     // draggedElementShortcut.innerText = text;
@@ -51,6 +51,35 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
 
     this.isBottom = null;
+
+    return draggedElementShortcut;
+  }
+
+  private createImagePickerShortcut(text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
+    const draggedElementShortcut:any = document.createElement("div");
+    draggedElementShortcut.style.cssText = ` 
+      cursor: grabbing;
+      position: absolute;
+      z-index: 1000;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 4px;
+      border-radius: 4px;
+      background: white;
+    `;
+
+    const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
+    const controlsNode: HTMLElement = itemValueNode.querySelector(".svc-image-item-value-controls");
+    const imageContainerNode:any = itemValueNode.querySelector(".sd-imagepicker__image-container");
+    const imageNode:any = itemValueNode.querySelector("img");
+
+    controlsNode.style.display = "none";
+    imageContainerNode.style.width = imageNode.width + "px";
+    imageContainerNode.style.height = imageNode.height + "px";
+
+    imageNode.style.objectFit = "cover";
+    imageNode.style.borderRadius = "4px";
+
+    draggedElementShortcut.appendChild(imageNode);
 
     return draggedElementShortcut;
   }

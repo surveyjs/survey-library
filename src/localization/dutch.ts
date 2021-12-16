@@ -8,7 +8,7 @@ export var dutchSurveyStrings = {
   completeText: "Verzenden",
   previewText: "Voorbeeld",
   editText: "Bewerk",
-  startSurveyText: "Begin met",
+  startSurveyText: "Start",
   otherItemText: "Anders, nl.",
   noneItemText: "Geen",
   selectAllItemText: "Selecteer Alles",

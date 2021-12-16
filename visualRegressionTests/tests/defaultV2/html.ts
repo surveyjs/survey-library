@@ -32,6 +32,7 @@ frameworks.forEach(framework => {
     });
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question--html");
+    await t.wait(1000);
     await takeScreenshot("html-question.png", questionRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())

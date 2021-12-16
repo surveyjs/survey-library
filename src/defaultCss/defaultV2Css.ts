@@ -63,6 +63,7 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder"
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",

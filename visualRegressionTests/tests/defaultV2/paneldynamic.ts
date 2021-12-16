@@ -39,7 +39,7 @@ var json = {
         }
       ],
       panelCount: 2,
-      placeHolder: "You can add as many applications as you want.\nJust click the button below to start.",
+      noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
       panelAddText: "Add application",
       panelRemoveText: "Remove application"
     },

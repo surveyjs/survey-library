@@ -88,7 +88,7 @@ export var englishStrings = {
   modalCancelButtonText: "Cancel",
   modalApplyButtonText: "Apply",
   filteredTextPlaceholder: "Type to search...",
-  paneldynamicPlaceHolder: "You can add as many panels as you want.\nJust click the button below to start."
+  noEntriesText: "There are no entries yet.\n Click the button below to add a new entry."
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

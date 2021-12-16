@@ -230,7 +230,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
-    this.createLocalizableString("placeHolder", this, true, "paneldynamicPlaceHolder");
+    this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.registerFunctionOnPropertyValueChanged("panels", ()=>{
       this.updateQuestionCss();
     });
@@ -1644,11 +1644,17 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
       .toString();
   }
-  public set locPlaceHolder(val: any) {
-    this.setLocalizableStringText("placeHolder", val);
+  /**
+   * A text displayed when the dynamic panel contains no entries. Applies only in the Default V2 theme.
+   */
+  public get noEntriesText(): string {
+    return this.getLocalizableStringText("noEntriesText");
   }
-  public get locPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("placeHolder");
+  public set noEntriesPlaceholder(val: string) {
+    this.setLocalizableStringText("noEntriesText", val);
+  }
+  public get locNoEntriesText(): LocalizableString {
+    return this.getLocalizableString("noEntriesText");
   }
 }
 
@@ -1666,7 +1672,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "placeHolder:text", visible: false, serializationProperty: "locPlaceHolder" },
+    { name: "noEntriesText:text", visible: false, serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

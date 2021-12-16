@@ -48,7 +48,7 @@ var json = {
 
 const theme = "defaultV2";
 
-["knockout"].forEach(framework => {
+frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
     await applyTheme(theme);

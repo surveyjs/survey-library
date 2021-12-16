@@ -1,5 +1,11 @@
 <template>
   <div :class="question.cssClasses.root">
+    <div v-if="question.panelCount == 0 && question.cssClasses.noEntriesPlaceholder" :class="question.cssClasses.noEntriesPlaceholder">
+      <span>
+        <survey-string :locString="question.locNoEntriesText"></survey-string>
+      </span>
+      <survey-paneldynamicadd :question="question" />
+    </div>
     <survey-paneldynamicprogress
       v-if="question.isProgressTopShowing"
       :question="question"
@@ -15,17 +21,8 @@
       v-if="question.isProgressBottomShowing"
       :question="question"
     />
-    <button
-      type="button"
-      v-if="question.isRenderModeList && question.canAddPanel"
-      :class="question.getAddButtonCss()"
-      @click="addPanelClick"
-    >
-      <span :class="question.cssClasses.buttonAddText">
-        {{ question.panelAddText }}
-      </span>
-    </button>
-    <survey-paneldynamicprogress-v2
+    <survey-paneldynamicadd :question="question" />
+    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
       :question="question"
     />
   </div>
@@ -46,9 +43,6 @@ export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
       panels.push(this.question.currentPanel);
     }
     return panels;
-  }
-  addPanelClick() {
-    this.question.addPanel();
   }
 }
 Vue.component("survey-paneldynamic", PanelDynamic);

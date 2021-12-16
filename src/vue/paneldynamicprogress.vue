@@ -15,18 +15,7 @@
         <sv-svg-icon :class="question.getNextButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
       </div>
     </div>
-
-    <button
-      type="button"
-      v-if="question.canAddPanel"
-      :class="question.getAddButtonCss()"
-      @click="addPanelClick"
-    >
-      <span :class="question.cssClasses.buttonAddText">
-        {{ question.panelAddText }}
-      </span>
-    </button>
-
+    <survey-paneldynamicadd :question="question" />
     <div :class="question.cssClasses.progressText">
       {{ question.progressText }}
     </div>
@@ -50,9 +39,6 @@ export class PanelDynamicProgress extends Vue {
   }
   get rangeMax() {
     return this.question.panelCount - 1;
-  }
-  addPanelClick() {
-    this.question.addPanelUI();
   }
   prevPanelClick() {
     this.question.goToPrevPanel();

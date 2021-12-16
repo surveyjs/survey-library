@@ -2,13 +2,14 @@ import { surveyLocalization } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 
-export interface IPropertyDecoratorOptions {
-  defaultValue?: any;
+export interface IPropertyDecoratorOptions<T = any> {
+  defaultValue?: T;
   defaultSource?: string;
+  getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
   | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
   | boolean;
-  onSet?: (val: any, target: any) => void;
+  onSet?: (val: T, objectInstance: any) => void;
 }
 
 function ensureLocString(
@@ -34,8 +35,8 @@ function getLocStringValue(
 ) {
   ensureLocString(target, options, key);
   let res = target.getLocalizableStringText(key);
-  if(!!res) return res;
-  if(typeof options.localizable === "object" && options.localizable.defaultStr)
+  if (!!res) return res;
+  if (typeof options.localizable === "object" && options.localizable.defaultStr)
     return surveyLocalization.getString(options.localizable.defaultStr);
   return "";
 }
@@ -60,11 +61,11 @@ export function property(options?: IPropertyDecoratorOptions) {
             return value;
           }
           if (!!options) {
+            if (typeof options.getDefaultValue === "function") {
+              return options.getDefaultValue(this);
+            }
             if (options.defaultValue !== undefined) {
               return options.defaultValue;
-            }
-            if (options.defaultSource !== undefined) {
-              return this[options.defaultSource];
             }
           }
           return undefined;

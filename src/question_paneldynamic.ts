@@ -1650,7 +1650,7 @@ export class QuestionPanelDynamicModel extends Question
   public get noEntriesText(): string {
     return this.getLocalizableStringText("noEntriesText");
   }
-  public set noEntriesPlaceholder(val: string) {
+  public set noEntriesText(val: string) {
     this.setLocalizableStringText("noEntriesText", val);
   }
   public get locNoEntriesText(): LocalizableString {

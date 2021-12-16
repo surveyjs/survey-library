@@ -31,11 +31,12 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
-import { SurveyWindowModel } from "survey-core";
+import { Base, SurveyWindowModel } from "survey-core";
 import { VueSurveyWindowModel } from "./surveyModel";
+import { BaseVue } from "./base";
 
 @Component
-export class Window extends Vue {
+export class Window extends BaseVue {
   @Prop() window: SurveyWindowModel;
   @Prop() survey: SurveyModel;
   @Prop() isExpanded: boolean;
@@ -65,6 +66,10 @@ export class Window extends Vue {
       self.doHide();
     };
   }
+  protected getModel(): Base {
+    return this.surveyWindow;
+  }
+
   get windowSurvey(): SurveyModel {
     return this.surveyWindow.survey;
   }

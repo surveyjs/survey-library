@@ -4,8 +4,8 @@
     style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
     :class="css.window.root"
   >
-    <div :class="css.window.header.root">
-      <span @click="doExpand" style="width: 100%; cursor: pointer">
+    <div :class="css.window.header.root" @click="doExpand">
+      <span style="width: 100%; cursor: pointer; user-select: none;">
         <span style="padding-right: 10px" :class="css.window.header.title">
           <survey-string :locString="windowSurvey.locTitle" />
         </span>
@@ -13,12 +13,9 @@
       </span>
       <span
         v-if="isExpandedSurvey"
-        @click="doExpand"
-        style="float: right; cursor: pointer"
+        style="float: right; cursor: pointer; user-select: none;"
       >
-        <span style="padding-right: 10px" :class="css.window.header.title"
-          >X</span
-        >
+        <span style="padding-right: 10px" :class="css.window.header.title">X</span>
       </span>
     </div>
     <div v-show="isExpandedSurvey" :class="css.window.body">

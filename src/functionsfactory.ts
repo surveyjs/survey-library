@@ -134,7 +134,7 @@ function getInArrayParams(params: any[]): any {
 }
 
 function convertToNumber(val: any): number {
-  if(typeof val === "string" && Helpers.isNumber(val)) return parseFloat(val);
+  if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : 0;
   return val;
 }
 function processItemInArray(item: any, name: string, res: number, func: (res: number, val: number) => number): number {

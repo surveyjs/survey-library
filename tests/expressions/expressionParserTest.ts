@@ -1309,7 +1309,7 @@ QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avgInArray fun
 });
 QUnit.test("ExpressionRunner: sumInArray function, float and string", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
-  var values = { a: [{ val1: 0.3 }, { val1: "10" }, { val1: "0.6" }] };
+  var values = { a: [{ val1: 0.3 }, { val1: "10" }, { val1: "0.6" }, { val1: "abc" }] };
   assert.equal(runner.run(values), 10.9, "It works correctly, sumInArray func");
 });
 

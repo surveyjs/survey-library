@@ -14,6 +14,7 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
+import { englishStrings } from "../src/localization/english";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2541,6 +2542,18 @@ QUnit.test("Load localizable @property", function (assert) {
   assert.equal(obj.strProp, "strProp da", "da string");
   assert.equal(obj["locStr1"].renderedHtml, "str1 da", "da html string");
   Serializer.removeClass("new_declared_props");
+});
+QUnit.test("Get default value for custom localizable @property from global localized strings", function (assert) {
+  Serializer.addProperty("car", {
+    name: "strWithDefaultValue",
+    serializationProperty: "locStrWithDefaultValue",
+  });
+  const obj = new Car();
+  assert.notOk(obj["strWithDefaultValue"], "It is empty by default");
+  englishStrings["strWithDefaultValue"] = "default value";
+  assert.equal(obj["strWithDefaultValue"], "default value", "get value from localization strings");
+  delete englishStrings["strWithDefaultValue"];
+  Serializer.removeProperty("car", "strWithDefaultValue");
 });
 
 QUnit.test("override defaultValue of @property", function (assert) {

@@ -231,9 +231,6 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
-    this.registerFunctionOnPropertyValueChanged("panels", ()=>{
-      this.updateQuestionCss();
-    });
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
@@ -1609,8 +1606,8 @@ export class QuestionPanelDynamicModel extends Question
       .getString("panelDynamicProgressText")
       ["format"](this.currentIndex + 1, rangeMax);
   }
-  protected getCssRoot(): string {
-    return new CssClassBuilder().append(super.getCssRoot(this.cssClasses)).append(this.cssClasses.empty, this.panelCount == 0).toString();
+  public getRootCss(): string {
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.panelCount == 0).toString();
   }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()

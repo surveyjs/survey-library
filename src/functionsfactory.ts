@@ -134,7 +134,7 @@ function getInArrayParams(params: any[]): any {
 }
 
 function convertToNumber(val: any): number {
-  if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : 0;
+  if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : undefined;
   return val;
 }
 function processItemInArray(item: any, name: string, res: number, func: (res: number, val: number) => number): number {
@@ -173,7 +173,8 @@ FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[]): any {
   return calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined || val == null) return val;
+    if (res == undefined) return val;
+    if(val == undefined || val == null) return res;
     return res < val ? res : val;
   });
 }
@@ -181,7 +182,8 @@ FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[]): any {
   return calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined || val == null) return val;
+    if (res == undefined) return val;
+    if(val == undefined || val == null) return res;
     return res > val ? res : val;
   });
 }
@@ -189,7 +191,8 @@ FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[]): any {
   var res = calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined || val == null) res = 0;
+    if (res == undefined) res = 0;
+    if(val == undefined || val == null) return res;
     return res + 1;
   });
   return res !== undefined ? res : 0;

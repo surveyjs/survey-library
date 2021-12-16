@@ -1307,6 +1307,21 @@ QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avgInArray fun
   var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
   assert.equal(runner.run(values), 0.45, "It works correctly, avgInArray func");
 });
+QUnit.test("ExpressionRunner: sumInArray function, float and string", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
+  var values = { a: [{ val1: 0.3 }, { val1: "10" }, { val1: "0.6" }, { val1: "abc" }] };
+  assert.equal(runner.run(values), 10.9, "It works correctly, sumInArray func");
+});
+QUnit.test("ExpressionRunner: minInArray function, float and string", function(assert) {
+  var runner = new ExpressionRunner("minInArray({a}, 'val1')");
+  var values = { a: [{ val1: 3 }, { val1: "1" }, { val1: "abc" }] };
+  assert.equal(runner.run(values), 1, "It works correctly, minInArray func");
+});
+QUnit.test("ExpressionRunner: maxInArray function, float and string", function(assert) {
+  var runner = new ExpressionRunner("maxInArray({a}, 'val1')");
+  var values = { a: [{ val1: -3 }, { val1: "-1" }, { val1: "abc" }] };
+  assert.equal(runner.run(values), -1, "It works correctly, maxInArray func");
+});
 
 QUnit.test("Operand.isEqual()", function(assert) {
   const getOperand = (expression: string): Operand => {

@@ -133,6 +133,15 @@ function getInArrayParams(params: any[]): any {
   return { data: arr, name: name };
 }
 
+function convertToNumber(val: any): number {
+  if(typeof val === "string" && Helpers.isNumber(val)) return parseFloat(val);
+  return val;
+}
+function processItemInArray(item: any, name: string, res: number, func: (res: number, val: number) => number): number {
+  if(!item || Helpers.isValueEmpty(item[name])) return res;
+  const val = convertToNumber(item[name]);
+  return func(res, val);
+}
 function calcInArray(
   params: any[],
   func: (res: number, val: number) => number
@@ -142,17 +151,11 @@ function calcInArray(
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {
-      var item = v.data[i];
-      if (!!item && item[<string>v.name]) {
-        res = func(res, item[<string>v.name]);
-      }
+      res = processItemInArray(v.data[i], v.name, res, func);
     }
   } else {
     for (var key in v.data) {
-      var item = v.data[key];
-      if (!!item && item[<string>v.name]) {
-        res = func(res, item[<string>v.name]);
-      }
+      res = processItemInArray(v.data[key], v.name, res, func);
     }
   }
   return res;
@@ -170,7 +173,7 @@ FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[]): any {
   return calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined) return val;
+    if (res == undefined || val == null) return val;
     return res < val ? res : val;
   });
 }
@@ -178,7 +181,7 @@ FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[]): any {
   return calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined) return val;
+    if (res == undefined || val == null) return val;
     return res > val ? res : val;
   });
 }
@@ -186,7 +189,7 @@ FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[]): any {
   var res = calcInArray(params, function(res: number, val: number): number {
-    if (res == undefined) res = 0;
+    if (res == undefined || val == null) res = 0;
     return res + 1;
   });
   return res !== undefined ? res : 0;

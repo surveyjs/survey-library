@@ -138,7 +138,12 @@ frameworks.forEach(framework => {
 
   test(`show "other" choice`, async t => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
-    await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok()
+    await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok();
+    await t.expect(Selector('textarea').visible).notOk();
+    await t.click(`input[value=Ford]`);
+    await t.expect(Selector('textarea').visible).notOk();
+    await t.click(`input[value=other]`);
+    await t.expect(Selector('textarea').visible).ok();
   });
 
   test(`check "other" choice doesn't change order`, async t => {

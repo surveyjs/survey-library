@@ -35,6 +35,10 @@ $base-unit: var(--base-unit, 8px);
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
   cursor: pointer;
+  &:hover, &:focus {
+    background-color: $background-dim;
+    outline: none;
+  }
 }
 
 .sv-list__item-icon {
@@ -48,9 +52,6 @@ $base-unit: var(--base-unit, 8px);
     fill: $foreground-light;
   }
   margin-right: calcSize(2);
-}
-.sv-list__item:hover {
-  background-color: $background-dim;
 }
 
 .sv-list__item--selected {

@@ -1607,7 +1607,7 @@ export class QuestionPanelDynamicModel extends Question
       ["format"](this.currentIndex + 1, rangeMax);
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.panelCount == 0).toString();
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
@@ -1652,6 +1652,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get locNoEntriesText(): LocalizableString {
     return this.getLocalizableString("noEntriesText");
+  }
+  public getShowNoEntriesPlaceholder(): boolean {
+    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
 }
 

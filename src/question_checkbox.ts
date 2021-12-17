@@ -188,11 +188,28 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   updateValueFromSurvey(newValue: any): void {
     super.updateValueFromSurvey(newValue);
-    this.invisibleOldValues = [];
+    this.invisibleOldValues = {};
+  }
+  protected setDefaultValue() {
+    super.setDefaultValue();
+    const val = this.defaultValue;
+    if(Array.isArray(val)) {
+      for (var i = 0; i < val.length; i++) {
+        if (this.canClearValueAnUnknow(val[i])) {
+          this.addIntoInvisibleOldValues(val[i]);
+        }
+      }
+    }
+  }
+  private addIntoInvisibleOldValues(val: any) {
+    this.invisibleOldValues[val] = val;
+  }
+  protected hasValueToClearIncorrectValues(): boolean {
+    return super.hasValueToClearIncorrectValues() || !Helpers.isValueEmpty(this.invisibleOldValues);
   }
   protected setNewValue(newValue: any) {
     if (!this.isChangingValueOnClearIncorrect) {
-      this.invisibleOldValues = [];
+      this.invisibleOldValues = {};
     }
     newValue = this.valueFromData(newValue);
     var value = this.value;
@@ -326,7 +343,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       } else {
         hasChanged = true;
         if (isUnkown) {
-          this.invisibleOldValues[val[i]] = true;
+          this.addIntoInvisibleOldValues(val[i]);
         }
       }
     }
@@ -348,8 +365,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var visItems = this.visibleChoices;
     for (var i = 0; i < visItems.length; i++) {
       var val = visItems[i].value;
-      if (this.invisibleOldValues[val]) {
-        res.push(val);
+      if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
+        if(!this.isItemSelected(visItems[i])) {
+          res.push(val);
+        }
         delete this.invisibleOldValues[val];
       }
     }

@@ -202,6 +202,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
         this.updateTitleActions();
       } else {
         this.updateExpandAction();
+        this.updateElementCss(false);
       }
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
@@ -365,6 +366,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
+    if(!!this.survey) {
+      this.clearCssClasses();
+    }
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
@@ -463,6 +467,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected updateElementCssCore(cssClasses: any) { }
   public get cssError(): string { return ""; }
   public updateElementCss(reNew?: boolean) {
+    this.clearCssClasses();
+  }
+  protected clearCssClasses() {
     this.cssClassesValue = undefined;
   }
   protected getIsLoadingFromJson(): boolean {
@@ -676,5 +683,19 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected getSearchableLocKeys(keys: Array<string>) {
     keys.push("title");
     keys.push("description");
+  }
+
+  protected get isDefaultV2Theme() {
+    return this.survey && this.survey.getCss().root == "sd-root-modern";
+  }
+
+  public get isErrorsModeTooltip() {
+    return this.isDefaultV2Theme;
+  }
+  public get hasParent() {
+    return (this.parent && !this.parent.isPage) || (this.parent === undefined);
+  }
+  protected get hasFrameV2() {
+    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode;
   }
 }

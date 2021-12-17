@@ -225,7 +225,7 @@ const applyTheme = ClientFunction(theme => {
           .withText("Yes")
       );
 
-      await t.hover(Selector("[name='image_question']").find("img"));
+      await t.hover(Selector("[data-name='image_question']").find("img"));
 
       assert.equal(await Selector(".sjs-html-question").innerText, "html text");
 

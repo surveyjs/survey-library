@@ -5,12 +5,30 @@
       "Title": "Survey Library Overview"
     },
     {
-      "Name": "Getting-Started-The-Very-Basics",
-      "Title": "Getting Started - The Very Basics"
-    },    
-    {
-      "Name": "Add-Survey-into-your-Web-Page",
-      "Title": "Add Survey into your Web Page"
+      "Name": "get-started",
+      "Title": "Get Started with SurveyJS",
+      "Items": [
+        {
+          "Name": "get-started-angular",
+          "Title": "Use with Angular"
+        },
+        {
+          "Name": "get-started-vue",
+          "Title": "Use with Vue"
+        },
+        {
+          "Name": "get-started-react",
+          "Title": "Use with React"
+        },
+        {
+          "Name": "get-started-knockout",
+          "Title": "Use with Knockout"
+        },
+        {
+          "Name": "get-started-jquery",
+          "Title": "Use with jQuery"
+        }
+      ]
     },
     {
       "Name": "Create-a-quiz",

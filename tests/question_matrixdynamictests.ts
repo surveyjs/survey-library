@@ -3187,7 +3187,8 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   assert.equal(cells.length, 4, "3 rows + columns");
   assert.equal(cells[0].hasTitle, false, "empty for header");
   assert.equal(cells[1].locTitle.renderedHtml, "row1", "row1");
-  assert.equal(cells[3].locTitle.renderedHtml, "row3", "row1");
+  assert.equal(cells[1].row.rowName, "row1", "row is set in vertical column");
+  assert.equal(cells[3].locTitle.renderedHtml, "row3", "row3");
 });
 
 QUnit.test("matrix dynamic + renderedTable.headerRow", function (assert) {
@@ -5328,7 +5329,7 @@ QUnit.test(
 QUnit.test("Detail panel, get/set values", function (assert) {
   var survey = new SurveyModel({});
   survey.css = {
-    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2" },
+    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2", detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
   };
   survey.addNewPage("p1");
   var matrix = new QuestionMatrixDynamicModel("q1");
@@ -5364,6 +5365,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "icon1",
     "detail button is closed"
   );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon1",
+    "detail button has collapsed icon"
+  );
   matrix.visibleRows[0].showDetailPanel();
   assert.equal(
     matrix.visibleRows[0].isDetailPanelShowing,
@@ -5375,6 +5381,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1 icon2",
     "detail button is opened"
+  );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon2",
+    "detail button has expanded icon"
   );
   assert.equal(
     matrix.visibleRows[0].detailPanel.questions.length,
@@ -5414,6 +5425,11 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
     "icon1",
     "detail button is closed again"
+  );
+  assert.equal(
+    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    "#icon1",
+    "detail button has collapsed icon again"
   );
 });
 QUnit.test("Detail panel in matrix dropdown, get/set values", function (assert) {
@@ -6990,3 +7006,32 @@ QUnit.test("matrix beginUpdate/endUpdate", function (assert) {
   assert.equal(matrix.visibleRows.length, 3, "visibleRows.length, #3 - unlock Update");
   assert.equal(matrix.visibleRows[0].cells.length, 3, "visibleRows[0]: 3 columns, #3 - unloc Update");
 });
+QUnit.test("TextProcessing matrix in panel dynamic, Bug#3491",
+  function(assert) {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "root_q1", defaultValue: "root_val1" },
+        {
+          type: "paneldynamic",
+          name: "root",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1", defaultValue: "panel_val1" },
+            {
+              type: "matrixdynamic",
+              name: "matrix",
+              rowCount: 1,
+              cellType: "text",
+              columns: [{ name: "col1", defaultValue: "col_val1" }]
+            }
+          ],
+        },
+      ],
+    });
+    const matrix: QuestionMatrixDynamicModel = survey.getQuestionByName("root").panels[0].questions[1];
+    const row = matrix.visibleRows[0];
+    const textProc = row.getTextProcessor();
+    assert.equal(textProc.processText("{root_q1}", false), "root_val1", "root_q1");
+    assert.equal(textProc.processText("{row.col1}", false), "col_val1", "row.col1");
+    assert.equal(textProc.processText("{panel.q1}", false), "panel_val1", "panel.q1");
+  });

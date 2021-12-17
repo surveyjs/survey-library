@@ -19,13 +19,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     var selectAllItemText = this.createLocalizableString(
-      "selectAllText",
-      this,
-      true
-    );
-    selectAllItemText.onGetTextCallback = function(text) {
-      return !!text ? text : surveyLocalization.getString("selectAllItemText");
-    };
+      "selectAllText", this, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
     this.selectAllItem.setLocText(selectAllItemText);
 
@@ -61,10 +55,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Use this property to set the different text for Select All item.
    */
   public get selectAllText(): string {
-    return this.getLocalizableStringText(
-      "selectAllText",
-      surveyLocalization.getString("selectAllItemText")
-    );
+    return this.getLocalizableStringText("selectAllText");
   }
   public set selectAllText(val: string) {
     this.setLocalizableStringText("selectAllText", val);
@@ -241,7 +232,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private getFirstUnknownIndex(newValue: any): number {
     if (!Array.isArray(newValue)) return -1;
     for (var i = 0; i < newValue.length; i++) {
-      if (this.hasUnknownValue(newValue[i])) return i;
+      if (this.hasUnknownValue(newValue[i], false, false)) return i;
     }
     return -1;
   }

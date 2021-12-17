@@ -18,8 +18,7 @@ export class SurveyPanel extends SurveyPanelBase {
     return this.panelBase as PanelModel;
   }
   protected renderElement(): JSX.Element {
-    const title: JSX.Element = this.renderTitle();
-    const description: JSX.Element = this.renderDescription();
+    const header = this.renderHeader();
     const errors = (
       <SurveyElementErrors
         element={this.panelBase}
@@ -29,7 +28,7 @@ export class SurveyPanel extends SurveyPanelBase {
     );
     const style = {
       paddingLeft: this.panel.innerPaddingLeft,
-      display: !this.panel.isCollapsed ? "block" : "none",
+      display: !this.panel.isCollapsed ? undefined : "none",
     };
     let content: JSX.Element = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
@@ -41,13 +40,25 @@ export class SurveyPanel extends SurveyPanelBase {
     return (
       <div
         ref={this.rootRef}
-        className={this.panelBase.cssClasses.panel.container}
+        className={(this.panelBase as PanelModel).getContainerCss()}
         onFocus={(this.panelBase as PanelModel).focusIn}
       >
-        {title}
-        {description}
+        {header}
         {errors}
         {content}
+      </div>
+    );
+  }
+  protected renderHeader() {
+    if (!this.panelBase.hasTitle && !this.panelBase.hasDescription) {
+      return null;
+    }
+    const title: JSX.Element = this.renderTitle();
+    const description: JSX.Element = this.renderDescription();
+    return (
+      <div className={this.panelBase.cssClasses.panel.header}>
+        {title}
+        {description}
       </div>
     );
   }
@@ -81,7 +92,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderBottom(): JSX.Element {
     const footerToolbar = this.panel.getFooterToolbar();
-    if(!footerToolbar.hasActions) return null;
+    if (!footerToolbar.hasActions) return null;
     return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
 }

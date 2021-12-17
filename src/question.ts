@@ -74,12 +74,6 @@ export class Question extends SurveyElement
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  public get isErrorsModeTooltip() {
-    return this.survey && this.survey.getCss().root == "sd-root-modern";
-  }
-  public get hasParent() {
-    return this.parent && !this.parent.isPage;
-  }
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -87,14 +81,7 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
-    var locCommentText = this.createLocalizableString(
-      "commentText",
-      this,
-      true
-    );
-    locCommentText.onGetTextCallback = (text: string): string => {
-      return !!text ? text : surveyLocalization.getString("otherItemText");
-    };
+    this.createLocalizableString("commentText", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -107,7 +94,7 @@ export class Question extends SurveyElement
     });
     this.registerFunctionOnPropertyValueChanged("isRequired", () => {
       this.locTitle.onChanged();
-      this.cssClassesValue = undefined;
+      this.clearCssClasses();
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
@@ -535,10 +522,7 @@ export class Question extends SurveyElement
    * Use it to get or set the comment value.
    */
   public get commentText(): string {
-    return this.getLocalizableStringText(
-      "commentText",
-      surveyLocalization.getString("otherItemText")
-    );
+    return this.getLocalizableStringText("commentText");
   }
   public set commentText(val: string) {
     this.setLocalizableStringText("commentText", val);
@@ -668,6 +652,9 @@ export class Question extends SurveyElement
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
+      .append(cssClasses.collapsed, !!this.isCollapsed)
+      .append(cssClasses.withFrame, this.hasFrameV2)
+      .append(cssClasses.nested, !this.hasFrameV2 && !this.isDesignMode)
       .toString();
   }
   public get cssHeader(): string {
@@ -736,7 +723,7 @@ export class Question extends SurveyElement
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    this.cssClassesValue = undefined;
+    super.updateElementCss(reNew);
     if (reNew) {
       this.updateQuestionCss(true);
     }
@@ -845,10 +832,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("rightIndent", val);
   }
   get paddingLeft(): string {
-    return this.getPropertyValue("paddintLeft", "");
+    return this.getPropertyValue("paddingLeft", "");
   }
   set paddingLeft(val: string) {
-    this.setPropertyValue("paddintLeft", val);
+    this.setPropertyValue("paddingLeft", val);
   }
   get paddingRight(): string {
     return this.getPropertyValue("paddingRight", "");
@@ -1095,6 +1082,9 @@ export class Question extends SurveyElement
   public onSurveyLoad(): void {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
+    if(this.isEmpty()) {
+      this.initDataFromSurvey();
+    }
   }
   protected onSetData(): void {
     super.onSetData();
@@ -1452,7 +1442,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("isAnswered", val);
   }
   protected updateIsAnswered(): void {
+    const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
+    if(oldVal !== this.isAnswered) {
+      this.updateQuestionCss();
+    }
   }
   protected getIsAnswered(): boolean {
     return !this.isEmpty();
@@ -1714,6 +1708,7 @@ export class Question extends SurveyElement
       newValue = this.valueFromDataCallback(newValue);
     }
     this.setQuestionValue(this.valueFromData(newValue));
+    this.updateIsAnswered();
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
@@ -1785,7 +1780,7 @@ export class Question extends SurveyElement
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
   //IValidatorOwner

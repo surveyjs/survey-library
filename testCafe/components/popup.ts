@@ -61,7 +61,11 @@ function addDropdownTitleAction(_, opt) {
     model: new window["Survey"].ListModel([
       new window["Survey"].Action({ title: "Item 1" }),
     ]),
-  });
+  },
+  "bottom",
+  "left",
+  true
+  );
   const item = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "Click",
@@ -112,6 +116,30 @@ frameworks.forEach(async framework => {
 
     await disposeSurvey(framework);
     await t.expect(popupSelector.exists).notOk();
+  });
+
+  test("check showPointer popup position", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
+    await ClientFunction(selector => {
+      const style = document.querySelector(selector).style;
+      style.marginLeft = "4px";
+      style.marginRight = "4px";
+    })(".sv-popup__container");
+
+    await t
+      .expect(popupSelector.exists).ok()
+      .expect(popupSelector.visible).notOk()
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(Selector(".sv-popup span").withText("Item 1").visible).ok();
+
+    const popupClientRect = await getElementClientRect(".sv-popup__container");
+    const itemClientRect = await getElementClientRect(".sv-action-bar-item");
+    const popupPointerClientRect = await getElementClientRect(".sv-popup__pointer");
+
+    await t
+      .expect(Math.abs(popupClientRect.left + popupClientRect.width - popupPointerClientRect.left)).lte(1.0);
+
   });
 
   test("check survey in showModal", async t => {

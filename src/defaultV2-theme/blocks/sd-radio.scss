@@ -15,3 +15,6 @@
 .sd-radio--checked .sd-radio__control:focus + .sd-radio__decorator:after {
   background-color: $primary;
 }
+.sd-radio__svg {
+  display: none;
+}

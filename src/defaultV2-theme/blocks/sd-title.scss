@@ -36,3 +36,16 @@
     width: 100%;
   }
 }
+.sd-root-modern:not(.svc-tab-designer) {
+  .sd-container-modern__title {
+    background-color: $background;
+    box-shadow: 0px 2px 0px #19B394;
+    .sd-header__text h3 {
+      margin: 0;
+    }
+    .sd-description {
+      margin: 0;
+      margin-top: 8px;
+    }
+  }
+} 

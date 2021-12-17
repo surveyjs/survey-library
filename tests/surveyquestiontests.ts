@@ -3566,6 +3566,39 @@ QUnit.test(
   }
 );
 
+QUnit.test("QuestionImagePicker.isAnswerCorrect function", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: true,
+      correctAnswer: [1, 2],
+      choices: [1, 2, 3, 4, 5],
+    },
+    question
+  );
+  question.value = [2, 1];
+  assert.equal(question.isAnswerCorrect(), true, "[1,2]== [2, 1] for image picker");
+  question.value = [2, 3];
+  assert.equal(question.isAnswerCorrect(), false, "[1,2]!= [2, 3] for image picker");
+  question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: false,
+      correctAnswer: 2,
+      choices: [1, 2, 3, 4, 5],
+    },
+    question
+  );
+  question.value = 1;
+  assert.equal(question.isAnswerCorrect(), false, "1 <> 2");
+  question.value = 2;
+  assert.equal(question.isAnswerCorrect(), true, "2 = 2");
+});
+
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
   function(assert) {
@@ -5483,6 +5516,11 @@ QUnit.test("Check isAnswered property", function(assert) {
   q4.value = [];
   assert.notOk(q4.cssTitle.indexOf("answer") > 0);
 
+  assert.notOk(q4.isAnswered, "q4 is not answered");
+  survey.setValue("q4", [1]);
+  assert.ok(q4.isAnswered, "q4 is answered");
+  assert.ok(q4.cssTitle.indexOf("answer") > 0);
+
   survey.css.question.titleOnAnswer = prevStyle;
 });
 QUnit.test("question.startWithNewLine", function(assert) {
@@ -5602,6 +5640,35 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
+QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "choices": ["item1", "item2"]
+      },
+      {
+        "type": "checkbox",
+        "name": "question1",
+        "hasOther": true,
+        "choices": [
+          "item1",
+          {
+            "value": "item2",
+            "visibleIf": "{question2} = 'item1'"
+          },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("question1");
+  survey.data = { question2: "item1", question1: ["item1", "item2"] };
+  assert.deepEqual(question.value, ["item1", "item2"], "value is set correctly");
+  assert.equal(question.isOtherSelected, false, "Other is not selected");
+  assert.equal(question.isItemSelected(question.choices[1]), true, "second item is selected");
+});
 QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
   var survey = new SurveyModel({
     questions: [
@@ -5625,4 +5692,22 @@ QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
   assert.equal(survey.locale, "da", "da locale");
   assert.equal(question.getLocale(), "da", "da locale");
   assert.equal(question.otherPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
+  survey.locale = "";
+});
+QUnit.test("Dropdown optionsCaption localization", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "dropdown",
+        name: "q1"
+      }
+    ]
+  });
+  survey.locale = "";
+  var question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.optionsCaption, "Choose...", "default locale");
+  survey.locale = "de";
+  assert.equal(question.optionsCaption, "Bitte auswählen...", "locale = de");
+  survey.locale = "";
+  assert.equal(question.optionsCaption, "Choose...", "default locale, #2");
 });

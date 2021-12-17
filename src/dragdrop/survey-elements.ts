@@ -137,6 +137,12 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (dropTarget.getType() === "paneldynamic" && !this.isEdge) {
       dropTarget = (<any>dropTarget).template;
     }
+
+    // drop to matrix detail panel
+    if ((dropTarget.getType() === "matrixdropdown" || dropTarget.getType() === "matrixdynamic") && (<any>dropTarget).detailPanelMode !=="none" && !this.isEdge) {
+      dropTarget = (<any>dropTarget).detailPanel;
+    }
+
     // drop to panel
     else if (dropTarget.isPanel) {
       const panelDragInfo = this.getPanelDragInfo(
@@ -249,7 +255,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     this.insertGhostElementIntoSurvey();
   }
 
-  protected doStartDrag(): void {
+  protected onStartDrag(): void {
     this.ghostSurveyElement = this.createGhostSurveyElement();
   }
 

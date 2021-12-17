@@ -464,14 +464,14 @@ export class Base {
       }
     }
   }
-  protected setArrayPropertyDirectly(name: string, val: any): void {
+  protected setArrayPropertyDirectly(name: string, val: any, sendNotification: boolean = true): void {
     var arrayInfo = this.arraysInfo[name];
     this.setArray(
       name,
       this.getPropertyValue(name),
       val,
       arrayInfo ? arrayInfo.isItemValues : false,
-      arrayInfo ? arrayInfo.onPush : null
+      arrayInfo ? sendNotification && arrayInfo.onPush : null
     );
   }
   protected setPropertyValueDirectly(name: string, val: any) : void {
@@ -644,17 +644,17 @@ export class Base {
   public createCustomLocalizableObj(name: string) {
     var locStr = this.getLocalizableString(name);
     if (locStr || !(<any>this).getLocale) return;
-    this.createLocalizableString(name, <ILocalizableOwner>(<any>this));
+    this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   protected createLocalizableString(
     name: string,
     owner: ILocalizableOwner,
     useMarkDown: boolean = false,
-    hasDefaultValue: boolean = false
+    defaultStr: boolean|string = false
   ): LocalizableString {
     var locStr = new LocalizableString(owner, useMarkDown, name);
-    if (hasDefaultValue) {
-      locStr.localizationName = name;
+    if (defaultStr) {
+      locStr.localizationName = defaultStr === true ? name : defaultStr;
     }
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);

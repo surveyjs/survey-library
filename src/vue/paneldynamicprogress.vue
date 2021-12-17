@@ -1,16 +1,9 @@
 <template>
   <div style="clear: both" :class="this.cssClass">
     <div :class="question.cssClasses.progressContainer">
-      <div :title="question.panelPrevText">
-        <svg
-          viewBox="0 0 10 10"
-          :class="question.getPrevButtonCss()"
-          @click="prevPanelClick"
-        >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
-        </svg>
+      <div :title="question.panelPrevText" @click="prevPanelClick">
+        <sv-svg-icon :class="question.getPrevButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
       </div>
-
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
         <div
           :class="question.cssClasses.progressBar"
@@ -18,29 +11,11 @@
           role="progressbar"
         ></div>
       </div>
-
-      <div :title="question.panelNextText">
-        <svg
-          viewBox="0 0 10 10"
-          @click="nextPanelClick"
-          :class="question.getNextButtonCss()"
-        >
-          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
-        </svg>
+      <div :title="question.panelNextText" @click="nextPanelClick">
+        <sv-svg-icon :class="question.getNextButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
       </div>
     </div>
-
-    <button
-      type="button"
-      v-if="question.canAddPanel"
-      :class="question.getAddButtonCss()"
-      @click="addPanelClick"
-    >
-      <span :class="question.cssClasses.buttonAddText">
-        {{ question.panelAddText }}
-      </span>
-    </button>
-
+    <survey-paneldynamicadd :question="question" />
     <div :class="question.cssClasses.progressText">
       {{ question.progressText }}
     </div>
@@ -64,9 +39,6 @@ export class PanelDynamicProgress extends Vue {
   }
   get rangeMax() {
     return this.question.panelCount - 1;
-  }
-  addPanelClick() {
-    this.question.addPanelUI();
   }
   prevPanelClick() {
     this.question.goToPrevPanel();

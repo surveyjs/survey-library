@@ -43,6 +43,15 @@
   position: absolute;
 }
 
+.sv-paneldynamic__prev-btn,
+.sv-paneldynamic__next-btn {
+  svg {
+    display: block;
+    height: 0.7em;
+    width: 0.7em;
+  }
+} 
+
 .sv-paneldynamic__prev-btn {
   left: -1.3em;
   transform: rotate(90deg);

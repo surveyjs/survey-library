@@ -92,12 +92,14 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           this.clickInside(ev);
         }}
       >
-        {pointer}
-        {header}
-        <div className="sv-popup__scrolling-content">
-          {content}
+        <div className="sv-popup_shadow">
+          {pointer}
+          {header}
+          <div className="sv-popup__scrolling-content">
+            {content}
+          </div>
+          {footer}
         </div>
-        {footer}
       </div>
     );
   }

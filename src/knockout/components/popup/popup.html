@@ -2,25 +2,27 @@
   data-bind="visible: isVisible, click: clickOutside, class: styleClass, event: { keydown: function(data, event) { onKeyDown(event); return true; } }">
   <div class="sv-popup__container"
     data-bind="style: { left: left, top: top, height: height },  click: function() { return true; }, clickBubble: false">
-    <!-- ko if: showPointer  -->
-    <span data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }" class="sv-popup__pointer"></span>
-    <!-- /ko -->
-    <!-- ko if: !!title  -->
-    <div class="sv-popup__header" data-bind="text: title"></div>
-    <!-- /ko -->
-    <div class="sv-popup__scrolling-content">
-      <div class="sv-popup__content"
-        data-bind="component: { name: contentComponentName, params: contentComponentData }"></div>
-    </div>
-    <!-- ko if: showFooter  -->
-    <div class="sv-popup__footer">
-      <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
-        data-bind="click: cancel, text: cancelButtonText"> Cancel </button>
-      <!-- ko if: isModal  -->
-      <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
-        data-bind="click: apply, text: applyButtonText"> Apply </button>
+    <div class="sv-popup_shadow">
+      <!-- ko if: showPointer  -->
+      <span data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }" class="sv-popup__pointer"></span>
+      <!-- /ko -->
+      <!-- ko if: !!title  -->
+      <div class="sv-popup__header" data-bind="text: title"></div>
+      <!-- /ko -->
+      <div class="sv-popup__scrolling-content">
+        <div class="sv-popup__content"
+          data-bind="component: { name: contentComponentName, params: contentComponentData }"></div>
+      </div>
+      <!-- ko if: showFooter  -->
+      <div class="sv-popup__footer">
+        <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+          data-bind="click: cancel, text: cancelButtonText"> Cancel </button>
+        <!-- ko if: isModal  -->
+        <button type="button" class="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+          data-bind="click: apply, text: applyButtonText"> Apply </button>
+        <!-- /ko -->
+      </div>
       <!-- /ko -->
     </div>
-    <!-- /ko -->
   </div>
 </div>

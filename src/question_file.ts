@@ -413,12 +413,21 @@ export class QuestionFileModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.chooseFile)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.chooseFileAsText, !this.isAnswered)
+      .append(this.cssClasses.chooseFileAsIcon, this.isAnswered)
       .toString();
   }
   public getReadOnlyFileCss(): string {
     return new CssClassBuilder()
       .append("form-control")
       .append(this.cssClasses.placeholderInput)
+      .toString();
+  }
+  public getFileRootCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.single, !this.allowMultiple)
+      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
       .toString();
   }
   public getFileDecoratorCss(): string {
@@ -469,7 +478,7 @@ export class QuestionFileModel extends Question {
     this.onChange(src);
   }
   doClean = (event: any) => {
-    var src = event.target || event.srcElement;
+    var src = event.currentTarget || event.srcElement;
     if (this.needConfirmRemoveFile) {
       var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
       if (!isConfirmed) return;

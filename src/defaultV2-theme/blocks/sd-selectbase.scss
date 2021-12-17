@@ -49,5 +49,15 @@
   word-break: break-word;
 }
 .sd-selectbase__other {
-    margin-top: calcSize(2);
+  margin-top: calcSize(2);
+}
+.sd-selectbase__item {
+  .sd-selectbase__other {
+    margin-top: calcSize(3.5);
+  }
+}
+.sd-selectbase__item:last-child {
+  .sd-selectbase__other {
+    margin-bottom: calcSize(-2);
+  }
 }

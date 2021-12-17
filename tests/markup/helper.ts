@@ -1,3 +1,12 @@
+export var markupTests = [];
+
+export function registerMarkupTest(t) {
+  markupTests.push(t);
+}
+export function registerMarkupTests(tests) {
+  tests.forEach(t => markupTests.push(t));
+}
+
 function format(html) {
   var tab = "\t";
   var result = "";
@@ -44,7 +53,6 @@ function sortAttributes(elements) {
         if (a < b) {
           return -1;
         }
-        // a должно быть равным b
         return 0;
       }
     );
@@ -62,13 +70,18 @@ function sortAttributes(elements) {
 export function testQuestionMarkup(assert, test, platform) {
   var id = "surveyElement" + platform.name;
   var surveyElement = document.getElementById(id);
+  var reportElement = document.getElementById(id+"_report");
   if (surveyElement) {
     surveyElement.innerHTML = "";
   }
   else {
     surveyElement = document.createElement("div");
     surveyElement.id = id;
+    surveyElement.style.display = "none";
     document.body.appendChild(surveyElement);
+    reportElement = document.createElement("div");
+    reportElement.id = id+"_report";
+    document.body.appendChild(reportElement);
   }
   var done = assert.async();
   if (test.before)
@@ -98,14 +111,73 @@ export function testQuestionMarkup(assert, test, platform) {
     var newstr = str.replace(re, "");
     newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
     newstr = newstr.replace(/(>  +<)/g, "><").trim();
-    assert.equal(newstr, test.etalon,
-      newstr == test.etalon ?
-        platform.name + " rendered correctly" :
-        platform.name + " rendered incorrectly" + "\n==================\n" + format(test.etalon) + "\n------------------\n" + format(newstr) + "\n==================\n");
+
+    var oldStr = test.etalon || !test.etalon && require("./snapshots/"+test.snapshot+".snap.html");
+    oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
+    oldStr = oldStr.replace(/(>  +<)/g, "><").trim();
+
+    assert.equal(newstr, oldStr,
+      newstr == oldStr ?
+        platform.name + " " + test.name + " rendered correctly" :
+        platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
     if (test.after)
       test.after();
     if(platform.finish)
       platform.finish(surveyElement);
+    if(newstr != oldStr) {
+      var form =document.createElement("form");
+      form.action = "https://text-compare.com/";
+      form.target = "_blank";
+      form.method = "post";
+      form.id = test.snapshot;
+      reportElement.appendChild(form);
+
+      var testTitle = document.createElement("h1");
+      testTitle.innerText = test.name+" ("+test.snapshot+")";
+      form.appendChild(testTitle);
+
+      var table = document.createElement("table");
+      form.appendChild(table);
+      var tableRow = document.createElement("tr");
+      table.appendChild(tableRow);
+      var tableCell1 = document.createElement("td");
+      var tableCell2 = document.createElement("td");
+      var tableCell3 = document.createElement("td");
+      tableRow.appendChild(tableCell1);
+      tableRow.appendChild(tableCell2);
+      tableRow.appendChild(tableCell3);
+
+      var caption = document.createElement("h2");
+      caption.innerText = "Expected:";
+      tableCell1.appendChild(caption);
+      var preEl = document.createElement("textarea");
+      preEl.value = format(oldStr);
+      preEl.name = "text1";
+      tableCell1.appendChild(preEl);
+
+      var caption2 = document.createElement("h2");
+      caption2.innerText = "Actual:";
+      tableCell2.appendChild(caption2);
+      var preEl2 = document.createElement("textarea");
+      preEl2.value = format(newstr);
+      preEl2.name = "text2";
+      tableCell2.appendChild(preEl2);
+
+      var caption3 = document.createElement("h2");
+      caption3.innerText = "Do:";
+      tableCell3.appendChild(caption3);
+      var submit = document.createElement("button");
+      submit.innerText = "Compare on https://text-compare.com/";
+      tableCell3.appendChild(submit);
+      tableCell3.appendChild(document.createElement("br"));
+
+      var download = document.createElement("a");
+      download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
+      download.setAttribute("download", test.snapshot+".snap.html");
+      download.innerText = "Download snapshot";
+      tableCell3.appendChild(download);
+    }
+
     done();
   });
   platform.render(platform.survey, surveyElement);

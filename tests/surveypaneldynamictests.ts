@@ -3914,3 +3914,97 @@ QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
   assert.equal(exp.value, true, "exp");
 });
 
+QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "isRequired": true
+              }
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "panelCount": 1,
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+  const question = nestedPanel.panels[0].getQuestionByName("q1");
+  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
+});
+QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+              },
+              {
+                "type": "text",
+                "name": "q2",
+                "startWithNewLine": false
+              }
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "panelCount": 1,
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+  const panel = nestedPanel.panels[0];
+  const question = panel.getQuestionByName("q1");
+  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
+  assert.equal(panel.rows.length, 1, "There is one row");
+  const row = panel.rows[0];
+  assert.equal(row.visibleElements.length, 2, "There are two visible elements");
+  assert.ok(panel.cssClasses.row, "panel classes has value");
+  assert.ok(row.getRowCss(), "There are values");
+});
+
+QUnit.test("noEntriesText property for panel dynamic", function (assert) {
+  let survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "q1",
+        "noEntriesText": "text1"
+      }
+    ]
+  });
+  let question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(question.noEntriesText, "text1", "noEntriesText set via JSON");
+  question.noEntriesText = "text2";
+  assert.equal(question.noEntriesText, "text2", "noEntriesText set via API");
+  survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "q1",
+      }
+    ]
+  });
+  question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(question.noEntriesText, "There are no entries yet.\nClick the button below to add a new entry.", "noEntriesText default value");
+});

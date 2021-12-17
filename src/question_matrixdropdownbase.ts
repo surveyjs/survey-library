@@ -60,6 +60,7 @@ export interface IMatrixDropdownData {
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
+  getParentTextProcessor(): ITextProcessor;
   getSharedQuestionByName(
     columnName: string,
     row: MatrixDropdownRowModelBase
@@ -162,10 +163,12 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
   constructor(
     protected row: MatrixDropdownRowModelBase,
-    protected variableName: string
+    protected variableName: string,
+    private parentTextProcessor: ITextProcessor
   ) {
     super(variableName);
   }
+  protected getParentTextProcessor(): ITextProcessor { return this.parentTextProcessor; }
   protected get survey(): ISurvey {
     return this.row.getSurvey();
   }
@@ -216,9 +219,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     this.subscribeToChanges(value);
     this.textPreProcessor = new MatrixDropdownRowTextProcessor(
       this,
-      MatrixDropdownRowModelBase.RowVariableName
+      MatrixDropdownRowModelBase.RowVariableName, !!data ? data.getParentTextProcessor() : null
     );
     this.showHideDetailPanelClick = () => {
+      if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
     this.idValue = MatrixDropdownRowModelBase.getId();
@@ -813,8 +817,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   constructor(name: string) {
     super(name);
     this.createItemValues("choices");
-    this.createLocalizableString("optionsCaption", this);
-    this.createLocalizableString("keyDuplicationError", this);
+    this.createLocalizableString("optionsCaption", this, false, true);
+    this.createLocalizableString("keyDuplicationError", this, false, true);
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1373,10 +1377,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * The default options caption for dropdown cell type.
    */
   public get optionsCaption() {
-    return this.getLocalizableStringText(
-      "optionsCaption",
-      surveyLocalization.getString("optionsCaption")
-    );
+    return this.getLocalizableStringText("optionsCaption");
   }
   public set optionsCaption(val: string) {
     this.setLocalizableStringText("optionsCaption", val);
@@ -1389,10 +1390,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see MatrixDropdownColumn.isUnique
    */
   public get keyDuplicationError() {
-    return this.getLocalizableStringText(
-      "keyDuplicationError",
-      surveyLocalization.getString("keyDuplicationError")
-    );
+    return this.getLocalizableStringText("keyDuplicationError");
   }
   public set keyDuplicationError(val: string) {
     this.setLocalizableStringText("keyDuplicationError", val);
@@ -2062,6 +2060,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
     return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
   }
+  public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
+    return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
+  }
   private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
     const classes = this.cssClasses;
     const isPanelShowing = this.getIsDetailPanelShowing(row);
@@ -2116,6 +2117,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         false
       );
     }
+  }
+  getParentTextProcessor(): ITextProcessor {
+    if(!this.parentQuestion || !this.parent) return null;
+    const data = (<any>this.parent).data;
+    if(!!data && !!data.getTextProcessor)
+      return data.getTextProcessor();
+    return null;
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;

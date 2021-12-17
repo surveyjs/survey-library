@@ -11,18 +11,13 @@
         minWidth: element.minWidth,
         maxWidth: element.maxWidth,
       }"
-    > 
-      <survey-errors
-        v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
-        :element="element"
-        :location="'top'"
-      />
+    >
       <survey-element
         v-if="row.isNeedRender"
         :id="element.id"
         :role="element.ariaRole"
         :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
-        :name="element.name"
+        :data-name="element.name"
         :style="{
           paddingLeft: element.paddingLeft,
           paddingRight: element.paddingRight,

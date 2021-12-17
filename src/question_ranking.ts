@@ -7,6 +7,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/is-mobile";
+import { Helpers } from "./helpers";
 
 const Sortable = <any>SortableLib;
 
@@ -35,9 +36,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
-    const dropTargetIndex = this.rankingChoices.indexOf(
-      this.currentDropTarget
-    );
+    const dropTargetIndex = this.rankingChoices.indexOf(this.currentDropTarget);
 
     return new CssClassBuilder()
       .append(super.getItemClassCore(item, options))
@@ -74,7 +73,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.setSurveyImpl(value, isLight);
     this.updateRankingChoices();
   }
-
+  public isAnswerCorrect(): boolean {
+    return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
+  }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;

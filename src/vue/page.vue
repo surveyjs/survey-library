@@ -29,11 +29,6 @@ export class Page extends BaseVue {
   @Prop() page: PageModel;
   @Prop() css: Object;
 
-  isCurrentPageChanged: boolean = false;
-  @Watch("page")
-  onPagePropertyChanged(value: string, oldValue: string) {
-    this.isCurrentPageChanged = true;
-  }
   protected getModel(): Base {
     return this.page;
   }
@@ -43,14 +38,7 @@ export class Page extends BaseVue {
     }
   }
   protected onUpdated() {
-    var self = this;
-    self.survey.afterRenderPage(this.$el as HTMLElement);
-    this.$nextTick(function() {
-      if (this.isCurrentPageChanged) {
-        this.isCurrentPageChanged = false;
-        self.survey.scrollToTopOnPageChange();
-      }
-    });
+    this.survey.afterRenderPage(this.$el as HTMLElement);
   }
   get showDescription() {
     return this.page._showDescription;

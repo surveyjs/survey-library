@@ -1,0 +1,50 @@
+.sd-action.sd-action {
+  padding: calcSize(1) calcSize(3);
+  color: $primary;
+  border-radius: calcSize(12.5);
+  font-weight: 600;
+  font-style: normal;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
+  outline: none;
+}
+.sd-action.sd-action--negative {
+  color: $red;
+}
+.sd-action.sd-action--disabled {
+  color: $foreground;
+  opacity: 0.25;
+}
+.sd-action.sd-action--icon {
+  padding: calcSize(1);
+}
+.sd-action.sd-action--icon {
+  use {
+    fill: $foreground-light;
+  }
+}
+svg.sd-action--icon {
+  fill: $foreground-light;
+}
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover,
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus-visible
+{
+  outline: none;
+  background-color: $primary-light;
+  cursor: pointer;
+  opacity: 1;
+  &.sd-action--icon {
+    background-color: $background-dim;
+  }
+  &.sd-action--negative {
+    background-color: $red-light;
+    &.sd-action--icon {
+      use {
+        fill: $red;
+      }
+    }
+  }  
+  &:active {
+    opacity: 0.5;
+  }
+}

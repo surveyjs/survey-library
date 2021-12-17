@@ -52,6 +52,7 @@ export interface IAction {
    * Set this property to true to activate the toolbar item (page)
    */
   active?: boolean;
+  pressed?: boolean;
   /**
    * Toolbar item template name
    */
@@ -132,6 +133,7 @@ export class Action extends Base implements IAction {
   @property() popupModel: any;
   @property() needSeparator: boolean;
   @property() active: boolean;
+  @property() pressed: boolean;
   @property() template: string;
   @property() component: string;
   @property() items: any;
@@ -176,6 +178,7 @@ export class Action extends Base implements IAction {
     return new CssClassBuilder()
       .append("sv-action-bar-item")
       .append("sv-action-bar-item--active", !!this.active)
+      .append("sv-action-bar-item--pressed", !!this.pressed)
       .append(this.innerCss)
       .toString();
   }

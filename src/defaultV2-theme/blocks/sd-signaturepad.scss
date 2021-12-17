@@ -7,3 +7,20 @@
 .sjs_sp_container {
     border: 1px dashed $border;
 }
+
+.sjs_sp_controls.sd-signaturepad__controls {
+    right: calcSize(1);
+    top: calcSize(1);
+    left: auto;
+    bottom: auto;
+}
+.sd-question--signature:not(.sd-question--answered) {
+    .sd-signaturepad__controls {
+        display: none;
+    }
+}
+.sd-question--signature.sd-question--error {
+    .sjs_sp_placeholder {
+        background-color: $red-light;
+    }
+} 

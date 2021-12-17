@@ -91,7 +91,7 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get className(): string {
     const builder = new CssClassBuilder().append(this.classNameValue);
-    if(this.hasQuestion) {
+    if (this.hasQuestion) {
       builder
         .append(this.question.cssClasses.hasError, this.question.errors.length > 0)
         .append(this.question.cssClasses.answered, this.question.isAnswered);
@@ -113,6 +113,9 @@ export class QuestionMatrixDropdownRenderedCell {
       return this.locTitle.renderedHtml || "";
     }
     return "";
+  }
+  getTitle(): string {
+    return (this.matrix && this.matrix.showColumnHeader) ? this.headers : "";
   }
 
   public calculateFinalClassName(matrixCssClasses: any): string {
@@ -338,7 +341,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     } else {
       var rows = this.matrix.visibleRows;
       for (var i = 0; i < rows.length; i++) {
-        this.headerRow.cells.push(this.createTextCell(rows[i].locText));
+        const cell = this.createTextCell(rows[i].locText);
+        cell.row = rows[i];
+        this.headerRow.cells.push(cell);
       }
       if (this.matrix.hasFooter) {
         this.headerRow.cells.push(
@@ -374,7 +379,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         this.createMutlipleColumnsFooter(this.footerRow, cell);
       } else {
         var editCell = this.createEditCell(cell);
-        if(cell.column) {
+        if (cell.column) {
           this.setHeaderCellWidth(cell.column, editCell);
         }
         this.footerRow.cells.push(editCell);
@@ -503,6 +508,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
             id: "remove-row",
             iconName: "icon-delete",
             component: "sv-action-bar-item",
+            innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
             location: "end",
             showTitle: false,
             title: matrix.removeRowText,

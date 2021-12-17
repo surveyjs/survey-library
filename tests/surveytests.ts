@@ -13152,6 +13152,24 @@ QUnit.test("Expand question on validation error", function (assert) {
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });
 
+QUnit.test("Do not show empty required text", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = page.addNewQuestion("text", "q1");
+  q1.isRequired = true;
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numTitleRequire - No required text before");
+  assert.equal(q1.isRequireTextAfterTitle, true, "numTitleRequire - Required text after");
+  survey.questionTitlePattern = "numRequireTitle";
+  assert.equal(q1.isRequireTextBeforeTitle, true, "numRequireTitle - Required text before");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after");
+  survey.requiredText = "";
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numRequireTitle - No required text before ''");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after ''");
+  survey.questionTitlePattern = "numTitleRequire";
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numTitleRequire - No required text before ''");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numTitleRequire - No required text after ''");
+});
+
 QUnit.test("Check onGetPanelTitleActions event", (assert) => {
   var survey = new SurveyModel({
     elements: [

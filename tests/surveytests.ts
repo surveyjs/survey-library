@@ -14389,3 +14389,27 @@ QUnit.test("Set values into radiogroup and checkbox questions before creating th
   assert.equal(q1.renderedValue, 1, "radiogroup rendered value");
   assert.deepEqual(q2.renderedValue, [1, 2], "checkbox rendered value");
 });
+QUnit.test("Checkbox, invsible item with default Value", function (assert) {
+  const survey = new SurveyModel();
+  survey.data = { q1: 1, q2: [1, 2] };
+  survey.fromJSON({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+      { type: "checkbox", name: "q2", defaultValue: [1], choices: [
+        { value: 1, visibleIf: "{q1} = 2" }, 2
+      ] },
+    ]
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "question is empty");
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [1], "Respect default value");
+  survey.setValue("q1", 1);
+  assert.equal(q2.isEmpty(), true, "question is empty again");
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [1], "Respect default value again");
+  q2.value = [2];
+  survey.setValue("q1", 1);
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [2], "default value is goine");
+});

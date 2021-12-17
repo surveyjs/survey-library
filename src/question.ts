@@ -531,6 +531,14 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
+   *  Use this property to set the place holder text for comment field  .
+   */
+  @property({ localizable: true }) commentPlaceHolder: string;
+  public get commentOrOtherPlaceHolder(): string {
+    return this.otherPlaceHolder || this.commentPlaceHolder;
+  }
+
+  /**
    * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
    */
   public getAllErrors(): Array<SurveyError> {

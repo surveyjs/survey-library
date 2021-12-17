@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
-    <!-- ko if: question.panelCount == 0 && question.koCss().noEntriesPlaceholder -->
+    <!-- ko if: question.getShowNoEntriesPlaceholder() -->
       <div data-bind="css: question.koCss().noEntriesPlaceholder">
         <span>
           <!-- ko template: { name: 'survey-string', data: locNoEntriesText } --><!-- /ko -->

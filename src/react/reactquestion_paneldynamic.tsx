@@ -213,7 +213,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     </div>);
   }
   protected renderPlaceholder(): JSX.Element {
-    if(this.question.panelCount == 0 && this.question.cssClasses.noEntriesPlaceholder) {
+    if(this.question.getShowNoEntriesPlaceholder()) {
       return (
         <div className={this.question.cssClasses.noEntriesPlaceholder}>
           <span>{this.renderLocString(this.question.locNoEntriesText)}</span>

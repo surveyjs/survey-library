@@ -516,6 +516,14 @@ Serializer.addClass(
       serializationProperty: "locCommentText",
       layout: "row",
     },
+    {
+      name: "commentPlaceHolder",
+      serializationProperty: "locCommentPlaceHolder",
+      dependsOn: "hasComment",
+      visibleIf: function(obj: any) {
+        return obj.hasComment;
+      },
+    },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     { name: "allowImagesPreview:boolean", default: true },

@@ -218,6 +218,14 @@ Serializer.addClass(
       layout: "row",
     },
     {
+      name: "commentPlaceHolder",
+      serializationProperty: "locCommentPlaceHolder",
+      dependsOn: "hasComment",
+      visibleIf: function(obj: any) {
+        return obj.hasComment;
+      },
+    },
+    {
       name: "rateValues:itemvalue[]",
       baseValue: function() {
         return surveyLocalization.getString("choices_Item");

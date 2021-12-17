@@ -1370,6 +1370,14 @@ Serializer.addClass(
       },
     },
     {
+      name: "commentPlaceHolder",
+      serializationProperty: "locCommentPlaceHolder",
+      dependsOn: "hasComment",
+      visibleIf: function(obj: any) {
+        return obj.hasComment;
+      },
+    },
+    {
       name: "noneText",
       serializationProperty: "locNoneText",
       dependsOn: "hasNone",

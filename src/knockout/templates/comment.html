@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-comment">
   <!--ko if: !question.isReadOnlyRenderDiv() -->
-<textarea data-bind="attr: { maxLength: question.getOthersMaxLength(), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, placeholder: question.otherPlaceHolder }, 
+<textarea data-bind="attr: { maxLength: question.getOthersMaxLength(), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, placeholder: question.commentOrOtherPlaceHolder }, 
         event: { input: (s, e) => $data.question.onCommentInput(s, e) }, 
         value: $data.question.comment, 
         visible: $data.visible,

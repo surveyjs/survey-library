@@ -41,7 +41,7 @@ export var defaultV2Css = {
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
-    empty: "sd-question--paneldynamic-empty",
+    empty: "sd-question--empty",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -63,7 +63,7 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
-    noEntriesPlaceholder: "sd-paneldynamic__placeholder"
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder"
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
@@ -271,6 +271,7 @@ export var defaultV2Css = {
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -289,7 +290,8 @@ export var defaultV2Css = {
     buttonRemove: "sd-action--icon sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
-    footer: "sd-matrixdynamic__footer"
+    footer: "sd-matrixdynamic__footer",
+    emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder"
   },
   rating: {
     root: "sd-rating",

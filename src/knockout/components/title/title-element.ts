@@ -10,7 +10,11 @@ ko.components.register("survey-element-title", {
       const rootEl = componentInfo.element;
       const titleEl = document.createElement(element.titleTagName);
       const ariaLabelAttr = element.getType() === "radiogroup" ? "" : "'aria-label': element.locTitle.renderedHtml,";
-      titleEl.setAttribute("data-bind", `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }, click: function() { element.toggleState()}, key2click}`);
+      let bindings = `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }`;
+      if(element.hasTitleEvents) {
+        bindings += ", click: function() { element.toggleState()}, key2click";
+      }
+      titleEl.setAttribute("data-bind", bindings);
       titleEl.innerHTML = "<!-- ko component: { name: 'sv-title-actions', params: {element: element } } --><!-- /ko -->";
       const dummyNode = rootEl.nextSibling;
       rootEl.parentNode.insertBefore(document.createComment(" ko if: element.hasTitle "), dummyNode);
@@ -22,4 +26,3 @@ ko.components.register("survey-element-title", {
   },
   template: "<span></span>",
 });
-

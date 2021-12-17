@@ -230,6 +230,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this, false, "removePanel");
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
+    this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
@@ -1605,6 +1606,9 @@ export class QuestionPanelDynamicModel extends Question
       .getString("panelDynamicProgressText")
       ["format"](this.currentIndex + 1, rangeMax);
   }
+  public getRootCss(): string {
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.panelCount == 0).toString();
+  }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper)
@@ -1637,6 +1641,18 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
       .toString();
   }
+  /**
+   * A text displayed when the dynamic panel contains no entries. Applies only in the Default V2 theme.
+   */
+  public get noEntriesText(): string {
+    return this.getLocalizableStringText("noEntriesText");
+  }
+  public set noEntriesText(val: string) {
+    this.setLocalizableStringText("noEntriesText", val);
+  }
+  public get locNoEntriesText(): LocalizableString {
+    return this.getLocalizableString("noEntriesText");
+  }
 }
 
 Serializer.addClass(
@@ -1653,6 +1669,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
+    { name: "noEntriesText:text", visible: false, serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

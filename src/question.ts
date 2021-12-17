@@ -531,6 +531,14 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
+   *  Use this property to set the place holder text for comment field  .
+   */
+  @property({ localizable: true }) commentPlaceHolder: string;
+  public get commentOrOtherPlaceHolder(): string {
+    return this.otherPlaceHolder || this.commentPlaceHolder;
+  }
+
+  /**
    * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
    */
   public getAllErrors(): Array<SurveyError> {
@@ -611,10 +619,10 @@ export class Question extends SurveyElement
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.

@@ -1,5 +1,13 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
+    <!-- ko if: question.panelCount == 0 && question.koCss().noEntriesPlaceholder -->
+      <div data-bind="css: question.koCss().noEntriesPlaceholder">
+        <span>
+          <!-- ko template: { name: 'survey-string', data: locNoEntriesText } --><!-- /ko -->
+        </span>
+        <!-- ko template: { name: 'survey-question-paneldynamic-add-btn', data: question, as: 'question'} --><!-- /ko -->
+      </div>
+    <!-- /ko -->
     <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
         <div data-bind="css: question.getPanelWrapperCss()">
@@ -36,7 +44,7 @@
         <!-- /ko -->
       </div>
     <!-- /ko -->
-    <!-- ko if: !!question.koCss().footer -->
+    <!-- ko if: !!question.koCss().footer && !!question.panelCount != 0 -->
     <div data-bind="css: question.koCss().footer">
       <!-- ko if: question.koIsRange() && question.koIsProgressBottom -->
          <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} -->

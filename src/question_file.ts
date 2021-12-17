@@ -423,6 +423,13 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.placeholderInput)
       .toString();
   }
+  public getFileRootCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.single, !this.allowMultiple)
+      .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
+      .toString();
+  }
   public getFileDecoratorCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.fileDecorator)
@@ -508,6 +515,14 @@ Serializer.addClass(
       },
       serializationProperty: "locCommentText",
       layout: "row",
+    },
+    {
+      name: "commentPlaceHolder",
+      serializationProperty: "locCommentPlaceHolder",
+      dependsOn: "hasComment",
+      visibleIf: function(obj: any) {
+        return obj.hasComment;
+      },
     },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",

@@ -644,7 +644,7 @@ export class Base {
   public createCustomLocalizableObj(name: string) {
     var locStr = this.getLocalizableString(name);
     if (locStr || !(<any>this).getLocale) return;
-    this.createLocalizableString(name, <ILocalizableOwner>(<any>this));
+    this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   protected createLocalizableString(
     name: string,

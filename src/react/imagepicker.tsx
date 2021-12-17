@@ -42,7 +42,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var key = "item" + i;
+      var key = this.question.name + "-" + item.value;
       items.push(this.renderItem(key, item, cssClasses));
     }
     return items;

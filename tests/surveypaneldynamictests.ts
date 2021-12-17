@@ -3983,3 +3983,28 @@ QUnit.test("cssClasses for a question in nested panel dynamic", function (assert
   assert.ok(row.getRowCss(), "There are values");
 });
 
+QUnit.test("noEntriesText property for panel dynamic", function (assert) {
+  let survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "q1",
+        "noEntriesText": "text1"
+      }
+    ]
+  });
+  let question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(question.noEntriesText, "text1", "noEntriesText set via JSON");
+  question.noEntriesText = "text2";
+  assert.equal(question.noEntriesText, "text2", "noEntriesText set via API");
+  survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "q1",
+      }
+    ]
+  });
+  question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(question.noEntriesText, "There are no entries yet.\nClick the button below to add a new entry.", "noEntriesText default value");
+});

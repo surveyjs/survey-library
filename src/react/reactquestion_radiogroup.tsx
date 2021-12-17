@@ -142,7 +142,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var otherItem =
-      this.question.isOtherItem(this.item)
+      this.question.isOtherItem(this.item) && this.question.isOtherSelected
         ? this.renderOther(this.cssClasses)
         : null;
 

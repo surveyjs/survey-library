@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-file">
-  <div data-bind="css: question.koCss().root">
+  <div data-bind="css: question.getFileRootCss()">
       <!-- ko ifnot: question.isInputReadOnly -->
       <input type="file" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
       <!-- /ko -->

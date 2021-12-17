@@ -101,9 +101,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       style["overflowX"] = "scroll";
     }
     const navV2 = this.renderNavigatorV2();
-
+    const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
+        {noEntriesPlaceholder}
         {navTop}
         <div style={style}>{panels}</div>
         {navBottom}
@@ -189,6 +190,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigatorV2(): JSX.Element {
+    if(this.question.panelCount === 0) return null;
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     const addBtn = this.renderAddRowButton();
     const prevBtn = this.rendrerPrevButton();
@@ -209,6 +211,17 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         </div> : null}
       </div>
     </div>);
+  }
+  protected renderPlaceholder(): JSX.Element {
+    if(this.question.panelCount == 0 && this.question.cssClasses.noEntriesPlaceholder) {
+      return (
+        <div className={this.question.cssClasses.noEntriesPlaceholder}>
+          <span>{this.renderLocString(this.question.locNoEntriesText)}</span>
+          {this.renderAddRowButton()}
+        </div>
+      );
+    }
+    return null;
   }
 }
 

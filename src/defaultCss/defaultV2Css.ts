@@ -41,6 +41,7 @@ export var defaultV2Css = {
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
+    empty: "sd-question--paneldynamic-empty",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -62,6 +63,7 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder"
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
@@ -335,7 +337,9 @@ export var defaultV2Css = {
     defaultImage: "sd-file__default-image",
     removeFileButton: "sd-context-btn sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
-    imageWrapper: "sd-file__image-wrapper"
+    imageWrapper: "sd-file__image-wrapper",
+    single: "sd-file--single",
+    singleImage: "sd-file--single-image"
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",

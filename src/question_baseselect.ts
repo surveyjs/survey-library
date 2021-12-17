@@ -1062,7 +1062,7 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
-    if (this.keepIncorrectValues || this.isEmpty()) return;
+    if (!this.hasValueToClearIncorrectValues()) return;
     if (
       !!this.survey &&
       this.survey.questionCountByValueName(this.getValueName()) > 1
@@ -1079,6 +1079,9 @@ export class QuestionSelectBase extends Question {
     } else {
       this.clearIncorrectValuesCore();
     }
+  }
+  protected hasValueToClearIncorrectValues(): boolean {
+    return !this.keepIncorrectValues && !this.isEmpty();
   }
   public clearValueIfInvisible() {
     super.clearValueIfInvisible();
@@ -1367,6 +1370,14 @@ Serializer.addClass(
       dependsOn: "hasOther",
       visibleIf: function(obj: any) {
         return obj.hasOther;
+      },
+    },
+    {
+      name: "commentPlaceHolder",
+      serializationProperty: "locCommentPlaceHolder",
+      dependsOn: "hasComment",
+      visibleIf: function(obj: any) {
+        return obj.hasComment;
       },
     },
     {

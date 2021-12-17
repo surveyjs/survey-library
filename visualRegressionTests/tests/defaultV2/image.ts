@@ -17,8 +17,8 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+      await applyTheme(theme);
+    });
   test("Check image question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

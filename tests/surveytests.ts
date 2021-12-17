@@ -13152,6 +13152,24 @@ QUnit.test("Expand question on validation error", function (assert) {
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });
 
+QUnit.test("Do not show empty required text", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = page.addNewQuestion("text", "q1");
+  q1.isRequired = true;
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numTitleRequire - No required text before");
+  assert.equal(q1.isRequireTextAfterTitle, true, "numTitleRequire - Required text after");
+  survey.questionTitlePattern = "numRequireTitle";
+  assert.equal(q1.isRequireTextBeforeTitle, true, "numRequireTitle - Required text before");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after");
+  survey.requiredText = "";
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numRequireTitle - No required text before ''");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numRequireTitle - No required text after ''");
+  survey.questionTitlePattern = "numTitleRequire";
+  assert.equal(q1.isRequireTextBeforeTitle, false, "numTitleRequire - No required text before ''");
+  assert.equal(q1.isRequireTextAfterTitle, false, "numTitleRequire - No required text after ''");
+});
+
 QUnit.test("Check onGetPanelTitleActions event", (assert) => {
   var survey = new SurveyModel({
     elements: [
@@ -14370,4 +14388,28 @@ QUnit.test("Set values into radiogroup and checkbox questions before creating th
   assert.deepEqual(q2.value, [1, 2], "checkbox value");
   assert.equal(q1.renderedValue, 1, "radiogroup rendered value");
   assert.deepEqual(q2.renderedValue, [1, 2], "checkbox rendered value");
+});
+QUnit.test("Checkbox, invsible item with default Value", function (assert) {
+  const survey = new SurveyModel();
+  survey.data = { q1: 1, q2: [1, 2] };
+  survey.fromJSON({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+      { type: "checkbox", name: "q2", defaultValue: [1], choices: [
+        { value: 1, visibleIf: "{q1} = 2" }, 2
+      ] },
+    ]
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "question is empty");
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [1], "Respect default value");
+  survey.setValue("q1", 1);
+  assert.equal(q2.isEmpty(), true, "question is empty again");
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [1], "Respect default value again");
+  q2.value = [2];
+  survey.setValue("q1", 1);
+  survey.setValue("q1", 2);
+  assert.deepEqual(q2.value, [2], "default value is goine");
 });

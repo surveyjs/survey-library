@@ -41,6 +41,7 @@ export var defaultV2Css = {
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
+    empty: "sd-question--paneldynamic-empty",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-question__title",
@@ -62,6 +63,7 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder"
   },
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",

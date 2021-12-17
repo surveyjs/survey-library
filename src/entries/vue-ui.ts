@@ -40,6 +40,7 @@ export { Expression } from "../vue/expression.vue";
 export { ImagePicker } from "../vue/imagepicker.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
+export { PanelDynamicAdd } from "../vue/paneldynamicadd.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Navigation } from "../vue/navigation.vue";

@@ -17,8 +17,8 @@ var json = {
   questions: [
     {
       type: "paneldynamic",
-      name: "relatives",
-      title: "Panel Dynamic",
+      name: "applications",
+      title: "What application do you use?",
       renderMode: "progresstop",
       templateTitle: "{panel.application}",
       templateElements: [
@@ -39,6 +39,7 @@ var json = {
         }
       ],
       panelCount: 2,
+      noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
       panelAddText: "Add application",
       panelRemoveText: "Remove application"
     },
@@ -58,6 +59,11 @@ frameworks.forEach(framework => {
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
     await takeScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+    await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
+    await takeScreenshot("paneldynamic-empty.png", paneldynamicRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

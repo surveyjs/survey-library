@@ -17,9 +17,9 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-      await applyTheme(theme);
-    });
-  test.only("Matrixdynamic empty placeholder", async (t) => {
+    await applyTheme(theme);
+  });
+  test("Matrixdynamic empty placeholder", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",

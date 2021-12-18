@@ -147,8 +147,11 @@ div > .sd-question__num {
   line-height: 24px;
   font-size: 16px;
   color: #909090;
-  & > span > .sv-string-viewer {
+  & > div,
+  & > span {
+      & > .sv-string-viewer {
       white-space: pre-line;
+    }
   }
 }
 .sd-question--empty.sd-question--complex {

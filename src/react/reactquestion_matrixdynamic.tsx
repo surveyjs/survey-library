@@ -61,7 +61,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       }
     >
       {addRowText}
-      <span className={cssClasses.iconAdd} />)
+      <span className={cssClasses.iconAdd} />
     </button>);
     return (
       isEmptySection ? addButton : <div className={cssClasses.footer}>{addButton}</div>

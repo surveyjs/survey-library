@@ -29,7 +29,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
-import { Panel } from "./knockout/kopage";
 import { SurveyModel } from "survey-core";
 
 export class DragDropInfo {

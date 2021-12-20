@@ -117,7 +117,7 @@ export var defaultV2Css = {
     withFrame: ""
   },
   html: {
-    mainRoot: "sd-question sd-question--html",
+    mainRoot: "sd-question sd-row__question sd-question--html",
     root: "sd-html",
     withFrame: ""
   },

@@ -239,8 +239,8 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
-    const middle = this.calculateMiddleOfHTMLElement(HTMLElement);
-    return Math.abs(clientY - middle) >= DragDropSurveyElements.edgeHeight;
+    const rect = HTMLElement.getBoundingClientRect();
+    return clientY - rect.top <= DragDropSurveyElements.edgeHeight || rect.bottom - clientY <= DragDropSurveyElements.edgeHeight;
   }
 
   private calculateIsRight(): boolean {

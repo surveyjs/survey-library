@@ -133,21 +133,21 @@ QUnit.test("calculateIsEdge", function (assert) {
   let ddHelper = new DragDropSurveyElements(null);
   const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
-    y: 100,
-    height: 100,
+    top: 100,
+    bottom: 300
   });
 
   let result = ddHelper["calculateIsEdge"](testElement, 100);
   assert.equal(result, true);
 
-  result = ddHelper["calculateIsEdge"](testElement, 131);
+  result = ddHelper["calculateIsEdge"](testElement, 121);
   assert.equal(result, false);
   result = ddHelper["calculateIsEdge"](testElement, 150);
   assert.equal(result, false);
-  result = ddHelper["calculateIsEdge"](testElement, 169);
+  result = ddHelper["calculateIsEdge"](testElement, 279);
   assert.equal(result, false);
 
-  result = ddHelper["calculateIsEdge"](testElement, 200);
+  result = ddHelper["calculateIsEdge"](testElement, 280);
   assert.equal(result, true);
 });
 

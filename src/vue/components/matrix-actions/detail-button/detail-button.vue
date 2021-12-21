@@ -10,7 +10,12 @@
       question.getIsDetailPanelShowing(row) ? row.detailPanelId : null
     "
   >
-    <span :class="question.getDetailPanelIconCss(row)"></span>
+  <sv-svg-icon
+    :class="this.question.getDetailPanelIconCss(this.row)"
+    :iconName="this.question.getDetailPanelIconId(this.row)"
+    size="auto"
+  >
+  </sv-svg-icon>
   </button>
 </template>
 

@@ -21,7 +21,7 @@
       v-if="question.isProgressBottomShowing"
       :question="question"
     />
-    <survey-paneldynamicadd :question="question" />
+    <survey-paneldynamicadd v-if="question.isRenderModeList" :question="question" />
     <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
       :question="question"
     />

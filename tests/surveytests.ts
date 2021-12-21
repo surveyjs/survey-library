@@ -10147,6 +10147,7 @@ QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   assert.equal(survey.renderedCompletedHtml, "1", "get from completed html");
   survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 2", "2"));
   survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 3", "3"));
+  assert.ok(survey.completedHtmlOnCondition[0].getSurvey(), "There is survey in completedHtmlOnCondition");
   assert.equal(
     survey.renderedCompletedHtml,
     "1",

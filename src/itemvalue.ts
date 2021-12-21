@@ -9,7 +9,7 @@ import {
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
-import { ISurvey } from "./base-interfaces";
+import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 
 /**
@@ -17,7 +17,7 @@ import { settings } from "./settings";
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue extends Base implements ILocalizableOwner {
+export class ItemValue extends Base implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 
   public getMarkdownHtml(text: string, name: string): string {

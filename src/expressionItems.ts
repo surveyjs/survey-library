@@ -1,5 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Base } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 
@@ -44,6 +45,9 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   }
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return <ISurvey>this.locOwner;
   }
 }
 

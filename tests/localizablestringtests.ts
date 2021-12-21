@@ -39,11 +39,15 @@ class LocalizableOwnerTester implements ILocalizableOwner {
 
 class LocalizableStringTester extends LocalizableString {
   public onChangedCounter = 0;
+  public onStrChangedCounter = 0;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false
   ) {
     super(owner, useMarkdown);
+    this.onStrChanged = (oldValue: string, newValue: string): void => {
+      this.onStrChangedCounter ++;
+    };
   }
   public onChanged() {
     super.onChanged();
@@ -389,13 +393,25 @@ QUnit.test(
     assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
   }
 );
+QUnit.test(
+  "Call changed on setting value for non-default locale",
+  function(assert) {
+    var owner = new LocalizableOwnerTester("");
+
+    var locString = new LocalizableStringTester(owner, true);
+    var text = locString.calculatedText; //cached text
+    locString.text = "enText";
+    assert.equal(locString.onChangedCounter, 1, "onChanged called one time");
+    assert.equal(locString.onStrChangedCounter, 1, "onStrChanged called one time");
+    locString.setLocaleText("de", "deText");
+    assert.equal(locString.onChangedCounter, 2, "onChanged called on changing de locale");
+    assert.equal(locString.onStrChangedCounter, 2, "onStrChanged called on changing de locale");
+  });
 
 QUnit.test("getProcessedText, cached text", function(assert) {
   var owner = new LocalizableOwnerTester("");
   owner.values["name"] = "John Snow";
   var locString = new LocalizableStringTester(owner, true);
-  //TODO replace
-  locString.onGetTextCallback = locString.onGetTextCallback;
   var text = locString.calculatedText; //cached text
   locString.text = "enText";
   assert.equal(locString.onChangedCounter, 1, "onChanged called one time");

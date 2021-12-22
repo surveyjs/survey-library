@@ -243,6 +243,29 @@ frameworks.forEach((framework) => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
+  
+  test(`choose other and "textUpdateMode": "onTyping"`, async (t) => {
+    const setSurveyOptions = ClientFunction(() => {
+      survey.textUpdateMode = "onTyping";
+    });
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
+    );
+    let surveyResult;
+    await setSurveyOptions();
+
+    await setOptions("car", { hasOther: true });
+    await t
+      .click(Selector("span").withText('Other (describe)'))
+      .click(getOtherInput)
+      .pressKey("C o m m e n t")
+      .click(`input[value=Complete]`);
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.car, "other");
+    assert.equal(surveyResult["car-Comment"], "Comment");
+  });
+
   test(`trim other`, async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]

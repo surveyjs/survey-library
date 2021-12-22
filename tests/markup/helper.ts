@@ -180,5 +180,7 @@ export function testQuestionMarkup(assert, test, platform) {
 
     done();
   });
+  if (test.initSurvey)
+    test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
 }

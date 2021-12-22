@@ -128,3 +128,38 @@ div > .sd-question__num {
   display: block;
   float: left;
 }
+.sd-question--empty.sd-question--complex {
+  & > .sd-question__header--location-top {
+      padding-bottom: 16px;
+      &:after {
+          display: none;
+      }
+  } 
+}
+.sd-question__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  justify-content: center;
+  min-height: 192px;
+  line-height: 24px;
+  font-size: 16px;
+  color: #909090;
+  & > div,
+  & > span {
+      & > .sv-string-viewer {
+      white-space: pre-line;
+    }
+  }
+}
+.sd-question--empty.sd-question--complex {
+  & > .sd-question__content {
+      padding-top: 0;
+      padding-bottom: 0;
+  }
+  & > .sd-question__content:first-child {
+      padding-top: 40px;
+  }
+}

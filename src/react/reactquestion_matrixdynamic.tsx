@@ -52,20 +52,19 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     isEmptySection: boolean = false
   ): JSX.Element {
     const addRowText: JSX.Element = this.renderLocString(this.matrix.locAddRowText);
+    const addButton = (<button
+      className={this.question.getAddRowButtonCss(isEmptySection)}
+      type="button"
+      disabled={this.question.isInputReadOnly}
+      onClick={
+        this.question.isDesignMode ? undefined : this.handleOnRowAddClick
+      }
+    >
+      {addRowText}
+      <span className={cssClasses.iconAdd} />
+    </button>);
     return (
-      <div className={cssClasses.footer}>
-        <button
-          className={this.question.getAddRowButtonCss(isEmptySection)}
-          type="button"
-          disabled={this.question.isInputReadOnly}
-          onClick={
-            this.question.isDesignMode ? undefined : this.handleOnRowAddClick
-          }
-        >
-          {addRowText}
-          <span className={cssClasses.iconAdd} />
-        </button>
-      </div>
+      isEmptySection ? addButton : <div className={cssClasses.footer}>{addButton}</div>
     );
   }
 }

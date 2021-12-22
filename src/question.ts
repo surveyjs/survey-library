@@ -570,10 +570,14 @@ export class Question extends SurveyElement
     if (this.commentElement && this.autoGrowComment) increaseHeightByContent(this.commentElement);
   }
   public onCommentInput(event: any): void {
-    if (this.isInputTextUpdate)
-      this.comment = event.target.value;
-    else
+    if (this.isInputTextUpdate) {
+      if(event.target) {
+        this.comment = event.target.value;
+      }
+    }
+    else {
       this.updateCommentElement();
+    }
   }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;

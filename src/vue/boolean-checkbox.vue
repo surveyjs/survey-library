@@ -15,7 +15,12 @@
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
       /><span :class="question.cssClasses.materialDecorator">
-        <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
+        <svg v-if="question.svgIcon" :class="question.cssClasses.itemDecorator">
+          <use
+            :xlink:href="question.itemSvgIcon"
+          ></use>
+        </svg>
+        <svg v-if="!question.svgIcon" viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
           <rect
             :class="question.cssClasses.uncheckedPath"
             x="5"

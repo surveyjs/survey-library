@@ -171,6 +171,10 @@ export class QuestionBooleanModel extends Question {
       .toString();
   }
 
+  public get svgIcon(): string {
+    return this.cssClasses.svgIconId;
+  }
+
   public get allowClick(): boolean {
     return this.isIndeterminate && !this.isInputReadOnly;
   }

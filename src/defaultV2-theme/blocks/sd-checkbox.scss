@@ -3,11 +3,12 @@
 }
 .sd-checkbox__svg {
   display: none;
+  width: 20px;
+  height: 20px;
 }
+
 .sd-checkbox--checked .sd-checkbox__svg {
   display: block;
-  width: 16.145px;
-  height: 16.145px;
   use {
     fill: $background;
   }

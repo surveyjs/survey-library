@@ -39,6 +39,20 @@ QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
   assert.equal(adaptiveContainer.renderedActions[3].id, "dotsItem-id");
 });
 
+QUnit.test("ActionContainer: renderedActions & visibleActions if only one element", assert => {
+  const actions = [new Action({ id: "first" })];
+
+  const actionContainer: ActionContainer = new ActionContainer();
+  actionContainer.actions = actions;
+  assert.equal(actionContainer.visibleActions.length, 1, "actionContainer visibleActions");
+  assert.equal(actionContainer.renderedActions.length, 1, "actionContainer renderedActions");
+
+  const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
+  adaptiveContainer.actions = actions;
+  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions");
+  assert.equal(adaptiveContainer.renderedActions.length, 1, "adaptiveContainer renderedActions");
+});
+
 QUnit.test("Fit items", function (assert) {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();

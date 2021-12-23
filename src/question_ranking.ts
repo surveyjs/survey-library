@@ -31,6 +31,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobileMod, IsMobile)
+      .append(this.cssClasses.rootDisabled, !this.allowStartDrag)
       .toString();
   }
 
@@ -176,10 +177,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
-    if (!this.fallbackToSortableJS && !this.survey.isDesignMode) {
+    if (this.allowStartDrag) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
+
+  private get allowStartDrag() {
+    return !this.isReadOnly && !this.isDesignMode;
+  }
 
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement): void {
@@ -220,8 +225,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private initSortable(domNode: HTMLElement) {
     if (!domNode) return;
     const self: QuestionRankingModel = this;
-    if (this.isReadOnly) return;
-    if (this.isDesignMode) return;
+    if (!this.allowStartDrag) return;
 
     self.sortableInst = new Sortable(domNode, {
       animation: 100,

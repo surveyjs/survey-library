@@ -167,3 +167,20 @@ QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   q.value = ["b", "a"];
   assert.equal(q.isAnswerCorrect(), true, "Answer is correct");
 });
+
+QUnit.test("Ranking: ReadOnlyMode ", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+
+  var q = <QuestionRankingModel>survey.getQuestionByName("q");
+  assert.equal(q["allowStartDrag"], true);
+  survey.mode = "display";
+  assert.equal(q["allowStartDrag"], false);
+});

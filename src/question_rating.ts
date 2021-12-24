@@ -1,11 +1,21 @@
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+
+class RenderedRatingItem {
+  public get value(): number {
+    return this.itemValue.getPropertyValue("value");
+  }
+  public get locText(): LocalizableString {
+    return this.locString || this.itemValue.locText;
+  }
+  constructor(private itemValue: ItemValue, private locString: LocalizableString = null) {}
+}
 
 /**
  * A Model for a rating question.
@@ -30,22 +40,16 @@ export class QuestionRatingModel extends Question {
       }
     });
 
-    var locMinRateDescriptionValue = this.createLocalizableString(
+    this.createLocalizableString(
       "minRateDescription",
       this,
       true
     );
-    var locMaxRateDescriptionValue = this.createLocalizableString(
+    this.createLocalizableString(
       "maxRateDescription",
       this,
       true
     );
-    locMinRateDescriptionValue.onGetTextCallback = function(text) {
-      return text ? text + " " : text;
-    };
-    locMaxRateDescriptionValue.onGetTextCallback = function(text) {
-      return text ? " " + text : text;
-    };
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
@@ -124,6 +128,15 @@ export class QuestionRatingModel extends Question {
     }
     return res;
   }
+  get renderedRateItems(): RenderedRatingItem[] {
+    return this.visibleRateValues.map((v, i) => {
+      if(this.useRateDescriptionsInItems) {
+        if(i == 0) return new RenderedRatingItem(v, this.locMinRateDescription);
+        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.locMaxRateDescription);
+      }
+      return new RenderedRatingItem(v);
+    });
+  }
   private correctValue(value: number, step: number): number {
     if (!value) return value;
     if (Math.round(value) == value) return value;
@@ -173,6 +186,12 @@ export class QuestionRatingModel extends Question {
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
   }
+
+  /**
+   * Set true to show minRateDescription and maxRateDescription as item caption, not label
+   */
+  @property({ defaultValue: false }) useRateDescriptionsInItems: boolean;
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);

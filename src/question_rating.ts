@@ -6,15 +6,18 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { Base } from "./base";
 
-class RenderedRatingItem {
+export class RenderedRatingItem extends Base {
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  constructor(private itemValue: ItemValue, private locString: LocalizableString = null) {}
+  constructor(private itemValue: ItemValue, public itemClass: string, private locString: LocalizableString = null) {
+    super();
+  }
 }
 
 /**
@@ -34,7 +37,8 @@ export class QuestionRatingModel extends Question {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
-        options.name == "rateStep"
+        options.name == "rateStep" ||
+        options.name == "useRateDescriptionsInItems"
       ) {
         self.fireCallback(self.rateValuesChangedCallback);
       }
@@ -131,10 +135,10 @@ export class QuestionRatingModel extends Question {
   get renderedRateItems(): RenderedRatingItem[] {
     return this.visibleRateValues.map((v, i) => {
       if(this.useRateDescriptionsInItems) {
-        if(i == 0) return new RenderedRatingItem(v, this.locMinRateDescription);
-        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.locMaxRateDescription);
+        if(i == 0) return new RenderedRatingItem(v, this.getItemClass(v), this.locMinRateDescription);
+        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.getItemClass(v), this.locMaxRateDescription);
       }
-      return new RenderedRatingItem(v);
+      return new RenderedRatingItem(v, this.getItemClass(v));
     });
   }
   private correctValue(value: number, step: number): number {
@@ -185,6 +189,13 @@ export class QuestionRatingModel extends Question {
   }
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
+  }
+
+  get hasMinLabel(): boolean {
+    return !this.useRateDescriptionsInItems && !!this.minRateDescription;
+  }
+  get hasMaxLabel(): boolean {
+    return !this.useRateDescriptionsInItems && !!this.maxRateDescription;
   }
 
   /**
@@ -263,6 +274,7 @@ Serializer.addClass(
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
     },
+    { name: "useRateDescriptionsInItems:boolean", default: false },
   ],
   function() {
     return new QuestionRatingModel("");

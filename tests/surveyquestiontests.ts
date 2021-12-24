@@ -2087,19 +2087,26 @@ QUnit.test("Rating question, renderedRateItems", function(assert) {
     "There are 5 items by default"
   );
 
+  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
+
   rate.minRateDescription = "Worst";
   rate.maxRateDescription = "Best";
 
-  assert.equal(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
     ["1", "2", "3", "4", "5"],
     "List of numeric values"
   );
+  assert.ok(rate.hasMinLabel, "Rating has min label");
+  assert.ok(rate.hasMaxLabel, "Rating has max label");
 
   rate.useRateDescriptionsInItems = true;
-  assert.equal(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
     ["Worst", "2", "3", "4", "Best"],
     "List of numeric values and min/max"
   );
+  assert.notOk(rate.hasMinLabel, "Rating has no min label");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
 });
 
 QUnit.test(

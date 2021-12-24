@@ -110,11 +110,11 @@ export function testQuestionMarkup(assert, test, platform) {
     var re = /(<!--.*?-->)/g;
     var newstr = str.replace(re, "");
     newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
-    newstr = newstr.replace(/(>  +<)/g, "><").trim();
+    newstr = newstr.replace(/(> +<)/g, "><").trim();
 
     var oldStr = test.etalon || !test.etalon && require("./snapshots/"+test.snapshot+".snap.html");
     oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
-    oldStr = oldStr.replace(/(>  +<)/g, "><").trim();
+    oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
     assert.equal(newstr, oldStr,
       newstr == oldStr ?

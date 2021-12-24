@@ -4,40 +4,41 @@
             <legend
             data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
             ></legend>
+            <!-- ko if: question.hasMinLabel-->
+            <span data-bind="css: question.koCss().minText">
+              <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
+              <!-- /ko -->
+              </span>
+            <!-- /ko -->
             <!-- ko foreach: question.koVisibleRateValues -->
-            <label data-bind="css: question.getItemClass($data)">
+            <label data-bind="css: itemClass">
                 <input
-                type="checkbox"
+                type="radio"
                 class="sv-visuallyhidden"
                 data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.value, enable: !question.isInputReadOnly"
                 />
-                <!-- ko if: $index() == 0 -->
-                <span data-bind="css: question.koCss().minText">
-                <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
-                <!-- /ko -->
-                </span>
-                <!-- /ko -->
-
                 <span data-bind="css: question.koCss().itemText">
                 <!-- ko template: { name: 'survey-string', data: $data.locText } -->
                 <!-- /ko -->
                 </span>
-
-                <!-- ko if: $index() == (question.koVisibleRateValues().length-1) -->
-                <span data-bind="css: question.koCss().maxText">
-                <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
-                <!-- /ko -->
-                </span>
-                <!-- /ko -->
             </label>
             <!-- /ko -->
+            <!-- ko if: question.hasMaxLabel-->
+            <span data-bind="css: question.koCss().maxText">
+              <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
+              <!-- /ko -->
+              </span>
+            <!-- /ko -->
+
         </fieldset>
     </div>
 
-    <div data-bind="visible: question.hasOther">
+    <!-- ko if: question.hasOther -->
+    <div>
       <div
         data-bind="template: { name: 'survey-comment', data: { 'question': question } }"
       ></div>
     </div>
+    <!-- /ko -->
   </fieldset>
 </script>

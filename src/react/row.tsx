@@ -37,20 +37,11 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     var elements = null;
     elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
-      var rootStyle: { [index: string]: any } = {};
-      if (element.renderWidth) {
-        rootStyle["width"] = element.renderWidth;
-        rootStyle["flexGrow"] = 1;
-        rootStyle["flexShrink"] = 1;
-        rootStyle["flexBasis"] = element.renderWidth;
-        rootStyle["minWidth"] = element.minWidth;
-        rootStyle["maxWidth"] = element.maxWidth;
-      }
       const css = (element as Question).cssClasses;
       return (
         <div
           className={css.questionWrapper}
-          style={rootStyle}
+          style={(element as any).rootStyle}
           data-key={innerElement.key}
           key={innerElement.key}
           onFocus={(element as Question).focusIn}

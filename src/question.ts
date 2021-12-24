@@ -785,75 +785,9 @@ export class Question extends SurveyElement
   protected getCssType(): string {
     return this.getType();
   }
-  /**
-   * Use it to set the specific width to the question like css style (%, px, em etc).
-   */
-  public get width(): string {
-    return this.getPropertyValue("width", "");
-  }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
-  }
-  /**
-   * Use it to set the specific minWidth constraint to the question like css style (%, px, em etc).
-   */
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
-  /**
-   * Use it to set the specific maxWidth constraint to the question like css style (%, px, em etc).
-   */
-  public get maxWidth(): string {
-    return this.getPropertyValue("maxWidth");
-  }
-  public set maxWidth(val: string) {
-    this.setPropertyValue("maxWidth", val);
-  }
-  /**
-   * The rendered width of the question.
-   */
-  public get renderWidth(): string {
-    return this.getPropertyValue("renderWidth", "");
-  }
-  public set renderWidth(val: string) {
-    this.setPropertyValue("renderWidth", val);
-  }
 
   public get renderCssRoot(): string {
     return this.cssClasses.root || undefined;
-  }
-  /**
-   * Set it different from 0 to increase the left padding.
-   */
-  public get indent(): number {
-    return this.getPropertyValue("indent");
-  }
-  public set indent(val: number) {
-    this.setPropertyValue("indent", val);
-  }
-  /**
-   * Set it different from 0 to increase the right padding.
-   */
-  public get rightIndent(): number {
-    return this.getPropertyValue("rightIndent", 0);
-  }
-  public set rightIndent(val: number) {
-    this.setPropertyValue("rightIndent", val);
-  }
-  get paddingLeft(): string {
-    return this.getPropertyValue("paddingLeft", "");
-  }
-  set paddingLeft(val: string) {
-    this.setPropertyValue("paddingLeft", val);
-  }
-  get paddingRight(): string {
-    return this.getPropertyValue("paddingRight", "");
-  }
-  set paddingRight(val: string) {
-    this.setPropertyValue("paddingRight", val);
   }
   private onIndentChanged() {
     this.paddingLeft = this.getIndentSize(this.indent);

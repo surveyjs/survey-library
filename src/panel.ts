@@ -1799,42 +1799,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getRenderedTitle(str);
   }
   /**
-   * The Panel width.
-   */
-  public get width(): string {
-    return this.getPropertyValue("width");
-  }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
-  }
-  /**
-   * Use it to set the specific minWidth constraint to the panel like css style (%, px, em etc).
-   */
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
-  /**
-   * Use it to set the specific maxWidth constraint to the panel like css style (%, px, em etc).
-   */
-  public get maxWidth(): string {
-    return this.getPropertyValue("maxWidth");
-  }
-  public set maxWidth(val: string) {
-    this.setPropertyValue("maxWidth", val);
-  }
-  /**
-   * The left indent. Set this property to increase the panel left indent.
-   */
-  public get indent(): number {
-    return this.getPropertyValue("indent");
-  }
-  public set indent(val: number) {
-    this.setPropertyValue("indent", val);
-  }
-  /**
    * The inner indent. Set this property to increase the panel content margin.
    */
   public get innerIndent(): number {
@@ -1842,12 +1806,6 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public set innerIndent(val: number) {
     this.setPropertyValue("innerIndent", val);
-  }
-  get renderWidth(): string {
-    return this.getPropertyValue("renderWidth");
-  }
-  set renderWidth(val: string) {
-    this.setPropertyValue("renderWidth", val);
   }
   /**
    * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
@@ -1859,15 +1817,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("startWithNewLine", value);
   }
   /**
-   * The right indent of the Panel.
-   */
-  public get rightIndent(): number {
-    return this.getPropertyValue("rightIndent", 0);
-  }
-  public set rightIndent(val: number) {
-    this.setPropertyValue("rightIndent", val);
-  }
-  /**
    * The Panel toolbar gets adaptive if the property is set to true.
    */
   public get allowAdaptiveActions(): boolean {
@@ -1876,23 +1825,11 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set allowAdaptiveActions(val: boolean) {
     this.setPropertyValue("allowAdaptiveActions", val);
   }
-  get paddingLeft(): string {
-    return this.getPropertyValue("paddingLeft", "");
-  }
-  set paddingLeft(val: string) {
-    this.setPropertyValue("paddingLeft", val);
-  }
   get innerPaddingLeft(): string {
     return this.getPropertyValue("innerPaddingLeft", "");
   }
   set innerPaddingLeft(val: string) {
     this.setPropertyValue("innerPaddingLeft", val);
-  }
-  get paddingRight(): string {
-    return this.getPropertyValue("paddingRight", "");
-  }
-  set paddingRight(val: string) {
-    this.setPropertyValue("paddingRight", val);
   }
   private onIndentChanged() {
     if (!this.getSurvey()) return;

@@ -1,0 +1,18 @@
+.sd-completedpage {
+  font-family: $font-family;
+  font-weight: bold;
+  box-sizing: border-box;
+  text-align: center;
+  height: calcSize(20);
+
+  h3 {
+    font-size: calcSize(3);
+  }
+}
+.sd-completedpage:before {
+  display: block;
+  width: calcSize(9);
+  height: calcSize(9);
+  margin-left: calc(50% - 36px);
+  content: "";
+}

@@ -2100,7 +2100,7 @@ QUnit.test("Rating question, renderedRateItems", function(assert) {
   assert.ok(rate.hasMinLabel, "Rating has min label");
   assert.ok(rate.hasMaxLabel, "Rating has max label");
 
-  rate.useRateDescriptionsInItems = true;
+  rate.displayRateDescriptionsAsExtremeItems = true;
   assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
     ["Worst", "2", "3", "4", "Best"],
     "List of numeric values and min/max"

@@ -38,7 +38,7 @@ export class QuestionRatingModel extends Question {
         options.name == "rateMin" ||
         options.name == "rateMax" ||
         options.name == "rateStep" ||
-        options.name == "useRateDescriptionsInItems" ||
+        options.name == "displayRateDescriptionsAsExtremeItems" ||
         options.name == "value"
       ) {
         self.fireCallback(self.rateValuesChangedCallback);
@@ -135,7 +135,7 @@ export class QuestionRatingModel extends Question {
   }
   get renderedRateItems(): RenderedRatingItem[] {
     return this.visibleRateValues.map((v, i) => {
-      if(this.useRateDescriptionsInItems) {
+      if(this.displayRateDescriptionsAsExtremeItems) {
         if(i == 0) return new RenderedRatingItem(v, this.getItemClass(v), this.locMinRateDescription);
         if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.getItemClass(v), this.locMaxRateDescription);
       }
@@ -193,16 +193,26 @@ export class QuestionRatingModel extends Question {
   }
 
   get hasMinLabel(): boolean {
-    return !this.useRateDescriptionsInItems && !!this.minRateDescription;
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.minRateDescription;
   }
   get hasMaxLabel(): boolean {
-    return !this.useRateDescriptionsInItems && !!this.maxRateDescription;
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.maxRateDescription;
   }
 
   /**
-   * Set true to show minRateDescription and maxRateDescription as item caption, not label
-   */
-  @property({ defaultValue: false }) useRateDescriptionsInItems: boolean;
+  * Specifies whether a Rating question displays the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
+  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) property texts as buttons that correspond to
+  * the extreme (first and last) rate items. If any of these properties is empty, the corresponding rate item's value/text is used for display.<br/>
+  * When the `displayRateDescriptionsAsExtremeItems` property is disabled, the texts defined through
+  * the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
+  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) properties
+  * are displayed as plain non-clickable texts.
+  * @see minRateDescription
+  * @see maxRateDescription
+  * @see rateMin
+  * @see rateMax
+  */
+  @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
@@ -275,7 +285,7 @@ Serializer.addClass(
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
     },
-    { name: "useRateDescriptionsInItems:boolean", default: false },
+    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
   ],
   function() {
     return new QuestionRatingModel("");

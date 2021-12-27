@@ -43,7 +43,7 @@ registerMarkupTests(
           type: "rating",
           title: "Question title",
           rateMax: 4,
-          useRateDescriptionsInItems: true,
+          displayRateDescriptionsAsExtremeItems: true,
           titleLocation: "hidden",
           minRateDescription: "min",
           maxRateDescription: "max"

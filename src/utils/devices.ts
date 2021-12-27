@@ -28,5 +28,9 @@ export const IsMobile = _isMobile;
 
 // isTouch
 let _isTouch = false;
-_isTouch = (<any>window) && ("ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0);
+
+if (typeof window !== "undefined") {
+  _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+}
+
 export const IsTouch = _isTouch;

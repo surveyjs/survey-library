@@ -1,11 +1,24 @@
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { Base } from "./base";
+
+export class RenderedRatingItem extends Base {
+  public get value(): number {
+    return this.itemValue.getPropertyValue("value");
+  }
+  public get locText(): LocalizableString {
+    return this.locString || this.itemValue.locText;
+  }
+  constructor(private itemValue: ItemValue, public itemClass: string, private locString: LocalizableString = null) {
+    super();
+  }
+}
 
 /**
  * A Model for a rating question.
@@ -24,28 +37,24 @@ export class QuestionRatingModel extends Question {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
-        options.name == "rateStep"
+        options.name == "rateStep" ||
+        options.name == "displayRateDescriptionsAsExtremeItems" ||
+        options.name == "value"
       ) {
         self.fireCallback(self.rateValuesChangedCallback);
       }
     });
 
-    var locMinRateDescriptionValue = this.createLocalizableString(
+    this.createLocalizableString(
       "minRateDescription",
       this,
       true
     );
-    var locMaxRateDescriptionValue = this.createLocalizableString(
+    this.createLocalizableString(
       "maxRateDescription",
       this,
       true
     );
-    locMinRateDescriptionValue.onGetTextCallback = function(text) {
-      return text ? text + " " : text;
-    };
-    locMaxRateDescriptionValue.onGetTextCallback = function(text) {
-      return text ? " " + text : text;
-    };
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
@@ -124,6 +133,15 @@ export class QuestionRatingModel extends Question {
     }
     return res;
   }
+  get renderedRateItems(): RenderedRatingItem[] {
+    return this.visibleRateValues.map((v, i) => {
+      if(this.displayRateDescriptionsAsExtremeItems) {
+        if(i == 0) return new RenderedRatingItem(v, this.getItemClass(v), this.locMinRateDescription);
+        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.getItemClass(v), this.locMaxRateDescription);
+      }
+      return new RenderedRatingItem(v, this.getItemClass(v));
+    });
+  }
   private correctValue(value: number, step: number): number {
     if (!value) return value;
     if (Math.round(value) == value) return value;
@@ -173,6 +191,29 @@ export class QuestionRatingModel extends Question {
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
   }
+
+  get hasMinLabel(): boolean {
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.minRateDescription;
+  }
+  get hasMaxLabel(): boolean {
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.maxRateDescription;
+  }
+
+  /**
+  * Specifies whether a Rating question displays the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
+  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) property texts as buttons that correspond to
+  * the extreme (first and last) rate items. If any of these properties is empty, the corresponding rate item's value/text is used for display.<br/>
+  * When the `displayRateDescriptionsAsExtremeItems` property is disabled, the texts defined through
+  * the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
+  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) properties
+  * are displayed as plain non-clickable texts.
+  * @see minRateDescription
+  * @see maxRateDescription
+  * @see rateMin
+  * @see rateMax
+  */
+  @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -244,6 +285,7 @@ Serializer.addClass(
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
     },
+    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
   ],
   function() {
     return new QuestionRatingModel("");

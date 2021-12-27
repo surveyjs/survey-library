@@ -2078,6 +2078,37 @@ QUnit.test("Rating question, visibleRateValues property", function(assert) {
   rate.rateValues = [1, 2, 3];
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
+
+QUnit.test("Rating question, renderedRateItems", function(assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(
+    rate.visibleRateValues.length,
+    5,
+    "There are 5 items by default"
+  );
+
+  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
+
+  rate.minRateDescription = "Worst";
+  rate.maxRateDescription = "Best";
+
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+    ["1", "2", "3", "4", "5"],
+    "List of numeric values"
+  );
+  assert.ok(rate.hasMinLabel, "Rating has min label");
+  assert.ok(rate.hasMaxLabel, "Rating has max label");
+
+  rate.displayRateDescriptionsAsExtremeItems = true;
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+    ["Worst", "2", "3", "4", "Best"],
+    "List of numeric values and min/max"
+  );
+  assert.notOk(rate.hasMinLabel, "Rating has no min label");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
+});
+
 QUnit.test(
   "Rating question, visibleRateValues property load from JSON",
   function(assert) {

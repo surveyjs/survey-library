@@ -2,7 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { QuestionRatingModel } from "survey-core";
-import { ItemValue } from "survey-core";
+import { RenderedRatingItem } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionRating extends SurveyQuestionElementBase {
@@ -19,34 +19,20 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var values = [];
     var minText = this.question.minRateDescription
       ? this.renderLocString(this.question.locMinRateDescription)
       : null;
     var maxText = this.question.maxRateDescription
       ? this.renderLocString(this.question.locMaxRateDescription)
       : null;
-    for (var i = 0; i < this.question.visibleRateValues.length; i++) {
-      var minTextValue = i == 0 ? minText : null;
-      var maxTextValue =
-        i == this.question.visibleRateValues.length - 1 ? maxText : null;
-      values.push(
-        this.renderItem(
-          "value" + i,
-          this.question.visibleRateValues[i],
-          i,
-          minTextValue,
-          maxTextValue,
-          cssClasses
-        )
-      );
-    }
     var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
     return (
       <div className={cssClasses.root} ref={(div) => (this.control = div)}>
         <fieldset role="radiogroup">
           <legend aria-label={this.question.locTitle.renderedHtml} />
-          {values}
+          {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}
+          {this.question.renderedRateItems.map((item, i) => this.renderItem("value" + i, item, i, cssClasses))}
+          {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span>: null}
         </fieldset>
         {comment}
       </div>
@@ -54,22 +40,13 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   }
   protected renderItem(
     key: string,
-    item: ItemValue,
+    item: RenderedRatingItem,
     index: number,
-    minText: JSX.Element,
-    maxText: JSX.Element,
     cssClasses: any
   ): JSX.Element {
-    const className = this.question.getItemClass(item);
     var itemText = this.renderLocString(item.locText);
-    var minTextBlock = !!minText ? (
-      <span className={cssClasses.minText}>{minText}</span>
-    ) : null;
-    var maxTextBlock = !!maxText ? (
-      <span className={cssClasses.maxText}>{maxText}</span>
-    ) : null;
     return (
-      <label key={key} className={className}>
+      <label key={key} className={item.itemClass}>
         <input
           type="radio"
           className="sv-visuallyhidden"
@@ -78,16 +55,14 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}
-          readOnly
           onClick={this.handleOnClick}
+          onChange={()=>{}}
           aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}
           aria-describedby={this.question.ariaDescribedBy}
         />
-        {minTextBlock}
         <span className={cssClasses.itemText}>{itemText}</span>
-        {maxTextBlock}
       </label>
     );
   }

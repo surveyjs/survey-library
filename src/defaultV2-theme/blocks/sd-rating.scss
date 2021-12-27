@@ -42,11 +42,14 @@
 }
 .sd-rating__item-text.sd-rating__item-text {
   line-height: calcSize(3);
-  &.sd-rating__min-text {
-    margin-right: calcSize(1);
-  }
+  &.sd-rating__min-text,
   &.sd-rating__max-text {
-    margin-left: calcSize(1);
+    margin-right: calcSize(2);
+    margin-top: calcSize(1.25);
+    margin-bottom: calcSize(1.25);
+    margin-left: calcSize(2);
+    border: 2px solid $background;
+    color: $foreground-light;
   }
 
   .sv-string-editor {

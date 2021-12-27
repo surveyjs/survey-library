@@ -1,12 +1,15 @@
 <template>
-  <div>
-    <div :class="getRootClass(question)">
+  <div :class="getRootClass(question)">
       <fieldset role="radiogroup">
         <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+        <span v-if="question.hasMinLabel"
+          :class="question.cssClasses.minText">
+          <survey-string :locString="question.locMinRateDescription" />
+        </span>
         <label
-          v-for="(item, index) in question.visibleRateValues"
+          v-for="(item, index) in question.renderedRateItems"
           :key="item.value"
-          :class="question.getItemClass(item)"
+          :class="item.itemClass"
         >
           <input
             type="radio"
@@ -21,26 +24,21 @@
             :aria-invalid="question.ariaInvalid"
             :aria-describedby="question.ariaDescribedBy"
           />
-          <span v-if="index === 0" :class="question.cssClasses.minText">
-            <survey-string :locString="question.locMinRateDescription" />
-          </span>
           <span :class="question.cssClasses.itemText">
             <survey-string :locString="item.locText" />
           </span>
-          <span
-            v-if="index === question.visibleRateValues.length - 1"
-            :class="question.cssClasses.maxText"
-          >
-            <survey-string :locString="question.locMaxRateDescription" />
-          </span>
         </label>
+        <span v-if="question.hasMaxLabel"
+              :class="question.cssClasses.maxText"
+        >
+        <survey-string :locString="question.locMaxRateDescription" />
+        </span>
       </fieldset>
-    </div>
-    <survey-other-choice
-      v-show="question.hasOther"
-      :class="question.cssClasses.other"
-      :question="question"
-    />
+      <survey-other-choice
+        v-if="question.hasOther"
+        :class="question.cssClasses.other"
+        :question="question"
+      />
   </div>
 </template>
 

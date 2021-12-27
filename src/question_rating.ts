@@ -38,7 +38,8 @@ export class QuestionRatingModel extends Question {
         options.name == "rateMin" ||
         options.name == "rateMax" ||
         options.name == "rateStep" ||
-        options.name == "useRateDescriptionsInItems"
+        options.name == "useRateDescriptionsInItems" ||
+        options.name == "value"
       ) {
         self.fireCallback(self.rateValuesChangedCallback);
       }

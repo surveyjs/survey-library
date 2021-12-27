@@ -167,13 +167,17 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     // EO drop to question or panel
   }
 
-  protected isDropTargetValid(dropTarget: SurveyElement): boolean {
-    if (!dropTarget) return false;
+  protected isDropTargetValid(): boolean {
+    if (!this.dropTarget) return false;
     if (this.dropTarget === this.draggedElement) return false;
+
+    if (this.draggedElement.getType() === "paneldynamic" &&
+          this.dropTarget === this.draggedElement.template)
+      return false;
 
     if (
       DragDropSurveyElements.restrictDragQuestionBetweenPages &&
-      this.shouldRestricDragQuestionBetweenPages(dropTarget)
+      this.shouldRestricDragQuestionBetweenPages(this.dropTarget)
     ) {
       return false;
     }

@@ -18,9 +18,6 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-list {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   padding: 0;
   margin: 0;
   background: #ffffff;
@@ -30,12 +27,14 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item {
   width: 100%;
-  display: flex;
   align-items: center;
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
   color: $foreground;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   &:hover, &:focus {
     background-color: $background-dim;
     outline: none;

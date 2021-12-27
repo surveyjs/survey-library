@@ -6,7 +6,7 @@ import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IsMobile } from "./utils/is-mobile";
+import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 
 const Sortable = <any>SortableLib;

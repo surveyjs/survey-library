@@ -170,7 +170,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../question_buttongroup";
-export { IsMobile } from "../../utils/is-mobile";
+export { IsMobile, IsTouch } from "../../utils/devices";
 export {
   confirmAction,
   detectIEOrEdge,

@@ -48,13 +48,56 @@
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;
-  *::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-    background-color: $background-dim;
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: $border transparent;
   }
-  *::-webkit-scrollbar-thumb {
-    background: $primary-light;
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 4px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    border-radius: 32px;
+    background-color: $border;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-color: $foreground-light;
+  }
+}
+.sv-popup {
+  .sv-popup__scrolling-content {
+    scrollbar-width: thin;
+    scrollbar-color: $border transparent;
+
+    &::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+      background-color: $background;
+    }
+    &::-webkit-scrollbar-thumb {
+      border: 4px solid rgba(0, 0, 0, 0);
+      background-clip: padding-box;
+      border-radius: 32px;
+      background-color: $border;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      border: 2px solid rgba(0, 0, 0, 0);
+      background-color: $foreground-light;
+    }
   }
 }
 

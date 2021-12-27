@@ -1298,6 +1298,7 @@ export class Question extends SurveyElement
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     if (!!this.survey && this.survey.isClearValueOnHidden && !this.isVisible) return;
+    if(this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
   getQuestionFromArray(name: string, index: number): IQuestion {

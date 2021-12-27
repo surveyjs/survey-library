@@ -1,3 +1,4 @@
+// isMobile
 let _isMobile = false;
 let vendor = null;
 
@@ -24,3 +25,12 @@ if (
 })(vendor);
 
 export const IsMobile = _isMobile;
+
+// isTouch
+let _isTouch = false;
+
+if (typeof window !== "undefined") {
+  _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+}
+
+export const IsTouch = _isTouch;

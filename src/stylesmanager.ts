@@ -390,9 +390,9 @@ export class StylesManager {
     //eo popup
     //list
     ".sv-list":
-      "display: flex; flex-direction: column; align-items: flex-start; padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
+      "padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
-      "width: 100%; display: flex; align-items: center; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer;",
+      "width: 100%; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

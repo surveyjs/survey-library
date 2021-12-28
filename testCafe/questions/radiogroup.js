@@ -201,22 +201,6 @@ frameworks.forEach(framework => {
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
   });
-
-  test(`accessibility checks`, async (t) => {
-    const radiogroup = Selector(`[role="radiogroup"]`);
-
-    let radiosCount = radiogroup.find(`input[type="radio"][aria-required="true"]`).count;
-    await t.expect(radiosCount).eql(11);
-
-    const nissanItem = radiogroup.find(`input[type="radio"][aria-required="true"]`).parent(`[aria-label="Nissan"]`);
-    await t.click(nissanItem);
-
-    // radiosCount = radiogroup.find(`input[type="radio"][aria-required="true"][aria-checked="false"]`).count;
-    // await t.expect(radiosCount).eql(10);
-
-    // radiosCount = radiogroup.find(`input[type="radio"][aria-required="true"][aria-checked="true"]`).count;
-    // await t.expect(radiosCount).eql(1);
-  });
 });
 
 frameworks.forEach((framework) => {

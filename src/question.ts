@@ -47,9 +47,10 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   private conditionRequiredRunner: ConditionRunner;
+  private isChangingViaDefaultValue: boolean;
+  private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
@@ -1335,20 +1336,27 @@ export class Question extends SurveyElement
       }
       setFunc(val);
     };
-    if (!!expression && !!this.data) {
-      if (!values) values = this.data.getFilteredValues();
-      if (!properties) properties = this.data.getFilteredProperties();
-      var runner = new ExpressionRunner(expression);
-      if (runner.canRun) {
-        runner.onRunComplete = (res) => {
-          if (res == undefined) res = this.defaultValue;
-          func(res);
-        };
-        runner.run(values, properties);
-      }
-    } else {
+    if (!this.runDefaultValueExpression(expression, values, properties, func)) {
       func(defaultValue);
     }
+  }
+  private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
+    properties: HashTable<any> = null, setFunc: (val: any) => void): boolean {
+    if(!expression || !this.data) return false;
+    //if(this.isValueChangedDirectly) return true;
+    if (!values) values = this.data.getFilteredValues();
+    if (!properties) properties = this.data.getFilteredProperties();
+    var runner = new ExpressionRunner(expression);
+    if (runner.canRun) {
+      runner.onRunComplete = (res) => {
+        if (res == undefined) res = this.defaultValue;
+        this.isChangingViaDefaultValue = true;
+        setFunc(res);
+        this.isChangingViaDefaultValue = false;
+      };
+      runner.run(values, properties);
+    }
+    return true;
   }
   /**
    * The question comment value.
@@ -1662,6 +1670,9 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
+    if(!this.isChangingViaDefaultValue) {
+      this.isValueChangedDirectly = true;
+    }
     this.questionValue = newValue;
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);

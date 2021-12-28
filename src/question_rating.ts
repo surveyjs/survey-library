@@ -15,7 +15,7 @@ export class RenderedRatingItem extends Base {
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  constructor(private itemValue: ItemValue, public itemClass: string, private locString: LocalizableString = null) {
+  constructor(public itemValue: ItemValue, public itemClass: string, private locString: LocalizableString = null) {
     super();
   }
 }

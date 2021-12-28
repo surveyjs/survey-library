@@ -10,6 +10,7 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var DashedNamePlugin = require("./webpack-dashed-name");
 
+var dts = require("dts-bundle");
 var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
@@ -29,8 +30,15 @@ module.exports = function(options, packageJson, chunkName) {
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
   ].join("\n");
 
+  // TODO add to dts_bundler
+  var dts_banner = [
+    "Type definitions for Survey JavaScript library v" + packageJson.version,
+    "Copyright (c) 2015-" + year + " Devsoft Baltic OÜ  - http://surveyjs.io/",
+    "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
+    "",
+  ].join("\n");
+
   var buildPath = __dirname + "/../build/" + packageJson.name + "/";
-  var dts_generator = __dirname + "/" + packageJson.name + "/d_ts_generator.js";
   var isProductionBuild = options.buildType === "prod";
 
   function createSVGBundle() {
@@ -97,8 +105,32 @@ module.exports = function(options, packageJson, chunkName) {
       createSVGBundle();
     } else if (1 == percentage) {
       if (isProductionBuild) {
-        console.log("Generating d.ts file: " + dts_generator);
-        require(dts_generator);
+        dts.bundle({
+          name: buildPath + packageName,
+          main: buildPath + "typings/entries/" + options.platform + ".d.ts",
+          outputAsModuleFolder: true,
+          headerText: dts_banner,
+        });
+
+        var fileName = buildPath + packageName + ".d.ts";
+
+        if (
+          !packageJson.dependencies ||
+          !packageJson.dependencies["survey-core"]
+        ) {
+          removeLines(
+            fileName,
+            /^import\s+.*("|')survey-core("|');\s*(\n|\r)?/gm
+          );
+        }
+        removeLines(fileName, /^import\s+.*("|')\..*("|');\s*(\n|\r)?/gm);
+        removeLines(fileName, /^import\s+\*\s+as\s+React\s+from\s+\"react\"\s*;(\n|\r)?/gm);
+        removeLines(fileName, /^import\s+React\s+from\s+\"react\"\s*;(\n|\r)?/gm);
+        removeLines(fileName, /export let\s+\w+:\s+\w+;/g);
+        removeLines(fileName, /export default\s+\w+;/g);
+
+        replaceLines(fileName, /const innerKo: any;/g, "declare const innerKo: any;");
+
 
         rimraf.sync(buildPath + "typings");
 

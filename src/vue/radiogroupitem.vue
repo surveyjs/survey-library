@@ -6,8 +6,6 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        :aria-required="question.ariaRequired"
-        :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         v-model="question.renderedValue"
         :disabled="!question.getItemEnabled(item)"

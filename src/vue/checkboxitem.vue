@@ -9,8 +9,6 @@
         v-model="isAllSelected"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
-        :aria-required="question.ariaRequired"
-        :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       /><input

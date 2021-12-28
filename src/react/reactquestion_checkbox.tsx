@@ -180,8 +180,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(this.item)}
             checked={isChecked}
             onChange={onItemChanged}
-            aria-required={this.question.ariaRequired}
-            aria-invalid={this.question.ariaInvalid}
             aria-describedby={this.question.ariaDescribedBy}
           />
           {

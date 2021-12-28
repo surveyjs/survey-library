@@ -32,7 +32,7 @@
     <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }">
       <input
         type="radio"
-        data-bind="attr: { name: question.questionName, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
+        data-bind="attr: { name: question.questionName, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
       />
       <!-- ko if: question.koCss().materialDecorator -->
       <span data-bind="css: question.koCss().materialDecorator">

@@ -11,7 +11,7 @@
               </span>
             <!-- /ko -->
             <!-- ko foreach: question.koVisibleRateValues -->
-            <label data-bind="css: itemClass">
+            <label data-bind="css: question.getItemClass($data.itemValue)">
                 <input
                 type="radio"
                 class="sv-visuallyhidden"

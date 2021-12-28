@@ -19,8 +19,6 @@
         v-model="question.renderedValue"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
-        v-bind:aria-required="question.ariaRequired"
-        :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       /><span v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">

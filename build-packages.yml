@@ -163,6 +163,7 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
+        npm run build_core
         npm run build_knockout_ui
       displayName: "Build Knockout UI"
 
@@ -245,6 +246,7 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
+        npm run build_core
         npm run build_react_ui
       displayName: "Build React UI"
 
@@ -327,6 +329,7 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
+        npm run build_core
         npm run build_vue_ui
       displayName: "Build Vue UI"
 

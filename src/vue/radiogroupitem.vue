@@ -1,6 +1,6 @@
 <template>
   <div role="presentation">
-    <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">
+    <label :class="getLabelClass(item)" :aria-label="question.getAriaItemLabel(item)">
       <input
         type="radio"
         :name="question.questionName"

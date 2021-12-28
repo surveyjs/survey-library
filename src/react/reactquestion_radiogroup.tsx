@@ -159,7 +159,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         className={itemClass}
         role="presentation"
       >
-        <label className={labelClass} aria-label={locText.renderedHtml}>
+        <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             aria-required={this.question.ariaRequired}
             aria-invalid={this.question.ariaInvalid}

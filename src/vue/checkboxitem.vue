@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <label :class="question.getLabelClass(item)">
+  <div role="presentation">
+    <label :class="question.getLabelClass(item)" :aria-label="question.getAriaItemLabel(item)">
       <input
         v-if="item == question.selectAllItem"
         type="checkbox"
@@ -10,7 +10,6 @@
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
         :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
@@ -23,7 +22,6 @@
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
         v-bind:aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"

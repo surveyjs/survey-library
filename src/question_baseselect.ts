@@ -832,7 +832,7 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
-  protected getStoreOthersAsComment() {
+  public getStoreOthersAsComment() {
     if (this.isSettingDefaultValue) return false;
     return (
       this.storeOthersAsComment === true ||

@@ -1,6 +1,6 @@
 import { settings } from "./settings";
 
-export interface HashTable<T> {
+export interface HashTable<T = any> {
   [key: string]: T;
 }
 

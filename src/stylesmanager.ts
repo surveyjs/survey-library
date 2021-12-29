@@ -174,7 +174,7 @@ export class StylesManager {
     // ranking
     ".sv-ranking": "outline: none; user-select: none;",
     ".sv-ranking-item":
-      "cursor: pointer; margin-bottom: 5px;position: relative;",
+      "cursor: pointer; position: relative;",
     ".sv-ranking-item:focus .sv-ranking-item__icon--hover":
       "visibility: hidden;",
     ".sv-ranking-item:hover .sv-ranking-item__icon--hover":
@@ -196,7 +196,7 @@ export class StylesManager {
       "display: flex; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
-      "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 35px;",
+      "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
     ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
     ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
     ".sv-ranking-item--drag .sv-ranking-item__content":

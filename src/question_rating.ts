@@ -58,6 +58,11 @@ export class QuestionRatingModel extends Question {
       true
     );
   }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.hasMinRateDescription = !!this.minRateDescription;
+    this.hasMaxRateDescription = !!this.maxRateDescription;
+  }
   public onSurveyLoad() {
     super.onSurveyLoad();
     this.fireCallback(this.rateValuesChangedCallback);

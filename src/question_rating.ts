@@ -15,7 +15,7 @@ export class RenderedRatingItem extends Base {
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  constructor(public itemValue: ItemValue, public itemClass: string, private locString: LocalizableString = null) {
+  constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
   }
 }
@@ -37,6 +37,8 @@ export class QuestionRatingModel extends Question {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
+        options.name == "minRateDescription" ||
+        options.name == "maxRateDescription" ||
         options.name == "rateStep" ||
         options.name == "displayRateDescriptionsAsExtremeItems" ||
         options.name == "value"
@@ -55,6 +57,11 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
+  }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.hasMinRateDescription = !!this.minRateDescription;
+    this.hasMaxRateDescription = !!this.maxRateDescription;
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
@@ -136,10 +143,10 @@ export class QuestionRatingModel extends Question {
   get renderedRateItems(): RenderedRatingItem[] {
     return this.visibleRateValues.map((v, i) => {
       if(this.displayRateDescriptionsAsExtremeItems) {
-        if(i == 0) return new RenderedRatingItem(v, this.getItemClass(v), this.locMinRateDescription);
-        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.getItemClass(v), this.locMaxRateDescription);
+        if(i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
+        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
       }
-      return new RenderedRatingItem(v, this.getItemClass(v));
+      return new RenderedRatingItem(v);
     });
   }
   private correctValue(value: number, step: number): number {
@@ -175,6 +182,7 @@ export class QuestionRatingModel extends Question {
   }
   public set minRateDescription(val: string) {
     this.setLocalizableStringText("minRateDescription", val);
+    this.hasMinRateDescription = !!this.minRateDescription;
   }
   get locMinRateDescription(): LocalizableString {
     return this.getLocalizableString("minRateDescription");
@@ -187,16 +195,19 @@ export class QuestionRatingModel extends Question {
   }
   public set maxRateDescription(val: string) {
     this.setLocalizableStringText("maxRateDescription", val);
+    this.hasMaxRateDescription = !!this.maxRateDescription;
   }
   get locMaxRateDescription(): LocalizableString {
     return this.getLocalizableString("maxRateDescription");
   }
+  @property({ defaultValue: false }) hasMinRateDescription: boolean;
+  @property({ defaultValue: false }) hasMaxRateDescription: boolean;
 
   get hasMinLabel(): boolean {
-    return !this.displayRateDescriptionsAsExtremeItems && !!this.minRateDescription;
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMinRateDescription;
   }
   get hasMaxLabel(): boolean {
-    return !this.displayRateDescriptionsAsExtremeItems && !!this.maxRateDescription;
+    return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMaxRateDescription;
   }
 
   /**

@@ -1,6 +1,5 @@
 <script type="text/html" id="survey-question-checkbox">
-  <fieldset data-bind="css: question.koCss().root">
-      <legend data-bind="attr: { 'aria-label': question.ariaLabel }" role="checkbox"></legend>
+  <fieldset data-bind="css: question.koCss().root" role="presentation">
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
@@ -9,7 +8,7 @@
       <!-- /ko -->
       <!-- ko if: question.hasColumns  -->
         <!-- ko foreach: question.columns -->
-            <div data-bind="css: question.getColumnClass()">
+            <div data-bind="css: question.getColumnClass()" role="presentation">
             <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
               <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
               <!-- /ko -->
@@ -20,13 +19,13 @@
     </fieldset>
 </script>
 <script type="text/html" id="survey-checkbox-item">
-  <div data-bind="css: question.getItemClass(item)">
-      <label data-bind="css: question.getLabelClass(item)">
+  <div role="presentation" data-bind="css: question.getItemClass(item)">
+      <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
               <!-- ko if: question.koCss().materialDecorator -->
               <span data-bind="css: question.koCss().materialDecorator">

@@ -832,7 +832,7 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
-  protected getStoreOthersAsComment() {
+  public getStoreOthersAsComment() {
     if (this.isSettingDefaultValue) return false;
     return (
       this.storeOthersAsComment === true ||
@@ -1250,7 +1250,7 @@ export class QuestionSelectBase extends Question {
     return this.cssClasses.itemSvgIconId;
   }
 
-  public ariaItemLabel(item: ItemValue) {
+  public getAriaItemLabel(item: ItemValue) {
     return item.locText.renderedHtml;
   }
   public getItemId(item: ItemValue) {

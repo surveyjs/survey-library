@@ -2409,7 +2409,7 @@ export class SurveyModel extends SurveyElementCore
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
     }
   }
-  public get isEditingSurveyElement() {
+  public get isEditingSurveyElement(): boolean {
     return !!this.editingObj;
   }
   private setCalcuatedValuesIntoResult(result: any) {

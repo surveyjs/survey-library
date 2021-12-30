@@ -44,6 +44,7 @@
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
     "build_angular_ui": "ng build",
+    "angular_ui": "ng serve",
     "watch:core:dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
     "watch:ko:ui:dev": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
@@ -76,6 +77,8 @@
     "@angular/compiler": "~13.0.0",
     "@angular/compiler-cli": "~13.0.0",
     "@angular/core": "~13.0.0",
+    "@angular/platform-browser": "~13.0.0",
+    "@angular/platform-browser-dynamic": "~13.0.0",
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",
     "@types/jest": "23.3.3",
@@ -162,7 +165,7 @@
     "webpack-merge": "^5.7.3",
     "webpack-svgstore-plugin": "4.0.1",
     "zone.js": "~0.11.4"
- },
+  },
   "husky": {
     "hooks": {
       "pre-push": "npm run pre-push-check"

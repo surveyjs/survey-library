@@ -13,6 +13,10 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": ["./src/entries/core.ts"],
+      "survey-angular-ui": [
+        "build/survey-angular-ui/survey-angular-ui",
+        "build/survey-angular-ui"
+      ]
     }    
   },
   "exclude": ["src/entries/**/*.ts"],

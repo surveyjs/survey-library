@@ -5,6 +5,6 @@ import { Component } from "@angular/core";
   templateUrl: "./survey.component.html",
   styleUrls: ["./survey.component.scss"]
 })
-export class AppComponent {
+export class SurveyComponent {
   title = "SurveyJS";
 }

@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, BehaviorSubject } from "rxjs";
 // import { SurveyModel } from "survey-core";
 
 @Component({
@@ -14,16 +14,14 @@ export class SurveyComponent {
   constructor() {
     // debugger;
   }
-  _visible = new Subject<boolean>();
-  _visibleVal = true;
-  get visible() {
-    return this._visibleVal;
+  _visible = new BehaviorSubject<boolean>(true);
+  get visible(): boolean {
+    return this._visible.value;
   }
   set visible(val: boolean) {
     this._visible.next(val);
-    this._visibleVal = val;
   }
-  toggle() {
+  toggle(): void {
     this.visible = !this.visible;
   }
   time = new Observable<string>(observer => {

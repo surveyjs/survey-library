@@ -22,11 +22,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
           cursor: grabbing;
           position: absolute;
           z-index: 1000;
-          border-radius: 36px;
-          min-width: 100px;
-          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-          background-color: white;
-          padding-right: 16px;
           font-family: "Open Sans";
         `;
 
@@ -36,8 +31,16 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
         .closest("[data-sv-drop-target-item-value]")
         .cloneNode(isDeepClone)
     );
-    const controlsNode: HTMLElement = clone.querySelector(".svc-item-value-controls");
-    controlsNode.style.display = "block";
+    clone.style.cssText = `
+      min-width: 100px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      border-radius: 36px;
+      padding-right: 16px;
+    `;
+
+    const dragIcon:any = clone.querySelector(".svc-item-value-controls__drag-icon");
+    dragIcon.style.visibility = "visible";
 
     clone.classList.remove("svc-item-value--moveup");
     clone.classList.remove("svc-item-value--movedown");

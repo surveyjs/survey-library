@@ -9,6 +9,8 @@
         v-if="row.isNeedRender"
         :id="element.id"
         :role="element.ariaRole"
+        :aria-required="element.ariaRequired"
+        :aria-invalid="element.ariaInvalid"
         :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
         :data-name="element.name"
         :style="{

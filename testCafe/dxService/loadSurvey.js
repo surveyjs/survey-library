@@ -17,7 +17,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`fieldset div:nth-child(2) label input`)
+      .click(`fieldset div:nth-child(1) label input`)
       .click(`fieldset div:nth-child(4) label input`)
       .click(`input[value="Complete"]`);
 

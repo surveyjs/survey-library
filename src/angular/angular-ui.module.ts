@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 import { SurveyComponent } from "./survey.component";
 
 @NgModule({
@@ -6,6 +7,7 @@ import { SurveyComponent } from "./survey.component";
     SurveyComponent
   ],
   imports: [
+    CommonModule
   ],
   exports: [
     SurveyComponent

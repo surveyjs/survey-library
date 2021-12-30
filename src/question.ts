@@ -965,6 +965,9 @@ export class Question extends SurveyElement
     }
     this.runEnableIfCondition(values, properties);
     this.runRequiredIfCondition(values, properties);
+    if(!this.isValueChangedDirectly) {
+      this.runDefaultValueExpression(this.defaultValueExpression, values, properties);
+    }
   }
   private runVisibleIfCondition(
     values: HashTable<any>,
@@ -1330,20 +1333,27 @@ export class Question extends SurveyElement
     values: HashTable<any> = null,
     properties: HashTable<any> = null
   ): void {
-    var func = (val: any) => {
-      if (val instanceof Date) {
-        val = val.toISOString().slice(0, 10);
-      }
-      setFunc(val);
+    const func = (val: any) => {
+      this.runExpressionSetValue(val, setFunc);
     };
     if (!this.runDefaultValueExpression(expression, values, properties, func)) {
       func(defaultValue);
     }
   }
+  private runExpressionSetValue(val: any, setFunc?: (val: any) => void) : void {
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    setFunc(val);
+  }
   private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
-    properties: HashTable<any> = null, setFunc: (val: any) => void): boolean {
+    properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if(!expression || !this.data) return false;
-    //if(this.isValueChangedDirectly) return true;
+    if(!setFunc) {
+      setFunc = (val: any) : void => {
+        this.runExpressionSetValue(val, (val: any) : void => { this.value = val; });
+      };
+    }
     if (!values) values = this.data.getFilteredValues();
     if (!properties) properties = this.data.getFilteredProperties();
     var runner = new ExpressionRunner(expression);
@@ -1670,7 +1680,7 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
-    if(!this.isChangingViaDefaultValue) {
+    if(!isEqual && !this.isChangingViaDefaultValue) {
       this.isValueChangedDirectly = true;
     }
     this.questionValue = newValue;

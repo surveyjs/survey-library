@@ -4158,7 +4158,7 @@ QUnit.test("Question defaultValueExpression change value until it is not modifie
   assert
 ) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", name: "q1", defaultValue: 1 },
       { type: "text", name: "q2", defaultValueExpression: "{q1} + 2" },
     ],
@@ -4167,8 +4167,7 @@ QUnit.test("Question defaultValueExpression change value until it is not modifie
   const q2 = survey.getQuestionByName("q2");
   assert.equal(q2.value, 3, "initial value");
   q1.value = 5;
-  //TODO it doesn't work
-  //assert.equal(q2.value, 7, "q1 is changed");
+  assert.equal(q2.value, 7, "q1 is changed");
   q2.value = 4;
   assert.equal(q2.value, 4, "changed dirrectly");
   q1.value = 10;

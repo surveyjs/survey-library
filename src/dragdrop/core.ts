@@ -3,7 +3,7 @@ import { Base, EventBase } from "../base";
 import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
-import { IsMobile } from "../utils/is-mobile";
+import { IsMobile, IsTouch } from "../utils/devices";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
@@ -56,7 +56,6 @@ export abstract class DragDropCore<T> extends Base {
   private scrollIntervalId: number = null;
   protected allowDropHere = false;
 
-  private preventScrolling = false;
   constructor(private surveyValue?: ISurvey, private creator?: any) {
     super();
   }
@@ -67,7 +66,7 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
-    if (IsMobile) {
+    if (IsTouch) {
       this.startLongTapProcessing(
         event,
         draggedElement,
@@ -96,6 +95,9 @@ export abstract class DragDropCore<T> extends Base {
   ): void {
     this.startX = event.pageX;
     this.startY = event.pageY;
+    document.body.style.setProperty("touch-action", "none", "important");
+    document.body.style.setProperty("user-select", "none", "important");
+    document.body.style.setProperty("-webkit-user-select", "none", "important");
 
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
@@ -118,6 +120,9 @@ export abstract class DragDropCore<T> extends Base {
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
     if (this.isMicroMovement) return;
+    document.body.style.setProperty("touch-action", "");
+    document.body.style.setProperty("user-select", "");
+    document.body.style.setProperty("-webkit-user-select", "");
     this.stopLongTap();
   };
   // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
@@ -141,7 +146,7 @@ export abstract class DragDropCore<T> extends Base {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
-    if (IsMobile) {
+    if (IsTouch) {
       DragDropCore.PreventScrolling = true;
     }
     if (event.which === 3) return; //right mouse btn
@@ -164,9 +169,16 @@ export abstract class DragDropCore<T> extends Base {
     document.addEventListener("pointercancel", this.handlePointerCancel);
     document.addEventListener("keydown", this.handleEscapeButton);
     document.addEventListener("pointerup", this.drop);
-    if (!IsMobile) {
+    if (!IsTouch) {
       this.draggedElementShortcut.addEventListener("pointerup", this.drop);
+    } else {
+      this.draggedElementShortcut.addEventListener("contextmenu", this.onContextMenu);
     }
+  }
+
+  private onContextMenu = (event:any) => {
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   private dragOver = (event: PointerEvent) => {
@@ -461,6 +473,9 @@ export abstract class DragDropCore<T> extends Base {
     document.removeEventListener("keydown", this.handleEscapeButton);
     document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
+    if (IsTouch) {
+      this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
+    }
     document.body.removeChild(this.draggedElementShortcut);
 
     this.doClear();
@@ -473,10 +488,13 @@ export abstract class DragDropCore<T> extends Base {
     this.parentElement = null;
     this.scrollIntervalId = null;
 
-    if (IsMobile) {
+    if (IsTouch) {
       document.body.removeChild(this.savedTargetNode);
       DragDropCore.PreventScrolling = false;
     }
+    document.body.style.setProperty("touch-action", "");
+    document.body.style.setProperty("user-select", "");
+    document.body.style.setProperty("-webkit-user-select", "");
   };
 
   protected doClear(): void { }

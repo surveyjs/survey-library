@@ -1,7 +1,7 @@
 import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { IsMobile } from "../utils/is-mobile";
+import { IsMobile } from "../utils/devices";
 export class DragDropRankingChoices extends DragDropChoices {
   protected get draggedElementType(): string {
     return "ranking-item";

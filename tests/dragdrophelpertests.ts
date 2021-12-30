@@ -133,21 +133,21 @@ QUnit.test("calculateIsEdge", function (assert) {
   let ddHelper = new DragDropSurveyElements(null);
   const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
-    y: 100,
-    height: 100,
+    top: 100,
+    bottom: 300
   });
 
   let result = ddHelper["calculateIsEdge"](testElement, 100);
   assert.equal(result, true);
 
-  result = ddHelper["calculateIsEdge"](testElement, 131);
+  result = ddHelper["calculateIsEdge"](testElement, 121);
   assert.equal(result, false);
   result = ddHelper["calculateIsEdge"](testElement, 150);
   assert.equal(result, false);
-  result = ddHelper["calculateIsEdge"](testElement, 169);
+  result = ddHelper["calculateIsEdge"](testElement, 279);
   assert.equal(result, false);
 
-  result = ddHelper["calculateIsEdge"](testElement, 200);
+  result = ddHelper["calculateIsEdge"](testElement, 280);
   assert.equal(result, true);
 });
 
@@ -296,6 +296,39 @@ QUnit.test("allowDropHere", function (assert) {
   ddHelper["drop"]();
   assert.equal(beforeCount, 0);
   assert.equal(afterCount, 0);
+});
+
+QUnit.test("SurveyElements: isDropTargetValid", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      }
+    ],
+  });
+  const pd = survey.getQuestionByName("q1");
+  const ddHelper: any = new DragDropSurveyElements(survey);
+
+  ddHelper.dropTarget = null;
+  assert.equal(ddHelper.isDropTargetValid(null), false, "dropTarget should be");
+
+  ddHelper.draggedElement = pd;
+  ddHelper.dropTarget = pd;
+  assert.equal(ddHelper.isDropTargetValid(), false, "can't drop to itself");
+  ddHelper.dropTarget = pd.template;
+  assert.equal(ddHelper.isDropTargetValid(), false, "can't drop to itself (pd template)");
+
+  ddHelper.draggedElement = survey.getQuestionByName("q2");
+  ddHelper.dropTarget = pd;
+  assert.equal(ddHelper.isDropTargetValid(), true, "dropTarget is valid");
+
+  ddHelper.dropTarget = pd.template;
+  assert.equal(ddHelper.isDropTargetValid(), true, "dropTarget is valid (pd template)");
 });
 
 QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {

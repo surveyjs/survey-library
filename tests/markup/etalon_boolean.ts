@@ -64,5 +64,24 @@ registerMarkupTests(
     },
     snapshot: "boolean-checkbox",
   },
+  {
+    name: "Test Boolean Checkbox question markup - use svgIcon",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "checkbox"
+        }
+      ]
+    },
+    initSurvey: survey => {
+      survey.css = { boolean: { svgIconId: "#test-icon" } };
+      survey.getAllQuestions()[0].updateElementCss();
+    },
+    snapshot: "boolean-checkbox-custom-icon",
+  }
   ]
 );

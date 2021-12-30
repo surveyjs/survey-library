@@ -209,6 +209,8 @@ export class StylesManager {
       "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
       "visibility:hidden;",
+    ".sv-ranking--disabled .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
+    ".sv-ranking--disabled": "opacity: 0.8;",
     // EO ranking
 
     // drag drop
@@ -345,8 +347,7 @@ export class StylesManager {
     //eo button-group
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
-    ".sv-popup":
-      "position: fixed; left: 0; top: 0; z-index: 1000; width: 100vw; height: 100vh; outline: none;",
+    ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none;",
     ".sv-popup__scrolling-content": "overflow: auto;",
     ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
     ".sv-popup--modal .sv-popup__container": "position: static; border-radius: 4px;",
@@ -389,9 +390,9 @@ export class StylesManager {
     //eo popup
     //list
     ".sv-list":
-      "display: flex; flex-direction: column; align-items: flex-start; padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
+      "padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
-      "width: 100%; display: flex; align-items: center; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer;",
+      "width: 100%; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

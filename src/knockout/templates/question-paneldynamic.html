@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-paneldynamic">
   <div data-bind="css: question.koCss().root">
-    <!-- ko if: question.panelCount == 0 && question.koCss().noEntriesPlaceholder -->
+    <!-- ko if: question.getShowNoEntriesPlaceholder() -->
       <div data-bind="css: question.koCss().noEntriesPlaceholder">
         <span>
           <!-- ko template: { name: 'survey-string', data: locNoEntriesText } --><!-- /ko -->
@@ -71,7 +71,7 @@
 
 <script type="text/html" id="survey-question-paneldynamic-remove-btn">
   <button type="button"
-    data-bind="visible: question.koCanRemovePanel() && panel.state != 'collapsed', click: () => { question.koRemovePanelClick(panel) }, css: question.getPanelRemoveButtonCss()">
+    data-bind="visible: question.koCanRemovePanel() && panel.state != 'collapsed', click: function() { question.koRemovePanelClick(panel); }, css: question.getPanelRemoveButtonCss()">
     <span data-bind="css: question.koCss().buttonRemoveText, text: question.panelRemoveText"></span>
     <span data-bind="css: question.koCss().iconRemove"></span>
   </button>

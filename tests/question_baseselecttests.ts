@@ -123,3 +123,21 @@ QUnit.test("check item value type", (assert) => {
   assert.equal(q3.createItemValue(1).getType(), "buttongroupitemvalue", "create buttongroup item");
   assert.equal(q3.createItemValue(1).value, 1, "create buttongroup, value");
 });
+
+QUnit.test("check item locstring owner and name", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["Item 1"],
+      }]
+  });
+
+  var question = survey.getQuestionByName("q1") as any;
+  assert.equal(question.locTitle.owner.getType(), "radiogroup", "Owner for radio question title is radiogroup");
+  assert.equal(question.locTitle.name, "title", "Name for radio question title is title");
+  var itemValue = (question.choices[0]);
+  assert.equal(itemValue.locText.owner.getType(), "itemvalue", "Owner for radio question item text is itemvalue");
+  assert.equal(itemValue.locText.name, "text", "Name for radio question item text is text");
+});

@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <div v-if="question.panelCount == 0 && question.cssClasses.noEntriesPlaceholder" :class="question.cssClasses.noEntriesPlaceholder">
+    <div v-if="question.getShowNoEntriesPlaceholder()" :class="question.cssClasses.noEntriesPlaceholder">
       <span>
         <survey-string :locString="question.locNoEntriesText"></survey-string>
       </span>
@@ -21,7 +21,7 @@
       v-if="question.isProgressBottomShowing"
       :question="question"
     />
-    <survey-paneldynamicadd :question="question" />
+    <survey-paneldynamicadd v-if="question.isRenderModeList" :question="question" />
     <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
       :question="question"
     />

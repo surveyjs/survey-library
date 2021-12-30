@@ -24,7 +24,6 @@ import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { Panel } from "./knockout/kopage";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -1237,10 +1236,10 @@ export class QuestionPanelDynamicModel extends Question
   }
   private updatePanelsContainsErrors() {
     var question = this.changingValueQuestion;
-    var parent = <Panel>question.parent;
+    var parent = <PanelModel>question.parent;
     while (!!parent) {
       parent.updateContainsErrors();
-      parent = <Panel>parent.parent;
+      parent = <PanelModel>parent.parent;
     }
     this.updateContainsErrors();
   }
@@ -1607,7 +1606,7 @@ export class QuestionPanelDynamicModel extends Question
       ["format"](this.currentIndex + 1, rangeMax);
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.panelCount == 0).toString();
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
@@ -1652,6 +1651,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get locNoEntriesText(): LocalizableString {
     return this.getLocalizableString("noEntriesText");
+  }
+  public getShowNoEntriesPlaceholder(): boolean {
+    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
 }
 

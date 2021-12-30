@@ -150,8 +150,7 @@ export class LocalizableString implements ILocalizableString {
     var curLoc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
     if (!curLoc) curLoc = settings.defaultLocaleName;
-    var hasOnStrChanged = this.onStrChanged && loc === curLoc;
-    var oldValue = hasOnStrChanged ? this.pureText : undefined;
+    var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
 
     delete (<any>this).htmlValues[loc];
     if (!value) {
@@ -172,7 +171,7 @@ export class LocalizableString implements ILocalizableString {
       }
     }
     this.strChanged();
-    if (hasOnStrChanged) {
+    if (!!this.onStrChanged && oldValue !== value) {
       this.onStrChanged(oldValue, value);
     }
   }

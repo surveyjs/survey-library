@@ -117,7 +117,7 @@ export { QuestionFactory, ElementFactory } from "../../questionfactory";
 export { QuestionFileModel } from "../../question_file";
 export { QuestionHtmlModel } from "../../question_html";
 export { QuestionRadiogroupModel } from "../../question_radiogroup";
-export { QuestionRatingModel } from "../../question_rating";
+export { QuestionRatingModel, RenderedRatingItem } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
@@ -170,7 +170,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../question_buttongroup";
-export { IsMobile } from "../../utils/is-mobile";
+export { IsMobile, IsTouch } from "../../utils/devices";
 export {
   confirmAction,
   detectIEOrEdge,

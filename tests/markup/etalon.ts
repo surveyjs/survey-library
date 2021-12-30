@@ -9,6 +9,7 @@ export * from "./etalon_radiogroup";
 export * from "./etalon_imagepicker";
 export * from "./etalon_comment";
 export * from "./etalon_boolean";
+export * from "./etalon_rating";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

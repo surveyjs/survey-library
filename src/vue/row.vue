@@ -3,14 +3,7 @@
     <div
       v-for="element in row.visibleElements"
       :key="element.id"
-      :style="{
-        flexBasis: element.renderWidth,
-        flexGrow: 1,
-        flexShrink: 1,
-        width: element.renderWidth,
-        minWidth: element.minWidth,
-        maxWidth: element.maxWidth,
-      }"
+      :style="element.rootStyle"
     >
       <survey-element
         v-if="row.isNeedRender"

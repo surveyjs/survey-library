@@ -531,6 +531,14 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
+   *  Use this property to set the place holder text for comment field  .
+   */
+  @property({ localizable: true }) commentPlaceHolder: string;
+  public get commentOrOtherPlaceHolder(): string {
+    return this.otherPlaceHolder || this.commentPlaceHolder;
+  }
+
+  /**
    * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
    */
   public getAllErrors(): Array<SurveyError> {
@@ -562,10 +570,14 @@ export class Question extends SurveyElement
     if (this.commentElement && this.autoGrowComment) increaseHeightByContent(this.commentElement);
   }
   public onCommentInput(event: any): void {
-    if (this.isInputTextUpdate)
-      this.comment = event.target.value;
-    else
+    if (this.isInputTextUpdate) {
+      if(event.target) {
+        this.comment = event.target.value;
+      }
+    }
+    else {
       this.updateCommentElement();
+    }
   }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
@@ -611,10 +623,10 @@ export class Question extends SurveyElement
     return this.isRequired && this.titlePattern == "requireNumTitle";
   }
   public get isRequireTextBeforeTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numRequireTitle";
+    return this.isRequired && this.titlePattern == "numRequireTitle" && this.requiredText !== "";
   }
   public get isRequireTextAfterTitle(): boolean {
-    return this.isRequired && this.titlePattern == "numTitleRequire";
+    return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
@@ -773,75 +785,9 @@ export class Question extends SurveyElement
   protected getCssType(): string {
     return this.getType();
   }
-  /**
-   * Use it to set the specific width to the question like css style (%, px, em etc).
-   */
-  public get width(): string {
-    return this.getPropertyValue("width", "");
-  }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
-  }
-  /**
-   * Use it to set the specific minWidth constraint to the question like css style (%, px, em etc).
-   */
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
-  /**
-   * Use it to set the specific maxWidth constraint to the question like css style (%, px, em etc).
-   */
-  public get maxWidth(): string {
-    return this.getPropertyValue("maxWidth");
-  }
-  public set maxWidth(val: string) {
-    this.setPropertyValue("maxWidth", val);
-  }
-  /**
-   * The rendered width of the question.
-   */
-  public get renderWidth(): string {
-    return this.getPropertyValue("renderWidth", "");
-  }
-  public set renderWidth(val: string) {
-    this.setPropertyValue("renderWidth", val);
-  }
 
   public get renderCssRoot(): string {
     return this.cssClasses.root || undefined;
-  }
-  /**
-   * Set it different from 0 to increase the left padding.
-   */
-  public get indent(): number {
-    return this.getPropertyValue("indent");
-  }
-  public set indent(val: number) {
-    this.setPropertyValue("indent", val);
-  }
-  /**
-   * Set it different from 0 to increase the right padding.
-   */
-  public get rightIndent(): number {
-    return this.getPropertyValue("rightIndent", 0);
-  }
-  public set rightIndent(val: number) {
-    this.setPropertyValue("rightIndent", val);
-  }
-  get paddingLeft(): string {
-    return this.getPropertyValue("paddingLeft", "");
-  }
-  set paddingLeft(val: string) {
-    this.setPropertyValue("paddingLeft", val);
-  }
-  get paddingRight(): string {
-    return this.getPropertyValue("paddingRight", "");
-  }
-  set paddingRight(val: string) {
-    this.setPropertyValue("paddingRight", val);
   }
   private onIndentChanged() {
     this.paddingLeft = this.getIndentSize(this.indent);
@@ -1352,6 +1298,7 @@ export class Question extends SurveyElement
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     if (!!this.survey && this.survey.isClearValueOnHidden && !this.isVisible) return;
+    if(this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
   getQuestionFromArray(name: string, index: number): IQuestion {

@@ -94,7 +94,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected getRenderedActions(): Array<T> {
-    return this.actions.concat([<T>this.dotsItem]);
+    if (this.actions.length >= 2)
+      return this.actions.concat([<T>this.dotsItem]);
+    return this.actions;
   }
 
   public fit(dimension: number, dotsItemSize: number) {

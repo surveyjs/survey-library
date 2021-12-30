@@ -18,9 +18,6 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-list {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   padding: 0;
   margin: 0;
   background: #ffffff;
@@ -30,11 +27,18 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item {
   width: 100%;
-  display: flex;
   align-items: center;
   box-sizing: border-box;
   padding: calcSize(1) calcSize(2);
+  color: $foreground;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  &:hover, &:focus {
+    background-color: $background-dim;
+    outline: none;
+  }
 }
 
 .sv-list__item-icon {
@@ -49,15 +53,15 @@ $base-unit: var(--base-unit, 8px);
   }
   margin-right: calcSize(2);
 }
-.sv-list__item:hover {
-  background-color: $background-dim;
-}
 
 .sv-list__item--selected {
   background-color: $primary;
   color: $background;
-  &:hover {
+
+  &:hover,
+  &:focus {
     background-color: $primary;
+    color: $background;
   }
   .sv-list__item-icon use {
     fill: $background;

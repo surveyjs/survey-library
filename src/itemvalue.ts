@@ -4,6 +4,7 @@ import {
   JsonObjectProperty,
   Serializer,
   CustomPropertiesCollection,
+  property,
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
@@ -16,8 +17,22 @@ import { settings } from "./settings";
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue extends Base implements IShortcutText {
+export class ItemValue extends Base implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
+
+  public getMarkdownHtml(text: string, name: string): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : null;
+  }
+  public getRenderer(name: string): string {
+    return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
+  }
+  public getProcessedText(text: string): string {
+    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  }
+
   public static get Separator() {
     return settings.itemValueSeparator;
   }
@@ -214,7 +229,7 @@ export class ItemValue extends Base implements IShortcutText {
     protected typeName = "itemvalue"
   ) {
     super();
-    this.locTextValue = new LocalizableString(null, true);
+    this.locTextValue = new LocalizableString(this, true, "text");
     this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
       if (newValue == this.value) {
         newValue = undefined;
@@ -250,7 +265,7 @@ export class ItemValue extends Base implements IShortcutText {
       : null;
   }
   public getLocale(): string {
-    return (this.locText && this.locText.locale) || "";
+    return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
   }
   public get locText(): LocalizableString {
     return this.locTextValue;
@@ -258,12 +273,15 @@ export class ItemValue extends Base implements IShortcutText {
   setLocText(locText: LocalizableString) {
     this.locTextValue = locText;
   }
+  private _locOwner: ILocalizableOwner;
+
   public get locOwner(): ILocalizableOwner {
-    return this.locText.owner;
+    return this._locOwner;
   }
   public set locOwner(value: ILocalizableOwner) {
-    this.locText.owner = value;
+    this._locOwner = value;
   }
+
   public get value(): any {
     return this.getPropertyValue("value");
   }

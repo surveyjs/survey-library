@@ -555,6 +555,25 @@ QUnit.test("Composite: defaultValue", function (assert) {
   assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: defaultValue and survey in design mode", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+  });
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "customerinfo", name: "q1", isRequired: true, defaultValue: { firstName: "Jon", lastName: "Snow" } }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  assert.equal(firstName.value, "Jon", "firstName defaultValue");
+  assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" }, "question defaultValue");
+  ComponentCollection.Instance.clear();
+});
 
 QUnit.test("Composite: defaultValue and question.valueChangedCallback", function (assert) {
   var json = {

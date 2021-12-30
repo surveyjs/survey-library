@@ -12,7 +12,7 @@ export class SurveyComponent {
   @Input() json: string;
   // model = new SurveyModel(json);
   constructor() {
-    debugger;
+    // debugger;
   }
   _visible = new Subject<boolean>();
   _visibleVal = true;

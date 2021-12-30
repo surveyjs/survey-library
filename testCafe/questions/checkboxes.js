@@ -45,10 +45,10 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(5) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(4) div:nth-child(1) label input`)
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(4) label input`)
+      .click(`.sv_q_select_column:nth-child(1) div:nth-child(2) label input`)
+      .click(`.sv_q_select_column:nth-child(4) div:nth-child(2) label input`)
+      .click(`.sv_q_select_column:nth-child(3) div:nth-child(1) label input`)
+      .click(`.sv_q_select_column:nth-child(1) div:nth-child(4) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -59,7 +59,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
+      .click(`.sv_q_select_column:nth-child(1) div:nth-child(2) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -70,8 +70,8 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(5) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
+      .click(`.sv_q_select_column:nth-child(4) div:nth-child(2) label input`)
+      .click(`.sv_q_select_column:nth-child(1) div:nth-child(2) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -104,13 +104,13 @@ frameworks.forEach((framework) => {
         ).length
     );
     const getFirst = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(2) > div",
+      "div[id*=sq_1] fieldset > div:nth-child(1) > div",
       {
         index: 0,
       }
     );
     const getSecond = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(3) > div",
+      "div[id*=sq_1] fieldset > div:nth-child(2) > div",
       {
         index: 0,
       }
@@ -215,7 +215,7 @@ frameworks.forEach((framework) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(5) div:nth-child(3)`
+          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(4) div:nth-child(3)`
         )[0]
     );
     let otherChoice;

@@ -49,6 +49,7 @@ export class Question extends SurveyElement
 
   private conditionEnabelRunner: ConditionRunner;
   private conditionRequiredRunner: ConditionRunner;
+  private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
@@ -1177,6 +1178,7 @@ export class Question extends SurveyElement
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
    * Please note, this property is hidden for question without input, for example html question.
+   * @see defaultValueExpression
    */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -1189,11 +1191,18 @@ export class Question extends SurveyElement
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
     this.updateValueWithDefaults();
   }
+  /**
+   * Set the default value to the question via expression. This expression will keep change the question value until the value is changed by end-user or via API.
+   * You can use expressions as: "today(2)" it will set the question value to after tomorrow or to today({q1}). If {q1} equals to 1, then the value will be tomorrow. If a user change it to 2 then aftertommrow.
+   * It works in dynamic panel and matrices as well, please use prefix "panel." and "row." to access question value in the same panel or row.
+   * @see defaultValue
+   */
   public get defaultValueExpression(): any {
     return this.getPropertyValue("defaultValueExpression");
   }
   public set defaultValueExpression(val: any) {
     this.setPropertyValue("defaultValueExpression", val);
+    this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
@@ -1349,6 +1358,9 @@ export class Question extends SurveyElement
   private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if(!expression || !this.data) return false;
+    if(!this.defaultValueRunner) {
+      this.defaultValueRunner = new ExpressionRunner(expression);
+    }
     if(!setFunc) {
       setFunc = (val: any) : void => {
         this.runExpressionSetValue(val, (val: any) : void => { this.value = val; });
@@ -1356,15 +1368,14 @@ export class Question extends SurveyElement
     }
     if (!values) values = this.data.getFilteredValues();
     if (!properties) properties = this.data.getFilteredProperties();
-    var runner = new ExpressionRunner(expression);
-    if (runner.canRun) {
-      runner.onRunComplete = (res) => {
+    if (this.defaultValueRunner.canRun) {
+      this.defaultValueRunner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;
         this.isChangingViaDefaultValue = true;
         setFunc(res);
         this.isChangingViaDefaultValue = false;
       };
-      runner.run(values, properties);
+      this.defaultValueRunner.run(values, properties);
     }
     return true;
   }

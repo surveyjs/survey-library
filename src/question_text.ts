@@ -489,7 +489,9 @@ Serializer.addClass(
         return !!obj && obj.isMinMaxType;
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        propertyEditor.inputType = obj.inputType;
+        if(!!obj && !!obj.inputType) {
+          propertyEditor.inputType = obj.inputType;
+        }
       },
     },
     {
@@ -500,7 +502,9 @@ Serializer.addClass(
         return !!obj && obj.isMinMaxType;
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        propertyEditor.inputType = obj.inputType;
+        if(!!obj && !!obj.inputType) {
+          propertyEditor.inputType = obj.inputType;
+        }
       },
     },
     {

@@ -1743,17 +1743,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return result;
   }
   private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
+    let rows = this.generatedVisibleRows;
     if (!this.generatedVisibleRows) {
-      const rows = this.visibleRows;
+      rows = this.visibleRows;
     }
     var res = false;
     if (!rec) rec = {};
+    if(!rows) return rec;
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      res =
-        this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
-          this.raiseOnCompletedAsyncValidators();
-        }) || res;
+    for (var i = 0; i < rows.length; i++) {
+      res = rows[i].hasErrors(fireCallback, rec, () => {
+        this.raiseOnCompletedAsyncValidators();
+      }) || res;
     }
     return res;
   }

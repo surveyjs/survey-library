@@ -4153,6 +4153,27 @@ QUnit.test("Question defaultValueExpression with async function", function(
   assert.equal(question.value, 3, "Default async function is executed");
   FunctionFactory.Instance.unregister("asyncFunc");
 });
+
+QUnit.test("Question defaultValueExpression change value until it is not modified directly", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: 1 },
+      { type: "text", name: "q2", defaultValueExpression: "{q1} + 2" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.value, 3, "initial value");
+  q1.value = 5;
+  assert.equal(q2.value, 7, "q1 is changed");
+  q2.value = 4;
+  assert.equal(q2.value, 4, "changed dirrectly");
+  q1.value = 10;
+  assert.equal(q2.value, 4, "stop react on defaultValueExpression");
+});
+
 QUnit.test("QuestionRating rateStep less than 1", function(assert) {
   var question = new QuestionRatingModel("q");
   assert.equal(question.visibleRateValues.length, 5, "There are 5 values");

@@ -47,9 +47,11 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   private conditionRequiredRunner: ConditionRunner;
+  private defaultValueRunner: ExpressionRunner;
+  private isChangingViaDefaultValue: boolean;
+  private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
@@ -964,6 +966,9 @@ export class Question extends SurveyElement
     }
     this.runEnableIfCondition(values, properties);
     this.runRequiredIfCondition(values, properties);
+    if(!this.isValueChangedDirectly) {
+      this.runDefaultValueExpression(this.defaultValueExpression, values, properties);
+    }
   }
   private runVisibleIfCondition(
     values: HashTable<any>,
@@ -1173,6 +1178,7 @@ export class Question extends SurveyElement
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
    * Please note, this property is hidden for question without input, for example html question.
+   * @see defaultValueExpression
    */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -1185,11 +1191,18 @@ export class Question extends SurveyElement
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
     this.updateValueWithDefaults();
   }
+  /**
+   * Set the default value to the question via expression. This expression will keep change the question value until the value is changed by end-user or via API.
+   * You can use expressions as: "today(2)" it will set the question value to after tomorrow or to today({q1}). If {q1} equals to 1, then the value will be tomorrow. If a user change it to 2 then aftertommrow.
+   * It works in dynamic panel and matrices as well, please use prefix "panel." and "row." to access question value in the same panel or row.
+   * @see defaultValue
+   */
   public get defaultValueExpression(): any {
     return this.getPropertyValue("defaultValueExpression");
   }
   public set defaultValueExpression(val: any) {
     this.setPropertyValue("defaultValueExpression", val);
+    this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
@@ -1329,26 +1342,42 @@ export class Question extends SurveyElement
     values: HashTable<any> = null,
     properties: HashTable<any> = null
   ): void {
-    var func = (val: any) => {
-      if (val instanceof Date) {
-        val = val.toISOString().slice(0, 10);
-      }
-      setFunc(val);
+    const func = (val: any) => {
+      this.runExpressionSetValue(val, setFunc);
     };
-    if (!!expression && !!this.data) {
-      if (!values) values = this.data.getFilteredValues();
-      if (!properties) properties = this.data.getFilteredProperties();
-      var runner = new ExpressionRunner(expression);
-      if (runner.canRun) {
-        runner.onRunComplete = (res) => {
-          if (res == undefined) res = this.defaultValue;
-          func(res);
-        };
-        runner.run(values, properties);
-      }
-    } else {
+    if (!this.runDefaultValueExpression(expression, values, properties, func)) {
       func(defaultValue);
     }
+  }
+  private runExpressionSetValue(val: any, setFunc?: (val: any) => void) : void {
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    setFunc(val);
+  }
+  private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
+    properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
+    if(!expression || !this.data) return false;
+    if(!this.defaultValueRunner) {
+      this.defaultValueRunner = new ExpressionRunner(expression);
+    }
+    if(!setFunc) {
+      setFunc = (val: any) : void => {
+        this.runExpressionSetValue(val, (val: any) : void => { this.value = val; });
+      };
+    }
+    if (!values) values = this.data.getFilteredValues();
+    if (!properties) properties = this.data.getFilteredProperties();
+    if (this.defaultValueRunner.canRun) {
+      this.defaultValueRunner.onRunComplete = (res) => {
+        if (res == undefined) res = this.defaultValue;
+        this.isChangingViaDefaultValue = true;
+        setFunc(res);
+        this.isChangingViaDefaultValue = false;
+      };
+      this.defaultValueRunner.run(values, properties);
+    }
+    return true;
   }
   /**
    * The question comment value.
@@ -1662,6 +1691,9 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
+    if(!isEqual && !this.isChangingViaDefaultValue) {
+      this.isValueChangedDirectly = true;
+    }
     this.questionValue = newValue;
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);

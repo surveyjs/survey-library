@@ -237,9 +237,6 @@ export class Question extends SurveyElement
   }
   protected onVisibleChanged(): void {
     this.setPropertyValue("isVisible", this.isVisible);
-    if (this.isVisible && this.survey && this.survey.isClearValueOnHidden) {
-      this.updateValueWithDefaults();
-    }
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }
@@ -410,8 +407,13 @@ export class Question extends SurveyElement
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
-    if (this.survey.isClearValueOnHidden && !this.visible) {
-      this.clearValue();
+    if (this.isClearValueOnHidden) {
+      if(!this.visible) {
+        this.clearValueIfInvisible();
+      }
+      if(this.isVisible) {
+        this.updateValueWithDefaults();
+      }
     }
   }
   /**
@@ -1142,10 +1144,32 @@ export class Question extends SurveyElement
     }
     return true;
   }
-  public clearValueIfInvisible(): void {
+  public clearValueIfInvisible(reason: string = "onHidden"): void {
+    if(this.clearIfInvisible === "none") return;
+    if(reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
+    if(reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
     if (this.canClearValueAsInvisible()) {
       this.clearValue();
     }
+  }
+  /**
+   * Gets or sets a value that specifies how invisible question clears the value. By default the behavior is define by Survey "clearInvisibleValues" property.
+   *
+   * The following options are available:
+   *
+   * - `default` (default) - Survey "clearInvisibleValues" property defines the behavior.
+   * - `none` - do not clear invisible value.
+   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onComplete` - clear invisible question value on survey complete.
+   * @see SurveyModel.clearInvisibleValues
+   * @see Question.visible
+   * @see onComplete
+   */
+  public get clearIfInvisible(): string {
+    return this.getPropertyValue("clearIfInvisible");
+  }
+  public set clearIfInvisible(val: string) {
+    this.setPropertyValue("clearIfInvisible", val);
   }
   public get displayValue(): any {
     if (this.isLoadingFromJson) return "";
@@ -1310,9 +1334,14 @@ export class Question extends SurveyElement
     if (this.isLoadingFromJson || (!this.isDesignMode && this.isDefaultValueEmpty())) return;
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
-    if (!!this.survey && this.survey.isClearValueOnHidden && !this.isVisible) return;
+    if (this.isClearValueOnHidden && !this.isVisible) return;
     if(this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
+  }
+  protected get isClearValueOnHidden(): boolean {
+    if(this.clearIfInvisible === "none" || this.clearIfInvisible === "onComplete") return false;
+    if(this.clearIfInvisible === "onHidden") return true;
+    return !!this.survey && this.survey.isClearValueOnHidden;
   }
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
@@ -1859,6 +1888,11 @@ Serializer.addClass("question", [
     category: "logic",
   },
   "correctAnswer:value",
+  {
+    name: "clearIfInvisible",
+    default: "default",
+    choices: ["default", "none", "onComplete", "onHidden"],
+  },
   "isRequired:switch",
   "requiredIf:condition",
   {

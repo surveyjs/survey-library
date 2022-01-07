@@ -1159,7 +1159,7 @@ export class PanelModelBase extends SurveyElement
       var questions = this.questions;
       for (var i = 0; i < questions.length; i++) {
         if (!this.isVisible) {
-          questions[i].clearValue();
+          questions[i].clearValueIfInvisible();
         } else {
           questions[i].updateValueWithDefaults();
         }

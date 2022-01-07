@@ -147,11 +147,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     var hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
-      if (
-        !!this.survey &&
-        this.survey.isClearValueOnHidden &&
-        (!!this.filteredColumns || !!this.filteredRows)
-      ) {
+      if (this.isClearValueOnHidden && (!!this.filteredColumns || !!this.filteredRows)) {
         this.clearIncorrectValues();
       }
       if (!!oldVisibleRows) {

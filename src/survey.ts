@@ -5137,9 +5137,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
-    if (this.clearInvisibleValues != "none") {
-      this.clearInvisibleQuestionValues();
-    }
+    this.clearInvisibleQuestionValues();
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
     var questions = this.getQuestionsByValueName(valueName);
@@ -5154,9 +5152,10 @@ export class SurveyModel extends SurveyElementCore
     return !!questions ? questions.length : 0;
   }
   private clearInvisibleQuestionValues() {
-    var questions = this.getAllQuestions();
+    const reason = this.clearInvisibleValues === "none"? "none": "onComplete";
+    const questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearValueIfInvisible();
+      questions[i].clearValueIfInvisible(reason);
     }
   }
   /**

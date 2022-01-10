@@ -287,16 +287,16 @@ const applyTheme = ClientFunction(theme => {
 
       await t.click(getDynamicPanelRemoveButton("paneldynamic", "Remove"));
 
-      await t.hover(
-        Selector("span").withText('ranking_question')
-          .parent("[aria-labelledby]")
-          .find("div")
-          .withText("item1")
-      );
-      await t.drag(Selector(".sv-ranking-item__icon--hover").nth(1), 0, -71, {
-        offsetX: 7,
-        offsetY: 8,
-      });
+      // const rankItem1 = Selector("span").withText('ranking_question')
+      //   .parent("[aria-labelledby]")
+      //   .find("div")W
+      //   .withText("item1");
+
+      // const rankItem2 = Selector("span").withText('ranking_question')
+      //   .parent("[aria-labelledby]")
+      //   .find("div")
+      //   .withText("item2");
+      // await t.dragToElement(rankItem1, rankItem2, { destinationOffsetY: -1, speed: 0.1 });
 
       await t.click("input[value=Complete]");
 
@@ -313,9 +313,7 @@ const applyTheme = ClientFunction(theme => {
       await t.expect(surveyResult.matrix_question).eql({ "Row 1": "Column 1", });
       await t.expect(surveyResult.matrixdropdown_question).eql({ "Row 1": { "Column 1": 1, }, });
       await t.expect(surveyResult.multipletext_question).eql({ text1: "test multiple text", });
-      //TODO need to do the drag&drop (see questions/ranking)
-      //assert.deepEqual(surveyResult.ranking_question, ["item2", "item1"]);
-      //assert.equal(surveyResult.ranking_question, 2);
+      // await t.expect(surveyResult.ranking_question).eql(["item2", "item1"]);
     });
   });
 });

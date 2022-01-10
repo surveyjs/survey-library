@@ -743,6 +743,7 @@ export class Question extends SurveyElement
     if (reNew) {
       this.updateQuestionCss(true);
     }
+    this.onIndentChanged();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (
@@ -764,7 +765,6 @@ export class Question extends SurveyElement
     this.setCssContent(this.getCssContent(cssClasses));
     this.setCssTitle(this.getCssTitle(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
-    this.onIndentChanged();
   }
   protected updateCssClasses(res: any, css: any): void {
     if (!css.question) return;

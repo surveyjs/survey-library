@@ -3170,8 +3170,11 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
-  question.cssClasses.indent = 0;
-  question.rightIndent = 1;
+  survey.css = {
+    question: {
+      indent: 0
+    }
+  };
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
 });

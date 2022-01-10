@@ -1100,8 +1100,8 @@ export class SurveyModel extends SurveyElementCore
     return this.cssValue;
   }
   public set css(value: any) {
-    this.updateElementCss(false);
     this.mergeValues(value, this.css);
+    this.updateElementCss(false);
   }
   public get cssTitle(): string {
     return this.css.title;

@@ -1840,7 +1840,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   private getIndentSize(indent: number): string {
     if (indent < 1) return "";
     var css = (<any>this).survey["css"];
-    if (!css) return "";
+    if (!css || !css.question.indent) return "";
     return indent * css.question.indent + "px";
   }
   public clearOnDeletingContainer() {

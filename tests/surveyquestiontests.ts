@@ -3145,7 +3145,7 @@ QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
   assert.equal(question.locHtml.renderedHtml, "text-add-", "process html");
 });
 
-QUnit.test("QuestionHtmlignoreHtmlProgressing = true", function(assert) {
+QUnit.test("Question Html ignore Html processing = true", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   survey.onProcessHtml.add(function(survey, options) {
@@ -3170,6 +3170,10 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
+  question.cssClasses.indent = 0;
+  question.rightIndent = 1;
+  assert.equal(question.paddingLeft, "", "left is empty");
+  assert.equal(question.paddingRight, "", "right is empty");
 });
 
 QUnit.test(

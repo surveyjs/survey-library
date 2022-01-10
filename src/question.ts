@@ -764,6 +764,7 @@ export class Question extends SurveyElement
     this.setCssContent(this.getCssContent(cssClasses));
     this.setCssTitle(this.getCssTitle(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
+    this.onIndentChanged();
   }
   protected updateCssClasses(res: any, css: any): void {
     if (!css.question) return;
@@ -798,7 +799,7 @@ export class Question extends SurveyElement
     this.paddingRight = this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
-    if (indent < 1 || !this.getSurvey() || !this.cssClasses) return "";
+    if (indent < 1 || !this.getSurvey() || !this.cssClasses || !this.cssClasses.indent) return "";
     return indent * this.cssClasses.indent + "px";
   }
   /**

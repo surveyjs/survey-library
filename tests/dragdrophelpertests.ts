@@ -298,6 +298,39 @@ QUnit.test("allowDropHere", function (assert) {
   assert.equal(afterCount, 0);
 });
 
+QUnit.test("SurveyElements: isDropTargetValid", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      }
+    ],
+  });
+  const pd = survey.getQuestionByName("q1");
+  const ddHelper: any = new DragDropSurveyElements(survey);
+
+  ddHelper.dropTarget = null;
+  assert.equal(ddHelper.isDropTargetValid(null), false, "dropTarget should be");
+
+  ddHelper.draggedElement = pd;
+  ddHelper.dropTarget = pd;
+  assert.equal(ddHelper.isDropTargetValid(), false, "can't drop to itself");
+  ddHelper.dropTarget = pd.template;
+  assert.equal(ddHelper.isDropTargetValid(), false, "can't drop to itself (pd template)");
+
+  ddHelper.draggedElement = survey.getQuestionByName("q2");
+  ddHelper.dropTarget = pd;
+  assert.equal(ddHelper.isDropTargetValid(), true, "dropTarget is valid");
+
+  ddHelper.dropTarget = pd.template;
+  assert.equal(ddHelper.isDropTargetValid(), true, "dropTarget is valid (pd template)");
+});
+
 QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {
   const survey = new SurveyModel({
     elements: [

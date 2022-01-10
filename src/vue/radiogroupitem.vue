@@ -1,13 +1,11 @@
 <template>
   <div role="presentation">
-    <label :class="getLabelClass(item)" :aria-label="item.locText.renderedHtml">
+    <label :class="getLabelClass(item)" :aria-label="question.getAriaItemLabel(item)">
       <input
         type="radio"
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        :aria-required="question.ariaRequired"
-        :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         v-model="question.renderedValue"
         :disabled="!question.getItemEnabled(item)"

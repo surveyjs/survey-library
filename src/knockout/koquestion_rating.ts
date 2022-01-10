@@ -25,7 +25,7 @@ export class QuestionRatingImplementor extends QuestionImplementor {
     this.koVisibleRateValues(this.getValues());
   }
   private getValues(): Array<any> {
-    return (<QuestionRating>this.question).visibleRateValues;
+    return (<QuestionRating>this.question).renderedRateItems;
   }
   public dispose() {
     (<QuestionRating>this.question).rateValuesChangedCallback = undefined;

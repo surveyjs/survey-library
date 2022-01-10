@@ -7035,3 +7035,30 @@ QUnit.test("TextProcessing matrix in panel dynamic, Bug#3491",
     assert.equal(textProc.processText("{row.col1}", false), "col_val1", "row.col1");
     assert.equal(textProc.processText("{panel.q1}", false), "panel_val1", "panel.q1");
   });
+QUnit.test("Question defaultValueExpression in matrix dynamic", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { cellType: "text", name: "q1", defaultValue: 1 },
+          { cellType: "text", name: "q2", defaultValueExpression: "{row.q1} + 2" },
+        ],
+      }
+    ] });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  assert.equal(q2.value, 3, "initial value");
+  q1.value = 5;
+  assert.equal(q2.value, 7, "q1 is changed");
+  q2.value = 4;
+  assert.equal(q2.value, 4, "changed dirrectly");
+  q1.value = 10;
+  assert.equal(q2.value, 4, "stop react on defaultValueExpression");
+});

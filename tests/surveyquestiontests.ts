@@ -33,6 +33,7 @@ import { ArrayChanges } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
+import { PanelModel } from "../src/panel";
 
 export default QUnit.module("Survey_Questions");
 
@@ -2078,6 +2079,37 @@ QUnit.test("Rating question, visibleRateValues property", function(assert) {
   rate.rateValues = [1, 2, 3];
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
+
+QUnit.test("Rating question, renderedRateItems", function(assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(
+    rate.visibleRateValues.length,
+    5,
+    "There are 5 items by default"
+  );
+
+  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
+
+  rate.minRateDescription = "Worst";
+  rate.maxRateDescription = "Best";
+
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+    ["1", "2", "3", "4", "5"],
+    "List of numeric values"
+  );
+  assert.ok(rate.hasMinLabel, "Rating has min label");
+  assert.ok(rate.hasMaxLabel, "Rating has max label");
+
+  rate.displayRateDescriptionsAsExtremeItems = true;
+  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+    ["Worst", "2", "3", "4", "Best"],
+    "List of numeric values and min/max"
+  );
+  assert.notOk(rate.hasMinLabel, "Rating has no min label");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
+});
+
 QUnit.test(
   "Rating question, visibleRateValues property load from JSON",
   function(assert) {
@@ -4122,6 +4154,27 @@ QUnit.test("Question defaultValueExpression with async function", function(
   assert.equal(question.value, 3, "Default async function is executed");
   FunctionFactory.Instance.unregister("asyncFunc");
 });
+
+QUnit.test("Question defaultValueExpression change value until it is not modified directly", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: 1 },
+      { type: "text", name: "q2", defaultValueExpression: "{q1} + 2" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.value, 3, "initial value");
+  q1.value = 5;
+  assert.equal(q2.value, 7, "q1 is changed");
+  q2.value = 4;
+  assert.equal(q2.value, 4, "changed dirrectly");
+  q1.value = 10;
+  assert.equal(q2.value, 4, "stop react on defaultValueExpression");
+});
+
 QUnit.test("QuestionRating rateStep less than 1", function(assert) {
   var question = new QuestionRatingModel("q");
   assert.equal(question.visibleRateValues.length, 5, "There are 5 values");
@@ -5734,4 +5787,115 @@ QUnit.test("Dropdown optionsCaption localization", function(assert) {
   assert.equal(question.optionsCaption, "Bitte auswählen...", "locale = de");
   survey.locale = "";
   assert.equal(question.optionsCaption, "Choose...", "default locale, #2");
+});
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", clearIfInvisible: "none" },
+      { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+      { type: "text", name: "q4", clearIfInvisible: "onHidden", defaultValue: "default4" },
+      { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+    ]
+  });
+  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  for(var key in q) {
+    q[key] = survey.getQuestionByName(key);
+    q[key].value = key;
+    q[key].visible = false;
+  }
+  assert.equal(q.q1.value, "q1", "q1: default/invisible");
+  assert.equal(q.q2.value, "q2", "q2: none/invisible");
+  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
+  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
+  q.q4.visible = true;
+  assert.equal(q.q4.value, "default4", "q4: onHidden/defaultValue/visible");
+  q.q4.visible = false;
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'", function(assert) {
+  var survey = new SurveyModel({
+    clearInvisibleValues: "none",
+    questions: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", clearIfInvisible: "none" },
+      { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+      { type: "text", name: "q4", clearIfInvisible: "onHidden", defaultValue: "default4" },
+      { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+    ]
+  });
+  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  for(var key in q) {
+    q[key] = survey.getQuestionByName(key);
+    q[key].value = key;
+    q[key].visible = false;
+  }
+  assert.equal(q.q1.value, "q1", "q1: default/invisible");
+  assert.equal(q.q2.value, "q2", "q2: none/invisible");
+  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
+  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
+  q.q4.visible = true;
+  assert.equal(q.q4.value, "default4", "q4: onHidden/defaultValue/visible");
+  q.q4.visible = false;
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: "q1", q2: "q2" }, "q1 is default, q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHidden'", function(assert) {
+  var survey = new SurveyModel({
+    clearInvisibleValues: "onHidden",
+    questions: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", clearIfInvisible: "none" },
+      { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+      { type: "text", name: "q4", clearIfInvisible: "onHidden", defaultValue: "default4" },
+      { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+    ]
+  });
+  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  for(var key in q) {
+    q[key] = survey.getQuestionByName(key);
+    q[key].value = key;
+    q[key].visible = false;
+  }
+  assert.equal(q.q1.value, undefined, "q1: default/invisible");
+  assert.equal(q.q2.value, "q2", "q2: none/invisible");
+  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
+  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
+  q.q4.visible = true;
+  assert.equal(q.q4.value, "default4", "q4: onHidden/defaultValue/visible");
+  q.q4.visible = false;
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHiddenContainer'", function(assert) {
+  var survey = new SurveyModel({
+    clearInvisibleValues: "onHiddenContainer",
+    questions: [
+      { type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", clearIfInvisible: "none" },
+          { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+          { type: "text", name: "q4", clearIfInvisible: "onHidden", defaultValue: "default4" },
+          { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+        ] }
+    ]
+  });
+  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  for(var key in q) {
+    q[key] = survey.getQuestionByName(key);
+    q[key].value = key;
+  }
+  (<PanelModel>survey.getPanelByName("panel")).visible = false;
+  assert.equal(q.q1.value, undefined, "q1: default/invisible");
+  assert.equal(q.q2.value, "q2", "q2: none/invisible");
+  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
+  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
 });

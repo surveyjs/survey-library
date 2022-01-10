@@ -21,12 +21,10 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
+        role="presentation"
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >
-        <legend
-          role="checkbox"
-          aria-label={this.question.ariaLabel} />
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}
@@ -45,7 +43,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         )
       );
       return (
-        <div key={"column" + ci} className={this.question.getColumnClass()}>
+        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
           {items}
         </div>
       );
@@ -170,8 +168,8 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     var locText: any = this.item.locText;
 
     return (
-      <div className={itemClass}>
-        <label className={labelClass}>
+      <div className={itemClass} role="presentation">
+        <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
@@ -182,9 +180,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(this.item)}
             checked={isChecked}
             onChange={onItemChanged}
-            aria-required={this.question.ariaRequired}
-            aria-label={this.question.ariaLabel}
-            aria-invalid={this.question.ariaInvalid}
             aria-describedby={this.question.ariaDescribedBy}
           />
           {

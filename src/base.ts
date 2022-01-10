@@ -424,7 +424,7 @@ export class Base {
     }
     else propertiesHash[name] = val;
   }
-  protected get isEditingSurveyElement(): boolean {
+  public get isEditingSurveyElement(): boolean {
     var survey = this.getSurvey();
     return !!survey && survey.isEditingSurveyElement;
   }

@@ -145,13 +145,11 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     // drop to panel
     else if (dropTarget.isPanel) {
-      const panelDragInfo = this.getPanelDragInfo(
+      dropTarget= this.getPanelDropTarget(
         dropTargetNode,
         dropTarget,
         event
       );
-      dropTarget = panelDragInfo.dropTarget;
-      this.isEdge = panelDragInfo.isEdge;
     }
     // drop to question
 
@@ -169,13 +167,17 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     // EO drop to question or panel
   }
 
-  protected isDropTargetValid(dropTarget: SurveyElement): boolean {
-    if (!dropTarget) return false;
+  protected isDropTargetValid(): boolean {
+    if (!this.dropTarget) return false;
     if (this.dropTarget === this.draggedElement) return false;
+
+    if (this.draggedElement.getType() === "paneldynamic" &&
+          this.dropTarget === this.draggedElement.template)
+      return false;
 
     if (
       DragDropSurveyElements.restrictDragQuestionBetweenPages &&
-      this.shouldRestricDragQuestionBetweenPages(dropTarget)
+      this.shouldRestricDragQuestionBetweenPages(this.dropTarget)
     ) {
       return false;
     }
@@ -207,11 +209,11 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     const oldPage = (<any>this.draggedElement)["page"];
     const newPage = dropTarget.isPage ? dropTarget : dropTarget["page"];
 
-    // if oldPage === null then it is drom the toolbox
+    // if oldPage === null then it is drop from the toolbox
     return oldPage && oldPage !== newPage;
   }
 
-  private getPanelDragInfo(
+  private getPanelDropTarget(
     HTMLElement: HTMLElement,
     dropTarget: any,
     event: PointerEvent
@@ -223,7 +225,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       dropTarget = this.getDropTargetByNode(HTMLElement, event);
     }
 
-    return { dropTarget, isEdge };
+    return dropTarget;
   }
 
   protected findDeepestDropTargetChild(parent: HTMLElement): HTMLElement {
@@ -238,8 +240,8 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return <HTMLElement>result;
   }
 
-  private calculateIsEdge(HTMLElement: HTMLElement, clientY: number) {
-    const rect = HTMLElement.getBoundingClientRect();
+  private calculateIsEdge(dropTargetNode: HTMLElement, clientY: number) {
+    const rect = dropTargetNode.getBoundingClientRect();
     return clientY - rect.top <= DragDropSurveyElements.edgeHeight || rect.bottom - clientY <= DragDropSurveyElements.edgeHeight;
   }
 

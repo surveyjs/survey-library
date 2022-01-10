@@ -4008,3 +4008,29 @@ QUnit.test("noEntriesText property for panel dynamic", function (assert) {
   question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
   assert.equal(question.noEntriesText, "There are no entries yet.\nClick the button below to add a new entry.", "noEntriesText default value");
 });
+QUnit.test("Question defaultValueExpression in panel dynamic", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1", defaultValue: 1 },
+          { type: "text", name: "q2", defaultValueExpression: "{panel.q1} + 2" },
+        ],
+      }
+    ] });
+  const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  const q2 = panel.getQuestionByName("q2");
+  assert.equal(q2.value, 3, "initial value");
+  q1.value = 5;
+  assert.equal(q2.value, 7, "q1 is changed");
+  q2.value = 4;
+  assert.equal(q2.value, 4, "changed dirrectly");
+  q1.value = 10;
+  assert.equal(q2.value, 4, "stop react on defaultValueExpression");
+});

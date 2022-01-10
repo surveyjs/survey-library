@@ -3,16 +3,25 @@
   font-weight: bold;
   box-sizing: border-box;
   text-align: center;
-  height: calcSize(20);
+  height: auto;
 
   h3 {
     font-size: calcSize(3);
   }
 }
-.sd-completedpage:before {
+
+.sd-completedpage:before,
+.sd-completedpage:after {
   display: block;
   width: calcSize(9);
-  height: calcSize(9);
   margin-left: calc(50% - 36px);
   content: "";
+}
+
+.sd-completedpage:before {
+  height: calcSize(9);
+}
+
+.sd-completedpage:after {
+  height: calcSize(2);
 }

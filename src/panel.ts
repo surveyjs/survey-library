@@ -1885,6 +1885,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     return new CssClassBuilder()
       .append(this.cssClasses.panel.title)
       .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
+      .append(this.cssClasses.panel.titleExpanded, this.isExpanded)
+      .append(this.cssClasses.panel.titleCollapsed, this.isCollapsed)
       .append(this.cssClasses.panel.titleOnError, this.containsErrors)
       .toString();
   }

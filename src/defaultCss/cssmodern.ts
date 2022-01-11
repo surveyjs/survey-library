@@ -25,6 +25,8 @@ export var modernCss = {
   panel: {
     title: "sv-title sv-panel__title",
     titleExpandable: "sv-panel__title--expandable",
+    titleExpanded: "sv-panel__title--expanded",
+    titleCollapsed: "sv-panel__title--collapsed",
     titleOnError: "sv-panel__title--error",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
@@ -100,6 +102,8 @@ export var modernCss = {
     titleOnError: "sv-question__title--error",
     title: "sv-title sv-question__title",
     titleExpandable: "sv-question__title--expandable",
+    titleExpanded: "sv-question__title--expanded",
+    titleCollapsed: "sv-question__title--collapsed",
     icon: "sv-question__icon",
     iconExpanded: "sv-question__icon--expanded",
     requiredText: "sv-question__required-text",

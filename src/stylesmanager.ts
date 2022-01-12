@@ -74,8 +74,9 @@ export class StylesManager {
     ".sv_qstn .sv_q_file_placeholder": "display:none",
 
     ".sv_p_title": "padding-left: 1em; padding-bottom: 0.3em;",
-    ".sv_p_title_expandable": "cursor: pointer;",
-    ".sv_q_title_expandable": "cursor: pointer;",
+    ".sv_p_title_expandable, .sv_q_title_expandable": "cursor: pointer; position: relative; display: flex; align-items: center; padding-right: 24px;",
+    ".sv_p_title_expandable::after, .sv_q_title_expandable::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 24px; height: 24px; position: absolute; right: 0;",
+    ".sv_p_title_expanded::after, .sv_q_title_expanded::after": "transform: rotate(180deg);",
     ".sv_p_title .sv_panel_icon": "float: right; margin-right: 1em;",
     ".sv_p_title .sv_panel_icon::before":
       "content: ''; background-repeat: no-repeat; background-position: center; padding: 0.5em; display: inline-block; background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyMi4wLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCAxMCAxMCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTAgMTA7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJLnN0MHtmaWxsOiM2RDcwNzI7fQ0KPC9zdHlsZT4NCjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMiwyIDAsNCA1LDkgMTAsNCA4LDIgNSw1ICIvPg0KPC9zdmc+DQo=);",
@@ -321,7 +322,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
     ".sv_main .sv-action-bar-item:focus": "outline: none;",
 
-    ".sv_main .sv-title-actions": "display: flex;align-items: center;",
+    ".sv_main .sv-title-actions": "display: flex;align-items: center; width: 100%;",
     ".sv_main .sv-title-actions__title":
       "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
     ".sv_main .sv-title-actions__bar": "min-width: 56px;",

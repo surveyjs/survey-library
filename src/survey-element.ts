@@ -1,7 +1,7 @@
 import { property } from "./jsonobject";
 import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
-import { Action } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
   ISurveyElement,
@@ -130,7 +130,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
-  private expandAction: Action;
 
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   @property({ defaultValue: false }) isDragMe: boolean;
@@ -201,7 +200,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       if (oldValue === "default" || newValue === "default") {
         this.updateTitleActions();
       } else {
-        this.updateExpandAction();
         this.updateElementCss(false);
       }
       if (this.stateChangedCallback) this.stateChangedCallback();
@@ -294,13 +292,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
     return this.titleToolbarValue;
   }
-  private updateExpandAction() {
-    if (!!this.expandAction) {
-      this.expandAction.visible = this.isExpanded || this.isCollapsed;
-      this.expandAction.innerCss = new CssClassBuilder()
-        .append("sv-expand-action").append("sv-expand-action--expanded", this.isExpanded).toString();
-    }
-  }
   public get titleActions(): Array<any> {
     return this.getPropertyValue("titleActions");
   }
@@ -313,24 +304,10 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.titleActions;
   }
   private updateTitleActions() {
-    let actions = [];
-    if (this.hasStateButton && !this.expandAction) {
-      this.expandAction = new Action({
-        id: "expand-collapse-action",
-        title: "",
-        disableTabStop: true,
-        action: () => {
-          this.toggleState();
-        },
-      });
-    }
-    if (!!this.expandAction) {
-      actions.push(this.expandAction);
-    }
+    let actions: Array<IAction> = [];
     if (!!this.survey) {
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }
-    this.updateExpandAction();
     this.setPropertyValue("titleActions", actions);
   }
   public get hasTitleActions(): boolean {

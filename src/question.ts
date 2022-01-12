@@ -712,6 +712,8 @@ export class Question extends SurveyElement
     return new CssClassBuilder()
       .append(cssClasses.title)
       .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleExpanded, this.isExpanded)
+      .append(cssClasses.titleCollapsed, this.isCollapsed)
       .append(cssClasses.titleOnError, this.containsErrors)
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();

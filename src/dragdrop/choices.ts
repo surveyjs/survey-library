@@ -42,6 +42,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const dragIcon:any = clone.querySelector(".svc-item-value-controls__drag-icon");
     dragIcon.style.visibility = "visible";
 
+    const removeIcon: any = clone.querySelector(".svc-item-value-controls__remove");
+    removeIcon.style.backgroundColor = "transparent";
+
     clone.classList.remove("svc-item-value--moveup");
     clone.classList.remove("svc-item-value--movedown");
     this.draggedElement.isDragDropMoveDown = false;

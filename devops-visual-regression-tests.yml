@@ -6,6 +6,9 @@
 
 trigger:
   batch: true
+  branches:
+    include:
+    - '*'
   tags:
     exclude:
       - v*.*.*

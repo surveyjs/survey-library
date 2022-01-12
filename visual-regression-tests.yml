@@ -1,0 +1,56 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - '*'
+  tags:
+    exclude:
+      - v*.*.*
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: Screenshot_Tests
+  steps:
+  - checkout: self
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm i
+    displayName: 'npm i'
+  
+  - script: |
+      npm run build_prod
+    displayName: 'build prod'
+
+  - script: |
+      npm run visual-regression-tests:ci
+    displayName: 'Visual Regression Tests'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_VRT/'
+      ArtifactName: 'Library_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'

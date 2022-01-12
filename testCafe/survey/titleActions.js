@@ -131,33 +131,43 @@ frameworks.forEach((framework) => {
           {
             visible: false,
             title: "Action",
-            action: () => {},
+            action: () => { },
           },
         ];
       },
     });
     assert.ok(!(await Selector("h5 .sv-action").visible));
   });
+
   test("check expand/collapse action", async (t) => {
-    var getQuestionState = ClientFunction(() => {
-      return survey.getAllQuestions()[0].state;
-    });
+    const elementTitle = Selector(".sv_q_title");
+    const getQuestionState = ClientFunction(() => { return survey.getAllQuestions()[0].state; });
+
     await initSurvey(framework, json, {
-      onGetQuestionTitleActions: (_, opt) => {},
+      onGetQuestionTitleActions: (_, opt) => { },
     });
-    await t.click("h5");
-    assert.ok(
-      await Selector(".sv-expand-action").hasClass("sv-expand-action--expanded")
-    );
-    assert.equal(await getQuestionState(), "expanded");
-    await t.click("h5");
-    assert.ok(
-      !(await Selector(".sv-expand-action").hasClass(
-        "sv-expand-action--expanded"
-      ))
-    );
-    assert.equal(await getQuestionState(), "collapsed");
+
+    await t
+      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_expanded")).notOk()
+      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok()
+    await t.expect(await getQuestionState()).eql("collapsed");
+
+    await t
+      .click(elementTitle)
+      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_expanded")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_collapsed")).notOk();
+    await t.expect(await getQuestionState()).eql("expanded")
+
+    await t
+      .click(elementTitle)
+      .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_expanded")).notOk();
+    await t.expect(await getQuestionState()).eql("collapsed");
   });
+
   test("check page title actions do not appear", async (t) => {
     const json = {
       pages: [

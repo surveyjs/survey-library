@@ -7,8 +7,8 @@
 trigger:
   batch: true
   branches:
-    include:
-    - '*'
+    exclude:
+    - master
   tags:
     exclude:
       - v*.*.*

@@ -210,7 +210,16 @@ frameworks.forEach((framework) => {
   test("check responsivity manager is disposed when action bar is disposed", async (t) => {
     const getToolbarResponsivityManager = ClientFunction(() => !!survey.getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
     const setQuestionVisibility = ClientFunction((visible) => { survey.getQuestionByName("actions_question").visible = visible });
-    await initSurvey(framework, json);
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action",
+            action: () => { },
+          },
+        ];
+      }
+    });
     await t.expect(getToolbarResponsivityManager()).ok();
     await setQuestionVisibility(false);
     await t.expect(getToolbarResponsivityManager()).notOk();

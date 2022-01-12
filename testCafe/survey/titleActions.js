@@ -1,6 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
 const title = `titleActions`;
 
 const json = {
@@ -35,20 +34,16 @@ frameworks.forEach((framework) => {
     });
 
     const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
-    assert.equal(await visibleAction.find("button").innerText, "Action");
-    assert.ok(await visibleAction.visible);
-    assert.ok(!(await visibleAction.find("button svg use").exists));
-    assert.ok(
-      !(await visibleAction.find("div.sv-action-bar-separator").exists)
-    );
-    assert.equal(
-      (await visibleAction.find("button span").classNames).indexOf(
-        "sv-action-bar-item__title--with-icon"
-      ),
-      -1
-    );
-    await t.click(visibleAction.find("button"));
-    assert.equal(await getQuestionState(), "expanded");
+    await t
+      .expect(visibleAction.find("button").innerText).eql("Action")
+      .expect(visibleAction.visible).ok()
+      .expect(visibleAction.find("button svg use").exists).notOk()
+      .expect(visibleAction.find("div.sv-action-bar-separator").exists).notOk()
+      .expect(visibleAction.find("button span").hasClass("sv-action-bar-item__title--with-icon")).notOk()
+
+      .click(visibleAction.find("button"));
+
+    await t.expect(await getQuestionState()).eql("expanded");
   });
 
   test("check action with icon", async (t) => {
@@ -80,14 +75,13 @@ frameworks.forEach((framework) => {
             iconName: "icon-action",
             title: "Action",
             showTitle: false,
-            action: () => {},
+            action: () => { },
           },
         ];
       },
     });
-    assert.ok(
-      !(await Selector("h5 .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title").exists)
-    );
+
+    await t.expect(Selector("h5 .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title").exists).notOk();
   });
 
   test("check item with showTitle false and without icon", async (t) => {
@@ -97,14 +91,13 @@ frameworks.forEach((framework) => {
           {
             title: "Action",
             showTitle: false,
-            action: () => {},
+            action: () => { },
           },
         ];
       },
     });
-    assert.ok(
-      await Selector("h5 .sv-action span.sv-action-bar-item__title").exists
-    );
+
+    await t.expect(Selector("h5 .sv-action span.sv-action-bar-item__title").exists).ok();
   });
 
   test("check action with separator", async (t) => {
@@ -114,14 +107,12 @@ frameworks.forEach((framework) => {
           {
             needSeparator: true,
             title: "Action",
-            action: () => {},
+            action: () => { },
           },
         ];
       },
     });
-    assert.ok(
-      await Selector("h5 .sv-action div.sv-action-bar-separator").exists
-    );
+    await t.expect(Selector("h5 .sv-action div.sv-action-bar-separator").exists).ok();
   });
 
   test("check invisible item", async (t) => {
@@ -136,7 +127,7 @@ frameworks.forEach((framework) => {
         ];
       },
     });
-    assert.ok(!(await Selector("h5 .sv-action").visible));
+    await t.expect(Selector("h5 .sv-action").visible).notOk();
   });
 
   test("check expand/collapse action", async (t) => {
@@ -183,7 +174,7 @@ frameworks.forEach((framework) => {
       ],
     };
     await initSurvey(framework, json);
-    assert.ok(!(await Selector("h4 .sv-title-actions").exists));
+    await t.expect(Selector("h4 .sv-title-actions").exists).notOk();
   });
   test("check page title actions appear", async (t) => {
     const json = {
@@ -205,8 +196,9 @@ frameworks.forEach((framework) => {
       },
     });
 
-    assert.ok(await Selector("h4 .sv-title-actions").exists);
+    await t.expect(Selector("h4 .sv-title-actions").exists).ok();
   });
+
   test("check responsivity manager is disposed when action bar is disposed", async (t) => {
     const getToolbarResponsivityManager = ClientFunction(() => !!survey.getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
     const setQuestionVisibility = ClientFunction((visible) => { survey.getQuestionByName("actions_question").visible = visible });

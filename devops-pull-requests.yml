@@ -18,7 +18,7 @@ pool:
 steps:
   - checkout: self
     persistCredentials: true
-    clean: false
+    clean: true
 
   - task: NodeTool@0
     inputs:

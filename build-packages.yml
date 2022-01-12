@@ -338,10 +338,10 @@ jobs:
         npm run testsingle
       displayName: "run unit tests"
 
-    #- script: |
-    #    cd $(Build.SourcesDirectory)/survey-library
-    #    npm run testcafe:vue
-    #  displayName: "Vue functional tests"
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run testcafe:vue
+      displayName: "Vue functional tests"
 
     - task: CopyFiles@2
       inputs:

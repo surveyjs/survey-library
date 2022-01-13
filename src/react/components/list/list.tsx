@@ -21,7 +21,7 @@ export class List extends SurveyElementBase<IListProps, any> {
   render() {
     const items = this.renderItems();
     return (
-      <>
+      <div className="sv-list__container">
         {this.searchElementContent()}
         <ul
           className="sv-list"
@@ -32,7 +32,7 @@ export class List extends SurveyElementBase<IListProps, any> {
         >
           {items}
         </ul>
-      </>
+      </div>
     );
   }
   renderItems() {
@@ -60,13 +60,15 @@ export class List extends SurveyElementBase<IListProps, any> {
       };
       const text = this.model.filteredText;
       return (
-        <input
-          type="text"
-          className="sv-list__input"
-          placeholder={this.model.filteredTextPlaceholder}
-          value={text}
-          onChange={onChange}
-        ></input>
+        <div className="sv-list__filter">
+          <input
+            type="text"
+            className="sv-list__input"
+            placeholder={this.model.filteredTextPlaceholder}
+            value={text}
+            onChange={onChange}
+          ></input>
+        </div>
       );
     }
   }

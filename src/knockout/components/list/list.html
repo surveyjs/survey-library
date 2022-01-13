@@ -1,9 +1,15 @@
-<!-- ko if: $data.model.needFilter -->
-<input type="text" class="sv-list__input" data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }"></input>
-<!-- /ko -->
-<ul class="sv-list" data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; } }">
-  <!--ko foreach: model.renderedActions -->
-  <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
+<div class="sv-list__container">
+  <!-- ko if: $data.model.needFilter -->
+  <div class="sv-list__filter">
+    <input type="text" class="sv-list__input"
+      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }"></input>
+  </div>
   <!-- /ko -->
-  <!-- /ko -->
-</ul>
+  <ul class="sv-list"
+    data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; } }">
+    <!--ko foreach: model.renderedActions -->
+    <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
+    <!-- /ko -->
+    <!-- /ko -->
+  </ul>
+</div>

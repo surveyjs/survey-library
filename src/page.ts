@@ -20,9 +20,8 @@ export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
   constructor(name: string = "") {
     super(name);
-    var self = this;
-    this.locTitle.onGetTextCallback = function(text) {
-      if (self.num > 0) return self.num + ". " + text;
+    this.locTitle.onGetTextCallback = (text: string) => {
+      if (this.canShowPageNumber() && text) return this.num + ". " + text;
       return text;
     };
     this.createLocalizableString("navigationTitle", this, true);
@@ -36,6 +35,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage(): boolean {
     return true;
+  }
+  protected canShowPageNumber(): boolean {
+    return this.survey && (<any>this.survey).showPageNumbers;
   }
   protected canShowTitle(): boolean {
     return (<any>this.survey).showPageTitles;

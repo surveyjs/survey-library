@@ -627,7 +627,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     objects: Array<IConditionObject>,
     context: any
   ) {
-    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
+    var hasContext = !!context ? context === true || this.columns.indexOf(context) > -1 : false;
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
       this.addColumnIntoaddConditionObjectsByContext(objects, 0, column);

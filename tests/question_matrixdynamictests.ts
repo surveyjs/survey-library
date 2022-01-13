@@ -1485,6 +1485,25 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     ],
     "addConditionObjectsByContext work correctly for matrix dynamic with context"
   );
+  objs = [];
+  question.addConditionObjectsByContext(objs, true);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix[0].col1",
+        text: "Matrix[0].Column 1",
+        question: "matrix",
+      },
+      { name: "row.col1", text: "row.Column 1", question: "matrix" },
+      { name: "matrix[0].col2", text: "Matrix[0].col2", question: "matrix" },
+      { name: "row.col2", text: "row.col2", question: "matrix" },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
+  );
 });
 QUnit.test(
   "matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition",
@@ -1615,6 +1634,39 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
       { name: "row.col2", text: "row.col2", question: "matrix" },
     ],
     "addConditionObjectsByContext work correctly for matrix dropdown with context"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, true);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix.row1.col1",
+        text: "Matrix.Row 1.Column 1",
+        question: "matrix",
+      },
+      {
+        name: "matrix.row1.col2",
+        text: "Matrix.Row 1.col2",
+        question: "matrix",
+      },
+      {
+        name: "matrix.row2.col1",
+        text: "Matrix.row2.Column 1",
+        question: "matrix",
+      },
+      {
+        name: "matrix.row2.col2",
+        text: "Matrix.row2.col2",
+        question: "matrix",
+      },
+      { name: "row.col1", text: "row.Column 1", question: "matrix" },
+      { name: "row.col2", text: "row.col2", question: "matrix" },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dropdown with context equals true"
   );
 });
 

@@ -102,7 +102,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     objects: Array<IConditionObject>,
     context: any
   ) {
-    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
+    var hasContext = !!context ? context === true || this.columns.indexOf(context) > -1 : false;
     for (var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i];
       if (!row.value) continue;

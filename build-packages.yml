@@ -15,7 +15,7 @@ resources:
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
 variables:
-  npm_config_cache: $(Pipeline.Workspace)/.npm
+  npm_config_cache: "/home/vsts/.npm"
 
 
 trigger:
@@ -33,6 +33,8 @@ pool:
 jobs:
 
 - job: CoreAngularJquery
+  variables:
+    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -48,9 +50,8 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        restoreKeys: |
-          npm | "$(Agent.OS)"
         path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
     # setup next release version
@@ -123,6 +124,9 @@ jobs:
 
 
 - job: Knockout
+  variables:
+    npm_config_cache: "/home/vsts/.npm"
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -137,9 +141,8 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        restoreKeys: |
-          npm | "$(Agent.OS)"
         path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
     # setup next release version
@@ -213,6 +216,8 @@ jobs:
 
 
 - job: React
+  variables:
+    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -228,9 +233,8 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        restoreKeys: |
-          npm | "$(Agent.OS)"
         path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
     # setup next release version
@@ -299,6 +303,8 @@ jobs:
 
 
 - job: Vue
+  variables:
+    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -314,9 +320,8 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        restoreKeys: |
-          npm | "$(Agent.OS)"
         path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
     # setup next release version
@@ -391,6 +396,9 @@ jobs:
     - React
     - Vue
 
+  variables:
+    npm_config_cache: "/home/vsts/.npm"
+
   steps:
     - checkout: self
     - checkout: Service
@@ -405,9 +413,8 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        restoreKeys: |
-          npm | "$(Agent.OS)"
         path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
     # setup next release version

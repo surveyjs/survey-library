@@ -19,4 +19,8 @@
 .sd-matrix__cell:first-child {
   font-weight: 600;
   text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: $background;
 }

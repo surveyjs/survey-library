@@ -114,10 +114,6 @@ export class QuestionMatrixDropdownRenderedCell {
     }
     return "";
   }
-  getTitle(): string {
-    return (this.matrix && this.matrix.showColumnHeader) ? this.headers : "";
-  }
-
   public calculateFinalClassName(matrixCssClasses: any): string {
     const questionCss = this.cell.question.cssClasses;
     // 'text-align': $data.isChoice ? 'center':

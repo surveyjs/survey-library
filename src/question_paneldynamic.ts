@@ -1364,7 +1364,7 @@ export class QuestionPanelDynamicModel extends Question
         !!rec && rec.focuseOnFirstError,
         rec
       );
-      pnlError = this.isValueDuplicated(panels[i], keyValues, rec) || pnlError;
+      pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
       if (!this.isRenderModeList && pnlError && !res) {
         this.currentIndex = i;
       }
@@ -1384,7 +1384,7 @@ export class QuestionPanelDynamicModel extends Question
     panel: PanelModel,
     keyValues: Array<any>,
     rec: any,
-    fireCallback?: boolean
+    fireCallback: boolean
   ): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
@@ -1398,9 +1398,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(
-          new KeyDuplicationError(this.keyDuplicationError, this)
-        );
+        if(fireCallback) {
+          question.addError(
+            new KeyDuplicationError(this.keyDuplicationError, this)
+          );
+        }
         if (!!rec && !rec.firstErrorQuestion) {
           rec.firstErrorQuestion = question;
         }

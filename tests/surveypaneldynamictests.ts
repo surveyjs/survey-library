@@ -3261,6 +3261,43 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Paneldynamic duplicate key value error adds several times into cell question.errors on calling hasErrors(false), Bug #3869",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          name: "panel1",
+          type: "paneldynamic",
+          keyName: "id",
+          templateElements: [
+            {
+              name: "id",
+              type: "text",
+            },
+          ],
+          panelCount: 2,
+        },
+      ],
+    });
+
+    var panelDynamic = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("panel1")
+    );
+    var question1 = panelDynamic.panels[0].questions[0];
+    var question2 = panelDynamic.panels[1].questions[0];
+    question1.value = "1";
+    question2.value = "1";
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #1");
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
+    assert.equal(question2.errors.length, 0, "There is no errors, fireCallback parameter is false");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #3");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #4");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #5");
+    assert.equal(question2.errors.length, 1, "There is one error");
+  }
+);
 
 QUnit.test(
   "Do not reset panelCount after deleting the last panel, Bug #1972",

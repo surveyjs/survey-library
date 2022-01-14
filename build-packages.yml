@@ -14,6 +14,9 @@ resources:
       endpoint: dmitrykurmanov:admin
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
 
 trigger:
   batch: true
@@ -41,6 +44,14 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+  
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -112,7 +123,6 @@ jobs:
 
 
 - job: Knockout
-
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -123,6 +133,14 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -207,6 +225,14 @@ jobs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
 
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: Cache NPM
+
     # setup next release version
     - task: DownloadBuildArtifacts@0
       inputs:
@@ -284,6 +310,14 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -367,6 +401,14 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0

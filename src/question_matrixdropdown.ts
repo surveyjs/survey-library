@@ -98,36 +98,16 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
-    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
-    for (var i = 0; i < this.rows.length; i++) {
-      var row = this.rows[i];
-      if (!row.value) continue;
-      var prefixName = this.getValueName() + "." + row.value + ".";
-      var prefixTitle = this.processedTitle + "." + row.calculatedText + ".";
-      for (var j = 0; j < this.columns.length; j++) {
-        var column = this.columns[j];
-        objects.push({
-          name: prefixName + column.name,
-          text: prefixTitle + column.fullTitle,
-          question: this,
-        });
-      }
-    }
-    if (hasContext) {
-      for (var i = 0; i < this.columns.length; i++) {
-        var column = this.columns[i];
-        if (column == context) continue;
-        objects.push({
-          name: "row." + column.name,
-          text: "row." + column.fullTitle,
-          question: this,
-        });
-      }
-    }
+  protected getConditionObjectRowName(index: number): string {
+    return "." + this.rows[index].value;
+  }
+  protected getConditionObjectRowText(index: number): string {
+    return "." + this.rows[index].calculatedText;
+  }
+  protected getConditionObjectsRowIndeces() : Array<number> {
+    const res = [];
+    for (var i = 0; i < this.rows.length; i++) res.push(i);
+    return res;
   }
   public clearIncorrectValues() {
     var val = this.value;

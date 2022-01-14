@@ -1440,8 +1440,8 @@ QUnit.test(
 
 QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   var objs = [];
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.title = "Panel";
+  var panel = new QuestionPanelDynamicModel("qPanel");
+  panel.title = "Question Panel";
   var q1 = panel.template.addNewQuestion("text", "q1");
   var question = new QuestionMultipleTextModel("q2");
   question.title = "Question 2";
@@ -1455,15 +1455,15 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   assert.deepEqual(
     objs,
     [
-      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       {
-        name: "panel[0].q2.item1",
-        text: "Panel[0].Question 2.item1",
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
         question: "q2",
       },
       {
-        name: "panel[0].q2.item2",
-        text: "Panel[0].Question 2.item2",
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
         question: "q2",
       },
     ],
@@ -1477,15 +1477,15 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   assert.deepEqual(
     objs,
     [
-      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       {
-        name: "panel[0].q2.item1",
-        text: "Panel[0].Question 2.item1",
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
         question: "q2",
       },
       {
-        name: "panel[0].q2.item2",
-        text: "Panel[0].Question 2.item2",
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
         question: "q2",
       },
       {
@@ -1499,7 +1499,43 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
         question: "q2",
       },
     ],
-    "addConditionObjectsByContext work correctly for panel dynamic"
+    "addConditionObjectsByContext work correctly for panel dynamic with context"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, true);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
+      {
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
+        question: "q2",
+      },
+      {
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
+        question: "q2",
+      },
+      { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
+      {
+        name: "qPanel.panel.q2.item1",
+        text: "Question Panel.panel.Question 2.item1",
+        question: "q2", context: "qPanel"
+      },
+      {
+        name: "qPanel.panel.q2.item2",
+        text: "Question Panel.panel.Question 2.item2",
+        question: "q2", context: "qPanel"
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
 });
 

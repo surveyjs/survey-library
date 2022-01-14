@@ -84,11 +84,6 @@ jobs:
         npm run build_jquery
       displayName: "Build jQuery"
 
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
@@ -252,11 +247,6 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:react
       displayName: "run functional tests"
 
@@ -332,11 +322,6 @@ jobs:
         npm run build_core
         npm run build_vue_ui
       displayName: "Build Vue UI"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

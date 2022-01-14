@@ -1131,13 +1131,19 @@ export class QuestionPanelDynamicModel extends Question
       });
     }
     if (hasContext) {
+      const prefixName = context === true ? this.getValueName() + "." : "";
+      const prefixText = context === true ? this.processedTitle + "." : "";
       for (var i = 0; i < panelObjs.length; i++) {
         if (panelObjs[i].question == context) continue;
-        objects.push({
-          name: "panel." + panelObjs[i].name,
-          text: "panel." + panelObjs[i].text,
-          question: panelObjs[i].question,
-        });
+        const obj: IConditionObject = {
+          name: prefixName + "panel." + panelObjs[i].name,
+          text: prefixText + "panel." + panelObjs[i].text,
+          question: panelObjs[i].question
+        };
+        if(context === true) {
+          obj.context = this;
+        }
+        objects.push(obj);
       }
     }
   }

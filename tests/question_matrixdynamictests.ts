@@ -1489,6 +1489,9 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   question.addConditionObjectsByContext(objs, true);
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
   }
   assert.deepEqual(
     objs,
@@ -1498,9 +1501,9 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
         text: "Matrix[0].Column 1",
         question: "matrix",
       },
-      { name: "row.col1", text: "row.Column 1", question: "matrix" },
       { name: "matrix[0].col2", text: "Matrix[0].col2", question: "matrix" },
-      { name: "row.col2", text: "row.col2", question: "matrix" },
+      { name: "matrix.row.col1", text: "Matrix.row.Column 1", question: "matrix", context: "matrix" },
+      { name: "matrix.row.col2", text: "Matrix.row.col2", question: "matrix", context: "matrix" },
     ],
     "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
   );
@@ -1639,6 +1642,9 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   question.addConditionObjectsByContext(objs, true);
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
   }
   assert.deepEqual(
     objs,
@@ -1663,8 +1669,8 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
         text: "Matrix.row2.col2",
         question: "matrix",
       },
-      { name: "row.col1", text: "row.Column 1", question: "matrix" },
-      { name: "row.col2", text: "row.col2", question: "matrix" },
+      { name: "matrix.row.col1", text: "Matrix.row.Column 1", question: "matrix", context: "matrix" },
+      { name: "matrix.row.col2", text: "Matrix.row.col2", question: "matrix", context: "matrix" },
     ],
     "addConditionObjectsByContext work correctly for matrix dropdown with context equals true"
   );

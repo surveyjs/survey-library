@@ -623,40 +623,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return values;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
-    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
-    for (var i = 0; i < this.columns.length; i++) {
-      var column = this.columns[i];
-      this.addColumnIntoaddConditionObjectsByContext(objects, 0, column);
-      if (hasContext && column != context) {
-        this.addColumnIntoaddConditionObjectsByContext(objects, -1, column);
-      }
-      for (
-        var j = 1;
-        j < Math.min(settings.matrixMaxRowCountInCondition, this.rowCount);
-        j++
-      ) {
-        this.addColumnIntoaddConditionObjectsByContext(objects, j, column);
-      }
-    }
+  protected getConditionObjectRowName(index: number): string {
+    return "[" + index.toString() + "]";
   }
-  private addColumnIntoaddConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    rowIndex: number,
-    column: MatrixDropdownColumn
-  ) {
-    var rowName = rowIndex > -1 ? "[" + rowIndex.toString() + "]." : "row.";
-    objects.push({
-      name:
-        (rowIndex > -1 ? this.getValueName() + rowName : rowName) + column.name,
-      text:
-        (rowIndex > -1 ? this.processedTitle + rowName : rowName) +
-        column.fullTitle,
-      question: this,
-    });
+  protected getConditionObjectsRowIndeces() : Array<number> {
+    const res = [];
+    const rowCount = Math.max(this.rowCount, 1);
+    for (var i = 0; i < Math.min(settings.matrixMaxRowCountInCondition, rowCount); i++) {
+      res.push(i);
+    }
+    return res;
   }
   public supportGoNextPageAutomatic() {
     return false;

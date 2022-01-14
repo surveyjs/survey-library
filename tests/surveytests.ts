@@ -2074,14 +2074,9 @@ QUnit.test("Pages visibleIndex and num", function (assert) {
   assert.equal(survey.pages[0].visibleIndex, 0, "start:page 1");
   assert.equal(survey.pages[1].visibleIndex, 1, "start:page 2");
   assert.equal(survey.pages[2].visibleIndex, 2, "start:page 3");
-  assert.equal(survey.pages[0].num, -1, "start:page 1, num");
-  assert.equal(survey.pages[1].num, -1, "start:page 2, num");
-  assert.equal(survey.pages[2].num, -1, "start:page 3, num");
-
-  survey.showPageNumbers = true;
-  assert.equal(survey.pages[0].num, 1, "showPageNumbers:page 1, num");
-  assert.equal(survey.pages[1].num, 2, "showPageNumbers:page 2, num");
-  assert.equal(survey.pages[2].num, 3, "showPageNumbers:page 3, num");
+  assert.equal(survey.pages[0].num, 1, "start:page 1, num");
+  assert.equal(survey.pages[1].num, 2, "start:page 2, num");
+  assert.equal(survey.pages[2].num, 3, "start:page 3, num");
 
   survey.pages[0].visible = false;
   assert.equal(
@@ -2097,11 +2092,16 @@ QUnit.test("Pages visibleIndex and num", function (assert) {
 });
 QUnit.test("Pages num", function (assert) {
   var survey = twoPageSimplestSurvey();
-  assert.equal(survey.pages[0].num, -1, "false:the first page");
-  assert.equal(survey.pages[1].num, -1, "false:the second page");
+  assert.equal(survey.pages[0]["canShowPageNumber"](), false, "false:the first page: can't show page number");
+  assert.equal(survey.pages[0].num, 1, "the first page");
+  assert.equal(survey.pages[1]["canShowPageNumber"](), false, "false:the first page: can't show page number");
+  assert.equal(survey.pages[1].num, 2, "the second page");
+
   survey.showPageNumbers = true;
-  assert.equal(survey.pages[0].num, 1, "true:the first page");
-  assert.equal(survey.pages[1].num, 2, "true:the second page");
+  assert.equal(survey.pages[0]["canShowPageNumber"](), true, "true:the first page: can show page number");
+  assert.equal(survey.pages[0].num, 1, "the first page");
+  assert.equal(survey.pages[1]["canShowPageNumber"](), true, "true:the first page: can show page number");
+  assert.equal(survey.pages[1].num, 2, "the second page");
 });
 QUnit.test("Server validation", function (assert) {
   var survey = twoPageSimplestSurvey();

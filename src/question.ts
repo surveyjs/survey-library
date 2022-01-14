@@ -23,6 +23,7 @@ export interface IConditionObject {
   name: string;
   text: string;
   question: Question;
+  context?: Question;
 }
 
 /**

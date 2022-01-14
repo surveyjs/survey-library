@@ -32,12 +32,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public get isCompositeQuestion(): boolean {
     return true;
   }
-  public get showColumnHeader(): boolean {
-    return this.getPropertyValue("showColumnHeader");
-  }
-  public set showColumnHeader(val: boolean) {
-    this.setPropertyValue("showColumnHeader", val);
-  }
   /**
    * Set this property to false, to hide table header. The default value is true.
    */
@@ -278,8 +272,7 @@ Serializer.addClass(
   [
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
-    { name: "showHeader:boolean", default: true },
-    { name: "showColumnHeader:boolean", default: true },
+    { name: "showHeader:boolean", default: true }
   ],
   undefined,
   "question"

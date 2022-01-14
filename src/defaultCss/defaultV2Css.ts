@@ -391,7 +391,8 @@ export var defaultV2Css = {
     itemIconHoverMod: "sv-ranking-item__icon--hover",
     itemIconFocusMod: "sv-ranking-item__icon--focus",
     itemGhostMod: "sv-ranking-item--ghost",
-    itemDragMod: "sv-ranking-item--drag",
+    itemDragMod: "sv-ranking--drag",
+    itemOnError: "sv-ranking-item--error",
   },
 };
 

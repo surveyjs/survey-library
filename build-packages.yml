@@ -9,6 +9,14 @@ resources:
       type: github
       endpoint: dmitrykurmanov:admin
       name: surveyjs/service
+    - repository: EmptyRepo
+      type: github
+      endpoint: dmitrykurmanov:admin
+      name: surveyjs/azure-pipelines-repo-dont-remove-please
+
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
 
 trigger:
   batch: true
@@ -28,7 +36,7 @@ jobs:
 
   steps:
     - checkout: self
-    - checkout: Service
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -36,6 +44,13 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+  
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -84,11 +99,6 @@ jobs:
         npm run build_jquery
       displayName: "Build jQuery"
 
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
@@ -112,10 +122,9 @@ jobs:
 
 
 - job: Knockout
-
   steps:
     - checkout: self
-    - checkout: Service
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -123,6 +132,13 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -198,7 +214,7 @@ jobs:
 
   steps:
     - checkout: self
-    - checkout: Service
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -206,6 +222,13 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -252,11 +275,6 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:react
       displayName: "run functional tests"
 
@@ -281,7 +299,7 @@ jobs:
 
   steps:
     - checkout: self
-    - checkout: Service
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -289,6 +307,13 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -335,11 +360,6 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm run testsingle
-      displayName: "run unit tests"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:vue
       displayName: "Vue functional tests"
 
@@ -377,6 +397,13 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(npm_config_cache)
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0

@@ -1440,8 +1440,8 @@ QUnit.test(
 
 QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   var objs = [];
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.title = "Panel";
+  var panel = new QuestionPanelDynamicModel("qPanel");
+  panel.title = "Question Panel";
   var q1 = panel.template.addNewQuestion("text", "q1");
   var question = new QuestionMultipleTextModel("q2");
   question.title = "Question 2";
@@ -1455,15 +1455,15 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   assert.deepEqual(
     objs,
     [
-      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       {
-        name: "panel[0].q2.item1",
-        text: "Panel[0].Question 2.item1",
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
         question: "q2",
       },
       {
-        name: "panel[0].q2.item2",
-        text: "Panel[0].Question 2.item2",
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
         question: "q2",
       },
     ],
@@ -1477,15 +1477,15 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   assert.deepEqual(
     objs,
     [
-      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       {
-        name: "panel[0].q2.item1",
-        text: "Panel[0].Question 2.item1",
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
         question: "q2",
       },
       {
-        name: "panel[0].q2.item2",
-        text: "Panel[0].Question 2.item2",
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
         question: "q2",
       },
       {
@@ -1499,7 +1499,43 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
         question: "q2",
       },
     ],
-    "addConditionObjectsByContext work correctly for panel dynamic"
+    "addConditionObjectsByContext work correctly for panel dynamic with context"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, true);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
+      {
+        name: "qPanel[0].q2.item1",
+        text: "Question Panel[0].Question 2.item1",
+        question: "q2",
+      },
+      {
+        name: "qPanel[0].q2.item2",
+        text: "Question Panel[0].Question 2.item2",
+        question: "q2",
+      },
+      { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
+      {
+        name: "qPanel.panel.q2.item1",
+        text: "Question Panel.panel.Question 2.item1",
+        question: "q2", context: "qPanel"
+      },
+      {
+        name: "qPanel.panel.q2.item2",
+        text: "Question Panel.panel.Question 2.item2",
+        question: "q2", context: "qPanel"
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
 });
 
@@ -3223,6 +3259,43 @@ QUnit.test(
       { panel1: [{ id: 1 }, { id: 2 }] },
       "set correct values into survey.data"
     );
+  }
+);
+QUnit.test(
+  "Paneldynamic duplicate key value error adds several times into cell question.errors on calling hasErrors(false), Bug #3869",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          name: "panel1",
+          type: "paneldynamic",
+          keyName: "id",
+          templateElements: [
+            {
+              name: "id",
+              type: "text",
+            },
+          ],
+          panelCount: 2,
+        },
+      ],
+    });
+
+    var panelDynamic = <QuestionPanelDynamicModel>(
+      survey.getQuestionByName("panel1")
+    );
+    var question1 = panelDynamic.panels[0].questions[0];
+    var question2 = panelDynamic.panels[1].questions[0];
+    question1.value = "1";
+    question2.value = "1";
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #1");
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
+    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
+    assert.equal(question2.errors.length, 0, "There is no errors, fireCallback parameter is false");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #3");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #4");
+    assert.equal(survey.hasErrors(), true, "There is a duplication error, #5");
+    assert.equal(question2.errors.length, 1, "There is one error");
   }
 );
 

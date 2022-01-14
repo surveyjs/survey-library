@@ -32,6 +32,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootMobileMod, IsMobile)
       .append(this.cssClasses.rootDisabled, !this.allowStartDrag)
+      .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .toString();
   }
 

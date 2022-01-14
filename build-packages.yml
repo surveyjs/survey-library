@@ -15,7 +15,7 @@ resources:
       name: surveyjs/azure-pipelines-repo-dont-remove-please
 
 variables:
-  npm_config_cache: "/home/vsts/.npm"
+  npm_config_cache: $(Pipeline.Workspace)/.npm
 
 
 trigger:
@@ -33,8 +33,6 @@ pool:
 jobs:
 
 - job: CoreAngularJquery
-  variables:
-    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -124,9 +122,6 @@ jobs:
 
 
 - job: Knockout
-  variables:
-    npm_config_cache: "/home/vsts/.npm"
-
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -216,8 +211,6 @@ jobs:
 
 
 - job: React
-  variables:
-    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -303,8 +296,6 @@ jobs:
 
 
 - job: Vue
-  variables:
-    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self
@@ -395,9 +386,6 @@ jobs:
     - Knockout
     - React
     - Vue
-
-  variables:
-    npm_config_cache: "/home/vsts/.npm"
 
   steps:
     - checkout: self

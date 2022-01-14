@@ -5008,8 +5008,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < this.pages.length; i++) {
       var isPageVisible = this.pages[i].isVisible;
       this.pages[i].visibleIndex = isPageVisible ? index++ : -1;
-      this.pages[i].num =
-        showIndex && isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
+      this.pages[i].num = isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
     }
   }
   public fromJSON(json: any) {

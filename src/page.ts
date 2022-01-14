@@ -125,14 +125,6 @@ export class PageModel extends PanelModelBase implements IPage {
       .toString();
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
-  // public get num(): number {
-  //   return this.getPropertyValue("num", -1);
-  // }
-  // public set num(val: number) {
-  //   if (this.num == val) return;
-  //   this.setPropertyValue("num", val);
-  //   this.onNumChanged(val);
-  // }
   /**
    * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
    * @see SurveyMode.showNavigationButtons

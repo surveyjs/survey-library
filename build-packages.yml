@@ -47,7 +47,7 @@ jobs:
   
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | package.json'
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
         restoreKeys: |
           npm | "$(Agent.OS)"
         path: $(npm_config_cache)

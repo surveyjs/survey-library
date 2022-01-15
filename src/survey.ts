@@ -2277,6 +2277,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   protected updateElementCss(reNew?: boolean) {
+    if(!!this.startedPage) {
+      this.startedPage.updateElementCss(reNew);
+    }
     var pages = this.visiblePages;
     for (var i = 0; i < pages.length; i++) {
       pages[i].updateElementCss(reNew);

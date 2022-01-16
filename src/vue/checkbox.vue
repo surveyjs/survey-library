@@ -1,5 +1,6 @@
 <template>
   <fieldset :class="question.cssClasses.root" role="presentation">
+    <legend role="presentation" class="sv-hidden"></legend>
     <survey-checkbox-item
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"

@@ -5709,6 +5709,22 @@ QUnit.test("css sets correctly if src key is object and dest key is string", fun
 }
 );
 
+QUnit.test("Apply css for questions on start page", function (assert) {
+  const survey = new SurveyModel({
+    firstPageIsStarted: true,
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.css = { text: { mainRoot: "custom_class" } };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.cssRoot, "custom_class", "Appy css for the first page");
+  assert.equal(q1.cssRoot, "custom_class", "Appy css for the start page");
+}
+);
+
 QUnit.test("onUpdatePageCssClasses is raised", function (assert) {
   var survey = new SurveyModel();
   var flag = false;

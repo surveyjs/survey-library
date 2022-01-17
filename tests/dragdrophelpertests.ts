@@ -346,3 +346,16 @@ QUnit.test("DragDropRankingChoices shortcutClass getter", function (assert) {
 
   assert.equal(dndRanking.shortcutClass, "sv-ranking");
 });
+
+QUnit.test("DragDropRankingChoices getIsDragOverRootNode", function (assert) {
+  let dndRanking: any = new DragDropRankingChoices(null);
+  let result;
+
+  result = dndRanking.getIsDragOverRootNode(document.createElement("path"));
+  assert.equal(result, false);
+
+  const rootNode = document.createElement("div");
+  rootNode.className = "someclass sv-ranking someclass2";
+  result = dndRanking.getIsDragOverRootNode(rootNode);
+  assert.equal(result, true);
+});

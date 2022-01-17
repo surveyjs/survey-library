@@ -519,6 +519,48 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
   );
 });
 
+QUnit.test("Text Processing design mode - https://github.com/surveyjs/survey-creator/issues/2192", function(assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
+          },
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "panelCount": 1,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question3"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "title": "How are you {panel.question3}? How are you {question4}?"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.setDesignMode(true);
+  var panel = <QuestionPanelDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  var q2 = panel.panels[0].getQuestionByName("question2");
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "How are you {panel.question3}? How are you {question4}?",
+    "no text processing in desaign mode"
+  );
+});
+
 QUnit.test("Initial Text Processing in panel title", function(assert) {
   var survey = new SurveyModel({
     elements: [

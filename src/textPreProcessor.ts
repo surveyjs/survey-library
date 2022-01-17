@@ -160,6 +160,7 @@ export class QuestionTextProcessor implements ITextProcessor {
     textValue.value = new ProcessValue().getValue(textValue.name, values);
   }
   processText(text: string, returnDisplayValue: boolean): string {
+    if(this.survey && this.survey.isDesignMode) return text;
     text = this.textPreProcessor.process(text, returnDisplayValue);
     text = this.processTextCore(this.getParentTextProcessor(), text, returnDisplayValue);
     return this.processTextCore(this.survey, text, returnDisplayValue);

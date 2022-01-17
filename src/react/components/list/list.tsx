@@ -9,6 +9,12 @@ interface IListProps {
 }
 
 export class List extends SurveyElementBase<IListProps, any> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      filteredText: this.model.filteredText || ""
+    };
+  }
   get model(): ListModel {
     return this.props.model;
   }
@@ -18,7 +24,7 @@ export class List extends SurveyElementBase<IListProps, any> {
   getStateElement() {
     return this.model;
   }
-  render() {
+  renderElement() {
     const items = this.renderItems();
     return (
       <div className="sv-list__container">
@@ -58,14 +64,13 @@ export class List extends SurveyElementBase<IListProps, any> {
           this.model.filteredText = e.target.value;
         }
       };
-      const text = this.model.filteredText;
       return (
         <div className="sv-list__filter">
           <input
             type="text"
             className="sv-list__input"
             placeholder={this.model.filteredTextPlaceholder}
-            value={text}
+            value={this.state.filteredText}
             onChange={onChange}
           ></input>
         </div>

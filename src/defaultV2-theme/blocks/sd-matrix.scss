@@ -11,11 +11,11 @@
   justify-content: center;
 }
 .sd-matrix__text {
-  padding: 16px;
+  padding: calcSize(2);
 }
 .sd-matrix__text--checked {
   background-color: $green-light;
-  padding: 16px;
+  padding: calcSize(2);
 }
 .sd-matrix__cell:first-child {
   font-weight: 600;

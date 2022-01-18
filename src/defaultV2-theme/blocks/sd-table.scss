@@ -17,8 +17,8 @@
 .sd-table__cell--header {
   font-weight: 600;
   vertical-align: top;
-  padding-top: 12px;
-  padding-bottom: 28px;
+  padding-top: calcSize(1.5);
+  padding-bottom: calcSize(3.5);
 }
 .sd-table__cell--actions,
 .sd-matrixdynamic__add-btn {
@@ -85,15 +85,15 @@
   background: $background;
   z-index: 12;
   &:first-child {
-    left: -8px;
+    left: calcSize(-1);
   }
   &:last-child {
-    right: -8px;
+    right: calcSize(-1);
   }
 }
 .sd-table__cell--actions:last-child {
   .sv-action-bar {
-    margin-right: -24px;
+    margin-right: calcSize(-3);
     justify-content: end;
     background: $background;
   }
@@ -105,26 +105,26 @@
 .sd-question--table {
   & > .sd-question__content {
     display: flex;
-    margin: 0 -40px;
-    padding-top: 20px;
+    margin: 0 calcSize(-5);
+    padding-top: calcSize(2.5);
     width: fit-content;
-    min-width: calc(100% + 80px);
+    min-width: calc(100% + 10 * #{$base-unit});
     &:before,
     &:after {
       content: "";
       display: block;
       position: sticky;
       min-height: 100%;
-      width: 32px;
+      width: calcSize(4);
       flex-shrink: 0;
       background: $background;
       z-index: 11;
     }
     &::before {
-      left: -40px;
+      left: calcSize(-5);
     }
     &:after {
-      right: -40px;
+      right: calcSize(-5);
     }
     > div {
       flex-basis: 100%;
@@ -132,10 +132,10 @@
   }
 }
 .sd-question--table:not(.sd-question--table.sd-element--with-frame) {
-  padding-right: 40px;
-  margin-right: -40px;
-  padding-left: 40px;
-  margin-left: -40px;
+  padding-right: calcSize(5);
+  margin-right: calcSize(-5);
+  padding-left: calcSize(5);
+  margin-left: calcSize(-5);
   box-sizing: content-box;
 }
 

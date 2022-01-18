@@ -786,12 +786,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private createHeaderCell(
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
-    var cell = this.createTextCell(!!column ? column.locTitle : null);
+    let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
-    if (this.cssClasses.headerCell) {
-      cell.className = this.cssClasses.headerCell;
-    }
+    cell.className = new CssClassBuilder().append(this.cssClasses.headerCell).append(this.cssClasses.cellEmpty, !!cell.isEmpty).toString();
     return cell;
   }
   private setHeaderCell(

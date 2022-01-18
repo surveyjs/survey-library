@@ -2,6 +2,7 @@
   fieldset {
     border: none;
     padding: 0;
+    margin: 0;
   }
 }
 
@@ -19,8 +20,4 @@
 .sd-matrix__cell:first-child {
   font-weight: 600;
   text-align: left;
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  background: $background;
 }

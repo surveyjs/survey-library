@@ -63,7 +63,8 @@
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "asd": ""
   },
   "version": "1.9.5",
   "name": "survey-library",

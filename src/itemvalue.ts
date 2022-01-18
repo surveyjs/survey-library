@@ -353,7 +353,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
       if (typeof value.toJSON === "function") {
         json = (<Base>value).toJSON();
       } else {
-        json = value
+        json = value;
       }
       new JsonObject().toObject(json, this);
     } else {

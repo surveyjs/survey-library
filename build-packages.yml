@@ -47,8 +47,8 @@ jobs:
   
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -76,13 +76,19 @@ jobs:
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -135,8 +141,8 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -165,12 +171,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -225,8 +238,8 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -255,12 +268,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -310,8 +330,8 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -340,12 +360,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -400,8 +427,8 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -502,10 +529,14 @@ jobs:
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
 
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

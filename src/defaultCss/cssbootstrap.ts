@@ -57,6 +57,8 @@ export var defaultBootstrapCss = {
     titleLeftRoot: "sv_qstn_left",
     title: "",
     titleExpandable: "sv_q_title_expandable",
+    titleExpanded: "sv_q_title_expanded",
+    titleCollapsed: "sv_q_title_collapsed",
     number: "sv_q_num",
     description: "small",
     descriptionUnderInput: "small",
@@ -71,6 +73,8 @@ export var defaultBootstrapCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    titleExpanded: "sv_p_title_expanded",
+    titleCollapsed: "sv_p_title_collapsed",
     titleOnError: "",
     icon: "sv_panel_icon",
     iconExpanded: "sv_expanded",

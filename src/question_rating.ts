@@ -135,7 +135,10 @@ export class QuestionRatingModel extends Question {
       value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount
     ) {
-      res.push(new ItemValue(value));
+      let item = new ItemValue(value);
+      item.locOwner = this;
+      item.ownerPropertyName = "rateValues";
+      res.push(item);
       value = this.correctValue(value + step, step);
     }
     return res;

@@ -58,7 +58,6 @@ frameworks.forEach(framework => {
     const isCountRight = ClientFunction(
       () => document.querySelectorAll(".sv_q").length === 6
     );
-    await t.debug();
     assert(await isOneLine());
     assert(await isCountRight());
   });

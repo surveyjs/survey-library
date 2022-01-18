@@ -23,6 +23,7 @@ export interface IConditionObject {
   name: string;
   text: string;
   question: Question;
+  context?: Question;
 }
 
 /**
@@ -47,9 +48,11 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   private conditionRequiredRunner: ConditionRunner;
+  private defaultValueRunner: ExpressionRunner;
+  private isChangingViaDefaultValue: boolean;
+  private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
@@ -235,9 +238,6 @@ export class Question extends SurveyElement
   }
   protected onVisibleChanged(): void {
     this.setPropertyValue("isVisible", this.isVisible);
-    if (this.isVisible && this.survey && this.survey.isClearValueOnHidden) {
-      this.updateValueWithDefaults();
-    }
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }
@@ -408,8 +408,13 @@ export class Question extends SurveyElement
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
-    if (this.survey.isClearValueOnHidden && !this.visible) {
-      this.clearValue();
+    if (this.isClearValueOnHidden) {
+      if(!this.visible) {
+        this.clearValueIfInvisible();
+      }
+      if(this.isVisible) {
+        this.updateValueWithDefaults();
+      }
     }
   }
   /**
@@ -708,6 +713,8 @@ export class Question extends SurveyElement
     return new CssClassBuilder()
       .append(cssClasses.title)
       .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleExpanded, this.isExpanded)
+      .append(cssClasses.titleCollapsed, this.isCollapsed)
       .append(cssClasses.titleOnError, this.containsErrors)
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
@@ -739,6 +746,7 @@ export class Question extends SurveyElement
     if (reNew) {
       this.updateQuestionCss(true);
     }
+    this.onIndentChanged();
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (
@@ -794,7 +802,7 @@ export class Question extends SurveyElement
     this.paddingRight = this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
-    if (indent < 1 || !this.getSurvey() || !this.cssClasses) return "";
+    if (indent < 1 || !this.getSurvey() || !this.cssClasses || !this.cssClasses.indent) return "";
     return indent * this.cssClasses.indent + "px";
   }
   /**
@@ -964,6 +972,9 @@ export class Question extends SurveyElement
     }
     this.runEnableIfCondition(values, properties);
     this.runRequiredIfCondition(values, properties);
+    if(!this.isValueChangedDirectly) {
+      this.runDefaultValueExpression(this.defaultValueExpression, values, properties);
+    }
   }
   private runVisibleIfCondition(
     values: HashTable<any>,
@@ -1137,10 +1148,32 @@ export class Question extends SurveyElement
     }
     return true;
   }
-  public clearValueIfInvisible(): void {
+  public clearValueIfInvisible(reason: string = "onHidden"): void {
+    if(this.clearIfInvisible === "none") return;
+    if(reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
+    if(reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
     if (this.canClearValueAsInvisible()) {
       this.clearValue();
     }
+  }
+  /**
+   * Gets or sets a value that specifies how invisible question clears the value. By default the behavior is define by Survey "clearInvisibleValues" property.
+   *
+   * The following options are available:
+   *
+   * - `default` (default) - Survey "clearInvisibleValues" property defines the behavior.
+   * - `none` - do not clear invisible value.
+   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
+   * - `onComplete` - clear invisible question value on survey complete.
+   * @see SurveyModel.clearInvisibleValues
+   * @see Question.visible
+   * @see onComplete
+   */
+  public get clearIfInvisible(): string {
+    return this.getPropertyValue("clearIfInvisible");
+  }
+  public set clearIfInvisible(val: string) {
+    this.setPropertyValue("clearIfInvisible", val);
   }
   public get displayValue(): any {
     if (this.isLoadingFromJson) return "";
@@ -1173,6 +1206,7 @@ export class Question extends SurveyElement
   /**
    * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
    * Please note, this property is hidden for question without input, for example html question.
+   * @see defaultValueExpression
    */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
@@ -1185,11 +1219,18 @@ export class Question extends SurveyElement
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
     this.updateValueWithDefaults();
   }
+  /**
+   * Set the default value to the question via expression. This expression will keep change the question value until the value is changed by end-user or via API.
+   * You can use expressions as: "today(2)" it will set the question value to after tomorrow or to today({q1}). If {q1} equals to 1, then the value will be tomorrow. If a user change it to 2 then aftertommrow.
+   * It works in dynamic panel and matrices as well, please use prefix "panel." and "row." to access question value in the same panel or row.
+   * @see defaultValue
+   */
   public get defaultValueExpression(): any {
     return this.getPropertyValue("defaultValueExpression");
   }
   public set defaultValueExpression(val: any) {
     this.setPropertyValue("defaultValueExpression", val);
+    this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
@@ -1297,9 +1338,14 @@ export class Question extends SurveyElement
     if (this.isLoadingFromJson || (!this.isDesignMode && this.isDefaultValueEmpty())) return;
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
-    if (!!this.survey && this.survey.isClearValueOnHidden && !this.isVisible) return;
+    if (this.isClearValueOnHidden && !this.isVisible) return;
     if(this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
+  }
+  protected get isClearValueOnHidden(): boolean {
+    if(this.clearIfInvisible === "none" || this.clearIfInvisible === "onComplete") return false;
+    if(this.clearIfInvisible === "onHidden") return true;
+    return !!this.survey && this.survey.isClearValueOnHidden;
   }
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
@@ -1329,26 +1375,42 @@ export class Question extends SurveyElement
     values: HashTable<any> = null,
     properties: HashTable<any> = null
   ): void {
-    var func = (val: any) => {
-      if (val instanceof Date) {
-        val = val.toISOString().slice(0, 10);
-      }
-      setFunc(val);
+    const func = (val: any) => {
+      this.runExpressionSetValue(val, setFunc);
     };
-    if (!!expression && !!this.data) {
-      if (!values) values = this.data.getFilteredValues();
-      if (!properties) properties = this.data.getFilteredProperties();
-      var runner = new ExpressionRunner(expression);
-      if (runner.canRun) {
-        runner.onRunComplete = (res) => {
-          if (res == undefined) res = this.defaultValue;
-          func(res);
-        };
-        runner.run(values, properties);
-      }
-    } else {
+    if (!this.runDefaultValueExpression(expression, values, properties, func)) {
       func(defaultValue);
     }
+  }
+  private runExpressionSetValue(val: any, setFunc?: (val: any) => void) : void {
+    if (val instanceof Date) {
+      val = val.toISOString().slice(0, 10);
+    }
+    setFunc(val);
+  }
+  private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
+    properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
+    if(!expression || !this.data) return false;
+    if(!this.defaultValueRunner) {
+      this.defaultValueRunner = new ExpressionRunner(expression);
+    }
+    if(!setFunc) {
+      setFunc = (val: any) : void => {
+        this.runExpressionSetValue(val, (val: any) : void => { this.value = val; });
+      };
+    }
+    if (!values) values = this.data.getFilteredValues();
+    if (!properties) properties = this.data.getFilteredProperties();
+    if (this.defaultValueRunner.canRun) {
+      this.defaultValueRunner.onRunComplete = (res) => {
+        if (res == undefined) res = this.defaultValue;
+        this.isChangingViaDefaultValue = true;
+        setFunc(res);
+        this.isChangingViaDefaultValue = false;
+      };
+      this.defaultValueRunner.run(values, properties);
+    }
+    return true;
   }
   /**
    * The question comment value.
@@ -1662,6 +1724,9 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
+    if(!isEqual && !this.isChangingViaDefaultValue) {
+      this.isValueChangedDirectly = true;
+    }
     this.questionValue = newValue;
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
@@ -1827,6 +1892,11 @@ Serializer.addClass("question", [
     category: "logic",
   },
   "correctAnswer:value",
+  {
+    name: "clearIfInvisible",
+    default: "default",
+    choices: ["default", "none", "onComplete", "onHidden"],
+  },
   "isRequired:switch",
   "requiredIf:condition",
   {

@@ -1250,7 +1250,7 @@ export class QuestionSelectBase extends Question {
     return this.cssClasses.itemSvgIconId;
   }
 
-  public ariaItemLabel(item: ItemValue) {
+  public getAriaItemLabel(item: ItemValue) {
     return item.locText.renderedHtml;
   }
   public getItemId(item: ItemValue) {

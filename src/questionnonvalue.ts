@@ -50,6 +50,7 @@ Serializer.addClass(
     { name: "enableIf", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
+    { name: "clearIfInvisible", visible: false },
     { name: "isRequired", visible: false, isSerializable: false },
     { name: "requiredErrorText", visible: false },
     { name: "readOnly", visible: false },

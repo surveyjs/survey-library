@@ -2074,14 +2074,9 @@ QUnit.test("Pages visibleIndex and num", function (assert) {
   assert.equal(survey.pages[0].visibleIndex, 0, "start:page 1");
   assert.equal(survey.pages[1].visibleIndex, 1, "start:page 2");
   assert.equal(survey.pages[2].visibleIndex, 2, "start:page 3");
-  assert.equal(survey.pages[0].num, -1, "start:page 1, num");
-  assert.equal(survey.pages[1].num, -1, "start:page 2, num");
-  assert.equal(survey.pages[2].num, -1, "start:page 3, num");
-
-  survey.showPageNumbers = true;
-  assert.equal(survey.pages[0].num, 1, "showPageNumbers:page 1, num");
-  assert.equal(survey.pages[1].num, 2, "showPageNumbers:page 2, num");
-  assert.equal(survey.pages[2].num, 3, "showPageNumbers:page 3, num");
+  assert.equal(survey.pages[0].num, 1, "start:page 1, num");
+  assert.equal(survey.pages[1].num, 2, "start:page 2, num");
+  assert.equal(survey.pages[2].num, 3, "start:page 3, num");
 
   survey.pages[0].visible = false;
   assert.equal(
@@ -2097,11 +2092,16 @@ QUnit.test("Pages visibleIndex and num", function (assert) {
 });
 QUnit.test("Pages num", function (assert) {
   var survey = twoPageSimplestSurvey();
-  assert.equal(survey.pages[0].num, -1, "false:the first page");
-  assert.equal(survey.pages[1].num, -1, "false:the second page");
+  assert.equal(survey.pages[0]["canShowPageNumber"](), false, "false:the first page: can't show page number");
+  assert.equal(survey.pages[0].num, 1, "the first page");
+  assert.equal(survey.pages[1]["canShowPageNumber"](), false, "false:the first page: can't show page number");
+  assert.equal(survey.pages[1].num, 2, "the second page");
+
   survey.showPageNumbers = true;
-  assert.equal(survey.pages[0].num, 1, "true:the first page");
-  assert.equal(survey.pages[1].num, 2, "true:the second page");
+  assert.equal(survey.pages[0]["canShowPageNumber"](), true, "true:the first page: can show page number");
+  assert.equal(survey.pages[0].num, 1, "the first page");
+  assert.equal(survey.pages[1]["canShowPageNumber"](), true, "true:the first page: can show page number");
+  assert.equal(survey.pages[1].num, 2, "the second page");
 });
 QUnit.test("Server validation", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -5706,6 +5706,22 @@ QUnit.test("css sets correctly if src key is object and dest key is string", fun
   var survey = new SurveyModel();
   survey.css = { text: { root: "custom_class" } };
   assert.equal(survey.css["text"].root, "custom_class");
+}
+);
+
+QUnit.test("Apply css for questions on start page", function (assert) {
+  const survey = new SurveyModel({
+    firstPageIsStarted: true,
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.css = { text: { mainRoot: "custom_class" } };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.cssRoot, "custom_class", "Appy css for the first page");
+  assert.equal(q1.cssRoot, "custom_class", "Appy css for the start page");
 }
 );
 
@@ -13186,94 +13202,6 @@ QUnit.test("Check onGetPanelTitleActions event", (assert) => {
     options.titleActions = testActions;
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
-});
-
-QUnit.test("Panel: Add change state action into actions", (assert) => {
-  RendererFactory.Instance.registerRenderer(
-    "element",
-    "title-actions",
-    "sv-title-actions"
-  );
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "panel",
-        name: "panel1",
-        state: "expanded",
-      },
-    ],
-  });
-  var panel = <PanelModel>survey.getPanelByName("panel1");
-  var actions = panel.getTitleActions();
-  assert.equal(actions.length, 1);
-  assert.equal(
-    panel.getTitleComponentName(),
-    "sv-title-actions",
-    "Renders with actions"
-  );
-  assert.strictEqual(
-    actions[0].disableTabStop,
-    true,
-    "The action could not be used from keyboard"
-  );
-  survey = new SurveyModel({
-    elements: [
-      {
-        type: "panel",
-        name: "panel1",
-        state: "expanded",
-      },
-    ],
-  });
-  panel = <PanelModel>survey.getPanelByName("panel1");
-  survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions.push({ id: "id2" });
-  });
-  assert.equal(panel.getTitleActions().length, 2, "We have two actions now");
-  assert.equal(
-    panel.getTitleComponentName(),
-    "sv-title-actions",
-    "Renders with actions"
-  );
-  assert.equal(survey.pages[0].titleTabIndex, undefined, "We don't need titleTabIndex for page");
-  assert.equal(survey.pages[0].titleAriaExpanded, undefined, "We don't need titleAriaExpanded for page");
-
-  assert.equal(panel.titleTabIndex, 0, "We need to stop on title");
-  assert.equal(panel.titleAriaExpanded, true, "Title area expanded is true");
-  panel.state = "collapsed";
-  assert.equal(panel.titleTabIndex, 0, "We need to stop on title, #2");
-  assert.equal(
-    panel.titleAriaExpanded,
-    false,
-    "Title area expanded is false, #2"
-  );
-
-  survey = new SurveyModel({
-    elements: [
-      {
-        type: "panel",
-        name: "panel1",
-      },
-    ],
-  });
-  panel = <PanelModel>survey.getPanelByName("panel1");
-  assert.equal(panel.getTitleActions().length, 0, "There is no actions");
-  assert.equal(
-    panel.getTitleComponentName(),
-    "sv-title-actions",
-    "We do not render default title any more"
-  );
-  assert.equal(
-    panel.titleTabIndex,
-    undefined,
-    "We do not need to stop on title, #3"
-  );
-  assert.equal(
-    panel.titleAriaExpanded,
-    undefined,
-    "Title area expanded is undefined, #3"
-  );
-  RendererFactory.Instance.clear();
 });
 
 QUnit.test("Check onGetQuestionTitleActions event", (assert) => {

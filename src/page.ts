@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import {
   IPage,
@@ -20,9 +20,8 @@ export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
   constructor(name: string = "") {
     super(name);
-    var self = this;
-    this.locTitle.onGetTextCallback = function(text) {
-      if (self.num > 0) return self.num + ". " + text;
+    this.locTitle.onGetTextCallback = (text: string) => {
+      if (this.canShowPageNumber() && text) return this.num + ". " + text;
       return text;
     };
     this.createLocalizableString("navigationTitle", this, true);
@@ -36,6 +35,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isPage(): boolean {
     return true;
+  }
+  protected canShowPageNumber(): boolean {
+    return this.survey && (<any>this.survey).showPageNumbers;
   }
   protected canShowTitle(): boolean {
     return (<any>this.survey).showPageTitles;
@@ -122,14 +124,7 @@ export class PageModel extends PanelModelBase implements IPage {
       .append(this.cssClasses.page.title)
       .toString();
   }
-  public get num(): number {
-    return this.getPropertyValue("num", -1);
-  }
-  public set num(val: number) {
-    if (this.num == val) return;
-    this.setPropertyValue("num", val);
-    this.onNumChanged(val);
-  }
+  @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
    * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
    * @see SurveyMode.showNavigationButtons

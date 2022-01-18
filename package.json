@@ -67,7 +67,7 @@
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
     "prepare": "husky install"
   },
-  "version": "1.9.3",
+  "version": "1.9.5",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -97,6 +97,7 @@
     "babel-core": "6.22.1",
     "babel-loader": "6.2.10",
     "babel-preset-latest": "6.22.0",
+    "colors": "1.4.0",
     "concurrently": "^5.2.0",
     "copy-webpack-plugin": "4.0.1",
     "css-loader": "^3.6.0",

@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel } from "./base-interfaces";
@@ -1610,6 +1610,48 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return questionPlainData;
   }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    var hasContext = !!context ? context === true || this.columns.indexOf(context) > -1 : false;
+    const rowsIndeces = this.getConditionObjectsRowIndeces();
+    if(hasContext) {
+      rowsIndeces.push(-1);
+    }
+    for (var i = 0; i < rowsIndeces.length; i++) {
+      const index = rowsIndeces[i];
+      const rowName = index > -1 ? this.getConditionObjectRowName(index) : "row";
+      if(!rowName) continue;
+      const rowText = index > -1 ? this.getConditionObjectRowText(index) : "row";
+      const hasQuestionPrefix = index > -1 || context === true;
+      const dot = hasQuestionPrefix && index === -1 ? "." : "";
+      const prefixName = (hasQuestionPrefix ? this.getValueName() : "") + dot + rowName + ".";
+      const prefixTitle = (hasQuestionPrefix ? this.processedTitle : "") + dot + rowText + ".";
+      for (var j = 0; j < this.columns.length; j++) {
+        const column = this.columns[j];
+        if(index === -1 && context === column) continue;
+        const obj: IConditionObject = {
+          name: prefixName + column.name,
+          text: prefixTitle + column.fullTitle,
+          question: this
+        };
+        if(index === -1 && context === true) {
+          obj.context = this;
+        }
+        objects.push(obj);
+      }
+    }
+  }
+  protected getConditionObjectRowName(index: number): string {
+    return "";
+  }
+  protected getConditionObjectRowText(index: number): string {
+    return this.getConditionObjectRowName(index);
+  }
+  protected getConditionObjectsRowIndeces() : Array<number> {
+    return [];
+  }
   public getProgressInfo(): IProgressInfo {
     return SurveyElement.getProgressInfoByElements(
       this.getCellQuestions(),
@@ -1743,17 +1785,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return result;
   }
   private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
+    let rows = this.generatedVisibleRows;
     if (!this.generatedVisibleRows) {
-      const rows = this.visibleRows;
+      rows = this.visibleRows;
     }
     var res = false;
     if (!rec) rec = {};
+    if(!rows) return rec;
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      res =
-        this.generatedVisibleRows[i].hasErrors(fireCallback, rec, () => {
-          this.raiseOnCompletedAsyncValidators();
-        }) || res;
+    for (var i = 0; i < rows.length; i++) {
+      res = rows[i].hasErrors(fireCallback, rec, () => {
+        this.raiseOnCompletedAsyncValidators();
+      }) || res;
     }
     return res;
   }

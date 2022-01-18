@@ -1,14 +1,15 @@
 <template>
-  <div>
-    <input
-      v-if="model.needFilter"
-      type="text"
-      class="sv-list__input"
-      :placeholder="model.filteredTextPlaceholder"
-      :value="model.filteredText"
-      @change="change"
-      @keyup="keyup"
-    />
+  <div class="sv-list__container">
+    <div class="sv-list__filter" v-if="model.needFilter">
+      <input
+        type="text"
+        class="sv-list__input"
+        :placeholder="model.filteredTextPlaceholder"
+        :value="model.filteredText"
+        @change="change"
+        @keyup="keyup"
+      />
+    </div>
     <ul
       class="sv-list"
       @mousedown="

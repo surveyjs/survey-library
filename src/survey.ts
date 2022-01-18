@@ -1100,8 +1100,8 @@ export class SurveyModel extends SurveyElementCore
     return this.cssValue;
   }
   public set css(value: any) {
-    this.updateElementCss(false);
     this.mergeValues(value, this.css);
+    this.updateElementCss(false);
   }
   public get cssTitle(): string {
     return this.css.title;
@@ -2277,6 +2277,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   protected updateElementCss(reNew?: boolean) {
+    if(!!this.startedPage) {
+      this.startedPage.updateElementCss(reNew);
+    }
     var pages = this.visiblePages;
     for (var i = 0; i < pages.length; i++) {
       pages[i].updateElementCss(reNew);
@@ -5008,8 +5011,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < this.pages.length; i++) {
       var isPageVisible = this.pages[i].isVisible;
       this.pages[i].visibleIndex = isPageVisible ? index++ : -1;
-      this.pages[i].num =
-        showIndex && isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
+      this.pages[i].num = isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
     }
   }
   public fromJSON(json: any) {
@@ -5137,9 +5139,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
-    if (this.clearInvisibleValues != "none") {
-      this.clearInvisibleQuestionValues();
-    }
+    this.clearInvisibleQuestionValues();
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
     var questions = this.getQuestionsByValueName(valueName);
@@ -5154,9 +5154,10 @@ export class SurveyModel extends SurveyElementCore
     return !!questions ? questions.length : 0;
   }
   private clearInvisibleQuestionValues() {
-    var questions = this.getAllQuestions();
+    const reason = this.clearInvisibleValues === "none"? "none": "onComplete";
+    const questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      questions[i].clearValueIfInvisible();
+      questions[i].clearValueIfInvisible(reason);
     }
   }
   /**

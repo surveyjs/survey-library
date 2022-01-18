@@ -99,3 +99,41 @@ QUnit.test("Test boolean allowClick property", function (assert) {
   questionRO.readOnly = true;
   assert.equal(questionRO.allowClick, false, "allowClick false is ok");
 });
+
+QUnit.test("Check indeterminate defaultValue in design mode", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "boolean",
+        name: "q1",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+  question.defaultValue = true;
+  assert.equal(question.defaultValue, "true");
+  assert.strictEqual(question.value, true);
+  question.defaultValue = undefined;
+  assert.equal(question.defaultValue, "indeterminate");
+  assert.strictEqual(question.value, null);
+});
+QUnit.test("Check boolean with string values", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "boolean",
+        name: "q1",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+  question.value = "true";
+  assert.strictEqual(question.value, true);
+  question.value = "false";
+  assert.strictEqual(question.value, false);
+  question.value = "indeterminate";
+  assert.strictEqual(question.value, null);
+});

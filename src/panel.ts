@@ -1159,7 +1159,7 @@ export class PanelModelBase extends SurveyElement
       var questions = this.questions;
       for (var i = 0; i < questions.length; i++) {
         if (!this.isVisible) {
-          questions[i].clearValue();
+          questions[i].clearValueIfInvisible();
         } else {
           questions[i].updateValueWithDefaults();
         }
@@ -1840,7 +1840,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   private getIndentSize(indent: number): string {
     if (indent < 1) return "";
     var css = (<any>this).survey["css"];
-    if (!css) return "";
+    if (!css || !css.question.indent) return "";
     return indent * css.question.indent + "px";
   }
   public clearOnDeletingContainer() {
@@ -1885,6 +1885,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     return new CssClassBuilder()
       .append(this.cssClasses.panel.title)
       .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
+      .append(this.cssClasses.panel.titleExpanded, this.isExpanded)
+      .append(this.cssClasses.panel.titleCollapsed, this.isCollapsed)
       .append(this.cssClasses.panel.titleOnError, this.containsErrors)
       .toString();
   }

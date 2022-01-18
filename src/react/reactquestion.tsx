@@ -145,6 +145,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           className={question.getRootCss()}
           style={rootStyle}
           role={question.ariaRole}
+          aria-required={this.question.ariaRequired}
+          aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
         >
           {errorsAboveQuestion}

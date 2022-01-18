@@ -1114,7 +1114,7 @@ export class QuestionPanelDynamicModel extends Question
     context: any
   ) {
     var hasContext = !!context
-      ? this.template.questions.indexOf(context) > -1
+      ? context === true || this.template.questions.indexOf(context) > -1
       : false;
     var prefixName = this.getValueName() + "[0].";
     var prefixText = this.processedTitle + "[0].";
@@ -1131,13 +1131,19 @@ export class QuestionPanelDynamicModel extends Question
       });
     }
     if (hasContext) {
+      const prefixName = context === true ? this.getValueName() + "." : "";
+      const prefixText = context === true ? this.processedTitle + "." : "";
       for (var i = 0; i < panelObjs.length; i++) {
         if (panelObjs[i].question == context) continue;
-        objects.push({
-          name: "panel." + panelObjs[i].name,
-          text: "panel." + panelObjs[i].text,
-          question: panelObjs[i].question,
-        });
+        const obj: IConditionObject = {
+          name: prefixName + "panel." + panelObjs[i].name,
+          text: prefixText + "panel." + panelObjs[i].text,
+          question: panelObjs[i].question
+        };
+        if(context === true) {
+          obj.context = this;
+        }
+        objects.push(obj);
       }
     }
   }
@@ -1358,7 +1364,7 @@ export class QuestionPanelDynamicModel extends Question
         !!rec && rec.focuseOnFirstError,
         rec
       );
-      pnlError = this.isValueDuplicated(panels[i], keyValues, rec) || pnlError;
+      pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
       if (!this.isRenderModeList && pnlError && !res) {
         this.currentIndex = i;
       }
@@ -1378,7 +1384,7 @@ export class QuestionPanelDynamicModel extends Question
     panel: PanelModel,
     keyValues: Array<any>,
     rec: any,
-    fireCallback?: boolean
+    fireCallback: boolean
   ): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
@@ -1392,9 +1398,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(
-          new KeyDuplicationError(this.keyDuplicationError, this)
-        );
+        if(fireCallback) {
+          question.addError(
+            new KeyDuplicationError(this.keyDuplicationError, this)
+          );
+        }
         if (!!rec && !rec.firstErrorQuestion) {
           rec.firstErrorQuestion = question;
         }

@@ -64,6 +64,7 @@ export class QuestionBooleanModel extends Question {
   public set defaultValue(val: any) {
     if (val === true) val = "true";
     if (val === false) val = "false";
+    if (val === undefined) val = "indeterminate";
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
@@ -186,7 +187,15 @@ export class QuestionBooleanModel extends Question {
       return this.locLabelFalse;
     }
   }
-
+  protected setQuestionValue(
+    newValue: any,
+    updateIsAnswered: boolean = true
+  ) {
+    if(newValue === "true") newValue = true;
+    if(newValue === "false") newValue = false;
+    if(newValue === "indeterminate") newValue = null;
+    super.setQuestionValue(newValue, updateIsAnswered);
+  }
   /* #region web-based methods */
   public onLabelClick(event: any, value: boolean) {
     if (this.allowClick) {

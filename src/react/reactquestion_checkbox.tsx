@@ -25,6 +25,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         className={cssClasses.root}
         ref={(fieldset) => (this.control = fieldset)}
       >
+        <legend role="presentation" className={"sv-hidden"}></legend>
         {this.question.hasColumns
           ? this.getColumns(cssClasses)
           : this.getItems(cssClasses)}

@@ -24,7 +24,7 @@ if (
     _isMobile = true;
 })(vendor);
 
-export const IsMobile = _isMobile;
+export const IsMobile = _isMobile || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 0) || navigator.platform === "iPad";
 
 // isTouch
 let _isTouch = false;
@@ -33,4 +33,4 @@ if (typeof window !== "undefined") {
   _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
 }
 
-export const IsTouch = _isTouch;
+export const IsTouch = IsMobile && _isTouch;

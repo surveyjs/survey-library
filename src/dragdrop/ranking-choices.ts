@@ -51,8 +51,14 @@ export class DragDropRankingChoices extends DragDropChoices {
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
-    this.isDragOverRootNode = dragOverNode.className.indexOf("sv-ranking") !== -1;
+    this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
     return dragOverNode.closest(this.dropTargetDataAttributeName);
+  }
+
+  private getIsDragOverRootNode(dragOverNode: HTMLElement) {
+    // dragOverNode might be <path></path> for example and the className prop is obj
+    return typeof dragOverNode.className === "string" &&
+      dragOverNode.className.indexOf("sv-ranking") !== -1;
   }
 
   protected isDropTargetValid(

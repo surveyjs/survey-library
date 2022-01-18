@@ -107,7 +107,15 @@ export abstract class DragDropCore<T> extends Base {
         draggedElementNode
       );
       this.savedTargetNode = event.target;
-      this.savedTargetNode.className = "sv-visuallyhidden";
+      this.savedTargetNode.style.cssText =
+      `
+        position: absolute;
+        height: 1px!important;
+        width: 1px!important;
+        overflow: hidden;
+        clip: rect(1px 1px 1px 1px);
+        clip: rect(1px, 1px, 1px, 1px);
+      `;
       document.body.appendChild(this.savedTargetNode);
       this.stopLongTap();
     }, 500);

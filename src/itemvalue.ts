@@ -84,12 +84,8 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     items.length = 0;
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
-      let item: ItemValue;
-      if (typeof value.getType === "function") {
-        item = Serializer.createClass(value.getType());
-      } else {
-        item = Serializer.createClass(type ?? "itemvalue");
-      }
+      const itemType = !!value && typeof value.getType === "function" ? value.getType() : (type ?? "itemvalue");
+      const item = Serializer.createClass(itemType);
       item.setData(value);
       if (!!value.originalItem) {
         item.originalItem = value.originalItem;

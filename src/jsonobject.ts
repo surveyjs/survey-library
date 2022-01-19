@@ -304,12 +304,7 @@ export class JsonObjectProperty implements IObject {
   }
   public isDefaultValue(value: any): boolean {
     if (!Helpers.isValueEmpty(this.defaultValue)) {
-      // Complex default values.
-      if (Array.isArray(value) && Array.isArray(this.defaultValue)) {
-        return value.length === this.defaultValue.length
-            && JSON.stringify(value) === JSON.stringify(this.defaultValue);
-      }
-      return this.defaultValue == value;
+      return Helpers.isTwoValueEquals(value, this.defaultValue, false, true, false);
     }
     return (
       (value === false && (this.type == "boolean" || this.type == "switch")) ||

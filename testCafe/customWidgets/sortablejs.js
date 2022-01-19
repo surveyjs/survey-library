@@ -1,4 +1,4 @@
-import { frameworks, url_widgets, initSurvey, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url_test, initSurvey, checkSurveyWithEmptyQuestion } from "../helper";
 const title = `sortablejs`;
 
 const json = {
@@ -16,7 +16,7 @@ const json = {
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_widgets}${framework}/customWidget.html`.beforeEach(
+    .page`${url_test}customWidget/${framework}.html`.beforeEach(
       async (ctx) => {
         await initSurvey(framework, json);
       }

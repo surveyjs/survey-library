@@ -1,4 +1,4 @@
-import { frameworks, url_widgets, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url_test, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
 import { ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `icheckmatrix`;
@@ -33,7 +33,7 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
-    .page`${url_widgets}${framework}/customWidget.html`.beforeEach(async ctx => {
+    .page`${url_test}customWidget/${framework}.html`.beforeEach(async ctx => {
       await initSurvey(framework, json);
     });
 

@@ -40,7 +40,6 @@ jobs:
       inputs:
         command: install
         verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
@@ -87,7 +86,6 @@ jobs:
       inputs:
         command: install
         verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
@@ -126,7 +124,6 @@ jobs:
       inputs:
         command: install
         verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |

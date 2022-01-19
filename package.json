@@ -118,7 +118,7 @@
     "madge": "^4.0.2",
     "mini-css-extract-plugin": "^0.9.0",
     "minimist": "^1.2.5",
-    "node-sass": "^4.14.1",
+    "sass": "^1",
     "node-uuid": "^1.4.8",
     "puppeteer": "^1.19.0",
     "qunit": "2.14.0",

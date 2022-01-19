@@ -29,7 +29,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root} ref={(div) => (this.control = div)}>
         <fieldset role="radiogroup">
-          <legend aria-label={this.question.locTitle.renderedHtml} />
+          <legend role="presentation" className={"sv-hidden"}></legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}
           {this.question.renderedRateItems.map((item, i) => this.renderItem("value" + i, item, i, cssClasses))}
           {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span>: null}

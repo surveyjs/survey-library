@@ -2571,3 +2571,36 @@ QUnit.test("override defaultValue of @property", function (assert) {
   const obj = new TestDeclaredProps();
   assert.equal(obj.numberProp, 10);
 });
+
+QUnit.test("Creator custom ItemValue class, and a property an array of custom ItemValue + default value ", function (assert) {
+  Serializer.addClass("coloritemvalue", [
+        { name: "text", visible: false },
+        { name: "color", type: "color" }],
+      null, "itemvalue");
+  Serializer.addProperty("car", { name: "colors",
+    default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
+    className: "coloritemvalue", type: "coloritemvalue[]" });
+
+  const car: any = new Car();
+  assert.equal(car.colors.length, 2, "There are two colors by default");
+  assert.equal(car.colors[0].value, "A1", "value set correctly #1");
+  assert.equal(car.colors[1].color, "#00ff00", "color set correctly #2");
+  assert.deepEqual(car.toJSON(), {}, "toJSON. It should be empty #3");
+  car.colors.splice(0, 1);
+  const newItem = new ItemValue("A3", undefined, "coloritemvalue");
+  newItem.color = "#ffffff";
+  car.colors.push(newItem);
+  assert.deepEqual(car.toJSON(), { colors: [{ value: "A2", color: "#00ff00" }, { value: "A3", color: "#ffffff" }] }, "toJSON #4");
+  car.fromJSON({
+    colors: [
+      { value: "B1", color: "-ff0000" },
+      { value: "B2", color: "-00ff00" },
+      { value: "B3", color: "-ffffff" }]
+  });
+  assert.equal(car.colors.length, 3, "There are three colors loaded #5");
+  assert.equal(car.colors[0].value, "B1", "value set correctly #6");
+  assert.equal(car.colors[2].color, "-ffffff", "color set correctly #7");
+
+  Serializer.removeProperty("car", "colors");
+  Serializer.removeClass("coloritemvalue");
+});

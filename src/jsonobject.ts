@@ -169,7 +169,7 @@ export interface IObject {
  * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
  */
 export class JsonObjectProperty implements IObject {
-  public static getItemValuesDefaultValue: (val: any) => any;
+  public static getItemValuesDefaultValue: (val: any, type:string) => any;
   [key: string]: any;
   private static Index = 1;
   private static mergableValues = [
@@ -290,14 +290,12 @@ export class JsonObjectProperty implements IObject {
     return this.onGetValue || this.serializationProperty;
   }
   public get defaultValue() {
-    var result: any = this.defaultValueValue;
+    let result: any = this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
       JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
     ) {
-      result = JsonObjectProperty.getItemValuesDefaultValue(
-        this.defaultValueValue || []
-      );
+      result = JsonObjectProperty.getItemValuesDefaultValue(this.defaultValueValue || [], this.className);
     }
     return result;
   }
@@ -305,8 +303,9 @@ export class JsonObjectProperty implements IObject {
     this.defaultValueValue = newValue;
   }
   public isDefaultValue(value: any): boolean {
-    if (!Helpers.isValueEmpty(this.defaultValue))
-      return this.defaultValue == value;
+    if (!Helpers.isValueEmpty(this.defaultValue)) {
+      return Helpers.isTwoValueEquals(value, this.defaultValue, false, true, false);
+    }
     return (
       (value === false && (this.type == "boolean" || this.type == "switch")) ||
       value === "" ||

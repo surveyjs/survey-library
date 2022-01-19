@@ -299,6 +299,9 @@ export var defaultV2Css = {
     iconRemove: "",
     footer: "sd-matrixdynamic__footer",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
+    iconDrag: "sv-matrixdynamic__drag-icon",
+    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
+    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical"
   },

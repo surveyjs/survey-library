@@ -67,13 +67,65 @@ frameworks.forEach(framework => {
           ],
           addRowText: "Add a New Record",
           rowCount: 3
-        }
+        },
       ]
     });
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const matrixdynamicRoot = Selector(".sd-question");
     await ClientFunction(()=>{ document.body.focus(); })();
     await takeScreenshot("matrixdynamic.png", matrixdynamicRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
+  test("Check Matrixdynamic vertical", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "Current Level of Function",
+          columnLayout: "vertical",
+          rowCount: 3,
+          columns: [
+            {
+              name: "Date",
+              title: "Date",
+              cellType: "text",
+              inputType: "date"
+            }, {
+              name: "AmbDistance",
+              title: "Amb Distance",
+              cellType: "text"
+            }, {
+              name: "Amb Assistance",
+              cellType: "dropdown",
+              choices: ["D", "MAX", "MOD", "MIN"]
+            }, {
+              name: "Standing Tolerance",
+              cellType: "text"
+            }, {
+              name: "UE Strength",
+              cellType: "text"
+            }, {
+              name: "Cognitive Function",
+              cellType: "comment"
+            }
+          ],
+          choices: [1],
+          cellType: "comment",
+          confirmDelete: true,
+          addRowText: "Add Date +",
+          removeRowText: "Remove",
+          width: "708px"
+        }
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const matrixdynamicRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("matrixdynamic-vertical.png", matrixdynamicRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

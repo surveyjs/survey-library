@@ -40,6 +40,14 @@ jobs:
     - script: |
         npm run testsingle
       displayName: "run unit tests"
+    
+    - script: |
+        npm run lint
+      displayName: "eslint check"
+
+    - script: |
+        npm run test:knockout:single
+      displayName: "run markup tests"
 
     - script: |
         npm run testcafe:ko
@@ -67,6 +75,10 @@ jobs:
       displayName: "Build React"
 
     - script: |
+        npm run test:react:single
+      displayName: "run markup tests"
+
+    - script: |
         npm run testcafe:react
       displayName: "run functional tests"
 
@@ -90,6 +102,10 @@ jobs:
         npm run build_vue_dev
         npm run build_vue_prod
       displayName: "Build Vue"
+
+    - script: |
+        npm run test:vue:single
+      displayName: "run markup tests"
 
     - script: |
         npm run testcafe:vue

@@ -1,7 +1,7 @@
 <template>
   <div :class="getRootClass(question)">
       <fieldset role="radiogroup">
-        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+        <legend role="presentation" class="sv-hidden"></legend>
         <span v-if="question.hasMinLabel"
           :class="question.cssClasses.minText">
           <survey-string :locString="question.locMinRateDescription" />

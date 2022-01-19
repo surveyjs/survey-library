@@ -3864,6 +3864,10 @@ QUnit.test("question.getSupportedValidators", function(assert) {
     "expression",
     "answercount",
   ]);
+  assert.deepEqual(new QuestionImagePickerModel("q").getSupportedValidators(), [
+    "expression",
+    "answercount",
+  ]);
 });
 
 QUnit.test("Question<=Base propertyValueChanged", function(assert) {

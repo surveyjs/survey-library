@@ -30,12 +30,12 @@ jobs:
       displayName: "Install Node.js"
   
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
+        # cd $(Build.SourcesDirectory)/survey-library
         npm install
       displayName: "npm install"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
+        # cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
       displayName: "Build Core"
 

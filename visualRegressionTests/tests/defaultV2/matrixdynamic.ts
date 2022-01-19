@@ -115,10 +115,9 @@ frameworks.forEach(framework => {
           ],
           choices: [1],
           cellType: "comment",
-          confirmDelete: true,
           addRowText: "Add Date +",
           removeRowText: "Remove",
-          width: "708px"
+          width: "800px"
         }
       ]
     });

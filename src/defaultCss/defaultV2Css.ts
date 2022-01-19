@@ -272,7 +272,9 @@ export var defaultV2Css = {
     detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
-    actionsCell: "sd-table__cell sd-table__cell--actions"
+    actionsCell: "sd-table__cell sd-table__cell--actions",
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -300,6 +302,8 @@ export var defaultV2Css = {
     iconDrag: "sv-matrixdynamic__drag-icon",
     dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
     dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical"
   },
   rating: {
     root: "sd-rating",

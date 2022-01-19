@@ -25,10 +25,20 @@ jobs:
     inputs:
       versionSpec: '14.x'
     displayName: 'Install Node.js'
+  
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPM
 
-  - script: |
-      npm i
-    displayName: 'npm i'
+  - task: Npm@1
+    displayName: 'NPM install'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
   - script: |
       npm run build_prod

@@ -22,7 +22,7 @@
           <tr>
             <!-- ko foreach: question.koTable().headerRow.cells -->
             <th
-              data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell"
+              data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: $data.className"
             >
               <!-- ko if: $data.hasTitle -->
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->

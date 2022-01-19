@@ -273,7 +273,8 @@ export var defaultV2Css = {
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
     actionsCell: "sd-table__cell sd-table__cell--actions",
-    cellEmpty: "sd-table__cell--empty"
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -298,7 +299,8 @@ export var defaultV2Css = {
     iconRemove: "",
     footer: "sd-matrixdynamic__footer",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
-    cellEmpty: "sd-table__cell--empty"
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical"
   },
   rating: {
     root: "sd-rating",

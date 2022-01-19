@@ -7011,6 +7011,32 @@ QUnit.test("Drag handler cell in rendered table", function (assert) {
   );
 });
 
+QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        "readOnly": true,
+        columns: ["col1"]
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.allowRowsDragAndDrop,
+    false,
+    "Disable drag in readonly mode"
+  );
+  matrix.readOnly = false;
+  assert.equal(
+    matrix.allowRowsDragAndDrop,
+    true,
+    "Enable drag if readonly false"
+  );
+});
+
 QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => {
   const rowClass = "rowClass";
   const detailRowClass = "detailRowClass";

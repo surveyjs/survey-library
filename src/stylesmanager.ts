@@ -415,8 +415,10 @@ export class StylesManager {
     ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
-    ".sv-list__filter": "position: sticky; top: 0; padding: 8px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
-    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; height: calc(2em + 1px); padding-left: 1em; outline: none; font-size: 1em; border: 1px solid transparent;",
+    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
+    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 16px; padding-bottom: 16px; outline: none; font-size: 1em; border: 1px solid transparent;",
+    ".sv-list__filter-icon": "display: block; position: absolute; top: 16px; left: 16px;",
+    ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
   };

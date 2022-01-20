@@ -86,7 +86,20 @@ $base-unit: var(--base-unit, 8px);
   top: 0;
   border-bottom: 1px solid $border-inside;
   background: $background;
-  padding: 8px 0;
+}
+
+.sv-list__filter-icon {
+  display: block;
+  position: absolute;
+  top: calcSize(2);
+  left: calcSize(2);
+  .sv-svg-icon {
+    width: calcSize(3);
+    height: calcSize(3);
+    use {
+      fill: $foreground-light;
+    }
+  }
 }
 
 .sv-list__input {
@@ -97,12 +110,14 @@ $base-unit: var(--base-unit, 8px);
   background: $background;
   box-sizing: border-box;
   width: 100%;
-  height: calc(2em + 1px);
   border: 1px solid $border-inside;
-  padding-left: 1em;
   outline: none;
   font-size: 1em;
   color: $foreground;
+  padding: calcSize(2);
+  padding-left: calcSize(8);
+  padding-right: calcSize(3);
+  line-height: calcSize(3);  
 }
 
 .sv-list__input::placeholder {

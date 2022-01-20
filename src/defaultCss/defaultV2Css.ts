@@ -274,7 +274,8 @@ export var defaultV2Css = {
     detailIconExpandedId: "icon-collapsedetail",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     emptyCell: "sd-table__cell--empty",
-    verticalCell: "sd-table__cell--vertical"
+    verticalCell: "sd-table__cell--vertical",
+    cellQuestionWrapper: "sd-table__question-wrapper"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -303,7 +304,8 @@ export var defaultV2Css = {
     dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
     dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
     emptyCell: "sd-table__cell--empty",
-    verticalCell: "sd-table__cell--vertical"
+    verticalCell: "sd-table__cell--vertical",
+    cellQuestionWrapper: "sd-table__question-wrapper"
   },
   rating: {
     root: "sd-rating",

@@ -72,18 +72,18 @@
   font-weight: 600;
   text-align: left;
 }
-.sd-table__cell:hover:not(:focus-within):not(.sd-table__cell--row-text):not(.sd-table__cell--actions):not(.sd-matrix__cell:first-child) {
+.sd-table__question-wrapper:not(:focus-within):hover {
   position: relative;
   .sd-question__erbox--tooltip {
     display: inline-block;
   }
 }
+
 .sd-table__cell--actions:not(.sd-table__cell--vertical),
 .sd-table__cell--empty,
 .sd-table__cell--row-text,
 .sd-matrix__cell:first-child,
-.sd-matrix tr > td:first-child
-{
+.sd-matrix tr > td:first-child {
   position: sticky;
   background: $background;
   z-index: 12;

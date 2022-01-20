@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
-  test("Check Matrixdynamic with scrollbar", async (t) => {
+  test("Check Matrixdynamic errors inside cells", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",
@@ -141,6 +141,7 @@ frameworks.forEach(framework => {
           columns: [
             {
               "name": "Column 1",
+              "isRequired": true,
               "title": "Framework"
             },
             {
@@ -151,28 +152,19 @@ frameworks.forEach(framework => {
               "name": "Column 3",
               "title": "What is main strength?"
             },
-            {
-              "name": "Column 4",
-              "title": "What is main purpose?"
-            },
-            {
-              "name": "Column 5",
-              "title": "How often do you use it?"
-            },
           ],
           addRowText: "Add a New Record",
           rowCount: 3,
-          columnMinWidth: "180px",
           width: "704px"
         },
       ]
     });
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const matrixdynamicRoot = Selector(".sd-question");
+    await t.click(".sd-navigation__complete-btn");
     await ClientFunction(()=>{ document.body.focus(); })();
-    await t
-      .scroll(matrixdynamicRoot, "center");
-    await takeScreenshot("matrixdynamic-scroll.png", matrixdynamicRoot, screenshotComparerOptions);
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    await t.hover(".sd-table__question-wrapper", { offsetX: 50, offsetY: 20 });
+    await takeScreenshot("matrixdynamic-errors-in-cell.png", matrixdynamicRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

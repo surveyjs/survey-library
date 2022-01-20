@@ -89,4 +89,39 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check invisible panel when showInvisibleElements: true", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "panel",
+          name: "delivery_details",
+          title: "Please, specify the delivery details.",
+          width: "708px",
+          visible: false,
+          elements: [
+            {
+              type: "radiogroup",
+              name: "delivery_agent",
+              title: "Delivery agent",
+              choices: ["DHL", "Pony Express", "FedEx"]
+            },
+            {
+              type: "boolean",
+              name: "delivery_speed",
+              title: "Do you like to get the order as fast as it possible?"
+            }
+          ]
+        },
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const panelRoot = Selector(".sd-panel");
+    await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("panel-invisible.png", panelRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
 });

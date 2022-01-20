@@ -39,7 +39,8 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
-    nested: "sd-element--nested"
+    nested: "sd-element--nested",
+    invisible: "sd-element--invisible"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -114,6 +115,7 @@ export var defaultV2Css = {
     disabled: "sd-question--disabled",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
+    invisible: "sd-element--invisible"
   },
   image: {
     mainRoot: "sd-question sd-question--image",

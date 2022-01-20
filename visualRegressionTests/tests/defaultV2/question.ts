@@ -63,4 +63,27 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check invisible question when showInvisibleElements: true", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          title: "Rate the importance of this scenario for your enterprise (assuming you've encountered it in the past).",
+          width: "708px",
+          choices: ["High", "Medium", "Low"],
+          visible: false,
+        },
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("question-invisible.png", questionRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
 });

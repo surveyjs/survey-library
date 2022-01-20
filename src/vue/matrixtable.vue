@@ -3,7 +3,7 @@
     <thead v-if="table.showHeader">
       <tr>
         <th
-          :class="question.cssClasses.headerCell"
+          :class="cell.className"
           v-for="cell in table.headerRow.cells"
           :key="'header_' + cell.id"
           :style="{ minWidth: cell.minWidth, width: cell.width }"

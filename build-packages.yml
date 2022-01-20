@@ -47,7 +47,7 @@ jobs:
   
     - task: Cache@2
       inputs:
-        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/survey-library/package.json'
         path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
@@ -141,7 +141,7 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/survey-library/package.json'
         path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
@@ -238,7 +238,7 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/survey-library/package.json'
         path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
@@ -330,7 +330,7 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/survey-library/package.json'
         path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
@@ -427,7 +427,7 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/survey-library/package.json'
         path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM

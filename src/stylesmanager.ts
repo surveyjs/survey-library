@@ -216,7 +216,17 @@ export class StylesManager {
 
     // drag drop
     ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px;line-height: 24px;",
-    // EO drag drop
+
+    ".sv-matrixdynamic__drag-icon": "padding-top:14px",
+    ".sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
+    ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
+      "position: relative;",
+    ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":
+      "content: ''; width: 100%; height: 4px; background-color: #19b394; position: absolute; left: 0;",
+    ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
+    ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
+    //eo drag-drop
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
@@ -800,7 +810,7 @@ export class StylesManager {
 
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
-    },
+    }
   };
 
   public static ThemeCss: { [key: string]: string } = {
@@ -951,17 +961,6 @@ export class StylesManager {
 
     ".sv_main .sv_qstn textarea": "max-width: 100%",
 
-    //drag-drop
-    ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
-    ".sv_main .sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top, .sv_main .sv-matrix__drag-drop-ghost-position-bottom":
-      "position: relative;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top::after, .sv_main .sv-matrix__drag-drop-ghost-position-bottom::after":
-      "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
-    //eo drag-drop
     //list
     ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv-list__input::placeholder": "color: $foreground-light;",

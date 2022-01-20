@@ -28,7 +28,8 @@ jobs:
   
   - task: Cache@2
     inputs:
-      key: 'npm-cache-library | "$(Agent.OS)" | $(Build.SourcesDirectory)/package.json'
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/package.json'
+      
       path: $(Build.SourcesDirectory)/node_modules
       cacheHitVar: NPM_CACHE_RESTORED
     displayName: Cache NPM

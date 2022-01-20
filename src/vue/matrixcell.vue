@@ -17,7 +17,7 @@
       :question="cell.panel"
       :css="question.survey.css"
     ></component>
-    <div v-if="cell.hasQuestion">
+    <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
       <survey-errors v-if="hasErrorsOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
@@ -54,14 +54,14 @@
         :element="cell.question"
         :location="'bottom'"
       />
+      <survey-errors
+        v-if="question.isErrorsModeTooltip"
+        :element="cell.question"
+        :location="'tooltip'"
+      />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
     <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
-    <survey-errors
-      v-if="cell.hasQuestion && question.isErrorsModeTooltip"
-      :element="cell.question"
-      :location="'tooltip'"
-    />
   </td>
 </template>
 

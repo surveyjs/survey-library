@@ -850,6 +850,7 @@ QUnit.test(
     list.items.push(new ItemValue(5));
     list.items.push(new ItemValue("item"));
     list.items.push(new ItemValue("A", "A"));
+    list.items.push(new ItemValue("a", "A"));
 
     let jsObj = new JsonObject().toJsonObject(list);
     assert.deepEqual(
@@ -857,14 +858,15 @@ QUnit.test(
       { "items": [{ "value": 7, "text": "Item 1" },
         { "value": 5, text: "5" },
         { "value": "item", text: "item" },
-        { "value": "A", text: "A" }] },
+        { "value": "A", text: "A" },
+        { "value": "a", text: "A" }] },
       "serialize ItemValueListOwner with text"
     );
     settings.itemValueAlwaysSerializeText = false;
     jsObj = new JsonObject().toJsonObject(list);
     assert.deepEqual(
       jsObj,
-      { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A"] },
+      { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] },
       "serialize ItemValueListOwner without text");
   });
 QUnit.test("LongNamesOwner serialization", function (assert) {

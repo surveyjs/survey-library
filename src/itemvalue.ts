@@ -345,7 +345,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
       if(prop.name === "text" && !this.locText.hasNonDefaultText() &&
-        Helpers.isTwoValueEquals(this.value, this.text)) continue;
+        Helpers.isTwoValueEquals(this.value, this.text, false, true, false)) continue;
       jsoObj.valueToJson(this, res, prop);
     }
     return res;

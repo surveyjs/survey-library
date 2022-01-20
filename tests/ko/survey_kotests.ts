@@ -1376,20 +1376,7 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function (assert) {
         title: {
           de: "Wählen Sie eine Option",
         },
-        choices: [
-          {
-            value: "Option 1/2",
-            text: "Option 1/2",
-          },
-          {
-            value: "Option 3",
-            text: "Option 3",
-          },
-          {
-            value: "Option 4",
-            text: "Option 4",
-          },
-        ],
+        choices: ["Option 1/2", "Option 3", "Option 4"]
       },
     ],
   };

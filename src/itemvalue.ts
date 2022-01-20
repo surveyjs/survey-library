@@ -326,8 +326,13 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
-    if (!settings.itemValueAlwaysSerializeAsObject && Object.keys(json).length == 1 && !Helpers.isValueEmpty(json["value"]))
+    if(Helpers.isValueEmpty(json.value)) return json;
+    const canSerializeAsContant = !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
+    if(settings.itemValueAlwaysSerializeText && json.text === undefined) {
+      json.text = this.value.toString();
+    }
     return json;
   }
   public toJSON(): any {
@@ -338,7 +343,10 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     }
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
-      jsoObj.valueToJson(this, res, properties[i]);
+      const prop = properties[i];
+      if(prop.name === "text" && !this.locText.hasNonDefaultText() &&
+        Helpers.isTwoValueEquals(this.value, this.text)) continue;
+      jsoObj.valueToJson(this, res, prop);
     }
     return res;
   }

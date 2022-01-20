@@ -835,14 +835,38 @@ QUnit.test(
     list.items.push(new ItemValue("item"));
 
     const jsObj = new JsonObject().toJsonObject(list);
-    assert.equal(
-      JSON.stringify(jsObj),
-      '{"items":[{"value":7,"text":"Item 1"},{"value":5},{"value":"item"}]}',
+    assert.deepEqual(jsObj, { "items": [{ "value": 7, "text": "Item 1" }, { "value": 5 }, { "value": "item" }] },
       "serialize ItemValueListOwner"
     );
     settings.itemValueAlwaysSerializeAsObject = false;
   }
 );
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
+  function (assert) {
+    settings.itemValueAlwaysSerializeText = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue(7, "Item 1"));
+    list.items.push(new ItemValue(5));
+    list.items.push(new ItemValue("item"));
+    list.items.push(new ItemValue("A", "A"));
+
+    let jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ "value": 7, "text": "Item 1" },
+        { "value": 5, text: "5" },
+        { "value": "item", text: "item" },
+        { "value": "A", text: "A" }] },
+      "serialize ItemValueListOwner with text"
+    );
+    settings.itemValueAlwaysSerializeText = false;
+    jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A"] },
+      "serialize ItemValueListOwner without text");
+  });
 QUnit.test("LongNamesOwner serialization", function (assert) {
   var owner = new LongNamesOwner();
   var l1 = new LongNameItemA();
@@ -2574,9 +2598,9 @@ QUnit.test("override defaultValue of @property", function (assert) {
 
 QUnit.test("Creator custom ItemValue class, and a property an array of custom ItemValue + default value ", function (assert) {
   Serializer.addClass("coloritemvalue", [
-        { name: "text", visible: false },
-        { name: "color", type: "color" }],
-      null, "itemvalue");
+    { name: "text", visible: false },
+    { name: "color", type: "color" }],
+  null, "itemvalue");
   Serializer.addProperty("car", { name: "colors",
     default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
     className: "coloritemvalue", type: "coloritemvalue[]" });

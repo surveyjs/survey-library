@@ -34,12 +34,17 @@
 .sd-title {
   .sv-title-actions {
     width: 100%;
+    justify-content: space-between;
+  }
+  .sd-action-bar {
+    margin: calcSize(-1) 0;
+    margin-right: calcSize(-3);
   }
 }
 .sd-root-modern:not(.svc-tab-designer) {
   .sd-container-modern__title {
     background-color: $background;
-    box-shadow: 0px 2px 0px #19B394;
+    box-shadow: 0px 2px 0px #19b394;
     .sd-header__text h3 {
       margin: 0;
     }
@@ -48,4 +53,4 @@
       margin-top: 8px;
     }
   }
-} 
+}

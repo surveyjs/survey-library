@@ -1,4 +1,7 @@
 .sd-action.sd-action {
+  appearance: none;
+  border: none;
+  background: transparent;
   padding: calcSize(1) calcSize(3);
   color: $primary;
   border-radius: calcSize(12.5);
@@ -28,8 +31,7 @@ svg.sd-action--icon {
   fill: $foreground-light;
 }
 .sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover,
-.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus-visible
-{
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus-visible {
   outline: none;
   background-color: $primary-light;
   cursor: pointer;
@@ -44,8 +46,13 @@ svg.sd-action--icon {
         fill: $red;
       }
     }
-  }  
+  }
   &:active {
     opacity: 0.5;
   }
+}
+.sd-action__icon {
+  display: block;
+  width: 24px;
+  height: 24px;
 }

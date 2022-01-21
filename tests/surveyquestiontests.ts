@@ -5910,3 +5910,12 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
 });
+QUnit.test("QuestionTextModel isMinMaxType", function(assert) {
+  const q1 = new QuestionTextModel("q1");
+  assert.equal(q1.inputType, "text");
+  assert.equal(q1.isMinMaxType, false);
+  q1.inputType = "range";
+  assert.equal(q1.isMinMaxType, false);
+  q1.inputType = "datetime";
+  assert.equal(q1.isMinMaxType, true);
+});

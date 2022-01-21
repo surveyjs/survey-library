@@ -374,8 +374,8 @@ export class QuestionTextModel extends QuestionTextBase {
 
 const minMaxTypes = [
   "number",
-  "range",
   "date",
+  "datetime",
   "datetime-local",
   "month",
   "time",

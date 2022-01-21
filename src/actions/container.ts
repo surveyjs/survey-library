@@ -8,7 +8,7 @@ export let defaultActionBarCss = {
   itemActive: "sv-action-bar-item--active",
   itemPressed: "sv-action-bar-item--active",
   itemIcon: "sv-action-bar-item__icon",
-  itemTitle: "sv-action-bar-item__icon",
+  itemTitle: "sv-action-bar-item__title",
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
 };
 

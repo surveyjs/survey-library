@@ -123,7 +123,7 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildCore"
+        ArtifactName: "SurveyJSLibraryBuildCoreAngularJquery"
         publishLocation: "Container"
 
 
@@ -447,12 +447,12 @@ jobs:
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildCore'
+        artifactName: 'SurveyJSLibraryBuildCoreAngularJquery'
         downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-core"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0
@@ -508,12 +508,12 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-jquery"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-angular"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-angular"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
 
     - task: CopyFiles@2

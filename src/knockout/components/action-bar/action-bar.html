@@ -1,6 +1,6 @@
 <!-- ko if: model.hasActions -->
 <div
-  data-bind="css: model.css, click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
+  data-bind="css: model.getRootCss(), click: handleClick ? function() { return true; } : undefined, clickBubble: handleClick ? false : undefined"
 >
   <!-- ko foreach: model.renderedActions -->
   <!-- ko component: { name: 'sv-action', params: { item: $data } } -->

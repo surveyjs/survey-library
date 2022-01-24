@@ -297,7 +297,7 @@ export var defaultV2Css = {
     detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     buttonAdd: "sd-matrixdynamic__add-btn",
-    buttonRemove: "sd-action--icon sd-action--negative sd-matrixdynamic__remove-btn",
+    buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
     footer: "sd-matrixdynamic__footer",
@@ -405,6 +405,13 @@ export var defaultV2Css = {
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
   },
+  actionBar: {
+    root: "sd-action-bar",
+    item: "sd-action",
+    itemPressed: "sd-action--pressed",
+    itemAsIcon: "sd-action--icon",
+    itemIcon: "sd-action__icon"
+  }
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

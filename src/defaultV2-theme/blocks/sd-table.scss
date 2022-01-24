@@ -58,14 +58,8 @@
 
 .sd-table__cell--actions {
   white-space: nowrap;
-  .sv-action-bar {
-    padding: 0;
-  }
-  &.sd-table__cell--vertical .sv-action-bar {
+  &.sd-table__cell--vertical .sd-action-bar {
     justify-content: center;
-  }
-  .sv-action:not(:last-child) > .sv-action__content {
-    padding-right: 0;
   }
 }
 .sd-table__cell--row-text {
@@ -95,7 +89,7 @@
   }
 }
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
-  .sv-action-bar {
+  .sd-action-bar {
     margin-right: calcSize(-3);
     justify-content: end;
     background: $background;

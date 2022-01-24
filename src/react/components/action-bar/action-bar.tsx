@@ -54,7 +54,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     return (
       <div
         ref={this.rootRef}
-        className={this.model.css}
+        className={this.model.getRootCss()}
         onClick={this.handleClick ? function(event) {
           event.stopPropagation();
         } : undefined}

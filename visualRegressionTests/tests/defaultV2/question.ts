@@ -82,6 +82,31 @@ frameworks.forEach(framework => {
     await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
     await ClientFunction(()=>{ document.body.focus(); })();
     await takeScreenshot("question-invisible.png", questionRoot, screenshotComparerOptions);
+  });
+  test("Check question title actions", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "text",
+          name: "question_with_num",
+          width: "708px",
+          state: "collapsed",
+          title: "Personal information"
+        },
+      ]
+    }, { onGetQuestionTitleActions: (_, opt) => {
+      opt.titleActions.push(
+        {
+          title: "Reset to Default",
+          action: () => {}
+        }
+      );
+    } });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const questionRoot = Selector(".sd-question");
+    await takeScreenshot("question-title-actions.png", questionRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

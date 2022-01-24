@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="item.getActionBarItemActiveCss()"
+    :class="item.getActionBarItemCss()"
     type="button"
     v-on:click="
       () => {
@@ -18,14 +18,14 @@
   >
     <sv-svg-icon
       v-if="item.iconName"
-      class="sv-action-bar-item__icon"
+      :class="item.cssClasses.itemIcon"
       :iconName="item.iconName"
       :size="item.iconSize"
     ></sv-svg-icon>
 
     <span
       v-if="item.showTitle === undefined || item.showTitle || !item.iconName"
-      :class="item.getActionBarItemCss()"
+      :class="item.getActionBarItemTitleCss()"
       >{{ item.title }}</span
     >
   </button>

@@ -16,11 +16,9 @@ import {
   ITitleOwner
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-
 /**
  * Base class of SurveyJS Elements and Survey.
  */
@@ -288,6 +286,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = new AdaptiveActionContainer();
+      if(this.survey && !!this.survey.getCss().actionBar) {
+        this.titleToolbarValue.cssClasses = this.survey.getCss().actionBar;
+      }
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;

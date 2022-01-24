@@ -2,6 +2,16 @@ import { propertyArray } from "../jsonobject";
 import { Base } from "../base";
 import { IAction, Action } from "./action";
 
+export let defaultActionBarCss = {
+  root: "sv-action-bar",
+  item: "sv-action-bar-item",
+  itemActive: "sv-action-bar-item--active",
+  itemPressed: "sv-action-bar-item--active",
+  itemIcon: "sv-action-bar-item__icon",
+  itemTitle: "sv-action-bar-item__title",
+  itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
+};
+
 export class ActionContainer<T extends Action = Action> extends Base {
     @propertyArray({
       onSet: (_: any, target: ActionContainer<Action>) => {
@@ -15,6 +25,7 @@ export class ActionContainer<T extends Action = Action> extends Base {
       }
     })
     actions: Array<T>;
+    private cssClassesValue: any;
 
     protected getRenderedActions(): Array<T> {
       return this.actions;
@@ -28,15 +39,20 @@ export class ActionContainer<T extends Action = Action> extends Base {
     }
 
     protected onSet() {
+      this.actions.forEach((item)=>{ this.setActionCssClasses(item); });
       this.raiseUpdate(true);
     }
-
     protected onPush(item: T) {
+      this.setActionCssClasses(item);
       this.raiseUpdate(true);
     }
 
     protected onRemove(item: T) {
       this.raiseUpdate(true);
+    }
+
+    private setActionCssClasses(item: T) {
+      item.cssClasses = this.cssClasses;
     }
 
     public get hasActions(): boolean {
@@ -50,8 +66,14 @@ export class ActionContainer<T extends Action = Action> extends Base {
     get visibleActions(): Array<T> {
       return this.actions.filter((action) => action.visible !== false);
     }
-    public get css(): string {
-      return "sv-action-bar" + (!!this.containerCss ? " " + this.containerCss : "");
+    public getRootCss(): string {
+      return this.cssClasses.root + (!!this.containerCss ? " " + this.containerCss : "");
+    }
+    public set cssClasses(val: any) {
+      this.cssClassesValue = val;
+    }
+    public get cssClasses(): any {
+      return this.cssClassesValue || defaultActionBarCss;
     }
 
     private sortItems(items: Array<T>) {

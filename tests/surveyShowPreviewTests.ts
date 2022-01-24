@@ -360,7 +360,7 @@ QUnit.test(
       "The panel is editable, footerToolBar is not empty"
     );
     assert.equal(
-      actionContainer.css,
+      actionContainer.getRootCss(),
       "sv-action-bar sv_p_footer",
       "The panel is editable, footerToolBar is not empty"
     );

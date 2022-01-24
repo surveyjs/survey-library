@@ -450,6 +450,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      if(!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
+        actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
+      }
       actionContainer.setItems(rowActions);
 
       const itemValue = new ItemValue(actionContainer);

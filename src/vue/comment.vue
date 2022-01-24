@@ -15,7 +15,7 @@
       :class="question.cssClasses ? question.cssClasses.root : 'panel-comment-root'"
       @change="change"
       @keyup="keyup"
-      v-bind:aria-required="question.isRequired"
+      v-bind:aria-required="question.ariaRequired"
       :aria-invalid="question.errors.length > 0"
       :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
     ></textarea>

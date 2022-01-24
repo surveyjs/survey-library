@@ -318,6 +318,12 @@ export class Question extends SurveyElement
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
   }
+  public get ariaRequired() {
+    if (this.isRequired) return "true";
+    const data: any = this.data;
+    if (data && data.data && data.data.isRequired) return "true";
+    return "false";
+  }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
     this.updateElementCss();

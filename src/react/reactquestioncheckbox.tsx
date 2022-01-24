@@ -190,10 +190,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={this.isDisplayMode || !this.item.isEnabled}
             checked={isChecked}
             onChange={onItemChanged}
-            aria-required={this.question.isRequired}
+            aria-required={this.question.ariaRequired}
             aria-label={locText.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>

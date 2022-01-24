@@ -16,7 +16,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     super.componentDidMount();
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function() {
+      this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -155,7 +155,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 disabled={this.isDisplayMode}
                 checked={isChecked}
                 onChange={this.handleOnChange}
-                aria-required={this.question.isRequired}
+                aria-required={this.question.ariaRequired}
                 aria-label={this.question.locTitle.renderedHtml}
               />
               <span className={this.question.cssClasses.materialDecorator}>

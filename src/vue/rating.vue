@@ -14,7 +14,7 @@
           :value="item.value"
           :disabled="question.isReadOnly"
           @change="change"
-          v-bind:aria-required="question.isRequired"
+          v-bind:aria-required="question.ariaRequired"
           :aria-label="item.locText.text"
           :aria-invalid="question.errors.length > 0"
           :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  

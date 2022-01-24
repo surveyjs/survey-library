@@ -19,7 +19,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
   }
   protected getValueCore(): any {
     return this.questionBase.renderedValue;
-  }  
+  }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
@@ -66,8 +66,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionUncontrolledElement<Qu
           onChange={this.updateValueOnEvent}
           onInput={this.updateValueOnEvent}
           aria-label={this.question.locTitle.renderedHtml}
+          aria-required={this.question.ariaRequired}
           aria-invalid={this.question.errors.length > 0}
-          aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}  
+          aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
         >
           {captionOption}
           {options}

@@ -10,7 +10,7 @@
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"
         :disabled="question.isReadOnly"
-        v-bind:aria-required="question.isRequired"
+        v-bind:aria-required="question.ariaRequired"
         :aria-label="question.locTitle.renderedHtml"
         :aria-invalid="question.errors.length > 0"
         :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  

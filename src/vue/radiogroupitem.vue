@@ -9,7 +9,7 @@
           :role="'radio'"
           v-model="question.renderedValue"
           :disabled="question.isReadOnly || !item.isEnabled"
-          v-bind:aria-required="question.isRequired"
+          v-bind:aria-required="question.ariaRequired"
           :aria-label="item.locText.renderedHtml"
           :aria-invalid="question.errors.length > 0"
           :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  

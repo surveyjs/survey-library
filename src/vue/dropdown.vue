@@ -6,6 +6,7 @@
         v-model="question.renderedValue"
         :class="question.cssClasses.control"
         v-bind:aria-label="question.locTitle.renderedHtml"
+        :aria-required="question.ariaRequired"
         :aria-invalid="question.errors.length > 0"
         :aria-describedby="question.errors.length > 0 ? question.id + '_errors' : null"  
       >

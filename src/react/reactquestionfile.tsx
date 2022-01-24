@@ -94,7 +94,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         ref={input => (this.control = input)}
         type="file"
         onChange={!this.isDisplayMode ? this.handleOnChange : null}
-        aria-required={this.question.isRequired}
+        aria-required={this.question.ariaRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
         aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}

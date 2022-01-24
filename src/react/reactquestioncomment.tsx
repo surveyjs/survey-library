@@ -9,7 +9,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
   QuestionCommentModel
-  > {
+> {
   constructor(props: any) {
     super(props);
   }
@@ -38,7 +38,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<
         onInput={onInput}
         cols={this.question.cols}
         rows={this.question.rows}
-        aria-required={this.question.isRequired}
+        aria-required={this.question.ariaRequired}
         aria-label={this.question.locTitle.renderedHtml}
         aria-invalid={this.question.errors.length > 0}
         aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
@@ -78,7 +78,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onChange={handleOnChange}
         onBlur={onBlur}
         onInput={onInput}
-        aria-required={question.isRequired}
+        aria-required={question.ariaRequired}
         aria-label={question.locTitle.renderedHtml}
       />
     );

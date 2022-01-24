@@ -42,7 +42,7 @@
                   :value="column.value"
                   :disabled="question.isReadOnly"
                   :id="question.inputId + '_' + row.name + '_' + columnIndex"
-                  v-bind:aria-required="question.isRequired"
+                  v-bind:aria-required="question.ariaRequired"
                   :aria-label="question.locTitle.renderedHtml"
                 />
                 <span :class="question.cssClasses.materialDecorator">

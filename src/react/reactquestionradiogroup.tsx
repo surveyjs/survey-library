@@ -179,10 +179,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             value={this.item.value}
             disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
-            aria-required={this.question.isRequired}
+            aria-required={this.question.ariaRequired}
             aria-label={locText.renderedHtml}
             aria-invalid={this.question.errors.length > 0}
-            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}    
+            aria-describedby={this.question.errors.length > 0 ? this.question.id + '_errors' : null}
             role="radio"
           />
           <span className={this.cssClasses.materialDecorator}>

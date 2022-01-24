@@ -26,7 +26,6 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   constructor() {
     super();
     this.createLocTitleProperty();
-    this.createLocalizableString("description", this, true);
   }
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
@@ -51,12 +50,15 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Please note, this property is hidden for questions without input, for example html question.
    * @see title
   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
+  @property() hasDescription: boolean;
+  @property({ localizable: true, onSet: (newDescription, self) => {
+    self.updateDescriptionVisibility(self, newDescription);
   }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
+  }) description: string;
+  public updateDescriptionVisibility(newDescription: any) {
+    this.hasDescription = !!newDescription;
   }
+
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }

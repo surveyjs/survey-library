@@ -41,6 +41,8 @@
 .sv_window_content {
   padding: 8px;
   margin: 0;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 .sv_window_title a,
 .sv_window_title a:link,

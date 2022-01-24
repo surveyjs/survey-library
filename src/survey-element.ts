@@ -54,9 +54,13 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   */
   @property() hasDescription: boolean;
   @property({ localizable: true, onSet: (newDescription, self) => {
-    self.hasDescription = !!newDescription;
+    self.updateDescriptionVisibility(self, newDescription);
   }
   }) description: string;
+  public updateDescriptionVisibility(newDescription: any) {
+    this.hasDescription = !!newDescription;
+  }
+
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }

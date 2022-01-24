@@ -301,6 +301,7 @@ export class PanelModelBase extends SurveyElement
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
+    this.updateDescriptionVisibility(this.description);
     this.markQuestionListDirty();
     this.onRowsChanged();
   }

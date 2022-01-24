@@ -310,17 +310,12 @@ export class PanelModelBase extends SurveyElement
       (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
-  get hasDescription(): boolean {
-    return !!this.description;
-  }
   protected canShowTitle(): boolean { return true; }
   get _showDescription(): boolean {
-    return (
-      ((<any>this.survey).showPageTitles && this.description.length > 0) ||
-      (this.isDesignMode &&
-        settings.allowShowEmptyTitleInDesignMode &&
-        settings.allowShowEmptyDescriptionInDesignMode)
-    );
+    return (<any>this.survey).showPageTitles && this.hasDescription ||
+    (this.isDesignMode &&
+      settings.allowShowEmptyTitleInDesignMode &&
+      settings.allowShowEmptyDescriptionInDesignMode);
   }
   public localeChanged() {
     super.localeChanged();

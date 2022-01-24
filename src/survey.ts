@@ -2627,9 +2627,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.isStartedState && this.startedPage && !this.isDesignMode
-      ? this.startedPage
-      : this.currentPage;
+    return this.state === "starting" ? this.startedPage : this.currentPage;
   }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
@@ -3337,7 +3335,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isFirstPage
    */
   public prevPage(): boolean {
-    if (this.isFirstPage || this.isStartedState) return false;
+    if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);

@@ -10,8 +10,24 @@
     >
       <label :class="question.cssClasses.label">
         <input
+          v-if="question.multiSelect"
           style="display: none"
-          :type="question.inputType"
+          type="checkbox"
+          :name="question.questionName"
+          :value="item.value"
+          :id="question.getItemId(item)"
+          v-model="question.value"
+          :disabled="!question.getItemEnabled(item)"
+          v-bind:aria-required="question.ariaRequired"
+          :aria-label="question.ariaLabel"
+          :aria-invalid="question.ariaInvalid"
+          :aria-describedby="question.ariaDescribedBy"
+          :class="question.cssClasses.itemControl"
+        />
+        <input
+          v-else
+          style="display: none"
+          type="radio"
           :name="question.questionName"
           :value="item.value"
           :id="question.getItemId(item)"

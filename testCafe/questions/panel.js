@@ -119,7 +119,7 @@ frameworks.forEach((framework) => {
     assert.equal(await contentItem.visible, false);
   });
 
-  test.only(`panel description reactivity`, async (t) => {
+  test(`panel description reactivity`, async (t) => {
     await ClientFunction(() => {
       window.survey.getAllPanels()[0].description = 'desc1';
     })();

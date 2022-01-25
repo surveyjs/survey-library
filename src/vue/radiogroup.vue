@@ -1,5 +1,5 @@
 <template>
-  <fieldset role="presentation" :class="question.cssClasses.root">
+  <fieldset role="presentation" :class="question.getSelectBaseRootCss()">
     <survey-radiogroup-item
       v-if="!question.hasColumns"
       v-for="(item, index) in question.visibleChoices"

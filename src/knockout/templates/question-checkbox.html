@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-checkbox">
-  <fieldset data-bind="css: question.koCss().root" role="presentation">
+  <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
       <legend role="presentation" class="sv-hidden"></legend>
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->

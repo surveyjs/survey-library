@@ -1209,7 +1209,7 @@ export class Question extends SurveyElement
    * The default value is used as a question value in the following cases:
    *
    * - While the survey is being loaded from JSON.
-   * - The question is just added to the survey and does not have an answer yet.
+   * - The question is just added to the survey and does not yet have an answer.
    * - The respondent left the answer empty.
    * @see defaultValueExpression
    */

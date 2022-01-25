@@ -35,7 +35,6 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     isElementSelected?: boolean
   ): void {
     this.isDraggedElementSelected = isElementSelected;
-    draggedElement.isDragMe = true;
     this.startDrag(event, draggedElement);
   }
 
@@ -259,6 +258,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected onStartDrag(): void {
     this.ghostSurveyElement = this.createGhostSurveyElement();
+    this.draggedElement.isDragMe = true;
   }
 
   protected doBanDropHere = (): void => {

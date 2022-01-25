@@ -190,11 +190,11 @@ export class StylesManager {
     ".sv-ranking-item__content":
       "display: flex; align-items: center; line-height: 1em; background-color: white;padding: 5px 0px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
-      "left: 0;top: 0;bottom: 0;width: 25px;",
+      "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
     ".sv-ranking-item__icon":
       "visibility: hidden;top:20px;fill:#19b394;position: absolute;",
     ".sv-ranking-item__index":
-      "display: flex; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
+      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
       "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",

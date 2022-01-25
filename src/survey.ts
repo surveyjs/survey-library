@@ -1142,6 +1142,10 @@ export class SurveyModel extends SurveyElementCore
       this.css.navigation.next
     );
   }
+  public get bodyCss(): string {
+    return new CssClassBuilder().append(this.css.body)
+      .append(this.css.body+"--"+this.calculateWidthMode()).toString();
+  }
   public get completedCss(): string {
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString();

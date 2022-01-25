@@ -39,7 +39,7 @@
         <template
           v-if="vueSurvey.state === 'running' || vueSurvey.state === 'preview'"
         >
-          <div :class="css.body">
+          <div :class="vueSurvey.bodyCss">
             <component
               v-if="vueSurvey.isShowProgressBarOnTop"
               :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"

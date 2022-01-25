@@ -181,7 +181,7 @@ export class Survey extends SurveyElementBase<any, any>
     var bottomProgress = this.survey.isShowProgressBarOnBottom
       ? this.renderProgress(false)
       : null;
-    let className = this.css.body;
+    let className = this.survey.bodyCss;
     if (!currentPage) {
       className = this.css.bodyEmpty;
       currentPage = this.renderEmptySurvey();

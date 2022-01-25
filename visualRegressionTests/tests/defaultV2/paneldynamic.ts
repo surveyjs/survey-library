@@ -41,7 +41,8 @@ var json = {
       panelCount: 2,
       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
       panelAddText: "Add application",
-      panelRemoveText: "Remove application"
+      panelRemoveText: "Remove application",
+      width: "768px"
     },
   ]
 };

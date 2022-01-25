@@ -31,7 +31,8 @@ frameworks.forEach(framework => {
           hideColumnsIfEmpty: true,
           emptyRowsText: "There is no records yet.\nClick the button below to add a new record.",
           addRowText: "Add New Record",
-          rowCount: 0
+          rowCount: 0,
+          width: "768px"
         }
       ]
     });
@@ -66,7 +67,8 @@ frameworks.forEach(framework => {
             }
           ],
           addRowText: "Add a New Record",
-          rowCount: 3
+          rowCount: 3,
+          width: "768px"
         },
       ]
     });

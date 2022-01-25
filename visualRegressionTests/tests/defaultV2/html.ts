@@ -26,7 +26,8 @@ frameworks.forEach(framework => {
         {
           type: "html",
           name: "html_question",
-          html: "<b>Hello, world!</b><p>Hello, world!</p><b>Hello, world!</b>"
+          html: "<b>Hello, world!</b><p>Hello, world!</p><b>Hello, world!</b>",
+          width: "768px"
         },
       ]
     });

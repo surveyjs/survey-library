@@ -1205,8 +1205,13 @@ export class Question extends SurveyElement
     return "";
   }
   /**
-   * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
-   * Please note, this property is hidden for question without input, for example html question.
+   * A default value for the question. Ignored for question types that cannot have a [value](https://surveyjs.io/Documentation/Library?id=Question#value) (for example, HTML).
+   *
+   * The default value is used as a question value in the following cases:
+   *
+   * - While the survey is being loaded from JSON.
+   * - The question is just added to the survey and does not yet have an answer.
+   * - The respondent left the answer empty.
    * @see defaultValueExpression
    */
   public get defaultValue(): any {
@@ -1221,9 +1226,17 @@ export class Question extends SurveyElement
     this.updateValueWithDefaults();
   }
   /**
-   * Set the default value to the question via expression. This expression will keep change the question value until the value is changed by end-user or via API.
-   * You can use expressions as: "today(2)" it will set the question value to after tomorrow or to today({q1}). If {q1} equals to 1, then the value will be tomorrow. If a user change it to 2 then aftertommrow.
-   * It works in dynamic panel and matrices as well, please use prefix "panel." and "row." to access question value in the same panel or row.
+   * An expression used to calculate the [defaultValue](https://surveyjs.io/Documentation/Library?id=Question#defaultValue).
+   *
+   * This expression applies until the question [value](https://surveyjs.io/Documentation/Library?id=Question#value) is specified by an end user or programmatically.
+   *
+   * An expression can reference other questions as follows:
+   *
+   * - `{other_question_name}`
+   * - `{panel.other_question_name}` (to access questions inside the same dynamic panel)
+   * - `{row.other_question_name}` (to access questions inside the same dynamic matrix or multi-column dropdown)
+   *
+   * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Use Functions in Expressions](https://surveyjs.io/Documentation/Library#conditions-functions).
    * @see defaultValue
    */
   public get defaultValueExpression(): any {

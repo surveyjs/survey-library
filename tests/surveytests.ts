@@ -14236,6 +14236,31 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
   assert.equal(survey.prevPage(), true);
   assert.equal(survey.currentPageNo, 0);
 });
+QUnit.test("firstPageIsStarted = true and invisible questions and clear", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+          { type: "text", name: "q2", visibleIf: "{q1} = 1" }
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q3" }
+        ]
+      }
+    ]
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "initially invisible");
+  survey.setValue("q1", 1);
+  assert.equal(q2.isVisible, true, "visible now");
+  survey.nextPage();
+  survey.doComplete();
+  survey.clear(true, true);
+  assert.equal(q2.isVisible, false, "invisible again");
+});
 QUnit.test("skeleton component name", function (assert) {
   var survey = new SurveyModel({
     pages: [

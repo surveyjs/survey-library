@@ -4,6 +4,7 @@ import { SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactques
 import { QuestionMultipleTextModel } from "survey-core";
 import { MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { TitleContent } from "./components/title/title-content";
 
 export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -45,41 +46,12 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     var tds = [];
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      var itemTitle = this.renderLocString(item.locTitle);
       var spans = [];
-      var ed = item.editor;
-      if (!!ed.isRequireTextOnStart || ed.isRequireTextBeforeTitle) {
-        spans.push(
-          <span
-            key={"requiredTextBefore" + i}
-            className={cssClasses.requiredText}
-          >
-            {ed.requiredText}
-          </span>
-        );
-        spans.push(<span key={"spaceBefore" + i}>&nbsp;</span>);
-      }
-      spans.push(
-        <span key={"itemTitle" + i}>
-          {itemTitle}
-        </span>
-      );
-      if (!!ed.isRequireTextAfterTitle) {
-        spans.push(<span key={"spaceB" + i}>&nbsp;</span>);
-        spans.push(
-          <span
-            key={"requiredTextAfter" + i}
-            className={cssClasses.requiredText}
-          >
-            {ed.requiredText}
-          </span>
-        );
-      }
       tds.push(
         <td key={"item" + i} className={this.question.cssClasses.cell}>
           <label className={this.question.getItemLabelCss(item)}>
             <span className={cssClasses.itemTitle}>
-              {spans}
+              <TitleContent element={item.editor} cssClasses={item.editor.cssClasses}></TitleContent>
             </span>
             <SurveyMultipleTextItemEditor
               cssClasses={cssClasses}

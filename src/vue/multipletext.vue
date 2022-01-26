@@ -1,54 +1,57 @@
 <template>
+
   <table :class="question.cssClasses.root">
-    <tr
-      v-for="(row, rowindex) in question.getRows()"
-      :key="question.inputId + 'rowkey' + rowindex"
-      :class="question.cssClasses.row"
-    >
-      <template v-for="item in row">
-        <td :key="'item' + item.editor.id" :class="question.cssClasses.cell">
-          <label :class="question.getItemLabelCss(item)">
-            <span :class="question.getItemTitleCss()">
-              <span
-                v-if="
-                  item.editor.isRequireTextBeforeTitle ||
-                  item.editor.isRequireTextOnStart
-                "
-                :class="question.cssClasses.requiredText"
-                >{{ item.editor.requiredText }}</span
-              >
-              <survey-string :locString="item.locTitle" />
-              <span
-                v-if="item.editor.isRequireTextAfterTitle"
-                :class="question.cssClasses.requiredText"
-                >{{ item.editor.requiredText }}</span
-              >
-            </span>
-            <div :key="item.editor.id" :class="question.getItemCss()">
+    <tbody>
+      <tr
+        v-for="(row, rowindex) in question.getRows()"
+        :key="question.inputId + 'rowkey' + rowindex"
+        :class="question.cssClasses.row"
+      >
+        <template v-for="item in row">
+          <td :key="'item' + item.editor.id" :class="question.cssClasses.cell">
+            <label :class="question.getItemLabelCss(item)">
+              <span :class="question.getItemTitleCss()">
+                <span
+                  v-if="
+                    item.editor.isRequireTextBeforeTitle ||
+                    item.editor.isRequireTextOnStart
+                  "
+                  :class="question.cssClasses.requiredText"
+                  >{{ item.editor.requiredText }}</span
+                >
+                <survey-string :locString="item.locTitle" />
+                <span
+                  v-if="item.editor.isRequireTextAfterTitle"
+                  :class="question.cssClasses.requiredText"
+                  >{{ item.editor.requiredText }}</span
+                >
+              </span>
+              <div :key="item.editor.id" :class="question.getItemCss()">
+                <survey-errors
+                  v-if="hasErrorsOnTop"
+                  :element="item.editor"
+                  :location="'top'"
+                />
+                <component
+                  :is="getComponentName(item.editor)"
+                  :question="item.editor"
+                />
+                <survey-errors
+                  v-if="hasErrorsOnBottom"
+                  :element="item.editor"
+                  :location="'bottom'"
+                />
+              </div>
               <survey-errors
-                v-if="hasErrorsOnTop"
+                v-if="question.isErrorsModeTooltip"
                 :element="item.editor"
-                :location="'top'"
+                :location="'tooltip'"
               />
-              <component
-                :is="getComponentName(item.editor)"
-                :question="item.editor"
-              />
-              <survey-errors
-                v-if="hasErrorsOnBottom"
-                :element="item.editor"
-                :location="'bottom'"
-              />
-            </div>
-            <survey-errors
-              v-if="question.isErrorsModeTooltip"
-              :element="item.editor"
-              :location="'tooltip'"
-            />
-          </label>
-        </td>
-      </template>
-    </tr>
+            </label>
+          </td>
+        </template>
+      </tr>
+    </tbody>
   </table>
 </template>
 

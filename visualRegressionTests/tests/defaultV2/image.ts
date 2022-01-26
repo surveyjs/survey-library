@@ -2,7 +2,7 @@ import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
 import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
 
-const title = "Question Screenshot";
+const title = "Image Screenshot";
 
 fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 

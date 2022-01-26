@@ -30,8 +30,11 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/package.json"
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
 
     - task: Cache@2
       inputs:
@@ -81,8 +84,11 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/package.json"
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
 
     - task: Cache@2
       inputs:
@@ -124,8 +130,11 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/package.json"
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
 
     - task: Cache@2
       inputs:

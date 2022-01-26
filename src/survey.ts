@@ -2777,6 +2777,9 @@ export class SurveyModel extends SurveyElementCore
    * @see currentPage
    */
   public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+    this.isCompleted = false;
+    this.isCompletedBefore = false;
+    this.isLoading = false;
     if (clearData) {
       this.data = null;
       this.variablesHash = {};
@@ -2787,9 +2790,6 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].setWasShown(false);
       this.pages[i].passed = false;
     }
-    this.isCompleted = false;
-    this.isCompletedBefore = false;
-    this.isLoading = false;
     this.isStartedState = this.firstPageIsStarted;
     if (gotoFirstPage) {
       this.currentPage = this.firstVisiblePage;

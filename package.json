@@ -62,9 +62,9 @@
     "test:vue:single": "karma start ./build-scripts/survey-vue/karma.conf.vue.js --single-run",
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard",
-    "visual-regression-tests:ci:knockout": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=knockout",
-    "visual-regression-tests:ci:react": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=react",
-    "visual-regression-tests:ci:vue": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=vue",
+    "visual-regression-tests:ci:knockout": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=knockout",
+    "visual-regression-tests:ci:react": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=react",
+    "visual-regression-tests:ci:vue": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
     "prepare": "husky install"
   },

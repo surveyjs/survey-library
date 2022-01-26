@@ -24,6 +24,9 @@ export class Survey extends SurveyElementBase<any, any>
   }
   protected survey: ReactSurveyModel;
 
+  private rootNodeId: string; // root dom node ID attr
+  private rootNodeClassName: string; // root dom node class
+
   constructor(props: any) {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
@@ -32,6 +35,8 @@ export class Survey extends SurveyElementBase<any, any>
     //set the first page
     const dummy = this.survey.currentPage;
     this.rootRef = React.createRef();
+    this.rootNodeId = props.id || null;
+    this.rootNodeClassName = props.className || "";
   }
   protected getStateElement(): Base {
     return this.survey;
@@ -82,8 +87,10 @@ export class Survey extends SurveyElementBase<any, any>
     if (this.survey.hasLogo) {
       customHeader = null;
     }
+    const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + this.css.root : this.css.root;
+
     return (
-      <div ref={this.rootRef} className={this.css.root}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>

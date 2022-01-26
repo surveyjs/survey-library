@@ -52,15 +52,15 @@ jobs:
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT'
       OverWrite: true
     condition: always()
     displayName: 'copy vrt artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_VRT/'
-      ArtifactName: 'Library_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT/'
+      ArtifactName: 'Library_Knockout_VRT'
       publishLocation: 'Container'
     condition: always()
     displayName: 'publish vrt artifacts'
@@ -100,15 +100,15 @@ jobs:
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_React_VRT'
       OverWrite: true
     condition: always()
     displayName: 'copy vrt artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_VRT/'
-      ArtifactName: 'Library_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_React_VRT/'
+      ArtifactName: 'Library_React_VRT'
       publishLocation: 'Container'
     condition: always()
     displayName: 'publish vrt artifacts'
@@ -148,15 +148,15 @@ jobs:
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT'
       OverWrite: true
     condition: always()
     displayName: 'copy vrt artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_VRT/'
-      ArtifactName: 'Library_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/'
+      ArtifactName: 'Library_Vue_VRT'
       publishLocation: 'Container'
     condition: always()
     displayName: 'publish vrt artifacts'

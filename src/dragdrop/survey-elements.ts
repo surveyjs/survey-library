@@ -25,8 +25,9 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     event: PointerEvent,
     draggedElementJson: JsonObject
   ): void {
+    const preventSaveTargetNode = true;
     const draggedElement = this.createElementFromJson(draggedElementJson);
-    this.startDrag(event, draggedElement);
+    this.startDrag(event, draggedElement, null, null, preventSaveTargetNode);
   }
 
   public startDragSurveyElement(

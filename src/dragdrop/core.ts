@@ -64,14 +64,16 @@ export abstract class DragDropCore<T> extends Base {
     event: PointerEvent,
     draggedElement: any,
     parentElement?: any,
-    draggedElementNode?: HTMLElement
+    draggedElementNode?: HTMLElement,
+    preventSaveTargetNode: boolean = false
   ): void {
     if (IsTouch) {
       this.startLongTapProcessing(
         event,
         draggedElement,
         parentElement,
-        draggedElementNode
+        draggedElementNode,
+        preventSaveTargetNode
       );
       return;
     }
@@ -91,7 +93,8 @@ export abstract class DragDropCore<T> extends Base {
     event: PointerEvent,
     draggedElement: any,
     parentElement?: any,
-    draggedElementNode?: HTMLElement
+    draggedElementNode?: HTMLElement,
+    preventSaveTargetNode: boolean = false
   ): void {
     this.startX = event.pageX;
     this.startY = event.pageY;
@@ -106,17 +109,20 @@ export abstract class DragDropCore<T> extends Base {
         parentElement,
         draggedElementNode
       );
-      this.savedTargetNode = event.target;
-      this.savedTargetNode.style.cssText =
-      `
-        position: absolute;
-        height: 1px!important;
-        width: 1px!important;
-        overflow: hidden;
-        clip: rect(1px 1px 1px 1px);
-        clip: rect(1px, 1px, 1px, 1px);
-      `;
-      document.body.appendChild(this.savedTargetNode);
+      if (!preventSaveTargetNode) {
+        this.savedTargetNode = event.target;
+        this.savedTargetNode.style.cssText =
+            `
+          position: absolute;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden;
+          clip: rect(1px 1px 1px 1px);
+          clip: rect(1px, 1px, 1px, 1px);
+        `;
+        document.body.appendChild(this.savedTargetNode);
+      }
+
       this.stopLongTap();
     }, 500);
 
@@ -497,7 +503,7 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = null;
 
     if (IsTouch) {
-      document.body.removeChild(this.savedTargetNode);
+      this.savedTargetNode && document.body.removeChild(this.savedTargetNode);
       DragDropCore.PreventScrolling = false;
     }
     document.body.style.setProperty("touch-action", "");

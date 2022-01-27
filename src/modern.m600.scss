@@ -1,4 +1,4 @@
-﻿@media (max-width: 600px) {
+﻿@mixin modern_m600_styles {
   .sv-root-modern {
     .sv-container-modern {
       .sv-body {
@@ -56,4 +56,12 @@
       }
     }
   }
+}
+
+.sv_m600 {
+  @include modern_m600_styles();
+}
+
+@media (max-width: 600px) {
+  @include modern_m600_styles();
 }

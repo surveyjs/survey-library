@@ -26,9 +26,24 @@ jobs:
       versionSpec: '14.x'
     displayName: 'Install Node.js'
   
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
   - task: Cache@2
     inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/package.json'
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
       path: $(Build.SourcesDirectory)/node_modules
       cacheHitVar: NPM_CACHE_RESTORED
     displayName: Cache NPM
@@ -74,9 +89,24 @@ jobs:
       versionSpec: '14.x'
     displayName: 'Install Node.js'
   
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
   - task: Cache@2
     inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/package.json'
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
       path: $(Build.SourcesDirectory)/node_modules
       cacheHitVar: NPM_CACHE_RESTORED
     displayName: Cache NPM
@@ -122,9 +152,16 @@ jobs:
       versionSpec: '14.x'
     displayName: 'Install Node.js'
   
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
   - task: Cache@2
     inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/package.json'
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
       path: $(Build.SourcesDirectory)/node_modules
       cacheHitVar: NPM_CACHE_RESTORED
     displayName: Cache NPM

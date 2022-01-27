@@ -1033,10 +1033,10 @@ export class StylesManager {
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
-      "fill: $text-color;",
-    ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
-      "fill: $disable-color;",
+    ".sv-paneldynamic__prev-btn": "fill: $text-color;",
+    ".sv-paneldynamic__next-btn": "fill: $text-color;",
+    ".sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled": "fill: $disable-color;",
+    ".sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled": "fill: $disable-color;",
     ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv-progress": "background-color: $header-background-color;",
     ".sv-progress__bar": "background-color: $main-color;",

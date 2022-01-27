@@ -4149,3 +4149,49 @@ QUnit.test("Question defaultValueExpression in panel dynamic", function(
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
+QUnit.test("Check go prev/next", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 2,
+        renderMode: "progressTop",
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+      },
+    ],
+  });
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(panelDynamic.currentIndex, 0, "first panel");
+  assert.equal(panelDynamic.panelCount, 2, "2 panels");
+  panelDynamic.goToNextPanel();
+  assert.equal(panelDynamic.currentIndex, 1, "second panel 1");
+  panelDynamic.goToNextPanel();
+  assert.equal(panelDynamic.currentIndex, 1, "second panel 2");
+  panelDynamic.goToPrevPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 3");
+  panelDynamic.goToPrevPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 4");
+
+  panelDynamic.removePanel(0);
+  assert.equal(panelDynamic.panelCount, 1, "1 panel");
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 5");
+  panelDynamic.goToPrevPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 6");
+  panelDynamic.goToNextPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 7");
+
+  panelDynamic.removePanel(0);
+  assert.equal(panelDynamic.panelCount, 0, "no panels");
+  assert.equal(panelDynamic.currentIndex, -1, "first panel? 8");
+  panelDynamic.goToNextPanel();
+  assert.equal(panelDynamic.currentIndex, -1, "first panel? 9");
+  panelDynamic.goToPrevPanel();
+  assert.equal(panelDynamic.currentIndex, -1, "first panel? 10");
+
+  panelDynamic.addPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel 11");
+  assert.equal(panelDynamic.panelCount, 1, "1 panels");
+});

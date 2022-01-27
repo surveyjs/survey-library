@@ -278,8 +278,7 @@ Serializer.addClass(
       onSetValue: function (obj: any, value: any, jsonConv: JsonObject) {
         obj.name = value;
       },
-    },
-    "choices:itemvalue[]"
+    }
   ],
   function () {
     return new Dealer();
@@ -440,7 +439,7 @@ export default QUnit.module("JsonSerializationTests");
 QUnit.test("Metadata for non inherited class", function (assert) {
   assert.equal(
     Serializer.getProperties("dealer").length,
-    11,
+    10,
     "Flat properties list"
   );
   assert.equal(

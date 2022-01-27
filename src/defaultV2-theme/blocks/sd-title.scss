@@ -12,6 +12,7 @@
 }
 
 .sd-title.sd-container-modern__title {
+  display: flex;
   padding: calcSize(3);
   border-bottom: 2px solid $primary;
   overflow: auto;

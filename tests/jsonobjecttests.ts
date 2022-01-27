@@ -279,6 +279,7 @@ Serializer.addClass(
         obj.name = value;
       },
     },
+    "choices:itemvalue[]"
   ],
   function () {
     return new Dealer();
@@ -439,7 +440,7 @@ export default QUnit.module("JsonSerializationTests");
 QUnit.test("Metadata for non inherited class", function (assert) {
   assert.equal(
     Serializer.getProperties("dealer").length,
-    10,
+    11,
     "Flat properties list"
   );
   assert.equal(
@@ -2500,6 +2501,20 @@ QUnit.test("Serializer.getProperty()", function (assert) {
   let dealer: Dealer = Serializer.createClass("dealer");
   assert.equal(dealer.defaultValue, "default", "Use attribute from dealer");
   Serializer.removeClass("new_dealer");
+});
+QUnit.test("Serializer.getProperty For not-arrays and arrays", function (assert) {
+  Serializer.addClass("new_selectbase", [], null, "selectbase");
+
+  let hasOtherFind = Serializer.findProperty("new_selectbase", "hasOther");
+  assert.equal(hasOtherFind.isArray, false, "Find hasOther for new_selectbase is not array");
+  let hasOtherGet = Serializer.getProperty("new_selectbase", "hasOther");
+  assert.equal(hasOtherGet.isArray, false, "Get hasOther for new_selectbase is not array");
+
+  let choicesPropFind = Serializer.findProperty("new_selectbase", "choices");
+  assert.equal(choicesPropFind.isArray, true, "Find Choices for new_selectbase is array");
+  let choicesPropGet = Serializer.getProperty("new_selectbase", "choices");
+  assert.equal(choicesPropGet.isArray, true, "Get Choices for new_selectbase is array");
+  Serializer.removeClass("new_selectbase");
 });
 QUnit.test("Declared @property", function (assert) {
   const obj = new TestDeclaredProps();

@@ -997,7 +997,8 @@ export class QuestionPanelDynamicModel extends Question
    *
    */
   public goToNextPanel() {
-    if (this.renderMode !== "list" && this.currentPanel.hasErrors()) return;
+    if (this.currentIndex < 0) return;
+    if (this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors()) return;
     this.currentIndex++;
   }
   /**
@@ -1005,6 +1006,7 @@ export class QuestionPanelDynamicModel extends Question
    *
    */
   public goToPrevPanel() {
+    if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
   /**

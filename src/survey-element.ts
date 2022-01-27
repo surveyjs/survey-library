@@ -384,6 +384,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public isContentElement: boolean = false;
   public isEditableTemplateElement: boolean = false;
   public isInteractiveDesignElement: boolean = true;
+  public isSingleInRow: boolean = true;
   protected get isInternal(): boolean {
     return this.isContentElement;
   }

@@ -1,8 +1,4 @@
 .sd-panel__title {
-  font-weight: 600;
-  line-height: calcSize(3);
-  font-size: calcSize(2);
-  margin: 0;
   outline: none;
 }
 .sd-panel {
@@ -16,7 +12,7 @@
   .svc-row {
     .sd-row {
       margin-top: calcSize(2);
-    }  
+    }
   }
 }
 .sd-panel__required-text {

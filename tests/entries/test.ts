@@ -49,6 +49,7 @@ export * from "../renderFactoryTests";
 export * from "../components/popuptests";
 export * from "../components/actionbartests";
 export * from "../responsivityTests";
+export * from "../svgRegistryTests";
 
 // localization
 import "../../src/localization/russian";

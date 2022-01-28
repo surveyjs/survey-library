@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Question, SurveyModel } from "survey-core";
+import { Question, SurveyModel, SvgRegistry } from "survey-core";
 import { IPage, SurveyElement } from "survey-core";
 import { Page, Panel } from "./kopage";
 import { PageModel } from "survey-core";
@@ -106,6 +106,7 @@ export class Survey extends SurveyModel {
     return this.navigationMouseDown();
   }
   public render(element: any = null) {
+    SvgRegistry.renderIcons();
     this.updateKoCurrentPage();
     this.updateCustomWidgets(this.currentPage);
     this.updateElementCss(false);

@@ -37,7 +37,6 @@ export class SvgIconRegistry {
       return true;
     }
     else{
-      console.warn("Incorrect SVG string for id: " + iconId);
       return false;
     }
 

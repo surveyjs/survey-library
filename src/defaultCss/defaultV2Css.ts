@@ -225,6 +225,7 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     controlDisabled: "sd-input--disabled",
     controlLabel: "sd-item__control-label",
+    controlEmpty: "sd-dropdown--empty",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {

@@ -468,6 +468,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       };
     }
   }
+  public updateElementCss(reNew?: boolean): void {
+    if(!!this.contentQuestion) {
+      this.questionWrapper.updateElementCss(reNew);
+    }
+    super.updateElementCss(reNew);
+  }
   protected updateElementCssCore(cssClasses: any) {
     if (!!this.contentQuestion) {
       cssClasses = this.contentQuestion.cssClasses;

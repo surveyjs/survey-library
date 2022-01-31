@@ -1648,3 +1648,17 @@ QUnit.test("Complex: panel dynamic should duplicate rows in designMode", functio
   assert.equal(panel.panels.length, 2, "We have two panels");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Check updateElementCss for custom question", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: { type: "text" },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  const question = <QuestionCustomModel>survey.getAllQuestions()[0];
+  question.updateElementCss();
+  assert.equal(question.cssClassesValue, undefined);
+  assert.equal(question.contentQuestion.cssClassesValue, undefined);
+});

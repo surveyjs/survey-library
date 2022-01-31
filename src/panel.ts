@@ -142,7 +142,6 @@ export class QuestionRowModel extends Base {
   public updateVisible() {
     this.visible = this.calcVisible();
     this.setWidth();
-    this.setElementsSingleInRow();
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -185,12 +184,6 @@ export class QuestionRowModel extends Base {
         );
       }
     }
-  }
-  private setElementsSingleInRow() {
-    const isSingleInRow = this.visibleElements.length <= 1;
-    this.visibleElements.forEach(el => {
-      (<any>el).isSingleInRow = isSingleInRow;
-    });
   }
   public setElementMaxMinWidth(el: IElement): void {
     if (
@@ -1920,7 +1913,6 @@ export class PanelModel extends PanelModelBase implements IElement {
       .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
       .append(this.cssClasses.panel.nested, !!(this.parent && this.parent.isPanel && !this.isDesignMode))
       .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
-      .append(this.cssClasses.single, this.isSingleInRow)
       .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

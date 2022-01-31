@@ -740,7 +740,6 @@ export class Question extends SurveyElement
     return new CssClassBuilder()
       .append(this.cssRoot)
       .append(this.cssClasses.disabled, this.isReadOnly)
-      .append(this.cssClasses.singleInRow, this.isSingleInRow)
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {

@@ -4195,3 +4195,37 @@ QUnit.test("Check go prev/next", function(assert) {
   assert.equal(panelDynamic.currentIndex, 0, "first panel 11");
   assert.equal(panelDynamic.panelCount, 1, "1 panels");
 });
+QUnit.test("Bindings to panelCount performance issue", function(assert) {
+  var counter = 1;
+  const calcCount = () => { return counter ++; };
+  FunctionFactory.Instance.register("calcCount", calcCount);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel1_q1", visibleIf: "calcCount() > 1" },
+        ],
+      },
+      {
+        type: "paneldynamic",
+        name: "panel2",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel2_q1", visibleIf: "calcCount() > 1" },
+        ],
+      },
+    ],
+  });
+  assert.equal(counter, 1, "There is no questions");
+  survey.setValue("q1", 2);
+  assert.equal(counter, 1 + 4 * 2, "4 questions has been created");
+  FunctionFactory.Instance.unregister("calcCount");
+});

@@ -47,11 +47,11 @@ export class SvgIconRegistry {
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
     if(!document.getElementById(containerId)) {
-      let iconsHolder = document.createElement("svg");
-      iconsHolder.id = containerId;
-      iconsHolder.style.display = "none";
-      iconsHolder.innerHTML = this.iconsRenderedHtml();
-      document.head.appendChild(iconsHolder);
+      let iconsDiv = document.createElement("div");
+      document.head.insertBefore(iconsDiv, document.head.firstChild);
+      iconsDiv.id = containerId;
+      iconsDiv.style.display = "none";
+      iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
     }
   }
 }

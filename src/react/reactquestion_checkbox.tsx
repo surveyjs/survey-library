@@ -22,7 +22,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     return (
       <fieldset
         role="presentation"
-        className={cssClasses.root}
+        className={this.question.getSelectBaseRootCss()}
         ref={(fieldset) => (this.control = fieldset)}
       >
         <legend role="presentation" className={"sv-hidden"}></legend>

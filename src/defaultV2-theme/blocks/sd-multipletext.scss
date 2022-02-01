@@ -51,10 +51,9 @@
     background-color: transparent;
   }
 }
-.sd-multipletext__item-container:hover:not(:focus-within)
-  > .sd-question__erbox--tooltip {
+.sd-multipletext__item-container:hover:not(:focus-within) > .sd-question__erbox--tooltip {
   display: inline-block;
 }
-.sd-multipletext tbody:not(:last-child) .sd-multipletext__cell {
+.sd-multipletext tr:not(:last-child) .sd-multipletext__cell {
   padding-bottom: calcSize(2);
 }

@@ -44,11 +44,19 @@ jobs:
       inputs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
-  
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -76,13 +84,19 @@ jobs:
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -117,7 +131,7 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuildCore"
+        ArtifactName: "SurveyJSLibraryBuildCoreAngularJquery"
         publishLocation: "Container"
 
 
@@ -133,10 +147,18 @@ jobs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -165,12 +187,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -223,10 +252,17 @@ jobs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -255,12 +291,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -308,10 +351,17 @@ jobs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -340,12 +390,19 @@ jobs:
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
     ##########################################################################
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
-        npm install
         npm run release -- --release-as $(SurveyJSVersion)
         git status
-      displayName: "NPM install"
+      displayName: "npm run release"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
@@ -398,10 +455,17 @@ jobs:
         versionSpec: "14.x"
       displayName: "Install Node.js"
 
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/survey-library/package.json'
-        path: $(npm_config_cache)
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
@@ -420,12 +484,12 @@ jobs:
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildCore'
+        artifactName: 'SurveyJSLibraryBuildCoreAngularJquery'
         downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-core"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-core"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
 
     - task: DownloadBuildArtifacts@0
@@ -481,12 +545,12 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-jquery"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore/packages/survey-angular"
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-angular"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
 
     - task: CopyFiles@2
@@ -502,10 +566,14 @@ jobs:
         Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
       displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
 
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm install
-      displayName: "npm install"
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library

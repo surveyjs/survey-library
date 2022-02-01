@@ -408,8 +408,13 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
         title={this.props.cell.getTitle()}
         style={style}
       >
-        {this.wrapCell(this.props.cell, this.renderContent())}
-        {errorsTooltip}
+        {this.wrapCell(this.props.cell,
+          (
+            <div className={this.cssClasses.cellQuestionWrapper}>
+              {this.renderContent()}
+              {errorsTooltip}
+            </div>)
+        )}
       </td>
     );
   }

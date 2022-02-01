@@ -16,11 +16,9 @@ import {
   ITitleOwner
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-
 /**
  * Base class of SurveyJS Elements and Survey.
  */
@@ -28,7 +26,6 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   constructor() {
     super();
     this.createLocTitleProperty();
-    this.createLocalizableString("description", this, true);
   }
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
@@ -53,12 +50,15 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Please note, this property is hidden for questions without input, for example html question.
    * @see title
   */
-  public get description(): string {
-    return this.getLocalizableStringText("description");
+  @property() hasDescription: boolean;
+  @property({ localizable: true, onSet: (newDescription, self) => {
+    self.updateDescriptionVisibility(self, newDescription);
   }
-  public set description(val: string) {
-    this.setLocalizableStringText("description", val);
+  }) description: string;
+  public updateDescriptionVisibility(newDescription: any) {
+    this.hasDescription = !!newDescription;
   }
+
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
@@ -288,6 +288,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = new AdaptiveActionContainer();
+      if(this.survey && !!this.survey.getCss().actionBar) {
+        this.titleToolbarValue.cssClasses = this.survey.getCss().actionBar;
+      }
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;
@@ -349,6 +352,12 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
+  }
+  /* You shouldn't use this method ever */
+  __setData(data: ISurveyData) {
+    if (settings.supportCreatorV2) {
+      this.surveyDataValue = data;
+    }
   }
   public get data(): ISurveyData {
     return this.surveyDataValue;

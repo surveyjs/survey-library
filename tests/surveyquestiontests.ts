@@ -3864,6 +3864,10 @@ QUnit.test("question.getSupportedValidators", function(assert) {
     "expression",
     "answercount",
   ]);
+  assert.deepEqual(new QuestionImagePickerModel("q").getSupportedValidators(), [
+    "expression",
+    "answercount",
+  ]);
 });
 
 QUnit.test("Question<=Base propertyValueChanged", function(assert) {
@@ -5905,4 +5909,13 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("QuestionTextModel isMinMaxType", function(assert) {
+  const q1 = new QuestionTextModel("q1");
+  assert.equal(q1.inputType, "text");
+  assert.equal(q1.isMinMaxType, false);
+  q1.inputType = "range";
+  assert.equal(q1.isMinMaxType, false);
+  q1.inputType = "datetime";
+  assert.equal(q1.isMinMaxType, true);
 });

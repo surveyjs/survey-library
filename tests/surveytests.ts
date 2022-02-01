@@ -336,6 +336,32 @@ QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   assert.equal(valueChangedCallCounter, 3, "Set comment to other value");
 });
 QUnit.test("Do not show errors in display mode", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "html", name: "info" }] },
+      { name: "p2", elements: [{ type: "text", name: "q1" }] },
+      { name: "p3", elements: [{ type: "text", name: "q2" }] },
+    ],
+    firstPageIsStarted: true
+  });
+  survey.mode = "display";
+  assert.equal(survey.activePage.name, "p2", "active page page is p2");
+  assert.equal(survey.currentPage.name, "p2", "current page page is p2");
+  assert.equal(survey.isShowPrevButton, false, "prev, first page");
+  assert.equal(survey.isShowNextButton, true, "next, first page");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete, display mode");
+  survey.nextPage();
+  assert.equal(survey.activePage.name, "p3", "active page page is p3");
+  assert.equal(survey.currentPage.name, "p3", "current page page is p3");
+  assert.equal(survey.isShowPrevButton, true, "prev, second page");
+  assert.equal(survey.isShowNextButton, false, "next, second page");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete, display mode");
+  survey.prevPage();
+  assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
+  assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
+});
+
+QUnit.test("Do not show errors in display mode", function (assert) {
   var survey = twoPageSimplestSurvey();
   (<Question>survey.pages[0].questions[0]).isRequired = true;
   survey.mode = "display";
@@ -14209,6 +14235,31 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
   survey.nextPage();
   assert.equal(survey.prevPage(), true);
   assert.equal(survey.currentPageNo, 0);
+});
+QUnit.test("firstPageIsStarted = true and invisible questions and clear", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+          { type: "text", name: "q2", visibleIf: "{q1} = 1" }
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q3" }
+        ]
+      }
+    ]
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "initially invisible");
+  survey.setValue("q1", 1);
+  assert.equal(q2.isVisible, true, "visible now");
+  survey.nextPage();
+  survey.doComplete();
+  survey.clear(true, true);
+  assert.equal(q2.isVisible, false, "invisible again");
 });
 QUnit.test("skeleton component name", function (assert) {
   var survey = new SurveyModel({

@@ -85,7 +85,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       var cellContent = this.renderCellContent(cell, "column-header", {});
       headers.push(
         <th
-          className={this.question.cssClasses.headerCell}
+          className={cell.className}
           key={key}
           style={columnStyle}
         >

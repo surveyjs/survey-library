@@ -51,9 +51,9 @@ QUnit.test(
 QUnit.test("AdaptiveActionContainer.css",
   (assert) => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-    assert.equal(model.css, "sv-action-bar");
+    assert.equal(model.getRootCss(), "sv-action-bar");
     model.containerCss = "footer";
-    assert.equal(model.css, "sv-action-bar footer");
+    assert.equal(model.getRootCss(), "sv-action-bar footer");
   }
 );
 
@@ -68,14 +68,14 @@ QUnit.test(
 );
 
 QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
-  const createTestModel = () => {  
+  const createTestModel = () => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     model.setItems([
       { id: "first", },
       { id: "second" },
-      ]);
+    ]);
     return model;
-  }
+  };
   let model = createTestModel();
   model["hideItemsGreaterN"](0);
   assert.equal(model.actions[0].mode, "popup");

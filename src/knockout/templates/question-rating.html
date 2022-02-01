@@ -1,9 +1,7 @@
 ﻿<script type="text/html" id="survey-question-rating">
     <div data-bind="css: question.koCss().root">
         <fieldset role="radiogroup">
-            <legend
-            data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
-            ></legend>
+            <legend role="presentation" class="sv-hidden"></legend>
             <!-- ko if: question.hasMinLabel-->
             <span data-bind="css: question.koCss().minText">
               <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->

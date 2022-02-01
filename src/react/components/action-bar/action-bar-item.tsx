@@ -59,7 +59,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
 
   renderText() {
     if (!this.item.hasTitle) return null;
-    const titleClass = this.item.getActionBarItemCss();
+    const titleClass = this.item.getActionBarItemTitleCss();
     return <span className={titleClass}> {this.item.title}</span>;
   }
 
@@ -67,7 +67,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const text = this.renderText();
     const svgIcon = !!this.item.iconName ? (
       <SvgIcon
-        className="sv-action-bar-item__icon"
+        className={this.item.cssClasses.itemIcon}
         size={this.item.iconSize}
         iconName={this.item.iconName}
       ></SvgIcon>
@@ -81,7 +81,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderInnerButton() {
-    const className = this.item.getActionBarItemActiveCss();
+    const className = this.item.getActionBarItemCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;

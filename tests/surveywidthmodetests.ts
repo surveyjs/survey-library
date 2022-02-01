@@ -111,3 +111,17 @@ QUnit.test("Survey widthMode property for matrices questions", function (assert)
   assert.equal(survey3.widthMode, "auto");
   assert.equal(survey3.calculateWidthMode(), "responsive", "calculate width for survey with matrices");
 });
+
+QUnit.test("Survey widthMode - css", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "question1",
+      },
+    ]
+  });
+  survey.widthMode = "static";
+  assert.equal(survey.bodyCss, survey.css.body+" "+survey.css.body+"--static", "calculate body css for static width mode");
+  survey.widthMode = "responsive";
+  assert.equal(survey.bodyCss, survey.css.body+" "+survey.css.body+"--responsive", "calculate body css for responsive width mode");
+});

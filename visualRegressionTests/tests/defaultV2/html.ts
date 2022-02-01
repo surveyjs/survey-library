@@ -2,7 +2,7 @@ import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
 import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
 
-const title = "Question Screenshot";
+const title = "Html Screenshot";
 
 fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
@@ -26,7 +26,8 @@ frameworks.forEach(framework => {
         {
           type: "html",
           name: "html_question",
-          html: "<b>Hello, world!</b><p>Hello, world!</p><b>Hello, world!</b>"
+          html: "<b>Hello, world!</b><p>Hello, world!</p><b>Hello, world!</b>",
+          width: "768px"
         },
       ]
     });

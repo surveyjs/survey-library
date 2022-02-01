@@ -438,21 +438,27 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private getRowDragCell(rowIndex: number) {
     const cell = new QuestionMatrixDropdownRenderedCell();
     cell.isDragHandlerCell = true;
-    cell.className = this.cssClasses.actionsCell;
+    cell.className = this.getActionsCellClassName();
     cell.row = this.matrix.visibleRows[rowIndex];
     return cell;
+  }
+  private getActionsCellClassName() :string {
+    return new CssClassBuilder().append(this.cssClasses.actionsCell).append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal).toString();
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      if(!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
+        actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
+      }
       actionContainer.setItems(rowActions);
 
       const itemValue = new ItemValue(actionContainer);
       cell.item = itemValue;
       cell.isActionsCell = true;
-      cell.className = this.cssClasses.actionsCell;
+      cell.className = this.getActionsCellClassName();
       cell.row = this.matrix.visibleRows[rowIndex];
       return cell;
     }
@@ -786,12 +792,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private createHeaderCell(
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
-    var cell = this.createTextCell(!!column ? column.locTitle : null);
+    let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
-    if (this.cssClasses.headerCell) {
-      cell.className = this.cssClasses.headerCell;
-    }
+    cell.className = new CssClassBuilder().append(this.cssClasses.headerCell).append(this.cssClasses.emptyCell, !!cell.isEmpty).toString();
     return cell;
   }
   private setHeaderCell(

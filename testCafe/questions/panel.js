@@ -118,6 +118,14 @@ frameworks.forEach((framework) => {
     await t.click(panelTitle);
     assert.equal(await contentItem.visible, false);
   });
+
+  test(`panel description reactivity`, async (t) => {
+    await ClientFunction(() => {
+      window.survey.getAllPanels()[0].description = 'desc1';
+    })();
+    await t
+      .expect(Selector(".sv_p_description").withText("desc1").visible).ok();
+  });
 });
 
 frameworks.forEach((framework) => {

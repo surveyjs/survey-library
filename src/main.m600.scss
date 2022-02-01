@@ -1,4 +1,4 @@
-﻿@media (max-width: 600px) {
+﻿@mixin main_m600_styles {
   .sv_main {
     .sv_container {
       .sv_body {
@@ -59,4 +59,12 @@
       }
     }
   }
+}
+
+.sv_m600 {
+  @include main_m600_styles();
+}
+
+@media (max-width: 600px) {
+  @include main_m600_styles();
 }

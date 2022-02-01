@@ -13,7 +13,9 @@ if (
 
 (function (a: any) {
   if (!a) return;
-  if (
+  if ((navigator.platform === "MacIntel" && navigator.maxTouchPoints > 0) || navigator.platform === "iPad") {
+    _isMobile = true;
+  } else if (
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
       a
     ) ||
@@ -24,7 +26,9 @@ if (
     _isMobile = true;
 })(vendor);
 
-export const IsMobile = _isMobile;
+let _IPad = false;
+
+export const IsMobile = _isMobile || _IPad;
 
 // isTouch
 let _isTouch = false;
@@ -33,4 +37,4 @@ if (typeof window !== "undefined") {
   _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
 }
 
-export const IsTouch = _isTouch;
+export const IsTouch = IsMobile && _isTouch;

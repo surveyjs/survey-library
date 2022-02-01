@@ -278,7 +278,7 @@ Serializer.addClass(
       onSetValue: function (obj: any, value: any, jsonConv: JsonObject) {
         obj.name = value;
       },
-    },
+    }
   ],
   function () {
     return new Dealer();
@@ -835,14 +835,40 @@ QUnit.test(
     list.items.push(new ItemValue("item"));
 
     const jsObj = new JsonObject().toJsonObject(list);
-    assert.equal(
-      JSON.stringify(jsObj),
-      '{"items":[{"value":7,"text":"Item 1"},{"value":5},{"value":"item"}]}',
+    assert.deepEqual(jsObj, { "items": [{ "value": 7, "text": "Item 1" }, { "value": 5 }, { "value": "item" }] },
       "serialize ItemValueListOwner"
     );
     settings.itemValueAlwaysSerializeAsObject = false;
   }
 );
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
+  function (assert) {
+    settings.itemValueAlwaysSerializeText = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue(7, "Item 1"));
+    list.items.push(new ItemValue(5));
+    list.items.push(new ItemValue("item"));
+    list.items.push(new ItemValue("A", "A"));
+    list.items.push(new ItemValue("a", "A"));
+
+    let jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ "value": 7, "text": "Item 1" },
+        { "value": 5, text: "5" },
+        { "value": "item", text: "item" },
+        { "value": "A", text: "A" },
+        { "value": "a", text: "A" }] },
+      "serialize ItemValueListOwner with text"
+    );
+    settings.itemValueAlwaysSerializeText = false;
+    jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] },
+      "serialize ItemValueListOwner without text");
+  });
 QUnit.test("LongNamesOwner serialization", function (assert) {
   var owner = new LongNamesOwner();
   var l1 = new LongNameItemA();
@@ -2475,6 +2501,20 @@ QUnit.test("Serializer.getProperty()", function (assert) {
   assert.equal(dealer.defaultValue, "default", "Use attribute from dealer");
   Serializer.removeClass("new_dealer");
 });
+QUnit.test("Serializer.getProperty For not-arrays and arrays", function (assert) {
+  Serializer.addClass("new_selectbase", [], null, "selectbase");
+
+  let hasOtherFind = Serializer.findProperty("new_selectbase", "hasOther");
+  assert.equal(hasOtherFind.isArray, false, "Find hasOther for new_selectbase is not array");
+  let hasOtherGet = Serializer.getProperty("new_selectbase", "hasOther");
+  assert.equal(hasOtherGet.isArray, false, "Get hasOther for new_selectbase is not array");
+
+  let choicesPropFind = Serializer.findProperty("new_selectbase", "choices");
+  assert.equal(choicesPropFind.isArray, true, "Find Choices for new_selectbase is array");
+  let choicesPropGet = Serializer.getProperty("new_selectbase", "choices");
+  assert.equal(choicesPropGet.isArray, true, "Get Choices for new_selectbase is array");
+  Serializer.removeClass("new_selectbase");
+});
 QUnit.test("Declared @property", function (assert) {
   const obj = new TestDeclaredProps();
   assert.equal(obj.numberProp, 5, "get default number prop");
@@ -2570,4 +2610,37 @@ QUnit.test("override defaultValue of @property", function (assert) {
   settings.defaultNumverValue = 10;
   const obj = new TestDeclaredProps();
   assert.equal(obj.numberProp, 10);
+});
+
+QUnit.test("Creator custom ItemValue class, and a property an array of custom ItemValue + default value ", function (assert) {
+  Serializer.addClass("coloritemvalue", [
+    { name: "text", visible: false },
+    { name: "color", type: "color" }],
+  null, "itemvalue");
+  Serializer.addProperty("car", { name: "colors",
+    default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
+    className: "coloritemvalue", type: "coloritemvalue[]" });
+
+  const car: any = new Car();
+  assert.equal(car.colors.length, 2, "There are two colors by default");
+  assert.equal(car.colors[0].value, "A1", "value set correctly #1");
+  assert.equal(car.colors[1].color, "#00ff00", "color set correctly #2");
+  assert.deepEqual(car.toJSON(), {}, "toJSON. It should be empty #3");
+  car.colors.splice(0, 1);
+  const newItem = new ItemValue("A3", undefined, "coloritemvalue");
+  newItem.color = "#ffffff";
+  car.colors.push(newItem);
+  assert.deepEqual(car.toJSON(), { colors: [{ value: "A2", color: "#00ff00" }, { value: "A3", color: "#ffffff" }] }, "toJSON #4");
+  car.fromJSON({
+    colors: [
+      { value: "B1", color: "-ff0000" },
+      { value: "B2", color: "-00ff00" },
+      { value: "B3", color: "-ffffff" }]
+  });
+  assert.equal(car.colors.length, 3, "There are three colors loaded #5");
+  assert.equal(car.colors[0].value, "B1", "value set correctly #6");
+  assert.equal(car.colors[2].color, "-ffffff", "color set correctly #7");
+
+  Serializer.removeProperty("car", "colors");
+  Serializer.removeClass("coloritemvalue");
 });

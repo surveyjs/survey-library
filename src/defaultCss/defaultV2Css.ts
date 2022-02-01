@@ -23,7 +23,7 @@ export var defaultV2Css = {
     edit: "sd-btn sd-navigation__edit-btn"
   },
   panel: {
-    title: "sd-title sd-panel__title",
+    title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
@@ -39,14 +39,15 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
-    nested: "sd-element--nested"
+    nested: "sd-element--nested",
+    invisible: "sd-element--invisible"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
     empty: "sd-question--empty",
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
-    title: "sd-title sd-question__title",
+    title: "sd-title sd-element__title sd-question__title",
     button: "sd-action sd-paneldynamic__btn",
     buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
@@ -95,12 +96,12 @@ export var defaultV2Css = {
     titleLeftRoot: "",
     titleOnAnswer: "sd-question__title--answer",
     titleOnError: "sd-question__title--error",
-    title: "sd-title sd-question__title",
+    title: "sd-title sd-element__title sd-question__title",
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
     requiredText: "sd-question__required-text",
-    number: "sd-question__num",
+    number: "sd-element__num",
     description: "sd-description sd-question__description",
     descriptionUnderInput: "sd-description sd-question__description",
     comment: "sd-input sd-comment",
@@ -114,6 +115,7 @@ export var defaultV2Css = {
     disabled: "sd-question--disabled",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
+    invisible: "sd-element--invisible"
   },
   image: {
     mainRoot: "sd-question sd-question--image",
@@ -137,6 +139,7 @@ export var defaultV2Css = {
   },
   checkbox: {
     root: "sd-selectbase",
+    rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-checkbox sd-selectbase__item",
     itemOnError: "sd-item--error",
     itemSelectAll: "sd-checkbox--selectall",
@@ -157,6 +160,7 @@ export var defaultV2Css = {
   },
   radiogroup: {
     root: "sd-selectbase",
+    rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-radio sd-selectbase__item",
     itemOnError: "sd-item--error",
     itemInline: "sd-selectbase__item--inline",
@@ -221,6 +225,7 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     controlDisabled: "sd-input--disabled",
     controlLabel: "sd-item__control-label",
+    controlEmpty: "sd-dropdown--empty",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
@@ -272,7 +277,10 @@ export var defaultV2Css = {
     detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
-    actionsCell: "sd-table__cell sd-table__cell--actions"
+    actionsCell: "sd-table__cell sd-table__cell--actions",
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical",
+    cellQuestionWrapper: "sd-table__question-wrapper"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -292,11 +300,17 @@ export var defaultV2Css = {
     detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     buttonAdd: "sd-matrixdynamic__add-btn",
-    buttonRemove: "sd-action--icon sd-action--negative sd-matrixdynamic__remove-btn",
+    buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
     footer: "sd-matrixdynamic__footer",
-    emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder"
+    emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
+    iconDrag: "sv-matrixdynamic__drag-icon",
+    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
+    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    emptyCell: "sd-table__cell--empty",
+    verticalCell: "sd-table__cell--vertical",
+    cellQuestionWrapper: "sd-table__question-wrapper"
   },
   rating: {
     root: "sd-rating",
@@ -394,6 +408,13 @@ export var defaultV2Css = {
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
   },
+  actionBar: {
+    root: "sd-action-bar",
+    item: "sd-action",
+    itemPressed: "sd-action--pressed",
+    itemAsIcon: "sd-action--icon",
+    itemIcon: "sd-action__icon"
+  }
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

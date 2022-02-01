@@ -1142,6 +1142,10 @@ export class SurveyModel extends SurveyElementCore
       this.css.navigation.next
     );
   }
+  public get bodyCss(): string {
+    return new CssClassBuilder().append(this.css.body)
+      .append(this.css.body+"--"+this.calculateWidthMode()).toString();
+  }
   public get completedCss(): string {
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString();
@@ -2627,9 +2631,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.isStartedState && this.startedPage && !this.isDesignMode
-      ? this.startedPage
-      : this.currentPage;
+    return this.state === "starting" ? this.startedPage : this.currentPage;
   }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
@@ -2775,6 +2777,9 @@ export class SurveyModel extends SurveyElementCore
    * @see currentPage
    */
   public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+    this.isCompleted = false;
+    this.isCompletedBefore = false;
+    this.isLoading = false;
     if (clearData) {
       this.data = null;
       this.variablesHash = {};
@@ -2785,9 +2790,6 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].setWasShown(false);
       this.pages[i].passed = false;
     }
-    this.isCompleted = false;
-    this.isCompletedBefore = false;
-    this.isLoading = false;
     this.isStartedState = this.firstPageIsStarted;
     if (gotoFirstPage) {
       this.currentPage = this.firstVisiblePage;
@@ -3337,7 +3339,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isFirstPage
    */
   public prevPage(): boolean {
-    if (this.isFirstPage || this.isStartedState) return false;
+    if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage);
@@ -4670,10 +4672,16 @@ export class SurveyModel extends SurveyElementCore
       });
     }
     if (this.isDisposed) return;
+    this.checkElementsBindings(valueName, newValue);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
+  }
+  private isRunningElementsBindings: boolean;
+  private checkElementsBindings(valueName: string, newValue: any): void {
+    this.isRunningElementsBindings = true;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].checkBindings(valueName, newValue);
     }
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
+    this.isRunningElementsBindings = false;
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
@@ -5274,7 +5282,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true
   ) {
     this.updateQuestionValue(name, newValue);
-    if (locNotification === true || this.isDisposed) return;
+    if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);

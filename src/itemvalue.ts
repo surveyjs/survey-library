@@ -76,16 +76,16 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
       return result;
     };
   }
-  public static setData(items: Array<ItemValue>, values: Array<any>) {
+
+  /**
+   * Resets the input array and fills it with values from the values array
+   */
+  public static setData(items: Array<ItemValue>, values: Array<any>, type?:string): void {
     items.length = 0;
-    for (var i = 0; i < values.length; i++) {
-      var value = values[i];
-      var item: ItemValue;
-      if (typeof value.getType === "function") {
-        item = Serializer.createClass(value.getType());
-      } else {
-        item = new ItemValue(null);
-      }
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      const itemType = !!value && typeof value.getType === "function" ? value.getType() : (type ?? "itemvalue");
+      const item = Serializer.createClass(itemType);
       item.setData(value);
       if (!!value.originalItem) {
         item.originalItem = value.originalItem;
@@ -326,8 +326,13 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
-    if (!settings.itemValueAlwaysSerializeAsObject && Object.keys(json).length == 1 && !Helpers.isValueEmpty(json["value"]))
+    if(Helpers.isValueEmpty(json.value)) return json;
+    const canSerializeAsContant = !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
+    if(settings.itemValueAlwaysSerializeText && json.text === undefined) {
+      json.text = this.value.toString();
+    }
     return json;
   }
   public toJSON(): any {
@@ -338,16 +343,21 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     }
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
-      jsoObj.valueToJson(this, res, properties[i]);
+      const prop = properties[i];
+      if(prop.name === "text" && !this.locText.hasNonDefaultText() &&
+        Helpers.isTwoValueEquals(this.value, this.text, false, true, false)) continue;
+      jsoObj.valueToJson(this, res, prop);
     }
     return res;
   }
   public setData(value: any) {
     if (Helpers.isValueEmpty(value)) return;
     if (typeof value.value !== "undefined") {
-      var json = value;
+      let json;
       if (typeof value.toJSON === "function") {
         json = (<Base>value).toJSON();
+      } else {
+        json = value;
       }
       new JsonObject().toObject(json, this);
     } else {
@@ -430,9 +440,10 @@ Base.createItemValue = function(source: any, type?: string): any {
 Base.itemValueLocStrChanged = function(arr: Array<any>): void {
   ItemValue.locStrsChanged(arr);
 };
-JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
-  var res = new Array<ItemValue>();
-  ItemValue.setData(res, val || []);
+
+JsonObjectProperty.getItemValuesDefaultValue = (val: any, type: string): Array<ItemValue> => {
+  const res = new Array<ItemValue>();
+  ItemValue.setData(res, Array.isArray(val) ? val : [], type);
   return res;
 };
 

@@ -1,6 +1,7 @@
 import { Base } from "../base";
 import { property } from "../jsonobject";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { defaultActionBarCss } from "./container";
 
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
@@ -142,6 +143,16 @@ export class Action extends Base implements IAction {
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
 
+  private cssClassesValue: any;
+
+  public set cssClasses(val: any) {
+    this.cssClassesValue = val;
+  }
+
+  public get cssClasses() {
+    return this.cssClassesValue || defaultActionBarCss;
+  }
+
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
   }
@@ -168,17 +179,18 @@ export class Action extends Base implements IAction {
       .append("sv-action--hidden", !this.isVisible)
       .toString();
   }
-  public getActionBarItemCss(): string {
+  public getActionBarItemTitleCss(): string {
     return new CssClassBuilder()
-      .append("sv-action-bar-item__title")
-      .append("sv-action-bar-item__title--with-icon", !!this.iconName)
+      .append(this.cssClasses.itemTitle)
+      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
       .toString();
   }
-  public getActionBarItemActiveCss(): string {
+  public getActionBarItemCss(): string {
     return new CssClassBuilder()
-      .append("sv-action-bar-item")
-      .append("sv-action-bar-item--active", !!this.active)
-      .append("sv-action-bar-item--pressed", !!this.pressed)
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
+      .append(this.cssClasses.itemActive, !!this.active)
+      .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
       .toString();
   }

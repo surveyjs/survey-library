@@ -45,6 +45,12 @@ export var settings = {
    */
   itemValueAlwaysSerializeAsObject: false,
   /**
+   * Set it to true to serialize itemvalue text property, even if it is empty or equals to value
+   * const item = new Survey.ItemValue("item1");
+   * item.toJSON(); //will return {value: item1, text: "item1"}, instead of "item1" by default.
+   */
+  itemValueAlwaysSerializeText: false,
+  /**
    * default locale name for localizable strings that uses during serialization, {"default": "My text", "de": "Mein Text"}
    */
   defaultLocaleName: "default",
@@ -118,7 +124,7 @@ export var settings = {
    * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
    * @param message
    */
-  confirmActionFunc: function(message: string): boolean {
+  confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
   /**
@@ -163,6 +169,7 @@ export var settings = {
     comment: ["text", "regex"],
     text: ["numeric", "text", "regex", "email"],
     checkbox: ["answercount"],
+    imagepicker: ["answercount"],
   },
   /**
    * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that less than this value
@@ -180,9 +187,9 @@ export var settings = {
       onCancel?: () => void,
       cssClass?: string,
       title?: string,
-      displayMode?: "popup"|"overlay"
+      displayMode?: "popup" | "overlay"
     ) => void
-  >undefined,
+    >undefined,
   supportCreatorV2: false,
   /**
    * Specifies a list of custom icons.

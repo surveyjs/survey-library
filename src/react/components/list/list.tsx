@@ -2,6 +2,7 @@ import React from "react";
 import { IAction, ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { SvgIcon } from "../svg-icon/svg-icon";
 import { ListItem } from "./list-item";
 
 interface IListProps {
@@ -66,6 +67,12 @@ export class List extends SurveyElementBase<IListProps, any> {
       };
       return (
         <div className="sv-list__filter">
+          <SvgIcon
+            className={"sv-list__filter-icon"}
+            iconName={"icon-search"}
+            size={"auto"}
+          >
+          </SvgIcon>
           <input
             type="text"
             className="sv-list__input"

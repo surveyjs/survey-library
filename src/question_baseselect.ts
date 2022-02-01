@@ -1249,6 +1249,9 @@ export class QuestionSelectBase extends Question {
   public get itemSvgIcon(): string {
     return this.cssClasses.itemSvgIconId;
   }
+  public getSelectBaseRootCss(): string {
+    return new CssClassBuilder().append(this.cssClasses.root).append(this.cssClasses.rootMultiColumn, this.hasColumns).toString();
+  }
 
   public getAriaItemLabel(item: ItemValue) {
     return item.locText.renderedHtml;

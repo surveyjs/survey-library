@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
@@ -24,6 +24,9 @@ export class Survey extends SurveyElementBase<any, any>
   }
   protected survey: ReactSurveyModel;
 
+  private rootNodeId: string; // root dom node ID attr
+  private rootNodeClassName: string; // root dom node class
+
   constructor(props: any) {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
@@ -32,6 +35,8 @@ export class Survey extends SurveyElementBase<any, any>
     //set the first page
     const dummy = this.survey.currentPage;
     this.rootRef = React.createRef();
+    this.rootNodeId = props.id || null;
+    this.rootNodeClassName = props.className || "";
   }
   protected getStateElement(): Base {
     return this.survey;
@@ -62,6 +67,7 @@ export class Survey extends SurveyElementBase<any, any>
     }
   }
   doRender(): JSX.Element {
+    SvgRegistry.renderIcons();
     let renderResult: JSX.Element;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
@@ -82,8 +88,10 @@ export class Survey extends SurveyElementBase<any, any>
     if (this.survey.hasLogo) {
       customHeader = null;
     }
+    const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + this.css.root : this.css.root;
+
     return (
-      <div ref={this.rootRef} className={this.css.root}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>
@@ -181,7 +189,7 @@ export class Survey extends SurveyElementBase<any, any>
     var bottomProgress = this.survey.isShowProgressBarOnBottom
       ? this.renderProgress(false)
       : null;
-    let className = this.css.body;
+    let className = this.survey.bodyCss;
     if (!currentPage) {
       className = this.css.bodyEmpty;
       currentPage = this.renderEmptySurvey();

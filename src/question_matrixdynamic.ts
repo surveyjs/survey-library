@@ -223,6 +223,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Set this property to true, to allow rows drag and drop.
    */
   public get allowRowsDragAndDrop(): boolean {
+    if (this.readOnly) return false;
     return this.getPropertyValue("allowRowsDragAndDrop");
   }
   public set allowRowsDragAndDrop(val: boolean) {

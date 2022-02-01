@@ -6,7 +6,7 @@
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: koState() == "starting" -->
-              <div data-bind="css: css.body">
+              <div data-bind="css: bodyCss">
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
                   <!-- ko template: { name: 'survey-navigation-start' } -->
                   <!-- /ko -->
@@ -19,7 +19,7 @@
               </div>
               <!-- /ko -->
               <!-- ko if: koState() == "running" || koState() == "preview" -->
-              <div data-bind="css: css.body">
+              <div data-bind="css: bodyCss">
                   <!-- ko if: isTimerPanelShowingOnTop -->
                   <!-- ko template: { name: 'survey-timerpanel' } -->
                   <!-- /ko -->

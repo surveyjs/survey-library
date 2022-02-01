@@ -18,12 +18,10 @@ $foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-$foreground-disabled-for-editors: var(
-  --foreground-disabled,
-  rgba(#161616, 0.25)
-);
+$foreground-disabled-for-editors: var(--foreground-disabled, rgba(#161616, 0.25));
 
 $border: var(--border, #d6d6d6);
+$border-light: var(--border-light, #eaeaea);
 $border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
 
 $shadow-medium: rgba(0, 0, 0, 0.1);

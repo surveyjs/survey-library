@@ -190,11 +190,11 @@ export class StylesManager {
     ".sv-ranking-item__content":
       "display: flex; align-items: center; line-height: 1em; background-color: white;padding: 5px 0px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
-      "left: 0;top: 0;bottom: 0;width: 25px;",
+      "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
     ".sv-ranking-item__icon":
       "visibility: hidden;top:20px;fill:#19b394;position: absolute;",
     ".sv-ranking-item__index":
-      "display: flex; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
+      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
       "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
@@ -216,7 +216,17 @@ export class StylesManager {
 
     // drag drop
     ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px;line-height: 24px;",
-    // EO drag drop
+
+    ".sv-matrixdynamic__drag-icon": "padding-top:14px",
+    ".sv-matrixdynamic__drag-icon:after":
+      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
+    ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
+      "position: relative;",
+    ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":
+      "content: ''; width: 100%; height: 4px; background-color: #19b394; position: absolute; left: 0;",
+    ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
+    ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
+    //eo drag-drop
 
     ".sv_qstn .sv_q_select_column":
       "display: inline-block; vertical-align: top; min-width: 10%;",
@@ -405,8 +415,10 @@ export class StylesManager {
     ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
-    ".sv-list__filter": "position: sticky; top: 0; padding: 8px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
-    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; height: calc(2em + 1px); padding-left: 1em; outline: none; font-size: 1em; border: 1px solid transparent;",
+    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
+    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 16px; padding-bottom: 16px; outline: none; font-size: 1em; border: 1px solid transparent;",
+    ".sv-list__filter-icon": "display: block; position: absolute; top: 16px; left: 16px;",
+    ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
   };
@@ -798,7 +810,7 @@ export class StylesManager {
 
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
-    },
+    }
   };
 
   public static ThemeCss: { [key: string]: string } = {
@@ -949,17 +961,6 @@ export class StylesManager {
 
     ".sv_main .sv_qstn textarea": "max-width: 100%",
 
-    //drag-drop
-    ".sv_main .sv-matrixdynamic__drag-icon": "padding-top:14px",
-    ".sv_main .sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top, .sv_main .sv-matrix__drag-drop-ghost-position-bottom":
-      "position: relative;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top::after, .sv_main .sv-matrix__drag-drop-ghost-position-bottom::after":
-      "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv_main .sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
-    //eo drag-drop
     //list
     ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv-list__input::placeholder": "color: $foreground-light;",
@@ -1032,10 +1033,10 @@ export class StylesManager {
     ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
     ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-paneldynamic__prev-btn, .sv-paneldynamic__next-btn":
-      "fill: $text-color;",
-    ".sv-paneldynamic__prev-btn--disabled, .sv-paneldynamic__next-btn--disabled":
-      "fill: $disable-color;",
+    ".sv-paneldynamic__prev-btn": "fill: $text-color;",
+    ".sv-paneldynamic__next-btn": "fill: $text-color;",
+    ".sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled": "fill: $disable-color;",
+    ".sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled": "fill: $disable-color;",
     ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
     ".sv-progress": "background-color: $header-background-color;",
     ".sv-progress__bar": "background-color: $main-color;",

@@ -52,14 +52,6 @@ function onUpdateSelectBaseCellQuestion(
 }
 export var matrixDropdownColumnTypes = {
   dropdown: {
-    properties: [
-      "choices",
-      "choicesOrder",
-      "choicesByUrl",
-      "optionsCaption",
-      "otherText",
-      "choicesVisibleIf",
-    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -77,15 +69,6 @@ export var matrixDropdownColumnTypes = {
     },
   },
   checkbox: {
-    properties: [
-      "choices",
-      "choicesOrder",
-      "choicesByUrl",
-      "otherText",
-      "choicesVisibleIf",
-      "hasSelectAll",
-      "hasNone",
-    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -98,13 +81,6 @@ export var matrixDropdownColumnTypes = {
     },
   },
   radiogroup: {
-    properties: [
-      "choices",
-      "choicesOrder",
-      "choicesByUrl",
-      "otherText",
-      "choicesVisibleIf",
-    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -116,26 +92,9 @@ export var matrixDropdownColumnTypes = {
         column.colCount > -1 ? column.colCount : question.columnColCount;
     },
   },
-  text: {
-    properties: ["placeHolder", "inputType", "maxLength", "min", "max", "step"],
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => { },
-  },
-  comment: {
-    properties: ["placeHolder", "rows", "maxLength"],
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => { },
-  },
+  text: {},
+  comment: {},
   boolean: {
-    properties: ["renderAs", "defaultValue"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -146,18 +105,8 @@ export var matrixDropdownColumnTypes = {
       cellQuestion.renderAs = column.renderAs;
     },
   },
-  expression: {
-    properties: ["expression", "displayStyle", "currency"],
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => { },
-  },
-  rating: {
-    properties: ["rateValues"],
-  },
+  expression: {},
+  rating: {},
 };
 
 export class MatrixDropdownColumn extends Base
@@ -463,7 +412,6 @@ export class MatrixDropdownColumn extends Base
     onUpdateJson: (json: any) => any = null
   ) {
     this.setQuestionProperties(cellQuestion, onUpdateJson);
-    this.callOnCellQuestionUpdate(cellQuestion, data);
   }
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
     var qType = cellQuestion.getType();

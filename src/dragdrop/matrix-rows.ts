@@ -51,15 +51,25 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     //this.isBottom = null;
 
+    const renderedRows = this.parentElement.renderedTable.rows;
+    renderedRows.forEach((renderedRow, index) => {
+      if (renderedRow.row === this.draggedElement) {
+        renderedRow.isGhostRow = true;
+      }
+    });
+
     return draggedElementShortcut;
   }
 
   // protected ghostPositionChanged(): void {
+  //   let ghostPosition;
   //   this.parentElement.renderedTable.rows.forEach(
   //     (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-  //       renderedRow.ghostPosition = this.getGhostPosition(
+
+  //       ghostPosition = this.getGhostPosition(
   //         renderedRow.row
   //       );
+  //       renderedRow.isGhostRow = !ghostPosition;
   //     }
   //   );
   //   super.ghostPositionChanged();
@@ -109,11 +119,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let draggedRenderedRow;
 
     const renderedRows = this.parentElement.renderedTable.rows;
-    renderedRows.forEach((renderedRow, index)=>{
-      if (renderedRow.row === this.dropTarget) dropTargetIndex = index;
+    renderedRows.forEach((renderedRow, index)=> {
+      if (renderedRow.row === this.dropTarget) {
+        // renderedRow.isGhostRow = true;
+        dropTargetIndex = index;
+      }
       if (renderedRow.row === this.draggedElement) {
         draggedRenderedRow = renderedRow;
         draggedElementIndex = index;
+        draggedRenderedRow.isGhostRow = true;
       }
     });
 

@@ -130,7 +130,7 @@ export class QuestionMatrixDropdownRenderedCell {
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
-  @property({ defaultValue: null }) ghostPosition: string;
+  @property({ defaultValue: null }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
 
   public row: MatrixDropdownRowModelBase;
@@ -155,8 +155,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return new CssClassBuilder()
       .append(this.cssClasses.row)
       .append(this.cssClasses.detailRow, this.isDetailRow)
-      .append(this.cssClasses.dragDropGhostPositionTop, this.ghostPosition === "top")
-      .append(this.cssClasses.dragDropGhostPositionBottom, this.ghostPosition === "bottom")
+      .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
   }

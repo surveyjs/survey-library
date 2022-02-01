@@ -1,0 +1,47 @@
+{
+  "showProgressBar": "top",
+  "title": "Survey New Design Test",
+  "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+  "logoPosition": "left",
+  "questions": [
+    {
+      "name": "signature",
+      "type": "signaturepad",
+      "title": "Sign here",
+      "isRequired": true
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "title": "Text",
+      "placeHolder": "Jon Snow",
+      "isRequired": true
+    },
+    {
+      "name": "birthdate",
+      "type": "text",
+      "inputType": "date",
+      "title": "Text Date",
+      "isRequired": true
+    },
+    {
+      "name": "color",
+      "type": "text",
+      "inputType": "color",
+      "title": "Text Color"
+    },
+    {
+      "name": "email",
+      "type": "text",
+      "inputType": "email",
+      "title": "Text Email",
+      "placeHolder": "jon.snow@nightwatch.org",
+      "isRequired": true,
+      "validators": [
+        {
+          "type": "email"
+        }
+      ]
+    }
+  ]
+}

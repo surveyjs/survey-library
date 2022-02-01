@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+const json = require("../assets/survey.json");
 
 @Component({
   selector: "app-root",
@@ -7,4 +8,5 @@ import { Component } from "@angular/core";
 })
 export class AppComponent {
   title = "angular-ui";
+  json = json;
 }

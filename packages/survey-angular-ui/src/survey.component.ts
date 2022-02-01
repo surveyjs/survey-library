@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { Observable, Subject, BehaviorSubject } from "rxjs";
-// import { SurveyModel } from "survey-core";
+import { SurveyModel } from "survey-core";
 
 @Component({
   selector: "survey",
@@ -9,10 +9,11 @@ import { Observable, Subject, BehaviorSubject } from "rxjs";
 })
 export class SurveyComponent {
   title = "SurveyJS";
-  @Input() json: string;
-  // model = new SurveyModel(json);
+  @Input() json: any;
+  model;
   constructor() {
     // debugger;
+    this.model = new SurveyModel(this.json);
   }
   _visible = new BehaviorSubject<boolean>(true);
   get visible(): boolean {

@@ -43,8 +43,6 @@
     "build_core": "npm run build_core_dev && npm run build_core_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
-    "build_angular_ui": "ng build",
-    "angular_ui": "ng serve",
     "watch:core:dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
     "watch:ko:ui:dev": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",

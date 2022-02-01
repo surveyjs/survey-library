@@ -3,11 +3,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../build/angular-ui",
-    "types": [],
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "../../src/entries/core.ts"
+        "../../build/survey-core"
       ],
       "survey-angular-ui": [
         "../../build/survey-angular-ui/survey-angular-ui",

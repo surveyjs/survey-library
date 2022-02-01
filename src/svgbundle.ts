@@ -32,7 +32,7 @@ export class SvgIconRegistry {
        str.substring(str.length - endStr.length, str.length) === endStr) {
       this.registerIconFromSymbol(iconId, "<symbol " +
               "id=\"" + iconPrefix + iconId + "\" " +
-              str.substring(startStr.length, str.length - endStr.length) +
+              iconSvg.substring(startStr.length, str.length - endStr.length) +
               "</symbol>");
       return true;
     }
@@ -48,10 +48,10 @@ export class SvgIconRegistry {
     const containerId = "sv-icon-holder-global-container";
     if(!document.getElementById(containerId)) {
       let iconsDiv = document.createElement("div");
-      document.head.insertBefore(iconsDiv, document.head.firstChild);
       iconsDiv.id = containerId;
       iconsDiv.style.display = "none";
-      iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
+      iconsDiv.innerHTML = "<svg style=\"display:none;\">" + this.iconsRenderedHtml() + "</svg>";
+      document.head.insertBefore(iconsDiv, document.head.firstChild);
     }
   }
 }

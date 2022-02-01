@@ -22,17 +22,20 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
         `;
 
     const isDeepClone = true;
-    const clone = <HTMLElement>(
-      draggedElementNode
-        .closest("[data-sv-drop-target-matrix-row]")
-        .cloneNode(isDeepClone)
-    );
+
+    const row = <HTMLElement>(draggedElementNode
+      .closest("[data-sv-drop-target-matrix-row]"));
+    const clone = <HTMLElement>(row.cloneNode(isDeepClone));
+
     clone.style.cssText = `
-      min-width: 100px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: rgb(0 0 0 / 10%) 0px 8px 16px;
       background-color: white;
-      border-radius: 36px;
-      padding-right: 16px;
+      display: flex;
+      flex-grow: 0;
+      flex-shrink: 0;
+      align-items: center;
+      line-height: 0;
+      width: ${row.offsetWidth}px;
     `;
 
     // clone.classList.remove("svc-item-value--moveup");

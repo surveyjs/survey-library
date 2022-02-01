@@ -16,7 +16,7 @@ export class SvgIconRegistry {
     symbol.innerHTML = svg.innerHTML;
 
     for (var i = 0; i < svg.attributes.length; i++) {
-      symbol.setAttribute(svg.attributes[i].name, svg.attributes[i].value);
+      symbol.setAttributeNS("http://www.w3.org/2000/svg", svg.attributes[i].name, svg.attributes[i].value);
     }
     symbol.id = iconPrefix + iconId;
 

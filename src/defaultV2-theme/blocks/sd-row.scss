@@ -19,7 +19,14 @@
   margin-top: calcSize(2);
   .sd-question {
     padding-right: 0 !important;
-  } 
+  }
+  .sv-vue-row-additional-div {
+    display: flex;
+    flex-wrap: initial;
+    flex-direction: row;
+    width: 100%;
+    gap: 16px;
+  }
 }
 .svc-row .sd-row--multiple {
   overflow: auto;
@@ -30,11 +37,11 @@
     gap: 8px;
   }
 }
-:not(.svc-row--ghost)>.sd-row {
+:not(.svc-row--ghost) > .sd-row {
   min-height: 50px;
 }
 
-.sd-row__panel{
+.sd-row__panel {
   box-sizing: border-box;
   width: 100%;
 }

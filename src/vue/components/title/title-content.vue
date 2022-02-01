@@ -15,13 +15,16 @@
       :aria-hidden="true"
       >{{ element.no }}</span
     >
+    <span v-if="element.no">&nbsp;</span>
     <span
       v-if="element.isRequireTextBeforeTitle"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
+    <span v-if="element.isRequireTextBeforeTitle">&nbsp;</span>
     <survey-string :locString="element.locTitle" />
+    <span v-if="element.isRequireTextAfterTitle">&nbsp;</span>
     <span
       v-if="element.isRequireTextAfterTitle"
       :class="element.cssClasses.requiredText"

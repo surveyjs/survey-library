@@ -1,14 +1,18 @@
+.svc-tab-designer .sd-title {
+  display: flex;
+}
 .sd-title {
+  display: block;
   font-family: $font-family;
   font-style: normal;
   color: $foreground;
-  display: flex;
   flex-direction: row;
   white-space: normal;
   word-break: break-word;
 }
 
 .sd-title.sd-container-modern__title {
+  display: flex;
   padding: calcSize(3);
   border-bottom: 2px solid $primary;
   overflow: auto;

@@ -58,7 +58,6 @@
             ></video>
           </div><span
             v-if="question.showLabel"
-            :title="item.locText.renderedHtml"
             :class="question.cssClasses.itemText"
             >
               <survey-string :locString="item.locText" />

@@ -61,7 +61,6 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     if (this.question.showLabel) {
       text = (
         <span
-          title={item.locText.renderedHtml}
           className={this.question.cssClasses.itemText}
         >
           {item.text ? SurveyElementBase.renderLocString(item.locText) : item.value}

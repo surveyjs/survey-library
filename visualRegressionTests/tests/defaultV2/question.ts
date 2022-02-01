@@ -111,4 +111,52 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check required question with multiline title", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "text",
+          name: "required_question",
+          isRequired: true,
+          width: "708px",
+          title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
+        },
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("question-required.png", questionRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+
+  });
+  test("Check questions in one row", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "question_with_num",
+          title: "Personal information"
+        },
+        {
+          type: "text",
+          name: "question_with_num",
+          startWithNewLine: false,
+          title: "Contact information"
+        },
+      ]
+    },);
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const rowSelector = Selector(".sd-row");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("multiple-row.png", rowSelector, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
 });

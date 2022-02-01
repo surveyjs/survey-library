@@ -941,6 +941,7 @@ export class JsonMetadata {
     if (prop.classInfo === classInfo) return prop;
     const newProp = new JsonObjectProperty(classInfo, propertyName, prop.isRequired);
     newProp.mergeWith(prop);
+    newProp.isArray = prop.isArray;
     classInfo.properties.push(newProp);
     this.emptyClassPropertiesHash(classInfo);
     return newProp;

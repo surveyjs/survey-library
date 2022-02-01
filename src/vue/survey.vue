@@ -121,7 +121,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss } from "survey-core";
+import { Base, StylesManager, surveyCss, SvgRegistry } from "survey-core";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 import { BaseVue } from "./base";
 
@@ -145,6 +145,7 @@ export class Survey extends BaseVue {
 
   constructor() {
     super();
+    SvgRegistry.renderIcons();
   }
   protected getModel(): Base {
     return this.vueSurvey;

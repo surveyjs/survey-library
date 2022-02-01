@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry } from "survey-core";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
@@ -67,6 +67,7 @@ export class Survey extends SurveyElementBase<any, any>
     }
   }
   doRender(): JSX.Element {
+    SvgRegistry.renderIcons();
     let renderResult: JSX.Element;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();

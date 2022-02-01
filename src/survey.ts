@@ -4672,10 +4672,16 @@ export class SurveyModel extends SurveyElementCore
       });
     }
     if (this.isDisposed) return;
+    this.checkElementsBindings(valueName, newValue);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
+  }
+  private isRunningElementsBindings: boolean;
+  private checkElementsBindings(valueName: string, newValue: any): void {
+    this.isRunningElementsBindings = true;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].checkBindings(valueName, newValue);
     }
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
+    this.isRunningElementsBindings = false;
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
@@ -5276,7 +5282,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true
   ) {
     this.updateQuestionValue(name, newValue);
-    if (locNotification === true || this.isDisposed) return;
+    if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);

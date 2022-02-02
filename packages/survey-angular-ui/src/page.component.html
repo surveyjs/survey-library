@@ -1,0 +1,22 @@
+<div [class]="model.cssClasses.page.root">
+  <!-- ko component: { name: 'survey-element-title', params: {element: $data } } -->
+  <!-- /ko -->
+  <div [hidden]="!model.hasTitle">
+    <h4 [class]="model.cssTitle">
+      <string-viewer [model]="model.locTitle"></string-viewer>
+    </h4>
+  </div>
+  <!-- ko if: _showDescription-->
+  <div [hidden]="!model.data.showPageTitles" [class]="model.cssClasses.page.description">
+    <!-- ko template: { name: 'survey-string', data: locDescription } -->
+    <!-- /ko -->
+  </div>
+  <!-- /ko -->
+  <!-- ko template: { name: 'survey-rows', data: $data} -->
+  <!-- /ko -->
+  <div *ngFor="let row of model.rows">
+    <div *ngFor="let element of row.visibleElements">
+      <element [model]="element"></element>
+    </div>
+  </div>
+</div>

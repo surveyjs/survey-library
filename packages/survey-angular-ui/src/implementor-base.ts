@@ -4,7 +4,7 @@ import { Base } from "survey-core";
 export class ImplementorBase {
   private static doIterateProperties(element: Base, hash: any, key: any): any {
     var val = hash[key];
-    if (val === "function") return;
+    if (val instanceof BehaviorSubject) return;
     if (Array.isArray(val)) {
       hash[key] = new BehaviorSubject<any>(val); // ko.observableArray(val);
       (<any>val)["onArrayChanged"] = () => {
@@ -37,7 +37,7 @@ export class ImplementorBase {
       if (hash[key] === undefined) {
         hash[key] = new BehaviorSubject<any>(undefined);
       }
-      return typeof hash[key] === "function" ? hash[key]() : hash[key];
+      return hash[key] instanceof BehaviorSubject ? hash[key].value : hash[key];
     };
     element.setPropertyValueCoreHandler = (hash: any, key: string, val: any) => {
       if(hash[key] !== undefined) {

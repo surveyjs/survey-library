@@ -31,8 +31,8 @@
         <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: koCurrentPage -->
-        <div
-          data-bind="attr: { id: koCurrentPage().id }, template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }">
+        <div [id]="model.currentPage.id">
+          <page [model]="model.currentPage"></page>
         </div>
         <!-- ko if: isCurrentPageEmpty() && $data.emptyPageTemplate -->
         <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
@@ -52,13 +52,14 @@
         <!-- /ko -->
         <!-- /ko -->
       </div>
-      <div *ngIf="model.state === 'completed' || model.showCompletedPage" [class]="model.completedCss"
+      <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
         [innerHtml]="model.processedCompletedHtml"></div>
-      <div data-bind="visible: koCompletedState() != '', css: css.saveData.root">
-        <div data-bind="css: koCompletedStateCss">
-          <span data-bind="text:koCompletedStateText"></span>
-          <input type="button"
-            data-bind="visible: koCompletedState() == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton" />
+      <div [hidden]="model.completedState === ''" [class]="model.css.saveData.root">
+        <div [class]="model.completedStateCss">
+          <span>{{model.completedStateText}}</span>
+          <input type="button" [hidden]="model.completedState != 'error'"
+            [value]="model.getLocString('saveAgainButton')" (click)="model.doComplete()"
+            [class]="model.css.saveData.saveAgainButton">
         </div>
       </div>
       <div *ngIf="model.state === 'completedbefore'" [class]="model.css.body"

@@ -16,7 +16,7 @@ export class SvgIconRegistry {
     symbol.innerHTML = svg.innerHTML;
 
     for (var i = 0; i < svg.attributes.length; i++) {
-      symbol.setAttribute(svg.attributes[i].name, svg.attributes[i].value);
+      symbol.setAttributeNS("http://www.w3.org/2000/svg", svg.attributes[i].name, svg.attributes[i].value);
     }
     symbol.id = iconPrefix + iconId;
 
@@ -32,7 +32,7 @@ export class SvgIconRegistry {
        str.substring(str.length - endStr.length, str.length) === endStr) {
       this.registerIconFromSymbol(iconId, "<symbol " +
               "id=\"" + iconPrefix + iconId + "\" " +
-              str.substring(startStr.length, str.length - endStr.length) +
+              iconSvg.substring(startStr.length, str.length - endStr.length) +
               "</symbol>");
       return true;
     }
@@ -47,11 +47,11 @@ export class SvgIconRegistry {
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
     if(!document.getElementById(containerId)) {
-      let iconsHolder = document.createElement("svg");
-      iconsHolder.id = containerId;
-      iconsHolder.style.display = "none";
-      iconsHolder.innerHTML = this.iconsRenderedHtml();
-      document.head.appendChild(iconsHolder);
+      let iconsDiv = document.createElement("div");
+      iconsDiv.id = containerId;
+      iconsDiv.style.display = "none";
+      iconsDiv.innerHTML = "<svg style=\"display:none;\">" + this.iconsRenderedHtml() + "</svg>";
+      document.head.insertBefore(iconsDiv, document.head.firstChild);
     }
   }
 }

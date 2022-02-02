@@ -1607,6 +1607,17 @@ QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
   assert.deepEqual(survey.data, data, "value is not changed");
 });
 
+QUnit.test("Change default value for allowEmptyResponse property", function(assert) {
+  let choicesRest = new ChoicesRestful();
+  assert.strictEqual(choicesRest.allowEmptyResponse, false);
+  Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = true;
+  choicesRest = new ChoicesRestful();
+  assert.strictEqual(choicesRest.allowEmptyResponse, true);
+  Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = undefined;
+  choicesRest = new ChoicesRestful();
+  assert.strictEqual(choicesRest.allowEmptyResponse, false);
+});
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

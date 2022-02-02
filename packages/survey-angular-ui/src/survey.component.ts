@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { Observable, Subject, BehaviorSubject } from "rxjs";
 import { SurveyModel } from "survey-core";
+import { ImplementorBase } from "./implementor-base";
 
 @Component({
   selector: "survey",
@@ -8,12 +9,11 @@ import { SurveyModel } from "survey-core";
   styleUrls: ["./survey.component.scss"]
 })
 export class SurveyComponent {
-  title = "SurveyJS";
-  @Input() json: any;
-  model;
+  @Input() model: any;
   constructor() {
-    // debugger;
-    this.model = new SurveyModel(this.json);
+  }
+  ngOnChanges(changes: any): void {
+    new ImplementorBase(changes.model.currentValue);
   }
   _visible = new BehaviorSubject<boolean>(true);
   get visible(): boolean {

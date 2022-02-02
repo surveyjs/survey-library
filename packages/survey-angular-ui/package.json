@@ -38,15 +38,14 @@
     "@angular/router": "~13.0.0",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.11.4",
-    "survey-core": "../../build/survey-core"
+    "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.0.3",
     "@angular/cli": "~13.0.3",
     "@angular/compiler-cli": "~13.0.0",
     "@types/jasmine": "~3.10.0",
-    "@types/node": "^12.11.1",
+    "@types/node": "^12.20.43",
     "jasmine-core": "~3.10.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
@@ -54,10 +53,12 @@
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
     "ng-packagr": "^13.0.0",
+    "survey-core": "../../build/survey-core",
     "typescript": "~4.4.3"
   },
   "scripts": {
     "build_angular_ui": "ng build",
-    "angular_ui": "ng serve"
+    "angular_ui": "ng serve",
+    "watch": "ng build --watch --configuration development"
   }
 }

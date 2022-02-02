@@ -82,8 +82,8 @@ export class SurveyModel extends SurveyElementCore
   private localeValue: string = "";
 
   private textPreProcessor: TextPreProcessor;
-  private completedStateValue: string = "";
-  private completedStateTextValue: string = "";
+  @property({ defaultValue: "" }) completedStateValue: string;
+  @property({ defaultValue: "" }) completedStateTextValue: string;
 
   private isTimerStarted: boolean = false;
 

@@ -1,4 +1,6 @@
 import { Component } from "@angular/core";
+import { SurveyModel } from "survey-core";
+
 const json = require("../assets/survey.json");
 
 @Component({
@@ -8,5 +10,5 @@ const json = require("../assets/survey.json");
 })
 export class AppComponent {
   title = "angular-ui";
-  json = json;
+  model = new SurveyModel(json);
 }

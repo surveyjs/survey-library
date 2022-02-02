@@ -192,6 +192,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public setValueFromRenderedRows = (): void => {
     const value = this.value;
     const renderedRows = this.renderedTable.rows;
+    const visibleRows = this.visibleRows;
     const renderedValue = renderedRows.map(renderedRow => renderedRow.row.value.value);
     value.sort((a: any, b: any) => renderedValue.indexOf(a.value) - renderedValue.indexOf(b.value));
 
@@ -199,6 +200,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const movableItem = value[1];
     value.splice(1, 1);
     value.splice(1, 0, movableItem);
+    this.unbindValue();
+    this.clearRowsAndResetRenderedTable();
+    this.renderedTable;
+    this.value = value;
     //EO TODO pure hack to make matrix update observable
   };
   /**

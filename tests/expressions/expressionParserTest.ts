@@ -1340,3 +1340,8 @@ QUnit.test("Operand.isEqual()", function(assert) {
   assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 or func({a}) < 3"), false, "#5");
   assert.equal(compareOperands("{val} = 1", "{val} != 1"), false, "#6");
 });
+
+QUnit.test("Expression decimal + string", function(assert) {
+  const expression = new ExpressionRunner("0.1 + 'abc'");
+  assert.equal(expression.run({}), "0.1abc");
+});

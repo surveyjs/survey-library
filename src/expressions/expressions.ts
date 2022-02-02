@@ -489,6 +489,9 @@ static unaryFunctions: HashTable<Function> = {
       return a || b;
     },
     plus: function(a: any, b: any): any {
+      if (!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
+        return a + b;
+      }
       return Helpers.correctAfterPlusMinis(a, b, a + b);
     },
     minus: function(a: number, b: number): number {

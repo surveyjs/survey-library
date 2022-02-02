@@ -191,9 +191,9 @@ export class QuestionBooleanModel extends Question {
     newValue: any,
     updateIsAnswered: boolean = true
   ) {
-    if(newValue === "true") newValue = true;
-    if(newValue === "false") newValue = false;
-    if(newValue === "indeterminate") newValue = null;
+    if (newValue === "true" && this.valueTrue !== "true") newValue = true;
+    if (newValue === "false" && this.valueFalse !== "false") newValue = false;
+    if (newValue === "indeterminate") newValue = null;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */
@@ -236,7 +236,7 @@ Serializer.addClass(
     "valueFalse",
     { name: "renderAs", default: "default", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionBooleanModel("");
   },
   "question"

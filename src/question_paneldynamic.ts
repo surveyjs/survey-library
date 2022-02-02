@@ -1285,14 +1285,14 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
-  public clearValueIfInvisible() {
+  protected clearValueIfInvisibleCore(): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
       for (var j = 0; j < questions.length; j++) {
         questions[j].clearValueIfInvisible();
       }
     }
-    super.clearValueIfInvisible();
+    super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;

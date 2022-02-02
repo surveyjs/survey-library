@@ -1153,6 +1153,9 @@ export class Question extends SurveyElement
     if(this.clearIfInvisible === "none") return;
     if(reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
     if(reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
+    this.clearValueIfInvisibleCore();
+  }
+  protected clearValueIfInvisibleCore(): void {
     if (this.canClearValueAsInvisible()) {
       this.clearValue();
     }

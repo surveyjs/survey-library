@@ -128,8 +128,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     super.clearIncorrectValues();
   }
-  public clearValueIfInvisible() {
-    super.clearValueIfInvisible();
+  protected clearValueIfInvisibleCore(): void {
+    super.clearValueIfInvisibleCore();
     this.clearInvisibleValuesInRows();
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {

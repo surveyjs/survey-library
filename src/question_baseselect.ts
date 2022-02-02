@@ -1083,8 +1083,8 @@ export class QuestionSelectBase extends Question {
   protected hasValueToClearIncorrectValues(): boolean {
     return !this.keepIncorrectValues && !this.isEmpty();
   }
-  public clearValueIfInvisible() {
-    super.clearValueIfInvisible();
+  protected clearValueIfInvisibleCore(): void {
+    super.clearValueIfInvisibleCore();
     this.clearIncorrectValues();
   }
   /**

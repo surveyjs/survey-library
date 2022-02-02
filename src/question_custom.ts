@@ -540,8 +540,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   getTextProcessor(): ITextProcessor {
     return this.textProcessing;
   }
-  clearValueIfInvisible() {
-    super.clearValueIfInvisible();
+  protected clearValueIfInvisibleCore(): void {
+    super.clearValueIfInvisibleCore();
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearValueIfInvisible();

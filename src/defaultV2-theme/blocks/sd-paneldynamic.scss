@@ -22,7 +22,6 @@
         & > .sd-panel__title {
             color: $foreground-light;
         }
-    
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel {
         & > .sd-panel__header ~ .sd-panel__content {
@@ -32,7 +31,7 @@
 }
 .sd-question__content:first-child > .sd-paneldynamic {
     & > .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: 32px;    
+        padding-top: 32px;
     }
 }
 
@@ -42,11 +41,10 @@
     left: 0;
     right: 0;
     margin: 0;
-    border-color: #EAEAEA;
-    background: #EAEAEA;
+    border-color: #eaeaea;
+    background: #eaeaea;
     height: 1px;
     border: none;
-    
 }
 .sd-paneldynamic__panel-wrapper {
     padding-bottom: calcSize(2);
@@ -54,7 +52,7 @@
 .sd-paneldynamic__panel-wrapper:after {
     display: table;
     clear: both;
-    content: ' ';
+    content: " ";
 }
 .sd-paneldynamic__panel-wrapper--in-row {
     display: flex;
@@ -79,17 +77,20 @@
     float: right;
     margin-top: calcSize(2);
     margin-right: calcSize(-3);
- }
+}
 .sd-paneldynamic__footer {
     clear: both;
-    .sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
+    .sd-paneldynamic__prev-btn,
+    .sd-paneldynamic__next-btn {
         display: block;
         svg {
-          width: calcSize(2);
-          height: calcSize(2);
+            width: calcSize(2);
+            height: calcSize(2);
         }
     }
-    .sd-paneldynamic__add-btn, .sd-paneldynamic__progress-text, .sd-paneldynamic__progress--bottom {
+    .sd-paneldynamic__add-btn,
+    .sd-paneldynamic__progress-text,
+    .sd-paneldynamic__progress--bottom {
         display: initial;
     }
 }
@@ -111,12 +112,13 @@
 .sd-paneldynamic__progress-text {
     display: none;
     color: $foreground-light;
-    margin: 0 calcSize(3);
+    margin: 0 calcSize(2);
 }
 .sd-paneldynamic__progress--bottom {
     display: none;
 }
-.sd-paneldynamic__prev-btn, .sd-paneldynamic__next-btn {
+.sd-paneldynamic__prev-btn,
+.sd-paneldynamic__next-btn {
     display: none;
     width: 16px;
     height: 16px;

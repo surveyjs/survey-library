@@ -14,6 +14,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
     this.rootRef = React.createRef();
+    this.recalculateCss();
+  }
+  private recalculateCss() {
+    this.row.visibleElements.map(element => (element as Question).cssClasses);
   }
   protected getStateElement(): Base {
     return this.row;
@@ -37,7 +41,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     var elements = null;
     elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
-      const css = (element as Question).cssClasses;
+      const css = (element as Question).cssClassesValue;
       return (
         <div
           className={css.questionWrapper}
@@ -78,6 +82,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
       nextProps.row.isNeedRender = this.row.isNeedRender;
       this.stopLazyRendering();
     }
+    this.recalculateCss();
     return true;
   }
   private stopLazyRendering() {

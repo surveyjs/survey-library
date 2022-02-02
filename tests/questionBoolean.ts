@@ -137,3 +137,26 @@ QUnit.test("Check boolean with string values", function (assert) {
   question.value = "indeterminate";
   assert.strictEqual(question.value, null);
 });
+QUnit.test("Check boolean with valueTrue = 'true' and valueFalse = 'false'", function (assert) {
+  var json = {
+    "elements": [
+      {
+        "type": "boolean",
+        "name": "bool",
+        "valueTrue": "true",
+        "valueFalse": "false",
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+  assert.strictEqual(question.valueTrue, "true", "Deserialisation");
+  question.checkedValue = true;
+  assert.strictEqual(question.value, "true", "Check value");
+  assert.equal(question.checkedValue, true, "Check checkedValue");
+  question.checkedValue = false;
+  assert.strictEqual(question.value, "false", "Check value #2");
+  assert.equal(question.checkedValue, false, "Check checkedValue #2");
+  question.checkedValue = null;
+  assert.strictEqual(question.isEmpty(), true, "Check value is empty");
+});

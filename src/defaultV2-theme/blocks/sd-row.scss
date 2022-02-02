@@ -12,7 +12,7 @@
   border-radius: calcSize(0.5);
 }
 .sd-page > .sd-row--multiple {
-  padding: 0 calcSize(5) calcSize(5);
+  padding: 0 var(--sd-base-padding) var(--sd-base-padding);
 }
 .sd-row--multiple {
   gap: 16px;

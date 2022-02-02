@@ -137,7 +137,7 @@
 }
 .sd-question--empty.sd-question--paneldynamic {
     & > .sd-question__content {
-        padding-bottom: 40px;
+        padding-bottom: var(--sd-base-padding);
     }
 }
 .svc-question__content .sd-paneldynamic__panel-wrapper {

@@ -7,6 +7,7 @@
     {
       "name": "page1",
       "title": "Page 1 Title",
+      "description": "This is the first page of test survey shown in survey-angular-ui module. Below you can see a list of question titles:",
       "questions": [
         {
           "name": "signature",

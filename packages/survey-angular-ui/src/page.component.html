@@ -6,12 +6,9 @@
       <string-viewer [model]="model.locTitle"></string-viewer>
     </h4>
   </div>
-  <!-- ko if: _showDescription-->
-  <div [hidden]="!model.data.showPageTitles" [class]="model.cssClasses.page.description">
-    <!-- ko template: { name: 'survey-string', data: locDescription } -->
-    <!-- /ko -->
+  <div *ngIf="model._showDescription" [hidden]="!model.data.showPageTitles" [class]="model.cssClasses.page.description">
+    <string-viewer [model]="model.locDescription"></string-viewer>
   </div>
-  <!-- /ko -->
   <!-- ko template: { name: 'survey-rows', data: $data} -->
   <!-- /ko -->
   <div *ngFor="let row of model.rows">

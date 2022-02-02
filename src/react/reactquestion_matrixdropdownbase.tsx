@@ -135,7 +135,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
 
     return (
       <React.Fragment key={key}>
-        <MatrixRow model={row}>{matrixrow}</MatrixRow>
+        <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>
       </React.Fragment>
     );
   }

@@ -1,11 +1,16 @@
-.sd-root-modern {
+.sd-root-modern,
+.svc-logic-question-value {
   --sd-base-padding: calc(5 * #{$base-unit});
   --sd-base-vertical-padding: calc(4 * #{$base-unit});
 
   @media (max-width: 600px) {
     --sd-base-padding: calc(3 * #{$base-unit});
     --sd-base-vertical-padding: calc(2 * #{$base-unit});
+  }
+}
 
+.sd-root-modern {
+  @media (max-width: 600px) {
     .sd-element__num {
       @include num_inline();
     }

@@ -524,8 +524,8 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
-  public clearValueIfInvisible() {
-    super.clearValueIfInvisible();
+  protected clearValueIfInvisibleCore(): void {
+    super.clearValueIfInvisibleCore();
     if (this.hasRows) {
       this.clearInvisibleValuesInRows();
     }

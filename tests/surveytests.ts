@@ -14254,6 +14254,7 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
 });
 QUnit.test("firstPageIsStarted = true and invisible questions and clear", function (assert) {
   var survey = new SurveyModel({
+    firstPageIsStarted: true,
     pages: [
       {
         elements: [

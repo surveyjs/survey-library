@@ -3,6 +3,9 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
+const youtubeTags = ["youtube.com", "youtu.be"];
+const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
+
 /**
  * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
  */
@@ -11,12 +14,17 @@ export class QuestionImageModel extends QuestionNonValue {
     super(name);
     this.createLocalizableString("imageLink", this, false);
     this.createLocalizableString("text", this, false);
+    this.registerFunctionOnPropertiesValueChanged(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {
     return "image";
   }
   public get isCompositeQuestion(): boolean {
     return false;
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.calculateRenderedMode();
   }
   /**
    * The image URL.
@@ -51,6 +59,9 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
+  public get renderedHeight(): string {
+    return this.imageHeight ? this.imageHeight + "px" : undefined;
+  }
   /**
    * The image width.
    */
@@ -59,6 +70,9 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
+  }
+  public get renderedWidth(): string {
+    return this.imageWidth ? this.imageWidth + "px" : undefined;
   }
   /**
    * The image fit mode.
@@ -81,6 +95,46 @@ export class QuestionImageModel extends QuestionNonValue {
       this.showLabel = true;
     }
   }
+  /**
+   * The rendered mode.
+   */
+  public get renderedMode(): string {
+    return this.getPropertyValue("renderedMode", "image");
+  }
+  private setRenderedMode(val: string) {
+    this.setPropertyValue("renderedMode", val);
+  }
+  protected calculateRenderedMode() {
+    if (this.contentMode !== "auto") {
+      this.setRenderedMode(this.contentMode);
+    } else {
+      if (this.isYoutubeVideo()) {
+        this.setRenderedMode("youtube");
+      } else if (this.isVideo()) {
+        this.setRenderedMode("video");
+      } else {
+        this.setRenderedMode("image");
+      }
+    }
+  }
+  private isYoutubeVideo(): boolean {
+    let link = this.imageLink;
+    if (!link) return false;
+    link = link.toLowerCase();
+    for (let i = 0; i < youtubeTags.length; i++) {
+      if (link.indexOf(youtubeTags[i]) !== -1) return true;
+    }
+    return false;
+  }
+  private isVideo(): boolean {
+    let link = this.imageLink;
+    if (!link) return false;
+    link = link.toLowerCase();
+    for (let i = 0; i < videoSuffics.length; i++) {
+      if (link.endsWith(videoSuffics[i])) return true;
+    }
+    return false;
+  }
 }
 
 Serializer.addClass(
@@ -90,8 +144,8 @@ Serializer.addClass(
     { name: "text", serializationProperty: "locText" },
     {
       name: "contentMode",
-      default: "image",
-      choices: ["image", "video"],
+      default: "auto",
+      choices: ["auto", "image", "video", "youtube"],
     },
     {
       name: "imageFit",

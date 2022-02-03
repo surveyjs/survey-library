@@ -15,7 +15,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.question.locImageLink.onChanged = () => {};
+    this.question.locImageLink.onChanged = () => { };
   }
 
   protected get question(): QuestionImageModel {
@@ -28,44 +28,39 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var style: any = { objectFit: this.question.imageFit };
     var control = null;
-    if (this.question.contentMode === "image") {
+    if (this.question.renderedMode === "image") {
       control = (
         <img
           className={cssClasses.image}
           src={this.question.locImageLink.renderedHtml}
           alt={this.question.text || this.question.title}
-          width={
-            this.question.imageWidth
-              ? this.question.imageWidth + "px"
-              : undefined
-          }
-          height={
-            this.question.imageHeight
-              ? this.question.imageHeight + "px"
-              : undefined
-          }
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
           //alt={item.text || item.value}
           style={style}
         />
       );
     }
-    if (this.question.contentMode === "video") {
+    if (this.question.renderedMode === "video") {
       control = (
         <video controls
           className={cssClasses.image}
           src={this.question.imageLink}
-          width={
-            this.question.imageWidth
-              ? this.question.imageWidth + "px"
-              : undefined
-          }
-          height={
-            this.question.imageHeight
-              ? this.question.imageHeight + "px"
-              : undefined
-          }
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
           style={style}
         ></video>
+      );
+    }
+    if (this.question.renderedMode === "youtube") {
+      control = (
+        <iframe
+          className={cssClasses.image}
+          src={this.question.imageLink}
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
+          style={style}
+        ></iframe>
       );
     }
     return <div className={this.question.cssClasses.root}>{control}</div>;

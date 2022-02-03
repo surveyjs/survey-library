@@ -37,6 +37,7 @@ export * from "../questionDropdown";
 export * from "../questionImagepicker";
 export * from "../questionBoolean";
 export * from "../question_baseselecttests";
+export * from "../question_imagetests";
 export * from "../question_ratingtests";
 export * from "../question_texttests";
 export * from "../question_customtests";

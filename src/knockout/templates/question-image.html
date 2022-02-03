@@ -1,10 +1,13 @@
 ﻿<script type="text/html" id="survey-question-image">
   <div data-bind="css: question.koCss().root">
-    <!-- ko if: question.contentMode === "image" -->
-    <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml(), width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined, alt: question.text || question.title }, style: { objectFit: question.imageFit }"/>
+    <!-- ko if: question.renderedMode === "image" -->
+    <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight, alt: question.text || question.title }, style: { objectFit: question.imageFit }"/>
     <!-- /ko -->
-    <!-- ko if: question.contentMode === "video" -->
-    <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml(), width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"></video>
+    <!-- ko if: question.renderedMode === "video" -->
+    <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></video>
+    <!-- /ko -->
+    <!-- ko if: question.renderedMode === "youtube" -->
+    <iframe data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></iframe>
     <!-- /ko -->
   </div>
 </script>

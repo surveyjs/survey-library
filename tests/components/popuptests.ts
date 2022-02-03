@@ -898,3 +898,33 @@ QUnit.test("PopupModel displayMode", (assert) => {
   model.isModal = true;
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 });
+
+QUnit.test("PopupModel position calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "1000px";
+  targetElement.style.left = "1000px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+  popupContainer.style.margin = "8px";
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.left, (1000 - 200 / 2 - 8 + 32 / 2) + "px");
+});

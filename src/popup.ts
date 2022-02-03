@@ -291,7 +291,8 @@ export class PopupBaseViewModel extends Base {
           pos.left,
           verticalPosition,
           this.model.horizontalPosition,
-          width
+          width,
+          margin
         );
       }
       this.pointerTarget.top += "px";

@@ -185,7 +185,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={controlLabelClass} title={locText.renderedHtml}>
+          <span className={controlLabelClass}>
             {itemText}
           </span>
         </label>

@@ -18,8 +18,11 @@ import { IShortcutText, ISurveyImpl } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
+import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
+  private dragOrClickHelper: DragOrClickHelper;
+
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
     super(data, value);
     this.buildCells(value);
@@ -72,6 +75,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.registerFunctionOnPropertyValueChanged("allowRowsDragAndDrop", () => {
       this.clearRowsAndResetRenderedTable();
     });
+    this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 
   public dragDropMatrixRows: DragDropMatrixRows;
@@ -80,11 +84,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
   }
 
-  public startDragMatrixRow(
-    event: PointerEvent,
-    row: MatrixDropdownRowModelBase
-  ) {
-    this.dragDropMatrixRows.startDrag(event, row, this);
+  private draggedRow: MatrixDropdownRowModelBase;
+  private isBanStartDrag(pointerDownEvent: PointerEvent): boolean {
+    const target = (<HTMLElement>pointerDownEvent.target);
+    return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
+  }
+  public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
+    if (this.isBanStartDrag(pointerDownEvent)) return;
+    this.draggedRow = row;
+    this.dragOrClickHelper.onPointerDown(pointerDownEvent);
+  }
+
+  public startDragMatrixRow = (event: PointerEvent, currentTarget: HTMLElement): void => {
+    this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, <HTMLElement>event.target);
   }
 
   public getType(): string {
@@ -176,6 +188,23 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     value.splice(toIndex, 0, movableRow);
 
     this.value = value;
+  };
+  public setValueFromRenderedRows = (): void => {
+    const value = this.value;
+    const renderedRows = this.renderedTable.rows;
+    const visibleRows = this.visibleRows;
+    const renderedValue = renderedRows.map(renderedRow => renderedRow.row.value.value);
+    value.sort((a: any, b: any) => renderedValue.indexOf(a.value) - renderedValue.indexOf(b.value));
+
+    //TODO pure hack to make matrix update observable
+    const movableItem = value[1];
+    value.splice(1, 1);
+    value.splice(1, 0, movableItem);
+    this.unbindValue();
+    this.clearRowsAndResetRenderedTable();
+    this.renderedTable;
+    this.value = value;
+    //EO TODO pure hack to make matrix update observable
   };
   /**
    * The number of rows in the matrix.

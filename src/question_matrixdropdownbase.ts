@@ -965,6 +965,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return true;
   }
+  public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {}
   protected onRowsChanged() {
     this.resetRenderedTable();
     super.onRowsChanged();

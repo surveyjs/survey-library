@@ -14393,3 +14393,42 @@ QUnit.test("Checkbox, invsible item with default Value", function (assert) {
   survey.setValue("q1", 2);
   assert.deepEqual(q2.value, [2], "default value is goine");
 });
+QUnit.test("clearInvisibleValues: `none` and copyvalue trigger", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+      },
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "visible": false,
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{question1} notempty",
+        "fromName": "question1",
+        "setToName": "question2"
+      }
+    ],
+    "clearInvisibleValues": "none"
+  });
+  survey.setValue("question1", "item2");
+  assert.equal(survey.getValue("question2"), "item2", "Trigger is working");
+  assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct after completed");
+});

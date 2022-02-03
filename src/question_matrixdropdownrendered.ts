@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
 import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
@@ -130,7 +130,7 @@ export class QuestionMatrixDropdownRenderedCell {
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
-  @property({ defaultValue: null }) ghostPosition: string;
+  @property({ defaultValue: null }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
 
   public row: MatrixDropdownRowModelBase;
@@ -155,8 +155,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return new CssClassBuilder()
       .append(this.cssClasses.row)
       .append(this.cssClasses.detailRow, this.isDetailRow)
-      .append(this.cssClasses.dragDropGhostPositionTop, this.ghostPosition === "top")
-      .append(this.cssClasses.dragDropGhostPositionBottom, this.ghostPosition === "bottom")
+      .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
   }
@@ -168,9 +167,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private hasRemoveRowsValue: boolean;
   private rowsActions: Array<Array<IAction>>;
   private cssClasses: any;
+  public renderedRowsChangedCallback = ():void=>{};
+  @propertyArray({
+    onPush: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
+      target.renderedRowsChangedCallback();
+    },
+  }) rows: Array<QuestionMatrixDropdownRenderedRow>;
+
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
-    this.createNewArray("rows");
     this.build();
   }
   public get showTable(): boolean {
@@ -205,9 +210,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   public get footerRow(): QuestionMatrixDropdownRenderedRow {
     return this.footerRowValue;
-  }
-  public get rows(): Array<QuestionMatrixDropdownRenderedRow> {
-    return this.getPropertyValue("rows");
   }
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
@@ -392,7 +394,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.isColumnLayoutHorizontal
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
-    this.setPropertyValue("rows", rows);
+    this.rows = rows;
   }
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {

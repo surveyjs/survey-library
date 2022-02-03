@@ -220,12 +220,9 @@ export class StylesManager {
     ".sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv-matrixdynamic__drag-icon:after":
       "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
-    ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
-      "position: relative;",
-    ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":
-      "content: ''; width: 100%; height: 4px; background-color: #19b394; position: absolute; left: 0;",
-    ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
+
+    ".sv-matrix-row--drag-drop-ghost-mod td": "background-color: #f3f3f3;",
+    ".sv-matrix-row--drag-drop-ghost-mod td > *": "visibility: hidden",
     //eo drag-drop
 
     ".sv_qstn .sv_q_select_column":

@@ -392,13 +392,13 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("imageLinkName", val);
   }
   public get allowEmptyResponse(): boolean {
-    return this.getPropertyValue("allowEmptyResponse", false);
+    return this.getPropertyValue("allowEmptyResponse");
   }
   public set allowEmptyResponse(val: boolean) {
     this.setPropertyValue("allowEmptyResponse", val);
   }
   public get attachOriginalItems(): boolean {
-    return this.getPropertyValue("attachOriginalItems", false);
+    return this.getPropertyValue("attachOriginalItems");
   }
   public set attachOriginalItems(val: boolean) {
     this.setPropertyValue("attachOriginalItems", val);
@@ -606,8 +606,8 @@ Serializer.addClass(
         return !!obj && !!obj.owner && obj.owner.getType() == "imagepicker";
       },
     },
-    { name: "allowEmptyResponse:boolean", default: false },
-    { name: "attachOriginalItems:boolean", default: false, visible: false },
+    { name: "allowEmptyResponse:boolean" },
+    { name: "attachOriginalItems:boolean", visible: false },
   ],
   function() {
     return new ChoicesRestful();

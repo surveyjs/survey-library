@@ -22,7 +22,7 @@
 }
 
 .sd-question__header--location-top {
-  padding-bottom: calcSize(2);
+  padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
 }
 
 .sd-scrollable .sd-question__content {
@@ -84,7 +84,7 @@
 
 .sd-question--empty.sd-question--complex {
   & > .sd-question__header--location-top {
-    padding-bottom: 16px;
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
     &:after {
       display: none;
     }
@@ -114,6 +114,6 @@
     padding-bottom: 0;
   }
   & > .sd-question__content:first-child {
-    padding-top: 40px;
+    padding-top: var(--sd-base-padding);
   }
 }

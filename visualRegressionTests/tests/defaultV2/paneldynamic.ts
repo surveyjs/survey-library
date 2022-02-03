@@ -11,7 +11,6 @@ fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
-
 var json = {
   showQuestionNumbers: "off",
   questions: [
@@ -66,6 +65,18 @@ frameworks.forEach(framework => {
       .ok(compareResults.errorMessages());
     await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
     await takeScreenshot("paneldynamic-empty.png", paneldynamicRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
+  test("Paneldynamic list mode", async (t) => {
+    await t.resizeWindow(1920, 1920);
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const paneldynamicRoot = Selector(".sd-question--paneldynamic");
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("applications").renderMode = "list";
+    })();
+    await takeScreenshot("paneldynamic-list.png", paneldynamicRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

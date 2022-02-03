@@ -52,4 +52,53 @@ frameworks.forEach(framework => {
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("responsiveness-multiple-row.png", rowSelector, t);
   });
+  const panelDynamicJSON = {
+    showQuestionNumbers: "off",
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "applications",
+        title: "What application do you use?",
+        renderMode: "progressTop",
+        templateTitle: "{panel.application}",
+        templateElements: [
+          {
+            name: "application",
+            type: "dropdown",
+            title: "Application",
+            defaultValue: "Adobe Photoshop",
+            choices: [
+              "Adobe Photoshop",
+            ],
+          },
+          {
+            name: "often",
+            type: "radiogroup",
+            title: "How often do you use this applications?",
+            choices: ["Rare", "Sometimes", "Always"]
+          }
+        ],
+        panelCount: 2,
+        noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
+        panelAddText: "Add application",
+        panelRemoveText: "Remove application"
+      },
+    ]
+  };
+  test("Check paneldynamic progressTop on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, panelDynamicJSON);
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("applications").currentIndex = 2;
+    })();
+    await checkElementScreenshot("responsiveness-paneldynamic-progress-top.png", Selector(".sd-question--paneldynamic"), t);
+  });
+  test("Check paneldynamic progressTop on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, panelDynamicJSON);
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("applications").renderMode = "list";
+    })();
+    await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
+  });
 });

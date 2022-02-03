@@ -120,7 +120,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onShowingPreview: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired after a user clicks the 'Complete' button. The event allows you to specify the URL opened after completing a survey.
    * Specify the `navigateToUrl` property to make survey navigate to another url.
@@ -159,7 +159,7 @@ export class SurveyModel extends SurveyElementCore
    **/
   public onCurrentPageChanging: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired when the current page has been changed to another page. Typically it happens when a user click on 'Next' or 'Prev' buttons.
    * <br/> `sender` - the survey object that fires the event.
@@ -176,7 +176,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onCurrentPageChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before the question value (answer) is changed. It can be done via UI by a user or programmatically on calling the `setValue` method.
    * <br/> `sender` - the survey object that fires the event.
@@ -222,7 +222,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onVisibleChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on changing a page visibility.
    * <br/> `sender` - the survey object that fires the event.
@@ -233,7 +233,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPageVisibleChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on changing a panel visibility.
    * <br/> `sender` - the survey object that fires the event.
@@ -244,7 +244,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPanelVisibleChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on creating a new question.
    * Unlike the onQuestionAdded event, this event calls for all question created in survey including inside: a page, panel, matrix cell, dynamic panel and multiple text.
@@ -258,7 +258,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onQuestionCreated: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on adding a new question into survey.
    * <br/> `sender` - the survey object that fires the event.
@@ -280,7 +280,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onQuestionRemoved: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on adding a panel into survey.
    * <br/> `sender` - the survey object that fires the event.
@@ -319,7 +319,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidateQuestion: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before errors are assigned to a question. You may add/remove/modify errors for a question.
    * <br/> `sender` - the survey object that fires the event.
@@ -329,7 +329,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onSettingQuestionErrors: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to validate data on your server.
    * <br/> `sender` - the survey object that fires the event.
@@ -368,7 +368,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onErrorCustomText: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
    * options.questions - the list of questions that have errors
@@ -377,7 +377,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to modify the HTML content before rendering, for example `completeHtml` or `loadingHtml`.
    * `options.html` - specifies the modified HTML content.
@@ -395,7 +395,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionTitle: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to change the element title tag name that renders by default.
    * <br/> `sender` - the survey object that fires the event.
@@ -406,7 +406,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetTitleTagName: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * <br/> `sender` - the survey object that fires the event.
@@ -512,7 +512,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onLoadChoicesFromServer: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired after survey is loaded from api.surveyjs.io service.
    * You can use this event to perform manipulation with the survey model after it was loaded from the web service.
@@ -522,7 +522,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onLoadedSurveyFromService: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
    * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
@@ -534,7 +534,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onProcessTextValue: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before rendering a question. Use it to override the default question CSS classes.
    * <br/> `sender` - the survey object that fires the event.
@@ -543,7 +543,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before rendering a panel. Use it to override the default panel CSS classes.
    * <br/> `sender` - the survey object that fires the event.
@@ -552,7 +552,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before rendering a page. Use it to override the default page CSS classes.
    * <br/> `sender` - the survey object that fires the event.
@@ -561,7 +561,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
    * <br/> `sender` - the survey object that fires the event.
@@ -571,7 +571,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after survey is rendered in DOM.
    * <br/> `sender` - the survey object that fires the event.
@@ -579,7 +579,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderSurvey: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event.
@@ -587,7 +587,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderHeader: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event.
@@ -596,7 +596,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderPage: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after a question is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event.
@@ -605,7 +605,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderQuestion: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
    * This event is not fired for matrices, panels, multiple text and image picker.
@@ -615,7 +615,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderQuestionInput: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired right after a panel is rendered in DOM. Use it to modify HTML elements.
    * <br/> `sender` - the survey object that fires the event
@@ -624,7 +624,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderPanel: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event occurs when an element within a question gets focus.
    * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
@@ -650,7 +650,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowAdded: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before adding a new row in Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
@@ -661,7 +661,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
    * <br/> `sender` - the survey object that fires the event
@@ -675,7 +675,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowRemoving: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on removing a row from Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
@@ -689,7 +689,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowRemoved: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before rendering "Remove" button for removing a row from Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
@@ -703,7 +703,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
    * <br/> `sender` - the survey object that fires the event.
@@ -720,7 +720,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixCellCreating: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
     * The event is fired for every cell created in Matrix Dynamic and Matrix Dropdown questions.
     * <br/> `sender` - the survey object that fires the event.
@@ -739,7 +739,7 @@ export class SurveyModel extends SurveyElementCore
     */
   public onMatrixCellCreated: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired for every cell after is has been rendered in DOM.
    * <br/> `sender` - the survey object that fires the event.
@@ -755,7 +755,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixAfterCellRender: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
    * <br/> `sender` - the survey object that fires the event.
@@ -772,7 +772,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixCellValueChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
    * <br/> `sender` - the survey object that fires the event.
@@ -790,7 +790,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixCellValueChanging: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
    * <br/> `sender` - the survey object that fires the event.
@@ -807,7 +807,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixCellValidate: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on adding a new panel in Panel Dynamic question.
    * <br/> `sender` - the survey object that fires the event.
@@ -818,7 +818,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelAdded: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired on removing a panel from Panel Dynamic question.
    * <br/> `sender` - the survey object that fires the event.
@@ -830,7 +830,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired every second if the method `startTimer` has been called.
    * @see startTimer
@@ -845,7 +845,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onTimerPanelInfoText: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired when item value is changed in Panel Dynamic question.
    * <br/> `sender` - the survey object that fires the event.
@@ -860,7 +860,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to define, whether an answer to a question is correct or not.
    * <br/> `sender` - the survey object that fires the event.
@@ -872,7 +872,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onIsAnswerCorrect: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to control drag&drop operations during design mode.
    * <br/> `sender` - the survey object that fires the event.
@@ -897,11 +897,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onScrollingElementToTop: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
 
   public onLocaleChangedEvent: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
 
   /**
    * Use this event to create/customize actions to be displayed in a question's title.
@@ -913,7 +913,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to create/customize actions to be displayed in a panel's title.
    * <br/> `sender` - A survey object that fires the event.
@@ -924,7 +924,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetPanelTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to create/customize actions to be displayed in a page's title.
    * <br/> `sender` - A survey object that fires the event.
@@ -935,7 +935,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    * <br/> `sender` - A survey object that fires the event.
@@ -947,7 +947,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetMatrixRowActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
   /**
    * The event is fired after the survey element content was collapsed or expanded.
    * <br/> `sender` - the survey object that fires the event.
@@ -956,7 +956,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onElementContentVisibilityChanged: EventBase<
     SurveyModel
-    > = this.addEvent<SurveyModel>();
+  > = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired before expression question convert it's value into display value for rendering.
@@ -967,7 +967,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
-    >();
+  >();
 
   //#endregion
 
@@ -1144,7 +1144,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
-      .append(this.css.body+"--"+this.calculateWidthMode()).toString();
+      .append(this.css.body + "--" + this.calculateWidthMode()).toString();
   }
   public get completedCss(): string {
     return new CssClassBuilder().append(this.css.body)
@@ -1164,10 +1164,10 @@ export class SurveyModel extends SurveyElementCore
     return this.lazyRenderingValue === true;
   }
   public set lazyRendering(val: boolean) {
-    if(this.lazyRendering === val) return;
+    if (this.lazyRendering === val) return;
     this.lazyRenderingValue = val;
     const page: PageModel = this.currentPage;
-    if(!!page) {
+    if (!!page) {
       page.updateRows();
     }
   }
@@ -2281,7 +2281,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   protected updateElementCss(reNew?: boolean) {
-    if(!!this.startedPage) {
+    if (!!this.startedPage) {
       this.startedPage.updateElementCss(reNew);
     }
     var pages = this.visiblePages;
@@ -2596,7 +2596,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     var newPage = this.getPageByObject(value);
     if (!!value && !newPage) return;
-    if(!newPage && this.isCurrentPageAvailable) return;
+    if (!newPage && this.isCurrentPageAvailable) return;
     var vPages = this.visiblePages;
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
@@ -2613,15 +2613,15 @@ export class SurveyModel extends SurveyElementCore
     this.currentPageChanged(newPage, oldValue);
   }
   private updateCurrentPage(): void {
-    if(this.isCurrentPageAvailable) return;
+    if (this.isCurrentPageAvailable) return;
     this.currentPage = this.firstVisiblePage;
   }
   private get isCurrentPageAvailable(): boolean {
     const page = this.currentPage;
     return !!page && this.isPageInVisibleList(page) && this.isPageExistsInSurvey(page);
   }
-  private isPageExistsInSurvey(page: PageModel) : boolean {
-    if(this.pages.indexOf(page) > -1) return true;
+  private isPageExistsInSurvey(page: PageModel): boolean {
+    if (this.pages.indexOf(page) > -1) return true;
     return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
@@ -2687,7 +2687,7 @@ export class SurveyModel extends SurveyElementCore
   scrollToTopOnPageChange(doScroll: boolean = true): void {
     var page = this.activePage;
     if (!page) return;
-    if(doScroll) {
+    if (doScroll) {
       page.scrollToTop();
     }
     if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
@@ -3981,7 +3981,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private isFirstPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
-    if(!this.isDesignMode) {
+    if (!this.isDesignMode) {
       this.scrollToTopOnPageChange(!this.isFirstPageRendering);
     }
     this.isFirstPageRendering = false;
@@ -5017,9 +5017,10 @@ export class SurveyModel extends SurveyElementCore
     this.updateIsFirstLastPageState();
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
-      var isPageVisible = this.pages[i].isVisible;
-      this.pages[i].visibleIndex = isPageVisible ? index++ : -1;
-      this.pages[i].num = isPageVisible ? this.pages[i].visibleIndex + 1 : -1;
+      const page = this.pages[i];
+      const isPageVisible = page.isVisible && (i > 0 || !page.isStarted);
+      page.visibleIndex = isPageVisible ? index++ : -1;
+      page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
   }
   public fromJSON(json: any) {
@@ -5162,7 +5163,7 @@ export class SurveyModel extends SurveyElementCore
     return !!questions ? questions.length : 0;
   }
   private clearInvisibleQuestionValues() {
-    const reason = this.clearInvisibleValues === "none"? "none": "onComplete";
+    const reason = this.clearInvisibleValues === "none" ? "none" : "onComplete";
     const questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearValueIfInvisible(reason);

@@ -360,6 +360,22 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
 });
+QUnit.test("Check page num when first page is started", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "html", name: "info" }] },
+      { name: "p2", elements: [{ type: "text", name: "q1" }] },
+      { name: "p3", elements: [{ type: "text", name: "q2" }] },
+    ],
+    firstPageIsStarted: true
+  });
+  assert.equal(survey.pages[0].num, -1);
+  assert.equal(survey.pages[0].visibleIndex, -1);
+  assert.equal(survey.pages[1].num, 1);
+  assert.equal(survey.pages[1].visibleIndex, 0);
+  assert.equal(survey.pages[2].num, 2);
+  assert.equal(survey.pages[2].visibleIndex, 1);
+});
 
 QUnit.test("Do not show errors in display mode", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -5221,7 +5237,7 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(
       options.name,
       "title",
@@ -5350,7 +5366,7 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(options.name, "title", "page title markdown preprocessing");
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
@@ -14347,7 +14363,7 @@ QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
   });
   var counter = 0;
   survey.onQuestionAdded.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   survey.currentPageNo = 1;
   assert.equal(counter, 0, "onQuestionAdded is not fired");
@@ -14375,9 +14391,11 @@ QUnit.test("Checkbox, invsible item with default Value", function (assert) {
   survey.fromJSON({
     elements: [
       { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
-      { type: "checkbox", name: "q2", defaultValue: [1], choices: [
-        { value: 1, visibleIf: "{q1} = 2" }, 2
-      ] },
+      {
+        type: "checkbox", name: "q2", defaultValue: [1], choices: [
+          { value: 1, visibleIf: "{q1} = 2" }, 2
+        ]
+      },
     ]
   });
   const q2 = survey.getQuestionByName("q2");

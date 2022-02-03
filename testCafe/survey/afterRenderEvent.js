@@ -48,9 +48,9 @@ const json = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
-      var f = function(survey, options) {
+      var f = function (survey, options) {
         if (options.question.name == "question4a") {
-          var title = options.htmlElement.querySelector("[title='Yes']");
+          var title = options.htmlElement.querySelector("input[value='valueYes']");
           title.style.color = "tomato";
         }
         if (options.question.name == "question4b") {
@@ -65,7 +65,7 @@ frameworks.forEach((framework) => {
 
   test(`afterRenderQuestion fires for initially hidden questions`, async (t) => {
     const isTitleOk = ClientFunction(
-      () => document.querySelector("[title='Yes']").style.color === "tomato"
+      () => document.querySelector("input[value='valueYes']").style.color === "tomato"
     );
     const getQuestionCount = ClientFunction(
       () => document.querySelectorAll(".sv_q.sv_qstn").length

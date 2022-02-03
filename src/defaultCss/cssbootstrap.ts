@@ -196,8 +196,7 @@ export var defaultBootstrapCss = {
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
-    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
-    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
   },
   paneldynamic: {
     root: "",

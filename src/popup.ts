@@ -239,7 +239,7 @@ export class PopupBaseViewModel extends Base {
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
-        height = Math.min(height, window.innerHeight * 0.9);
+        height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
         verticalPosition = PopupUtils.updateVerticalPosition(
           rect,
           height,
@@ -255,7 +255,7 @@ export class PopupBaseViewModel extends Base {
       const pos = PopupUtils.calculatePosition(
         rect,
         height,
-        width,
+        widthMargins,
         verticalPosition,
         this.model.horizontalPosition,
         this.showPointer
@@ -290,7 +290,9 @@ export class PopupBaseViewModel extends Base {
           pos.top,
           pos.left,
           verticalPosition,
-          this.model.horizontalPosition
+          this.model.horizontalPosition,
+          width,
+          margin
         );
       }
       this.pointerTarget.top += "px";

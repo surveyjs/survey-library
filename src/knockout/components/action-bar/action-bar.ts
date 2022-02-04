@@ -9,11 +9,26 @@ export * from "./action-bar-item";
 export * from "./action-bar-item-dropdown";
 export * from "./action-bar-separator";
 
+export class ActionBarViewModel extends ActionContainer {
+  private _implementor: ImplementorBase;
+  constructor(public model: ActionContainer, public handleClick = true) {
+    super();
+    this._implementor = new ActionContainerImplementor(model);
+  }
+
+  dispose(): void {
+    super.dispose();
+    this._implementor.dispose();
+    this.model.resetResponsivityManager();
+  }
+}
+
 export class ActionContainerImplementor extends ImplementorBase {
   private itemsSubscription: any;
 
-  constructor(private model: ActionContainer, public handleClick = true) {
+  constructor(model: ActionContainer) {
     super(model);
+
     this.itemsSubscription = ko.computed(() => {
       ((<any>model).renderedActions || (<any>model).items || (<any>model).actions).forEach((item: any) => {
         if (!!item.stateItem) {
@@ -28,7 +43,6 @@ export class ActionContainerImplementor extends ImplementorBase {
   dispose() {
     super.dispose();
     this.itemsSubscription.dispose();
-    this.model.resetResponsivityManager();
   }
 }
 
@@ -39,7 +53,7 @@ ko.components.register("sv-action-bar", {
       const model = params.model;
       const container: HTMLDivElement = componentInfo.element.nextElementSibling;
       params.model.initResponsivityManager(container);
-      return new ActionContainerImplementor(model, handleClick);
+      return new ActionBarViewModel(model, handleClick);
     },
   },
   template: template,

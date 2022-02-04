@@ -1,4 +1,4 @@
-import { ActionContainerImplementor } from "../../src/knockout/components/action-bar/action-bar";
+import { ActionBarViewModel } from "../../src/knockout/components/action-bar/action-bar";
 import ko from "knockout";
 import { ActionContainer } from "../../src/actions/container";
 
@@ -18,7 +18,7 @@ QUnit.test("ActionBarViewModel item visible is observable",
     ];
     const actionContainer = new ActionContainer();
     actionContainer.setItems(items);
-    const model = new ActionContainerImplementor(actionContainer);
+    const model = new ActionBarViewModel(actionContainer);
     const item = actionContainer.actions[0];
     assert.equal(item.visible, true);
     let count = 0;
@@ -49,28 +49,9 @@ QUnit.test("ActionBarViewModel dispose", (assert) => {
   ];
   const actionContainer = new ActionContainer();
   actionContainer.setItems(items);
-  const model = new ActionContainerImplementor(actionContainer);
+  const model = new ActionBarViewModel(actionContainer);
 
   assert.equal(actionContainer.actions.length, 2);
   model.dispose();
   assert.equal(actionContainer.actions.length, 2);
-});
-
-QUnit.test("ActionBarViewModel check setItems not throwing exception after dispose", (assert) => {
-  const items = [
-    {
-      id: "id1",
-      title: "title1",
-    },
-    {
-      id: "id1",
-      title: "title1",
-    },
-  ];
-  const actionContainer = new ActionContainer();
-  actionContainer.setItems(items);
-  const model = new ActionContainerImplementor(actionContainer);
-  model.dispose();
-  actionContainer.setItems(items);
-  assert.equal("dummy", "dummy");
 });

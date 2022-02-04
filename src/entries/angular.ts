@@ -1,10 +1,6 @@
 import * as ko from "knockout";
 
 export * from "./core";
-
-// localization
-import "./chunks/localization";
-
 /*
 // model
 export * from "./chunks/model";

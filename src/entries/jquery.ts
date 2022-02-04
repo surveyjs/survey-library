@@ -2,10 +2,6 @@ import * as ko from "knockout";
 import jQuery from "jquery";
 
 export * from "./core";
-
-// localization
-import "./chunks/localization";
-
 /*
 // model
 export * from "./chunks/model";

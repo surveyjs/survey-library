@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var germanSurveyStrings = {
   pagePrevText: "Zurück",

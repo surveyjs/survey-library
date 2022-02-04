@@ -1,5 +1,5 @@
 //Create by Mattias Asplund
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var swedishSurveyStrings = {
   pagePrevText: "Föregående",

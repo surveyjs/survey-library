@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var koreanStrings = {
   pagePrevText: "이전",

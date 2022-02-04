@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 import { dutchSurveyStrings } from "./dutch";
 
 /**

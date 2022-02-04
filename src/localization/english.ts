@@ -1,5 +1,5 @@
-// Uncomment this line on creating a translation file
-// import { surveyLocalization } from "survey-core";
+//Uncomment this line on creating a translation file
+//import { surveyLocalization } from "../surveyStrings";
 
 export var englishStrings = {
   pagePrevText: "Previous",

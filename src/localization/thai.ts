@@ -1,5 +1,5 @@
 //Created by Padet Taweekunkan
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",

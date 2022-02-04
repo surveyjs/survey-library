@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var traditionalChineseSurveyStrings = {
   pagePrevText: "上一頁",

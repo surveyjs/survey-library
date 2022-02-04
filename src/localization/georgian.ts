@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { surveyLocalization } from "../surveyStrings";
 
 export var georgianSurveyStrings = {
   pagePrevText: "უკან",

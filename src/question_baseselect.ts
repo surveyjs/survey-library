@@ -692,9 +692,9 @@ export class QuestionSelectBase extends Question {
         propertyName: string,
       }>,
     } = {
-        includeEmpty: true,
-        includeQuestionTypes: false,
-      }
+      includeEmpty: true,
+      includeQuestionTypes: false,
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {

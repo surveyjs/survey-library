@@ -1,9 +1,6 @@
 // model
 export * from "./chunks/model";
 
-// localization
-import "./chunks/localization";
-
 // css standard classes
 export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap classes

@@ -1,6 +1,6 @@
 //Created on behalf https://github.com/Frank13
 //Modified on behalf Roeland Verbakel
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var dutchSurveyStrings = {
   pagePrevText: "Vorige",

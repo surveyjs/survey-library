@@ -641,6 +641,16 @@ export class SurveyModel extends SurveyElementCore
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
+   * You can use this event to decide whether show or hide choice item in checkbox, dropdown and radiogroup like questions
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a question that contains choices.
+   * <br/> `options.item` - an item of the question.
+   */
+  public onShowingChoiceItem: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
+
+  /**
    * The event is fired on adding a new row in Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
    * <br/> `options.question` - a matrix question.
@@ -1048,6 +1058,9 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
       this.currentPage && this.currentPage.updateElementCss();
+    };
+    this.onShowingChoiceItem.onCallbacksChanged = () => {
+      this.rebuildQuestionChoices();
     };
     this.onBeforeCreating();
     if (jsonObj) {
@@ -4034,6 +4047,17 @@ export class SurveyModel extends SurveyElementCore
     });
   }
 
+  private rebuildQuestionChoices() {
+    this.getAllQuestions().forEach(q => q.surveyChoiceItemVisibilityChange());
+  }
+  canChangeChoiceItemsVisibility(): boolean {
+    return !this.onShowingChoiceItem.isEmpty;
+  }
+  getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean {
+    const options = { question: question, item: item, visible: val };
+    this.onShowingChoiceItem.fire(this, options);
+    return options.visible;
+  }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
   }

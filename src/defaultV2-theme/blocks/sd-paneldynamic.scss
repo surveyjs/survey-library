@@ -8,9 +8,9 @@
     }
     & > .sd-panel {
         padding-top: 1px;
-        padding-bottom: calcSize(2);
+        padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
         & + .sd-paneldynamic__remove-btn {
-            margin-bottom: calcSize(2);
+            margin-bottom: calc(0.5 * var(--sd-base-vertical-padding));
         }
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
@@ -18,7 +18,7 @@
         &:after {
             display: none;
         }
-        padding-top: calcSize(3);
+        padding-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
         & > .sd-panel__title {
             color: $foreground-light;
         }
@@ -31,7 +31,7 @@
 }
 .sd-question__content:first-child > .sd-paneldynamic {
     & > .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: 32px;
+        padding-top: var(--sd-base-vertical-padding);
     }
 }
 
@@ -47,7 +47,7 @@
     border: none;
 }
 .sd-paneldynamic__panel-wrapper {
-    padding-bottom: calcSize(2);
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
 }
 .sd-paneldynamic__panel-wrapper:after {
     display: table;
@@ -75,7 +75,7 @@
 }
 .sd-paneldynamic__remove-btn {
     float: right;
-    margin-top: calcSize(2);
+    margin-top: calc(0.5 * var(--sd-base-vertical-padding));
     margin-right: calcSize(-3);
 }
 .sd-paneldynamic__footer {
@@ -97,7 +97,7 @@
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
-    padding: calcSize(3) 0;
+    padding: calc(var(--sd-base-vertical-padding) - #{$base-unit}) 0;
 }
 .sd-paneldynamic__add-btn {
     display: none;

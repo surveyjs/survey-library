@@ -23,7 +23,6 @@
       ><span
         v-if="!hideLabel"
         :class="getControlLabelClass(item)"
-        :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span> </label

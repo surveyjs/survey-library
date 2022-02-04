@@ -197,7 +197,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={this.cssClasses.controlLabel} title={locText.renderedHtml}>
+          <span className={this.cssClasses.controlLabel}>
             {text}
           </span>
         </label>

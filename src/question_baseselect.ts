@@ -177,6 +177,9 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choicesEnableIf", val);
     this.filterItems();
   }
+  public surveyChoiceItemVisibilityChange() {
+    this.filterItems();
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runItemsEnableCondition(values, properties);
@@ -246,8 +249,8 @@ export class QuestionSelectBase extends Question {
       this.conditionChoicesEnableIfRunner,
       values,
       properties,
-      (item: ItemValue): boolean => {
-        return this.onEnableItemCallBack(item);
+      (item: ItemValue, val: boolean): boolean => {
+        return val && this.onEnableItemCallBack(item);
       }
     );
     if (hasChanged) {
@@ -255,7 +258,7 @@ export class QuestionSelectBase extends Question {
     }
     this.onAfterRunItemsEnableCondition();
   }
-  protected onAfterRunItemsEnableCondition() {}
+  protected onAfterRunItemsEnableCondition() { }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
@@ -283,11 +286,20 @@ export class QuestionSelectBase extends Question {
       this.conditionChoicesEnableIfRunner = null;
     }
   }
+  private canSurveyChangeItemVisibility(): boolean {
+    return !!this.survey && this.survey.canChangeChoiceItemsVisibility();
+  }
+  public changeItemVisisbility() {
+    return this.canSurveyChangeItemVisibility() ?
+      (item: ItemValue, val: boolean): boolean => this.survey.getChoiceItemVisibility(this, item, val)
+      : null;
+  }
   private runConditionsForItems(
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
     this.filteredChoicesValue = [];
+    const calcVisibility = this.changeItemVisisbility();
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.getFilteredChoices(),
@@ -296,7 +308,10 @@ export class QuestionSelectBase extends Question {
         : this.conditionChoicesVisibleIfRunner,
       values,
       properties,
-      !this.survey || !this.survey.areInvisibleElementsShowing
+      !this.survey || !this.survey.areInvisibleElementsShowing,
+      (item: ItemValue, val: boolean): boolean => {
+        return !!calcVisibility ? calcVisibility(item, val) : val;
+      }
     );
   }
   protected getHasOther(val: any): boolean {
@@ -632,26 +647,28 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = new ItemValue("newitem"); //TODO
       }
-      if (this.canShowOptionItem(this.newItemValue)) {
+      if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
       }
     }
     if (
-      this.supportOther() &&
-      ((isAddAll && this.canShowOptionItem(this.otherItem)) || this.hasOther)
+      this.supportOther() && this.canShowOptionItem(this.otherItem, isAddAll, this.hasOther)
     ) {
       items.push(this.otherItem);
     }
     if (
-      this.supportNone() &&
-      ((isAddAll && this.canShowOptionItem(this.noneItem)) || this.hasNone)
+      this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.hasNone)
     ) {
       items.push(this.noneItem);
     }
   }
-  protected canShowOptionItem(item: ItemValue): boolean {
-    if (!this.canShowOptionItemCallback) return true;
-    return this.canShowOptionItemCallback(item);
+  protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
+    let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
+    if (this.canSurveyChangeItemVisibility()) {
+      const calc = this.changeItemVisisbility();
+      return calc(item, res);
+    }
+    return res;
   }
   /**
    * For internal use in SurveyJS Creator V2.
@@ -1052,7 +1069,7 @@ export class QuestionSelectBase extends Question {
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
-    return array.sort(function(a, b) {
+    return array.sort(function (a, b) {
       if (a.calculatedText < b.calculatedText) return -1 * mult;
       if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
@@ -1132,7 +1149,7 @@ export class QuestionSelectBase extends Question {
     const options: any = { item: item };
     var res = this.getItemClassCore(item, options);
     options.css = res;
-    if(!!this.survey) {
+    if (!!this.survey) {
       this.survey.updateChoiceItemCss(this, options);
     }
     return options.css;
@@ -1221,7 +1238,7 @@ export class QuestionSelectBase extends Question {
         isReady: true,
         oldIsReady: oldIsReady,
       });
-    if(this.survey) {
+    if (this.survey) {
       this.survey.loadedChoicesFromServer(this);
     }
   }
@@ -1240,10 +1257,9 @@ export class QuestionSelectBase extends Question {
     return item;
   }
   public ariaItemChecked(item: ItemValue) {
-    return this.renderedValue === item.value ? "true": "false";
+    return this.renderedValue === item.value ? "true" : "false";
   }
-  public isOtherItem(item: ItemValue)
-  {
+  public isOtherItem(item: ItemValue) {
     return this.hasOther && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
@@ -1305,7 +1321,7 @@ Serializer.addClass(
     {
       name: "commentText",
       dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -1314,7 +1330,7 @@ Serializer.addClass(
     "choicesFromQuestion:question_selectbase",
     {
       name: "choices:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
       dependsOn: "choicesFromQuestion",
@@ -1343,10 +1359,10 @@ Serializer.addClass(
     {
       name: "choicesByUrl:restfull",
       className: "ChoicesRestful",
-      onGetValue: function(obj: any) {
+      onGetValue: function (obj: any) {
         return obj.choicesByUrl.getData();
       },
-      onSetValue: function(obj: any, value: any) {
+      onSetValue: function (obj: any, value: any) {
         obj.choicesByUrl.setData(value);
       },
     },
@@ -1371,7 +1387,7 @@ Serializer.addClass(
       name: "otherPlaceHolder",
       serializationProperty: "locOtherPlaceHolder",
       dependsOn: "hasOther",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasOther;
       },
     },
@@ -1379,7 +1395,7 @@ Serializer.addClass(
       name: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceHolder",
       dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
     },
@@ -1387,7 +1403,7 @@ Serializer.addClass(
       name: "noneText",
       serializationProperty: "locNoneText",
       dependsOn: "hasNone",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasNone;
       },
     },
@@ -1395,7 +1411,7 @@ Serializer.addClass(
       name: "otherText",
       serializationProperty: "locOtherText",
       dependsOn: "hasOther",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasOther;
       },
     },
@@ -1403,7 +1419,7 @@ Serializer.addClass(
       name: "otherErrorText",
       serializationProperty: "locOtherErrorText",
       dependsOn: "hasOther",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasOther;
       },
     },

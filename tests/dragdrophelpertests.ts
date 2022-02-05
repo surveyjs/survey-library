@@ -6,6 +6,7 @@ import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
+import { DragDropCore } from "../src/dragdrop/core";
 
 export default QUnit.module("DragDropHelper Tests");
 
@@ -358,4 +359,21 @@ QUnit.test("DragDropRankingChoices getIsDragOverRootNode", function (assert) {
   rootNode.className = "someclass sv-ranking someclass2";
   result = dndRanking.getIsDragOverRootNode(rootNode);
   assert.equal(result, true);
+});
+
+QUnit.test("DragDrop shortcutCoordinates", function (assert) {
+  let dnd: any = new DragDropChoices(null);
+
+  const currentXCoordinate = 20;
+  const shortcutWidth = 20;
+  const shortcutXOffset = 10;
+  const shortcutRightCoordinate = dnd["getShortcutRightCoordinate"](currentXCoordinate, shortcutWidth, shortcutXOffset);
+  assert.equal(shortcutRightCoordinate, 20 + 20 - 10);
+
+  const currentYCoordinate = 10;
+  const shortcutHeight = 10;
+  const shortcutYOffset = 5;
+  const shortcutBottomCoordinate = dnd["getShortcutBottomCoordinate"](currentYCoordinate, shortcutHeight, shortcutYOffset);
+  assert.equal(shortcutBottomCoordinate, 10 + 10 - 5);
+
 });

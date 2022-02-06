@@ -36,7 +36,6 @@ export class Survey extends SurveyModel {
   private mouseDownPage: any = null;
 
   koCurrentPage: any;
-  koState: any;
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
   koCompletedState: any;
@@ -165,7 +164,6 @@ export class Survey extends SurveyModel {
         !!this.koCurrentPage() &&
         this.getRows(this.koCurrentPage()).length === 0
     );
-    this.koState = ko.observable(this.state);
     this.koCompletedState = ko.observable("");
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
@@ -231,7 +229,6 @@ export class Survey extends SurveyModel {
     if (this.currentPage !== this.koCurrentPage()) {
       this.koCurrentPage(this.currentPage);
     }
-    this.koState(this.state);
   }
   private getRows(pnl: any): Array<any> {
     return !!pnl["koRows"] ? pnl["koRows"]() : pnl.rows;

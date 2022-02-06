@@ -1038,6 +1038,9 @@ export class SurveyModel extends SurveyElementCore
         this.resetVisibleIndexes();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(
+      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
+      () => { this.updateState(); });
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
@@ -2646,6 +2649,12 @@ export class SurveyModel extends SurveyElementCore
   public get activePage(): any {
     return this.state === "starting" ? this.startedPage : this.currentPage;
   }
+  /*
+  protected updateActivePage() : void {
+    const newPage = this.state === "starting" ? this.startedPage : this.currentPage;
+    this.setPropertyValue("activePage", newPage);
+  }
+  */
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
     if (value.getType && value.getType() == "page") return value;
@@ -2720,6 +2729,12 @@ export class SurveyModel extends SurveyElementCore
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states)
    */
   public get state(): string {
+    return this.getPropertyValue("state", "empty");
+  }
+  private updateState() : void {
+    this.setPropertyValue("state", this.calcState());
+  }
+  private calcState(): string {
     if (this.isLoading) return "loading";
     if (this.isCompleted) return "completed";
     if (this.isCompletedBefore) return "completedbefore";

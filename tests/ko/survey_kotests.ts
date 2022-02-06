@@ -563,7 +563,7 @@ QUnit.test(
     assert.equal(
       readOnlyChangedCounter,
       2,
-      "readOnlyChangedCounter - mode chanhed 1"
+      "readOnlyChangedCounter - mode changed 1"
     );
     survey.mode = "edit";
     assert.equal(
@@ -573,8 +573,8 @@ QUnit.test(
     );
     assert.equal(
       readOnlyChangedCounter,
-      3,
-      "readOnlyChangedCounter - mode chanhed 2"
+      4,
+      "readOnlyChangedCounter - mode changed 2"
     );
   }
 );

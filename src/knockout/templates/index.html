@@ -5,7 +5,7 @@
           <div data-bind="css: css.container">
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
-              <!-- ko if: koState() == "starting" -->
+              <!-- ko if: state == "starting" -->
               <div data-bind="css: bodyCss">
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
                   <!-- ko template: { name: 'survey-navigation-start' } -->
@@ -18,7 +18,7 @@
                   <!-- /ko -->
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "running" || koState() == "preview" -->
+              <!-- ko if: state == "running" || state == "preview" -->
               <div data-bind="css: bodyCss">
                   <!-- ko if: isTimerPanelShowingOnTop -->
                   <!-- ko template: { name: 'survey-timerpanel' } -->
@@ -53,7 +53,7 @@
                   <!-- /ko -->
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "completed" && showCompletedPage -->
+              <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
               <div data-bind="visible: koCompletedState() != '', css: css.saveData.root">
                   <div data-bind="css: koCompletedStateCss">
@@ -62,13 +62,13 @@
                   </div>
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "completedbefore" -->
+              <!-- ko if: state == "completedbefore" -->
               <div data-bind="html: processedCompletedBeforeHtml, css: css.body"></div>
               <!-- /ko -->
-              <!-- ko if: koState() == "loading" -->
+              <!-- ko if: state == "loading" -->
               <div data-bind="html: processedLoadingHtml, css: css.body"></div>
               <!-- /ko -->
-              <!-- ko if: koState() == "empty" -->
+              <!-- ko if: state == "empty" -->
               <div data-bind="text:emptySurveyText, css: css.bodyEmpty"></div>
               <!-- /ko -->
           </div>

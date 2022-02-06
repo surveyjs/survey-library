@@ -21,3 +21,114 @@
   font-weight: 600;
   text-align: left;
 }
+
+@media (max-width: 600px) {
+  .sd-question--table > .sd-question__content:before,
+  .sd-question--table > .sd-question__content:after {
+    content: none;
+  }
+  .sd-question--table > .sd-question__content {
+    padding-top: 0;
+    margin: 0;
+    width: auto;
+    min-width: auto;
+  }
+  .sd-matrix__cell {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    &:after {
+      content: attr(data-responsive-title);
+      display: block;
+      margin-left: calcSize(1);
+    }
+    &:first-child {
+      padding-top: 16px;
+      padding-bottom: 8px;
+    }
+  }
+  .sd-table thead {
+    display: none;
+  }
+  .sd-table {
+    tr {
+      display: block;
+    }
+  }
+  .sd-matrix__table {
+    tr + tr {
+      margin-top: 8px;
+    }
+  }
+
+  .sd-table:not(.sd-matrix__table) {
+    tr {
+      padding-bottom: 8px;
+      &::after {
+        content: " ";
+        display: block;
+        position: relative;
+        height: 1px;
+        background-color: $border-light;
+        left: -24px;
+        bottom: -8px;
+        width: calc(100% + 48px);
+      }
+    }
+  }
+  .sd-matrix__label {
+    justify-content: start;
+  }
+  .sd-table__cell {
+    display: block;
+    padding: 0;
+  }
+  .sd-table__cell:not(.sd-matrix__cell):not(:first-child) {
+    margin-top: 8px;
+  }
+  .sd-table__cell:not(.sd-matrix__cell):not(.sd-table__cell--actions):not(.sd-table__cell--row-text) {
+    &::before {
+      padding-top: 16px;
+      padding-bottom: 8px;
+      content: attr(data-responsive-title);
+      font-weight: 600;
+      display: block;
+      text-align: left;
+    }
+  }
+  .sd-table__cell.sd-table__cell--actions {
+    width: auto;
+  }
+  .sd-action.sd-action.sd-matrixdynamic__remove-btn {
+    opacity: 1;
+    padding: 8px 24px;
+    .sd-action__icon {
+      display: none;
+    }
+    &:after {
+      content: attr(title);
+    }
+  }
+  .sd-matrixdynamic__footer {
+    padding-top: 8px;
+    margin-bottom: -16px;
+  }
+  .sd-table__cell--row-text {
+    color: $foreground-light;
+    padding-top: 16px;
+  }
+  .sd-matrixdropdown.sd-table {
+    tr:not(:last-child) {
+      padding-bottom: 16px;
+    }
+    tr::after {
+      bottom: -16px;
+    }
+    tr:last-child:after {
+      content: none;
+    }
+  }
+  .sd-body {
+    min-width: auto;
+  }
+}

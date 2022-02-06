@@ -61,6 +61,7 @@ export { QuestionButtonGroup } from "../knockout/koquestion_buttongroup";
 
 export * from "../knockout/components/action-bar/action-bar";
 export * from "../knockout/components/boolean-checkbox/boolean-checkbox";
+export * from "../knockout/components/rating-dropdown/rating-dropdown";
 export * from "../knockout/components/panel/panel";
 export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";

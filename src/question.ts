@@ -1825,6 +1825,8 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+  public transformToMobileView(): void {}
+  public transformToDesktopView(): void {}
   public needResponsiveWidth() {
     return false;
   }

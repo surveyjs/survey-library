@@ -3,14 +3,14 @@
     <input
       v-if="survey.isShowStartingPage"
       type="button"
-      :value="survey.startSurveyText"
+      :value="survey.locStartSurveyText.text"
       :class="survey.cssNavigationStart"
       @click="start"
     />
     <input
       v-if="survey.isShowPrevButton"
       type="button"
-      :value="survey.pagePrevText"
+      :value="survey.locPagePrevText.text"
       :class="survey.cssNavigationPrev"
       @mousedown="buttonMouseDown"
       @click="prevPage"
@@ -18,7 +18,7 @@
     <input
       v-if="survey.isShowNextButton"
       type="button"
-      :value="survey.pageNextText"
+      :value="survey.locPageNextText.text"
       :class="survey.cssNavigationNext"
       @mousedown="nextButtonMouseDown"
       @click="nextPage"
@@ -26,7 +26,7 @@
     <input
       v-if="survey.isPreviewButtonVisible"
       type="button"
-      :value="survey.previewText"
+      :value="survey.locPreviewText.text"
       :class="survey.cssNavigationPreview"
       @mousedown="buttonMouseDown"
       @click="showPreview"
@@ -34,7 +34,7 @@
     <input
       v-if="survey.isCompleteButtonVisible"
       type="button"
-      :value="survey.completeText"
+      :value="survey.locCompleteText.text"
       :class="survey.cssNavigationComplete"
       @mousedown="buttonMouseDown"
       @click="completeLastPage"

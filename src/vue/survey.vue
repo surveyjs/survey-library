@@ -98,6 +98,7 @@ export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
   @Prop() model: SurveyModel;
   processedCompletedHtmlValue: string;
+  updater: number = 1;
   get pageId() {
     return "page" + this.getActivePageId();
   }
@@ -121,16 +122,22 @@ export class Survey extends BaseVue {
     this.onCreated();
     this.surveyOnMounted();
   }
+  forceUpdate() {
+    this.updater += 1;
+    this.$forceUpdate();
+  }  
   protected onMounted() {
     this.surveyOnMounted();
   }
   private getActivePageId(): string {
-    return !!this.vueSurvey && !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+    const pageId = !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+    return !!this.vueSurvey && pageId + this.updater.toString();
   }
   private surveyOnMounted() {
     if (!this.vueSurvey) return;
     var el = this.$el;
     if (el) this.vueSurvey.doAfterRenderSurvey(el);
+    this.vueSurvey.renderCallback = this.forceUpdate;
     this.vueSurvey.startTimerFromUI();
   }
   beforeDestroy() {

@@ -63,6 +63,9 @@ export class Navigation extends BaseVue {
   buttonMouseDown() {
     return this.survey.navigationMouseDown();
   }
+  start() {
+    this.survey.start();
+  }
   prevPage() {
     this.survey.prevPage();
   }

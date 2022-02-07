@@ -1,16 +1,16 @@
 <template>
   <div :class="css.footer">
     <input
+      v-if="survey.isShowStartingPage"
       type="button"
       :value="survey.startSurveyText"
       :class="survey.cssNavigationStart"
-      v-show="survey.isShowStartingPage"
       @click="start"
     />
     <input
       type="button"
       :value="survey.pagePrevText"
-      v-show="showPrevBtn && !survey.isShowStartingPage"
+      v-show="showPrevBtn"
       :class="survey.cssNavigationPrev"
       @mousedown="buttonMouseDown"
       @click="prevPage"
@@ -18,7 +18,7 @@
     <input
       type="button"
       :value="survey.pageNextText"
-      v-show="showNextBtn && !survey.isShowStartingPage"
+      v-show="showNextBtn"
       :class="survey.cssNavigationNext"
       @mousedown="nextButtonMouseDown"
       @click="nextPage"
@@ -27,7 +27,7 @@
       v-if="survey.isPreviewButtonVisible"
       type="button"
       :value="survey.previewText"
-      v-show="survey.isLastPage && !survey.isShowStartingPage"
+      v-show="survey.isLastPage && !survey.isStartedPage"
       :class="survey.cssNavigationPreview"
       @mousedown="buttonMouseDown"
       @click="showPreview"
@@ -36,7 +36,7 @@
       v-if="survey.isCompleteButtonVisible"
       type="button"
       :value="survey.completeText"
-      v-show="showCompleteBtn && !survey.isShowStartingPage"
+      v-show="showCompleteBtn"
       :class="survey.cssNavigationComplete"
       @mousedown="buttonMouseDown"
       @click="completeLastPage"

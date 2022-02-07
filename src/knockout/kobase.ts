@@ -54,6 +54,9 @@ export class ImplementorBase {
   public dispose() {
     this.element.iteratePropertiesHash((hash, key) => {
       hash[key] = ko.unwrap(hash[key]);
+      if(Array.isArray(hash[key])) {
+        hash[key]["onArrayChanged"] = undefined;
+      }
     });
     this.element.createArrayCoreHandler = undefined;
     this.element.getPropertyValueCoreHandler = undefined;

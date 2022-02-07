@@ -26,36 +26,6 @@ import { ItemValue } from "../../src/itemvalue";
 
 export default QUnit.module("koTests");
 
-QUnit.test("Survey.koCurrentPage", function (assert) {
-  var survey = new Survey();
-  survey.addPage(createPageWithQuestion("Page 1"));
-  survey.addPage(createPageWithQuestion("Page 2"));
-  survey.addPage(createPageWithQuestion("Page 3"));
-  assert.equal(survey.currentPageNo, 0, "the first page is current");
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.currentPage.name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, true, "is first page");
-  assert.equal(survey.isLastPage, false, "is first page");
-  survey.nextPage();
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.pages[1].name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, false, "is second page");
-  assert.equal(survey.isLastPage, false, "is second page");
-  survey.nextPage();
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.pages[2].name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, false, "is last page");
-  assert.equal(survey.isLastPage, true, "is last page");
-});
 QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");

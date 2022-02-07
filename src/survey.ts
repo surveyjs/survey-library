@@ -1041,6 +1041,8 @@ export class SurveyModel extends SurveyElementCore
     this.registerFunctionOnPropertiesValueChanged(
       ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
       () => { this.updateState(); });
+    this.registerFunctionOnPropertiesValueChanged(["state", "currentPage"], () => { this.updateActivePage(); });
+
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
@@ -2647,14 +2649,24 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.state === "starting" ? this.startedPage : this.currentPage;
+    return this.getPropertyValue("activePage");
   }
-  /*
+  /**
+   * The started page is showing right now. survey state equals to "starting"
+   */
+  public get isShowStartingPage(): boolean {
+    return this.state === "starting";
+  }
+  /**
+   * Survey is showing a page right now. It is in "running", "preview" or starting state.
+   */
+  public get isShowingPage(): boolean {
+    return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
+  }
   protected updateActivePage() : void {
-    const newPage = this.state === "starting" ? this.startedPage : this.currentPage;
+    const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
     this.setPropertyValue("activePage", newPage);
   }
-  */
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
     if (value.getType && value.getType() == "page") return value;

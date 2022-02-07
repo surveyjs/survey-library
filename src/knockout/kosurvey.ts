@@ -35,7 +35,6 @@ export class Survey extends SurveyModel {
   private isFirstRender: boolean = true;
   private mouseDownPage: any = null;
 
-  koCurrentPage: any;
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
   koCompletedState: any;
@@ -106,7 +105,6 @@ export class Survey extends SurveyModel {
   }
   public render(element: any = null) {
     SvgRegistry.renderIcons();
-    this.updateKoCurrentPage();
     this.updateCustomWidgets(this.currentPage);
     this.updateElementCss(false);
     const self = this;
@@ -142,15 +140,6 @@ export class Survey extends SurveyModel {
     }
     super.loadSurveyFromService(surveyId, clientId);
   }
-  public setCompleted() {
-    super.setCompleted();
-    this.updateKoCurrentPage();
-  }
-  public start(): boolean {
-    var res = super.start();
-    this.updateKoCurrentPage();
-    return res;
-  }
   public createNewPage(name: string): PageModel {
     return new Page(name);
   }
@@ -158,11 +147,10 @@ export class Survey extends SurveyModel {
     return koTemplate;
   }
   protected onBeforeCreating() {
-    this.koCurrentPage = ko.observable(this.currentPage);
     this.isCurrentPageEmpty = ko.computed(
       () =>
-        !!this.koCurrentPage() &&
-        this.getRows(this.koCurrentPage()).length === 0
+        !!this.activePage &&
+        this.getRows(this.activePage).length === 0
     );
     this.koCompletedState = ko.observable("");
     this.koCompletedStateText = ko.observable("");
@@ -180,16 +168,6 @@ export class Survey extends SurveyModel {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.afterRenderHeader(el);
     };
-  }
-  protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
-    this.updateKoCurrentPage();
-    super.currentPageChanged(newValue, oldValue);
-  }
-  pageVisibilityChanged(page: IPage, newValue: boolean) {
-    super.pageVisibilityChanged(page, newValue);
-    if (this.currentPage !== this.koCurrentPage()) {
-      this.updateKoCurrentPage();
-    }
   }
   protected onLoadSurveyFromService() {
     this.render();
@@ -211,7 +189,6 @@ export class Survey extends SurveyModel {
   }
   private applyBinding() {
     if (!this.renderedElement) return;
-    this.updateKoCurrentPage();
     ko.cleanNode(this.renderedElement);
     if (!this.isFirstRender) {
       this.updateCurrentPageQuestions();
@@ -223,12 +200,6 @@ export class Survey extends SurveyModel {
       { afterRender: this.koEventAfterRender },
       this.renderedElement
     );
-  }
-  private updateKoCurrentPage() {
-    if (this.isLoadingFromJson || this.isDisposed) return;
-    if (this.currentPage !== this.koCurrentPage()) {
-      this.koCurrentPage(this.currentPage);
-    }
   }
   private getRows(pnl: any): Array<any> {
     return !!pnl["koRows"] ? pnl["koRows"]() : pnl.rows;
@@ -277,7 +248,6 @@ export class Survey extends SurveyModel {
     this.iteratePropertiesHash((hash, key) => {
       delete hash[key];
     });
-    this.koCurrentPage(undefined);
   }
 }
 

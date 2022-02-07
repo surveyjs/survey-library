@@ -4,50 +4,18 @@
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-        <template v-if="vueSurvey.state === 'starting'">
-          <div :class="css.body">
-            <div
-              v-if="vueSurvey.isNavigationButtonsShowingOnTop"
-              :class="css.footer"
-            >
-              <input
-                type="button"
-                :value="vueSurvey.startSurveyText"
-                :class="vueSurvey.cssNavigationStart"
-                @click="start"
-              />
-            </div>
-            <survey-page
-              :id="vueSurvey.startedPage.id"
-              :survey="vueSurvey"
-              :page="vueSurvey.startedPage"
-              :css="css"
-            />
-            <div
-              v-if="vueSurvey.isNavigationButtonsShowingOnBottom"
-              :class="css.footer"
-            >
-              <input
-                type="button"
-                :value="vueSurvey.startSurveyText"
-                :class="vueSurvey.cssNavigationStart"
-                @click="start"
-              />
-            </div>
-          </div>
-        </template>
         <template
-          v-if="vueSurvey.state === 'running' || vueSurvey.state === 'preview'"
+          v-if="vueSurvey.isShowingPage"
         >
           <div :class="vueSurvey.bodyCss">
             <component
-              v-if="vueSurvey.isShowProgressBarOnTop"
+              v-if="vueSurvey.isShowProgressBarOnTop && !vueSurvey.isShowStartingPage"
               :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
               :survey="vueSurvey"
               :css="css"
             />
             <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnTop"
+              v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
               :survey="vueSurvey"
               :css="css"
             />
@@ -60,16 +28,16 @@
             <survey-page
               :key="pageId"
               :survey="vueSurvey"
-              :page="vueSurvey.currentPage"
+              :page="vueSurvey.activePage"
               :css="css"
             />
             <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnBottom"
+              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
               :survey="vueSurvey"
               :css="css"
             />
             <component
-              v-if="vueSurvey.isShowProgressBarOnBottom"
+              v-if="vueSurvey.isShowProgressBarOnBottom && !vueSurvey.isShowStartingPage"
               :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
               :survey="vueSurvey"
               :css="css"
@@ -130,17 +98,11 @@ export class Survey extends BaseVue {
   @Prop() survey: SurveyModel;
   @Prop() model: SurveyModel;
   processedCompletedHtmlValue: string;
-  currentPageId: number = 1;
   get pageId() {
-    return "page" + this.currentPageId.toString();
+    return "page" + this.getActivePageId();
   }
   get navId() {
-    return "nav" + this.currentPageId.toString();
-  }
-
-  forceUpdate() {
-    this.$forceUpdate();
-    this.currentPageId++;
+    return "nav" + this.getActivePageId();
   }
 
   constructor() {
@@ -162,18 +124,13 @@ export class Survey extends BaseVue {
   protected onMounted() {
     this.surveyOnMounted();
   }
+  private getActivePageId(): string {
+    return !!this.vueSurvey && !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+  }
   private surveyOnMounted() {
     if (!this.vueSurvey) return;
-    Vue.set(this.vueSurvey, "currentPage", this.vueSurvey.currentPage);
-    this.vueSurvey.onCurrentPageChanged.add((sender, options) => {
-      this.currentPageId++;
-    });
-    this.vueSurvey.onPageVisibleChanged.add((sender, options) => {
-      this.currentPageId++;
-    });
     var el = this.$el;
     if (el) this.vueSurvey.doAfterRenderSurvey(el);
-    this.vueSurvey.renderCallback = this.forceUpdate;
     this.vueSurvey.startTimerFromUI();
   }
   beforeDestroy() {

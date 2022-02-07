@@ -32,8 +32,6 @@ export class Survey extends SurveyElementBase<any, any>
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.createSurvey(props);
     this.updateSurvey(props, {});
-    //set the first page
-    const dummy = this.survey.currentPage;
     this.rootRef = React.createRef();
     this.rootNodeId = props.id || null;
     this.rootNodeClassName = props.className || "";
@@ -75,8 +73,6 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderCompletedBefore();
     } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
-    } else if (this.survey.state == "starting") {
-      renderResult = this.renderStartPage();
     } else {
       renderResult = this.renderSurvey();
     }
@@ -163,36 +159,22 @@ export class Survey extends SurveyElementBase<any, any>
       <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
     );
   }
-  protected renderStartPage(): JSX.Element {
-    var startedPage = this.survey.startedPage
-      ? this.renderPage(this.survey.startedPage)
-      : null;
-    var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
-    return (
-      <React.Fragment>
-        <div id={pageId} className={this.css.body}>
-          {this.renderNavigation("top")}
-          {startedPage}
-          {this.renderNavigation("bottom")}
-        </div>
-      </React.Fragment>
-    );
-  }
   protected renderSurvey(): JSX.Element {
-    var currentPage = this.survey.currentPage
-      ? this.renderPage(this.survey.currentPage)
+    var activePage = this.survey.activePage
+      ? this.renderPage(this.survey.activePage)
       : null;
-    var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
-    var topProgress = this.survey.isShowProgressBarOnTop
+    const isStaring = this.survey.isShowStartingPage;
+    var pageId = this.survey.activePage ? this.survey.activePage.id : "";
+    var topProgress = this.survey.isShowProgressBarOnTop && !isStaring
       ? this.renderProgress(true)
       : null;
-    var bottomProgress = this.survey.isShowProgressBarOnBottom
+    var bottomProgress = this.survey.isShowProgressBarOnBottom && !isStaring
       ? this.renderProgress(false)
       : null;
     let className = this.survey.bodyCss;
-    if (!currentPage) {
+    if (!activePage) {
       className = this.css.bodyEmpty;
-      currentPage = this.renderEmptySurvey();
+      activePage = this.renderEmptySurvey();
     }
     return (
       <div
@@ -202,7 +184,7 @@ export class Survey extends SurveyElementBase<any, any>
         {topProgress}
         {this.renderTimerPanel("top")}
         {this.renderNavigation("top")}
-        {currentPage}
+        {activePage}
         {this.renderTimerPanel("bottom")}
         {bottomProgress}
         {this.renderNavigation("bottom")}
@@ -210,6 +192,7 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderTimerPanel(location: string) {
+    if(this.survey.isShowStartingPage) return null;
     if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
       return null;
     if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)

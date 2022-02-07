@@ -71,6 +71,20 @@ export var defaultV2Css = {
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
   progressText: "sd-progress__text",
+  progressButtonsContainerCenter: "sd-progress-buttons__container-center",
+  progressButtonsContainer: "sd-progress-buttons__container",
+  progressButtonsImageButtonLeft: "sd-progress-buttons__image-button-left",
+  progressButtonsImageButtonRight: "sd-progress-buttons__image-button-right",
+  progressButtonsImageButtonHidden: "sd-progress-buttons__image-button--hidden",
+  progressButtonsListContainer: "sd-progress-buttons__list-container",
+  progressButtonsList: "sd-progress-buttons__list",
+  progressButtonsListElementPassed: "sd-progress-buttons__list-element--passed",
+  progressButtonsListElementCurrent:
+    "sd-progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable:
+    "sd-progress-buttons__list-element--nonclickable",
+  progressButtonsPageTitle: "sd-progress-buttons__page-title",
+  progressButtonsPageDescription: "sd-progress-buttons__page-description",
   progressTextInBar: "sd-hidden",
   page: {
     root: "sd-page sd-body__page",
@@ -413,7 +427,8 @@ export var defaultV2Css = {
     itemPressed: "sd-action--pressed",
     itemAsIcon: "sd-action--icon",
     itemIcon: "sd-action__icon"
-  }
+  },
+
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

@@ -1041,7 +1041,8 @@ export class SurveyModel extends SurveyElementCore
     this.registerFunctionOnPropertiesValueChanged(
       ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
       () => { this.updateState(); });
-    this.registerFunctionOnPropertiesValueChanged(["state", "currentPage"], () => { this.updateActivePage(); });
+    this.registerFunctionOnPropertiesValueChanged(["state", "currentPage", "showPreviewBeforeComplete"],
+      () => { this.onStateAndCurrentPageChanged(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -2621,7 +2622,6 @@ export class SurveyModel extends SurveyElementCore
     var oldValue = this.currentPage;
     if (!this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
-    this.updateIsFirstLastPageState();
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
@@ -2663,9 +2663,13 @@ export class SurveyModel extends SurveyElementCore
   public get isShowingPage(): boolean {
     return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
   }
-  protected updateActivePage() : void {
+  private updateActivePage() : void {
     const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
     this.setPropertyValue("activePage", newPage);
+  }
+  private onStateAndCurrentPageChanged(): void {
+    this.updateActivePage();
+    this.updateButtonsVisibility();
   }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
@@ -2966,27 +2970,6 @@ export class SurveyModel extends SurveyElementCore
    */
   public get isEditMode(): boolean {
     return this.mode == "edit";
-  }
-  public get isCompleteButtonVisible(): boolean {
-    const isLast = this.isLastPage;
-    const canEdit = this.isEditMode;
-    const state = this.state;
-    const showPreview = this.isShowPreviewBeforeComplete;
-    return canEdit && (state === "running" && isLast && !showPreview || state === "preview");
-  }
-  public get isPreviewButtonVisible(): boolean {
-    return (
-      this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
-      this.state == "running"
-    );
-  }
-  public get isCancelPreviewButtonVisible(): boolean {
-    return (
-      this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
-      this.state == "preview"
-    );
   }
   /**
    * Returns `true` if the survey is in display mode or in preview mode.
@@ -3657,18 +3640,59 @@ export class SurveyModel extends SurveyElementCore
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
   }
+  private updateButtonsVisibility(): void {
+    this.updateIsFirstLastPageState();
+    this.setPropertyValue("isShowPrevButton", this.calcIsShowPrevButton());
+    this.setPropertyValue("isShowNextButton", this.calcIsShowNextButton());
+    this.setPropertyValue("isCompleteButtonVisible", this.calcIsCompleteButtonVisible());
+    this.setPropertyValue("isPreviewButtonVisible", this.calcIsPreviewButtonVisible());
+    this.setPropertyValue("isCancelPreviewButtonVisible", this.calcIsCancelPreviewButtonVisible());
+  }
   public get isShowPrevButton(): boolean {
-    const isFirst = this.isFirstPage;
-    const showBtn = this.showPrevButton;
-    const isRun = this.state === "running";
-    if (isFirst || !showBtn || !isRun) return false;
+    return this.getPropertyValue("isShowPrevButton");
+  }
+  public get isShowNextButton(): boolean {
+    return this.getPropertyValue("isShowNextButton");
+  }
+  public get isCompleteButtonVisible(): boolean {
+    return this.getPropertyValue("isCompleteButtonVisible");
+  }
+  public get isPreviewButtonVisible(): boolean {
+    return this.getPropertyValue("isPreviewButtonVisible");
+  }
+  public get isCancelPreviewButtonVisible(): boolean {
+    return this.getPropertyValue("isCancelPreviewButtonVisible");
+  }
+  private updateIsFirstLastPageState() {
+    const curPage = this.currentPage;
+    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage);
+    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage);
+  }
+  private calcIsShowPrevButton(): boolean {
+    if (this.isFirstPage || !this.showPrevButton || this.state !== "running") return false;
     var page = this.visiblePages[this.currentPageNo - 1];
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
-  public get isShowNextButton(): boolean {
-    const isLast = this.isLastPage;
-    const isRun = this.state === "running";
-    return !isLast && isRun;
+  private calcIsShowNextButton(): boolean {
+    return this.state === "running" && !this.isLastPage;
+  }
+  public calcIsCompleteButtonVisible(): boolean {
+    const state = this.state;
+    return this.isEditMode && (this.state === "running" && this.isLastPage && !this.isShowPreviewBeforeComplete || state === "preview");
+  }
+  private calcIsPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "running" && this.isLastPage
+    );
+  }
+  private calcIsCancelPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "preview"
+    );
   }
   private get firstVisiblePage(): PageModel {
     const pages = this.pages;
@@ -3683,12 +3707,6 @@ export class SurveyModel extends SurveyElementCore
       if (this.isPageInVisibleList(pages[i])) return pages[i];
     }
     return null;
-  }
-  private updateIsFirstLastPageState() {
-    const curPage = this.currentPage;
-    if (!curPage) return;
-    this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage);
-    this.setPropertyValue("isLastPage", curPage === this.lastVisiblePage);
   }
   /**
    * Completes the survey.
@@ -5065,7 +5083,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateProgressText(true);
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
-    this.updateIsFirstLastPageState();
+    this.updateButtonsVisibility();
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];

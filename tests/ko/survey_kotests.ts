@@ -1036,7 +1036,7 @@ QUnit.test(
 
     var question = <QuestionRating>survey.getAllQuestions()[0];
     assert.equal(
-      question["koVisibleRateValues"]().length,
+      question["renderedRateItems"].length,
       4,
       "There are 4 items: 2, 4, 6, 8"
     );

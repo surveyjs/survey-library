@@ -20,7 +20,9 @@ ko.components.register("sv-svg-icon", {
         }
       });
       return {
-        hasIcon: params.iconName
+        hasIcon: params.iconName,
+        cssClasses: params.css,
+        title: params.title
       };
     },
   },

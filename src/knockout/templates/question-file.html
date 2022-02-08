@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-file">
-  <div data-bind="css: question.getFileRootCss()">
+  <div data-bind="css: question.fileRootCss">
       <!-- ko ifnot: question.isInputReadOnly -->
       <input type="file" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
       <!-- /ko -->
@@ -19,8 +19,9 @@
         </div>
       </div>
       <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButton} } --><!-- /ko -->
+      <!-- ko if: question.showPreview -->
       <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
-          <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
+          <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
             <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
             <div data-bind="css: question.cssClasses.imageWrapper">
               <!-- ko if: question.canPreviewImage($data) -->
@@ -43,7 +44,12 @@
             <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
           </span>
       </div>
+      <!-- /ko -->
       <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButtonBottom} } --><!-- /ko -->
+      <!-- ko if: question.mobileFileNavigatorVisible -->
+      <!-- ko component: { name: 'sv-action-bar', params: { model: question.mobileFileNavigator } } -->
+      <!-- /ko -->
+      <!-- /ko -->
   </div>
 </script>
 <script type="text/html" id="survey-question-file-clean-button">

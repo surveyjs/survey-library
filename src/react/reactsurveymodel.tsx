@@ -17,25 +17,6 @@ export class ReactSurveyModel extends SurveyModel {
   public doAfterRenderSurvey(el: any) {
     this.afterRenderSurvey(el);
   }
-  protected onLoadSurveyFromService() {
-    if (!!this.currentPage) {
-      this.currentPage.setWasShown(false);
-      this.currentPage.onFirstRendering();
-    }
-    this.render();
-  }
-  protected onLoadingSurveyFromService() {
-    this.render();
-  }
-  public setCompletedState(value: string, text: string) {
-    super.setCompletedState(value, text);
-    this.render();
-  }
-  public start(): boolean {
-    var res = super.start();
-    this.render();
-    return res;
-  }
 
   public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
     const componentName = this.getRowWrapperComponentName(row);

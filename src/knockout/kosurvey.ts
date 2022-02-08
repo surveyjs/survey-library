@@ -169,12 +169,6 @@ export class Survey extends SurveyModel {
       if (el) this.afterRenderHeader(el);
     };
   }
-  protected onLoadSurveyFromService() {
-    this.render();
-  }
-  protected onLoadingSurveyFromService() {
-    this.render();
-  }
   protected setCompletedState(value: string, text: string) {
     super.setCompletedState(value, text);
     this.koCompletedState(this.completedState);

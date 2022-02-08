@@ -10,12 +10,6 @@ export class VueSurveyModel extends SurveyModel {
       this.renderCallback();
     }
   }
-  protected onLoadSurveyFromService() {
-    this.render();
-  }
-  protected onLoadingSurveyFromService() {
-    this.render();
-  }
   get css() {
     return surveyCss.getCss();
   }

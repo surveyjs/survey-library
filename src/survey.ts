@@ -1107,6 +1107,12 @@ export class SurveyModel extends SurveyElementCore
   public get pages(): Array<PageModel> {
     return this.getPropertyValue("pages");
   }
+  renderCallback: () => void;
+  public render(element: any = null): void {
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
+  }
   public getCss(): any {
     return this.css;
   }
@@ -2511,21 +2517,42 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public getDataValueCore(valuesHash: any, key: string) {
+  public getDataValueCore(valuesHash: any, key: string): any {
     if (!!this.editingObj)
       return Serializer.getObjPropertyValue(this.editingObj, key);
-    return valuesHash[key];
+    return this.getDataFromValueHash(valuesHash, key);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       Serializer.setObjPropertyValue(this.editingObj, key, value);
     } else {
-      valuesHash[key] = value;
+      this.setDataToValueHash(valuesHash, key, value);
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
     if (!!this.editingObj) {
       (<any>this.editingObj)[key] = null;
+    } else {
+      this.deleteDataFromValueHash(valuesHash, key);
+    }
+  }
+  valueHashGetDataCallback: (valuesHash: any, key: string) => any;
+  valueHashSetDataCallback: (valuesHash: any, key: string, value: any) => void;
+  valueHashDeleteDataCallback: (valuesHash: any, key: string) => void;
+  private getDataFromValueHash(valuesHash: any, key: string): any {
+    if(!!this.valueHashGetDataCallback) return this.valueHashGetDataCallback(valuesHash, key);
+    return valuesHash[key];
+  }
+  private setDataToValueHash(valuesHash: any, key: string, value: any): void {
+    if(!!this.valueHashSetDataCallback) {
+      this.valueHashSetDataCallback(valuesHash, key, value);
+    } else {
+      valuesHash[key] = value;
+    }
+  }
+  private deleteDataFromValueHash(valuesHash: any, key: string): void {
+    if(!!this.valueHashDeleteDataCallback) {
+      this.valueHashDeleteDataCallback(valuesHash, key);
     } else {
       delete valuesHash[key];
     }
@@ -4009,7 +4036,7 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
-  protected afterRenderSurvey(htmlElement: any) {
+  afterRenderSurvey(htmlElement: any) {
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,

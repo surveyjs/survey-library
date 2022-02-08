@@ -53,7 +53,7 @@ export class Survey extends SurveyElementBase<any, any>
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    if (el && this.survey) this.survey.doAfterRenderSurvey(el);
+    if (el && this.survey) this.survey.afterRenderSurvey(el);
     if (this.survey) {
       this.survey.startTimerFromUI();
     }
@@ -244,7 +244,7 @@ export class Survey extends SurveyElementBase<any, any>
       this.survey = new ReactSurveyModel();
     }
     if (!!newProps.css) {
-      this.survey.mergeCss(newProps.css, this.css);
+      this.survey.css = this.css;
     }
     this.setSurveyEvents();
   }

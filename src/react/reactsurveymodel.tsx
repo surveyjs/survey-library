@@ -2,22 +2,6 @@ import { SurveyModel, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, Sur
 import { ReactElementFactory } from "./element-factory";
 
 export class ReactSurveyModel extends SurveyModel {
-  renderCallback: () => void;
-  constructor(jsonObj: any = null) {
-    super(jsonObj);
-  }
-  public render() {
-    if (this.renderCallback) {
-      this.renderCallback();
-    }
-  }
-  public mergeCss(src: any, dest: any) {
-    this.mergeValues(src, dest);
-  }
-  public doAfterRenderSurvey(el: any) {
-    this.afterRenderSurvey(el);
-  }
-
   public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
     const componentName = this.getRowWrapperComponentName(row);
     const componentData = this.getRowWrapperComponentData(row);

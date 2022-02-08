@@ -48,7 +48,7 @@ export class SurveyHeader extends Vue {
 
   mounted() {
     var el = this.$el;
-    if (el && this.survey) this.survey.doAfterRenderHeader(el);
+    if (el && this.survey) this.survey.afterRenderHeader(<any>el);
   }
 }
 

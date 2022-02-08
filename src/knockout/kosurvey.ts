@@ -43,36 +43,6 @@ export class Survey extends SurveyModel {
   koTimerInfoText: any;
   koTitleTemplate: any = <any>ko.observable("survey-header");
 
-  public getDataValueCore(valuesHash: any, key: string) {
-    if (!!this.editingObj) return super.getDataValueCore(valuesHash, key);
-    if (valuesHash[key] === undefined) {
-      valuesHash[key] = ko.observable();
-    }
-    return ko.unwrap(valuesHash[key]);
-  }
-  public setDataValueCore(valuesHash: any, key: string, value: any) {
-    if (!!this.editingObj) {
-      super.setDataValueCore(valuesHash, key, value);
-      return;
-    }
-    if (ko.isWriteableObservable(valuesHash[key])) {
-      valuesHash[key](value);
-    } else {
-      valuesHash[key] = ko.observable(value);
-    }
-  }
-  public deleteDataValueCore(valuesHash: any, key: string) {
-    if (!!this.editingObj) {
-      super.deleteDataValueCore(valuesHash, key);
-      return;
-    }
-    if (ko.isWriteableObservable(valuesHash[key])) {
-      valuesHash[key](undefined);
-    } else {
-      delete valuesHash[key];
-    }
-  }
-
   constructor(
     jsonObj: any = null,
     renderedElement: any = null,
@@ -92,6 +62,26 @@ export class Survey extends SurveyModel {
   }
   protected onBaseCreating() {
     super.onBaseCreating();
+    this.valueHashGetDataCallback = (valuesHash: any, key: string): any => {
+      if (valuesHash[key] === undefined) {
+        valuesHash[key] = ko.observable();
+      }
+      return ko.unwrap(valuesHash[key]);
+    };
+    this.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => {
+      if (ko.isWriteableObservable(valuesHash[key])) {
+        valuesHash[key](value);
+      } else {
+        valuesHash[key] = ko.observable(value);
+      }
+    };
+    this.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
+      if (ko.isWriteableObservable(valuesHash[key])) {
+        valuesHash[key](undefined);
+      } else {
+        delete valuesHash[key];
+      }
+    };
     new ImplementorBase(this);
   }
   public nextPageUIClick() {

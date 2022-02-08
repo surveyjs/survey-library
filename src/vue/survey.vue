@@ -136,7 +136,13 @@ export class Survey extends BaseVue {
   private surveyOnMounted() {
     if (!this.vueSurvey) return;
     var el = this.$el;
-    if (el) this.vueSurvey.doAfterRenderSurvey(el);
+    if (el) this.vueSurvey.afterRenderSurvey(el);
+    this.vueSurvey.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => {
+      Vue.set(valuesHash, key, value);
+    };
+    this.vueSurvey.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
+      Vue.delete(valuesHash, key);
+    }
     this.vueSurvey.renderCallback = this.forceUpdate;
     this.vueSurvey.startTimerFromUI();
   }

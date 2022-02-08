@@ -1,4 +1,3 @@
-import SortableLib from "sortablejs";
 import { ISurvey, ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
@@ -9,14 +8,11 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 
-const Sortable = <any>SortableLib;
-
 /**
  * A Model for a ranking question
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
   private domNode: HTMLElement = null;
-  private sortableInst: any = null;
 
   constructor(name: string) {
     super(name);
@@ -55,7 +51,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   protected isItemCurrentDropTarget(item: ItemValue): boolean {
-    if (this.fallbackToSortableJS) return false;
     return this.dragDropRankingChoices.dropTarget === item;
   }
 
@@ -168,9 +163,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    if (!this.fallbackToSortableJS) {
-      this.dragDropRankingChoices = new DragDropRankingChoices(this.survey);
-    }
+    this.dragDropRankingChoices = new DragDropRankingChoices(this.survey);
   }
 
   public handlePointerDown = (
@@ -190,14 +183,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement): void {
     this.domNode = el;
-    if (!!el && this.fallbackToSortableJS) {
-      this.initSortable(el);
-    }
     super.afterRenderQuestionElement(el);
   }
   //cross framework destroy
   public beforeDestroyQuestionElement(el: HTMLElement): void {
-    if (this.sortableInst) this.sortableInst.destroy();
     super.beforeDestroyQuestionElement(el);
   }
 
@@ -221,49 +210,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   public supportNone(): boolean {
     return false;
-  }
-
-  private initSortable(domNode: HTMLElement) {
-    if (!domNode) return;
-    const self: QuestionRankingModel = this;
-    if (!this.allowStartDrag) return;
-
-    self.sortableInst = new Sortable(domNode, {
-      animation: 100,
-      forceFallback: true,
-      delay: 200,
-      delayOnTouchOnly: true,
-      handle: IsMobile
-        ? "." + self.cssClasses.itemIconContainer
-        : "." + self.cssClasses.itemContent,
-      ghostClass: self.cssClasses.itemGhostMod,
-      dragClass: self.cssClasses.itemDragMod,
-      onStart(evt: any) {
-        (<any>Sortable.ghost.style.opacity) = 1;
-        domNode.className += " " + self.cssClasses.rootDragMod;
-        if (self.isEmpty()) {
-          self.setGhostText(evt.oldIndex + 1);
-        }
-      },
-      onEnd() {
-        domNode.className = domNode.className.replace(
-          " " + self.cssClasses.rootDragMod,
-          ""
-        );
-        self.setValueFromUI();
-      },
-      onChange(evt: any) {
-        if (!self.isEmpty()) self.syncNumbers();
-        self.setGhostText(evt.newIndex + 1);
-      },
-    });
-  }
-
-  public get fallbackToSortableJS(): boolean {
-    return this.getPropertyValue("fallbackToSortableJS");
-  }
-  public set fallbackToSortableJS(val: boolean) {
-    this.setPropertyValue("fallbackToSortableJS", val);
   }
 
   private handleArrowUp = (index: number, choice: ItemValue) => {
@@ -372,12 +318,6 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
-    {
-      name: "fallbackToSortableJS",
-      default: false,
-      visible: false,
-      isSerializable: false,
-    },
   ],
   function () {
     return new QuestionRankingModel("");

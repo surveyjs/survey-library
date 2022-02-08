@@ -21,7 +21,9 @@
     "defaultV2.min.css",
     "survey.core.d.ts",
     "survey.core.js",
-    "survey.core.min.js"
+    "survey.core.min.js",
+    "survey.i18n.js",
+    "survey.i18n.min.js"
   ],
   "main": "survey.core.js",
   "repository": {

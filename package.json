@@ -54,7 +54,7 @@
     "watch:react:ui:prod": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod --watch",
     "dev": "concurrently \"http-server -p 7766 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/",
-    "pre-push-check": "npm run lint && npm run testsingle && npm run test:markup",
+    "pre-push-check": "npm run lint && npm run testsingle",
     "lint": "eslint ./src --quiet && eslint ./testCafe --quiet && eslint ./visualRegressionTests --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "test:knockout": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js",

@@ -82,8 +82,6 @@ export class SurveyModel extends SurveyElementCore
   private localeValue: string = "";
 
   private textPreProcessor: TextPreProcessor;
-  private completedStateValue: string = "";
-  private completedStateTextValue: string = "";
 
   private isTimerStarted: boolean = false;
 
@@ -2825,19 +2823,19 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public get completedState(): string {
-    return this.completedStateValue;
+    return this.getPropertyValue("completedState", "");
   }
   get completedStateText(): string {
-    return this.completedStateTextValue;
+    return this.getPropertyValue("completedStateText", "");
   }
   protected setCompletedState(value: string, text: string) {
-    this.completedStateValue = value;
+    this.setPropertyValue("completedState", value);
     if (!text) {
       if (value == "saving") text = this.getLocString("savingData");
       if (value == "error") text = this.getLocString("savingDataError");
       if (value == "success") text = this.getLocString("savingDataSuccess");
     }
-    this.completedStateTextValue = text;
+    this.setPropertyValue("completedStateText", text);
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.

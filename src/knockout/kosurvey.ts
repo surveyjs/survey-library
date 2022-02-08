@@ -37,8 +37,6 @@ export class Survey extends SurveyModel {
 
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
-  koCompletedState: any;
-  koCompletedStateText: any;
   koCompletedStateCss: any;
   koTimerInfoText: any;
   koTitleTemplate: any = <any>ko.observable("survey-header");
@@ -109,26 +107,8 @@ export class Survey extends SurveyModel {
     if (!element) return;
     self.applyBinding();
   }
-  public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
-    super.clear(clearData, gotoFirstPage);
-    this.render();
-  }
-  public localeChanged() {
-    super.localeChanged();
-    this.render();
-  }
   public koEventAfterRender(element: any, survey: any) {
     survey.afterRenderSurvey(element);
-  }
-  public loadSurveyFromService(
-    surveyId: string = null,
-    clientId: string = null,
-    renderedElement: any = null
-  ) {
-    if (renderedElement) {
-      this.renderedElement = renderedElement;
-    }
-    super.loadSurveyFromService(surveyId, clientId);
   }
   public createNewPage(name: string): PageModel {
     return new Page(name);
@@ -142,8 +122,6 @@ export class Survey extends SurveyModel {
         !!this.activePage &&
         this.getRows(this.activePage).length === 0
     );
-    this.koCompletedState = ko.observable("");
-    this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
     this.koAfterRenderPage = (elements: any, con: any) => {
@@ -161,8 +139,6 @@ export class Survey extends SurveyModel {
   }
   protected setCompletedState(value: string, text: string) {
     super.setCompletedState(value, text);
-    this.koCompletedState(this.completedState);
-    this.koCompletedStateText(this.completedStateText);
     this.koCompletedStateCss(
       this.completedState !== "" ? this.css.saveData[this.completedState] : ""
     );

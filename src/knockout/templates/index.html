@@ -42,10 +42,10 @@
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
-              <div data-bind="visible: koCompletedState() != '', css: css.saveData.root">
+              <div data-bind="visible: completedState != '', css: css.saveData.root">
                   <div data-bind="css: koCompletedStateCss">
-                      <span data-bind="text:koCompletedStateText"></span>
-                      <input type="button" data-bind="visible: koCompletedState() == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
+                      <span data-bind="text:completedStateText"></span>
+                      <input type="button" data-bind="visible: completedState == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
                   </div>
               </div>
               <!-- /ko -->

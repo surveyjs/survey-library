@@ -47,8 +47,8 @@ export class QuestionFileModel extends Question {
     });
     this.prevFileAction = new Action({
       id: "prevPage",
-      //iconName: "icon-arrow-left_16x16",
-      title: "<-",
+      iconName: this.cssClasses.leftIconId,
+      iconSize: 16,
       action: ()=>{
         this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.previewValue.length) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
@@ -56,8 +56,8 @@ export class QuestionFileModel extends Question {
     });
     this.nextFileAction = new Action({
       id: "nextPage",
-      //iconName: "icon-arrow-left_16x16",
-      title: "->",
+      iconSize: 16,
+      iconName: this.cssClasses.rightIconId,
       action: ()=>{
         this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
@@ -226,6 +226,7 @@ export class QuestionFileModel extends Question {
    */
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
+    this.containsMultiplyFiles = false;
     this.survey.clearFiles(
       this,
       this.name,

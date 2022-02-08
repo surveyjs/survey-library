@@ -27,8 +27,11 @@
               <!-- ko if: question.canPreviewImage($data) -->
               <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
               <!-- /ko -->
-              <!-- ko if: !question.canPreviewImage($data) && question.koCss().defaultImage -->
-              <img data-bind="css: question.koCss().defaultImage, attr: { height: question.imageHeight, width: question.imageWidth }">
+              <!-- ko if: !question.canPreviewImage($data) && question.cssClasses.defaultImageIconId -->
+              <svg data-bind="css:question.cssClasses.defaultImage, attr: { height: question.imageHeight, width: question.imageWidth }">
+                <use data-bind="attr:{'xlink:href': question.cssClasses.defaultImageIconId}" xlink:href=''></use>
+              </svg>
+             
               <!-- /ko -->
               <!-- ko if: $data.name -->
               <!-- ko ifnot: question.isReadOnly -->

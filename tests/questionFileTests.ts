@@ -736,4 +736,9 @@ QUnit.test("Question File responsive", (assert) => {
   q1.isMobile = false;
   assert.equal(q1.isPreviewVisible(0), true);
   assert.equal(q1.isPreviewVisible(1), true);
+
+  q1.isMobile = true;
+  assert.equal(q1.mobileFileNavigatorVisible, true);
+  q1.clear();
+  assert.equal(q1.mobileFileNavigatorVisible, false);
 });

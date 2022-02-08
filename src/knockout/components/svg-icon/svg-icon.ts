@@ -21,8 +21,6 @@ ko.components.register("sv-svg-icon", {
       });
       return {
         hasIcon: params.iconName,
-        cssClasses: params.css,
-        title: params.title
       };
     },
   },

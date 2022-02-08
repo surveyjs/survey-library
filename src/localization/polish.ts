@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var polishSurveyStrings = {
   pagePrevText: "Wstecz",

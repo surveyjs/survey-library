@@ -19,7 +19,7 @@ frameworks.forEach(framework => {
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
     await applyTheme(theme);
   });
-  test.only("Check checkbox question", async (t) => {
+  test("Check checkbox question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",
@@ -37,5 +37,34 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("checkbox-col-count-1.png", Selector(".sd-question"), t);
     await ClientFunction(()=> { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
+  });
+  test("Check checkbox question", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "car",
+          "title": "What car are you driving?",
+          "hasNone": true,
+          "colCount": 4,
+          "choices": [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    });
+    await ClientFunction(() => { document.body.focus(); })();
+    await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);
   });
 });

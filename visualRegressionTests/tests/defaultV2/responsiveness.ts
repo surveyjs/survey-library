@@ -101,7 +101,7 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
   });
-  test.only("Check multicolumn checkbox question on small screen", async (t) => {
+  test("Check multicolumn checkbox question on small screen", async (t) => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",

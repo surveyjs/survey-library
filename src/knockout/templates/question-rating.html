@@ -8,12 +8,12 @@
               <!-- /ko -->
               </span>
             <!-- /ko -->
-            <!-- ko foreach: question.koVisibleRateValues -->
+            <!-- ko foreach: question.renderedRateItems -->
             <label data-bind="css: question.getItemClass($data.itemValue)">
                 <input
                 type="radio"
                 class="sv-visuallyhidden"
-                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.value, enable: !question.isInputReadOnly"
+                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.renderedValue, enable: !question.isInputReadOnly, event: { click: function(data, event) { question.setValueFromClick(event.target.value); return true; } }"
                 />
                 <span data-bind="css: question.koCss().itemText">
                 <!-- ko template: { name: 'survey-string', data: $data.locText } -->

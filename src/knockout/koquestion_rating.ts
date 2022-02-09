@@ -8,24 +8,10 @@ import {
 } from "survey-core";
 
 export class QuestionRatingImplementor extends QuestionImplementor {
-  koVisibleRateValues: any;
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
     this.onCreated();
-    this.koVisibleRateValues = this.setObservaleObj(
-      "koVisibleRateValues",
-      ko.observableArray()
-    );
-    (<QuestionRating>this.question).rateValuesChangedCallback = () => {
-      this.onRateValuesChanged();
-    };
-  }
-  protected onRateValuesChanged() {
-    this.koVisibleRateValues(this.getValues());
-  }
-  private getValues(): Array<any> {
-    return (<QuestionRating>this.question).renderedRateItems;
   }
   public dispose() {
     (<QuestionRating>this.question).rateValuesChangedCallback = undefined;

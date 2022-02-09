@@ -47,7 +47,6 @@ export class QuestionFileModel extends Question {
     });
     this.prevFileAction = new Action({
       id: "prevPage",
-      iconName: this.cssClasses.leftIconId,
       iconSize: 16,
       action: ()=>{
         this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.previewValue.length) % this.previewValue.length) || 0;
@@ -57,7 +56,6 @@ export class QuestionFileModel extends Question {
     this.nextFileAction = new Action({
       id: "nextPage",
       iconSize: 16,
-      iconName: this.cssClasses.rightIconId,
       action: ()=>{
         this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
@@ -66,6 +64,11 @@ export class QuestionFileModel extends Question {
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
 
+  protected updateElementCssCore(cssClasses: any): void {
+    super.updateElementCssCore(cssClasses);
+    this.prevFileAction.iconName = this.cssClasses.leftIconId;
+    this.nextFileAction.iconName = this.cssClasses.rightIconId;
+  }
   private getFileIndexCaption(): string {
     return surveyLocalization.getString("indexText")["format"]((this.indexToShow + 1), this.previewValue.length);
   }

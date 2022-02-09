@@ -97,6 +97,9 @@
   justify-content: space-between;
   padding: calcSize(10.5) 0;
   min-height: calcSize(15);
+  max-height: calcSize(15);
+  position: absolute;
+  width: 100%;
 }
 .sd-file__preview {
   position: relative;
@@ -107,9 +110,10 @@
   margin: 0 auto;
   .sd-file__default-image {
     width: calcSize(7);
-    height: 100%;
+    height: 90px;
   }
   img:hover + .sd-file__remove-file-button,
+  svg:hover + .sd-file__remove-file-button,
   .sd-file__remove-file-button:hover {
     display: block;
     position: absolute;

@@ -6,6 +6,7 @@
 
 .sd-selectbase--multi-column {
   display: flex;
+  flex: 1 1 0px;
 }
 
 .sd-selectbase__label {
@@ -16,42 +17,19 @@
   vertical-align: top;
 }
 
+.sd-selectbase__column {
+  display: block;
+  box-sizing: border-box;
+  word-break: break-word;
+  flex: 1 1 0px;
+}
+.sd-selectbase__column:not(:last-child) {
+  padding-right: 16px;
+}
+
 // Copied from stylesmanager
 .sd-selectbase__column.sv-q-column-1 {
   width: 100%;
-  max-width: 100%;
-  display: block;
-  padding-right: calcSize(2);
-  box-sizing: border-box;
-  word-break: break-word;
-}
-.sd-selectbase__column.sv-q-column-2 {
-  max-width: 50%;
-  display: block;
-  padding-right: calcSize(2);
-  box-sizing: border-box;
-  word-break: break-word;
-}
-.sd-selectbase__column.sv-q-column-3 {
-  max-width: 33.33333%;
-  display: block;
-  padding-right: calcSize(2);
-  box-sizing: border-box;
-  word-break: break-word;
-}
-.sd-selectbase__column.sv-q-column-4 {
-  max-width: 25%;
-  display: block;
-  padding-right: calcSize(2);
-  box-sizing: border-box;
-  word-break: break-word;
-}
-.sd-selectbase__column.sv-q-column-5 {
-  max-width: 20%;
-  display: block;
-  padding-right: calcSize(2);
-  box-sizing: border-box;
-  word-break: break-word;
 }
 .sd-selectbase__other {
   margin-top: calcSize(2);

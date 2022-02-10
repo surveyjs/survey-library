@@ -267,6 +267,7 @@ export var defaultV2Css = {
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    scrollInside: "sd-question--scroll-inside",
     root: "sd-table sd-matrixdropdown",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -284,6 +285,7 @@ export var defaultV2Css = {
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    scrollInside: "sd-question--scroll-inside",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",

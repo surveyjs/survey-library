@@ -1,4 +1,4 @@
-import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
+import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject } from "./question";
 import { HashTable, Helpers } from "./helpers";
@@ -774,6 +774,7 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
  * A base class for matrix dropdown and matrix dynamic questions.
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData {
+  @property({}) isMobile: true;
   public static get defaultCellType() {
     return settings.matrixDefaultCellType;
   }
@@ -851,6 +852,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       ],
       () => {
         this.resetRenderedTable();
+      });
+    this.registerFunctionOnPropertiesValueChanged(
+      [
+        "isMobile"
+      ],
+      () => {
+        if (this.columnLayout === "vertical") {
+          this.resetRenderedTable();
+        }
       }
     );
   }
@@ -917,6 +927,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see columnLayout
    */
   public get isColumnLayoutHorizontal() {
+    if(this.isMobile) return true;
     return this.columnLayout != "vertical";
   }
   /**

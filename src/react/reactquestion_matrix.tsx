@@ -7,7 +7,7 @@ import { QuestionMatrixModel } from "survey-core";
 import { MatrixRowModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { Helpers } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -110,7 +110,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell, reason);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
   }

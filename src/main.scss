@@ -4,7 +4,7 @@
   background-position: center;
 }
 
-@import "./window.scss";
+@import "./common-styles/window.scss";
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
@@ -621,8 +621,7 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
             > * {
               word-spacing: initial;
-              @media all and (-ms-high-contrast: none),
-                (-ms-high-contrast: active) {
+              @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
                 word-spacing: normal;
               }
             }
@@ -689,7 +688,7 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
   float: left;
   margin-bottom: 7px;
 }
-.sv_main.sv_main .sv-action-bar-item.sv_edit_btn:hover { 
+.sv_main.sv_main .sv-action-bar-item.sv_edit_btn:hover {
   background-color: $main-hover-color;
 }
 
@@ -757,8 +756,8 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
 @keyframes svdragdropmovedown {
   0% {
-    transform: translate(0, -50px);    
-  } 
+    transform: translate(0, -50px);
+  }
   100% {
     transform: translate(0, 0);
   }
@@ -772,9 +771,9 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
 
 @keyframes svdragdropmoveup {
   0% {
-    transform: translate(0, 50px);   
+    transform: translate(0, 50px);
   }
   100% {
-    transform: translate(0, 0); 
+    transform: translate(0, 0);
   }
 }

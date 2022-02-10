@@ -90,6 +90,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
+    if (!this.allowRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     this.draggedRow = row;
     this.dragOrClickHelper.onPointerDown(pointerDownEvent);

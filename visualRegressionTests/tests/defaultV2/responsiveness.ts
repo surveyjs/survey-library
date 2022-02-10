@@ -101,4 +101,21 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
   });
+  test("Check multicolumn checkbox question on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "checkbox",
+          title: "Which cities have you visited?",
+          name: "checkbox_question",
+          choices: ["Moscow", "Paris", "Madrid", "Munich", "London", "None"],
+          colCount: 2
+        },
+      ]
+    });
+    await ClientFunction(() => { document.body.focus(); })();
+    await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
+  });
 });

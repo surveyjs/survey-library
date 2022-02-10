@@ -59,5 +59,11 @@
       margin-bottom: calcSize(1);
     }
     //eo multipletext responsiveness
+    .sd-selectbase--multi-column {
+      flex-direction: column;
+      .sd-selectbase__column:not(:last-child) {
+        padding-right: 0;
+      }
+    }
   }
 }

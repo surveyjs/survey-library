@@ -3,7 +3,7 @@ import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_el
 import { QuestionImagePickerModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -125,7 +125,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     const survey = this.question.survey as ReactSurveyModel;
     let wrappedItem = null;
     if(!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
   }

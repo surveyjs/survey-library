@@ -106,8 +106,7 @@ frameworks.forEach(framework => {
     await initSurvey(framework, {
       showQuestionNumbers: "off",
       questions: [
-        {
-          type: "multipletext",
+        { type: "multipletext",
           name: "q1",
           title: "Personal Information",
           colCount: 2,
@@ -134,5 +133,22 @@ frameworks.forEach(framework => {
       .typeText(inputSelector.nth(4), "1234-56789");
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("responsiveness-multipletext.png", Selector(".sd-question"), t);
+  });
+  test("Check multicolumn checkbox question on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "checkbox",
+          title: "Which cities have you visited?",
+          name: "checkbox_question",
+          choices: ["Moscow", "Paris", "Madrid", "Munich", "London", "None"],
+          colCount: 2
+        },
+      ]
+    });
+    await ClientFunction(() => { document.body.focus(); })();
+    await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
 });

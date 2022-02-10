@@ -5,7 +5,7 @@ import {
 } from "./reactquestion_element";
 import { QuestionRankingModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
@@ -84,7 +84,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     const survey = this.question.survey as ReactSurveyModel;
     let wrappedItem = null;
     if (!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
   }

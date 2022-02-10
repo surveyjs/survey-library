@@ -5,10 +5,9 @@ import {
 } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { QuestionCheckboxModel } from "../question_checkbox";
-import { Base } from "../base";
-import { ItemValue } from "../itemvalue";
+import { Base, ItemValue } from "survey-core";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -85,7 +84,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     const survey = this.question.survey as ReactSurveyModel;
     let wrappedItem = null;
     if(!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
   }

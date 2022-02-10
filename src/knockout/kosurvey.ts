@@ -1,8 +1,6 @@
 import * as ko from "knockout";
 import { SurveyModel, SvgRegistry } from "survey-core";
 import { SurveyElement } from "survey-core";
-import { Page } from "./kopage";
-import { PageModel } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
@@ -22,108 +20,106 @@ CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   );
 });
 
-export class Survey extends SurveyModel {
+export class SurveyImplementor extends ImplementorBase {
   private renderedElement: HTMLElement;
-
-  koAfterRenderPage: any;
-  koAfterRenderHeader: any;
-  koTitleTemplate: any = <any>ko.observable("survey-header");
-
-  constructor(
-    jsonObj: any = null,
-    renderedElement: any = null,
-    css: any = null
-  ) {
-    super(jsonObj);
-    if (typeof ko === "undefined")
-      throw new Error("knockoutjs library is not loaded.");
-
-    if (css) {
-      this.css = css;
-    }
-    if (renderedElement) {
-      this.renderedElement = renderedElement;
-    }
-    this.render(renderedElement);
-  }
-  protected onBaseCreating() {
-    super.onBaseCreating();
-    this.valueHashGetDataCallback = (valuesHash: any, key: string): any => {
+  constructor(public survey: SurveyModel) {
+    super(survey);
+    this.survey.valueHashGetDataCallback = (valuesHash: any, key: string): any => {
       if (valuesHash[key] === undefined) {
         valuesHash[key] = ko.observable();
       }
       return ko.unwrap(valuesHash[key]);
     };
-    this.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => {
+    this.survey.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => {
       if (ko.isWriteableObservable(valuesHash[key])) {
         valuesHash[key](value);
       } else {
         valuesHash[key] = ko.observable(value);
       }
     };
-    this.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
+    this.survey.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
       if (ko.isWriteableObservable(valuesHash[key])) {
         valuesHash[key](undefined);
       } else {
         delete valuesHash[key];
       }
     };
-    new ImplementorBase(this);
-    this.koAfterRenderPage = (elements: any, con: any) => {
+    this.survey["koTitleTemplate"] = <any>ko.observable("survey-header");
+    this.survey["koAfterRenderPage"] = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
       setTimeout(() => {
         !!ko.tasks && ko.tasks.runEarly();
-        this.afterRenderPage(el);
+        this.survey.afterRenderPage(el);
       }, 0);
     };
-    this.koAfterRenderHeader = (elements: any, con: any) => {
+    this.survey["koAfterRenderHeader"] = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
-      if (el) this.afterRenderHeader(el);
+      if (el) this.survey.afterRenderHeader(el);
     };
+    const css = this.survey.css;
   }
   public render(element: any = null) {
+    if (typeof ko === "undefined")
+      throw new Error("knockoutjs library is not loaded.");
     SvgRegistry.renderIcons();
-    this.updateCustomWidgets(this.activePage);
-    this.updateElementCss(false);
+    const page = this.survey.activePage;
+    if(!!page) {
+      page.updateCustomWidgets();
+    }
+    this.survey.updateElementCss(false);
     if (element && typeof element === "string") {
       element = document.getElementById(element);
     }
     if (element) {
       this.renderedElement = element;
     }
-    element = this.renderedElement;
-    this.startTimerFromUI();
-    if (!element) return;
+    this.survey.startTimerFromUI();
     this.applyBinding();
-  }
-  public koEventAfterRender(element: any, survey: any) {
-    survey.afterRenderSurvey(element);
-  }
-  protected getHtmlTemplate(): string {
-    return koTemplate;
   }
   private applyBinding() {
     if (!this.renderedElement) return;
     ko.cleanNode(this.renderedElement);
     ko.renderTemplate(
       "survey-content",
-      this,
+      this.survey,
       { afterRender: this.koEventAfterRender },
       this.renderedElement
     );
   }
-  public dispose() {
+  public koEventAfterRender(element: any, survey: any) {
+    survey.afterRenderSurvey(element);
+  }
+  public dispose(): void {
     super.dispose();
     if (!!this.renderedElement) {
       ko.cleanNode(this.renderedElement);
       this.renderedElement.innerHTML = "";
     }
-    this.koAfterRenderPage = undefined;
-    this.koAfterRenderHeader = undefined;
-    this.iteratePropertiesHash((hash, key) => {
+    this.survey["koAfterRenderPage"] = undefined;
+    this.survey["koAfterRenderHeader"] = undefined;
+    this.survey.iteratePropertiesHash((hash, key) => {
       delete hash[key];
     });
+  }
+}
+
+export class Survey extends SurveyModel {
+  private implementor: SurveyImplementor;
+
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    this.implementor = new SurveyImplementor(this);
+  }
+  public render(element: any = null) {
+    this.implementor.render(element);
+  }
+  protected getHtmlTemplate(): string {
+    return koTemplate;
+  }
+  public dispose() {
+    super.dispose();
+    this.implementor.dispose();
   }
 }
 

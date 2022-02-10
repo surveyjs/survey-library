@@ -986,7 +986,7 @@ export class SurveyModel extends SurveyElementCore
 
   //#endregion
 
-  constructor(jsonObj: any = null) {
+  constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
@@ -1091,6 +1091,9 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     this.onCreating();
+    if(!!renderedElement) {
+      this.render(renderedElement);
+    }
   }
 
   /**
@@ -2339,7 +2342,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateElementCss(true);
     }
   }
-  protected updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     if (!!this.startedPage) {
       this.startedPage.updateElementCss(reNew);
     }

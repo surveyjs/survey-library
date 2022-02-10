@@ -898,10 +898,9 @@ QUnit.test("koSurvey matrix.rowsVisibleIf", function (assert) {
 export class DesignerSurveyTester extends Survey {
   constructor(
     jsonObj: any = null,
-    renderedElement: any = null,
-    css: any = null
+    renderedElement: any = null
   ) {
-    super(jsonObj, renderedElement, css);
+    super(jsonObj, renderedElement);
   }
   protected onBeforeCreating() {
     super.onBeforeCreating();

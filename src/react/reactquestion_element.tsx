@@ -6,7 +6,7 @@ import { SurveyElement } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -230,7 +230,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
       .survey as ReactSurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell, reason);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
   }

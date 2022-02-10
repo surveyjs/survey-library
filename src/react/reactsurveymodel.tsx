@@ -36,44 +36,29 @@ export class ReactSurveyModel extends SurveyModel {
     this.render();
     return res;
   }
-
-  public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
-    return new ReactSurveyElementsWrapper(this).wrapRow(element, row);
-  }
-  public wrapElement(element: JSX.Element, question: SurveyElement): JSX.Element {
-    return new ReactSurveyElementsWrapper(this).wrapElement(element, question);
-  }
-  public wrapItemValue(element: JSX.Element, question: QuestionSelectBase, item: ItemValue): JSX.Element {
-    return new ReactSurveyElementsWrapper(this).wrapItemValue(element, question, item);
-  }
-
-  public wrapMatrixCell(element: JSX.Element, cell: QuestionMatrixDropdownRenderedCell, reason: string = "cell"): JSX.Element {
-    return new ReactSurveyElementsWrapper(this).wrapMatrixCell(element, cell, reason);
-  }
 }
 export class ReactSurveyElementsWrapper {
-  constructor(public survey: SurveyModel) {}
-  public wrapRow(element: JSX.Element, row: QuestionRowModel): JSX.Element {
-    const componentName = this.survey.getRowWrapperComponentName(row);
-    const componentData = this.survey.getRowWrapperComponentData(row);
+  public static wrapRow(survey: SurveyModel, element: JSX.Element, row: QuestionRowModel): JSX.Element {
+    const componentName = survey.getRowWrapperComponentName(row);
+    const componentData = survey.getRowWrapperComponentData(row);
     return ReactElementFactory.Instance.createElement(componentName, {
       element,
       row,
       componentData,
     });
   }
-  public wrapElement(element: JSX.Element, question: SurveyElement): JSX.Element {
-    const componentName = this.survey.getElementWrapperComponentName(question);
-    const componentData = this.survey.getElementWrapperComponentData(question);
+  public static wrapElement(survey: SurveyModel, element: JSX.Element, question: SurveyElement): JSX.Element {
+    const componentName = survey.getElementWrapperComponentName(question);
+    const componentData = survey.getElementWrapperComponentData(question);
     return ReactElementFactory.Instance.createElement(componentName, {
       element,
       question,
       componentData,
     });
   }
-  public wrapItemValue(element: JSX.Element, question: QuestionSelectBase, item: ItemValue): JSX.Element {
-    const componentName = this.survey.getItemValueWrapperComponentName(item, question);
-    const componentData = this.survey.getItemValueWrapperComponentData(item, question);
+  public static wrapItemValue(survey: SurveyModel, element: JSX.Element, question: QuestionSelectBase, item: ItemValue): JSX.Element {
+    const componentName = survey.getItemValueWrapperComponentName(item, question);
+    const componentData = survey.getItemValueWrapperComponentData(item, question);
     return ReactElementFactory.Instance.createElement(componentName, {
       key: element.key,
       element,
@@ -82,9 +67,9 @@ export class ReactSurveyElementsWrapper {
       componentData,
     });
   }
-  public wrapMatrixCell(element: JSX.Element, cell: QuestionMatrixDropdownRenderedCell, reason: string = "cell"): JSX.Element {
-    const componentName = this.survey.getElementWrapperComponentName(cell, reason);
-    const componentData = this.survey.getElementWrapperComponentData(cell, reason);
+  public static wrapMatrixCell(survey: SurveyModel, element: JSX.Element, cell: QuestionMatrixDropdownRenderedCell, reason: string = "cell"): JSX.Element {
+    const componentName = survey.getElementWrapperComponentName(cell, reason);
+    const componentData = survey.getElementWrapperComponentData(cell, reason);
     return ReactElementFactory.Instance.createElement(componentName, {
       element,
       cell,

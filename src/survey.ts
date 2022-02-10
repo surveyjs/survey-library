@@ -56,6 +56,13 @@ export class SurveyModel extends SurveyElementCore
   ISurveyErrorOwner {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
+  public static get cssType(): string {
+    return surveyCss.currentType;
+  }
+  public static set cssType(value: string) {
+    StylesManager.applyTheme(value);
+  }
+
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -1111,6 +1118,25 @@ export class SurveyModel extends SurveyElementCore
       this.renderCallback();
     }
   }
+  public updateSurvey(newProps: any, oldProps?: any) {
+    for (var key in newProps) {
+      if (key == "model" || key == "children") continue;
+      if (key.indexOf("on") == 0 && this[key] && this[key].add) {
+        let funcBody = newProps[key];
+        let func = function (sender: any, options: any) {
+          funcBody(sender, options);
+        };
+        this[key].add(func);
+      } else {
+        this[key] = newProps[key];
+      }
+    }
+
+    if (newProps && newProps.data)
+      this.onValueChanged.add((sender, options) => {
+        newProps.data[options.name] = options.value;
+      });
+  }
   public getCss(): any {
     return this.css;
   }
@@ -1172,6 +1198,12 @@ export class SurveyModel extends SurveyElementCore
   public get completedCss(): string {
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString();
+  }
+  public get completedStateCss(): string {
+    return this.getPropertyValue("completedStateCss", "");
+  }
+  public getCompletedStateCss(): string {
+    return new CssClassBuilder().append(this.css.saveData[this.completedState], this.completedState !== "").toString();
   }
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -2836,6 +2868,7 @@ export class SurveyModel extends SurveyElementCore
       if (value == "success") text = this.getLocString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
+    this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.

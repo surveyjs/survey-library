@@ -21,7 +21,7 @@
                   <!-- /ko -->
                   <!-- ko if: activePage -->
                     <div data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }"></div>
-                    <!-- ko if: isCurrentPageEmpty() && $data.emptyPageTemplate -->
+                    <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
                     <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
                     <!-- /ko -->
                     <!-- /ko -->
@@ -43,7 +43,7 @@
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
               <div data-bind="visible: completedState != '', css: css.saveData.root">
-                  <div data-bind="css: koCompletedStateCss">
+                  <div data-bind="css: completedStateCss">
                       <span data-bind="text:completedStateText"></span>
                       <input type="button" data-bind="visible: completedState == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
                   </div>

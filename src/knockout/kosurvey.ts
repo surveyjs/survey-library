@@ -1,15 +1,13 @@
 import * as ko from "knockout";
-import { Question, SurveyModel, SvgRegistry } from "survey-core";
-import { IPage, SurveyElement } from "survey-core";
-import { Page, Panel } from "./kopage";
+import { SurveyModel, SvgRegistry } from "survey-core";
+import { SurveyElement } from "survey-core";
+import { Page } from "./kopage";
 import { PageModel } from "survey-core";
-import { surveyCss } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { StylesManager } from "survey-core";
 import { doKey2ClickDown, doKey2ClickUp } from "../utils/utils";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
@@ -25,19 +23,12 @@ CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
 });
 
 export class Survey extends SurveyModel {
-  public static get cssType(): string {
-    return surveyCss.currentType;
-  }
-  public static set cssType(value: string) {
-    StylesManager.applyTheme(value);
-  }
   private renderedElement: HTMLElement;
   private isFirstRender: boolean = true;
   private mouseDownPage: any = null;
 
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
-  koCompletedStateCss: any;
   koTimerInfoText: any;
   koTitleTemplate: any = <any>ko.observable("survey-header");
 
@@ -83,17 +74,17 @@ export class Survey extends SurveyModel {
     new ImplementorBase(this);
   }
   public nextPageUIClick() {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.currentPage) return;
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
     this.mouseDownPage = null;
     this.nextPage();
   }
   public nextPageMouseDown() {
-    this.mouseDownPage = this.currentPage;
+    this.mouseDownPage = this.activePage;
     return this.navigationMouseDown();
   }
   public render(element: any = null) {
     SvgRegistry.renderIcons();
-    this.updateCustomWidgets(this.currentPage);
+    this.updateCustomWidgets(this.activePage);
     this.updateElementCss(false);
     const self = this;
     if (element && typeof element === "string") {
@@ -117,12 +108,6 @@ export class Survey extends SurveyModel {
     return koTemplate;
   }
   protected onBeforeCreating() {
-    this.isCurrentPageEmpty = ko.computed(
-      () =>
-        !!this.activePage &&
-        this.getRows(this.activePage).length === 0
-    );
-    this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
     this.koAfterRenderPage = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
@@ -137,12 +122,6 @@ export class Survey extends SurveyModel {
       if (el) this.afterRenderHeader(el);
     };
   }
-  protected setCompletedState(value: string, text: string) {
-    super.setCompletedState(value, text);
-    this.koCompletedStateCss(
-      this.completedState !== "" ? this.css.saveData[this.completedState] : ""
-    );
-  }
   protected doTimer() {
     super.doTimer();
     this.koTimerInfoText(this.timerInfoText);
@@ -151,7 +130,7 @@ export class Survey extends SurveyModel {
     if (!this.renderedElement) return;
     ko.cleanNode(this.renderedElement);
     if (!this.isFirstRender) {
-      this.updateCurrentPageQuestions();
+      this.updateActivePageQuestions();
     }
     this.isFirstRender = false;
     ko.renderTemplate(
@@ -161,40 +140,13 @@ export class Survey extends SurveyModel {
       this.renderedElement
     );
   }
-  private getRows(pnl: any): Array<any> {
-    return !!pnl["koRows"] ? pnl["koRows"]() : pnl.rows;
-  }
-  private updateCurrentPageQuestions() {
+  private updateActivePageQuestions() {
     if (this.isDisposed) return;
-    var questions = this.currentPage ? this.currentPage.questions : [];
+    var questions = this.activePage ? this.activePage.questions : [];
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       if (q.visible) q["updateQuestion"]();
     }
-  }
-  public updateSurvey(newProps: any, oldProps?: any) {
-    for (var key in newProps) {
-      if (key == "model" || key == "children") continue;
-      if (key == "css") {
-        this.mergeValues(newProps.css, this.getCss());
-        this.updateElementCss();
-        continue;
-      }
-      if (key.indexOf("on") == 0 && this[key] && this[key].add) {
-        let funcBody = newProps[key];
-        let func = function (sender: any, options: any) {
-          funcBody(sender, options);
-        };
-        this[key].add(func);
-      } else {
-        this[key] = newProps[key];
-      }
-    }
-
-    if (newProps && newProps.data)
-      this.onValueChanged.add((sender, options) => {
-        newProps.data[options.name] = options.value;
-      });
   }
   public dispose() {
     super.dispose();
@@ -204,7 +156,6 @@ export class Survey extends SurveyModel {
     }
     this.koAfterRenderPage = undefined;
     this.koAfterRenderHeader = undefined;
-    this.isCurrentPageEmpty.dispose();
     this.iteratePropertiesHash((hash, key) => {
       delete hash[key];
     });

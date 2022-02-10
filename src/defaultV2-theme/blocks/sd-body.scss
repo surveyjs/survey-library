@@ -1,5 +1,5 @@
 .sd-body {
-  min-width: calcSize(70);
+  min-width: 348px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -14,7 +14,7 @@
   padding: calcSize(2);
 }
 .sd-body__progress {
-  margin-bottom: calcSize(4);
+  margin: calcSize(4) calcSize(2);
 }
 .sd-body__progress ~ div > .sd-body__page,
 .sd-body__progress ~ .sd-body__page {

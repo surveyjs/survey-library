@@ -3453,6 +3453,16 @@ export class SurveyModel extends SurveyElementCore
   private resetNavigationButton() {
     this.isNavigationButtonPressed = false;
   }
+  private mouseDownPage: any = null;
+  public nextPageUIClick() {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
+    this.mouseDownPage = null;
+    this.nextPage();
+  }
+  public nextPageMouseDown() {
+    this.mouseDownPage = this.activePage;
+    return this.navigationMouseDown();
+  }
   /**
    * Shows preview for the survey. Switches the survey to the "preview" state.
    *
@@ -4713,7 +4723,9 @@ export class SurveyModel extends SurveyElementCore
    * @see addNewPage
    */
   public createNewPage(name: string): PageModel {
-    return new PageModel(name);
+    const page = Serializer.createClass("page");
+    page.name = name;
+    return page;
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
     if (this.onValueChanging.isEmpty) return newValue;

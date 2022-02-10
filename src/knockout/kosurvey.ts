@@ -24,7 +24,6 @@ CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
 
 export class Survey extends SurveyModel {
   private renderedElement: HTMLElement;
-  private mouseDownPage: any = null;
 
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
@@ -70,42 +69,6 @@ export class Survey extends SurveyModel {
       }
     };
     new ImplementorBase(this);
-  }
-  public nextPageUIClick() {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
-    this.mouseDownPage = null;
-    this.nextPage();
-  }
-  public nextPageMouseDown() {
-    this.mouseDownPage = this.activePage;
-    return this.navigationMouseDown();
-  }
-  public render(element: any = null) {
-    SvgRegistry.renderIcons();
-    this.updateCustomWidgets(this.activePage);
-    this.updateElementCss(false);
-    const self = this;
-    if (element && typeof element === "string") {
-      element = document.getElementById(element);
-    }
-    if (element) {
-      this.renderedElement = element;
-    }
-    element = this.renderedElement;
-    self.startTimerFromUI();
-    if (!element) return;
-    self.applyBinding();
-  }
-  public koEventAfterRender(element: any, survey: any) {
-    survey.afterRenderSurvey(element);
-  }
-  public createNewPage(name: string): PageModel {
-    return new Page(name);
-  }
-  protected getHtmlTemplate(): string {
-    return koTemplate;
-  }
-  protected onBeforeCreating() {
     this.koAfterRenderPage = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
@@ -118,6 +81,27 @@ export class Survey extends SurveyModel {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.afterRenderHeader(el);
     };
+  }
+  public render(element: any = null) {
+    SvgRegistry.renderIcons();
+    this.updateCustomWidgets(this.activePage);
+    this.updateElementCss(false);
+    if (element && typeof element === "string") {
+      element = document.getElementById(element);
+    }
+    if (element) {
+      this.renderedElement = element;
+    }
+    element = this.renderedElement;
+    this.startTimerFromUI();
+    if (!element) return;
+    this.applyBinding();
+  }
+  public koEventAfterRender(element: any, survey: any) {
+    survey.afterRenderSurvey(element);
+  }
+  protected getHtmlTemplate(): string {
+    return koTemplate;
   }
   private applyBinding() {
     if (!this.renderedElement) return;

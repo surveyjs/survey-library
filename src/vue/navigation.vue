@@ -50,15 +50,13 @@ import { BaseVue } from "./base";
 
 @Component
 export class Navigation extends BaseVue {
-  private mouseDownPage: PageModel;
   @Prop() survey: SurveyModel;
   @Prop() css: any;
   protected getModel(): Base {
     return this.survey;
   }
   nextButtonMouseDown() {
-    this.mouseDownPage = this.survey.currentPage;
-    return this.survey.navigationMouseDown();
+    return this.survey.nextPageMouseDown();
   }
   buttonMouseDown() {
     return this.survey.navigationMouseDown();
@@ -70,10 +68,7 @@ export class Navigation extends BaseVue {
     this.survey.prevPage();
   }
   nextPage() {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
-      return;
-    this.mouseDownPage = null;
-    this.survey.nextPage();
+    this.survey.nextPageUIClick();
   }
   completeLastPage() {
     this.survey.completeLastPage();

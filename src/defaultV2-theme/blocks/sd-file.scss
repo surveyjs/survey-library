@@ -4,12 +4,26 @@
   font-size: calcSize(2);
   line-height: calcSize(3);
   .sv-action-bar {
-    padding: calcSize(1);
+    padding: calcSize(1) 0;
     justify-content: center;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     .sv-action-bar-item {
       height: calcSize(4);
       line-height: calcSize(2);
       color: $foreground-light;
+      border-radius: calcSize(2);
+    }
+    #fileIndex {
+      .sv-action-bar-item {
+        &:hover {
+          background-color: $background;
+        }
+        &:disabled {
+          opacity: initial;
+        }
+      }
     }
     .sv-action:not(:last-child) > .sv-action__content {
       padding-right: calcSize(1);
@@ -171,6 +185,7 @@
   .sd-file__list {
     padding: 0;
     height: 100%;
+    max-height: 100%;
     width: 100%;
   }
   .sd-file__image-wrapper {

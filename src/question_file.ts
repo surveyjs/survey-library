@@ -43,7 +43,8 @@ export class QuestionFileModel extends Question {
     super(name);
     this.fileIndexAction = new Action ({
       id: "fileIndex",
-      title: this.getFileIndexCaption()
+      title: this.getFileIndexCaption(),
+      enabled: false
     });
     this.prevFileAction = new Action({
       id: "prevPage",
@@ -68,6 +69,7 @@ export class QuestionFileModel extends Question {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
     this.nextFileAction.iconName = this.cssClasses.rightIconId;
+    //this.mobileFileNavigator.cssClasses = this.survey.getCss().actionBar;
   }
   private getFileIndexCaption(): string {
     return surveyLocalization.getString("indexText")["format"]((this.indexToShow + 1), this.previewValue.length);

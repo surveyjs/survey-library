@@ -104,23 +104,22 @@ export class SurveyImplementor extends ImplementorBase {
   }
 }
 
-export class Survey extends SurveyModel {
-  private implementor: SurveyImplementor;
+SurveyModel.prototype["onCreating"] = function() {
+  this.implementor = new SurveyImplementor(this);
+};
+SurveyModel.prototype["render"] = function(element: any = null) {
+  this.implementor.render(element);
+};
+SurveyModel.prototype["getHtmlTemplate"] = function(): string {
+  return koTemplate;
+};
+const oldSurveyDispose = SurveyModel.prototype["dispose"];
+SurveyModel.prototype["dispose"] = function() {
+  oldSurveyDispose();
+  this.implementor.dispose();
+};
 
-  protected onBaseCreating() {
-    super.onBaseCreating();
-    this.implementor = new SurveyImplementor(this);
-  }
-  public render(element: any = null) {
-    this.implementor.render(element);
-  }
-  protected getHtmlTemplate(): string {
-    return koTemplate;
-  }
-  public dispose() {
-    super.dispose();
-    this.implementor.dispose();
-  }
+export class Survey extends SurveyModel {
 }
 
 LocalizableString.prototype["onCreating"] = function () {

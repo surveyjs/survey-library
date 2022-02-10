@@ -102,6 +102,9 @@ export function testQuestionMarkup(assert, test, platform) {
       if(all[i].checked) {
         all[i].setAttribute("checked", "");
       }
+      if(all[i].multiple) {
+        all[i].setAttribute("multiple", "");
+      }
       if(all[i].hasAttribute("readonly"))
         all[i].setAttribute("readonly", "");
     }

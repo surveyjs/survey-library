@@ -11,6 +11,7 @@ export * from "./etalon_comment";
 export * from "./etalon_boolean";
 export * from "./etalon_rating";
 export * from "./etalon_multipletext";
+export * from "./etalon_file";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

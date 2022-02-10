@@ -24,7 +24,6 @@ CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
 
 export class Survey extends SurveyModel {
   private renderedElement: HTMLElement;
-  private isFirstRender: boolean = true;
   private mouseDownPage: any = null;
 
   koAfterRenderPage: any;
@@ -123,24 +122,12 @@ export class Survey extends SurveyModel {
   private applyBinding() {
     if (!this.renderedElement) return;
     ko.cleanNode(this.renderedElement);
-    if (!this.isFirstRender) {
-      this.updateActivePageQuestions();
-    }
-    this.isFirstRender = false;
     ko.renderTemplate(
       "survey-content",
       this,
       { afterRender: this.koEventAfterRender },
       this.renderedElement
     );
-  }
-  private updateActivePageQuestions() {
-    if (this.isDisposed) return;
-    var questions = this.activePage ? this.activePage.questions : [];
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      if (q.visible) q["updateQuestion"]();
-    }
   }
   public dispose() {
     super.dispose();

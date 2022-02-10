@@ -16,7 +16,7 @@
             />
             <survey-timerpanel
               v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
-              :survey="vueSurvey"
+              :timerModel="vueSurvey.timerModel"
               :css="css"
             />
             <survey-navigation
@@ -33,7 +33,7 @@
             />
             <survey-timerpanel
               v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
-              :survey="vueSurvey"
+              :timerModel="vueSurvey.timerModel"
               :css="css"
             />
             <component

@@ -197,7 +197,7 @@ export class Survey extends SurveyElementBase<any, any>
       return null;
     if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
       return null;
-    return <SurveyTimerPanel survey={this.survey} />;
+    return <SurveyTimerPanel timerModel={this.survey.timerModel} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
     return (

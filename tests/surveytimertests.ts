@@ -1,5 +1,7 @@
+import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
 import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
+import { SurveyTimerModel } from "../src/surveyTimerModel";
 
 export default QUnit.module("SurveyTimer");
 
@@ -40,6 +42,7 @@ QUnit.test("Spent time on survey", function(assert) {
   assert.equal(survey.timeSpent, 15, "Timer called still 15 times");
   survey.clear();
   assert.equal(survey.timeSpent, 0, "reset value");
+  survey.stopTimer();
 });
 
 QUnit.test("Spent time on pages", function(assert) {
@@ -80,6 +83,7 @@ QUnit.test("Spent time on pages", function(assert) {
   survey.clear();
   assert.equal(page1.timeSpent, 0, "page1, reset value");
   assert.equal(page2.timeSpent, 0, "page2, reset value");
+  survey.stopTimer();
 });
 
 QUnit.test("Complete survey by timer", function(assert) {
@@ -97,6 +101,7 @@ QUnit.test("Complete survey by timer", function(assert) {
   doTimer(6);
   assert.equal(survey.state, "completed", "The state is completed");
   assert.equal(survey.timeSpent, 10, "Timer called 5 times");
+  survey.stopTimer();
 });
 
 QUnit.test("Complete pages by timer", function(assert) {
@@ -118,6 +123,7 @@ QUnit.test("Complete pages by timer", function(assert) {
   assert.equal(survey.currentPage.name, "p2", "The second first page");
   doTimer(5);
   assert.equal(survey.state, "completed", "The survey is completed");
+  survey.stopTimer();
 });
 
 QUnit.test("Showing prev button", function(assert) {
@@ -144,6 +150,7 @@ QUnit.test("Showing prev button", function(assert) {
     true,
     "maxTimeToFinishPage is override"
   );
+  survey.stopTimer();
 });
 
 QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
@@ -202,6 +209,7 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     options.html = options.text.replace("*", "!").replace("*", "!");
   });
   assert.equal(survey.timerInfoText, "!65!", "use onTextMarkdown event.");
+  survey.stopTimer();
 });
 
 QUnit.test("Start timer automatically if there is the start page", function(
@@ -217,6 +225,7 @@ QUnit.test("Start timer automatically if there is the start page", function(
   survey.start();
   doTimer(3);
   assert.equal(survey.timeSpent, 3, "Timer was started");
+  survey.stopTimer();
 });
 
 function doTimer(count: number) {
@@ -224,3 +233,23 @@ function doTimer(count: number) {
     SurveyTimer.instance.doTimer();
   }
 }
+
+QUnit.test("Test SurveyTimerModel", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  const timerModel = survey.timerModel;
+  survey.startTimer();
+  assert.equal(timerModel.spent, 0, "just started spent");
+  assert.equal(timerModel.text, "You have spent 0 sec on this page and 0 sec in total.", "just started text");
+  doTimer(62);
+  assert.equal(timerModel.spent, 62, "62 spent");
+  assert.equal(timerModel.text, "You have spent 1 min 2 sec on this page and 1 min 2 sec in total.", "62 text");
+  survey.nextPage();
+  doTimer(3);
+  assert.equal(timerModel.spent, 62 + 3, "62 + 3 spent");
+  assert.equal(timerModel.text, "You have spent 3 sec on this page and 1 min 5 sec in total.", "62 + 3 text");
+  survey.stopTimer();
+});

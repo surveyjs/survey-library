@@ -27,7 +27,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
-import { SurveyTimer } from "./surveytimer";
+import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
@@ -53,7 +53,8 @@ export class SurveyModel extends SurveyElementCore
   ISurveyData,
   ISurveyImpl,
   ISurveyTriggerOwner,
-  ISurveyErrorOwner {
+  ISurveyErrorOwner,
+  ISurveyTimerText {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   public static get cssType(): string {
@@ -89,8 +90,7 @@ export class SurveyModel extends SurveyElementCore
   private localeValue: string = "";
 
   private textPreProcessor: TextPreProcessor;
-
-  private isTimerStarted: boolean = false;
+  private timerModelValue: SurveyTimerModel;
 
   //#region Event declarations
 
@@ -1006,6 +1006,10 @@ export class SurveyModel extends SurveyElementCore
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
+    };
+    this.timerModelValue = new SurveyTimerModel(this);
+    this.timerModelValue.onTimer = (page: PageModel): void => {
+      this.doTimer(page);
     };
     this.createNewArray(
       "pages",
@@ -2886,7 +2890,7 @@ export class SurveyModel extends SurveyElementCore
       this.data = null;
       this.variablesHash = {};
     }
-    this.timeSpent = 0;
+    this.timerModel.spent = 0;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
@@ -5900,10 +5904,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTimerPanel", val);
   }
   public get isTimerPanelShowingOnTop() {
-    return this.isTimerStarted && this.showTimerPanel == "top";
+    return this.timerModel.isRunning && this.showTimerPanel == "top";
   }
   public get isTimerPanelShowingOnBottom() {
-    return this.isTimerStarted && this.showTimerPanel == "bottom";
+    return this.timerModel.isRunning && this.showTimerPanel == "bottom";
   }
   /**
    * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.
@@ -6025,20 +6029,14 @@ export class SurveyModel extends SurveyElementCore
     if (res) res += " ";
     return res + sec + " " + this.getLocString("timerSec");
   }
-  private timerFunc: any = null;
+  public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
   /**
    * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
    * @see stopTimer
    * @see timeSpent
    */
   public startTimer() {
-    if (this.isTimerStarted || this.isDesignMode) return;
-    var self = this;
-    this.timerFunc = function () {
-      self.doTimer();
-    };
-    this.isTimerStarted = true;
-    SurveyTimer.instance.start(this.timerFunc);
+    this.timerModel.start();
   }
   startTimerFromUI() {
     if (this.showTimerPanel != "none" && this.state === "running") {
@@ -6051,16 +6049,14 @@ export class SurveyModel extends SurveyElementCore
    * @see timeSpent
    */
   public stopTimer() {
-    if (!this.isTimerStarted) return;
-    this.isTimerStarted = false;
-    SurveyTimer.instance.stop(this.timerFunc);
+    this.timerModel.stop();
   }
   /**
    * Returns the time in seconds an end user spends on the survey
    * @see startTimer
    * @see PageModel.timeSpent
    */
-  public timeSpent = 0;
+  public get timeSpent(): number { return this.timerModel.spent; }
   /**
    * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer
@@ -6092,12 +6088,7 @@ export class SurveyModel extends SurveyElementCore
       ? page.maxTimeToFinish
       : this.maxTimeToFinishPage;
   }
-  protected doTimer() {
-    var page = this.currentPage;
-    if (page) {
-      page.timeSpent = page.timeSpent + 1;
-    }
-    this.timeSpent = this.timeSpent + 1;
+  private doTimer(page: PageModel): void {
     this.onTimer.fire(this, {});
     if (this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
       this.completeLastPage();

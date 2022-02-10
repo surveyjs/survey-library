@@ -29,7 +29,6 @@ export class Survey extends SurveyModel {
 
   koAfterRenderPage: any;
   koAfterRenderHeader: any;
-  koTimerInfoText: any;
   koTitleTemplate: any = <any>ko.observable("survey-header");
 
   constructor(
@@ -108,7 +107,6 @@ export class Survey extends SurveyModel {
     return koTemplate;
   }
   protected onBeforeCreating() {
-    this.koTimerInfoText = ko.observable(this.timerInfoText);
     this.koAfterRenderPage = (elements: any, con: any) => {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
@@ -121,10 +119,6 @@ export class Survey extends SurveyModel {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.afterRenderHeader(el);
     };
-  }
-  protected doTimer() {
-    super.doTimer();
-    this.koTimerInfoText(this.timerInfoText);
   }
   private applyBinding() {
     if (!this.renderedElement) return;

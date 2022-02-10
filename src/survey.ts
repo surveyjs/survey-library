@@ -6236,7 +6236,11 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);
+    if(this.disposeCallback) {
+      this.disposeCallback();
+    }
   }
+  disposeCallback: () => void;
 }
 
 Serializer.addClass("survey", [

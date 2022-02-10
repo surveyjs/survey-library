@@ -12173,7 +12173,9 @@ QUnit.test(
     assert.equal(survey.pages.length, 1, "One page");
     assert.equal(survey.pages[0].elements.length, 1, "One element");
     survey.dispose();
-    assert.equal(survey.pages.length, 0, "No pages");
+    if(!!survey.pages) {
+      assert.equal(survey.pages.length, 0, "No pages");
+    }
   }
 );
 

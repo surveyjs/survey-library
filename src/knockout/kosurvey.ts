@@ -57,7 +57,9 @@ export class SurveyImplementor extends ImplementorBase {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) this.survey.afterRenderHeader(el);
     };
-    const css = this.survey.css;
+    this.survey.disposeCallback = () => {
+      this.dispose();
+    };
   }
   public render(element: any = null) {
     if (typeof ko === "undefined")
@@ -112,11 +114,6 @@ SurveyModel.prototype["render"] = function(element: any = null) {
 };
 SurveyModel.prototype["getHtmlTemplate"] = function(): string {
   return koTemplate;
-};
-const oldSurveyDispose = SurveyModel.prototype["dispose"];
-SurveyModel.prototype["dispose"] = function() {
-  oldSurveyDispose();
-  this.implementor.dispose();
 };
 
 export class Survey extends SurveyModel {

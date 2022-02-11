@@ -162,7 +162,7 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question"), t);
   });
-  test("Check matrixdynamic on small screen", async (t) => {
+  test("Check matrixdropdown on small screen", async (t) => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",

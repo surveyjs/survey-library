@@ -93,13 +93,46 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-progress-top.png", Selector(".sd-question--paneldynamic"), t);
   });
-  test("Check paneldynamic progressTop on small screen", async (t) => {
+  test("Check paneldynamic list on small screen", async (t) => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, panelDynamicJSON);
     await ClientFunction(() => {
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
+  });
+  test("Check multipletext on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        { type: "multipletext",
+          name: "q1",
+          title: "Personal Information",
+          colCount: 2,
+          items: [
+            {
+              name: "item1",
+              title: "Full Name"
+            },
+            {
+              name: "item2",
+              title: "Email Address"
+            },
+            {
+              name: "item3",
+              title: "ID"
+            },
+          ]
+        },
+      ]
+    });
+    const inputSelector = Selector(".sd-input");
+    await t.typeText(inputSelector.nth(0), "Jon Snow")
+      .typeText(inputSelector.nth(2), "jon@snow.com")
+      .typeText(inputSelector.nth(4), "1234-56789");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("responsiveness-multipletext.png", Selector(".sd-question"), t);
   });
   test("Check multicolumn checkbox question on small screen", async (t) => {
     await t.resizeWindow(600, 1080);

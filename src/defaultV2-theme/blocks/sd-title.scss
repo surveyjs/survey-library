@@ -13,10 +13,14 @@
 
 .sd-title.sd-container-modern__title {
   display: flex;
-  padding: calcSize(3);
+  padding: calcSize(2);
   border-bottom: 2px solid $primary;
   overflow: auto;
   font-family: $font-family;
+  gap: calcSize(4);
+  .sd-logo__image {
+    margin-top: calcSize(1);
+  }
 }
 
 .sd-header__text {

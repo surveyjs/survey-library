@@ -33,14 +33,16 @@
     width: auto;
     min-width: auto;
   }
-  .sd-matrix__cell {
+  .sd-table__cell.sd-matrix__cell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: 0;
     &:after {
       content: attr(data-responsive-title);
       display: block;
       margin-left: calcSize(1);
+      padding: calcSize(1.5) 0;
+      text-align: left;
     }
     &:first-child {
       padding-top: 16px;
@@ -98,7 +100,13 @@
   }
   .sd-table__cell.sd-table__cell--actions {
     width: auto;
+    .sd-action-bar {
+      margin-right: calcSize(-3);
+      justify-content: end;
+      background: $background;
+    }  
   }
+
   .sd-action.sd-action.sd-matrixdynamic__remove-btn {
     opacity: 1;
     padding: 8px 24px;

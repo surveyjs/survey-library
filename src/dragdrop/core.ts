@@ -300,25 +300,19 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
     const shortcutWidth = this.draggedElementShortcut.offsetWidth;
-    let shortcutXOffset;
-    let shortcutYOffset;
+    const shortcutXOffset = this.draggedElementShortcut.shortcutXOffset || shortcutWidth / 2;
+    const shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
 
-    if (!!this.draggedElementShortcut.shortcutXOffset) {
-      shortcutXOffset = this.draggedElementShortcut.shortcutXOffset;
-      shortcutYOffset = this.draggedElementShortcut.shortcutYOffset;
-    } else {
-      shortcutXOffset = shortcutWidth / 2;
-      shortcutYOffset = shortcutHeight / 2;
-    }
+    const documentBottom = document.documentElement.clientHeight;
+    const documentRight = document.documentElement.clientWidth;
+    const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
+    const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
 
-    const documentClientHeight = document.documentElement.clientHeight;
-    const documentClientWidth = document.documentElement.clientWidth;
-
-    if (event.clientX + shortcutXOffset >= documentClientWidth) {
+    if (shortcutRightCoordinate >= documentRight) {
       this.draggedElementShortcut.style.left =
         event.pageX -
         event.clientX +
-        documentClientWidth -
+        documentRight -
         shortcutWidth +
         "px";
       this.draggedElementShortcut.style.top =
@@ -334,13 +328,13 @@ export abstract class DragDropCore<T> extends Base {
       return;
     }
 
-    if (event.clientY + shortcutYOffset >= documentClientHeight) {
+    if (shortcutBottomCoordinate >= documentBottom) {
       this.draggedElementShortcut.style.left =
         event.pageX - shortcutXOffset + "px";
       this.draggedElementShortcut.style.top =
         event.pageY -
         event.clientY +
-        documentClientHeight -
+        documentBottom -
         shortcutHeight +
         "px";
       return;
@@ -358,6 +352,14 @@ export abstract class DragDropCore<T> extends Base {
       event.pageX - shortcutXOffset + "px";
     this.draggedElementShortcut.style.top =
       event.pageY - shortcutYOffset + "px";
+  }
+
+  private getShortcutBottomCoordinate(currentY: number, shortcutHeight: number, shortcutYOffset: number):number {
+    return currentY + shortcutHeight - shortcutYOffset;
+  }
+
+  private getShortcutRightCoordinate(currentX: number, shortcutWidth: number, shortcutXOffset: number):number {
+    return currentX + shortcutWidth - shortcutXOffset;
   }
 
   private doScroll(clientY: number, clientX: number) {

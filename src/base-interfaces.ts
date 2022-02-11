@@ -166,6 +166,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     name: string,
     index: number
   ): IQuestion;
+  canChangeChoiceItemsVisibility(): boolean;
+  getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixBeforeRowAdded(options: {
     question: IQuestion,

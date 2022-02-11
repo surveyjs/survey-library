@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var czechSurveyStrings = {
   pagePrevText: "Předchozí",

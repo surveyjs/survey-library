@@ -5,7 +5,7 @@ import { ReactElementFactory } from "./element-factory";
 
 import { SurveyPanelBase } from "./panel-base";
 import { PanelModel, doKey2ClickUp } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { TitleElement } from "./components/title/title-element";
 
@@ -66,7 +66,7 @@ export class SurveyPanel extends SurveyPanelBase {
     const survey: ReactSurveyModel = this.panel.survey as ReactSurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapElement(element, this.panel);
+      wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.panel);
     }
     return wrapper ?? element;
   }

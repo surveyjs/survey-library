@@ -1,5 +1,5 @@
 .sd-body {
-  min-width: 348px;
+  min-width: calc(300px + 6 * #{$base-unit});
   width: 100%;
   margin-left: auto;
   margin-right: auto;

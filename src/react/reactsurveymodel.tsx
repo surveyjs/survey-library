@@ -1,8 +1,6 @@
 import { SurveyModel, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
-export class ReactSurveyModel extends SurveyModel {
-}
 export class ReactSurveyElementsWrapper {
   public static wrapRow(survey: SurveyModel, element: JSX.Element, row: QuestionRowModel): JSX.Element {
     const componentName = survey.getRowWrapperComponentName(row);
@@ -41,12 +39,6 @@ export class ReactSurveyElementsWrapper {
       cell,
       componentData,
     });
-  }
-}
-
-export class ReactWindowModel extends SurveyWindowModel {
-  constructor(jsonObj: any = null, model: SurveyModel = null) {
-    super(jsonObj, model);
   }
 }
 

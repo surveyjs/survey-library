@@ -135,7 +135,7 @@ export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
-export { SurveyModel } from "../../survey";
+export { SurveyModel, SurveyModel as Model } from "../../survey";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,

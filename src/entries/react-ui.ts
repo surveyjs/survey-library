@@ -3,6 +3,7 @@ export { Survey, attachKey2click } from "../react/reactSurvey";
 import { ReactSurveyModel, ReactWindowModel } from "../react/reactsurveymodel";
 export { ReactSurveyModel as Model };
 export { ReactWindowModel as WindowModel };
+export { ReactSurveyElementsWrapper } from "../react/reactsurveymodel";
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
 export { SurveyNavigation } from "../react/reactSurveyNavigation";

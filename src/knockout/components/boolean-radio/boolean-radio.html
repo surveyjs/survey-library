@@ -1,0 +1,33 @@
+<div data-bind="css: question.koCss().root">
+  <fieldset role="presentation">
+        <!-- ko component: { name: 'sv-template-renderer', params: { componentData:  {value: false, locText: question.locLabelFalse}, templateData: { name: 'survey-boolean-radio-item', data: {value: false, locText: question.locLabelFalse} } } } -->
+        <!-- /ko -->  
+        <!-- ko component: { name: 'sv-template-renderer', params: { componentData:  {value: false, locText: question.locLabelTrue}, templateData: { name: 'survey-boolean-radio-item', data: {value: true, locText: question.locLabelTrue} } } } -->
+        <!-- /ko -->          
+  </fieldset>
+</div>
+<script type="text/html" id="survey-boolean-radio-item">
+  <div role="presentation">
+    <label>
+      <input
+        type="radio"
+        data-bind="attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, enable: !question.isInputReadOnly"
+      />
+      <!-- ko if: question.koCss().materialDecorator -->
+      <span data-bind="css: question.koCss().materialDecorator">
+        <!-- ko if: question.itemSvgIcon -->
+        <svg data-bind="css:question.koCss().itemDecorator">
+          <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
+        </svg>
+        <!-- /ko -->
+      </span>
+      <!-- /ko -->
+      <span
+        
+      >
+        <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+        <!-- /ko -->
+      </span>
+    </label>
+  </div>
+</script>

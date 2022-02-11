@@ -14,6 +14,7 @@ export class QuestionBooleanModel extends Question {
     super(name);
     this.createLocalizableString("labelFalse", this, true, "booleanUncheckedLabel");
     this.createLocalizableString("labelTrue", this, true, "booleanCheckedLabel");
+    this.renderAs = "radio";
   }
   public getType(): string {
     return "boolean";

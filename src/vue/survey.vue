@@ -89,8 +89,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss, SvgRegistry } from "survey-core";
-import { VueSurveyModel as SurveyModel } from "./surveyModel";
+import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component

@@ -1,11 +1,10 @@
 import * as React from "react";
 import { Survey } from "./reactSurvey";
-import { ReactWindowModel } from "./reactsurveymodel";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Base } from "survey-core";
+import { Base, SurveyWindowModel } from "survey-core";
 
 export class SurveyWindow extends Survey {
-  protected window: ReactWindowModel;
+  protected window: SurveyWindowModel;
   constructor(props: any) {
     super(props);
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
@@ -70,7 +69,7 @@ export class SurveyWindow extends Survey {
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};
     super.createSurvey(newProps);
-    this.window = new ReactWindowModel(null, this.survey);
+    this.window = new SurveyWindowModel(null, this.survey);
     if (newProps.closeOnCompleteTimeout) {
       this.window.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }

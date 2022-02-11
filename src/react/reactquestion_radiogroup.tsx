@@ -4,8 +4,8 @@ import { QuestionRadiogroupModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base } from "survey-core";
-import { ReactSurveyModel, ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { Base, SurveyModel } from "survey-core";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
@@ -88,7 +88,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         isChecked={value === item.value}
       />
     );
-    const survey = this.question.survey as ReactSurveyModel;
+    const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
     if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);

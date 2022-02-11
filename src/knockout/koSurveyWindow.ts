@@ -1,11 +1,10 @@
 import * as ko from "knockout";
 import { SurveyWindowModel } from "survey-core";
-import { Survey } from "./kosurvey";
 import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
 
 export class SurveyWindowImplementor extends ImplementorBase {
-  constructor(public window: SurveyWindow) {
+  constructor(public window: SurveyWindowModel) {
     super(window);
     this.window.showingChangedCallback = () => {
       this.doShowingChanged();
@@ -21,7 +20,7 @@ export class SurveyWindowImplementor extends ImplementorBase {
       ko.cleanNode(windowElement);
       ko.applyBindings(this, windowElement);
       document.body.appendChild(windowElement);
-      (<Survey>this.window.survey).render(SurveyWindow.surveyElementName);
+      this.window.survey.render(SurveyWindowModel.surveyElementName);
     } else {
       document.body.removeChild(windowElement);
       windowElement.innerHTML = "";

@@ -29,7 +29,6 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 import { Base, SurveyWindowModel } from "survey-core";
-import { VueSurveyWindowModel } from "./surveyModel";
 import { BaseVue } from "./base";
 
 @Component
@@ -46,7 +45,7 @@ export class Window extends BaseVue {
     if (this.window) {
       this.surveyWindow = this.window;
     } else {
-      this.surveyWindow = new VueSurveyWindowModel(null, this.survey);
+      this.surveyWindow = new SurveyWindowModel(null, this.survey);
     }
     if (this.isexpanded !== undefined) {
       this.surveyWindow.isExpanded = this.isexpanded;

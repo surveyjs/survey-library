@@ -40,7 +40,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { VueSurveyModel as SurveyModel } from "./surveyModel";
+import { SurveyModel } from "survey-core";
+
 
 @Component
 export class SurveyHeader extends Vue {

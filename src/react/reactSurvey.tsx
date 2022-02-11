@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -22,7 +21,7 @@ export class Survey extends SurveyElementBase<any, any>
   public static set cssType(value: string) {
     StylesManager.applyTheme(value);
   }
-  protected survey: ReactSurveyModel;
+  protected survey: SurveyModel;
 
   private rootNodeId: string; // root dom node ID attr
   private rootNodeClassName: string; // root dom node class
@@ -237,11 +236,11 @@ export class Survey extends SurveyElementBase<any, any>
       } else {
         if (newProps.json) {
           this.previousJSON = newProps.json;
-          this.survey = new ReactSurveyModel(newProps.json);
+          this.survey = new SurveyModel(newProps.json);
         }
       }
     } else {
-      this.survey = new ReactSurveyModel();
+      this.survey = new SurveyModel();
     }
     if (!!newProps.css) {
       this.survey.css = this.css;

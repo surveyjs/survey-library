@@ -45,17 +45,8 @@ export class ReactSurveyElementsWrapper {
 }
 
 export class ReactWindowModel extends SurveyWindowModel {
-  constructor(jsonObj: any = null, model: ReactSurveyModel = null) {
+  constructor(jsonObj: any = null, model: SurveyModel = null) {
     super(jsonObj, model);
-  }
-  protected createSurvey(jsonObj: any): SurveyModel {
-    return new ReactSurveyModel(jsonObj);
-  }
-  public get renderCallback(): () => void {
-    return this.survey.renderCallback;
-  }
-  public set renderCallback(val: () => void) {
-    this.survey.renderCallback = val;
   }
 }
 

@@ -5,62 +5,43 @@ export * from "./core";
 // localization
 import "./chunks/localization";
 
-/*
-// model
-export * from "./chunks/model";
-//import "../modern.scss";
-
-// localization
-import "./chunks/localization";
-
-// helpers
-export * from "./chunks/helpers";
-
-// css standard
-export { defaultStandardCss } from "../defaultCss/cssstandard";
-// css bootstrap
-export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
-// css bootstrap + material
-export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
-export { modernCss } from "../defaultCss/cssmodern";
-*/
 const innerKo: any = ko;
 export { innerKo as ko };
-import { Survey, SurveyWindow } from "./knockout";
-export { Survey as Model };
 
 import { registerTemplateEngine } from "../knockout/kosurvey";
 import { SurveyModel } from "../survey";
+import { SurveyWindowModel } from "../surveyWindow";
 
-export class ReactSurveyModel extends Survey {
+export class ReactSurveyModel extends SurveyModel {
   constructor(
     jsonObj: any = null,
     renderedElement: any = null,
     css: any = null
   ) {
-    super(jsonObj, renderedElement, css);
+    super(jsonObj, renderedElement);
+    if(!!css) this.css = css;
     // eslint-disable-next-line no-console
     console.warn("ReactSurveyModel is depricated in this context. Use Survey.Model instead.");
   }
 }
 
 export class SurveyNG {
-  public static render(elementId: string | Element, props: any) {
+  public static render(elementId: string | Element, props: any): void {
     var element: Element =
       typeof elementId === "string"
         ? document.getElementById(elementId)
         : elementId;
-    var model: Survey = props.model;
+    var model: SurveyModel = props.model;
     model.updateSurvey(props);
     model.render(element);
   }
 }
 
 export class SurveyWindowNG {
-  public static render(elementId: string | Element, props: any) {
-    var model: Survey = props.model;
+  public static render(elementId: string | Element, props: any): void {
+    var model: SurveyModel = props.model;
     model.updateSurvey(props);
-    var survey = new SurveyWindow(null, model);
+    var survey = new SurveyWindowModel(null, model);
     if (props.expanded !== undefined) {
       survey.isExpanded = props.expanded;
     }

@@ -14,7 +14,7 @@ export class SurveyWindow extends Survey {
     return [this.window, this.window.survey];
   }
   handleOnExpanded(event: any) {
-    this.window.isExpanded = !this.window.isExpanded;
+    this.window.changeExpandCollapse();
   }
   protected canRender(): boolean {
     return super.canRender() && this.window.isShowing;
@@ -77,9 +77,5 @@ export class SurveyWindow extends Survey {
     this.window.isShowing = true;
     if (!this.window.isExpanded && (newProps.expanded || newProps.isExpanded))
       this.window.expand();
-    var self = this;
-    this.window.closeWindowOnCompleteCallback = function () {
-      self.window.hide();
-    };
   }
 }

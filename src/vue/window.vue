@@ -58,10 +58,6 @@ export class Window extends BaseVue {
       this.surveyWindow.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
     }
     this.surveyWindow.isShowing = true;
-    var self = this;
-    this.surveyWindow.closeWindowOnCompleteCallback = function () {
-      self.doHide();
-    };
   }
   protected getModel(): Base {
     return this.surveyWindow;
@@ -85,10 +81,7 @@ export class Window extends BaseVue {
     this.surveyWindow.isExpanded = val;
   }
   doExpand() {
-    this.surveyWindow.isExpanded = !this.surveyWindow.isExpanded;
-  }
-  doHide() {
-    Vue.set(this.surveyWindow, "isShowing", false);
+    this.surveyWindow.changeExpandCollapse();
   }
 }
 Vue.component("survey-window", Window);

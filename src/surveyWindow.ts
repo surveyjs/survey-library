@@ -13,7 +13,6 @@ export class SurveyWindowModel extends Base {
   templateValue: string;
   expandedChangedCallback: () => void;
   showingChangedCallback: () => void;
-  closeWindowOnCompleteCallback: () => void;
 
   constructor(jsonObj: any, initialModel: SurveyModel = null) {
     super();
@@ -26,11 +25,19 @@ export class SurveyWindowModel extends Base {
     if ("undefined" !== typeof document) {
       this.windowElement = <HTMLDivElement>document.createElement("div");
     }
-    var self = this;
-    this.survey.onComplete.add(function (survey, options) {
-      self.onSurveyComplete();
+    this.survey.onComplete.add((survey, options) => {
+      this.onSurveyComplete();
     });
+    this.registerFunctionOnPropertyValueChanged("isShowing", () => {
+      if(!!this.showingChangedCallback) this.showingChangedCallback();
+    });
+    this.registerFunctionOnPropertyValueChanged("isExpanded", () => {
+      this.onExpandedChanged();
+    });
+    this.updateCssButton();
+    this.onCreating();
   }
+  protected onCreating(): void {}
   public getType(): string {
     return "window";
   }
@@ -54,16 +61,14 @@ export class SurveyWindowModel extends Base {
     return this.getPropertyValue("isShowing", false);
   }
   public set isShowing(val: boolean) {
-    if (this.isShowing == val) return;
     this.setPropertyValue("isShowing", val);
-    if (this.showingChangedCallback) this.showingChangedCallback();
   }
   /**
    * Show the window
    * @see hide
    * @see isShowing
    */
-  public show() {
+  public show(): void {
     this.isShowing = true;
   }
   /**
@@ -71,7 +76,7 @@ export class SurveyWindowModel extends Base {
    * @see show
    * @see isShowing
    */
-  public hide() {
+  public hide(): void {
     this.isShowing = false;
   }
   /**
@@ -84,8 +89,12 @@ export class SurveyWindowModel extends Base {
   }
   public set isExpanded(val: boolean) {
     this.setPropertyValue("isExpanded", val);
-    if (!this.isLoadingFromJson && this.expandedChangedCallback)
+  }
+  protected onExpandedChanged(): void {
+    if (!!this.expandedChangedCallback) {
       this.expandedChangedCallback();
+    }
+    this.updateCssButton();
   }
   /**
    * The window and survey title.
@@ -102,30 +111,45 @@ export class SurveyWindowModel extends Base {
   /**
    * Expand the window to show the survey.
    */
-  public expand() {
-    this.expandcollapse(true);
+  public expand(): void {
+    this.isExpanded = true;
   }
   /**
    * Collapse the window and show survey title only.
    */
-  public collapse() {
-    this.expandcollapse(false);
+  public collapse(): void {
+    this.isExpanded = false;
+  }
+  public changeExpandCollapse(): void {
+    this.isExpanded = !this.isExpanded;
+  }
+  public get css(): any {
+    return this.survey.css;
+  }
+  public get cssButton(): string {
+    return this.getPropertyValue("cssButton", "");
+  }
+  private updateCssButton() {
+    const cssHeader = !!this.css.window ? this.css.window.header : null;
+    if(!cssHeader) return;
+    this.setCssButton(this.isExpanded ? cssHeader.buttonExpanded : cssHeader.buttonCollapsed);
+  }
+  private setCssButton(val: string): void {
+    if(!val) return;
+    this.setPropertyValue("cssButton", val);
   }
   protected createSurvey(jsonObj: any): SurveyModel {
     return new SurveyModel(jsonObj);
   }
-  protected expandcollapse(value: boolean) {
-    this.isExpanded = value;
-  }
-  protected onSurveyComplete() {
+  protected onSurveyComplete(): void {
     if (this.closeOnCompleteTimeout < 0) return;
     if (this.closeOnCompleteTimeout == 0) {
-      this.closeWindowOnComplete();
+      this.hide();
     } else {
       var self = this;
       var timerId: any = null;
       var func = function () {
-        self.closeWindowOnComplete();
+        self.hide();
         if (typeof window !== "undefined") {
           window.clearInterval(timerId);
         }
@@ -134,11 +158,6 @@ export class SurveyWindowModel extends Base {
         typeof window !== "undefined"
           ? window.setInterval(func, this.closeOnCompleteTimeout * 1000)
           : 0;
-    }
-  }
-  protected closeWindowOnComplete() {
-    if (!!this.closeWindowOnCompleteCallback) {
-      this.closeWindowOnCompleteCallback();
     }
   }
 }

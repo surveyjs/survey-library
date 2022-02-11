@@ -190,9 +190,9 @@
         position: relative;
         height: 1px;
         background-color: $border-light;
-        left: -32px;
+        left: -16px;
         bottom: -8px;
-        width: calc(100% + 64px);
+        width: calc(100% + 32px);
         z-index: 12;
       }
     }

@@ -72,6 +72,9 @@
     display: inline-block;
   }
 }
+.sd-question--table .sd-question__content{
+  padding-top: calcSize(2.5);
+}
 .sd-question--table:not(.sd-question--scroll-inside) {
   position: relative;
   overflow-x: auto;
@@ -100,7 +103,6 @@
   & > .sd-question__content {
     display: flex;
     margin: 0 calcSize(-5);
-    padding-top: calcSize(2.5);
     width: fit-content;
     min-width: calc(100% + 10 * #{$base-unit});
     &:before,

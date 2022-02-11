@@ -27,5 +27,6 @@
     .sd-header__text {
       min-width: 100%;
     }
+    @include table_responsive();
   }
 }

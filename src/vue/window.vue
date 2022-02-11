@@ -29,7 +29,6 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 import { Base, SurveyWindowModel } from "survey-core";
-import { VueSurveyWindowModel } from "./surveyModel";
 import { BaseVue } from "./base";
 
 @Component
@@ -46,7 +45,7 @@ export class Window extends BaseVue {
     if (this.window) {
       this.surveyWindow = this.window;
     } else {
-      this.surveyWindow = new VueSurveyWindowModel(null, this.survey);
+      this.surveyWindow = new SurveyWindowModel(null, this.survey);
     }
     if (this.isexpanded !== undefined) {
       this.surveyWindow.isExpanded = this.isexpanded;
@@ -58,10 +57,6 @@ export class Window extends BaseVue {
       this.surveyWindow.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
     }
     this.surveyWindow.isShowing = true;
-    var self = this;
-    this.surveyWindow.closeWindowOnCompleteCallback = function () {
-      self.doHide();
-    };
   }
   protected getModel(): Base {
     return this.surveyWindow;
@@ -85,10 +80,7 @@ export class Window extends BaseVue {
     this.surveyWindow.isExpanded = val;
   }
   doExpand() {
-    this.surveyWindow.isExpanded = !this.surveyWindow.isExpanded;
-  }
-  doHide() {
-    Vue.set(this.surveyWindow, "isShowing", false);
+    this.surveyWindow.changeExpandCollapse();
   }
 }
 Vue.component("survey-window", Window);

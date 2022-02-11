@@ -12173,7 +12173,9 @@ QUnit.test(
     assert.equal(survey.pages.length, 1, "One page");
     assert.equal(survey.pages[0].elements.length, 1, "One element");
     survey.dispose();
-    assert.equal(survey.pages.length, 0, "No pages");
+    if(!!survey.pages) {
+      assert.equal(survey.pages.length, 0, "No pages");
+    }
   }
 );
 
@@ -14450,4 +14452,31 @@ QUnit.test("clearInvisibleValues: `none` and copyvalue trigger", function (asser
   assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct");
   survey.doComplete();
   assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct after completed");
+});
+QUnit.test("Assign survey data callback", function (assert) {
+  const survey = new SurveyModel();
+  let getCounter = 0;
+  let setCounter = 0;
+  let deleteCounter = 0;
+  survey.valueHashGetDataCallback = (valuesHash: any, key: string) : any => {
+    getCounter ++;
+    return valuesHash[key];
+  };
+  survey.valueHashSetDataCallback = (valuesHash: any, key: string, value : any): void => {
+    setCounter ++;
+    valuesHash[key] = value;
+  };
+  survey.valueHashDeleteDataCallback = (valuesHash: any, key: string) : void => {
+    deleteCounter ++;
+    delete valuesHash[key];
+  };
+  survey.setValue("a", "abc");
+  assert.equal(survey.getValue("a"), "abc");
+  survey.clearValue("a");
+  assert.equal(getCounter > 0, true, "getCounter");
+  assert.equal(setCounter, 1, "setCounter");
+  assert.equal(deleteCounter, 1, "deleteCounter");
+  const oldGetCount = getCounter;
+  assert.equal(survey.getValue("a"), undefined);
+  assert.equal(getCounter, oldGetCount + 1, "getCounter #2");
 });

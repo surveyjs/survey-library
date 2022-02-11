@@ -2,13 +2,13 @@
     <div data-bind="css: css.window.header.root">
         <span data-bind="click:doExpand" style="width: 100%; cursor: pointer;">
             <span style="padding-right:10px" data-bind="css: css.window.header.title, text: locTitle.koRenderedHtml"></span>
-            <span aria-hidden="true" data-bind="css: koExpandedCss"></span>
+            <span aria-hidden="true" data-bind="css: cssButton"></span>
         </span>
-        <span data-bind="visible:koExpanded, click:doExpand" style="float: right; cursor: pointer;">
+        <span data-bind="visible:isExpanded, click:doExpand" style="float: right; cursor: pointer;">
             <span style="padding-right:10px" data-bind="css: css.window.header.title">X</span>
         </span>
     </div>
-    <div data-bind="visible:koExpanded, css: css.window.body">
+    <div data-bind="visible:isExpanded, css: css.window.body">
         <div id="windowSurveyJS"></div>
     </div>
 </div>

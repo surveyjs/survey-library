@@ -1,65 +1,38 @@
 import * as ko from "knockout";
 import { SurveyWindowModel } from "survey-core";
-import { SurveyModel } from "survey-core";
-import { Survey } from "./kosurvey";
+import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
 
-export class SurveyWindow extends SurveyWindowModel {
-  koExpanded: any;
-  koExpandedCss: any;
-  doExpand: any;
-  constructor(jsonObj: any = null, initialModel: SurveyModel = null) {
-    super(jsonObj, initialModel);
-    this.koExpanded = ko.observable(false);
-    this.koExpandedCss = ko.observable(this.getButtonCss());
-    var self = this;
-    this.expandedChangedCallback = function () {
-      self.koExpanded(self.isExpanded);
-      self.koExpandedCss(self.getButtonCss());
+export class SurveyWindowImplementor extends ImplementorBase {
+  constructor(public window: SurveyWindowModel) {
+    super(window);
+    this.window.showingChangedCallback = () => {
+      this.doShowingChanged();
     };
-    this.showingChangedCallback = function () {
-      self.doShowingChanged();
-    };
-    this.doExpand = function () {
-      self.changeExpanded();
+    (<any>this.window)["doExpand"] = () => {
+      this.window.changeExpandCollapse();
     };
   }
-  protected createSurvey(jsonObj: any): SurveyModel {
-    return new Survey(jsonObj);
-  }
-  protected closeWindowOnComplete() {
-    this.hide();
-  }
-  protected get template(): string {
-    return this.templateValue ? this.templateValue : this.getDefaultTemplate();
-  }
-  protected set template(value: string) {
-    this.templateValue = value;
-  }
-  protected doShowingChanged() {
-    if (this.isShowing) {
-      this.windowElement.innerHTML = this.template;
-      ko.cleanNode(this.windowElement);
-      ko.applyBindings(this, this.windowElement);
-      document.body.appendChild(this.windowElement);
-      (<Survey>this.survey).render(SurveyWindow.surveyElementName);
+  private doShowingChanged() {
+    const windowElement = this.window.windowElement;
+    if (this.window.isShowing) {
+      windowElement.innerHTML = this.template;
+      ko.cleanNode(windowElement);
+      ko.applyBindings(this, windowElement);
+      document.body.appendChild(windowElement);
+      this.window.survey.render(SurveyWindowModel.surveyElementName);
     } else {
-      document.body.removeChild(this.windowElement);
-      this.windowElement.innerHTML = "";
+      document.body.removeChild(windowElement);
+      windowElement.innerHTML = "";
     }
   }
-  protected getDefaultTemplate(): string {
-    return koTemplate;
-  }
-  public get css(): any {
-    return (<any>this).survey["css"];
-  }
-  private changeExpanded() {
-    this.expandcollapse(!this.isExpanded);
-  }
-  private getButtonCss() {
-    return this.koExpanded()
-      ? this.css.window.header.buttonCollapsed
-      : this.css.window.header.buttonExpanded;
+  private get template(): string {
+    return this.window.templateValue ? this.window.templateValue : koTemplate;
   }
 }
+
+SurveyWindowModel.prototype["onCreating"] = function() {
+  this.implementor = new SurveyWindowImplementor(this);
+};
+
+export class SurveyWindow extends SurveyWindowModel {}

@@ -44,9 +44,6 @@ export class QuestionImplementor extends ImplementorBase {
       })
     );
     this.setObservaleObj("koElementType", ko.observable("survey-question"));
-    this.setCallbackFunc("updateQuestion", () => {
-      this.updateQuestion();
-    });
     this.setObservaleObj(
       "koCss",
       ko.pureComputed(() => {
@@ -87,9 +84,6 @@ export class QuestionImplementor extends ImplementorBase {
   }
   protected getKoValue() {
     return this.question.value;
-  }
-  protected updateQuestion() {
-    this.updateKoDummy();
   }
   protected onSurveyLoad() {}
   protected getQuestionTemplate(): string {

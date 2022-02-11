@@ -1,5 +1,6 @@
 import * as ko from "knockout";
 import { RendererFactory } from "survey-core";
+export * from "./boolean-radio-item";
 
 const template = require("./boolean-radio.html");
 

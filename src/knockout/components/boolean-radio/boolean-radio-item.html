@@ -1,0 +1,22 @@
+  <div role="presentation" data-bind="css: question.koCss().radioItem">
+    <label>
+      <input
+        type="radio"
+        data-bind="attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, checked:  $data.value === question.value }, enable: !question.isInputReadOnly"
+      />
+      <!-- ko if: question.koCss().materialDecorator -->
+      <span data-bind="css: question.koCss().materialRadioDecorator">
+        <!-- ko if: question.itemSvgIcon -->
+        <svg data-bind="css:question.koCss().itemRadioDecorator">
+          <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
+        </svg>
+        <!-- /ko -->
+      </span>
+      <!-- /ko -->
+      <span>
+        <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+        <!-- /ko -->
+      </span>
+    </label>
+  </div>
+

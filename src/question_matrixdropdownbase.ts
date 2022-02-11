@@ -2227,6 +2227,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentData(cell, "row-header");
   }
+  public get showHorizontalScroll(): boolean {
+    return !this.isDefaultV2Theme && this.horizontalScroll;
+  }
+  public getRootCss(): string {
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
+  }
 }
 
 Serializer.addClass(

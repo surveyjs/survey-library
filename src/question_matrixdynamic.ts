@@ -775,8 +775,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       .toString();
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable.showTable)
-      .append(this.cssClasses.scrollInside, this.horizontalScroll).toString();
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable.showTable).toString();
   }
 }
 

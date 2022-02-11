@@ -1,5 +1,5 @@
 export { Survey } from "../knockout/kosurvey";
-export { SurveyWindow } from "../knockout/kosurveywindow";
+export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
 export { FlowPanel } from "../knockout/koflowpanel";

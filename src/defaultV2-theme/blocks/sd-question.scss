@@ -2,8 +2,8 @@
   position: relative;
 }
 .sd-question__erbox--above-question {
-  margin-top: calcSize(-4);
-  margin-bottom: calcSize(3);
+  margin-top: calc(-1 * var(--sd-base-vertical-padding));
+  margin-bottom: calc(var(--sd-base-vertical-padding) - #{$base-unit});
   width: 100%;
   color: $red;
   background-color: $red-light;

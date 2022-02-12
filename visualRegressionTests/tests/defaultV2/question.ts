@@ -175,8 +175,8 @@ frameworks.forEach(framework => {
     const qRoot = Selector(".sd-question");
     await t.click(".sd-navigation__complete-btn");
     await ClientFunction(()=>{ document.body.focus(); })();
-    checkElementScreenshot("question-with-error.png", qRoot, t);
+    await checkElementScreenshot("question-with-error.png", qRoot, t);
     await t.resizeWindow(600, 1080);
-    checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
+    await checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
   });
 });

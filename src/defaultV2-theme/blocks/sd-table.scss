@@ -163,8 +163,8 @@
       text-align: left;
     }
     &:first-child {
-      padding-top: 16px;
-      padding-bottom: 8px;
+      padding-top: calcSize(2);
+      padding-bottom: calcSize(1);
     }
   }
   .sd-table thead {
@@ -177,13 +177,13 @@
   }
   .sd-matrix__table {
     tr + tr {
-      margin-top: 8px;
+      margin-top: calcSize(1);
     }
   }
 
   .sd-table:not(.sd-matrix__table) {
     tr {
-      padding-bottom: 8px;
+      padding-bottom: calcSize(1);
       &::after {
         z-index: 12;
         content: " ";
@@ -191,9 +191,9 @@
         position: relative;
         height: 1px;
         background-color: $border-light;
-        left: -16px;
-        bottom: -8px;
-        width: calc(100% + 32px);
+        left: calcSize(-2);
+        bottom: calcSize(-1);
+        width: calc(100% + 4 * #{$base-unit});
         z-index: 12;
       }
     }
@@ -207,12 +207,12 @@
     padding-bottom: 0;
   }
   .sd-table__cell:not(.sd-matrix__cell):not(:first-child) {
-    margin-top: 8px;
+    margin-top: calcSize(1);
   }
   .sd-table__cell:not(.sd-matrix__cell):not(.sd-table__cell--actions):not(.sd-table__cell--row-text) {
     &::before {
-      padding-top: 16px;
-      padding-bottom: 8px;
+      padding-top: calcSize(2);
+      padding-bottom: calcSize(1);
       content: attr(data-responsive-title);
       font-weight: 600;
       display: block;
@@ -230,7 +230,7 @@
 
   .sd-action.sd-action.sd-matrixdynamic__remove-btn {
     opacity: 1;
-    padding: 8px 24px;
+    padding: calcSize(1) calcSize(3);
     .sd-action__icon {
       display: none;
     }
@@ -239,19 +239,19 @@
     }
   }
   .sd-matrixdynamic__footer {
-    padding-top: 8px;
-    margin-bottom: -16px;
+    padding-top: calcSize(1);
+    margin-bottom: calcSize(-2);
   }
   .sd-table__cell--row-text {
     color: $foreground-light;
-    padding-top: 16px;
+    padding-top: calcSize(2);
   }
   .sd-matrixdropdown.sd-table {
     tr:not(:last-child) {
-      padding-bottom: 16px;
+      padding-bottom: calcSize(2);
     }
     tr::after {
-      bottom: -16px;
+      bottom: calcSize(-2);
     }
     tr:last-child:after {
       content: none;

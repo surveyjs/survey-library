@@ -5,14 +5,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
+import { SurveyTimerModel } from "survey-core";
 
 @Component
 export class TimerPanel extends Vue {
-  @Prop() survey: SurveyModel;
+  @Prop() timerModel: SurveyTimerModel;
   @Prop() css: any;
   get text() {
-    return this.survey.timerInfoText;
+    return this.timerModel.text;
   }
 }
 Vue.component("survey-timerpanel", TimerPanel);

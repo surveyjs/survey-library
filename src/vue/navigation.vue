@@ -1,17 +1,24 @@
 <template>
   <div :class="css.footer">
     <input
+      v-if="survey.isShowStartingPage"
       type="button"
-      :value="survey.pagePrevText"
-      v-show="showPrevBtn"
+      :value="survey.locStartSurveyText.text"
+      :class="survey.cssNavigationStart"
+      @click="start"
+    />
+    <input
+      v-if="survey.isShowPrevButton"
+      type="button"
+      :value="survey.locPagePrevText.text"
       :class="survey.cssNavigationPrev"
       @mousedown="buttonMouseDown"
       @click="prevPage"
     />
     <input
+      v-if="survey.isShowNextButton"
       type="button"
-      :value="survey.pageNextText"
-      v-show="showNextBtn"
+      :value="survey.locPageNextText.text"
       :class="survey.cssNavigationNext"
       @mousedown="nextButtonMouseDown"
       @click="nextPage"
@@ -19,8 +26,7 @@
     <input
       v-if="survey.isPreviewButtonVisible"
       type="button"
-      :value="survey.previewText"
-      v-show="survey.isLastPage"
+      :value="survey.locPreviewText.text"
       :class="survey.cssNavigationPreview"
       @mousedown="buttonMouseDown"
       @click="showPreview"
@@ -28,8 +34,7 @@
     <input
       v-if="survey.isCompleteButtonVisible"
       type="button"
-      :value="survey.completeText"
-      v-show="showCompleteBtn"
+      :value="survey.locCompleteText.text"
       :class="survey.cssNavigationComplete"
       @mousedown="buttonMouseDown"
       @click="completeLastPage"
@@ -45,46 +50,25 @@ import { BaseVue } from "./base";
 
 @Component
 export class Navigation extends BaseVue {
-  private mouseDownPage: PageModel;
-  showPrevBtn: boolean = true;
-  showNextBtn: boolean = true;
-  showCompleteBtn: boolean = true;
   @Prop() survey: SurveyModel;
   @Prop() css: any;
   protected getModel(): Base {
     return this.survey;
   }
-  @Watch("survey")
-  onPropertyChanged(value: string, oldValue: string) {
-    this.onCreated();
-    this.updateShowButtons();
-  }
-  protected onMounted() {
-    this.survey.onCurrentPageChanged.add((sender, options) => {
-      this.updateShowButtons();
-    });
-    this.updateShowButtons();
-  }
-  private updateShowButtons() {
-    this.showPrevBtn = this.survey.isShowPrevButton;
-    this.showNextBtn = this.survey.isShowNextButton;
-    this.showCompleteBtn = this.survey.isLastPage;
-  }
   nextButtonMouseDown() {
-    this.mouseDownPage = this.survey.currentPage;
-    return this.survey.navigationMouseDown();
+    return this.survey.nextPageMouseDown();
   }
   buttonMouseDown() {
     return this.survey.navigationMouseDown();
+  }
+  start() {
+    this.survey.start();
   }
   prevPage() {
     this.survey.prevPage();
   }
   nextPage() {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
-      return;
-    this.mouseDownPage = null;
-    this.survey.nextPage();
+    this.survey.nextPageUIClick();
   }
   completeLastPage() {
     this.survey.completeLastPage();

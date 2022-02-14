@@ -1,6 +1,7 @@
 import { PopupUtils } from "../../src/utils/popup";
 import { PopupModel } from "../../src/popup";
 import { PopupBaseViewModel } from "../../src/popup";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -63,6 +64,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
 });
 
 QUnit.test("PopupViewModel defaults", (assert) => {
+  surveyLocalization.currentLocale = "";
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 

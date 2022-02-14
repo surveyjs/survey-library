@@ -18,7 +18,7 @@ export class SurveyWindowImplementor extends ImplementorBase {
     if (this.window.isShowing) {
       windowElement.innerHTML = this.template;
       ko.cleanNode(windowElement);
-      ko.applyBindings(this, windowElement);
+      ko.applyBindings(this.window, windowElement);
       document.body.appendChild(windowElement);
       this.window.survey.render(SurveyWindowModel.surveyElementName);
     } else {

@@ -34,7 +34,7 @@ export class SurveyWindowModel extends Base {
     this.registerFunctionOnPropertyValueChanged("isExpanded", () => {
       this.onExpandedChanged();
     });
-    this.updateCssButton();
+    this.updateCss();
     this.onCreating();
   }
   protected onCreating(): void {}
@@ -128,6 +128,29 @@ export class SurveyWindowModel extends Base {
   }
   public get cssButton(): string {
     return this.getPropertyValue("cssButton", "");
+  }
+  public get cssRoot(): string {
+    return this.getPropertyValue("cssRoot", "");
+  }
+  public get cssBody(): string {
+    return this.getPropertyValue("cssBody", "");
+  }
+  public get cssHeaderRoot(): string {
+    return this.getPropertyValue("cssHeaderRoot", "");
+  }
+  public get cssHeaderTitle(): string {
+    return this.getPropertyValue("cssHeaderTitle", "");
+  }
+  private updateCss() {
+    if(!this.css || !this.css.window) return;
+    const cssWindow = this.css.window;
+    this.setPropertyValue("cssRoot", cssWindow.root);
+    this.setPropertyValue("cssBody", cssWindow.body);
+    const cssHeader = cssWindow.header;
+    if(!cssHeader) return;
+    this.setPropertyValue("cssHeaderRoot", cssHeader.root);
+    this.setPropertyValue("cssHeaderTitle", cssHeader.title);
+    this.updateCssButton();
   }
   private updateCssButton() {
     const cssHeader = !!this.css.window ? this.css.window.header : null;

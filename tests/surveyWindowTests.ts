@@ -67,3 +67,25 @@ QUnit.test("buttonCss", function (assert) {
   css.window.header.buttonCollapsed = oldCssCollapsed;
   css.window.header.buttonExpanded = oldCssExpanded;
 });
+QUnit.test("cssStyles", function (assert) {
+  const css = surveyCss.getCss();
+  const oldCssRoot = css.window.root;
+  const oldCssHeaderRoot = css.window.header.root;
+  const oldCssHeaderTitle = css.window.header.title;
+  const oldCssBody = css.window.body;
+  css.window.root = "windowRoot";
+  css.window.header.root = "headerRoot";
+  css.window.header.title = "headerTitle";
+  css.window.body = "windowBody";
+
+  const window = new SurveyWindowModel({ elements: [{ type: "text", name: "q1" }] });
+  window.show();
+  assert.equal(window.cssRoot, "windowRoot", "Root");
+  assert.equal(window.cssHeaderRoot, "headerRoot", "HeaderRoot");
+  assert.equal(window.cssHeaderTitle, "headerTitle", "HeaderTitle");
+  assert.equal(window.cssBody, "windowBody", "windowBody");
+  css.window.root = oldCssRoot;
+  css.window.header.root = oldCssHeaderRoot;
+  css.window.header.title = oldCssHeaderTitle;
+  css.window.body = oldCssBody;
+});

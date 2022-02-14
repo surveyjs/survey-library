@@ -28,7 +28,7 @@ export class SurveyWindow extends Survey {
       maxWidth: "60%",
     };
     return (
-      <div className={this.css.window.root} style={style}>
+      <div className={this.window.cssRoot} style={style}>
         {header}
         {body}
       </div>
@@ -37,15 +37,13 @@ export class SurveyWindow extends Survey {
   protected renderWindowHeader(): JSX.Element {
     var styleA = { width: "100%", cursor: "pointer" };
     var styleTitle = { paddingRight: "10px" };
-    var glyphClassName = this.window.isExpanded
-      ? this.css.window.header.buttonCollapsed
-      : this.css.window.header.buttonExpanded;
+    var glyphClassName = this.window.cssButton;
     glyphClassName = "glyphicon pull-right " + glyphClassName;
     var title = SurveyElementBase.renderLocString(this.survey.locTitle);
     return (
-      <div className={this.css.window.header.root}>
+      <div className={this.window.cssHeaderRoot}>
         <span onClick={this.handleOnExpanded} style={styleA}>
-          <span className={this.css.window.header.title} style={styleTitle}>
+          <span className={this.window.cssHeaderTitle} style={styleTitle}>
             {title}
           </span>
           <span className={glyphClassName} aria-hidden="true" />
@@ -55,7 +53,7 @@ export class SurveyWindow extends Survey {
             onClick={this.handleOnExpanded}
             style={{ float: "right", cursor: "pointer" }}
           >
-            <span className={this.css.window.header.title} style={styleTitle}>
+            <span className={this.window.cssHeaderTitle} style={styleTitle}>
               X
             </span>
           </span>
@@ -64,7 +62,7 @@ export class SurveyWindow extends Survey {
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.css.window.body}>{this.doRender()}</div>;
+    return <div className={this.window.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

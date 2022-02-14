@@ -2,11 +2,11 @@
   <div
     v-show="surveyWindow.isShowing"
     style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
-    :class="css.window.root"
+    :class="surveyWindow.cssRoot"
   >
-    <div :class="css.window.header.root" @click="doExpand">
+    <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">
       <span style="width: 100%; cursor: pointer; user-select: none;">
-        <span style="padding-right: 10px" :class="css.window.header.title">
+        <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">
           <survey-string :locString="windowSurvey.locTitle" />
         </span>
         <span aria-hidden="true" :class="expandedCss"></span>
@@ -15,10 +15,10 @@
         v-if="isExpandedSurvey"
         style="float: right; cursor: pointer; user-select: none;"
       >
-        <span style="padding-right: 10px" :class="css.window.header.title">X</span>
+        <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">X</span>
       </span>
     </div>
-    <div v-show="isExpandedSurvey" :class="css.window.body">
+    <div v-show="isExpandedSurvey" :class="surveyWindow.cssBody">
       <survey :survey="windowSurvey"></survey>
     </div>
   </div>

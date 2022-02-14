@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { SurveyWindowModel } from "survey-core";
+import { SurveyModel, SurveyWindowModel } from "survey-core";
 import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
 
@@ -35,4 +35,8 @@ SurveyWindowModel.prototype["onCreating"] = function() {
   this.implementor = new SurveyWindowImplementor(this);
 };
 
-export class SurveyWindow extends SurveyWindowModel {}
+export class SurveyWindow extends SurveyWindowModel {
+  constructor(jsonObj: any, initialModel: SurveyModel = null) {
+    super(jsonObj, initialModel);
+  }
+}

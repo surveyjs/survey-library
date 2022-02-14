@@ -117,6 +117,9 @@ SurveyModel.prototype["getHtmlTemplate"] = function(): string {
 };
 
 export class Survey extends SurveyModel {
+  constructor(jsonObj: any = null, renderedElement: any = null) {
+    super(jsonObj, renderedElement);
+  }
 }
 
 LocalizableString.prototype["onCreating"] = function () {

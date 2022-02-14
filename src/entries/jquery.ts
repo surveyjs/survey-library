@@ -2,6 +2,7 @@ import * as ko from "knockout";
 import jQuery from "jquery";
 
 export * from "./core";
+import { Survey, SurveyWindow } from "./knockout-ui-model";
 
 // localization
 import "./chunks/localization";
@@ -14,7 +15,7 @@ import { registerTemplateEngine } from "../knockout/kosurvey";
 jQuery["fn"].extend({
   Survey: function (props: any) {
     return this.each(function () {
-      var model: SurveyModel = props.model;
+      var model: Survey = props.model;
       model.updateSurvey(props);
       model.render(this);
     });
@@ -22,9 +23,9 @@ jQuery["fn"].extend({
 
   SurveyWindow: function (props: any) {
     return this.each(function () {
-      var model: SurveyModel = props.model;
+      var model: Survey = props.model;
       model.updateSurvey(props);
-      var survey = new SurveyWindowModel(null, model);
+      var survey = new SurveyWindow(null, model);
       if (props.expanded !== undefined) {
         survey.isExpanded = props.expanded;
       }

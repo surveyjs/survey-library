@@ -17,7 +17,7 @@ import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
-import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
@@ -4334,6 +4334,66 @@ QUnit.test("showInMultipleColumns property", function (assert) {
     matrix.renderedTable.footerRow.cells[2].isChoice,
     false,
     "footer cell:  isChoice should be false"
+  );
+});
+QUnit.test("showInMultipleColumns property, change column choices in running", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum",
+          },
+          {
+            name: "col2",
+            cellType: "checkbox",
+            showInMultipleColumns: true
+          },
+          {
+            name: "col3",
+            cellType: "comment",
+          },
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 0,
+    "header: row value + 0 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 0,
+    "first row: row value + 0 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 0,
+    "footer: row value + 0 choices"
+  );
+  const column = matrix.columns[1];
+  column.choices = ["1", "2", "3", "4", "5"];
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 5,
+    "header: row value + 5 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 5,
+    "first row: row value + 5 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 5,
+    "footer: row value + 5 choices"
   );
 });
 QUnit.test(

@@ -11,6 +11,15 @@ ko.components.register("sv-boolean-radio-item", {
       params.handleChange = () =>{
         params.question.value = params.value;
       };
+      params.getClass = (css: any, value: any) => {
+        let className = undefined;
+        if(css.radioItem) {
+          className = css.radioItem;
+        }
+        if(css.radioItemChecked && value === params.question.value) {
+          className = (className || "") + css.radioItemChecked;
+        }
+      };
       return params;
     },
   },

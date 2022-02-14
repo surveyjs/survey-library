@@ -1,4 +1,4 @@
-  <div role="presentation" data-bind="class: question.koCss().radioItem + ($data.value === question.value?' '+question.koCss().radioItemChecked:'')">
+  <div role="presentation" data-bind="class: getClass(question.koCss(), $data.value)">
     <label class="sd-selectbase__label">
       <input
         type="radio"

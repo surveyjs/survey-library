@@ -1,8 +1,8 @@
-  <div role="presentation" data-bind="css: question.koCss().radioItem">
-    <label>
+  <div role="presentation" data-bind="class: question.koCss().radioItem + ($data.value === question.value?' '+question.koCss().radioItemChecked:'')">
+    <label class="sd-selectbase__label">
       <input
         type="radio"
-        data-bind="attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, checked:  $data.value === question.value }, enable: !question.isInputReadOnly"
+        data-bind="event: { change: handleChange }, attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, checked:  $data.value === question.value }, enable: !question.isInputReadOnly, css: question.koCss().itemControl"
       />
       <!-- ko if: question.koCss().materialRadioDecorator -->
       <span data-bind="css: question.koCss().materialRadioDecorator">
@@ -13,7 +13,7 @@
         <!-- /ko -->
       </span>
       <!-- /ko -->
-      <span>
+      <span class="sd-item__control-label">
         <!-- ko template: { name: 'survey-string', data: $data.locText } -->
         <!-- /ko -->
       </span>

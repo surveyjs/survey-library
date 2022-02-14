@@ -8,6 +8,9 @@ export var BooleanRadioItemViewModel: any;
 ko.components.register("sv-boolean-radio-item", {
   viewModel: {
     createViewModel: (params: any) => {
+      params.handleChange = () =>{
+        params.question.value = params.value;
+      };
       return params;
     },
   },

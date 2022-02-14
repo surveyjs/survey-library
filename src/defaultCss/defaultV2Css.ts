@@ -195,7 +195,8 @@ export var defaultV2Css = {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
     root: "sv_qcbc sv_qbln",
     item: "sd-boolean",
-    radioItem: "sd-boolean--item",
+    radioItem: "sd-item",
+    radioItemChecked: "sd-item--checked sd-radio--checked",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
@@ -209,7 +210,8 @@ export var defaultV2Css = {
     itemRadioDecorator: "sd-item__svg sd-radio__svg",
     materialRadioDecorator: "sd-item__decorator sd-radio__decorator",
     sliderText: "sd-boolean__thumb-text",
-    slider: "sd-boolean__thumb"
+    slider: "sd-boolean__thumb",
+    itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
   },
   text: {
     root: "sd-input sd-text",

@@ -312,7 +312,8 @@ export var defaultV2Css = {
     cellQuestionWrapper: "sd-table__question-wrapper"
   },
   rating: {
-    root: "sd-rating",
+    rootDropdown: "sd-rating sd-selectbase",
+    root: "sd-rating sd-rating--desktop",
     item: "sd-rating__item",
     itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",

@@ -1,4 +1,6 @@
-.sd-rating {
+.sd-rating--desktop {
+  width: max-content;
+  max-width: 100%;
   overflow-x: auto;
   height: calcSize(8);
 

@@ -1,7 +1,7 @@
-<div data-bind="css: question.renderCssRoot">
+<div data-bind="css: question.cssClasses.rootDropdown">
   <div data-bind="css: question.koCss().selectWrapper">
     <select
-    data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
+    data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.value, valueAllowUnset: true, css: question.getControlClass()">
     <!-- ko if: question.showOptionsCaption -->
     <option data-bind="text:question.locOptionsCaption.koRenderedHtml, value: null"></option>
     <!-- /ko -->

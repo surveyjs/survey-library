@@ -258,6 +258,7 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .toString();
   }
+  //methods for mobile view
   public getControlClass(): string {
     this.isEmpty();
     return new CssClassBuilder()
@@ -267,11 +268,27 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
-  public transformToDesktopView(): void {
-    this.renderAs = "default";
+  private resizeObserver: ResizeObserver;
+  public afterRender(el: HTMLElement): void {
+    super.afterRender(el);
+    const rootEl = <HTMLElement>el.querySelector(".sd-rating");
+    const rootWidth = rootEl.scrollWidth;
+    this.resizeObserver = new ResizeObserver(()=>{
+      let rootEl = <HTMLElement>el.querySelector(".sd-rating");
+      if(rootWidth > rootEl.offsetWidth) {
+        this.renderAs = "dropdown";
+      } else {
+        this.renderAs = "default";
+      }
+    });
+    this.resizeObserver.observe(el);
   }
-  public transformToMobileView(): void {
-    this.renderAs = "dropdown";
+  public dispose() {
+    super.dispose();
+    if(this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
   }
 }
 Serializer.addClass(

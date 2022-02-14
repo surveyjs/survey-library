@@ -4,7 +4,7 @@
         type="radio"
         data-bind="attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, checked:  $data.value === question.value }, enable: !question.isInputReadOnly"
       />
-      <!-- ko if: question.koCss().materialDecorator -->
+      <!-- ko if: question.koCss().materialRadioDecorator -->
       <span data-bind="css: question.koCss().materialRadioDecorator">
         <!-- ko if: question.itemSvgIcon -->
         <svg data-bind="css:question.koCss().itemRadioDecorator">

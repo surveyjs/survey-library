@@ -4378,8 +4378,10 @@ QUnit.test("showInMultipleColumns property, change column choices in running", f
     1 + 2 + 0,
     "footer: row value + 0 choices"
   );
+  matrix.renderedTable["testId"] = 1;
   const column = matrix.columns[1];
   column.choices = ["1", "2", "3", "4", "5"];
+  assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
   assert.equal(
     matrix.renderedTable.headerRow.cells.length,
     1 + 2 + 5,
@@ -4395,6 +4397,10 @@ QUnit.test("showInMultipleColumns property, change column choices in running", f
     1 + 2 + 5,
     "footer: row value + 5 choices"
   );
+  matrix.renderedTable["testId"] = 1;
+  assert.ok(column.templateQuestion.loadedChoicesFromServerCallback, "Calback is set");
+  column.templateQuestion.loadedChoicesFromServerCallback();
+  assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
 });
 QUnit.test(
   "showInMultipleColumns property + columnLayout = 'vertical'",

@@ -486,10 +486,11 @@ export class MatrixDropdownColumn extends Base
     this.setQuestionProperties(question);
     return question;
   }
+  private previousChoicesId: string = undefined;
   protected setQuestionProperties(
     question: Question,
     onUpdateJson: (json: any) => any = null
-  ) {
+  ): void {
     if (this.templateQuestion) {
       var json = new JsonObject().toJsonObject(this.templateQuestion, true);
       if (onUpdateJson) {
@@ -498,6 +499,15 @@ export class MatrixDropdownColumn extends Base
       json.type = question.getType();
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
+      this.previousChoicesId = undefined;
+      question.loadedChoicesFromServerCallback = () => {
+        if(!this.isShowInMultipleColumns) return;
+        if(!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
+        this.previousChoicesId = question.id;
+        const choices = question.visibleChoices;
+        this.templateQuestion.choices = choices;
+        this.propertyValueChanged("choices", choices, choices);
+      };
     }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {

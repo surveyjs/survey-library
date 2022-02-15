@@ -40,7 +40,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { VueSurveyModel as SurveyModel } from "./surveyModel";
+import { SurveyModel } from "survey-core";
+
 
 @Component
 export class SurveyHeader extends Vue {
@@ -48,7 +49,7 @@ export class SurveyHeader extends Vue {
 
   mounted() {
     var el = this.$el;
-    if (el && this.survey) this.survey.doAfterRenderHeader(el);
+    if (el && this.survey) this.survey.afterRenderHeader(<any>el);
   }
 }
 

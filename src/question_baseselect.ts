@@ -18,6 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
+  public loadedChoicesFromServerCallback: () => void;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -1240,6 +1241,9 @@ export class QuestionSelectBase extends Question {
       });
     if (this.survey) {
       this.survey.loadedChoicesFromServer(this);
+    }
+    if(this.loadedChoicesFromServerCallback) {
+      this.loadedChoicesFromServerCallback();
     }
   }
   public getItemValueWrapperComponentName(item: ItemValue): string {

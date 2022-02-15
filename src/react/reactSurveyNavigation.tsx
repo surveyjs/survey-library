@@ -2,7 +2,6 @@ import * as React from "react";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 
 export class SurveyNavigation extends SurveyNavigationBase {
-  private mouseDownPage: any = null;
   constructor(props: any) {
     super(props);
     this.handlePrevClick = this.handlePrevClick.bind(this);
@@ -17,14 +16,10 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.survey.prevPage();
   }
   handleNextClick(event: any) {
-    if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
-      return;
-    this.mouseDownPage = null;
-    this.survey.nextPage();
+    this.survey.nextPageUIClick();
   }
   handleNextMouseDown(event: any) {
-    this.mouseDownPage = this.survey.currentPage;
-    return this.survey.navigationMouseDown();
+    return this.survey.nextPageMouseDown();
   }
   handleMouseDown(event: any) {
     return this.survey.navigationMouseDown();
@@ -41,7 +36,6 @@ export class SurveyNavigation extends SurveyNavigationBase {
   render(): JSX.Element {
     if (!this.survey || this.survey.isNavigationButtonsShowing === "none")
       return null;
-    var isStartedPage = this.survey.state === "starting";
     var prevButton =
       this.survey.isShowPrevButton
         ? this.renderButton(
@@ -70,8 +64,6 @@ export class SurveyNavigation extends SurveyNavigationBase {
         )
         : null;
     var previewButton =
-      !isStartedPage &&
-      this.survey.isLastPage &&
       this.survey.isPreviewButtonVisible
         ? this.renderButton(
           this.handlePreviewClick,
@@ -80,7 +72,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
           this.survey.cssNavigationPreview
         )
         : null;
-    var startButton = isStartedPage
+    var startButton = this.survey.isShowStartingPage
       ? this.renderButton(
         this.handleStartClick,
         null,

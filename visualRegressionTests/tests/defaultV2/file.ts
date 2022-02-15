@@ -54,4 +54,29 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check file question mobile mode", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await ClientFunction(()=>{
+      const question = (window as any).survey.setIsMobile(true);
+    })();
+    await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{
+      const question = (window as any).survey.getQuestionByName("file_question");
+      question.allowMultiple = true;
+      question.clear();
+    })();
+    await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+    await takeScreenshot("file-question-multiple-mobile.png", questionRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+
+    await t.click(Selector(".sd-file #nextPage"));
+    await takeScreenshot("file-question-multiple-mobile-next.png", questionRoot, screenshotComparerOptions);
+    await t.click(Selector(".sd-file #prevPage"));
+    await t.click(Selector(".sd-file #prevPage"));
+    await takeScreenshot("file-question-multiple-mobile-prev.png", questionRoot, screenshotComparerOptions);
+  });
 });

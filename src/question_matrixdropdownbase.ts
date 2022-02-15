@@ -378,7 +378,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       questions[i].onAnyValueChanged(name);
     }
   }
-  public getDataValueCore(valuesHash: any, key: string) {
+  public getDataValueCore(valuesHash: any, key: string): any {
     var survey = this.getSurvey();
     if (!!survey) {
       return (<any>survey).getDataValueCore(valuesHash, key);

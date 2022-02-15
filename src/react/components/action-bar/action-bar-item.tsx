@@ -32,12 +32,12 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
       }
     );
     return (
-      <span className={itemClass} id={this.item.id}>
+      <div className={itemClass} id={this.item.id}>
         <div className="sv-action__content">
           {separator}
           {itemComponent}
         </div>
-      </span>
+      </div>
     );
   }
 }
@@ -60,7 +60,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   renderText() {
     if (!this.item.hasTitle) return null;
     const titleClass = this.item.getActionBarItemTitleCss();
-    return <span className={titleClass}> {this.item.title}</span>;
+    return <span className={titleClass}>{this.item.title}</span>;
   }
 
   renderButtonContent() {

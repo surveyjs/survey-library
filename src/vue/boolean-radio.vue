@@ -1,6 +1,6 @@
 <template>
   <div :class="question.cssClasses.root">
-    <fieldset role="presentation">
+    <fieldset role="presentation" :class="question.cssClasses.radioFieldset">
       <sv-boolean-radio-item
         :key="false"
         :question="question"

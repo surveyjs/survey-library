@@ -1,12 +1,15 @@
 <template>
-  <div role="presentation" :class="question.cssClasses.radioItem">
-    <label>
+  <div role="presentation" :class="question.getRadioItemClass(question.cssClasses, item.value)">
+    <label :class="question.cssClasses.radioLabel">
       <input
         type="radio"
         :name="question.name"
+        :value="item.value"
         :checked="item.value === question.value"
         :aria-describedby="question.ariaDescribedBy"
         :disabled="question.isInputReadOnly"
+        :class="question.cssClasses.itemControl"
+        @change="handleChange"
       />
       <span
         v-if="question.cssClasses.materialRadioDecorator"
@@ -19,7 +22,7 @@
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg>
       </span>
-      <span>
+      <span :class="question.cssClasses.radioControlLabel">
         <survey-string :locString="item.locText" />
       </span>
     </label>
@@ -39,6 +42,9 @@ export class BooleanRadioItem extends BaseVue {
   @Prop() locText: any;
   protected getModel(): Base {
     return this.item;
+  }
+  handleChange = (event: any) => {
+    this.question.value = event.target.value;
   }
 }
 Vue.component("sv-boolean-radio-item", BooleanRadioItem);

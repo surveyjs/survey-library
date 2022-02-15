@@ -1,10 +1,10 @@
 ﻿<script type="text/html" id="survey-question-file">
-  <div data-bind="css: question.getFileRootCss()">
+  <div data-bind="css: question.fileRootCss">
       <!-- ko ifnot: question.isInputReadOnly -->
       <input type="file" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
       <!-- /ko -->
       <!-- ko if: question.isReadOnly -->
-      <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { placeholder: question.title }" style="color: transparent;"/>
+      <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>
       <!-- /ko -->
       <div data-bind="css: question.getFileDecoratorCss(), event: { dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">
         <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
@@ -12,29 +12,33 @@
           <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
             <span data-bind="text: question.chooseButtonCaption"></span>
             <!-- ko if: question.cssClasses.chooseFileIconId -->
-              <sv-svg-icon data-bind="title: question.removeFileCaption" params="iconName: question.cssClasses.chooseFileIconId, size: 'auto'"></sv-svg-icon>
+                <!-- ko component: { name: 'sv-svg-icon', params: { title: question.removeFileCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
             <!-- /ko -->
           </label>
-          <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>
+          <!-- ko if: !question.koHasValue() -->
+          <span data-bind="css: question.koCss().noFileChosen, text: question.noFileChosenCaption"></span>
+          <!-- /ko -->
         </div>
       </div>
       <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButton} } --><!-- /ko -->
+      <!-- ko if: question.showPreview -->
+      <!-- ko if: question.koHasValue -->
       <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
-          <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
+          <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
             <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
             <div data-bind="css: question.cssClasses.imageWrapper">
               <!-- ko if: question.canPreviewImage($data) -->
               <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
               <!-- /ko -->
-              <!-- ko if: !question.canPreviewImage($data) && question.koCss().defaultImage -->
-              <img data-bind="css: question.koCss().defaultImage, attr: { height: question.imageHeight, width: question.imageWidth }">
+              <!-- ko if: !question.canPreviewImage($data) && question.cssClasses.defaultImageIconId -->
+              <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: $data.name -->
               <!-- ko ifnot: question.isReadOnly -->
               <div data-bind="click: question.doremovefile, css: question.cssClasses.removeFileButton">
                   <span data-bind="css: question.cssClasses.removeFile, text: question.removeFileCaption"></span>
                   <!-- ko if: question.cssClasses.removeFileSvgIconId -->
-                    <sv-svg-icon data-bind="css: question.cssClasses.removeFileSvg, title: question.removeFileCaption" params="iconName: question.cssClasses.removeFileSvgIconId, size: 'auto'"></sv-svg-icon>
+                    <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.removeFileSvg, title: question.removeFileCaption, iconName: question.cssClasses.removeFileSvgIconId, size: 'auto' } } --><!-- /ko -->
                   <!-- /ko -->
               </div>
               <!-- /ko -->
@@ -43,7 +47,13 @@
             <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
           </span>
       </div>
+      <!-- /ko -->
+      <!-- /ko -->
       <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButtonBottom} } --><!-- /ko -->
+      <!-- ko if: question.mobileFileNavigatorVisible -->
+      <!-- ko component: { name: 'sv-action-bar', params: { model: question.mobileFileNavigator } } -->
+      <!-- /ko -->
+      <!-- /ko -->
   </div>
 </script>
 <script type="text/html" id="survey-question-file-clean-button">
@@ -51,7 +61,8 @@
   <button type="button" data-bind="css: removeButtonCss, disabled: question.isInputReadOnly, click: question.doclean">
       <span data-bind="text: question.cleanButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->
-        <sv-svg-icon params="iconName: question.cssClasses.removeButtonIconId, size: 'auto'"></sv-svg-icon>
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto' } } --><!-- /ko -->
+
       <!-- /ko -->
   </button>
   <!-- /ko -->

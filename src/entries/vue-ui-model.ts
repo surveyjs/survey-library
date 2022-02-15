@@ -21,6 +21,8 @@ export { QuestionText } from "../vue/text.vue";
 export { Boolean } from "../vue/boolean";
 export { BooleanSwitch } from "../vue/boolean-switch.vue";
 export { BooleanCheckbox } from "../vue/boolean-checkbox.vue";
+export { BooleanRadio } from "../vue/boolean-radio.vue";
+export { BooleanRadioItem } from "../vue/boolean-radio-item.vue";
 export { Empty } from "../vue/empty.vue";
 export { MultipleText } from "../vue/multipletext.vue";
 export { Matrix } from "../vue/matrix.vue";

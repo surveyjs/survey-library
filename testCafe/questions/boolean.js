@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getQuestionValue, getQuestionJson } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const assert = require("assert");
 const title = `boolean`;
 
@@ -15,6 +15,18 @@ var json = {
   ],
 };
 
+var jsonRadio = {
+  questions: [
+    {
+      type: "boolean",
+      name: "bool",
+      title: "Response required.",
+      label: "Are you 21 or older?",
+      isRequired: true,
+      renderAs: "radio"
+    },
+  ],
+};
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -134,6 +146,27 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     assert.equal(json.labelFalse, newLabelFalse);
     assert.equal(json.labelTrue, labelTrue);
+  });
+
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, jsonRadio);
+    }
+  );
+
+  test(`test radio boolean`, async (t) => {
+    await t
+      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
+      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
+      .click(Selector(".sv-string-viewer").withText("No"))
+      .expect(Selector("input[type=radio]").nth(0).checked).ok()
+      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
+      .click(Selector(".sv-string-viewer").withText("Yes"))
+      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
+      .expect(Selector("input[type=radio]").nth(1).checked).ok()
   });
 
 });

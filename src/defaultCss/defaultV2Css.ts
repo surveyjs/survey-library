@@ -195,6 +195,11 @@ export var defaultV2Css = {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
     root: "sv_qcbc sv_qbln",
     item: "sd-boolean",
+    radioItem: "sd-item",
+    radioItemChecked: "sd-item--checked sd-radio--checked",
+    radioLabel: "sd-selectbase__label",
+    radioControlLabel: "sd-item__control-label",
+    radioFieldset: "sd-selectbase",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
@@ -205,8 +210,11 @@ export var defaultV2Css = {
     disabledLabel: "sd-checkbox__label--disabled",
     itemDecorator: "sd-checkbox__hidden",
     materialDecorator: "sd-checkbox__rectangle",
+    itemRadioDecorator: "sd-item__svg sd-radio__svg",
+    materialRadioDecorator: "sd-item__decorator sd-radio__decorator",
     sliderText: "sd-boolean__thumb-text",
-    slider: "sd-boolean__thumb"
+    slider: "sd-boolean__thumb",
+    itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
   },
   text: {
     root: "sd-input sd-text",
@@ -263,7 +271,7 @@ export var defaultV2Css = {
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
-    root: "sd-table",
+    root: "sd-table sd-matrix__table",
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -281,7 +289,8 @@ export var defaultV2Css = {
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
-    root: "sd-table",
+    rootScroll: "sd-question--scroll",
+    root: "sd-table sd-matrixdropdown",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
@@ -298,6 +307,7 @@ export var defaultV2Css = {
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
@@ -369,11 +379,15 @@ export var defaultV2Css = {
     removeFileSvgIconId: "icon-delete",
     wrapper: "sd-file__wrapper",
     defaultImage: "sd-file__default-image",
+    defaultImageIconId: "icon-defaultfile",
+    leftIconId: "icon-arrowleft",
+    rightIconId: "icon-arrowright",
     removeFileButton: "sd-context-btn sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
     imageWrapper: "sd-file__image-wrapper",
     single: "sd-file--single",
-    singleImage: "sd-file--single-image"
+    singleImage: "sd-file--single-image",
+    mobile: "sd-file--mobile"
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",

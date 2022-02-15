@@ -1,7 +1,5 @@
 <template>
-  <span>
     <svg ref="svgIcon" class="sv-svg-icon" role="img"><use></use></svg>
-  </span>
 </template>
 
 <script lang="ts">

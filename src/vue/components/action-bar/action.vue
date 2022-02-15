@@ -1,12 +1,13 @@
 <template>
-  <span v-bind:class="item.getActionRootCss()">
+  <div v-bind:class="item.getActionRootCss()" 
+      :id="item.id">
     <div class="sv-action__content">
       <sv-action-bar-separator
         v-if="item.needSeparator"
       ></sv-action-bar-separator>
       <component :is="getComponentName()" :item="item"> </component>
     </div>
-  </span>
+  </div>
 </template>
 <script lang="ts">
 import Vue from "vue";

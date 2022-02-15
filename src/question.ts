@@ -77,6 +77,8 @@ export class Question extends SurveyElement
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
+  @property({ defaultValue: false }) isMobile: boolean;
+
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();

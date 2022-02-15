@@ -101,6 +101,102 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
   });
+  test("Check matrix on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      elements: [
+        {
+          "type": "matrix",
+          "name": "Quality",
+          "title": "Please indicate if you agree or disagree with the following statements",
+          "columns": ["Strongly Disagree",
+            "Disagree",
+            "Neutral",
+            "Agree",
+            "Strongly Agree",
+          ],
+          "rows": [
+            "Product is affordable",
+            "Product does what it claims",
+            "Product is better than other products on the market"
+          ]
+        }
+      ]
+    });
+    await ClientFunction(() => {
+      document.body.focus();
+    })();
+    await checkElementScreenshot("responsiveness-matrix.png", Selector(".sd-question"), t);
+  });
+  test("Check matrixdynamic on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "frameworks",
+          title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+          columns: [
+            {
+              "name": "Column 1",
+              "title": "Framework"
+            },
+            {
+              "name": "Column 2",
+              "title": "How long do you use it?"
+            },
+            {
+              "name": "Column 3",
+              "title": "What is main strength?"
+            }
+          ],
+          addRowText: "Add a New Record",
+          rowCount: 2,
+        },
+      ]
+    });
+    await ClientFunction(() => {
+      document.body.focus();
+    })();
+    await checkElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question"), t);
+  });
+  test("Check matrixdropdown on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "frameworks",
+          title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+          "rows": ["AngularJS", "ReactJS"],
+          "columns": [
+            {
+              "name": "using",
+              "title": "Do you use it?",
+              "choices": [
+                "Yes", "No"
+              ],
+              "cellType": "radiogroup"
+            }, {
+              "name": "strength",
+              "title": "What is main strength?",
+              "choices": [
+                "Easy", "Compact", "Fast", "Powerfull"
+              ],
+              "cellType": "checkbox"
+            },
+          ],
+        },
+      ]
+    });
+    await ClientFunction(() => {
+      document.body.focus();
+    })();
+    await checkElementScreenshot("responsiveness-matrixdropdown.png", Selector(".sd-question"), t);
+  });
   test("Check multipletext on small screen", async (t) => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, {

@@ -675,3 +675,70 @@ QUnit.test("file.cleanButtonCaption localization", (assert) => {
   survey.locale = "fr";
   assert.equal(q.cleanButtonCaption, "Nettoyer");
 });
+
+QUnit.test("Question File responsive", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        name: "image1",
+        storeDataAsText: false,
+        allowMultiple: true
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  q1.cssClasses.mobile = "m";
+  assert.equal(q1.fileRootCss, "sv_q_file");
+  q1.isMobile = true;
+  assert.equal(q1.fileRootCss, "sv_q_file m");
+  assert.equal(q1.mobileFileNavigatorVisible, false);
+
+  var files1: any = [{ name: "f1", type: "t1" }];
+  q1.loadFiles(files1);
+
+  assert.equal(q1.mobileFileNavigatorVisible, false);
+
+  var files2: any = [{ name: "f2", type: "t2", size: 100000 }];
+  q1.loadFiles(files2);
+
+  assert.equal(q1.mobileFileNavigatorVisible, true);
+
+  assert.equal(q1["fileIndexAction"].title, "1 of 2");
+  q1["nextFileAction"].action();
+  assert.equal(q1["fileIndexAction"].title, "2 of 2");
+  q1["nextFileAction"].action();
+  assert.equal(q1["fileIndexAction"].title, "1 of 2");
+  q1["prevFileAction"].action();
+  assert.equal(q1["fileIndexAction"].title, "2 of 2");
+  q1["prevFileAction"].action();
+  assert.equal(q1["fileIndexAction"].title, "1 of 2");
+
+  assert.equal(q1.isPreviewVisible(0), true);
+  assert.equal(q1.isPreviewVisible(1), false);
+
+  q1["nextFileAction"].action();
+  assert.equal(q1.isPreviewVisible(0), false);
+  assert.equal(q1.isPreviewVisible(1), true);
+
+  q1.isMobile = false;
+  assert.equal(q1.isPreviewVisible(0), true);
+  assert.equal(q1.isPreviewVisible(1), true);
+
+  q1.isMobile = true;
+  assert.equal(q1.mobileFileNavigatorVisible, true);
+  q1.clear();
+  assert.equal(q1.mobileFileNavigatorVisible, false);
+});

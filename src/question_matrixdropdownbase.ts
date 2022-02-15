@@ -1,4 +1,4 @@
-import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
+import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject } from "./question";
 import { HashTable, Helpers } from "./helpers";
@@ -851,6 +851,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       ],
       () => {
         this.resetRenderedTable();
+      });
+    this.registerFunctionOnPropertiesValueChanged(
+      [
+        "isMobile"
+      ],
+      () => {
+        if (this.columnLayout === "vertical") {
+          this.resetRenderedTable();
+        }
       }
     );
   }
@@ -917,6 +926,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see columnLayout
    */
   public get isColumnLayoutHorizontal() {
+    if(this.isMobile) return true;
     return this.columnLayout != "vertical";
   }
   /**
@@ -2215,6 +2225,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentData(cell, "row-header");
+  }
+  public get showHorizontalScroll(): boolean {
+    return !this.isDefaultV2Theme && this.horizontalScroll;
+  }
+  public getRootCss(): string {
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
   }
 }
 

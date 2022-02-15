@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
     <div
-      data-bind="visible: question.koTable().showTable, style: { overflowX: question.horizontalScroll ? 'scroll': '' }"
+      data-bind="visible: question.koTable().showTable, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
     >
       <table data-bind="css: question.koCss().root">
         <!-- ko if: question.koTable().showHeader -->

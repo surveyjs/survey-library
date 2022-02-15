@@ -4229,3 +4229,52 @@ QUnit.test("Bindings to panelCount performance issue", function(assert) {
   assert.equal(counter, 1 + 4 * 2, "4 questions has been created");
   FunctionFactory.Instance.unregister("calcCount");
 });
+QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleIndex/no", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel1_q1" },
+          { type: "text", name: "panel1_q2", visibleIf: "{q1} > 7" }
+        ],
+      },
+      {
+        type: "paneldynamic",
+        name: "panel2",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel2_q1" },
+          { type: "text", name: "panel2_q2", visibleIf: "{q1} > 7" }
+        ],
+      },
+      {
+        type: "paneldynamic",
+        name: "panel3",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel3_q1" },
+          { type: "text", name: "panel3_q2", visibleIf: "{q1} > 7" }
+        ],
+      },
+    ],
+  });
+  var counter = 0;
+  survey.onProgressText.add((sender, options) => {
+    counter ++;
+  });
+  counter = 0;
+  survey.setValue("q1", 5);
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel1.panelCount, 5, "We have 5 panels");
+  assert.equal(counter, 1 + 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
+});

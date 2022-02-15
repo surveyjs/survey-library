@@ -4,12 +4,14 @@
       <sv-boolean-radio-item
         :key="false"
         :question="question"
-        :item="{value: false, locText: this.question.locLabelFalse}"
+        :locText="question.locLabelFalse"
+        :value="false"
       ></sv-boolean-radio-item>
       <sv-boolean-radio-item
         :key="true"
         :question="question"
-        :item="{value: true, locText: this.question.locLabelTrue, question: this.question}"
+        :locText="question.locLabelTrue"
+        :value="true"
       ></sv-boolean-radio-item>
     </fieldset>
   </div>
@@ -22,7 +24,9 @@ import { Boolean } from "./boolean";
 import { RendererFactory } from "survey-core";
 
 @Component
-export class BooleanRadio extends Boolean {}
+export class BooleanRadio extends Boolean {
+
+}
 
 Vue.component("sv-boolean-radio", BooleanRadio);
 

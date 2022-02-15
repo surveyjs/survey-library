@@ -1,11 +1,11 @@
 <template>
-  <div role="presentation" :class="question.getRadioItemClass(question.cssClasses, item.value)">
+  <div role="presentation" :class="question.getRadioItemClass(question.cssClasses, value)">
     <label :class="question.cssClasses.radioLabel">
       <input
         type="radio"
         :name="question.name"
-        :value="item.value"
-        :checked="item.value === question.value"
+        :value="value"
+        :checked="value === question.value"
         :aria-describedby="question.ariaDescribedBy"
         :disabled="question.isInputReadOnly"
         :class="question.cssClasses.itemControl"
@@ -23,7 +23,7 @@
         </svg>
       </span>
       <span :class="question.cssClasses.radioControlLabel">
-        <survey-string :locString="item.locText" />
+        <survey-string :locString="locText" />
       </span>
     </label>
   </div>
@@ -36,13 +36,11 @@ import { Component, Prop } from "vue-property-decorator";
 import { BaseVue } from "./base";
 
 @Component
-export class BooleanRadioItem extends BaseVue {
+export class BooleanRadioItem extends Vue {
   @Prop() question: any;
-  @Prop() item: any;
   @Prop() locText: any;
-  protected getModel(): Base {
-    return this.item;
-  }
+  @Prop() value: any;
+
   handleChange = (event: any) => {
     this.question.value = event.target.value;
   }

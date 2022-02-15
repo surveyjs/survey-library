@@ -7,6 +7,8 @@ import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 
 /**
  * A Model for a file question
@@ -24,9 +26,59 @@ export class QuestionFileModel extends Question {
   >();
   public previewValue: any[] = [];
   @property({ defaultValue: "empty" }) currentState: string;
+
+  @property({ defaultValue: 0 }) indexToShow: number;
+  @property({ defaultValue: false }) containsMultiplyFiles: boolean;
+
+  public mobileFileNavigator: ActionContainer = new ActionContainer();
+  private prevFileAction: Action;
+  private nextFileAction: Action;
+  private fileIndexAction: Action;
+
+  get mobileFileNavigatorVisible(): boolean {
+    return this.isMobile && this.containsMultiplyFiles;
+  }
+
   constructor(name: string) {
     super(name);
+    this.fileIndexAction = new Action ({
+      id: "fileIndex",
+      title: this.getFileIndexCaption(),
+      enabled: false
+    });
+    this.prevFileAction = new Action({
+      id: "prevPage",
+      iconSize: 16,
+      action: ()=>{
+        this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.previewValue.length) % this.previewValue.length) || 0;
+        this.fileIndexAction.title = this.getFileIndexCaption();
+      }
+    });
+    this.nextFileAction = new Action({
+      id: "nextPage",
+      iconSize: 16,
+      action: ()=>{
+        this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.previewValue.length) || 0;
+        this.fileIndexAction.title = this.getFileIndexCaption();
+      }
+    });
+    this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
+
+  protected updateElementCssCore(cssClasses: any): void {
+    super.updateElementCssCore(cssClasses);
+    this.prevFileAction.iconName = this.cssClasses.leftIconId;
+    this.nextFileAction.iconName = this.cssClasses.rightIconId;
+    //this.mobileFileNavigator.cssClasses = this.survey.getCss().actionBar;
+  }
+  private getFileIndexCaption(): string {
+    return surveyLocalization.getString("indexText")["format"]((this.indexToShow + 1), this.previewValue.length);
+  }
+
+  public isPreviewVisible(index: number) {
+    return !this.isMobile || index === this.indexToShow;
+  }
+
   public getType(): string {
     return "file";
   }
@@ -165,6 +217,7 @@ export class QuestionFileModel extends Question {
   */
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+
   /**
    * The input title value.
    */
@@ -178,6 +231,7 @@ export class QuestionFileModel extends Question {
    */
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
+    this.containsMultiplyFiles = false;
     this.survey.clearFiles(
       this,
       this.name,
@@ -327,6 +381,8 @@ export class QuestionFileModel extends Question {
         }
       });
     }
+    this.fileIndexAction.title = this.getFileIndexCaption();
+    this.containsMultiplyFiles = this.previewValue.length > 1;
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -423,11 +479,12 @@ export class QuestionFileModel extends Question {
       .append(this.cssClasses.placeholderInput)
       .toString();
   }
-  public getFileRootCss(): string {
+  public get fileRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.single, !this.allowMultiple)
       .append(this.cssClasses.singleImage, !this.allowMultiple && this.isAnswered && this.canPreviewImage(this.value[0]))
+      .append(this.cssClasses.mobile, this.isMobile)
       .toString();
   }
   public getFileDecoratorCss(): string {

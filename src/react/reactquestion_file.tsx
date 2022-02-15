@@ -1,5 +1,6 @@
 import * as React from "react";
 import { QuestionFileModel } from "survey-core";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
@@ -21,31 +22,48 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var clearButtonBottom = this.renderClearButton(
       this.question.cssClasses.removeButtonBottom
     );
+
+    let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
     fileInput = (
-      <input
-        type="file"
-        disabled={this.isDisplayMode}
-        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
-        id={this.question.inputId}
-        ref={input => (this.control = input)}
-        style={!this.isDisplayMode ? {} : { color: "transparent" }}
-        onChange={!this.isDisplayMode ? this.question.doChange : null}
-        aria-required={this.question.ariaRequired}
-        aria-label={this.question.ariaLabel}
-        aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
-        multiple={this.question.allowMultiple}
-        title={this.question.inputTitle}
-        accept={this.question.acceptedTypes}
-      />
+      this.isDisplayMode ?
+        <input
+          type="file"
+          disabled={this.isDisplayMode}
+          className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+          id={this.question.inputId}
+          ref={input => (this.control = input)}
+          style={!this.isDisplayMode ? {} : { color: "transparent" }}
+          onChange={!this.isDisplayMode ? this.question.doChange : null}
+          multiple={this.question.allowMultiple}
+          placeholder={this.question.title}
+          accept={this.question.acceptedTypes}
+        />
+        :
+        <input
+          type="file"
+          disabled={this.isDisplayMode}
+          className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+          id={this.question.inputId}
+          ref={input => (this.control = input)}
+          style={!this.isDisplayMode ? {} : { color: "transparent" }}
+          onChange={!this.isDisplayMode ? this.question.doChange : null}
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
+          multiple={this.question.allowMultiple}
+          title={this.question.inputTitle}
+          accept={this.question.acceptedTypes}
+        />
     );
     return (
-      <div className={this.question.getFileRootCss()}>
+      <div className={this.question.fileRootCss}>
         {fileInput}
         {fileDecorator}
         {clearButton}
         {preview}
         {clearButtonBottom}
+        {mobileFileNavigator}
       </div>
     );
   }
@@ -113,13 +131,14 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderPreview(): JSX.Element {
-    if (!this.question.previewValue) return null;
+    if (!this.question.previewValue || !this.question.previewValue.length) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
       return (
         <span
           key={this.question.inputId + "_" + index}
           className={this.question.cssClasses.preview}
+          style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
         >
           {this.renderFileSign(this.question.cssClasses.fileSign, val)}
           <div className={this.question.cssClasses.imageWrapper}>
@@ -130,7 +149,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
                 width={this.question.imageWidth}
                 alt="File preview"
               />
-            ) : (<img className={this.question.cssClasses.defaultImage} height={this.question.imageHeight} width={this.question.imageWidth}/>)}
+            ) : (this.question.cssClasses.defaultImage?(
+              <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
+            ):null)}
             {val.name && !this.question.isReadOnly ? (
               <div className={this.question.cssClasses.removeFileButton} onClick={() => this.question.doRemoveFile(val)}>
                 <span
@@ -147,7 +168,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         </span>
       );
     });
-    return <div className={this.question.cssClasses.fileList}>{previews}</div>;
+    return <div className={this.question.cssClasses.fileList || undefined}>{previews}</div>;
   }
 }
 

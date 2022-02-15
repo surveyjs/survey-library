@@ -369,11 +369,15 @@ export var defaultV2Css = {
     removeFileSvgIconId: "icon-delete",
     wrapper: "sd-file__wrapper",
     defaultImage: "sd-file__default-image",
+    defaultImageIconId: "icon-defaultfile",
+    leftIconId: "icon-arrowleft",
+    rightIconId: "icon-arrowright",
     removeFileButton: "sd-context-btn sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
     imageWrapper: "sd-file__image-wrapper",
     single: "sd-file--single",
-    singleImage: "sd-file--single-image"
+    singleImage: "sd-file--single-image",
+    mobile: "sd-file--mobile"
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",

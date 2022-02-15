@@ -1887,6 +1887,7 @@ export class SurveyModel extends SurveyElementCore
   private _isMobile = false;
   public setIsMobile(newVal = true) {
     this._isMobile = newVal;
+    this.getAllQuestions().map(q => q.isMobile = newVal);
   }
   private get isMobile() {
     return isMobile() || this._isMobile;

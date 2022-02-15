@@ -4,6 +4,9 @@ import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 
+/**
+ * Base class for HtmlConditionItem and UrlConditionItem classes.
+ */
 export class ExpressionItem extends Base implements ILocalizableOwner {
   public locOwner: ILocalizableOwner;
   constructor(expression: string = null) {

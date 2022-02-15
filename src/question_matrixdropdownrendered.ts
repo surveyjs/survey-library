@@ -233,7 +233,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var showAddRowOnBottom = showAddRow;
     if (showAddRowOnTop) {
       if (this.matrix.getAddRowLocation() === "default") {
-        showAddRowOnTop = this.matrix.columnLayout === "vertical";
+        showAddRowOnTop = !this.matrix.isColumnLayoutHorizontal;
       } else {
         showAddRowOnTop = this.matrix.getAddRowLocation() !== "bottom";
       }

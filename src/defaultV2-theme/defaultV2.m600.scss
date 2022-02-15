@@ -27,6 +27,7 @@
     .sd-header__text {
       min-width: 100%;
     }
+
     //multipletext responsiveness
     .sd-multipletext__cell {
       display: block;
@@ -65,5 +66,6 @@
         padding-right: 0;
       }
     }
+    @include table_responsive();
   }
 }

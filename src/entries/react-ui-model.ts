@@ -41,6 +41,7 @@ export { SurveyQuestionRadiogroup } from "../react/reactquestion_radiogroup";
 export { SurveyQuestionText } from "../react/reactquestion_text";
 export { SurveyQuestionBoolean } from "../react/boolean";
 export { SurveyQuestionBooleanCheckbox } from "../react/boolean-checkbox";
+export { SurveyQuestionBooleanRadio } from "../react/boolean-radio";
 export { SurveyQuestionEmpty } from "../react/reactquestion_empty";
 export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestion_matrixdropdownbase";
 export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";

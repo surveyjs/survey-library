@@ -82,6 +82,41 @@ registerMarkupTests(
       survey.getAllQuestions()[0].updateElementCss();
     },
     snapshot: "boolean-checkbox-custom-icon",
-  }
+  },
+  {
+    name: "Test Boolean Radio question markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          defaultValue: true,
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio",
+  },
+  {
+    name: "Test Boolean question Radio markup Default V2",
+    json: {
+      questions: [
+        {
+          name: "name",
+          defaultValue: false,
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio-v2",
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+
   ]
 );

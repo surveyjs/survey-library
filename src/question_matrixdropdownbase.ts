@@ -774,7 +774,6 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
  * A base class for matrix dropdown and matrix dynamic questions.
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData {
-  @property({}) isMobile: true;
   public static get defaultCellType() {
     return settings.matrixDefaultCellType;
   }

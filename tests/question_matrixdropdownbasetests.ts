@@ -1,4 +1,5 @@
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
 
@@ -17,4 +18,25 @@ QUnit.test("allowAdaptiveActions", function (assert) {
   assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions");
   assert.equal(matrix.getPanel()["allowAdaptiveActions"], false, "matrix.panel.allowAdaptiveActions");
 
+});
+
+QUnit.test("verticalLayout when isMobile set 'true'", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rowCount: 2,
+        columnLayout: "vertical",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.renderedTable;
+  assert.ok(!!matrix["renderedTableValue"]);
+  assert.notOk(matrix.isColumnLayoutHorizontal);
+  matrix.isMobile = true;
+  assert.ok(matrix.isColumnLayoutHorizontal);
+  assert.notOk(!!matrix["renderedTableValue"]);
 });

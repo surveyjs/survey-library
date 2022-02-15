@@ -4822,12 +4822,17 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private isRunningElementsBindings: boolean;
+  private updateVisibleIndexAfterBindings: boolean;
   private checkElementsBindings(valueName: string, newValue: any): void {
     this.isRunningElementsBindings = true;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].checkBindings(valueName, newValue);
     }
     this.isRunningElementsBindings = false;
+    if(this.updateVisibleIndexAfterBindings) {
+      this.updateVisibleIndexes();
+      this.updateVisibleIndexAfterBindings = false;
+    }
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
@@ -5145,6 +5150,10 @@ export class SurveyModel extends SurveyElementCore
       this.conditionUpdateVisibleIndexes = true;
       return;
     }
+    if(this.isRunningElementsBindings) {
+      this.updateVisibleIndexAfterBindings = true;
+      return;
+    }
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
@@ -5439,7 +5448,6 @@ export class SurveyModel extends SurveyElementCore
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
-    this.updateProgressText(true);
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;

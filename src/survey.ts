@@ -3952,22 +3952,7 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
-  private isSmallSreen:boolean = false;
-  private processResponsiveness(width: number) {
-    const isSmallScreen = width <= 600;
-    if (isSmallScreen == this.isSmallSreen) return;
-    this.getAllQuestions().forEach((q: Question) => {
-      if (isSmallScreen) q.transformToMobileView();
-      else q.transformToDesktopView();
-    });
-    this.isSmallSreen = isSmallScreen;
-  }
   protected afterRenderSurvey(htmlElement: any) {
-    const el = htmlElement[1];
-    const resizeObserver = new ResizeObserver(()=>{
-      this.processResponsiveness(el.offsetWidth);
-    });
-    resizeObserver.observe(el);
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,

@@ -33,6 +33,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertyValueChanged("rateValues", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
+    this.createLocalizableString("ratingOptionsCaption", this, false, true);
     this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
@@ -267,6 +268,12 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.onError, this.errors.length > 0)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
+  }
+  public get optionsCaption(): string {
+    return this.getLocalizableStringText("ratingOptionsCaption");
+  }
+  public set optionsCaption(val: string) {
+    this.setLocalizableStringText("ratingOptionsCaption", val);
   }
   private resizeObserver: ResizeObserver;
   public afterRender(el: HTMLElement): void {

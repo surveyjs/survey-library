@@ -80,6 +80,7 @@ export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
 export * from "../utils/responsivity-manager";
 export { unwrap } from "../utils/utils";
+export { SurveyQuestionRatingDropdown } from "../react/rating-dropdown";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

@@ -99,7 +99,6 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
       <div key={key} className={itemClass}>
         <label className={cssClasses.label}>
           <input
-            style={{ display: "none" }}
             className={cssClasses.itemControl}
             id={this.question.getItemId(item)}
             type={this.question.inputType}

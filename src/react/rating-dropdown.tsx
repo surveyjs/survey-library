@@ -32,23 +32,21 @@ export class SurveyQuestionRatingDropdown extends SurveyQuestionUncontrolledElem
     }
 
     return (
-      <div className={cssClasses.selectWrapper}>
-        <select
-          id={this.question.inputId}
-          className={this.question.getControlClass()}
-          ref={(select) => (this.control = select)}
-          onChange={this.updateValueOnEvent}
-          onInput={this.updateValueOnEvent}
-          aria-required={this.question.ariaRequired}
-          aria-label={this.question.ariaLabel}
-          aria-invalid={this.question.ariaInvalid}
-          aria-describedby={this.question.ariaDescribedBy}
-          required={this.question.isRequired}
-        >
-          <option value="">{this.question.optionsCaption}</option>
-          { this.question.visibleRateValues.map((item, i) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
-        </select>
-      </div>
+      <select
+        id={this.question.inputId}
+        className={this.question.getControlClass()}
+        ref={(select) => (this.control = select)}
+        onChange={this.updateValueOnEvent}
+        onInput={this.updateValueOnEvent}
+        aria-required={this.question.ariaRequired}
+        aria-label={this.question.ariaLabel}
+        aria-invalid={this.question.ariaInvalid}
+        aria-describedby={this.question.ariaDescribedBy}
+        required={this.question.isRequired}
+      >
+        <option value="">{this.question.optionsCaption}</option>
+        { this.question.visibleRateValues.map((item, i) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
+      </select>
     );
   }
 }

@@ -646,10 +646,14 @@ export class SurveyModel extends SurveyElementCore
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
-   * You can use this event to decide whether show or hide choice item in checkbox, dropdown and radiogroup like questions
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a question that contains choices.
-   * <br/> `options.item` - an item of the question.
+   * Use this event to change the visibility of an individual choice item in [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [Dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel), [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel), and other similar question types.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance to which the choice item belongs.
+   * - `options.item` - The choice item as specified in the [choices](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choices) array.
+   * - `options.visible` - A Boolean value that specifies the item visibility. Set it to `false` to hide the item.
    */
   public onShowingChoiceItem: EventBase<SurveyModel> = this.addEvent<
     SurveyModel

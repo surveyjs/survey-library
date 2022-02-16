@@ -21,6 +21,7 @@ class SimpleContainer {
 
 class ResizeObserver {
   observe() { }
+  disconnect() {}
 }
 window.ResizeObserver = <any>ResizeObserver;
 

@@ -275,24 +275,45 @@ export class QuestionRatingModel extends Question {
   public set optionsCaption(val: string) {
     this.setLocalizableStringText("ratingOptionsCaption", val);
   }
+  get locOptionsCaption(): LocalizableString {
+    return this.getLocalizableString("ratingOptionsCaption");
+  }
   private resizeObserver: ResizeObserver;
+  private initResponsiveness(el: HTMLElement) {
+    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
+      const requiredWidth = (<HTMLElement>el.querySelector(".sd-rating")).scrollWidth;
+      this.resizeObserver = new ResizeObserver(()=>{
+        const rootEl = <HTMLElement>el.querySelector(".sd-rating");
+        this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+      });
+      this.resizeObserver.observe(el);
+    }
+  }
+  private processResponsiveness(requiredWidth: number, availableWidth: number) {
+    if(requiredWidth > availableWidth) {
+      this.renderAs = "dropdown";
+    } else {
+      this.renderAs = "default";
+    }
+  }
   public afterRender(el: HTMLElement): void {
     super.afterRender(el);
-    const rootEl = <HTMLElement>el.querySelector(".sd-rating");
-    const rootWidth = rootEl.scrollWidth;
-    this.resizeObserver = new ResizeObserver(()=>{
-      let rootEl = <HTMLElement>el.querySelector(".sd-rating");
-      if(rootWidth > rootEl.offsetWidth) {
-        this.renderAs = "dropdown";
-      } else {
-        this.renderAs = "default";
-      }
-    });
-    this.resizeObserver.observe(el);
+    if(this.isCollapsed) {
+      const onStateChanged = () => {
+        if(this.isExpanded) {
+          this.initResponsiveness(el);
+          this.unRegisterFunctionOnPropertyValueChanged("state", "for-responsiveness");
+        }
+      };
+      this.registerFunctionOnPropertyValueChanged("state", onStateChanged, "for-responsiveness");
+    } else {
+      this.initResponsiveness(el);
+    }
+
   }
   public dispose() {
     super.dispose();
-    if(this.resizeObserver) {
+    if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
     }

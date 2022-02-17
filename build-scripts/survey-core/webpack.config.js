@@ -4,6 +4,7 @@ const webpackCommonConfigCreator = require("../webpack.common");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var path = require("path");
 
 const config = {

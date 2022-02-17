@@ -17,6 +17,8 @@
     "survey.min.css",
     "modern.css",
     "modern.min.css",
+    "defaultV2.css",
+    "defaultV2.min.css",
     "survey.angular.d.ts",
     "survey.angular.js",
     "survey.angular.min.js"

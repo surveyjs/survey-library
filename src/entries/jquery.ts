@@ -2,31 +2,14 @@ import * as ko from "knockout";
 import jQuery from "jquery";
 
 export * from "./core";
-/*
-// model
-export * from "./chunks/model";
-//import "../modern.scss";
+import { Survey, SurveyWindow } from "./knockout-ui-model";
 
 // localization
 import "./chunks/localization";
 
-// helpers
-export * from "./chunks/helpers";
-
-// css standard
-export { defaultStandardCss } from "../defaultCss/cssstandard";
-// css bootstrap
-export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
-// css bootstrap + material
-export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
-export { modernCss } from "../defaultCss/cssmodern";
-*/
 const innerKo: any = ko;
 export { innerKo as ko };
-import { Survey, SurveyWindow } from "./knockout";
-export { Survey as Model };
-
-import { SurveyModel } from "../survey";
+import { SurveyModel, SurveyWindowModel } from "./core";
 import { registerTemplateEngine } from "../knockout/kosurvey";
 
 jQuery["fn"].extend({

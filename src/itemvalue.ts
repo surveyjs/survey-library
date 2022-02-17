@@ -48,17 +48,17 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     items: Array<ItemValue>,
     locOwner: ILocalizableOwner
   ) {
-    items.push = function(value): number {
+    items.push = function (value): number {
       var result = Array.prototype.push.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.unshift = function(value): number {
+    items.unshift = function (value): number {
       var result = Array.prototype.unshift.call(this, value);
       value.locOwner = locOwner;
       return result;
     };
-    items.splice = function(
+    items.splice = function (
       start?: number,
       deleteCount?: number,
       ...items: ItemValue[]
@@ -80,7 +80,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   /**
    * Resets the input array and fills it with values from the values array
    */
-  public static setData(items: Array<ItemValue>, values: Array<any>, type?:string): void {
+  public static setData(items: Array<ItemValue>, values: Array<any>, type?: string): void {
     items.length = 0;
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
@@ -127,7 +127,8 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     runner: ConditionRunner,
     values: any,
     properties: any,
-    useItemExpression: boolean = true
+    useItemExpression: boolean = true,
+    onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
     return ItemValue.runConditionsForItemsCore(
       items,
@@ -136,7 +137,8 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
       values,
       properties,
       true,
-      useItemExpression
+      useItemExpression,
+      onItemCallBack
     );
   }
   public static runEnabledConditionsForItems(
@@ -144,7 +146,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     runner: ConditionRunner,
     values: any,
     properties: any,
-    onItemCallBack?: (item: ItemValue) => boolean
+    onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
     return ItemValue.runConditionsForItemsCore(
       items,
@@ -165,7 +167,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     properties: any,
     isVisible: boolean,
     useItemExpression: boolean = true,
-    onItemCallBack?: (item: ItemValue) => boolean
+    onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
     if (!values) {
       values = {};
@@ -188,8 +190,8 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
       if (itemRunner) {
         newValue = itemRunner.run(values, properties);
       }
-      if (newValue && !!onItemCallBack) {
-        newValue = onItemCallBack(item);
+      if (!!onItemCallBack) {
+        newValue = onItemCallBack(item, newValue);
       }
       if (!!filteredItems && newValue) {
         filteredItems.push(item);
@@ -255,7 +257,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     this.onCreating();
   }
 
-  public onCreating(): any {}
+  public onCreating(): any { }
   public getType(): string {
     return !!this.typeName ? this.typeName : "itemvalue";
   }
@@ -326,11 +328,11 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
-    if(Helpers.isValueEmpty(json.value)) return json;
+    if (Helpers.isValueEmpty(json.value)) return json;
     const canSerializeAsContant = !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
     if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
-    if(settings.itemValueAlwaysSerializeText && json.text === undefined) {
+    if (settings.itemValueAlwaysSerializeText && json.text === undefined) {
       json.text = this.value.toString();
     }
     return json;
@@ -344,7 +346,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if(prop.name === "text" && !this.locText.hasNonDefaultText() &&
+      if (prop.name === "text" && !this.locText.hasNonDefaultText() &&
         Helpers.isTwoValueEquals(this.value, this.text, false, true, false)) continue;
       jsoObj.valueToJson(this, res, prop);
     }
@@ -425,7 +427,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   public originalItem: any;
 }
 
-Base.createItemValue = function(source: any, type?: string): any {
+Base.createItemValue = function (source: any, type?: string): any {
   var item = null;
   if (!!type) {
     item = JsonObject.metaData.createClass(type, {});
@@ -437,7 +439,7 @@ Base.createItemValue = function(source: any, type?: string): any {
   item.setData(source);
   return item;
 };
-Base.itemValueLocStrChanged = function(arr: Array<any>): void {
+Base.itemValueLocStrChanged = function (arr: Array<any>): void {
   ItemValue.locStrsChanged(arr);
 };
 

@@ -25,6 +25,7 @@ export var defaultBootstrapCss = {
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
   progressTextUnderBar: "sv-hidden",
+  progressTextInBar: "sv-hidden",
   progressButtonsContainerCenter: "sv_progress-buttons__container-center",
   progressButtonsContainer: "sv_progress-buttons__container",
   progressButtonsImageButtonLeft: "sv_progress-buttons__image-button-left",

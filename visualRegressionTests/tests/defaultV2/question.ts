@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot } from "../../helper";
 
 const title = "Question Screenshot";
 
@@ -158,5 +158,25 @@ frameworks.forEach(framework => {
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
+  });
+  test("Check question error", async(t)=> {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "q_error",
+          title: "What is your name?",
+          isRequired: true,
+          colCount: 1,
+        }
+      ]
+    },);
+    const qRoot = Selector(".sd-question");
+    await t.click(".sd-navigation__complete-btn");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("question-with-error.png", qRoot, t);
+    await t.resizeWindow(600, 1080);
+    await checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
   });
 });

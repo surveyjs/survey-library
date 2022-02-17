@@ -9,18 +9,21 @@ ko.components.register("sv-svg-icon", {
     createViewModel: (params: any, componentInfo: any) => {
       ko.computed(() => {
         const iconName = ko.unwrap(params.iconName);
+        const element = componentInfo.element.querySelector && componentInfo.element.querySelector("svg") || componentInfo.element.nextElementSibling;
         if(iconName) {
           createSvg(
             ko.unwrap(params.size),
             ko.unwrap(params.width),
             ko.unwrap(params.height),
             iconName,
-            componentInfo.element.querySelector("svg")
+            element
           );
         }
       });
       return {
-        hasIcon: params.iconName
+        hasIcon: params.iconName,
+        css: params.css,
+        title: params.title
       };
     },
   },

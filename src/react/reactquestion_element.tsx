@@ -4,9 +4,9 @@ import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ArrayChanges } from "survey-core";
+import { Base, ArrayChanges, SurveyModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -226,11 +226,11 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     if (!reason) {
       return element;
     }
-    const survey: ReactSurveyModel = this.questionBase
-      .survey as ReactSurveyModel;
+    const survey: SurveyModel = this.questionBase
+      .survey as SurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell, reason);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
   }

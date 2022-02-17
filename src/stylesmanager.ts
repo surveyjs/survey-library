@@ -363,9 +363,9 @@ export class StylesManager {
     ".sv-popup__container": "position: absolute; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
     ".sv-popup_shadow": "filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); width: 100%; height: 100%; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar":
-      "height: 6px; width: 6px; background-color: #f3f3f3;",
+      "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
-      "background: rgba(25, 179, 148, 0.1);",
+      "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
     ".sv-popup__content": "min-width: 100%;",
     ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer":
       "transform: translate(calc(-1 * 8px)) rotate(180deg);",
@@ -388,17 +388,17 @@ export class StylesManager {
     ".sv-popup__footer-item + .sv-popup__footer-item":
       "margin-left: calc(1 * 8px);",
     ".sv-popup__button":
-      "padding: calc(2 * 8px) calc(6 * 8px); background: #fff; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: #19b394; border: none; outline: none;",
-    ".sv-popup__button:hover": "box-shadow: 0 0 0 2px #19b394;",
-    ".sv-popup__button:disabled": "color: rgba(22, 22, 22, 0.16); cursor: default;",
+      "padding: calc(2 * 8px) calc(6 * 8px); background: var(--background, #fff); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: var(--primary, #19b394); border: none; outline: none;",
+    ".sv-popup__button:hover": "box-shadow: 0 0 0 2px var(--primary, #19b394);",
+    ".sv-popup__button:disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default;",
     ".sv-popup__button:disabled:hover":
       "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
-    ".sv-popup__button.sv-popup__button--apply": "background-color: #19b394; color: #fff;",
-    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
+    ".sv-popup__button.sv-popup__button--apply": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: var(--background-dim, #f3f3f3);",
     //eo popup
     //list
     ".sv-list":
-      "padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
+      "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
       "width: 100%; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
@@ -406,13 +406,13 @@ export class StylesManager {
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
     ".sv-list__item:not(.sv-list__item--selected):hover":
-      "background-color: #f3f3f3;",
-    ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
-    ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
-    ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
+      "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
+    ".sv-list__item--disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
-    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
+    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff);",
     ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 16px; padding-bottom: 16px; outline: none; font-size: 1em; border: 1px solid transparent;",
     ".sv-list__filter-icon": "display: block; position: absolute; top: 16px; left: 16px;",
     ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",

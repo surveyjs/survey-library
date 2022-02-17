@@ -61,7 +61,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var header = this.renderHeader();
     var footers = this.renderFooter();
     var rows = this.renderRows();
-    var divStyle = this.question.horizontalScroll
+    var divStyle = this.question.showHorizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (

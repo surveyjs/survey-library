@@ -95,11 +95,15 @@ export function testQuestionMarkup(assert, test, platform) {
       all[i].removeAttribute("data-key");
       all[i].removeAttribute("data-rendered");
       all[i].removeAttribute("id");
+      all[i].removeAttribute("for");
       all[i].removeAttribute("list");
       if(all[i].getAttribute("name") !== "name")
         all[i].removeAttribute("name");
       if(all[i].checked) {
         all[i].setAttribute("checked", "");
+      }
+      if(all[i].multiple) {
+        all[i].setAttribute("multiple", "");
       }
       if(all[i].hasAttribute("readonly"))
         all[i].setAttribute("readonly", "");

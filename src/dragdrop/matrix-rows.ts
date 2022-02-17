@@ -58,8 +58,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       }
     });
 
+    this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
     return draggedElementShortcut;
   }
+
+  private fromIndex: number = null;
+  private toIndex: number = null;
 
   // protected ghostPositionChanged(): void {
   //   let ghostPosition;
@@ -133,6 +137,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     renderedRows.splice(draggedElementIndex, 1);
     renderedRows.splice(dropTargetIndex, 0, draggedRenderedRow);
+    this.toIndex = dropTargetIndex;
 
     // const matrix = this.parentElement;
     // const fromIndex = matrix.visibleRows.indexOf(this.draggedElement);
@@ -157,11 +162,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   protected doDrop = (): QuestionMatrixDynamicModel => {
-    this.parentElement.setValueFromRenderedRows();
+    this.parentElement.moveRowByIndex(this.fromIndex, this.toIndex);
     return this.parentElement;
   };
 
   protected doClear(): void {
     this.parentElement["resetRenderedTable"]();
+    this.fromIndex = null;
+    this.toIndex = null;
   }
 }

@@ -2,19 +2,19 @@
   position: relative;
 }
 .sd-question__erbox--above-question {
-  margin-top: calcSize(-4);
-  margin-bottom: calcSize(3);
+  margin-top: calc(-1 * var(--sd-base-vertical-padding));
+  margin-bottom: calc(var(--sd-base-vertical-padding) - #{$base-unit});
   width: 100%;
   color: $red;
   background-color: $red-light;
   box-sizing: border-box;
 }
 .sd-question__erbox {
-  padding: 8px 12px;
+  padding: calcSize(1) calcSize(1.5);
   border-radius: calcSize(0.5);
   font-weight: 600;
-  line-height: 16px;
-  font-size: 12px;
+  line-height: calcSize(2);
+  font-size: calcSize(1.5);
 }
 
 .sd-question__header {
@@ -57,11 +57,11 @@
   // transform: translateX(-50%) translateY(100%);
   height: auto;
   width: auto;
-  max-width: 232px;
+  max-width: calcSize(29);
   background-color: $background;
   color: $foreground;
   opacity: 0.75;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 6px $shadow-medium;
   white-space: normal;
   text-align: left;
   z-index: 1000;
@@ -95,12 +95,12 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 4px;
+  gap: calcSize(0.5);
   justify-content: center;
-  min-height: 192px;
-  line-height: 24px;
-  font-size: 16px;
-  color: #909090;
+  min-height: calcSize(24);
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  color: $foreground-light;
   & > div,
   & > span {
     & > .sv-string-viewer {

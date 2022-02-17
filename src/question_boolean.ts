@@ -217,6 +217,17 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   /* #endregion */
+
+  public getRadioItemClass(css: any, value: any): string {
+    let className = undefined;
+    if(css.radioItem) {
+      className = css.radioItem;
+    }
+    if(css.radioItemChecked && value === this.value) {
+      className = (className?className+" ":"") + css.radioItemChecked;
+    }
+    return className;
+  }
 }
 
 Serializer.addClass(

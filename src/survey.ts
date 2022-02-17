@@ -27,7 +27,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
-import { SurveyTimer } from "./surveytimer";
+import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
@@ -54,9 +54,17 @@ export class SurveyModel extends SurveyElementCore
   ISurveyData,
   ISurveyImpl,
   ISurveyTriggerOwner,
-  ISurveyErrorOwner {
+  ISurveyErrorOwner,
+  ISurveyTimerText {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
+  public static get cssType(): string {
+    return surveyCss.currentType;
+  }
+  public static set cssType(value: string) {
+    StylesManager.applyTheme(value);
+  }
+
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -83,10 +91,7 @@ export class SurveyModel extends SurveyElementCore
   private localeValue: string = "";
 
   private textPreProcessor: TextPreProcessor;
-  private completedStateValue: string = "";
-  private completedStateTextValue: string = "";
-
-  private isTimerStarted: boolean = false;
+  private timerModelValue: SurveyTimerModel;
 
   //#region Event declarations
 
@@ -642,6 +647,16 @@ export class SurveyModel extends SurveyElementCore
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
+   * You can use this event to decide whether show or hide choice item in checkbox, dropdown and radiogroup like questions
+   * <br/> `sender` - the survey object that fires the event
+   * <br/> `options.question` - a question that contains choices.
+   * <br/> `options.item` - an item of the question.
+   */
+  public onShowingChoiceItem: EventBase<SurveyModel> = this.addEvent<
+    SurveyModel
+  >();
+
+  /**
    * The event is fired on adding a new row in Matrix Dynamic question.
    * <br/> `sender` - the survey object that fires the event
    * <br/> `options.question` - a matrix question.
@@ -972,7 +987,7 @@ export class SurveyModel extends SurveyElementCore
 
   //#endregion
 
-  constructor(jsonObj: any = null) {
+  constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
@@ -992,6 +1007,10 @@ export class SurveyModel extends SurveyElementCore
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
+    };
+    this.timerModelValue = new SurveyTimerModel(this);
+    this.timerModelValue.onTimer = (page: PageModel): void => {
+      this.doTimer(page);
     };
     this.createNewArray(
       "pages",
@@ -1029,6 +1048,12 @@ export class SurveyModel extends SurveyElementCore
         this.resetVisibleIndexes();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(
+      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
+      () => { this.updateState(); });
+    this.registerFunctionOnPropertiesValueChanged(["state", "currentPage", "showPreviewBeforeComplete"],
+      () => { this.onStateAndCurrentPageChanged(); });
+
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
     };
@@ -1050,6 +1075,9 @@ export class SurveyModel extends SurveyElementCore
     this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
       this.currentPage && this.currentPage.updateElementCss();
     };
+    this.onShowingChoiceItem.onCallbacksChanged = () => {
+      this.rebuildQuestionChoices();
+    };
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1064,6 +1092,9 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     this.onCreating();
+    if(!!renderedElement) {
+      this.render(renderedElement);
+    }
   }
 
   /**
@@ -1088,6 +1119,31 @@ export class SurveyModel extends SurveyElementCore
    */
   public get pages(): Array<PageModel> {
     return this.getPropertyValue("pages");
+  }
+  renderCallback: () => void;
+  public render(element: any = null): void {
+    if (this.renderCallback) {
+      this.renderCallback();
+    }
+  }
+  public updateSurvey(newProps: any, oldProps?: any) {
+    for (var key in newProps) {
+      if (key == "model" || key == "children") continue;
+      if (key.indexOf("on") == 0 && this[key] && this[key].add) {
+        let funcBody = newProps[key];
+        let func = function (sender: any, options: any) {
+          funcBody(sender, options);
+        };
+        this[key].add(func);
+      } else {
+        this[key] = newProps[key];
+      }
+    }
+
+    if (newProps && newProps.data)
+      this.onValueChanged.add((sender, options) => {
+        newProps.data[options.name] = options.value;
+      });
   }
   public getCss(): any {
     return this.css;
@@ -1150,6 +1206,12 @@ export class SurveyModel extends SurveyElementCore
   public get completedCss(): string {
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString();
+  }
+  public get completedStateCss(): string {
+    return this.getPropertyValue("completedStateCss", "");
+  }
+  public getCompletedStateCss(): string {
+    return new CssClassBuilder().append(this.css.saveData[this.completedState], this.completedState !== "").toString();
   }
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -1826,6 +1888,7 @@ export class SurveyModel extends SurveyElementCore
   private _isMobile = false;
   public setIsMobile(newVal = true) {
     this._isMobile = newVal;
+    this.getAllQuestions().map(q => q.isMobile = newVal);
   }
   private get isMobile() {
     return isMobile() || this._isMobile;
@@ -2281,7 +2344,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateElementCss(true);
     }
   }
-  protected updateElementCss(reNew?: boolean) {
+  public updateElementCss(reNew?: boolean): void {
     if (!!this.startedPage) {
       this.startedPage.updateElementCss(reNew);
     }
@@ -2493,21 +2556,42 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public getDataValueCore(valuesHash: any, key: string) {
+  public getDataValueCore(valuesHash: any, key: string): any {
     if (!!this.editingObj)
       return Serializer.getObjPropertyValue(this.editingObj, key);
-    return valuesHash[key];
+    return this.getDataFromValueHash(valuesHash, key);
   }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     if (!!this.editingObj) {
       Serializer.setObjPropertyValue(this.editingObj, key, value);
     } else {
-      valuesHash[key] = value;
+      this.setDataToValueHash(valuesHash, key, value);
     }
   }
   public deleteDataValueCore(valuesHash: any, key: string) {
     if (!!this.editingObj) {
       (<any>this.editingObj)[key] = null;
+    } else {
+      this.deleteDataFromValueHash(valuesHash, key);
+    }
+  }
+  valueHashGetDataCallback: (valuesHash: any, key: string) => any;
+  valueHashSetDataCallback: (valuesHash: any, key: string, value: any) => void;
+  valueHashDeleteDataCallback: (valuesHash: any, key: string) => void;
+  private getDataFromValueHash(valuesHash: any, key: string): any {
+    if(!!this.valueHashGetDataCallback) return this.valueHashGetDataCallback(valuesHash, key);
+    return valuesHash[key];
+  }
+  private setDataToValueHash(valuesHash: any, key: string, value: any): void {
+    if(!!this.valueHashSetDataCallback) {
+      this.valueHashSetDataCallback(valuesHash, key, value);
+    } else {
+      valuesHash[key] = value;
+    }
+  }
+  private deleteDataFromValueHash(valuesHash: any, key: string): void {
+    if(!!this.valueHashDeleteDataCallback) {
+      this.valueHashDeleteDataCallback(valuesHash, key);
     } else {
       delete valuesHash[key];
     }
@@ -2604,7 +2688,6 @@ export class SurveyModel extends SurveyElementCore
     var oldValue = this.currentPage;
     if (!this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
-    this.updateIsFirstLastPageState();
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
@@ -2632,7 +2715,27 @@ export class SurveyModel extends SurveyElementCore
    * @see startedPage
    */
   public get activePage(): any {
-    return this.state === "starting" ? this.startedPage : this.currentPage;
+    return this.getPropertyValue("activePage");
+  }
+  /**
+   * The started page is showing right now. survey state equals to "starting"
+   */
+  public get isShowStartingPage(): boolean {
+    return this.state === "starting";
+  }
+  /**
+   * Survey is showing a page right now. It is in "running", "preview" or starting state.
+   */
+  public get isShowingPage(): boolean {
+    return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
+  }
+  private updateActivePage() : void {
+    const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
+    this.setPropertyValue("activePage", newPage);
+  }
+  private onStateAndCurrentPageChanged(): void {
+    this.updateActivePage();
+    this.updateButtonsVisibility();
   }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
@@ -2708,6 +2811,12 @@ export class SurveyModel extends SurveyElementCore
    * Details: [Preview State](https://surveyjs.io/Documentation/Library#states)
    */
   public get state(): string {
+    return this.getPropertyValue("state", "empty");
+  }
+  private updateState() : void {
+    this.setPropertyValue("state", this.calcState());
+  }
+  private calcState(): string {
     if (this.isLoading) return "loading";
     if (this.isCompleted) return "completed";
     if (this.isCompletedBefore) return "completedbefore";
@@ -2755,19 +2864,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public get completedState(): string {
-    return this.completedStateValue;
+    return this.getPropertyValue("completedState", "");
   }
   get completedStateText(): string {
-    return this.completedStateTextValue;
+    return this.getPropertyValue("completedStateText", "");
   }
   protected setCompletedState(value: string, text: string) {
-    this.completedStateValue = value;
+    this.setPropertyValue("completedState", value);
     if (!text) {
       if (value == "saving") text = this.getLocString("savingData");
       if (value == "error") text = this.getLocString("savingDataError");
       if (value == "success") text = this.getLocString("savingDataSuccess");
     }
-    this.completedStateTextValue = text;
+    this.setPropertyValue("completedStateText", text);
+    this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
@@ -2785,7 +2895,7 @@ export class SurveyModel extends SurveyElementCore
       this.data = null;
       this.variablesHash = {};
     }
-    this.timeSpent = 0;
+    this.timerModel.spent = 0;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
@@ -2927,27 +3037,6 @@ export class SurveyModel extends SurveyElementCore
    */
   public get isEditMode(): boolean {
     return this.mode == "edit";
-  }
-  public get isCompleteButtonVisible(): boolean {
-    const isLast = this.isLastPage;
-    const canEdit = this.isEditMode;
-    const state = this.state;
-    const showPreview = this.isShowPreviewBeforeComplete;
-    return canEdit && (state === "running" && isLast && !showPreview || state === "preview");
-  }
-  public get isPreviewButtonVisible(): boolean {
-    return (
-      this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
-      this.state == "running"
-    );
-  }
-  public get isCancelPreviewButtonVisible(): boolean {
-    return (
-      this.isEditMode &&
-      this.isShowPreviewBeforeComplete &&
-      this.state == "preview"
-    );
   }
   /**
    * Returns `true` if the survey is in display mode or in preview mode.
@@ -3369,6 +3458,16 @@ export class SurveyModel extends SurveyElementCore
   private resetNavigationButton() {
     this.isNavigationButtonPressed = false;
   }
+  private mouseDownPage: any = null;
+  public nextPageUIClick() {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
+    this.mouseDownPage = null;
+    this.nextPage();
+  }
+  public nextPageMouseDown() {
+    this.mouseDownPage = this.activePage;
+    return this.navigationMouseDown();
+  }
   /**
    * Shows preview for the survey. Switches the survey to the "preview" state.
    *
@@ -3618,18 +3717,59 @@ export class SurveyModel extends SurveyElementCore
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
   }
+  private updateButtonsVisibility(): void {
+    this.updateIsFirstLastPageState();
+    this.setPropertyValue("isShowPrevButton", this.calcIsShowPrevButton());
+    this.setPropertyValue("isShowNextButton", this.calcIsShowNextButton());
+    this.setPropertyValue("isCompleteButtonVisible", this.calcIsCompleteButtonVisible());
+    this.setPropertyValue("isPreviewButtonVisible", this.calcIsPreviewButtonVisible());
+    this.setPropertyValue("isCancelPreviewButtonVisible", this.calcIsCancelPreviewButtonVisible());
+  }
   public get isShowPrevButton(): boolean {
-    const isFirst = this.isFirstPage;
-    const showBtn = this.showPrevButton;
-    const isRun = this.state === "running";
-    if (isFirst || !showBtn || !isRun) return false;
+    return this.getPropertyValue("isShowPrevButton");
+  }
+  public get isShowNextButton(): boolean {
+    return this.getPropertyValue("isShowNextButton");
+  }
+  public get isCompleteButtonVisible(): boolean {
+    return this.getPropertyValue("isCompleteButtonVisible");
+  }
+  public get isPreviewButtonVisible(): boolean {
+    return this.getPropertyValue("isPreviewButtonVisible");
+  }
+  public get isCancelPreviewButtonVisible(): boolean {
+    return this.getPropertyValue("isCancelPreviewButtonVisible");
+  }
+  private updateIsFirstLastPageState() {
+    const curPage = this.currentPage;
+    this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage);
+    this.setPropertyValue("isLastPage", !!curPage && curPage === this.lastVisiblePage);
+  }
+  private calcIsShowPrevButton(): boolean {
+    if (this.isFirstPage || !this.showPrevButton || this.state !== "running") return false;
     var page = this.visiblePages[this.currentPageNo - 1];
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
-  public get isShowNextButton(): boolean {
-    const isLast = this.isLastPage;
-    const isRun = this.state === "running";
-    return !isLast && isRun;
+  private calcIsShowNextButton(): boolean {
+    return this.state === "running" && !this.isLastPage;
+  }
+  public calcIsCompleteButtonVisible(): boolean {
+    const state = this.state;
+    return this.isEditMode && (this.state === "running" && this.isLastPage && !this.isShowPreviewBeforeComplete || state === "preview");
+  }
+  private calcIsPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "running" && this.isLastPage
+    );
+  }
+  private calcIsCancelPreviewButtonVisible(): boolean {
+    return (
+      this.isEditMode &&
+      this.isShowPreviewBeforeComplete &&
+      this.state == "preview"
+    );
   }
   private get firstVisiblePage(): PageModel {
     const pages = this.pages;
@@ -3644,12 +3784,6 @@ export class SurveyModel extends SurveyElementCore
       if (this.isPageInVisibleList(pages[i])) return pages[i];
     }
     return null;
-  }
-  private updateIsFirstLastPageState() {
-    const curPage = this.currentPage;
-    if (!curPage) return;
-    this.setPropertyValue("isFirstPage", curPage === this.firstVisiblePage);
-    this.setPropertyValue("isLastPage", curPage === this.lastVisiblePage);
   }
   /**
    * Completes the survey.
@@ -3952,7 +4086,7 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
-  protected afterRenderSurvey(htmlElement: any) {
+  afterRenderSurvey(htmlElement: any) {
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,
@@ -4035,6 +4169,17 @@ export class SurveyModel extends SurveyElementCore
     });
   }
 
+  private rebuildQuestionChoices() {
+    this.getAllQuestions().forEach(q => q.surveyChoiceItemVisibilityChange());
+  }
+  canChangeChoiceItemsVisibility(): boolean {
+    return !this.onShowingChoiceItem.isEmpty;
+  }
+  getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean {
+    const options = { question: question, item: item, visible: val };
+    this.onShowingChoiceItem.fire(this, options);
+    return options.visible;
+  }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
   }
@@ -4583,7 +4728,9 @@ export class SurveyModel extends SurveyElementCore
    * @see addNewPage
    */
   public createNewPage(name: string): PageModel {
-    return new PageModel(name);
+    const page = Serializer.createClass("page");
+    page.name = name;
+    return page;
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
     if (this.onValueChanging.isEmpty) return newValue;
@@ -4677,12 +4824,17 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private isRunningElementsBindings: boolean;
+  private updateVisibleIndexAfterBindings: boolean;
   private checkElementsBindings(valueName: string, newValue: any): void {
     this.isRunningElementsBindings = true;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].checkBindings(valueName, newValue);
     }
     this.isRunningElementsBindings = false;
+    if(this.updateVisibleIndexAfterBindings) {
+      this.updateVisibleIndexes();
+      this.updateVisibleIndexAfterBindings = false;
+    }
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     if (this.isEndLoadingFromJson === "processing") return;
@@ -5000,6 +5152,10 @@ export class SurveyModel extends SurveyElementCore
       this.conditionUpdateVisibleIndexes = true;
       return;
     }
+    if(this.isRunningElementsBindings) {
+      this.updateVisibleIndexAfterBindings = true;
+      return;
+    }
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
@@ -5015,7 +5171,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateProgressText(true);
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
-    this.updateIsFirstLastPageState();
+    this.updateButtonsVisibility();
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];
@@ -5294,7 +5450,6 @@ export class SurveyModel extends SurveyElementCore
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
-    this.updateProgressText(true);
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
@@ -5774,10 +5929,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTimerPanel", val);
   }
   public get isTimerPanelShowingOnTop() {
-    return this.isTimerStarted && this.showTimerPanel == "top";
+    return this.timerModel.isRunning && this.showTimerPanel == "top";
   }
   public get isTimerPanelShowingOnBottom() {
-    return this.isTimerStarted && this.showTimerPanel == "bottom";
+    return this.timerModel.isRunning && this.showTimerPanel == "bottom";
   }
   /**
    * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.
@@ -5899,20 +6054,14 @@ export class SurveyModel extends SurveyElementCore
     if (res) res += " ";
     return res + sec + " " + this.getLocString("timerSec");
   }
-  private timerFunc: any = null;
+  public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
   /**
    * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
    * @see stopTimer
    * @see timeSpent
    */
   public startTimer() {
-    if (this.isTimerStarted || this.isDesignMode) return;
-    var self = this;
-    this.timerFunc = function () {
-      self.doTimer();
-    };
-    this.isTimerStarted = true;
-    SurveyTimer.instance.start(this.timerFunc);
+    this.timerModel.start();
   }
   startTimerFromUI() {
     if (this.showTimerPanel != "none" && this.state === "running") {
@@ -5925,16 +6074,14 @@ export class SurveyModel extends SurveyElementCore
    * @see timeSpent
    */
   public stopTimer() {
-    if (!this.isTimerStarted) return;
-    this.isTimerStarted = false;
-    SurveyTimer.instance.stop(this.timerFunc);
+    this.timerModel.stop();
   }
   /**
    * Returns the time in seconds an end user spends on the survey
    * @see startTimer
    * @see PageModel.timeSpent
    */
-  public timeSpent = 0;
+  public get timeSpent(): number { return this.timerModel.spent; }
   /**
    * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer
@@ -5966,12 +6113,7 @@ export class SurveyModel extends SurveyElementCore
       ? page.maxTimeToFinish
       : this.maxTimeToFinishPage;
   }
-  protected doTimer() {
-    var page = this.currentPage;
-    if (page) {
-      page.timeSpent = page.timeSpent + 1;
-    }
-    this.timeSpent = this.timeSpent + 1;
+  private doTimer(page: PageModel): void {
     this.onTimer.fire(this, {});
     if (this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
       this.completeLastPage();
@@ -6104,7 +6246,11 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);
+    if(this.disposeCallback) {
+      this.disposeCallback();
+    }
   }
+  disposeCallback: () => void;
 }
 
 Serializer.addClass("survey", [

@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
     await t
       .expect(Selector("h5 use").getAttribute("xlink:href")).eql("#icon-action")
       .expect(Selector("h5 button span.sv-action-bar-item__title").hasClass("sv-action-bar-item__title--with-icon")).ok()
-      .expect(Selector("h5 button .sv-action-bar-item__icon").offsetWidth).eql(20);
+      .expect(Selector("h5 button .sv-action-bar-item__icon").getStyleProperty("width")).eql("20px");
   });
 
   test("check item with showTitle false", async (t) => {

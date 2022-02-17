@@ -5,26 +5,13 @@
           <div data-bind="css: css.container">
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
-              <!-- ko if: koState() == "starting" -->
+              <!-- ko if: isShowingPage -->
               <div data-bind="css: bodyCss">
-                  <!-- ko if: isNavigationButtonsShowingOnTop -->
-                  <!-- ko template: { name: 'survey-navigation-start' } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
-                  <div data-bind="attr: { id: startedPage.id }, template: { name: 'survey-page', data: startedPage, afterRender: koAfterRenderPage }"></div>
-                  <!-- ko if: isNavigationButtonsShowingOnBottom -->
-                  <!-- ko template: { name: 'survey-navigation-start' } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
-              </div>
-              <!-- /ko -->
-              <!-- ko if: koState() == "running" || koState() == "preview" -->
-              <div data-bind="css: bodyCss">
-                  <!-- ko if: isTimerPanelShowingOnTop -->
+                  <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
                   <!-- ko template: { name: 'survey-timerpanel' } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isShowProgressBarOnTop -->
+                  <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->
                   <!-- /ko -->
@@ -32,18 +19,18 @@
                   <!-- ko template: { name: 'survey-navigation' } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: koCurrentPage -->
-                    <div data-bind="attr: { id: koCurrentPage().id }, template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
-                    <!-- ko if: isCurrentPageEmpty() && $data.emptyPageTemplate -->
+                  <!-- ko if: activePage -->
+                    <div data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }"></div>
+                    <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
                     <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
                     <!-- /ko -->
                     <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isShowProgressBarOnBottom -->
+                  <!-- ko if: isShowProgressBarOnBottom && !isShowStartingPage -->
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isTimerPanelShowingOnBottom -->
+                  <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
                   <!-- ko template: { name: 'survey-timerpanel' } -->
                   <!-- /ko -->
                   <!-- /ko -->
@@ -53,22 +40,22 @@
                   <!-- /ko -->
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "completed" && showCompletedPage -->
+              <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
-              <div data-bind="visible: koCompletedState() != '', css: css.saveData.root">
-                  <div data-bind="css: koCompletedStateCss">
-                      <span data-bind="text:koCompletedStateText"></span>
-                      <input type="button" data-bind="visible: koCompletedState() == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
+              <div data-bind="visible: completedState != '', css: css.saveData.root">
+                  <div data-bind="css: completedStateCss">
+                      <span data-bind="text:completedStateText"></span>
+                      <input type="button" data-bind="visible: completedState == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
                   </div>
               </div>
               <!-- /ko -->
-              <!-- ko if: koState() == "completedbefore" -->
+              <!-- ko if: state == "completedbefore" -->
               <div data-bind="html: processedCompletedBeforeHtml, css: css.body"></div>
               <!-- /ko -->
-              <!-- ko if: koState() == "loading" -->
+              <!-- ko if: state == "loading" -->
               <div data-bind="html: processedLoadingHtml, css: css.body"></div>
               <!-- /ko -->
-              <!-- ko if: koState() == "empty" -->
+              <!-- ko if: state == "empty" -->
               <div data-bind="text:emptySurveyText, css: css.bodyEmpty"></div>
               <!-- /ko -->
           </div>
@@ -77,14 +64,10 @@
 </script>
 <script type="text/html" id="survey-navigation">
   <div data-bind="css: css.footer">
+      <input type="button" data-bind="value: startSurveyText, click: start, visible: isShowStartingPage, css: cssNavigationStart"/>
       <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPagePrevText.koRenderedHtml, click: prevPage, visible: isShowPrevButton, css: cssNavigationPrev" />
       <input type="button" data-bind="event: { mousedown: nextPageMouseDown }, value: locPageNextText.koRenderedHtml, click: nextPageUIClick, visible: isShowNextButton, css: cssNavigationNext" />
-      <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPreviewText.koRenderedHtml, click: showPreview, visible: isLastPage && isPreviewButtonVisible, css: cssNavigationPreview" />
+      <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPreviewText.koRenderedHtml, click: showPreview, visible: isPreviewButtonVisible, css: cssNavigationPreview" />
       <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locCompleteText.koRenderedHtml, click: completeLastPage, visible: isCompleteButtonVisible, css: cssNavigationComplete" />
-  </div>
-</script>
-<script type="text/html" id="survey-navigation-start">
-  <div data-bind="css: css.footer">
-      <input type="button" data-bind="value: startSurveyText, click: start, css: cssNavigationStart"/>
   </div>
 </script>

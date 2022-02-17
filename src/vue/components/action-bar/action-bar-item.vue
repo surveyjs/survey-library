@@ -24,7 +24,7 @@
     ></sv-svg-icon>
 
     <span
-      v-if="item.showTitle === undefined || item.showTitle || !item.iconName"
+      v-if="item.hasTitle"
       :class="item.getActionBarItemTitleCss()"
       >{{ item.title }}</span
     >

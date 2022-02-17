@@ -1,2 +1,6 @@
 export * from "./core";
-export * from "./vue-ui";
+
+// localization
+import "./chunks/localization";
+
+export * from "./vue-ui-model";

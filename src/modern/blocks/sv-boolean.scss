@@ -13,6 +13,12 @@
   padding: 0.125em 0.1875em;
   border-radius: 0.75em;
 }
+
+.sv-boolean input:focus ~ .sv-boolean__switch {
+  outline: 1px solid $main-color;
+  outline-offset: 1px;
+}
+
 [dir="rtl"],
 [style*="direction:rtl"] {
   .sv-boolean__switch {

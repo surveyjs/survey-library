@@ -7,8 +7,9 @@ import {
   QuestionMatrixDropdownRenderedCell,
   doKey2ClickUp,
   TooltipManager,
+  SurveyModel
 } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
@@ -169,10 +170,10 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     );
   }
   protected wrapElement(element: JSX.Element): JSX.Element {
-    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
+    const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapElement(element, this.question);
+      wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
     }
     return wrapper ?? element;
   }
@@ -431,10 +432,10 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
     if (!cell) {
       return element;
     }
-    const survey: ReactSurveyModel = this.question.survey as ReactSurveyModel;
+    const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell);
     }
     return wrapper ?? element;
   }

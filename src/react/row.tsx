@@ -5,8 +5,7 @@ import { QuestionRowModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
 import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { settings } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Question } from "../question";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
@@ -62,9 +61,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     );
   }
   protected renderElement(): JSX.Element {
-    const survey: ReactSurveyModel = this.survey as ReactSurveyModel;
+    const survey: SurveyModel = this.survey as SurveyModel;
     const content = this.renderElementContent();
-    const wrapper = survey.wrapRow(content, this.row);
+    const wrapper = ReactSurveyElementsWrapper.wrapRow(survey, content, this.row);
     return wrapper || content;
   }
   componentDidMount() {

@@ -19,7 +19,7 @@ frameworks.forEach(framework => {
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
     await applyTheme(theme);
   });
-  test("Check image question", async (t) => {
+  test("Check dropdown question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",

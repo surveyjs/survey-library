@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -22,7 +21,7 @@ export class Survey extends SurveyElementBase<any, any>
   public static set cssType(value: string) {
     StylesManager.applyTheme(value);
   }
-  protected survey: ReactSurveyModel;
+  protected survey: SurveyModel;
 
   private rootNodeId: string; // root dom node ID attr
   private rootNodeClassName: string; // root dom node class
@@ -32,8 +31,6 @@ export class Survey extends SurveyElementBase<any, any>
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.createSurvey(props);
     this.updateSurvey(props, {});
-    //set the first page
-    const dummy = this.survey.currentPage;
     this.rootRef = React.createRef();
     this.rootNodeId = props.id || null;
     this.rootNodeClassName = props.className || "";
@@ -55,7 +52,7 @@ export class Survey extends SurveyElementBase<any, any>
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    if (el && this.survey) this.survey.doAfterRenderSurvey(el);
+    if (el && this.survey) this.survey.afterRenderSurvey(el);
     if (this.survey) {
       this.survey.startTimerFromUI();
     }
@@ -75,8 +72,6 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderCompletedBefore();
     } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
-    } else if (this.survey.state == "starting") {
-      renderResult = this.renderStartPage();
     } else {
       renderResult = this.renderSurvey();
     }
@@ -163,36 +158,22 @@ export class Survey extends SurveyElementBase<any, any>
       <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
     );
   }
-  protected renderStartPage(): JSX.Element {
-    var startedPage = this.survey.startedPage
-      ? this.renderPage(this.survey.startedPage)
-      : null;
-    var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
-    return (
-      <React.Fragment>
-        <div id={pageId} className={this.css.body}>
-          {this.renderNavigation("top")}
-          {startedPage}
-          {this.renderNavigation("bottom")}
-        </div>
-      </React.Fragment>
-    );
-  }
   protected renderSurvey(): JSX.Element {
-    var currentPage = this.survey.currentPage
-      ? this.renderPage(this.survey.currentPage)
+    var activePage = this.survey.activePage
+      ? this.renderPage(this.survey.activePage)
       : null;
-    var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
-    var topProgress = this.survey.isShowProgressBarOnTop
+    const isStaring = this.survey.isShowStartingPage;
+    var pageId = this.survey.activePage ? this.survey.activePage.id : "";
+    var topProgress = this.survey.isShowProgressBarOnTop && !isStaring
       ? this.renderProgress(true)
       : null;
-    var bottomProgress = this.survey.isShowProgressBarOnBottom
+    var bottomProgress = this.survey.isShowProgressBarOnBottom && !isStaring
       ? this.renderProgress(false)
       : null;
     let className = this.survey.bodyCss;
-    if (!currentPage) {
+    if (!activePage) {
       className = this.css.bodyEmpty;
-      currentPage = this.renderEmptySurvey();
+      activePage = this.renderEmptySurvey();
     }
     return (
       <div
@@ -202,7 +183,7 @@ export class Survey extends SurveyElementBase<any, any>
         {topProgress}
         {this.renderTimerPanel("top")}
         {this.renderNavigation("top")}
-        {currentPage}
+        {activePage}
         {this.renderTimerPanel("bottom")}
         {bottomProgress}
         {this.renderNavigation("bottom")}
@@ -210,11 +191,12 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderTimerPanel(location: string) {
+    if(this.survey.isShowStartingPage) return null;
     if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
       return null;
     if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
       return null;
-    return <SurveyTimerPanel survey={this.survey} />;
+    return <SurveyTimerPanel timerModel={this.survey.timerModel} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
     return (
@@ -254,14 +236,14 @@ export class Survey extends SurveyElementBase<any, any>
       } else {
         if (newProps.json) {
           this.previousJSON = newProps.json;
-          this.survey = new ReactSurveyModel(newProps.json);
+          this.survey = new SurveyModel(newProps.json);
         }
       }
     } else {
-      this.survey = new ReactSurveyModel();
+      this.survey = new SurveyModel();
     }
     if (!!newProps.css) {
-      this.survey.mergeCss(newProps.css, this.css);
+      this.survey.css = this.css;
     }
     this.setSurveyEvents();
   }

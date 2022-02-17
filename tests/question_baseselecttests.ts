@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
-import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionButtonGroupModel } from "../src/question_buttongroup";
 
@@ -12,7 +12,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
   return question.columns.map((column) => column.map((choice) => choice.value));
 }
 
-QUnit.test("Check QuestionSelectBase columns property", function(assert) {
+QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   var json = {
     questions: [
       {
@@ -40,7 +40,7 @@ QUnit.test("Check QuestionSelectBase columns property", function(assert) {
     "check showItemsBy column"
   );
 });
-QUnit.test("Set ", function(assert) {
+QUnit.test("Set ", function (assert) {
   var json = {
     questions: [
       {
@@ -140,4 +140,33 @@ QUnit.test("check item locstring owner and name", (assert) => {
   var itemValue = (question.choices[0]);
   assert.equal(itemValue.locText.owner.getType(), "itemvalue", "Owner for radio question item text is itemvalue");
   assert.equal(itemValue.locText.name, "text", "Name for radio question item text is text");
+});
+
+QUnit.test("check onShowingChoiceItem event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: "Item1", visibleIf: "1 = 2" }, "Item2", "Item3"],
+        hasNone: true,
+        hasOther: true
+      }]
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 4);
+  assert.equal(question.visibleChoices[0].value, "Item2");
+  assert.equal(question.visibleChoices[1].value, "Item3");
+  assert.equal(question.visibleChoices[2].value, "other");
+  assert.equal(question.visibleChoices[3].value, "none");
+
+  survey.onShowingChoiceItem.add((sender, options) => {
+    if (options.question.name !== "q1") return;
+    options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
+  });
+
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].value, "Item1");
+  assert.equal(question.visibleChoices[1].value, "Item2");
 });

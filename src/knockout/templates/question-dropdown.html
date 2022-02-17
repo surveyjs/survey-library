@@ -1,15 +1,6 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
   <div data-bind="css: question.renderCssRoot">
-    <!-- ko ifnot: question.isReadOnly -->
-    <div data-bind="css: question.koCss().selectWrapper">
-       <!-- ko component: { name: 'sv-dropdown', params: { question: question } } -->
-        <!-- /ko -->
-    </div>
-    <!-- /ko -->
-    <!-- ko if: question.isReadOnly -->
-      <div disabled
-      data-bind="attr: {id: question.inputId}, text: question.readOnlyText, css: question.getControlClass()">
-      </div>
+    <!-- ko component: { name: 'sv-dropdown', params: { question: question } } -->
     <!-- /ko -->
   <!-- ko if: question.isOtherSelected -->
   <div class="form-group"

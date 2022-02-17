@@ -1,13 +1,7 @@
 <template>
   <div :class="question.renderCssRoot">
-    <div v-if="!question.isReadOnly" :class="question.cssClasses.selectWrapper">
-        <sv-dropdown :question="question" ></sv-dropdown>
-    </div><div
-      disabled
-      v-else
-      :id="question.inputId"
-      :class="question.getControlClass()"
-    >{{ question.readOnlyText }}</div><survey-other-choice v-if="question.isOtherSelected" :question="question" />
+    <sv-dropdown :question="question" ></sv-dropdown>
+    <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
 

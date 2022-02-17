@@ -1,5 +1,7 @@
 <template>
-  <select
+  <div :class="question.cssClasses.selectWrapper">
+    <select
+    v-if="!question.isReadOnly"
     :id="question.inputId"
     v-model="question.renderedValue"
     :autocomplete="question.autoComplete"
@@ -8,11 +10,12 @@
     :aria-label="question.ariaLabel"
     :aria-invalid="question.ariaInvalid"
     :aria-describedby="question.ariaDescribedBy"
-    :required="question.isRequired"
-  >
+    :required="question.isRequired">
     <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option>
     <option v-for="item in question.visibleChoices" :value="item.value" :disabled="!item.isEnabled">{{ item.text }}</option>
-  </select>
+    </select>
+     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+  </div>
 </template>
 
 <script lang="ts">

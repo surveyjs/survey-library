@@ -2,7 +2,7 @@
   <div data-bind="css: question.renderCssRoot">
     <!-- ko ifnot: question.isReadOnly -->
     <div data-bind="css: question.koCss().selectWrapper">
-       <!-- ko component: { name: 'sv-dropdown', params: { question: question, showOptionsCaption: question.showOptionsCaption, value: question.renderedValue, choices: question.visibleChoices } } -->
+       <!-- ko component: { name: 'sv-dropdown', params: { question: question } } -->
         <!-- /ko -->
     </div>
     <!-- /ko -->

@@ -71,3 +71,4 @@ export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actio
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { RatingDropdown } from "../vue/rating-dropdown.vue";
+export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";

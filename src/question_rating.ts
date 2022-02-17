@@ -278,6 +278,20 @@ export class QuestionRatingModel extends Question {
   get locOptionsCaption(): LocalizableString {
     return this.getLocalizableString("ratingOptionsCaption");
   }
+  get showOptionsCaption(): boolean {
+    return true;
+  }
+  public get renderedValue(): boolean {
+    return this.value;
+  }
+  public set renderedValue(val: any) {
+    this.value = val;
+  }
+  public get visibleChoices(): ItemValue[] {
+    return this.visibleRateValues;
+  }
+
+  //responsiveness methods
   private resizeObserver: ResizeObserver;
   private initResponsiveness(el: HTMLElement) {
     if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {

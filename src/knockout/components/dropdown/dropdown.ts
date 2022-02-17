@@ -7,7 +7,7 @@ export var DropdownViewModel: any;
 ko.components.register("sv-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return { question: params.question, choices: params.choices, showOptionsCaption: params.showOptionsCaption, value: params.value };
+      return { question: params.question };
     },
   },
   template: template,

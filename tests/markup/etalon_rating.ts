@@ -69,6 +69,45 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown",
+  },
+  {
+    name: "Test Rating question as dropdown readonly",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          readOnly: true,
+          renderAs: "dropdown",
+          rateMax: 4,
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "rating-as-dropdown-readonly",
+  },
+  {
+    name: "Test Rating question as dropdown readonly with value",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          readOnly: true,
+          defaultValue: 3,
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "dropdown",
+          rateMax: 4,
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "rating-as-dropdown-readonly-with-value",
   }
   ]
 );

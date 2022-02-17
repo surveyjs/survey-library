@@ -290,6 +290,9 @@ export class QuestionRatingModel extends Question {
   public get visibleChoices(): ItemValue[] {
     return this.visibleRateValues;
   }
+  public get readOnlyText() {
+    return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
 
   //responsiveness methods
   private resizeObserver: ResizeObserver;

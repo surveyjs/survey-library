@@ -240,7 +240,7 @@ export var modernCss = {
     itemDisabled: "sv-imagepicker__item--disabled",
     itemHover: "sv-imagepicker__item--allowhover",
     label: "sv-imagepicker__label",
-    itemControl: "sv-imagepicker__control",
+    itemControl: "sv-imagepicker__control sv-visuallyhidden",
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
     clearButton: "sv-btn",

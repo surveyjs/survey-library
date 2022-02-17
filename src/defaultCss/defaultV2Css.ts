@@ -262,7 +262,7 @@ export var defaultV2Css = {
     label: "sd-imagepicker__label",
     itemDecorator: "sd-imagepicker__item-decorator",
     imageContainer: "sd-imagepicker__image-container",
-    itemControl: "sd-imagepicker__control",
+    itemControl: "sd-imagepicker__control sd-visuallyhidden",
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
     clearButton: "sd-btn",

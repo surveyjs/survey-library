@@ -11,7 +11,6 @@
       <label :class="question.cssClasses.label">
         <input
           v-if="question.multiSelect"
-          style="display: none"
           type="checkbox"
           :name="question.questionName"
           :value="item.value"
@@ -26,7 +25,6 @@
         />
         <input
           v-else
-          style="display: none"
           type="radio"
           :name="question.questionName"
           :value="item.value"

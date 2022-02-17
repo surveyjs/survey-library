@@ -176,7 +176,7 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return true;
+    return false;
   }
   /**
    * The description of minimum (first) item.

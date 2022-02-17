@@ -7,6 +7,7 @@ import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
+import { HtmlConditionItem } from "./expressionItems";
 
 export class RenderedRatingItem extends Base {
   public get value(): number {
@@ -300,8 +301,11 @@ export class QuestionRatingModel extends Question {
     if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
       const requiredWidth = (<HTMLElement>el.querySelector(".sd-rating")).scrollWidth;
       this.resizeObserver = new ResizeObserver(()=>{
-        const rootEl = <HTMLElement>el.querySelector(".sd-rating");
-        this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+        if(!el.isConnected) { this.destroyResizeObserver(); }
+        else {
+          const rootEl = <HTMLElement>el.querySelector(".sd-rating");
+          this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+        }
       });
       this.resizeObserver.observe(el);
     }
@@ -328,12 +332,15 @@ export class QuestionRatingModel extends Question {
     }
 
   }
-  public dispose() {
-    super.dispose();
+  private destroyResizeObserver() {
     if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
     }
+  }
+  public dispose() {
+    super.dispose();
+    this.destroyResizeObserver();
   }
 }
 Serializer.addClass(

@@ -1,9 +1,4 @@
 <div data-bind="css: question.cssClasses.rootDropdown">
-    <select
-    data-bind="if: true, attr: {id: question.inputId, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.value, valueAllowUnset: true, css: question.getControlClass()">
-    <option data-bind="text:question.locOptionsCaption.koRenderedHtml, value: null"></option>
-    <!-- ko foreach: question.visibleRateValues -->
-    <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
-    <!-- /ko -->
-    </select>
+  <!-- ko component: { name: 'sv-dropdown', params: { question: question, showOptionsCaption: true, value: question.value, choices: question.visibleRateValues } } -->
+  <!-- /ko -->
 </div>

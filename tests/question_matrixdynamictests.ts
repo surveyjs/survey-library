@@ -5118,13 +5118,79 @@ QUnit.test("getProgressInfo", function (assert) {
     ],
   });
   survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
-  var question = survey.getQuestionByName("matrix");
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.ok(question.renderedTable);
   assert.deepEqual(question.getProgressInfo(), {
     questionCount: 9 - 2,
     answeredQuestionCount: 2,
     requiredQuestionCount: 3,
     requiredAnsweredQuestionCount: 1,
   });
+});
+
+QUnit.test("getProgressInfo, matrix dynamic without creating table", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+  assert.notOk(question["generatedVisibleRows"]);
+});
+
+QUnit.test("getProgressInfo, matrix dropdown without creating table", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+        rows: ["row1", "row2", "row3"]
+      },
+    ],
+  });
+  survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+  assert.notOk(question["generatedVisibleRows"]);
 });
 
 QUnit.test(

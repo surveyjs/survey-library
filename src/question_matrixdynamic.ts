@@ -14,11 +14,12 @@ import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
-import { IShortcutText, ISurveyImpl } from "./base-interfaces";
+import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { Helpers } from "./helpers";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -224,6 +225,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     this.onRowsChanged();
+  }
+  protected updateProgressInfoByValues(res: IProgressInfo): void {
+    let val = this.value;
+    if(!Array.isArray(val)) val = [];
+    for(var i = 0; i < this.rowCount; i ++) {
+      const rowValue = i < val.length ? val[i] : {};
+      this.updateProgressInfoByRow(res, rowValue);
+    }
   }
   private getValueForNewRow(): any {
     var res = null;

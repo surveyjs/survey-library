@@ -1664,10 +1664,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return [];
   }
   public getProgressInfo(): IProgressInfo {
-    return SurveyElement.getProgressInfoByElements(
-      this.getCellQuestions(),
-      this.isRequired
-    );
+    if(!!this.generatedVisibleRows)
+      return SurveyElement.getProgressInfoByElements(
+        this.getCellQuestions(),
+        this.isRequired
+      );
+    const res = Base.createProgressInfo();
+    this.updateProgressInfoByValues(res);
+    return res;
+  }
+  protected updateProgressInfoByValues(res: IProgressInfo): void {}
+  protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
+    res.questionCount += this.columns.length;
+    for(var i = 0; i < this.columns.length; i ++) {
+      const col = this.columns[i];
+      res.requiredQuestionCount += col.isRequired;
+      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
+      res.answeredQuestionCount += hasValue ? 1 : 0;
+      res.requiredAnsweredQuestionCount += hasValue && col.isRequired ? 1 : 0;
+    }
   }
   private getCellQuestions(): Array<Question> {
     const rows = this.visibleRows;

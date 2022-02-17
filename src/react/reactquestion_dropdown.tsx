@@ -34,7 +34,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         aria-describedby={this.question.ariaDescribedBy}
         required={this.question.isRequired}>
         { this.question.showOptionsCaption ? (<option value="">{this.question.optionsCaption}</option>) : null }
-        { this.question.visibleChoices.map((item, i) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
+        { this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
       </select>);
     return (
       <div className={cssClasses.selectWrapper}>

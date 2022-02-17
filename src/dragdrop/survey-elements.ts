@@ -269,6 +269,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected doDrop = (): any => {
     if (this.dropTarget) {
+      (<HTMLElement>document.activeElement).blur();
       return this.insertRealElementIntoSurvey();
     }
 
@@ -399,6 +400,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     );
 
     const newElement = this.parentElement.dragDropFinish();
+
     return newElement;
   }
 

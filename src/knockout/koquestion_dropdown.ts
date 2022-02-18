@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { QuestionDropdownModel } from "survey-core";
+import { ItemValue, QuestionDropdownModel } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionSelectBaseImplementor } from "./koquestion_baseselect";
@@ -13,8 +13,13 @@ class QuestionDropdownImplementor extends QuestionSelectBaseImplementor {
 
 export class QuestionDropdown extends QuestionDropdownModel {
   private _implementor: QuestionDropdownImplementor;
+  public koDisableOption: any;
   constructor(name: string) {
     super(name);
+    this.koDisableOption = (option: any, item: ItemValue) => {
+      if(!item) return;
+      ko.applyBindingsToNode(option, { disable: ko.computed(() => { return !item.isEnabled; }) }, item);
+    };
   }
   protected onBaseCreating() {
     super.onBaseCreating();

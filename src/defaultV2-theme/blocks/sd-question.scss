@@ -117,3 +117,7 @@
     padding-top: var(--sd-base-padding);
   }
 }
+.sd-scrollable-container:not(.sd-scrollable-container--compact) {
+  width: max-content;
+  max-width: 100%;
+}

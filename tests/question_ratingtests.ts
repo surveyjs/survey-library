@@ -55,7 +55,7 @@ QUnit.test("check rating processResponsiveness", (assert) => {
 QUnit.test("check rating initResponsiveness", (assert) => {
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");
-  contentElement.className = "sd-rating";
+  contentElement.className = "sd-scrollable-container";
   rootElement.append(contentElement);
   var json = {
     questions: [
@@ -76,7 +76,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
 QUnit.test("check rating in case of state 'collapsed'", (assert) => {
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");
-  contentElement.className = "sd-rating";
+  contentElement.className = "sd-scrollable-container";
   rootElement.append(contentElement);
   const getFuncOnStateChanged = () => {
     return q1["onPropChangeFunctions"].filter(item => item.name == "state" && item.key == "for-responsiveness")[0];

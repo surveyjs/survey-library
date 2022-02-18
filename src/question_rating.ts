@@ -294,53 +294,11 @@ export class QuestionRatingModel extends Question {
   public get readOnlyText() {
     return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
-
-  //responsiveness methods
-  private resizeObserver: ResizeObserver;
-  private initResponsiveness(el: HTMLElement) {
-    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
-      const requiredWidth = (<HTMLElement>el.querySelector(".sd-rating")).scrollWidth;
-      this.resizeObserver = new ResizeObserver(()=>{
-        if(!el.isConnected) { this.destroyResizeObserver(); }
-        else {
-          const rootEl = <HTMLElement>el.querySelector(".sd-rating");
-          this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
-        }
-      });
-      this.resizeObserver.observe(el);
-    }
+  protected supportResponsiveness(): boolean {
+    return true;
   }
-  private processResponsiveness(requiredWidth: number, availableWidth: number) {
-    if(requiredWidth > availableWidth) {
-      this.renderAs = "dropdown";
-    } else {
-      this.renderAs = "default";
-    }
-  }
-  public afterRender(el: HTMLElement): void {
-    super.afterRender(el);
-    if(this.isCollapsed) {
-      const onStateChanged = () => {
-        if(this.isExpanded) {
-          this.initResponsiveness(el);
-          this.unRegisterFunctionOnPropertyValueChanged("state", "for-responsiveness");
-        }
-      };
-      this.registerFunctionOnPropertyValueChanged("state", onStateChanged, "for-responsiveness");
-    } else {
-      this.initResponsiveness(el);
-    }
-
-  }
-  private destroyResizeObserver() {
-    if(!!this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = undefined;
-    }
-  }
-  public dispose() {
-    super.dispose();
-    this.destroyResizeObserver();
+  protected getCompactRenderAs(): string {
+    return "dropdown";
   }
 }
 Serializer.addClass(

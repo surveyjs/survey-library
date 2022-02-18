@@ -1855,16 +1855,20 @@ export class Question extends SurveyElement
   }
   private resizeObserver: ResizeObserver;
   private initResponsiveness(el: HTMLElement) {
-    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode && !!el.querySelector(".sd-scrollable-container")) {
-      const requiredWidth = (<HTMLElement>el.querySelector(".sd-scrollable-container")).scrollWidth;
-      this.resizeObserver = new ResizeObserver(()=>{
-        if(!el.isConnected) { this.destroyResizeObserver(); }
-        else {
-          const rootEl = <HTMLElement>el.querySelector(".sd-scrollable-container");
-          this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
-        }
-      });
-      this.resizeObserver.observe(el);
+    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
+      const scrollableSelector = ".sd-scrollable-container";
+      const defaultRootEl = el.querySelector(scrollableSelector);
+      if(!!defaultRootEl) {
+        const requiredWidth = defaultRootEl.scrollWidth;
+        this.resizeObserver = new ResizeObserver(()=>{
+          if(!el.isConnected) { this.destroyResizeObserver(); }
+          else {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+          }
+        });
+        this.resizeObserver.observe(el);
+      }
     }
   }
   protected getCompactRenderAs(): string {

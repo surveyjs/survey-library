@@ -7,6 +7,7 @@ import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
+import { HtmlConditionItem } from "./expressionItems";
 
 export class RenderedRatingItem extends Base {
   public get value(): number {
@@ -33,6 +34,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertyValueChanged("rateValues", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
+    this.createLocalizableString("ratingOptionsCaption", this, false, true);
     this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
@@ -175,7 +177,7 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return true;
+    return false;
   }
   /**
    * The description of minimum (first) item.
@@ -257,6 +259,46 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.itemHover, allowHover)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .toString();
+  }
+  //methods for mobile view
+  public getControlClass(): string {
+    this.isEmpty();
+    return new CssClassBuilder()
+      .append(this.cssClasses.control)
+      .append(this.cssClasses.controlEmpty, this.isEmpty())
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
+  }
+  public get optionsCaption(): string {
+    return this.getLocalizableStringText("ratingOptionsCaption");
+  }
+  public set optionsCaption(val: string) {
+    this.setLocalizableStringText("ratingOptionsCaption", val);
+  }
+  get locOptionsCaption(): LocalizableString {
+    return this.getLocalizableString("ratingOptionsCaption");
+  }
+  get showOptionsCaption(): boolean {
+    return true;
+  }
+  public get renderedValue(): boolean {
+    return this.value;
+  }
+  public set renderedValue(val: any) {
+    this.value = val;
+  }
+  public get visibleChoices(): ItemValue[] {
+    return this.visibleRateValues;
+  }
+  public get readOnlyText() {
+    return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getCompactRenderAs(): string {
+    return "dropdown";
   }
 }
 Serializer.addClass(

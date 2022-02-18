@@ -607,6 +607,7 @@ export class Question extends SurveyElement
       this.commentElement = (document.getElementById(this.id) && document.getElementById(this.id).querySelector("textarea")) || null;
       this.updateCommentElement();
     }
+    this.checkForResponsiveness(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void { }
   /**
@@ -1828,8 +1829,67 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+  public transformToMobileView(): void {}
+  public transformToDesktopView(): void {}
   public needResponsiveWidth() {
     return false;
+  }
+  //responsiveness methods
+  protected supportResponsiveness() {
+    return false;
+  }
+  private checkForResponsiveness(el: HTMLElement): void {
+    if(this.supportResponsiveness()) {
+      if(this.isCollapsed) {
+        const onStateChanged = () => {
+          if(this.isExpanded) {
+            this.initResponsiveness(el);
+            this.unRegisterFunctionOnPropertyValueChanged("state", "for-responsiveness");
+          }
+        };
+        this.registerFunctionOnPropertyValueChanged("state", onStateChanged, "for-responsiveness");
+      } else {
+        this.initResponsiveness(el);
+      }
+    }
+  }
+  private resizeObserver: ResizeObserver;
+  private initResponsiveness(el: HTMLElement) {
+    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
+      const scrollableSelector = ".sd-scrollable-container";
+      const defaultRootEl = el.querySelector(scrollableSelector);
+      if(!!defaultRootEl) {
+        const requiredWidth = defaultRootEl.scrollWidth;
+        this.resizeObserver = new ResizeObserver(()=>{
+          if(!el.isConnected) { this.destroyResizeObserver(); }
+          else {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+          }
+        });
+        this.resizeObserver.observe(el);
+      }
+    }
+  }
+  protected getCompactRenderAs(): string {
+    return "default";
+  }
+  protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+    if(requiredWidth > availableWidth) {
+      this.renderAs = this.getCompactRenderAs();
+    } else {
+      this.renderAs = "default";
+    }
+  }
+  private destroyResizeObserver() {
+    if(!!this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
+  }
+  public dispose() {
+    super.dispose();
+    this.destroyResizeObserver();
   }
 }
 Serializer.addClass("question", [

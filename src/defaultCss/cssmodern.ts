@@ -195,6 +195,7 @@ export var modernCss = {
   },
   boolean: {
     root: "sv_qbln",
+    rootRadio: "sv_qbln",
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",

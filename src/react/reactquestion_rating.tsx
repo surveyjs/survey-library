@@ -25,7 +25,6 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var maxText = this.question.maxRateDescription
       ? this.renderLocString(this.question.locMaxRateDescription)
       : null;
-    var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
     return (
       <div className={cssClasses.root} ref={(div) => (this.control = div)}>
         <fieldset role="radiogroup">
@@ -34,7 +33,6 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           {this.question.renderedRateItems.map((item, i) => this.renderItem("value" + i, item, i, cssClasses))}
           {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span>: null}
         </fieldset>
-        {comment}
       </div>
     );
   }
@@ -64,17 +62,6 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
         />
         <span className={cssClasses.itemText}>{itemText}</span>
       </label>
-    );
-  }
-  protected renderOther(cssClasses: any): JSX.Element {
-    return (
-      <div className={cssClasses.other}>
-        <SurveyQuestionCommentItem
-          question={this.question}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
-      </div>
     );
   }
 }

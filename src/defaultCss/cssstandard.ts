@@ -106,6 +106,7 @@ export var defaultStandardCss = {
 
   boolean: {
     root: "sv_qcbc sv_qbln",
+    rootRadio: "sv_qcbc sv_qbln",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked checked",

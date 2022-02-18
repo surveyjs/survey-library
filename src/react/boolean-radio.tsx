@@ -42,7 +42,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (
-      <div className={cssClasses.root}>
+      <div className={cssClasses.rootRadio}>
         <fieldset role="presentation" className= { cssClasses.radioFieldset }>
           { this.renderRadioItem(false, this.question.locLabelFalse) }
           { this.renderRadioItem(true, this.question.locLabelTrue) }

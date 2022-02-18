@@ -10,6 +10,7 @@ export { Radiogroup } from "../vue/radiogroup.vue";
 export { RadiogroupItem } from "../vue/radiogroupitem.vue";
 export { OtherChoice } from "../vue/otherChoice.vue";
 export { Rating } from "../vue/rating.vue";
+export { RatingDropdown } from "../vue/rating-dropdown.vue";
 export { Comment } from "../vue/comment.vue";
 export { Ranking } from "../vue/ranking/ranking.vue";
 export { RankingItem } from "../vue/ranking/ranking-item.vue";
@@ -64,6 +65,7 @@ export { ActionBarViewModel } from "../vue/components/action-bar/action-bar.vue"
 export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
+export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";

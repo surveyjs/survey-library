@@ -71,7 +71,7 @@
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
     "prepare": "husky install"
   },
-  "version": "1.9.13",
+  "version": "1.9.14",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

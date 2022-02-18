@@ -228,6 +228,13 @@ export class QuestionBooleanModel extends Question {
     }
     return className;
   }
+
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getCompactRenderAs(): string {
+    return "radio";
+  }
 }
 
 Serializer.addClass(

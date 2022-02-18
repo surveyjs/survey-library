@@ -21,6 +21,7 @@ export var englishStrings = {
     "Our records show that you have already completed this survey.",
   loadingSurvey: "Loading Survey...",
   optionsCaption: "Choose...",
+  ratingOptionsCaption: "Tap to rate here...",
   value: "value",
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",

@@ -34,11 +34,6 @@
         <survey-string :locString="question.locMaxRateDescription" />
         </span>
       </fieldset>
-      <survey-other-choice
-        v-if="question.hasOther"
-        :class="question.cssClasses.other"
-        :question="question"
-      />
   </div>
 </template>
 

@@ -43,6 +43,7 @@ import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { element } from "angular";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.

@@ -15,20 +15,20 @@
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border: none;
   border-radius: 3px;
+  text-align: left;
 }
 .sd-input.sd-input:focus {
   outline: none;
 }
 .sd-input--disabled {
   background-color: $background-for-editors;
-  color: $foreground-disabled-for-editors;
 }
 .sd-input::placeholder {
   color: $foreground-light;
 }
 .sd-input--disabled,
 .sd-input--disabled::placeholder {
-  color: $foreground-disabled;
+  color: $foreground-disabled-for-editors;
 }
 .sd-input:focus {
   box-shadow: 0 0 0 2px $primary, inset 0px 1px 2px $border-inside;

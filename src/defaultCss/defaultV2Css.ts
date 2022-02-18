@@ -193,7 +193,8 @@ export var defaultV2Css = {
   },
   boolean: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
-    root: "sv_qcbc sv_qbln",
+    root: "sv_qcbc sv_qbln sd-scrollable-container",
+    rootRadio: "sv_qcbc sv_qbln sd-scrollable-container sd-scrollable-container--compact",
     item: "sd-boolean",
     radioItem: "sd-item",
     radioItemChecked: "sd-item--checked sd-radio--checked",
@@ -234,7 +235,6 @@ export var defaultV2Css = {
   dropdown: {
     root: "sd-selectbase",
     small: "sd-row__question--small",
-    control: "sd-input sd-dropdown",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",
     onError: "sd-input--error",
@@ -245,9 +245,10 @@ export var defaultV2Css = {
     itemHover: "sd-item--allowhover sd-radio--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
     itemDecorator: "sd-item__svg sd-radio__svg",
+    control: "sd-input sd-dropdown",
     controlDisabled: "sd-input--disabled",
-    controlLabel: "sd-item__control-label",
     controlEmpty: "sd-dropdown--empty",
+    controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
@@ -336,7 +337,8 @@ export var defaultV2Css = {
     cellQuestionWrapper: "sd-table__question-wrapper"
   },
   rating: {
-    root: "sd-rating",
+    rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
+    root: "sd-scrollable-container sd-rating",
     item: "sd-rating__item",
     itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",
@@ -344,7 +346,11 @@ export var defaultV2Css = {
     minText: "sd-rating__item-text sd-rating__min-text",
     itemText: "sd-rating__item-text",
     maxText: "sd-rating__item-text sd-rating__max-text",
-    itemDisabled: "sd-rating__item--disabled"
+    itemDisabled: "sd-rating__item--disabled",
+    control: "sd-input sd-dropdown",
+    controlDisabled: "sd-input--disabled",
+    controlEmpty: "sd-dropdown--empty",
+    onError: "sd-input--error",
   },
   comment: {
     root: "sd-input sd-comment",

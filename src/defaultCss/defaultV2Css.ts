@@ -193,7 +193,8 @@ export var defaultV2Css = {
   },
   boolean: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
-    root: "sv_qcbc sv_qbln",
+    root: "sv_qcbc sv_qbln sd-scrollable-container",
+    rootRadio: "sv_qcbc sv_qbln sd-scrollable-container sd-scrollable-container--compact",
     item: "sd-boolean",
     radioItem: "sd-item",
     radioItemChecked: "sd-item--checked sd-radio--checked",

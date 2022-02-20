@@ -1,15 +1,9 @@
 <div data-bind="css: question.koCss().selectWrapper">
   <!-- ko ifnot: question.isReadOnly -->
   <select
-    data-bind="if: true, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
-    <!-- ko if: question.showOptionsCaption -->
-    <option data-bind="text:question.locOptionsCaption.koRenderedHtml, value: undefined"></option>
-    <!-- /ko -->
-    <!-- ko foreach: question.visibleChoices -->
-    <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
-    <!-- /ko -->
+  data-bind="options: question.visibleChoices, optionsValue: 'value', optionsText: 'text', optionsCaption: question.showOptionsCaption ? question.locOptionsCaption.koRenderedHtml : undefined, optionsAfterRender: question.koDisableOption, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
   </select>
-  <!-- /ko -->
+<!-- /ko -->
   <!-- ko if: question.isReadOnly -->
   <div disabled data-bind="attr: {id: question.inputId}, text: question.readOnlyText, css: question.getControlClass()"></div>
   <!-- /ko -->

@@ -294,8 +294,10 @@ export class QuestionRatingModel extends Question {
   public get readOnlyText() {
     return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
+
+  // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
-    return true;
+    return false;
   }
   protected getCompactRenderAs(): string {
     return "dropdown";

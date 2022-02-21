@@ -1,4 +1,3 @@
-//import * as core from "survey-core";
-//export class Model extends core.SurveyModel {}
-//export const Serializer = core.Serializer;
-//export const SurveyWindow = SurveyWindowModel; we have it in react as a react component
+export { SurveyModel, Model, SurveyWindowModel } from "survey-core";
+export { settings } from "survey-core";
+export { surveyLocalization, surveyStrings } from "survey-core";

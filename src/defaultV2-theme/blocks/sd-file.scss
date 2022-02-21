@@ -3,6 +3,15 @@
   position: relative;
   font-size: calcSize(2);
   line-height: calcSize(3);
+  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
+    overflow-x: scroll;
+    width: 100%;
+  }
+  &.sd-file--mobile {
+    .sd-file__decorator {
+      min-width: 100%;
+    }
+  }
   .sv-action-bar {
     padding: calcSize(1) 0;
     justify-content: center;
@@ -40,6 +49,7 @@
   border: 1px dashed $border;
   justify-content: center;
   align-items: center;
+  min-width: calcSize(62);
 }
 .sd-file__decorator--drag {
   border: 1px solid $primary;
@@ -108,12 +118,12 @@
   box-sizing: content-box;
   flex-direction: row;
   align-items: stretch;
-  justify-content: space-between;
-  padding: calcSize(10.5) 0;
+  justify-content: center;
+  padding: calcSize(9.5) 0;
   min-height: calcSize(15);
   max-height: calcSize(15);
-  position: absolute;
-  width: 100%;
+  width: max-content;
+  margin: auto;
 }
 .sd-file__preview {
   position: relative;
@@ -121,7 +131,7 @@
   align-items: center;
   flex-direction: column;
   min-height: 100%;
-  margin: 0 auto;
+  margin: calcSize(4) 0;
   .sd-file__default-image {
     width: calcSize(7);
     height: 90px;

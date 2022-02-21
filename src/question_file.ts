@@ -495,6 +495,17 @@ export class QuestionFileModel extends Question {
       .toString();
   }
 
+  protected supportResponsiveness() {
+    return true;
+  }
+  protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+    if(requiredWidth > availableWidth && this.allowMultiple) {
+      this.isMobile = true;
+    } else {
+      this.isMobile = false;
+    }
+  }
+
   private onChange(src: any) {
     if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;

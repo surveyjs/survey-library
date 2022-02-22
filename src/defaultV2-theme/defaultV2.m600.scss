@@ -67,5 +67,6 @@
       }
     }
     @include table_responsive();
+    @include image_responsive();
   }
 }

@@ -5233,10 +5233,10 @@ export class SurveyModel extends SurveyElementCore
     if (name === "pagecount") {
       return this.visiblePageCount;
     }
-    if (name === "correctedanswers" || name === "correctedanswercount") {
+    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
       return this.getCorrectedAnswerCount();
     }
-    if (name === "incorrectedanswers" || name === "incorrectedanswercount") {
+    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
       return this.getInCorrectedAnswerCount();
     }
     if (name === "questioncount") {

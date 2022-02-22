@@ -7077,8 +7077,8 @@ QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", fun
       { type: "text", name: "q3", correctAnswer: "val3" }
     ],
     calculatedValues: [
-      { name: "calc1", expression: "{correctedAnswers}" },
-      { name: "calc2", expression: "{inCorrectedAnswers}" },
+      { name: "calc1", expression: "{correctAnswers}" },
+      { name: "calc2", expression: "{incorrectAnswers}" },
       { name: "calc3", expression: "{questionCount}" },
     ]
   });

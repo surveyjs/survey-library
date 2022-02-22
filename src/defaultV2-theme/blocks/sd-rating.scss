@@ -1,11 +1,13 @@
 .sd-rating {
   overflow-x: auto;
-  height: calcSize(8);
+  min-height: calcSize(8);
 
   fieldset {
     display: flex;
     border: none;
-    padding: 0;
+    padding: 0 0 calcSize(2) 0;
+    flex-wrap: wrap;
+    gap: calcSize(1);
   }
 }
 .sd-rating__item {
@@ -37,9 +39,7 @@
   border-color: $primary;
   color: $background;
 }
-.sd-rating__item + .sd-rating__item {
-  margin-left: calcSize(1);
-}
+
 .sd-rating__item-text.sd-rating__item-text {
   line-height: calcSize(3);
   min-width: 24px;

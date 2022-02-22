@@ -230,6 +230,8 @@ export class QuestionRatingModel extends Question {
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
+  @property({ defaultValue: "auto", onSet: (val, target) =>{ } }) useDropdown: "always" | "never" | "auto";
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -300,7 +302,7 @@ export class QuestionRatingModel extends Question {
     const rateStep = this.getPropertyValue("rateStep");
     const rateMax = this.getPropertyValue("rateMax");
     const rateMin = this.getPropertyValue("rateMin");
-    return !!(this.hasMinRateDescription ||
+    return this.useDropdown != "always" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
       rateValues.length > 0 ||
       (rateStep && (rateMax -rateMin)/rateStep > 9));
@@ -308,10 +310,13 @@ export class QuestionRatingModel extends Question {
 
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
-    return false;
+    return true;
   }
   protected getCompactRenderAs(): string {
-    return "dropdown";
+    return (this.useDropdown == "never")?"default":"dropdown";
+  }
+  protected getDesktopRenderAs(): string {
+    return (this.useDropdown == "always")?"dropdown":"default";
   }
 }
 Serializer.addClass(
@@ -355,6 +360,11 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
     },
     { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    {
+      name: "useDropdown",
+      default: "auto",
+      choices: ["auto", "never", "always"],
+    }
   ],
   function() {
     return new QuestionRatingModel("");

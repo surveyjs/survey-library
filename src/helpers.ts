@@ -116,6 +116,7 @@ export class Helpers {
     }
     if (Array.isArray(x) && Array.isArray(y))
       return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
+    if(!!x.equalsTo && y.equalsTo) return x.equalsTo(y);
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;

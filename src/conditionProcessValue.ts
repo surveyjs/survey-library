@@ -1,5 +1,6 @@
 import { Helpers, HashTable } from "./helpers";
 
+const surveyBuiltInVarible: string = "@survey";
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
@@ -59,6 +60,9 @@ export class ProcessValue {
     valueInfo.path = res.hasValue ? res.path : null;
   }
   private getValueFromPath(path: Array<string | number>, values: any): any {
+    if(path.length === 2 && path[0] === surveyBuiltInVarible) {
+      return this.getValueFromSurvey(<string>path[1]);
+    }
     var index = 0;
     while (!!values && index < path.length) {
       var ind_name = path[index];
@@ -74,6 +78,23 @@ export class ProcessValue {
     return values;
   }
   private getValueCore(text: string, values: any): any {
+    const res = this.getValueFromValues(text, values);
+    if(!!text && !res.hasValue) {
+      const val = this.getValueFromSurvey(text);
+      if(val !== undefined) {
+        res.hasValue = true;
+        res.value = val;
+        res.path = [surveyBuiltInVarible, text];
+      }
+    }
+    return res;
+  }
+  private getValueFromSurvey(name: string): any {
+    if(!!this.properties && !!this.properties.survey)
+      return this.properties.survey.getBuiltInVariableValue(name.toLocaleLowerCase());
+    return undefined;
+  }
+  private getValueFromValues(text: string, values: any): any {
     var res: any = { hasValue: false, value: null, path: null };
     var curValue = values;
     if (!curValue && curValue !== 0 && curValue !== false) return res;

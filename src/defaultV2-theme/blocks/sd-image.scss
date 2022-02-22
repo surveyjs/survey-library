@@ -1,16 +1,5 @@
 .sd-image__image {
   display: block;
-  width: 100%;
   max-width: 100%;
   border-radius: 4px;
-}
-
-.sd-body--responsive .sd-image__image {
-  max-width: calcSize(80);
-}
-
-@mixin image_responsive {
-  .sd-body .sd-image__image {
-    max-width: 100%;
-  }
 }

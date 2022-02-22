@@ -152,8 +152,8 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", minValue: 0 },
-    { name: "imageWidth:number", minValue: 0 },
+    { name: "imageHeight:number", default: 150, minValue: 0 },
+    { name: "imageWidth:number", default: 200, minValue: 0 },
   ],
   function () {
     return new QuestionImageModel("");

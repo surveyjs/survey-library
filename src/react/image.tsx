@@ -26,7 +26,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var style: any = { objectFit: this.question.imageFit, width: this.question.renderedWidth, height: this.question.renderedHeight };
+    var style: any = { objectFit: this.question.imageFit };
     var control = null;
     if (this.question.renderedMode === "image") {
       control = (
@@ -34,6 +34,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           className={cssClasses.image}
           src={this.question.locImageLink.renderedHtml}
           alt={this.question.text || this.question.title}
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
           //alt={item.text || item.value}
           style={style}
         />
@@ -44,6 +46,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         <video controls
           className={cssClasses.image}
           src={this.question.imageLink}
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
           style={style}
         ></video>
       );
@@ -53,6 +57,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         <iframe
           className={cssClasses.image}
           src={this.question.imageLink}
+          width={this.question.renderedWidth}
+          height={this.question.renderedHeight}
           style={style}
         ></iframe>
       );

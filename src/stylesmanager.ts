@@ -1123,7 +1123,7 @@ export class StylesManager {
     ".sv_main .table>tbody>tr>td": "min-width: 90px;",
     ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
 
-    ".sv_main .sv_image_image": "width: 200px; height: 150px; border-width: 0;",
+    ".sv_main .sv_q_image": "display: inline-block;",
     ".sv_main .sv_row .sv_qstn:first-child:last-child":
       "flex: none !important;",
     ".sv_main .sv_row .sv_p_container:first-child:last-child":
@@ -1186,7 +1186,7 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label":
       "height: 100%;",
 
-    ".sv_main .sv_image_image": "width: 200px; height: 150px; border-width: 0;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_image": "display: inline-block;",
     ".sv_main .sv_row .sv_qstn:first-child:last-child":
       "flex: none !important;",
     ".sv_main .sv_row .sv_p_container:first-child:last-child":

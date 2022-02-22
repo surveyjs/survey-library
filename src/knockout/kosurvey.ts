@@ -64,7 +64,6 @@ export class SurveyImplementor extends ImplementorBase {
   public render(element: any = null) {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
-    SvgRegistry.renderIcons();
     const page = this.survey.activePage;
     if(!!page) {
       page.updateCustomWidgets();
@@ -90,6 +89,7 @@ export class SurveyImplementor extends ImplementorBase {
     );
   }
   public koEventAfterRender(element: any, survey: any) {
+    SvgRegistry.renderIcons();
     survey.afterRenderSurvey(element);
   }
   public dispose(): void {

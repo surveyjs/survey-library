@@ -297,6 +297,7 @@ export class QuestionRatingModel extends Question {
   public needResponsiveWidth() {
     return !!(this.maxRateDescription || this.minRateDescription || (this.visibleRateValues && this.visibleRateValues.length > 10));
   }
+
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
     return false;

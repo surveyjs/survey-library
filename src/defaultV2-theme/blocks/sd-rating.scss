@@ -46,12 +46,18 @@
   display: inline-block;
   &.sd-rating__min-text,
   &.sd-rating__max-text {
-    margin-right: calcSize(2);
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
-    margin-left: calcSize(2);
     border: 2px solid $background;
     color: $foreground-light;
+  }
+  &.sd-rating__min-text {
+    margin-right: calcSize(1);
+    margin-left: calcSize(2);
+  }
+  &.sd-rating__max-text {
+    margin-right: calcSize(2);
+    margin-left: calcSize(1);
   }
 
   .sv-string-editor {

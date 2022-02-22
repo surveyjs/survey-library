@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Base, SurveyTimerModel } from "survey-core";
-import {ReactSurveyElement} from "./reactquestion_element";
+import { ReactSurveyElement } from "./reactquestion_element";
 
 export class SurveyTimerPanel extends ReactSurveyElement {
   constructor(props: any) {

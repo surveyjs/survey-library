@@ -678,8 +678,10 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
     }
   }
 
-  .sv_q_image {
-    display: inline-block;
+  .sv_image_image {
+    width: 200px;
+    height: 150px;
+    border-width: 0;
   }
 }
 .sv_main.sv_main .sv-action-bar-item.sv_edit_btn {

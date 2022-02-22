@@ -80,9 +80,12 @@
     color: $disabled-text-color;
   }
 }
-.sv-image {
-  display: inline-block;
+.sv_image_image {
+  width: 200px;
+  height: 150px;
+  border-width: 0;
 }
+
 .sv-question__title--expandable {
   cursor: pointer;
   display: flex;

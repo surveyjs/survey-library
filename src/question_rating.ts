@@ -294,7 +294,9 @@ export class QuestionRatingModel extends Question {
   public get readOnlyText() {
     return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
-
+  public needResponsiveWidth() {
+    return !!(this.maxRateDescription || this.minRateDescription || (this.visibleRateValues && this.visibleRateValues.length > 10));
+  }
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
     return false;

@@ -5,24 +5,31 @@
       :class="question.cssClasses.image"
       :src="question.imageLink"
       :alt="question.text || question.title"
-      :width="question.renderedWidth"
-      :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
-    /><video controls
+      v-bind:style="{
+        objectFit: question.imageFit,
+        width: question.renderedWidth,
+        height: question.renderedHeight,
+      }"
+    /><video
+      controls
       v-if="question.renderedMode === 'video'"
       :class="question.cssClasses.image"
       :src="question.imageLink"
-      :width="question.renderedWidth"
-      :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{
+        objectFit: question.imageFit,
+        width: question.renderedWidth,
+        height: question.renderedHeight,
+      }"
     ></video>
     <iframe
       v-if="question.renderedMode === 'youtube'"
       :class="question.cssClasses.image"
       :src="question.imageLink"
-      :width="question.renderedWidth"
-      :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{
+        objectFit: question.imageFit,
+        width: question.renderedWidth,
+        height: question.renderedHeight,
+      }"
     ></iframe>
   </div>
 </template>

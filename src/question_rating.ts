@@ -294,8 +294,16 @@ export class QuestionRatingModel extends Question {
   public get readOnlyText() {
     return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
+
   public needResponsiveWidth() {
-    return !!(this.maxRateDescription || this.minRateDescription || (this.visibleRateValues && this.visibleRateValues.length > 10));
+    const rateValues = this.getPropertyValue("rateValues");
+    const rateStep = this.getPropertyValue("rateStep");
+    const rateMax = this.getPropertyValue("rateMax");
+    const rateMin = this.getPropertyValue("rateMin");
+    return !!(this.hasMinRateDescription ||
+      this.hasMaxRateDescription ||
+      rateValues.length > 0 ||
+      (rateStep && (rateMax -rateMin)/rateStep > 9));
   }
 
   // TODO: return responsiveness after design improvement

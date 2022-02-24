@@ -48,6 +48,7 @@ frameworks.forEach(framework => {
           type: "rating",
           name: "satisfaction",
           title: "Rating",
+          useDropdown: "never",
           rateMax: 30,
           width: "708px"
         }
@@ -57,6 +58,25 @@ frameworks.forEach(framework => {
     const questionRoot = Selector(".sd-question");
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("question-rating-many.png", questionRoot, t);
+  });
+  test("Check rating question with many items to dropdown", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "rating",
+          name: "satisfaction",
+          title: "Rating",
+          rateMax: 30,
+          width: "708px"
+        }
+      ]
+    });
+
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("question-rating-many-dropdown.png", questionRoot, t);
   });
   test("Check rating question as dropdown", async (t) => {
     await t.resizeWindow(1920, 1080);

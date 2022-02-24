@@ -6,8 +6,13 @@
     display: flex;
     border: none;
     padding: 0 0 calcSize(2) 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: calcSize(1);
+  }
+  &.sd-rating--wrappable {
+    fieldset {
+      flex-wrap: wrap;
+    }
   }
 }
 .sd-rating__item {

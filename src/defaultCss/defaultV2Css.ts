@@ -339,6 +339,7 @@ export var defaultV2Css = {
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
     root: "sd-scrollable-container sd-rating",
+    rootWrappable: "sd-scrollable-container sd-rating sd-rating--wrappable",
     item: "sd-rating__item",
     itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",

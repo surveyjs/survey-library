@@ -249,6 +249,12 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+
+  public get ratingRootCss(): string {
+    return ((this.useDropdown == "never" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : this.cssClasses.root;
+  }
+
   public getItemClass(item: ItemValue) {
     const isSelected = this.value == item.value;
     const isDisabled = this.isReadOnly && !item.isEnabled;

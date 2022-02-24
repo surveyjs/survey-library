@@ -5561,6 +5561,9 @@ export class SurveyModel extends SurveyElementCore
         this.checkQuestionErrorOnValueChanged(questions[i]);
       }
     }
+    if(!locNotification) {
+      this.runConditionOnValueChanged(name, this.getValue(name));
+    }
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }

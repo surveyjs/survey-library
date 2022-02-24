@@ -61,6 +61,14 @@ frameworks.forEach(framework => {
   });
   test("Check rating question with many items to dropdown", async (t) => {
     await t.resizeWindow(1920, 1080);
+
+    await ClientFunction(()=>{ window.addEventListener("error", e => {
+      if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+        e.message === "ResizeObserver loop limit exceeded") {
+        e.stopImmediatePropagation();
+      }
+    }); })();
+
     await initSurvey(framework, {
       showQuestionNumbers: "off",
       questions: [

@@ -1,14 +1,18 @@
 import * as React from "react";
-import { SurveyTimerModel } from "survey-core";
+import { Base, SurveyTimerModel } from "survey-core";
+import { ReactSurveyElement } from "./reactquestion_element";
 
-export class SurveyTimerPanel extends React.Component<any, any> {
+export class SurveyTimerPanel extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
-  protected get survey(): SurveyTimerModel {
+  protected getStateElement(): Base {
+    return this.timerModel;
+  }
+  protected get timerModel(): SurveyTimerModel {
     return this.props.timerModel;
   }
   render(): JSX.Element {
-    return <div>{this.survey.text}</div>;
+    return <div>{this.timerModel.text}</div>;
   }
 }

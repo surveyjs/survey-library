@@ -7067,6 +7067,31 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   survey.setValue("q1", "myanswer");
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
 });
+QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", correctAnswer: "val1" },
+      { type: "text", name: "q2", correctAnswer: "val2" },
+      { type: "text", name: "q3", correctAnswer: "val3" }
+    ],
+    calculatedValues: [
+      { name: "calc1", expression: "{correctAnswers}" },
+      { name: "calc2", expression: "{incorrectAnswers}" },
+      { name: "calc3", expression: "{questionCount}" },
+    ]
+  });
+  survey.setValue("q1", "val1");
+  survey.setValue("q3", "val_incorrect");
+  assert.equal(survey.calculatedValues[0].value, 1, "correctedAnswers");
+  assert.equal(survey.calculatedValues[1].value, 2, "inCorrectedAnswers");
+  assert.equal(survey.calculatedValues[2].value, 3, "questionCount");
+  survey.setValue("q2", "val2");
+  assert.equal(survey.calculatedValues[0].value, 2, "correctedAnswers #2");
+  assert.equal(survey.calculatedValues[1].value, 1, "inCorrectedAnswers #2");
+  assert.equal(survey.calculatedValues[2].value, 3, "questionCount #2");
+});
 QUnit.test(
   "Store data on the first page, firstPageIsStarted = true, Bug #1580",
   function (assert) {

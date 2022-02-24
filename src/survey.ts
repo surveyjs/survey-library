@@ -5225,20 +5225,34 @@ export class SurveyModel extends SurveyElementCore
         textValue.isExists || (wasEmpty && !this.isValueEmpty(textValue.value));
     }
   }
+  getBuiltInVariableValue(name: string): number {
+    if (name === "pageno") {
+      var page = this.currentPage;
+      return page != null ? this.visiblePages.indexOf(page) + 1 : 0;
+    }
+    if (name === "pagecount") {
+      return this.visiblePageCount;
+    }
+    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
+      return this.getCorrectedAnswerCount();
+    }
+    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
+      return this.getInCorrectedAnswerCount();
+    }
+    if (name === "questioncount") {
+      return this.getQuizQuestionCount();
+    }
+    return undefined;
+  }
   private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
     var name = textValue.name.toLocaleLowerCase();
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }
-    if (name === "pageno") {
+    const builtInVar = this.getBuiltInVariableValue(name);
+    if(builtInVar !== undefined) {
       textValue.isExists = true;
-      var page = this.currentPage;
-      textValue.value = page != null ? this.visiblePages.indexOf(page) + 1 : 0;
-      return;
-    }
-    if (name === "pagecount") {
-      textValue.isExists = true;
-      textValue.value = this.visiblePageCount;
+      textValue.value = builtInVar;
       return;
     }
     if (name === "locale") {
@@ -5246,21 +5260,6 @@ export class SurveyModel extends SurveyElementCore
       textValue.value = !!this.locale
         ? this.locale
         : surveyLocalization.defaultLocale;
-      return;
-    }
-    if (name === "correctedanswers" || name === "correctedanswercount") {
-      textValue.isExists = true;
-      textValue.value = this.getCorrectedAnswerCount();
-      return;
-    }
-    if (name === "incorrectedanswers" || name === "incorrectedanswercount") {
-      textValue.isExists = true;
-      textValue.value = this.getInCorrectedAnswerCount();
-      return;
-    }
-    if (name === "questioncount") {
-      textValue.isExists = true;
-      textValue.value = this.getQuizQuestionCount();
       return;
     }
     var variable = this.getVariable(name);

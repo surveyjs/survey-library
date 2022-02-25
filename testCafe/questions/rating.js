@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
     assert.equal(json.maxRateDescription, newMaxText);
   });
 
-  test.only("Check rating question with many items to dropdown", async (t) => {
+  test("Check rating question with many items to dropdown", async (t) => {
     await t.resizeWindow(1920, 1080);
 
     await ClientFunction(() => {

@@ -52,8 +52,6 @@ QUnit.test("check rating processResponsiveness", (assert) => {
   assert.equal(q1.renderAs, "dropdown");
 });
 
-// TODO: return responsiveness after design improvement
-/*
 QUnit.test("check rating initResponsiveness", (assert) => {
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");
@@ -104,4 +102,26 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
 });
-*/
+QUnit.test("check rating useDropdown", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        useDropdown: "never"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1["processResponsiveness"](500, 600);
+  assert.equal(q1.renderAs, "default", "useDropdown=never, big size, default");
+  q1["processResponsiveness"](600, 500);
+  assert.equal(q1.renderAs, "default", "useDropdown=never, small size, default");
+
+  q1.useDropdown = "always";
+  q1["processResponsiveness"](500, 600);
+  assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
+  q1["processResponsiveness"](600, 500);
+  assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
+});

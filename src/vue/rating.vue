@@ -47,8 +47,8 @@ import { QuestionRatingModel } from "survey-core";
 export class Rating extends QuestionVue<QuestionRatingModel> {
   getRootClass(question: QuestionRatingModel) {
     const classes = question.cssClasses;
-    if (question.isReadOnly) return classes.root + " " + classes.disabled;
-    return classes.root;
+    if (question.isReadOnly) return question.ratingRootCss + " " + classes.disabled;
+    return question.ratingRootCss;
   }
 }
 Vue.component("survey-rating", Rating);

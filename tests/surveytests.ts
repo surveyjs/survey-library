@@ -14505,3 +14505,30 @@ QUnit.test("Assign survey data callback", function (assert) {
   assert.equal(survey.getValue("a"), undefined);
   assert.equal(getCounter, oldGetCount + 1, "getCounter #2");
 });
+QUnit.test("Run expressions on changing comments", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ],
+        hasComment: true
+      },
+      {
+        type: "text",
+        name: "question2",
+        visibleIf: "{question1-Comment.length} > 3"
+      }
+    ]
+  });
+  const question2 = survey.getQuestionByName("question2");
+  assert.equal(question2.isVisible, false, "Invisible by default");
+  survey.setComment("question1", "abcd");
+  assert.equal(question2.isVisible, true, "visible");
+  survey.setComment("question1", "abc");
+  assert.equal(question2.isVisible, false, "Invisible again");
+});

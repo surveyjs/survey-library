@@ -230,6 +230,8 @@ export class QuestionRatingModel extends Question {
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
+  @property({ defaultValue: "auto", onSet: (val, target) =>{ } }) useDropdown: "always" | "never" | "auto";
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -247,6 +249,12 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+
+  public get ratingRootCss(): string {
+    return ((this.useDropdown == "never" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : this.cssClasses.root;
+  }
+
   public getItemClass(item: ItemValue) {
     const isSelected = this.value == item.value;
     const isDisabled = this.isReadOnly && !item.isEnabled;
@@ -295,12 +303,26 @@ export class QuestionRatingModel extends Question {
     return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
 
+  public needResponsiveWidth() {
+    const rateValues = this.getPropertyValue("rateValues");
+    const rateStep = this.getPropertyValue("rateStep");
+    const rateMax = this.getPropertyValue("rateMax");
+    const rateMin = this.getPropertyValue("rateMin");
+    return this.useDropdown != "always" && !!(this.hasMinRateDescription ||
+      this.hasMaxRateDescription ||
+      rateValues.length > 0 ||
+      (rateStep && (rateMax -rateMin)/rateStep > 9));
+  }
+
   // TODO: return responsiveness after design improvement
   protected supportResponsiveness(): boolean {
-    return false;
+    return true;
   }
   protected getCompactRenderAs(): string {
-    return "dropdown";
+    return (this.useDropdown == "never")?"default":"dropdown";
+  }
+  protected getDesktopRenderAs(): string {
+    return (this.useDropdown == "always")?"dropdown":"default";
   }
 }
 Serializer.addClass(
@@ -344,6 +366,11 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
     },
     { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    {
+      name: "useDropdown",
+      default: "auto",
+      choices: ["auto", "never", "always"],
+    }
   ],
   function() {
     return new QuestionRatingModel("");

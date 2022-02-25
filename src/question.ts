@@ -1874,11 +1874,14 @@ export class Question extends SurveyElement
   protected getCompactRenderAs(): string {
     return "default";
   }
+  protected getDesktopRenderAs(): string {
+    return "default";
+  }
   protected processResponsiveness(requiredWidth: number, availableWidth: number) {
     if(requiredWidth > availableWidth) {
       this.renderAs = this.getCompactRenderAs();
     } else {
-      this.renderAs = "default";
+      this.renderAs = this.getDesktopRenderAs();
     }
   }
   private destroyResizeObserver() {

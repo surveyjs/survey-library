@@ -108,6 +108,24 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown-readonly-with-value",
+  },
+  {
+    name: "Test Rating question as wrappable items",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          useDropdown: "never",
+          rateMax: 4,
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "rating-as-wrappable",
   }
   ]
 );

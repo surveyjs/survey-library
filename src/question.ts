@@ -1855,7 +1855,7 @@ export class Question extends SurveyElement
   }
   private resizeObserver: ResizeObserver;
   private initResponsiveness(el: HTMLElement) {
-    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
+    if(!!el && this.isDefaultRendering() && !this.isMobile && this.isDefaultV2Theme && !this.isDesignMode) {
       const scrollableSelector = ".sd-scrollable-container";
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {

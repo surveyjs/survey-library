@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base, EventBase } from "./base";
 import {
@@ -305,16 +305,18 @@ export class PanelModelBase extends SurveyElement
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
+  @property({ defaultValue: true }) showTitle: boolean;
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.title.length > 0) ||
-      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.showTitle && this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
   protected canShowTitle(): boolean { return true; }
+  @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     return (<any>this.survey).showPageTitles && this.hasDescription ||
-    (this.isDesignMode &&
+    (this.showDescription && this.isDesignMode &&
       settings.allowShowEmptyTitleInDesignMode &&
       settings.allowShowEmptyDescriptionInDesignMode);
   }

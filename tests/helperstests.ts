@@ -5,6 +5,7 @@ import { ProcessValue } from "../src/conditionProcessValue";
 import { Base } from "../src/base";
 import { property } from "../src/jsonobject";
 import { settings } from "../src/settings";
+import { SurveyError } from "../src/survey-error";
 
 export default QUnit.module("Helpers");
 
@@ -402,4 +403,12 @@ QUnit.test("isTwoValueEquals compare Base objects", function(assert) {
     false,
     "The first survey is disposed"
   );
+});
+QUnit.test("Check errors", function(assert) {
+  const error1 = new SurveyError("Error");
+  const error2 = new SurveyError("Error");
+  assert.equal(error1.locText.text, "Error");
+  assert.equal(Helpers.isTwoValueEquals(error1, error2), true, "Two errors are equal");
+  error2.text = "Error #2";
+  assert.equal(Helpers.isTwoValueEquals(error1, error2), false, "Two errors are not equal");
 });

@@ -52,6 +52,8 @@ QUnit.test("check rating processResponsiveness", (assert) => {
   assert.equal(q1.renderAs, "dropdown");
 });
 
+// TODO: return responsiveness after design improvement
+/*
 QUnit.test("check rating initResponsiveness", (assert) => {
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");
@@ -102,3 +104,4 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
 });
+*/

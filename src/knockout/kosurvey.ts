@@ -7,6 +7,7 @@ import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
 import { doKey2ClickDown, doKey2ClickUp } from "../utils/utils";
+import { SurveyTimerModel } from "../surveyTimerModel";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -64,7 +65,6 @@ export class SurveyImplementor extends ImplementorBase {
   public render(element: any = null) {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
-    SvgRegistry.renderIcons();
     const page = this.survey.activePage;
     if(!!page) {
       page.updateCustomWidgets();
@@ -90,6 +90,7 @@ export class SurveyImplementor extends ImplementorBase {
     );
   }
   public koEventAfterRender(element: any, survey: any) {
+    SvgRegistry.renderIcons();
     survey.afterRenderSurvey(element);
   }
   public dispose(): void {
@@ -148,6 +149,9 @@ LocalizableString.prototype["onChanged"] = function () {
   const hasHtml = this.hasHtml;
   this.koHasHtml(hasHtml);
   this.koRenderedHtml(hasHtml ? this.getHtmlValue() : this.calculatedText);
+};
+SurveyTimerModel.prototype["onCreating"] = function() {
+  new ImplementorBase(this);
 };
 
 ko.components.register("survey", {

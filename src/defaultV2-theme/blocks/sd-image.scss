@@ -3,3 +3,9 @@
   max-width: 100%;
   border-radius: 4px;
 }
+
+.sd-image__image--adaptive {
+  width: 100%;
+  height: auto;
+  max-width: calcSize(80);
+}

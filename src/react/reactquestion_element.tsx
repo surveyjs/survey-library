@@ -33,6 +33,17 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
   }
+  private _canComponentUpdate = true;
+  protected get canComponentUpdate(): boolean {
+    return this._canComponentUpdate;
+  }
+  protected set canComponentUpdate(newValue: boolean) {
+    this._canComponentUpdate = newValue;
+    this.forceUpdate();
+  }
+  shouldComponentUpdate(nextProps:any, nextState:any):boolean {
+    return this.canComponentUpdate;
+  }
   render(): JSX.Element {
     if (!this.canRender()) {
       return null;

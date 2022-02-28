@@ -247,4 +247,23 @@ frameworks.forEach(framework => {
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
+
+  test("Check ranking question on small screen", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "ranking",
+          title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
+          name: "ranking_question",
+          choices: ["item1", "item2", "item3", "item4"]
+        }
+      ]
+    });
+    await checkElementScreenshot("responsiveness-ranking.png", Selector(".sd-question"), t);
+
+    await t.hover(".sv-ranking-item");
+    await checkElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t);
+  });
 });

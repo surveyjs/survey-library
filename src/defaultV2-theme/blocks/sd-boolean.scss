@@ -43,6 +43,8 @@
   transition-timing-function: linear;
   color: $primary;
   font-weight: 600;
+  margin-left: 0%;
+  transform: translateX(0);
 }
 .sd-boolean--checked .sd-boolean__thumb {
   margin-left: 100%;
@@ -55,8 +57,7 @@
   }
 }
 .svc-question__content {
-  .sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate)
-    .sd-boolean__label:nth-of-type(1),
+  .sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label:nth-of-type(1),
   .sd-boolean--checked .sd-boolean__label:nth-of-type(2) {
     color: $primary;
     font-weight: 600;

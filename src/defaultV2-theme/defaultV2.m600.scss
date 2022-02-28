@@ -38,7 +38,7 @@
     }
     .sd-multipletext__item-container {
       flex-direction: column;
-    } 
+    }
     .sd-multipletext__item-title {
       font-size: 12px;
       line-height: 16px;
@@ -53,7 +53,7 @@
     .sd-multipletext__item {
       width: 100%;
     }
-    .sd-multipletext__item .sd-input{
+    .sd-multipletext__item .sd-input {
       padding-right: 0;
       padding-left: 0;
       margin-top: 0;
@@ -67,5 +67,6 @@
       }
     }
     @include table_responsive();
+    @include ranking_responsive();
   }
 }

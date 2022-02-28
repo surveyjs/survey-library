@@ -5855,9 +5855,15 @@ export class SurveyModel extends SurveyElementCore
     return options.html;
   }
   /**
-   * Returns an amount of corrected quiz answers.
+   * Deprecated. Use the getCorrectAnswerCount method instead.
    */
   public getCorrectedAnswerCount(): number {
+    return this.getCorrectedAnswerCountCore(true);
+  }
+  /**
+   * Returns an amount of corrected quiz answers.
+   */
+  public getCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
@@ -5873,9 +5879,15 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Returns an amount of incorrect quiz answers.
+   * Deprecated. Use the getInCorrectAnswerCount method instead.
    */
   public getInCorrectedAnswerCount(): number {
+    return this.getCorrectedAnswerCountCore(false);
+  }
+  /**
+   * Returns an amount of incorrect quiz answers.
+   */
+  public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
   }
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {

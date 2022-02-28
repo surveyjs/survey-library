@@ -1314,8 +1314,8 @@ export class Question extends SurveyElement
   /**
    * The correct answer on the question. Set this value if you are doing a quiz.
    * Please note, this property is hidden for question without input, for example html question.
-   * @see SurveyModel.getCorrectedAnswerCount
-   * @see SurveyModel.getInCorrectedAnswerCount
+   * @see SurveyModel.getCorrectAnswerCount
+   * @see SurveyModel.getInCorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");

@@ -7192,11 +7192,21 @@ QUnit.test(
       0,
       "The answer is incorrected"
     );
+    assert.equal(
+      survey.getCorrectAnswerCount(),
+      0,
+      "The answer is incorrect"
+    );
     q1.value = [3, 2];
     assert.equal(
       survey.getCorrectedAnswerCount(),
       1,
       "The answer is corrected now"
+    );
+    assert.equal(
+      survey.getCorrectAnswerCount(),
+      1,
+      "The answer is correct now"
     );
     survey.onIsAnswerCorrect.add(function (survey, options) {
       var x = options.question.value;

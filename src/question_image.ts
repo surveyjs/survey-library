@@ -2,6 +2,7 @@ import { QuestionNonValue } from "./questionnonvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 const youtubeTags = ["youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
@@ -101,6 +102,18 @@ export class QuestionImageModel extends QuestionNonValue {
   public get renderedMode(): string {
     return this.getPropertyValue("renderedMode", "image");
   }
+
+  public getImageCss(): string {
+    const imageHeightProperty = Serializer.findProperty("image", "imageHeight");
+    const imageWidthProperty = Serializer.findProperty("image", "imageWidth");
+    const isDefaultSize = imageHeightProperty.isDefaultValue(this.imageHeight) && imageWidthProperty.isDefaultValue(this.imageWidth);
+
+    return new CssClassBuilder()
+      .append(this.cssClasses.image)
+      .append(this.cssClasses.adaptive, isDefaultSize)
+      .toString();
+  }
+
   private setRenderedMode(val: string) {
     this.setPropertyValue("renderedMode", val);
   }

@@ -47,3 +47,36 @@ QUnit.test("Check NOT youtube video rendered mode", function (assert) {
   question.imageLink = "videoUrl.avi";
   assert.equal(question.renderedMode, "video");
 });
+
+QUnit.test("Image adaptive mode", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "image",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question: QuestionImageModel = <any>survey.getQuestionByName("q1");
+
+  question.cssClasses.image = "css_image";
+  question.cssClasses.adaptive = "css_adaptive";
+  assert.equal(question.getImageCss(), "css_image css_adaptive");
+
+  question.imageWidth = "201";
+  question.imageHeight = "150";
+  assert.equal(question.getImageCss(), "css_image");
+
+  question.imageWidth = "200";
+  question.imageHeight = "151";
+  assert.equal(question.getImageCss(), "css_image");
+
+  question.imageWidth = "201";
+  question.imageHeight = "151";
+  assert.equal(question.getImageCss(), "css_image");
+
+  question.imageWidth = "200";
+  question.imageHeight = "150";
+  assert.equal(question.getImageCss(), "css_image css_adaptive");
+});

@@ -2,15 +2,16 @@
   <div :class="question.cssClasses.root">
     <img
       v-if="question.renderedMode === 'image'"
-      :class="question.cssClasses.image"
+      :class="question.getImageCss()"
       :src="question.imageLink"
       :alt="question.text || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
-    /><video controls
+    /><video
+      controls
       v-if="question.renderedMode === 'video'"
-      :class="question.cssClasses.image"
+      :class="question.getImageCss()"
       :src="question.imageLink"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
@@ -18,7 +19,7 @@
     ></video>
     <iframe
       v-if="question.renderedMode === 'youtube'"
-      :class="question.cssClasses.image"
+      :class="question.getImageCss()"
       :src="question.imageLink"
       :width="question.renderedWidth"
       :height="question.renderedHeight"

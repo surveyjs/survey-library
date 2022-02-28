@@ -1,4 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
+import { imageSource } from "../../constants";
 import { url, checkElementScreenshot, frameworks, initSurvey, url_test } from "../../helper";
 
 const title = "Responsiveness Screenshot";
@@ -246,6 +247,23 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
+  });
+
+  test("Check image question", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "image",
+          name: "image_question",
+          imageLink: imageSource
+        },
+      ]
+    });
+    await checkElementScreenshot("responsiveness-image-max-width.png", Selector(".sd-question"), t);
+
+    await t.resizeWindow(500, 1080);
+    await checkElementScreenshot("responsiveness-image.png", Selector(".sd-question"), t);
   });
 
   test("Check ranking question on small screen", async (t) => {

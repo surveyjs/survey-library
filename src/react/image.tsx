@@ -25,13 +25,13 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
     return super.canRender() && !!this.question.imageLink;
   }
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
+    var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit };
     var control = null;
     if (this.question.renderedMode === "image") {
       control = (
         <img
-          className={cssClasses.image}
+          className={cssClasses}
           src={this.question.locImageLink.renderedHtml}
           alt={this.question.text || this.question.title}
           width={this.question.renderedWidth}
@@ -44,7 +44,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
     if (this.question.renderedMode === "video") {
       control = (
         <video controls
-          className={cssClasses.image}
+          className={cssClasses}
           src={this.question.imageLink}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
@@ -55,7 +55,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
     if (this.question.renderedMode === "youtube") {
       control = (
         <iframe
-          className={cssClasses.image}
+          className={cssClasses}
           src={this.question.imageLink}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}

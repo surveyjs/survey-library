@@ -115,6 +115,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     return this.props.hideCaption === true;
   }
   public shouldComponentUpdate(): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||

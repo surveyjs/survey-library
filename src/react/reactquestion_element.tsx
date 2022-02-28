@@ -33,16 +33,16 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
   }
-  private _canComponentUpdate = true;
-  protected get canComponentUpdate(): boolean {
-    return this._canComponentUpdate;
-  }
-  protected set canComponentUpdate(newValue: boolean) {
-    this._canComponentUpdate = newValue;
+  private _allowComponentUpdate = true;
+  protected allowComponentUpdate() {
+    this._allowComponentUpdate = true;
     this.forceUpdate();
   }
+  protected denyComponentUpdate() {
+    this._allowComponentUpdate = false;
+  }
   shouldComponentUpdate(nextProps:any, nextState:any):boolean {
-    return this.canComponentUpdate;
+    return this._allowComponentUpdate;
   }
   render(): JSX.Element {
     if (!this.canRender()) {
@@ -214,7 +214,9 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   protected canRender(): boolean {
     return !!this.questionBase && !!this.creator;
   }
-  public shouldComponentUpdate(): boolean {
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+
     return (
       !this.questionBase.customWidget ||
       !!this.questionBase.customWidgetData.isNeedRender ||

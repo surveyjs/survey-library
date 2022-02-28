@@ -126,7 +126,8 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
-  public shouldComponentUpdate(): boolean {
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||

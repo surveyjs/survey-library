@@ -39,6 +39,7 @@ export class Survey extends SurveyElementBase<any, any>
     return this.survey;
   }
   shouldComponentUpdate(nextProps: any, nextState: any) {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (this.isModelJSONChanged(nextProps)) {
       this.createSurvey(nextProps);
       this.updateSurvey(nextProps, {});

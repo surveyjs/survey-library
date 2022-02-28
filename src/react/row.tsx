@@ -77,6 +77,8 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+
     if (nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
       this.stopLazyRendering();

@@ -10,10 +10,12 @@
   <div data-bind="css: css.headerText, style: { maxWidth: titleMaxWidth }">
     <!-- ko component: { name: 'survey-element-title', params: {element: $data } } -->
     <!-- /ko -->
+    <!-- ko if: renderedHasDescription -->
     <h5 data-bind="css: css.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->
     </h5>
+    <!-- /ko -->
   </div>
   <!-- /ko -->
 

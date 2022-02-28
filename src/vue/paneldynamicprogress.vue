@@ -7,7 +7,7 @@
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
         <div
           :class="question.cssClasses.progressBar"
-          :style="{ width: progress }"
+          :style="{ width: question.progress }"
           role="progressbar"
         ></div>
       </div>
@@ -37,9 +37,6 @@ export class PanelDynamicProgress extends Vue {
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
   }
-  get rangeMax() {
-    return this.question.panelCount - 1;
-  }
   prevPanelClick() {
     this.question.goToPrevPanel();
   }
@@ -49,10 +46,6 @@ export class PanelDynamicProgress extends Vue {
 
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
-  }
-
-  get progress() {
-    return (this.question.currentIndex / this.rangeMax) * 100 + "%";
   }
 }
 

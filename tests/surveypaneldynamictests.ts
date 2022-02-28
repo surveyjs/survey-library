@@ -4278,3 +4278,26 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
   assert.equal(panel1.panelCount, 5, "We have 5 panels");
   assert.equal(counter, 1 + 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
 });
+QUnit.test("Check progress", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTop",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+          { type: "text", name: "panel_q2" }
+        ],
+        panelCount: 5
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  panel.currentIndex = 0;
+  assert.equal(panel.progress, "20%", "check progress 1 of 5");
+  panel.currentIndex = 2;
+  assert.equal(panel.progress, "60%", "check progress 3 of 5");
+  panel.currentIndex = 4;
+  assert.equal(panel.progress, "100%", "check progress 5 of 5");
+});

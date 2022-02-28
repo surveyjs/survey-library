@@ -165,16 +165,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 
   protected renderRange(): JSX.Element {
-    const getProgress = () => {
-      const rangeMax: number = this.question.panelCount - 1;
-      return (this.question.currentIndex / rangeMax) * 100 + "%";
-    };
-
     return (
       <div className={this.question.cssClasses.progress}>
         <div
           className={this.question.cssClasses.progressBar}
-          style={{ width: getProgress() }}
+          style={{ width: this.question.progress }}
           role="progressbar"
         />
       </div>
@@ -190,13 +185,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigatorV2(): JSX.Element {
-    if(this.question.panelCount === 0) return null;
+    if (this.question.panelCount === 0) return null;
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     const addBtn = this.renderAddRowButton();
     const prevBtn = this.rendrerPrevButton();
     const nextBtn = this.rendrerNextButton();
     const progressText = this.renderProgressText();
-    if(!this.question.cssClasses.footer) {
+    if (!this.question.cssClasses.footer) {
       return null;
     }
     return (<div className={this.question.cssClasses.footer}>
@@ -213,7 +208,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     </div>);
   }
   protected renderPlaceholder(): JSX.Element {
-    if(this.question.getShowNoEntriesPlaceholder()) {
+    if (this.question.getShowNoEntriesPlaceholder()) {
       return (
         <div className={this.question.cssClasses.noEntriesPlaceholder}>
           <span>{this.renderLocString(this.question.locNoEntriesText)}</span>

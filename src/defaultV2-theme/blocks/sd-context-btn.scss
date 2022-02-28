@@ -13,8 +13,8 @@
   }
   cursor: pointer;
 }
-.sd-context-btn:focus-visible,
-.sd-context-btn:hover{
+.sd-context-btn:hover,
+.sd-context-btn:focus {
   use {
     fill: $primary;
   }
@@ -23,7 +23,6 @@
       fill: $red;
     }
   }
-
 }
 .sd-context-btn:disabled {
   opacity: 0.25;

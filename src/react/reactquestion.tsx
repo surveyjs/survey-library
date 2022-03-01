@@ -97,6 +97,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       this.question.isVisible
     );
   }
+
   protected renderElement(): JSX.Element {
     var question = this.question;
     var cssClasses = question.cssClasses;
@@ -178,7 +179,13 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return wrapper ?? element;
   }
   protected renderQuestion(): JSX.Element {
-    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
+    const survey: SurveyModel = this.question.survey as SurveyModel;
+    let element = SurveyQuestion.renderQuestionBody(this.creator, this.question);
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
+    }
+    return wrapper ?? element;
   }
   protected renderDescription(
     cssClasses: any,

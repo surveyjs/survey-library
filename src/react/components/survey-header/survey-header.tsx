@@ -42,7 +42,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
         style={{ maxWidth: this.survey.titleMaxWidth }}
       >
         <TitleElement element={this.survey}></TitleElement>
-        <h5 className={this.css.description}>{description}</h5>
+        { this.survey.renderedHasDescription ? <h5 className={this.css.description}>{description}</h5> : null }
       </div>
     );
   }

@@ -1867,6 +1867,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return this.isPropertyVisible("title");
     return !this.locTitle.isEmpty && this.showTitle;
   }
+  public get renderedHasDescription(): boolean {
+    if (this.isDesignMode) return this.isPropertyVisible("description");
+    return !!this.hasDescription;
+  }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;
   }
@@ -5213,6 +5217,7 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
     this.updateCurrentPage();
+    this.hasDescription = !!this.description;
   }
   protected onBeforeCreating() { }
   protected onCreating() { }

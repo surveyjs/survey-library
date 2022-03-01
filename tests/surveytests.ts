@@ -13944,6 +13944,20 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
   Serializer.findProperty("survey", "title").visible = true;
   Serializer.findProperty("survey", "logo").visible = true;
 });
+QUnit.test("Test survey renderedHasDescription property", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  assert.equal(survey.renderedHasDescription, false, "hasDescription, decription is invisible");
+
+  survey.setDesignMode(true);
+  assert.equal(survey.renderedHasDescription, true, "description is visible in design mode");
+
+  survey.setDesignMode(false);
+  survey.description = "description";
+  assert.equal(survey.renderedHasDescription, true, "There is description");
+});
+
 QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
   assert
 ) {

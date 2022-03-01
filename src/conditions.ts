@@ -41,10 +41,7 @@ export interface IExpresionExecutor {
   isAsync: boolean;
 }
 
-export function createDefaultExpressionExecutor(): IExpresionExecutor {
-  return new ExpressionExecutor;
-}
-export var createExpressionExecutorFactory: () => IExpresionExecutor = createDefaultExpressionExecutor;
+export var createExpressionExecutorFactory: () => IExpresionExecutor = () => { return new ExpressionExecutor; };
 
 export class ExpressionExecutor implements IExpresionExecutor {
   public onComplete: (res: any) => void;

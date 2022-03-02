@@ -112,6 +112,7 @@
     display: none;
     color: $foreground-light;
     margin: 0;
+    margin-right: calcSize(3);
 }
 .sd-paneldynamic__progress--bottom {
     display: none;
@@ -129,8 +130,8 @@
     margin-right: calcSize(2);
 }
 .sd-paneldynamic__next-btn {
-    margin-left: calcSize(2);
-    margin-right: calcSize(-1);
+    margin-left: calcSize(-1);
+    margin-right: calcSize(-2);
     transform: rotate(180deg);
 }
 .sd-paneldynamic__placeholder {
@@ -149,6 +150,6 @@
 }
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin-left: calcSize(-3);
-    width: calc(100% + 3 * #{$base-unit});
+    margin: 0 calcSize(-3);
+    width: calc(100% + 6 * #{$base-unit});
 }

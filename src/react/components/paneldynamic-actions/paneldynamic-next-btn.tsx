@@ -9,9 +9,8 @@ export class SurveyQuestionPanelDynamicNextButton extends SurveyQuestionPanelDyn
   }
   protected renderElement(): JSX.Element {
     return (
-      <div title={this.question.panelNextText} onClick={this.handleClick}>
+      <div title={this.question.panelNextText} onClick={this.handleClick} className={this.question.getNextButtonCss()}>
         <SvgIcon
-          className={this.question.getNextButtonCss()}
           iconName={this.question.cssClasses.progressBtnIcon}
           size={"auto"}
         >

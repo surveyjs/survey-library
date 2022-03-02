@@ -9,9 +9,8 @@ export class SurveyQuestionPanelDynamicPrevButton extends SurveyQuestionPanelDyn
   }
   protected renderElement(): JSX.Element {
     return (
-      <div title={this.question.panelPrevText} onClick={this.handleClick}>
+      <div title={this.question.panelPrevText} onClick={this.handleClick} className={this.question.getPrevButtonCss()}>
         <SvgIcon
-          className={this.question.getPrevButtonCss()}
           iconName={this.question.cssClasses.progressBtnIcon}
           size={"auto"}
         >

@@ -2411,6 +2411,7 @@ export class SurveyModel extends SurveyElementCore
       var page = this.pages[i];
       page.setPropertyValue("isReadOnly", page.isReadOnly);
     }
+    this.updateButtonsVisibility();
   }
   /**
    * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`

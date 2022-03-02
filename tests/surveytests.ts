@@ -623,6 +623,10 @@ QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: show
   assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
   assert.equal(survey.isShowNextButton, false, "isShowNextButton #3");
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
+  survey.mode = "display";
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, read-only #4");
+  survey.mode = "edit";
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible, edit mode #5");
 });
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert

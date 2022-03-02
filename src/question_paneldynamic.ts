@@ -820,7 +820,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if(this.isDefaultV2Theme && !this.legacyNavigation && this.currentIndex < this.panelCount - 1) {
+    if(this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
       return false;
     }
     return (

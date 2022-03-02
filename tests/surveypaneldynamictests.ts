@@ -4329,5 +4329,17 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   panel.currentIndex = 4;
   assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 4/4");
   assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is visible when currentIndex is 4/4");
-  assert.equal(panel.canAddPanel, true, "can't add panel when currentIndex less then panelCount");
+  assert.equal(panel.canAddPanel, true, "can add panel when currentIndex less then panelCount");
+  panel["legacyNavigation"] = true;
+  panel.currentIndex = 2;
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in legacy mode");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in legacy mode");
+  assert.equal(panel.canAddPanel, true, "can always add panel in legacy mode");
+  assert.equal(panel.footerToolbar.actions[3].visible, true, "prev (icon) btn is visible in legacy mode");
+  assert.equal(panel.footerToolbar.actions[5].visible, true, "next (icon) btn is visible in legacy mode");
+  panel["legacyNavigation"] = false;
+  panel.renderMode = "list";
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
+  assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
 });

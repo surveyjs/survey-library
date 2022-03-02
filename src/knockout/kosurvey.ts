@@ -6,7 +6,7 @@ import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { doKey2ClickDown, doKey2ClickUp } from "../utils/utils";
+import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur } from "../utils/utils";
 import { SurveyTimerModel } from "../surveyTimerModel";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
@@ -261,5 +261,6 @@ ko.bindingHandlers["key2click"] = {
       return false;
     };
     element.onkeydown = (evt: any) => doKey2ClickDown(evt, options);
+    element.onblur = (evt: any) => doKey2ClickBlur(evt);
   },
 };

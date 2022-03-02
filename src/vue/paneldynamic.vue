@@ -4,7 +4,7 @@
       <span>
         <survey-string :locString="question.locNoEntriesText"></survey-string>
       </span>
-      <sv-paneldynamic-add-btn :question="question" />
+      <sv-paneldynamic-add-btn :data="{ question }" />
     </div>
     <survey-paneldynamicprogress
       v-if="question.isProgressTopShowing"
@@ -21,7 +21,7 @@
       v-if="question.isProgressBottomShowing"
       :question="question"
     />
-    <sv-paneldynamic-add-btn v-if="question.isRenderModeList" :question="question" />
+    <sv-paneldynamic-add-btn v-if="question.isRenderModeList" :data="{ question }" />
     <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
       :question="question"
     />

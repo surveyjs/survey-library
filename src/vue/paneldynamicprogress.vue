@@ -1,9 +1,7 @@
 <template>
   <div style="clear: both" :class="this.cssClass">
     <div :class="question.cssClasses.progressContainer">
-      <div :title="question.panelPrevText" @click="prevPanelClick">
-        <sv-svg-icon :class="question.getPrevButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
-      </div>
+        <sv-paneldynamic-prev-btn :data="{ question: question }" />
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
         <div
           :class="question.cssClasses.progressBar"
@@ -11,14 +9,10 @@
           role="progressbar"
         ></div>
       </div>
-      <div :title="question.panelNextText" @click="nextPanelClick">
-        <sv-svg-icon :class="question.getNextButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
-      </div>
+        <sv-paneldynamic-next-btn :data="{ question: question }" />
     </div>
-    <survey-paneldynamicadd :question="question" />
-    <div :class="question.cssClasses.progressText">
-      {{ question.progressText }}
-    </div>
+    <sv-paneldynamic-add-btn :data="{ question: question }" />
+    <sv-paneldynamic-progress-text :data="{ question: question }" />
   </div>
 </template>
 
@@ -36,16 +30,6 @@ export class PanelDynamicProgress extends Vue {
     return this.question.isProgressTopShowing
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
-  }
-  prevPanelClick() {
-    this.question.goToPrevPanel();
-  }
-  nextPanelClick() {
-    this.question.goToNextPanel();
-  }
-
-  changeRange(event: any) {
-    this.question.currentIndex = event.target.value;
   }
 }
 

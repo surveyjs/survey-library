@@ -9,16 +9,7 @@
       </div>
       <hr :class="question.cssClasses.separator"/>
       <div :class="question.cssClasses.footerButtonsContainer">
-        <survey-paneldynamicadd :question="question" />
-        <div v-if="!question.isRenderModeList" :class="question.cssClasses.progressContainer">
-          <div :title="question.panelPrevText" @click="prevPanelClick">
-            <sv-svg-icon :class="question.getPrevButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
-          </div>
-          <div :class="question.cssClasses.progressText">{{ question.progressText }}</div>
-          <div :title="question.panelNextText" @click="nextPanelClick">
-            <sv-svg-icon :class="question.getNextButtonCss()" :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
-          </div>
-        </div>
+          <sv-action-bar :model="question.footerToolbar"/>
       </div>
   </div>
 </template>

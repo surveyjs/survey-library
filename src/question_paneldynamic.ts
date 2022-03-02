@@ -29,6 +29,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
+import { defaultV2Css } from "./defaultCss/defaultV2Css";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -819,7 +820,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if(this.isDefaultV2Theme && this.showNavigation && this.currentIndex < this.panelCount - 1) {
+    if(this.isDefaultV2Theme && !this.legacyNavigation && this.currentIndex < this.panelCount - 1) {
       return false;
     }
     return (
@@ -1679,22 +1680,6 @@ export class QuestionPanelDynamicModel extends Question
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
-  //todo
-  set showNavigation(val: boolean) {
-    this.setPropertyValue("showNavigation", val);
-    this.updateFooterActions();
-  }
-  get showNavigation(): boolean {
-    return this.getPropertyValue("showNavigation", true);
-  }
-  //todo
-  set showPager(val: boolean) {
-    this.setPropertyValue("showPager", val);
-    this.updateFooterActions();
-  }
-  get showPager(): boolean {
-    return this.getPropertyValue("showPager", false);
-  }
   private footerToolbarValue: ActionContainer;
   private initFooterToolbar() {
     this.footerToolbarValue = new ActionContainer();
@@ -1743,15 +1728,21 @@ export class QuestionPanelDynamicModel extends Question
     items.push(progressText);
     items.push(nextBtnIcon);
     this.updateFooterActionsCallback = () => {
-      prevTextBtn.visible = this.showNavigation && !this.isRenderModeList && this.currentIndex > 0;
-      nextTextBtn.visible = this.showNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1;
-      nextTextBtn.needSpace = this.isMobile && nextTextBtn.visible && prevTextBtn.visible;
-      progressText.visible = !this.isRenderModeList && !this.isMobile;
-      progressText.needSpace = !this.showPager && !this.isMobile;
-      prevBtnIcon.visible = this.showPager && !this.isMobile && !this.isRenderModeList;
-      nextBtnIcon.visible = this.showPager && !this.isMobile && !this.isRenderModeList;
-      prevBtnIcon.needSpace = prevBtnIcon.visible;
+      const isLegacyNavigation = this.legacyNavigation;
+      const isRenderModeList = this.isRenderModeList;
+      const isMobile = this.isMobile;
+      const showNavigation = !isLegacyNavigation && !isRenderModeList;
+      prevTextBtn.visible = showNavigation && this.currentIndex > 0;
+      nextTextBtn.visible = showNavigation && this.currentIndex < this.panelCount - 1;
+      nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
+      progressText.visible = !this.isRenderModeList && !isMobile;
+      progressText.needSpace = !isLegacyNavigation && !this.isMobile;
+
+      const showLegacyNavigation = isLegacyNavigation && !isRenderModeList;
+      prevBtnIcon.visible = showLegacyNavigation;
+      nextBtnIcon.visible = showLegacyNavigation;
+      prevBtnIcon.needSpace = showLegacyNavigation;
     };
     this.updateFooterActionsCallback();
     this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
@@ -1765,6 +1756,9 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private updateFooterActionsCallback: any;
+  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
+  legacyNavigation: boolean
+
   public get footerToolbar(): ActionContainer {
     if(!this.footerToolbarValue) {
       this.initFooterToolbar();

@@ -101,7 +101,6 @@
 }
 .sd-paneldynamic__add-btn {
     display: none;
-    margin-left: calcSize(-3);
 }
 .sd-paneldynamic__progress-container {
     display: flex;
@@ -112,7 +111,7 @@
 .sd-paneldynamic__progress-text {
     display: none;
     color: $foreground-light;
-    margin: 0 calcSize(2);
+    margin: 0;
 }
 .sd-paneldynamic__progress--bottom {
     display: none;
@@ -126,7 +125,11 @@
         display: block;
     }
 }
+.sd-paneldynamic__prev-btn {
+    margin-right: calcSize(2);
+}
 .sd-paneldynamic__next-btn {
+    margin-left: calcSize(2);
     transform: rotate(180deg);
 }
 .sd-paneldynamic__placeholder {
@@ -142,4 +145,9 @@
 }
 .svc-question__content .sd-paneldynamic__panel-wrapper {
     padding: 0;
+}
+.sd-paneldynamic__buttons-container .sd-action-bar {
+    width: 100%;
+    margin-left: calcSize(-3);
+    width: calc(100% + 3 * #{$base-unit});
 }

@@ -22,11 +22,13 @@ import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { KeyDuplicationError } from "./error";
+import { KeyDuplicationError, OtherEmptyError } from "./error";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -385,6 +387,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndexValue !== val) {
       if (val >= this.panelCount) val = this.panelCount - 1;
       this.currentIndexValue = val;
+      this.updateFooterActions();
       this.fireCallback(this.currentIndexChangedCallback);
     }
   }
@@ -608,6 +611,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
   }
   /**
@@ -758,6 +762,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);
+    this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
@@ -768,6 +773,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
+    this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
   /**
@@ -813,6 +819,9 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
+    if(this.isDefaultV2Theme && this.showNavigation && this.currentIndex < this.panelCount - 1) {
+      return false;
+    }
     return (
       this.allowAddPanel &&
       !this.isReadOnly &&
@@ -849,6 +858,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setValueAfterPanelsCreating();
     this.setPanelsState();
     this.reRunCondition();
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
   }
   /**
@@ -1026,6 +1036,7 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = true;
     value.splice(index, 1);
     this.value = value;
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
     this.isValueChangingInternally = false;
@@ -1667,6 +1678,98 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
+  }
+  //todo
+  set showNavigation(val: boolean) {
+    this.setPropertyValue("showNavigation", val);
+    this.updateFooterActions();
+  }
+  get showNavigation(): boolean {
+    return this.getPropertyValue("showNavigation", true);
+  }
+  //todo
+  set showPager(val: boolean) {
+    this.setPropertyValue("showPager", val);
+    this.updateFooterActions();
+  }
+  get showPager(): boolean {
+    return this.getPropertyValue("showPager", false);
+  }
+  private footerToolbarValue: ActionContainer;
+  private initFooterToolbar() {
+    this.footerToolbarValue = new ActionContainer();
+    if(!!this.survey && !!this.survey.getCss().actionBar) {
+      this.footerToolbarValue.cssClasses = this.survey.getCss().actionBar;
+    }
+    const items = [];
+    const prevTextBtn = new Action({
+      id: "",
+      title: this.panelPrevText,
+      action: ()=>{
+        this.goToPrevPanel();
+      }
+    });
+    items.push(prevTextBtn);
+    const nextTextBtn = new Action({
+      id: "",
+      title: this.panelNextText,
+      action: ()=>{
+        this.goToNextPanel();
+      }
+    });
+    items.push(nextTextBtn);
+    const addBtn = new Action({
+      id: "",
+      component: "sv-paneldynamic-add-btn",
+      data: { question: this }
+    });
+    const nextBtnIcon = new Action({
+      id: "",
+      component: "sv-paneldynamic-next-btn",
+      data: { question: this }
+    });
+    const prevBtnIcon = new Action({
+      id: "",
+      component: "sv-paneldynamic-prev-btn",
+      data: { question: this }
+    });
+    const progressText = new Action({
+      id: "",
+      component: "sv-paneldynamic-progress-text",
+      data: { question: this }
+    });
+    items.push(addBtn);
+    items.push(prevBtnIcon);
+    items.push(progressText);
+    items.push(nextBtnIcon);
+    this.updateFooterActionsCallback = () => {
+      prevTextBtn.visible = this.showNavigation && !this.isRenderModeList && this.currentIndex > 0;
+      nextTextBtn.visible = this.showNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1;
+      nextTextBtn.needSpace = this.isMobile && nextTextBtn.visible && prevTextBtn.visible;
+      progressText.visible = !this.isRenderModeList && !this.isMobile;
+      progressText.needSpace = !this.showPager && !this.isMobile;
+      prevBtnIcon.visible = this.showPager && !this.isMobile && !this.isRenderModeList;
+      nextBtnIcon.visible = this.showPager && !this.isMobile && !this.isRenderModeList;
+      prevBtnIcon.needSpace = prevBtnIcon.visible;
+      addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
+    };
+    this.updateFooterActionsCallback();
+    this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
+      this.updateFooterActionsCallback();
+    });
+    this.footerToolbarValue.setItems(items);
+  }
+  private updateFooterActions() {
+    if(!!this.updateFooterActionsCallback) {
+      this.updateFooterActionsCallback();
+    }
+  }
+  private updateFooterActionsCallback: any;
+  public get footerToolbar(): ActionContainer {
+    if(!this.footerToolbarValue) {
+      this.initFooterToolbar();
+    }
+    return this.footerToolbarValue;
   }
 }
 

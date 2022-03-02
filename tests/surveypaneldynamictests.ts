@@ -12,6 +12,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -4300,4 +4301,33 @@ QUnit.test("Check progress", function (assert) {
   assert.equal(panel.progress, "60%", "check progress 3 of 5");
   panel.currentIndex = 4;
   assert.equal(panel.progress, "100%", "check progress 5 of 5");
+});
+QUnit.test("Check paneldynamic navigation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTop",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+        panelCount: 5
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  survey.css = defaultV2Css;
+  panel.currentIndex = 0;
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible when currentIndex is 0/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 0/4");
+  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
+  panel.currentIndex = 2;
+  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 2/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 2/4");
+  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
+  panel.currentIndex = 4;
+  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 4/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is visible when currentIndex is 4/4");
+  assert.equal(panel.canAddPanel, true, "can't add panel when currentIndex less then panelCount");
 });

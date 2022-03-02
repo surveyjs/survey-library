@@ -5,8 +5,9 @@
         <span>
           <!-- ko template: { name: 'survey-string', data: locNoEntriesText } --><!-- /ko -->
         </span>
-        <!-- ko template: { name: 'survey-question-paneldynamic-add-btn', data: question, as: 'question'} --><!-- /ko -->
-      </div>
+          <!-- ko component: { name: 'sv-paneldynamic-add-btn', params: { question: question }} -->
+          <!-- /ko -->
+        </div>
     <!-- /ko -->
     <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
@@ -52,16 +53,7 @@
       <!-- /ko -->
       <hr data-bind="css: question.koCss().separator"/>
       <div data-bind="css: question.koCss().footerButtonsContainer">
-        <!-- ko template: { name: 'survey-question-paneldynamic-add-btn', data: question, as: 'question'} -->
-        <!-- /ko -->
-        <!-- ko ifnot: question.koIsList -->
-        <div data-bind="css: question.koCss().progressContainer">
-          <!-- ko template: { name: 'survey-question-paneldynamic-prev-btn', data: question, as: 'question'} -->
-          <!-- /ko -->
-          <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
-          <!-- ko template: { name: 'survey-question-paneldynamic-next-btn', data: question, as: 'question'} -->
-          <!-- /ko -->
-        </div>
+        <!-- ko component: { name: "sv-action-bar", params: { model: question.footerToolbar } } -->
         <!-- /ko -->
       </div>
     </div>

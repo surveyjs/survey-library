@@ -98,6 +98,7 @@ export interface IAction {
    */
   mode?: "large" | "small" | "popup";
   visibleIndex?: number;
+  needSpace?: boolean;
 }
 
 export class Action extends Base implements IAction {
@@ -142,6 +143,7 @@ export class Action extends Base implements IAction {
   @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
+  @property({ defaultValue: false }) needSpace: boolean;
 
   private cssClassesValue: any;
 
@@ -176,6 +178,7 @@ export class Action extends Base implements IAction {
     return new CssClassBuilder()
       .append("sv-action")
       .append(this.css)
+      .append("sv-action--space", this.needSpace)
       .append("sv-action--hidden", !this.isVisible)
       .toString();
   }

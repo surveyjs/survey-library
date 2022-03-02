@@ -174,6 +174,13 @@ export function getSize(value: any) {
   return value;
 }
 
+const keyFocusedClassName = "sv-focused--by-key";
+function doKey2ClickBlur(evt: KeyboardEvent): void {
+  const element: any = evt.target;
+  if (!element || !element.classList) return;
+  element.classList.remove(keyFocusedClassName);
+}
+
 function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
@@ -181,7 +188,11 @@ function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void
   const element: any = evt.target;
   if (!element) return;
   const char: number = evt.which || evt.keyCode;
-  if (char === 13 || char === 32) {
+  if (char === 9) {
+    if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
+      element.classList.add(keyFocusedClassName);
+    }
+  } else if (char === 13 || char === 32) {
     if (element.click) element.click();
   } else if (options.processEsc && char === 27) {
     if (element.blur) element.blur();
@@ -227,6 +238,7 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
+  doKey2ClickBlur,
   doKey2ClickUp,
   doKey2ClickDown,
   getIconNameFromProxy,

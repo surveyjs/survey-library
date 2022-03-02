@@ -130,6 +130,7 @@
 }
 .sd-paneldynamic__next-btn {
     margin-left: calcSize(2);
+    margin-right: calcSize(-1);
     transform: rotate(180deg);
 }
 .sd-paneldynamic__placeholder {

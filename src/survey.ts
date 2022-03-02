@@ -6221,6 +6221,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return SurveyModel.TemplateRendererComponentName;
   }
+  public getQuestionContentWrapperComponentName(element: any): string {
+    return SurveyModel.TemplateRendererComponentName;
+  }
   public getRowWrapperComponentName(row: QuestionRowModel): string {
     return SurveyModel.TemplateRendererComponentName;
   }

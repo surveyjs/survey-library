@@ -13793,6 +13793,15 @@ QUnit.test("getElementWrapperComponentName", function (assert) {
     "logo-image default component"
   );
 });
+QUnit.test("getQuestionContentWrapperComponentName", function (assert) {
+  var survey = new SurveyModel();
+  assert.deepEqual(
+    survey.getQuestionContentWrapperComponentName(null),
+    SurveyModel.TemplateRendererComponentName,
+    "default component"
+  );
+});
+
 QUnit.test(
   "Skip trigger test and auto focus first question on the page",
   function (assert) {

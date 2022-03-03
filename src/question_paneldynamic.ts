@@ -1681,6 +1681,20 @@ export class QuestionPanelDynamicModel extends Question
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
   private footerToolbarValue: ActionContainer;
+  public get footerToolbar(): ActionContainer {
+    if(!this.footerToolbarValue) {
+      this.initFooterToolbar();
+    }
+    return this.footerToolbarValue;
+  }
+  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
+  legacyNavigation: boolean
+  private updateFooterActionsCallback: any;
+  private updateFooterActions() {
+    if(!!this.updateFooterActionsCallback) {
+      this.updateFooterActionsCallback();
+    }
+  }
   private initFooterToolbar() {
     this.footerToolbarValue = new ActionContainer();
     if(!!this.survey && !!this.survey.getCss().actionBar) {
@@ -1688,45 +1702,40 @@ export class QuestionPanelDynamicModel extends Question
     }
     const items = [];
     const prevTextBtn = new Action({
-      id: "",
+      id: "sv-pd-prev-btn",
       title: this.panelPrevText,
       action: ()=>{
         this.goToPrevPanel();
       }
     });
-    items.push(prevTextBtn);
     const nextTextBtn = new Action({
-      id: "",
+      id: "sv-pd-next-btn",
       title: this.panelNextText,
       action: ()=>{
         this.goToNextPanel();
       }
     });
-    items.push(nextTextBtn);
     const addBtn = new Action({
-      id: "",
+      id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
       data: { question: this }
     });
-    const nextBtnIcon = new Action({
-      id: "",
-      component: "sv-paneldynamic-next-btn",
-      data: { question: this }
-    });
     const prevBtnIcon = new Action({
-      id: "",
+      id: "sv-prev-btn-icon",
       component: "sv-paneldynamic-prev-btn",
       data: { question: this }
     });
     const progressText = new Action({
-      id: "",
+      id: "sv-pd-progress-text",
       component: "sv-paneldynamic-progress-text",
       data: { question: this }
     });
-    items.push(addBtn);
-    items.push(prevBtnIcon);
-    items.push(progressText);
-    items.push(nextBtnIcon);
+    const nextBtnIcon = new Action({
+      id: "sv-pd-next-btn-icon",
+      component: "sv-paneldynamic-next-btn",
+      data: { question: this }
+    });
+    items.push(prevTextBtn, nextTextBtn, addBtn, prevBtnIcon, progressText, nextBtnIcon);
     this.updateFooterActionsCallback = () => {
       const isLegacyNavigation = this.legacyNavigation;
       const isRenderModeList = this.isRenderModeList;
@@ -1749,21 +1758,6 @@ export class QuestionPanelDynamicModel extends Question
       this.updateFooterActionsCallback();
     });
     this.footerToolbarValue.setItems(items);
-  }
-  private updateFooterActions() {
-    if(!!this.updateFooterActionsCallback) {
-      this.updateFooterActionsCallback();
-    }
-  }
-  private updateFooterActionsCallback: any;
-  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
-  legacyNavigation: boolean
-
-  public get footerToolbar(): ActionContainer {
-    if(!this.footerToolbarValue) {
-      this.initFooterToolbar();
-    }
-    return this.footerToolbarValue;
   }
 }
 

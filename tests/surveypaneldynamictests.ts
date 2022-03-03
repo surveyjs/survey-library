@@ -4342,4 +4342,7 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
   assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
   assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
+  panel.renderMode = "progressTop";
+  panel.isMobile = true;
+  assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });

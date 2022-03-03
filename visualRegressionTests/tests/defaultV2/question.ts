@@ -179,4 +179,19 @@ frameworks.forEach(framework => {
     await t.resizeWindow(600, 1080);
     await checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
   });
+  test("Check title location Left", async(t)=> {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          title: "What is your name?",
+          titleLocation: "left"
+        }
+      ]
+    },);
+    const qRoot = Selector(".sd-question");
+    await checkElementScreenshot("question-title-location-left.png", qRoot, t);
+  });
 });

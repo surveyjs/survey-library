@@ -107,7 +107,7 @@ export var defaultV2Css = {
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
-    titleLeftRoot: "",
+    titleLeftRoot: "sd-question--left",
     titleOnAnswer: "sd-question__title--answer",
     titleOnError: "sd-question__title--error",
     title: "sd-title sd-element__title sd-question__title",

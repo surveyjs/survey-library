@@ -64,6 +64,7 @@
     "test:react:single": "karma start ./build-scripts/survey-react/karma.conf.react.js --single-run",
     "test:vue:single": "karma start ./build-scripts/survey-vue/karma.conf.vue.js --single-run",
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
+    "visual-regression-tests": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard",
     "visual-regression-tests:ci:knockout": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=knockout",
     "visual-regression-tests:ci:react": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=react",

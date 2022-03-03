@@ -1656,13 +1656,13 @@ export class QuestionPanelDynamicModel extends Question
   public getPrevButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrev + "--disabled", !this.isPrevButtonShowing)
+      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonShowing)
       .toString();
   }
   public getNextButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
+      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonShowing)
       .toString();
   }
   /**
@@ -1758,6 +1758,9 @@ export class QuestionPanelDynamicModel extends Question
       this.updateFooterActionsCallback();
     });
     this.footerToolbarValue.setItems(items);
+  }
+  private get showLegacyNavigation() {
+    return !this.isDefaultV2Theme;
   }
 }
 

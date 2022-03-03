@@ -1,4 +1,3 @@
-<div data-bind="title: question.panelNextText, click: question.koNextPanelClick, css: question.koNextButtonCss">
-  <sv-svg-icon params="iconName: question.koCss().progressBtnIcon, size: 'auto'">
-  </sv-svg-icon>
+<div data-bind="attr: { title: question.panelNextText }, click: question.koNextPanelClick, css: question.koNextButtonCss">
+    <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.koCss().progressBtnIcon, size: 'auto' } } --><!-- /ko -->
 </div>

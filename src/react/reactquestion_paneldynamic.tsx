@@ -75,7 +75,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         );
       }
     }
-    const btnAdd: JSX.Element = this.question.isRenderModeList
+    const btnAdd: JSX.Element = this.question.isRenderModeList && this.question["showLegacyNavigation"]
       ? this.renderAddRowButton()
       : null;
     const navTop: JSX.Element = this.question.isProgressTopShowing
@@ -86,16 +86,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       : null;
 
     const style: any = {};
-    if (this.question.horizontalScroll) {
-      style["overflowX"] = "scroll";
-    }
     const navV2 = this.renderNavigatorV2();
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
         {noEntriesPlaceholder}
         {navTop}
-        <div style={style}>{panels}</div>
+        {panels}
         {navBottom}
         {btnAdd}
         {navV2}
@@ -103,6 +100,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): JSX.Element {
+    if(!this.question["showLegacyNavigation"]) {
+      if(this.question.isRangeShowing && this.question.isProgressTopShowing) {
+        return this.renderRange();
+      } else {
+        return null;
+      }
+    }
     const range: JSX.Element = this.question.isRangeShowing ? this.renderRange() : null;
     const btnPrev: JSX.Element = this.rendrerPrevButton();
     const btnNext: JSX.Element = this.rendrerNextButton();
@@ -111,14 +115,16 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
     return (
-      <div style={{ clear: "both" }} className={progressClass}>
-        <div className={this.question.cssClasses.progressContainer}>
-          {btnPrev}
-          {range}
-          {btnNext}
+      <div className={progressClass}>
+        <div style={{ clear: "both" }}>
+          <div className={this.question.cssClasses.progressContainer}>
+            {btnPrev}
+            {range}
+            {btnNext}
+          </div>
+          {btnAdd}
+          {this.renderProgressText()}
         </div>
-        {btnAdd}
-        {this.renderProgressText()}
       </div>
     );
   }
@@ -156,14 +162,14 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigatorV2(): JSX.Element {
-    if (this.question.panelCount === 0) return null;
+    if (this.question.panelCount === 0 && this.question["showLegacyNavigation"]) return null;
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     if (!this.question.cssClasses.footer) {
       return null;
     }
     return (<div className={this.question.cssClasses.footer}>
-      {range}
       <hr className={this.question.cssClasses.separator} />
+      {range}
       <div className={this.question.cssClasses.footerButtonsContainer}>
         <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
       </div>
@@ -231,8 +237,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
         type="button">
         <span
           className={this.question.cssClasses.buttonRemoveText}
-        > {this.question.panelRemoveText}
-        </span>
+        >{this.question.panelRemoveText}</span>
         <span
           className={this.question.cssClasses.iconRemove}
         ></span>

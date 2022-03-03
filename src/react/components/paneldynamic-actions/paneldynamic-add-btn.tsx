@@ -23,8 +23,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
     if (!this.question.canAddPanel) return null;
     return (
       <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleClick} >
-        <span className={this.question.cssClasses.buttonAddText}> {this.question.panelAddText} </span>
-        <span></span>
+        <span className={this.question.cssClasses.buttonAddText}>{this.question.panelAddText}</span>
       </button>
     );
   }

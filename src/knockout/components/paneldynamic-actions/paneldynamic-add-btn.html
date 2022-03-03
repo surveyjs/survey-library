@@ -1,3 +1,5 @@
+<!-- ko if: question.koCanAddPanel -->
 <button type="button" data-bind="click: question.koAddPanelClick, css: question.koAddButtonCss, visible: question.koCanAddPanel">
   <span data-bind="css: question.koCss().buttonAddText, text: question.panelAddText"></span>
 </button>
+<!-- /ko -->

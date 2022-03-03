@@ -1,17 +1,13 @@
 <script type="text/html" id="survey-question-paneldynamic-navigator">
   <div style="clear: both;">
         <div data-bind="css: question.koCss().progressContainer">
-          <!-- ko component: { name: 'sv-paneldynamic-prev-btn', params: { question: question }} -->
-          <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-prev-btn', params: { question: question }} --><!-- /ko -->
           <!-- ko if: question.koIsRange -->
-            <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} -->
-            <!-- /ko -->
+            <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} --><!-- /ko -->
           <!-- /ko -->
-          <!-- ko component: { name: 'sv-paneldynamic-next-btn', params: { question: question }} -->
-          <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-next-btn', params: { question: question }} --><!-- /ko -->
         </div>
-          <!-- ko component: { name: 'sv-paneldynamic-add-btn', params: { question: question }} -->
-          <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-add-btn', params: { question: question }} --><!-- /ko -->
         <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
       </div>
 </script>

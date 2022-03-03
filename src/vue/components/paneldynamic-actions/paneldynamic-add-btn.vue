@@ -5,9 +5,7 @@
     :class="question.getAddButtonCss()"
     @click="addPanelClick"
     >
-    <span :class="question.cssClasses.buttonAddText">
-      {{ question.panelAddText }}
-    </span>
+    <span :class="question.cssClasses.buttonAddText">{{question.panelAddText}}</span>
   </button>
 </template>
 

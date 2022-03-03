@@ -1,13 +1,13 @@
 <template>
    <div :class="question.cssClasses.footer" v-if="!!question.cssClasses.footer">
+      <hr :class="question.cssClasses.separator"/>
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing && question.isProgressBottomShowing">
         <div
           :class="question.cssClasses.progressBar"
-          :style="{ width: progress }"
+          :style="{ width: question.progress }"
           role="progressbar"
         ></div>
       </div>
-      <hr :class="question.cssClasses.separator"/>
       <div :class="question.cssClasses.footerButtonsContainer">
           <sv-action-bar :model="question.footerToolbar"/>
       </div>

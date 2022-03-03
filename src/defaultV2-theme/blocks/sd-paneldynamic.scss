@@ -5,6 +5,7 @@
         right: 0;
         height: 2px;
         z-index: 2;
+        transform: translateY(-1px);
     }
     & > .sd-panel {
         padding-top: 1px;
@@ -99,9 +100,6 @@
     align-items: center;
     padding: calc(var(--sd-base-vertical-padding) - #{$base-unit}) 0;
 }
-.sd-paneldynamic__add-btn {
-    display: none;
-}
 .sd-paneldynamic__progress-container {
     display: flex;
     align-items: center;
@@ -109,17 +107,12 @@
     margin-right: calcSize(-1);
 }
 .sd-paneldynamic__progress-text {
-    display: none;
     color: $foreground-light;
     margin: 0;
     margin-right: calcSize(3);
 }
-.sd-paneldynamic__progress--bottom {
-    display: none;
-}
 .sd-paneldynamic__prev-btn,
 .sd-paneldynamic__next-btn {
-    display: none;
     width: 16px;
     height: 16px;
     .sv-svg-icon {

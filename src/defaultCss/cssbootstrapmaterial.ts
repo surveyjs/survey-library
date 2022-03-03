@@ -220,6 +220,8 @@ export var defaultBootstrapMaterialCss = {
     buttonRemoveRight: "sv-paneldynamic__remove-btn--right",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
+    buttonPrevDisabled: "sv-paneldynamic__prev-btn--disabled",
+    buttonNextDisabled: "sv-paneldynamic__next-btn--disabled",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",

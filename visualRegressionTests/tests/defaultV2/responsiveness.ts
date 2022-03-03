@@ -90,7 +90,9 @@ frameworks.forEach(framework => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, panelDynamicJSON);
     await ClientFunction(() => {
-      (window as any).survey.getQuestionByName("applications").currentIndex = 2;
+      const panel = (window as any).survey.getQuestionByName("applications");
+      panel.isMobile = true;
+      panel.currentIndex = 2;
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-progress-top.png", Selector(".sd-question--paneldynamic"), t);
   });

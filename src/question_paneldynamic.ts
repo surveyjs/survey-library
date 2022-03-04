@@ -27,6 +27,7 @@ import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { Panel } from "./knockout/kopage";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -1666,7 +1667,8 @@ export class QuestionPanelDynamicModel extends Question
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
   public needResponsiveWidth(): boolean {
-    if(this.panelCount !== 0 && this.panels[0].needResponsiveWidth()) return true;
+    const panel = <Panel>this.getPanel();
+    if(!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
 }

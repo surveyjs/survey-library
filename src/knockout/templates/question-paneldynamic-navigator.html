@@ -1,40 +1,15 @@
 <script type="text/html" id="survey-question-paneldynamic-navigator">
   <div style="clear: both;">
         <div data-bind="css: question.koCss().progressContainer">
-          <!-- ko template: { name: 'survey-question-paneldynamic-prev-btn', data: question, as: 'question'} -->
-          <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-prev-btn', params: { question: question }} --><!-- /ko -->
           <!-- ko if: question.koIsRange -->
-            <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} -->
-            <!-- /ko -->
+            <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} --><!-- /ko -->
           <!-- /ko -->
-          <!-- ko template: { name: 'survey-question-paneldynamic-next-btn', data: question, as: 'question'} -->
-          <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-next-btn', params: { question: question }} --><!-- /ko -->
         </div>
-
-        <!-- ko if: question.canAddPanel -->
-            <!-- ko template: { name: 'survey-question-paneldynamic-add-btn', data: question, as: 'question'} -->
-            <!-- /ko -->
-        <!-- /ko -->
+          <!-- ko component: { name: 'sv-paneldynamic-add-btn', params: { question: question }} --><!-- /ko -->
         <div data-bind="text: question.koProgressText, css: question.koCss().progressText"></div>
       </div>
-</script>
-
-<script type="text/html" id="survey-question-paneldynamic-next-btn">
-  <div data-bind="title: question.panelNextText, click: question.koNextPanelClick">
-    <sv-svg-icon data-bind="css: question.koNextButtonCss" params="iconName: question.koCss().progressBtnIcon, size: 'auto'">
-    </sv-svg-icon>
-  </div>
-</script>
-<script type="text/html" id="survey-question-paneldynamic-prev-btn">
-  <div data-bind="title: question.panelPrevText, click: question.koPrevPanelClick">
-    <sv-svg-icon data-bind="css: question.koPrevButtonCss" params="iconName: question.koCss().progressBtnIcon, size: 'auto'">
-    </sv-svg-icon>
-  </div>
-</script>
-<script type="text/html" id="survey-question-paneldynamic-add-btn">
-  <button type="button" data-bind="click: question.koAddPanelClick, css: question.koAddButtonCss">
-    <span data-bind="css: question.koCss().buttonAddText, text: question.panelAddText"></span>
-  </button>
 </script>
 <script type="text/html" id="survey-question-paneldynamic-progress">
   <div data-bind="css: question.koCss().progress">

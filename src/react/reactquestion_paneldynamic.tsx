@@ -4,14 +4,15 @@ import { SurveyModel, QuestionPanelDynamicModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-actions/paneldynamic-next-btn";
+import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
+import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
+import { SurveyQuestionPanelDynamicAddButton } from "./components/paneldynamic-actions/paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this);
-    this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this);
-    this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this);
-    this.handleOnRangeChange = this.handleOnRangeChange.bind(this);
   }
   protected get question(): QuestionPanelDynamicModel {
     return this.questionBase as QuestionPanelDynamicModel;
@@ -40,18 +41,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.setState({
       panelCounter: this.state ? this.state.panelCounter + 1 : 1,
     });
-  }
-  handleOnPanelAddClick(event: any) {
-    this.question.addPanelUI();
-  }
-  handleOnPanelPrevClick(event: any) {
-    this.question.goToPrevPanel();
-  }
-  handleOnPanelNextClick(event: any) {
-    this.question.goToNextPanel();
-  }
-  handleOnRangeChange(event: any) {
-    this.question.currentIndex = event.target.value;
   }
   protected renderElement(): JSX.Element {
     const panels = [];
@@ -86,7 +75,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         );
       }
     }
-    const btnAdd: JSX.Element = this.question.isRenderModeList
+    const btnAdd: JSX.Element = this.question.isRenderModeList && this.question["showLegacyNavigation"]
       ? this.renderAddRowButton()
       : null;
     const navTop: JSX.Element = this.question.isProgressTopShowing
@@ -97,16 +86,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       : null;
 
     const style: any = {};
-    if (this.question.horizontalScroll) {
-      style["overflowX"] = "scroll";
-    }
     const navV2 = this.renderNavigatorV2();
     const noEntriesPlaceholder = this.renderPlaceholder();
     return (
       <div className={this.question.cssClasses.root}>
         {noEntriesPlaceholder}
         {navTop}
-        <div style={style}>{panels}</div>
+        {panels}
         {navBottom}
         {btnAdd}
         {navV2}
@@ -114,6 +100,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): JSX.Element {
+    if(!this.question["showLegacyNavigation"]) {
+      if(this.question.isRangeShowing && this.question.isProgressTopShowing) {
+        return this.renderRange();
+      } else {
+        return null;
+      }
+    }
     const range: JSX.Element = this.question.isRangeShowing ? this.renderRange() : null;
     const btnPrev: JSX.Element = this.rendrerPrevButton();
     const btnNext: JSX.Element = this.rendrerNextButton();
@@ -122,98 +115,68 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       ? this.question.cssClasses.progressTop
       : this.question.cssClasses.progressBottom;
     return (
-      <div style={{ clear: "both" }} className={progressClass}>
-        <div className={this.question.cssClasses.progressContainer}>
-          {btnPrev}
-          {range}
-          {btnNext}
+      <div className={progressClass}>
+        <div style={{ clear: "both" }}>
+          <div className={this.question.cssClasses.progressContainer}>
+            {btnPrev}
+            {range}
+            {btnNext}
+          </div>
+          {btnAdd}
+          {this.renderProgressText()}
         </div>
-        {btnAdd}
-        {this.renderProgressText()}
       </div>
     );
   }
   private renderProgressText(): JSX.Element {
-    return (<div className={this.question.cssClasses.progressText}>
-      {this.question.progressText}
-    </div>);
+    return (
+      <SurveyQuestionPanelDynamicProgressText data={ { question: this.question }}></SurveyQuestionPanelDynamicProgressText>
+    );
   }
 
   protected rendrerPrevButton() {
     return (
-      <div title={this.question.panelPrevText} onClick={this.handleOnPanelPrevClick}>
-        <SvgIcon
-          className={this.question.getPrevButtonCss()}
-          iconName={this.question.cssClasses.progressBtnIcon}
-          size={"auto"}
-        >
-        </SvgIcon>
-      </div>
+      <SurveyQuestionPanelDynamicPrevButton data={ { question: this.question }}></SurveyQuestionPanelDynamicPrevButton>
     );
   }
   protected rendrerNextButton() {
     return (
-      <div title={this.question.panelNextText} onClick={this.handleOnPanelNextClick}>
-        <SvgIcon
-          className={this.question.getNextButtonCss()}
-          iconName={this.question.cssClasses.progressBtnIcon}
-          size={"auto"}
-        >
-        </SvgIcon>
-      </div>
+      <SurveyQuestionPanelDynamicNextButton data={ { question: this.question }}></SurveyQuestionPanelDynamicNextButton>
     );
   }
 
   protected renderRange(): JSX.Element {
-    const getProgress = () => {
-      const rangeMax: number = this.question.panelCount - 1;
-      return (this.question.currentIndex / rangeMax) * 100 + "%";
-    };
-
     return (
       <div className={this.question.cssClasses.progress}>
         <div
           className={this.question.cssClasses.progressBar}
-          style={{ width: getProgress() }}
+          style={{ width: this.question.progress }}
           role="progressbar"
         />
       </div>
     );
   }
   protected renderAddRowButton(): JSX.Element {
-    if (!this.question.canAddPanel) return null;
     return (
-      <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleOnPanelAddClick} >
-        <span className={this.question.cssClasses.buttonAddText}> {this.question.panelAddText} </span>
-        <span></span>
-      </button>
+      <SurveyQuestionPanelDynamicAddButton data={ { question: this.question }}></SurveyQuestionPanelDynamicAddButton>
     );
   }
   protected renderNavigatorV2(): JSX.Element {
-    if(this.question.panelCount === 0) return null;
+    if (this.question.panelCount === 0 || this.question["showLegacyNavigation"]) return null;
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
-    const addBtn = this.renderAddRowButton();
-    const prevBtn = this.rendrerPrevButton();
-    const nextBtn = this.rendrerNextButton();
-    const progressText = this.renderProgressText();
-    if(!this.question.cssClasses.footer) {
+    if (!this.question.cssClasses.footer) {
       return null;
     }
     return (<div className={this.question.cssClasses.footer}>
-      {range}
       <hr className={this.question.cssClasses.separator} />
+      {range}
       <div className={this.question.cssClasses.footerButtonsContainer}>
-        {addBtn}
-        {!this.question.isRenderModeList ? <div className={this.question.cssClasses.progressContainer}>
-          {prevBtn}
-          {progressText}
-          {nextBtn}
-        </div> : null}
+        <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
       </div>
     </div>);
   }
   protected renderPlaceholder(): JSX.Element {
-    if(this.question.getShowNoEntriesPlaceholder()) {
+    if (this.question.getShowNoEntriesPlaceholder()) {
       return (
         <div className={this.question.cssClasses.noEntriesPlaceholder}>
           <span>{this.renderLocString(this.question.locNoEntriesText)}</span>
@@ -274,8 +237,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
         type="button">
         <span
           className={this.question.cssClasses.buttonRemoveText}
-        > {this.question.panelRemoveText}
-        </span>
+        >{this.question.panelRemoveText}</span>
         <span
           className={this.question.cssClasses.iconRemove}
         ></span>

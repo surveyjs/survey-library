@@ -6,9 +6,7 @@
     :class="question.getPanelRemoveButtonCss()"
     @click="removePanelClick(panel)" >
     <span 
-    :class="question.cssClasses.buttonRemoveText">
-      {{question.panelRemoveText}}
-    </span>
+    :class="question.cssClasses.buttonRemoveText">{{question.panelRemoveText}}</span>
     <span :class="question.cssClasses.iconRemove"></span>
   </button>
 </template>

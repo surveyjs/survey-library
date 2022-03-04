@@ -95,7 +95,10 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1800);
     await ClientFunction(() => { (window as any).Survey.surveyLocalization.locales.en.panelDynamicProgressText = "{0} of {1}"; })();
     await initSurvey(framework, json);
-    await ClientFunction(() => { (window as any).survey.getQuestionByName("order").currentIndex = 4; })();
+    await ClientFunction(() => {
+      const panel = (window as any).survey.getQuestionByName("order");
+      panel.currentIndex = 4;
+    })();
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
     await takeScreenshot("complex-question.png", questionRoot, screenshotComparerOptions);

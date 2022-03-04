@@ -39,7 +39,6 @@ export { Expression } from "../vue/expression.vue";
 export { ImagePicker } from "../vue/imagepicker.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
-export { PanelDynamicAdd } from "../vue/paneldynamicadd.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Navigation } from "../vue/navigation.vue";
@@ -69,6 +68,10 @@ export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";
+export { PanelDynamicAddBtn } from "../vue/components/paneldynamic-actions/paneldynamic-add-btn.vue";
+export { PanelDynamicNextBtn } from "../vue/components/paneldynamic-actions/paneldynamic-next-btn.vue";
+export { PanelDynamicPrevBtn } from "../vue/components/paneldynamic-actions/paneldynamic-prev-btn.vue";
+export { PanelDynamicProgressText } from "../vue/components/paneldynamic-actions/paneldynamic-progress-text.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 
 import { SurveyModel } from "survey-core";

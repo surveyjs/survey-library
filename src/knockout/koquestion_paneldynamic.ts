@@ -1,6 +1,8 @@
 import * as ko from "knockout";
-import { SurveyElement, Serializer, QuestionFactory,
-  QuestionPanelDynamicModel } from "survey-core";
+import {
+  SurveyElement, Serializer, QuestionFactory,
+  QuestionPanelDynamicModel
+} from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
@@ -133,7 +135,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koProgress",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.progress;
+        return this.question.progress;
       })
     );
     this.setCallbackFunc("koPanelAfterRender", (el: any, con: any) => {
@@ -176,11 +178,6 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
   }
-
-  protected get progress() {
-    const rangeMax: number = this.question.panelCount - 1;
-    return (this.question.currentIndex / rangeMax) * 100 + "%";
-  }
   public dispose() {
     this.question.panelCountChangedCallback = undefined;
     this.question.renderModeChangedCallback = undefined;
@@ -205,7 +202,7 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
   }
 }
 
-Serializer.overrideClassCreator("paneldynamic", function() {
+Serializer.overrideClassCreator("paneldynamic", function () {
   return new QuestionPanelDynamic("");
 });
 

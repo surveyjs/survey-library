@@ -236,6 +236,9 @@ export class QuestionPanelDynamicModel extends Question
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
+    this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
+      this.updateFooterActions();
+    });
   }
   public get hasSingleInput(): boolean {
     return false;
@@ -1754,9 +1757,6 @@ export class QuestionPanelDynamicModel extends Question
       prevBtnIcon.needSpace = showLegacyNavigation;
     };
     this.updateFooterActionsCallback();
-    this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
-      this.updateFooterActionsCallback();
-    });
     this.footerToolbarValue.setItems(items);
   }
   private get showLegacyNavigation() {

@@ -110,10 +110,11 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     container: HTMLDivElement,
     model: AdaptiveActionContainer,
     itemsSelector: string,
-    dotsItemSize?: number
+    dotsItemSize?: number,
+    minDimension = 40
   ) {
     super(container, model, itemsSelector, dotsItemSize);
-    this.minDimensionConst = 40;
+    this.minDimensionConst = minDimension;
     this.recalcMinDimensionConst = false;
   }
 

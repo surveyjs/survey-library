@@ -224,6 +224,8 @@ export var defaultStandardCss = {
     buttonRemove: "sv_p_remove_btn",
     buttonRemoveRight: "sv_p_remove_btn_right",
     buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonPrevDisabled: "sv-paneldynamic__prev-btn--disabled",
+    buttonNextDisabled: "sv-paneldynamic__next-btn--disabled",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",

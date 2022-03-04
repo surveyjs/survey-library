@@ -51,10 +51,9 @@ export var defaultV2Css = {
     button: "sd-action sd-paneldynamic__btn",
     buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
-    progressTop: "sd-paneldynamic__progress sd-paneldynamic__progress--top",
-    progressBottom:
-      "sd-paneldynamic__progress sd-paneldynamic__progress--bottom",
     buttonPrev: "sd-paneldynamic__prev-btn sd-action--icon sd-action",
+    buttonPrevDisabled: "sd-action--disabled",
+    buttonNextDisabled: "sd-action--disabled",
     buttonNext: "sd-paneldynamic__next-btn sd-action--icon sd-action",
     progressContainer: "sd-paneldynamic__progress-container",
     progress: "sd-progress",
@@ -448,7 +447,8 @@ export var defaultV2Css = {
     item: "sd-action",
     itemPressed: "sd-action--pressed",
     itemAsIcon: "sd-action--icon",
-    itemIcon: "sd-action__icon"
+    itemIcon: "sd-action__icon",
+    itemTitle: "sd-action__title",
   },
 
 };

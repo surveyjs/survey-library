@@ -12,6 +12,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { ExpressionValidator } from "../src/validator";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -4277,4 +4278,71 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(panel1.panelCount, 5, "We have 5 panels");
   assert.equal(counter, 1 + 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
+});
+QUnit.test("Check progress", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTop",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+          { type: "text", name: "panel_q2" }
+        ],
+        panelCount: 5
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  panel.currentIndex = 0;
+  assert.equal(panel.progress, "20%", "check progress 1 of 5");
+  panel.currentIndex = 2;
+  assert.equal(panel.progress, "60%", "check progress 3 of 5");
+  panel.currentIndex = 4;
+  assert.equal(panel.progress, "100%", "check progress 5 of 5");
+});
+QUnit.test("Check paneldynamic navigation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTop",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+        panelCount: 5
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  survey.css = defaultV2Css;
+  panel.currentIndex = 0;
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible when currentIndex is 0/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 0/4");
+  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
+  panel.currentIndex = 2;
+  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 2/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 2/4");
+  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
+  panel.currentIndex = 4;
+  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 4/4");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is visible when currentIndex is 4/4");
+  assert.equal(panel.canAddPanel, true, "can add panel when currentIndex less then panelCount");
+  panel["legacyNavigation"] = true;
+  panel.currentIndex = 2;
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in legacy mode");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in legacy mode");
+  assert.equal(panel.canAddPanel, true, "can always add panel in legacy mode");
+  assert.equal(panel.footerToolbar.actions[3].visible, true, "prev (icon) btn is visible in legacy mode");
+  assert.equal(panel.footerToolbar.actions[5].visible, true, "next (icon) btn is visible in legacy mode");
+  panel["legacyNavigation"] = false;
+  panel.renderMode = "list";
+  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
+  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
+  assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
+  panel.renderMode = "progressTop";
+  panel.isMobile = true;
+  assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });

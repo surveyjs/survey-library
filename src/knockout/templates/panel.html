@@ -1,4 +1,5 @@
 <script type="text/html" id="survey-panel">
+  <!-- ko if: $data.isVisible -->
   <div
     data-bind="attr: { id: id }, css: $data.getContainerCss(), event: {focusin: focusIn}"
   >
@@ -26,4 +27,5 @@
     </div>
     <!-- /ko -->
   </div>
+  <!-- /ko -->
 </script>

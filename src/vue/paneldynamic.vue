@@ -4,25 +4,32 @@
       <span>
         <survey-string :locString="question.locNoEntriesText"></survey-string>
       </span>
-      <survey-paneldynamicadd :question="question" />
+      <sv-paneldynamic-add-btn :data="{ question }" />
+    </div>
+    <div :class="question.cssClasses.progress" v-if="!question.showLegacyNavigation && question.isProgressTopShowing && question.isRangeShowing">
+      <div
+        :class="question.cssClasses.progressBar"
+        :style="{ width: question.progress }"
+        role="progressbar"
+      ></div>
     </div>
     <survey-paneldynamicprogress
-      v-if="question.isProgressTopShowing"
+      v-if="question.showLegacyNavigation && question.isProgressTopShowing"
       :question="question"
     />
-    <template v-for="panel in renderedPanels">
+    <template v-for="(panel, index) in renderedPanels">
       <div :class="question.getPanelWrapperCss()" :key="panel.id">
         <survey-panel :question="panel" :css="css" />
         <survey-paneldynamicremove :question="question" :panel="panel" />
       </div>
-      <hr :class="question.cssClasses.separator" :key="'separator' + panel.id" />
+      <hr :class="question.cssClasses.separator" v-if="question.isRenderModeList && index < question.panelCount - 1" :key="'separator' + panel.id" />
     </template>
     <survey-paneldynamicprogress
-      v-if="question.isProgressBottomShowing"
+      v-if="question.showLegacyNavigation && question.isProgressBottomShowing"
       :question="question"
     />
-    <survey-paneldynamicadd v-if="question.isRenderModeList" :question="question" />
-    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
+    <sv-paneldynamic-add-btn v-if="question.showLegacyNavigation && question.isRenderModeList" :data="{ question }" />
+    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0 && !question.showLegacyNavigation"
       :question="question"
     />
   </div>

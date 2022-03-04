@@ -22,11 +22,14 @@ import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { KeyDuplicationError } from "./error";
+import { KeyDuplicationError, OtherEmptyError } from "./error";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
+import { defaultV2Css } from "./defaultCss/defaultV2Css";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -233,6 +236,9 @@ export class QuestionPanelDynamicModel extends Question
     this.registerFunctionOnPropertyValueChanged("panelsState", () => {
       this.setPanelsState();
     });
+    this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
+      this.updateFooterActions();
+    });
   }
   public get hasSingleInput(): boolean {
     return false;
@@ -385,6 +391,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndexValue !== val) {
       if (val >= this.panelCount) val = this.panelCount - 1;
       this.currentIndexValue = val;
+      this.updateFooterActions();
       this.fireCallback(this.currentIndexChangedCallback);
     }
   }
@@ -608,6 +615,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
   }
   /**
@@ -758,6 +766,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);
+    this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
@@ -768,6 +777,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
+    this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
   /**
@@ -813,6 +823,9 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
+    if(this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
+      return false;
+    }
     return (
       this.allowAddPanel &&
       !this.isReadOnly &&
@@ -849,6 +862,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setValueAfterPanelsCreating();
     this.setPanelsState();
     this.reRunCondition();
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
   }
   /**
@@ -1026,6 +1040,7 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = true;
     value.splice(index, 1);
     this.value = value;
+    this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
     this.isValueChangingInternally = false;
@@ -1615,6 +1630,9 @@ export class QuestionPanelDynamicModel extends Question
       .getString("panelDynamicProgressText")
       ["format"](this.currentIndex + 1, rangeMax);
   }
+  public get progress(): string {
+    return ((this.currentIndex + 1) / this.panelCount) * 100 + "%";
+  }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
@@ -1641,13 +1659,13 @@ export class QuestionPanelDynamicModel extends Question
   public getPrevButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrev + "--disabled", !this.isPrevButtonShowing)
+      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonShowing)
       .toString();
   }
   public getNextButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNext + "--disabled", !this.isNextButtonShowing)
+      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonShowing)
       .toString();
   }
   /**
@@ -1664,6 +1682,85 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
+  }
+  private footerToolbarValue: ActionContainer;
+  public get footerToolbar(): ActionContainer {
+    if(!this.footerToolbarValue) {
+      this.initFooterToolbar();
+    }
+    return this.footerToolbarValue;
+  }
+  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
+  legacyNavigation: boolean
+  private updateFooterActionsCallback: any;
+  private updateFooterActions() {
+    if(!!this.updateFooterActionsCallback) {
+      this.updateFooterActionsCallback();
+    }
+  }
+  private initFooterToolbar() {
+    this.footerToolbarValue = new ActionContainer();
+    if(!!this.survey && !!this.survey.getCss().actionBar) {
+      this.footerToolbarValue.cssClasses = this.survey.getCss().actionBar;
+    }
+    const items = [];
+    const prevTextBtn = new Action({
+      id: "sv-pd-prev-btn",
+      title: this.panelPrevText,
+      action: ()=>{
+        this.goToPrevPanel();
+      }
+    });
+    const nextTextBtn = new Action({
+      id: "sv-pd-next-btn",
+      title: this.panelNextText,
+      action: ()=>{
+        this.goToNextPanel();
+      }
+    });
+    const addBtn = new Action({
+      id: "sv-pd-add-btn",
+      component: "sv-paneldynamic-add-btn",
+      data: { question: this }
+    });
+    const prevBtnIcon = new Action({
+      id: "sv-prev-btn-icon",
+      component: "sv-paneldynamic-prev-btn",
+      data: { question: this }
+    });
+    const progressText = new Action({
+      id: "sv-pd-progress-text",
+      component: "sv-paneldynamic-progress-text",
+      data: { question: this }
+    });
+    const nextBtnIcon = new Action({
+      id: "sv-pd-next-btn-icon",
+      component: "sv-paneldynamic-next-btn",
+      data: { question: this }
+    });
+    items.push(prevTextBtn, nextTextBtn, addBtn, prevBtnIcon, progressText, nextBtnIcon);
+    this.updateFooterActionsCallback = () => {
+      const isLegacyNavigation = this.legacyNavigation;
+      const isRenderModeList = this.isRenderModeList;
+      const isMobile = this.isMobile;
+      const showNavigation = !isLegacyNavigation && !isRenderModeList;
+      prevTextBtn.visible = showNavigation && this.currentIndex > 0;
+      nextTextBtn.visible = showNavigation && this.currentIndex < this.panelCount - 1;
+      nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
+      addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
+      progressText.visible = !this.isRenderModeList && !isMobile;
+      progressText.needSpace = !isLegacyNavigation && !this.isMobile;
+
+      const showLegacyNavigation = isLegacyNavigation && !isRenderModeList;
+      prevBtnIcon.visible = showLegacyNavigation;
+      nextBtnIcon.visible = showLegacyNavigation;
+      prevBtnIcon.needSpace = showLegacyNavigation;
+    };
+    this.updateFooterActionsCallback();
+    this.footerToolbarValue.setItems(items);
+  }
+  private get showLegacyNavigation() {
+    return !this.isDefaultV2Theme;
   }
 }
 

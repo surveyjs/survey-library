@@ -4279,7 +4279,7 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
   assert.equal(panel1.panelCount, 5, "We have 5 panels");
   assert.equal(counter, 1 + 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
 });
-QUnit.test("Check need responsive width", function(assert) {
+QUnit.test("Check needResponsiveWidth", function(assert) {
   const survey = new SurveyModel({
     elements: [
       {

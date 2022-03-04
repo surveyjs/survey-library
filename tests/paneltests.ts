@@ -1601,7 +1601,7 @@ QUnit.test("Footer toolbar type", function (assert) {
   panel["footerToolbarValue"] = null;
   assert.ok(panel.getFooterToolbar() instanceof AdaptiveActionContainer);
 });
-QUnit.test("Footer toolbar type", function (assert) {
+QUnit.test("Check needResponsiveWidth method", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {

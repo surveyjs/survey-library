@@ -1665,6 +1665,10 @@ export class QuestionPanelDynamicModel extends Question
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
   }
+  public needResponsiveWidth(): boolean {
+    if(this.panelCount !== 0 && this.panels[0].needResponsiveWidth()) return true;
+    return false;
+  }
 }
 
 Serializer.addClass(

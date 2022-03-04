@@ -1900,12 +1900,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public needResponsiveWidth() {
-    if (this.startWithNewLine) {
+    if (!this.startWithNewLine) {
       return true;
     }
-    else
-      super.needResponsiveWidth();
-    return false;
+    else {
+      return super.needResponsiveWidth();
+    }
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenPanelFocusIn(this);

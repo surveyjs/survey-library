@@ -162,7 +162,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigatorV2(): JSX.Element {
-    if (this.question.panelCount === 0 && this.question["showLegacyNavigation"]) return null;
+    if (this.question.panelCount === 0 || this.question["showLegacyNavigation"]) return null;
     const range: JSX.Element = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     if (!this.question.cssClasses.footer) {
       return null;

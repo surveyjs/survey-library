@@ -29,7 +29,7 @@
       :question="question"
     />
     <sv-paneldynamic-add-btn v-if="question.showLegacyNavigation && question.isRenderModeList" :data="{ question }" />
-    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0"
+    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0 && !question.showLegacyNavigation"
       :question="question"
     />
   </div>

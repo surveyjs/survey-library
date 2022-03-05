@@ -1601,3 +1601,21 @@ QUnit.test("Footer toolbar type", function (assert) {
   panel["footerToolbarValue"] = null;
   assert.ok(panel.getFooterToolbar() instanceof AdaptiveActionContainer);
 });
+QUnit.test("Check needResponsiveWidth method", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
+      },
+    ],
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel1");
+  assert.notOk(panel.needResponsiveWidth());
+  panel.startWithNewLine = false;
+  assert.ok(panel.needResponsiveWidth());
+  panel.startWithNewLine = true;
+  panel.elements[1].startWithNewLine = false;
+  assert.ok(panel.needResponsiveWidth());
+});

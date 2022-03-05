@@ -1,5 +1,4 @@
 import { HashTable, Helpers } from "./helpers";
-import { Base } from "./base";
 
 import {
   IElement,
@@ -22,14 +21,13 @@ import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { KeyDuplicationError, OtherEmptyError } from "./error";
+import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
-import { defaultV2Css } from "./defaultCss/defaultV2Css";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -1682,6 +1680,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
+  }
+  public needResponsiveWidth(): boolean {
+    const panel = <PanelModel>this.getPanel();
+    if(!!panel && panel.needResponsiveWidth()) return true;
+    return false;
   }
   private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {

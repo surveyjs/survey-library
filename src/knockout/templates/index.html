@@ -1,5 +1,10 @@
 ﻿<script type="text/html" id="survey-content">
-  <div data-bind="css: css.root, afterRender: koEventAfterRender">
+    <!-- ko template: { name: "survey-content-template", afterRender: $data.implementor.koEventAfterRender } -->
+    <!-- /ko -->
+</script>
+
+<script type="text/html" id="survey-content-template">
+  <div data-bind="css: css.root">
       <form onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: css.container">

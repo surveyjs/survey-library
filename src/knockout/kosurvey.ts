@@ -84,7 +84,7 @@ export class SurveyImplementor extends ImplementorBase {
     ko.renderTemplate(
       "survey-content",
       this.survey,
-      { afterRender: this.koEventAfterRender },
+      { },
       this.renderedElement
     );
   }

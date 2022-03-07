@@ -2371,6 +2371,7 @@ QUnit.test(
     );
 
     var totalRow = question.renderedTable.footerRow;
+    assert.equal(totalRow.cells[1].question.value, 2, "Two rows");
     assert.equal(totalRow.cells[3].question.value, 8, "5 + 3 items");
     assert.equal(
       totalRow.cells[4].question.value,

@@ -12,7 +12,7 @@ export var latvianSurveyStrings = {
   selectAllItemText: "Izvēlēties visus",
   progressText: "Lappuse {0} no {1}",
   panelDynamicProgressText: "Ierakstīt {0} no {1}",
-  questionsProgressText: "Atbildēja uz jautājumiem {0} / {1}",
+  questionsProgressText: "Atbildēts uz {0} / {1} jautājumiem",
   emptySurvey: "Nav neviena jautājuma.",
   completingSurvey: "Pateicamies Jums par anketas aizpildīšanu!",
   completingSurveyBefore:

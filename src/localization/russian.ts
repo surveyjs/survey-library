@@ -12,7 +12,7 @@ export var russianSurveyStrings = {
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
   panelDynamicProgressText: "Запись {0} из {1}",
-  questionsProgressText: "Ответы на {0}/{1} вопросы",
+  questionsProgressText: "Oтвечено на {0}/{1} вопросов",
   emptySurvey: "Нет ни одного вопроса.",
   completingSurvey: "Благодарим Вас за заполнение анкеты!",
   completingSurveyBefore:

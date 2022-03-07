@@ -31,6 +31,11 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
 .sd-element:not(.sd-element--collapsed) {
   padding-top: var(--sd-base-vertical-padding);
 }
+.sd-table__cell--detail-panel {
+  .sd-element:not(.sd-element--collapsed) {
+    padding-top: 0;
+  }
+}
 .sd-element.sd-element--complex {
   padding-top: 0;
 }

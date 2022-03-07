@@ -2411,6 +2411,7 @@ export class SurveyModel extends SurveyElementCore
       var page = this.pages[i];
       page.setPropertyValue("isReadOnly", page.isReadOnly);
     }
+    this.updateButtonsVisibility();
   }
   /**
    * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
@@ -6219,6 +6220,9 @@ export class SurveyModel extends SurveyElementCore
     if (reason === "logo-image") {
       return "sv-logo-image";
     }
+    return SurveyModel.TemplateRendererComponentName;
+  }
+  public getQuestionContentWrapperComponentName(element: any): string {
     return SurveyModel.TemplateRendererComponentName;
   }
   public getRowWrapperComponentName(row: QuestionRowModel): string {

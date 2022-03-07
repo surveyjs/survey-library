@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot } from "../../helper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -58,11 +58,14 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1080);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
-    await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").currentIndex = 2; })();
-    await takeScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("applications").currentIndex = 2;
+    })();
+    await checkElementScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, t);
+    await ClientFunction(() => {
+      (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
+    })();
+    await checkElementScreenshot("paneldynamic-progress-top-legacy-navigation.png", paneldynamicRoot, t);
     await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
     await takeScreenshot("paneldynamic-empty.png", paneldynamicRoot, screenshotComparerOptions);
     await t

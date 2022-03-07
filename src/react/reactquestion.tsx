@@ -97,47 +97,66 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       this.question.isVisible
     );
   }
-  protected renderElement(): JSX.Element {
-    var question = this.question;
+
+  protected renderQuestionContent(): JSX.Element {
+    let question = this.question;
+    var contentStyle = {
+      display: !this.question.isCollapsed ? "" : "none",
+    };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var header = this.renderHeader(question);
-    var headerTop = question.hasTitleOnLeftTop ? header : null;
-    var headerBottom = question.hasTitleOnBottom ? header : null;
-    var descriptionUnderInput = question.hasDescriptionUnderInput
-      ? this.renderDescription(cssClasses, true)
+    var errorsTop =
+    this.creator.questionErrorLocation() === "top" &&
+    !this.question.isErrorsModeTooltip
+      ? this.renderErrors(cssClasses, "top")
       : null;
-
+    var errorsBottom =
+    this.creator.questionErrorLocation() === "bottom" &&
+    !this.question.isErrorsModeTooltip
+      ? this.renderErrors(cssClasses, "bottom")
+      : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
-    const errorsAboveQuestion =
-      this.question.isErrorsModeTooltip && !this.question.hasParent
-        ? this.renderErrors(cssClasses, "")
-        : null;
     const errorsTooltip =
       this.question.isErrorsModeTooltip && this.question.hasParent
         ? this.renderErrors(cssClasses, "tooltip")
         : null;
+    var descriptionUnderInput = question.hasDescriptionUnderInput
+      ? this.renderDescription(cssClasses, true)
+      : null;
+    return (
+      <div
+        className={question.cssContent}
+        style={contentStyle}
+        role="presentation"
+      >
+        {errorsTop}
+        {questionRender}
+        {comment}
+        {errorsBottom}
+        {errorsTooltip}
+        {descriptionUnderInput}
+      </div>
+    );
+  }
+  protected renderElement(): JSX.Element {
+    var question = this.question;
+    var cssClasses = question.cssClasses;
+    var header = this.renderHeader(question);
+    var headerTop = question.hasTitleOnLeftTop ? header : null;
+    var headerBottom = question.hasTitleOnBottom ? header : null;
 
-    var errorsTop =
-      this.creator.questionErrorLocation() === "top" &&
-      !this.question.isErrorsModeTooltip
-        ? this.renderErrors(cssClasses, "top")
+    const errorsAboveQuestion =
+      this.question.isErrorsModeTooltip && !this.question.hasParent
+        ? this.renderErrors(cssClasses, "")
         : null;
-    var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom" &&
-      !this.question.isErrorsModeTooltip
-        ? this.renderErrors(cssClasses, "bottom")
-        : null;
+
     let rootStyle: { [index: string]: any } = {};
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
 
-    var contentStyle = {
-      display: !this.question.isCollapsed ? "" : "none",
-    };
-
+    let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
     return (
       <>
         <div
@@ -152,18 +171,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         >
           {errorsAboveQuestion}
           {headerTop}
-          <div
-            className={question.cssContent}
-            style={contentStyle}
-            role="presentation"
-          >
-            {errorsTop}
-            {questionRender}
-            {comment}
-            {errorsBottom}
-            {errorsTooltip}
-            {descriptionUnderInput}
-          </div>
+          {questionContent}
           {headerBottom}
         </div>
       </>
@@ -174,6 +182,14 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     let wrapper: JSX.Element;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
+    }
+    return wrapper ?? element;
+  }
+  protected wrapQuestionContent(element: JSX.Element): JSX.Element {
+    const survey: SurveyModel = this.question.survey as SurveyModel;
+    let wrapper: JSX.Element;
+    if (survey) {
+      wrapper = ReactSurveyElementsWrapper.wrapQuestionContent(survey, element, this.question);
     }
     return wrapper ?? element;
   }

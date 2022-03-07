@@ -13,7 +13,7 @@ export var englishStrings = {
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
   indexText: "{0} of {1}",
-  panelDynamicProgressText: "Record {0} of {1}",
+  panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "Answered {0}/{1} questions",
   emptySurvey: "There is no visible page or question in the survey.",
   completingSurvey: "Thank you for completing the survey!",

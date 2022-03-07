@@ -1900,12 +1900,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public needResponsiveWidth() {
-    if (this.startWithNewLine) {
+    if (!this.startWithNewLine) {
       return true;
     }
-    else
-      super.needResponsiveWidth();
-    return false;
+    else {
+      return super.needResponsiveWidth();
+    }
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
@@ -1979,7 +1979,7 @@ Serializer.addClass(
       isSerializable: false,
       visibleIf: function (obj: any) {
         var survey = obj ? obj.survey : null;
-        return !survey || survey.pages.length > 1;
+        return !survey || !survey.pages || survey.pages.length > 1;
       },
       choices: function (obj: any) {
         var survey = obj ? obj.survey : null;

@@ -1,3 +1,9 @@
 .sd-action-bar {
   display: flex;
+  align-items: center;
+  .sv-action:not(:last-child) {
+    .sv-action__content {
+      padding-right: 0;
+    }
+  }
 }

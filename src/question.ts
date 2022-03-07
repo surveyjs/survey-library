@@ -1915,7 +1915,7 @@ Serializer.addClass("question", [
     isSerializable: false,
     visibleIf: function (obj: any) {
       var survey = obj ? obj.survey : null;
-      return !survey || survey.pages.length > 1;
+      return !survey || !survey.pages || survey.pages.length > 1;
     },
     choices: function (obj: any) {
       var survey = obj ? obj.survey : null;

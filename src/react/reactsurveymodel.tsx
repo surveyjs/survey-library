@@ -20,6 +20,15 @@ export class ReactSurveyElementsWrapper {
       componentData,
     });
   }
+  public static wrapQuestionContent(survey: SurveyModel, element: JSX.Element, question: SurveyElement): JSX.Element {
+    const componentName = survey.getQuestionContentWrapperComponentName(question);
+    const componentData = survey.getElementWrapperComponentData(question);
+    return ReactElementFactory.Instance.createElement(componentName, {
+      element,
+      question,
+      componentData,
+    });
+  }
   public static wrapItemValue(survey: SurveyModel, element: JSX.Element, question: QuestionSelectBase, item: ItemValue): JSX.Element {
     const componentName = survey.getItemValueWrapperComponentName(item, question);
     const componentData = survey.getItemValueWrapperComponentData(item, question);

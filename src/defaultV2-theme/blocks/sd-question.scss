@@ -35,12 +35,17 @@
   width: auto;
   max-width: 50%;
   vertical-align: top;
+  margin-top: calcSize(1.5);
+}
+
+.sd-question--left {
+  display: flex;
 }
 
 .sd-question__content--left {
   display: inline-block;
-  width: calc(50% - 3 * #{$base-unit});
   padding-left: calcSize(3);
+  flex: 1;
 }
 .sd-question__required-text {
   color: $red;

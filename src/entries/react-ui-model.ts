@@ -73,6 +73,11 @@ export { SvgIcon } from "../react/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../react/components/matrix-actions/drag-drop-icon/drag-drop-icon";
+export { SurveyQuestionPanelDynamicAddButton } from "../react/components/paneldynamic-actions/paneldynamic-add-btn";
+export { SurveyQuestionPanelDynamicPrevButton } from "../react/components/paneldynamic-actions/paneldynamic-prev-btn";
+export { SurveyQuestionPanelDynamicNextButton } from "../react/components/paneldynamic-actions/paneldynamic-next-btn";
+export { SurveyQuestionPanelDynamicProgressText } from "../react/components/paneldynamic-actions/paneldynamic-progress-text";
+
 export { MatrixRow } from "../react/components/matrix/row";
 export { Skeleton } from "../react/components/skeleton";
 

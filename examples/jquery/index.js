@@ -2,7 +2,7 @@ function init() {
   //Add the price property into choices
   Survey.Serializer.addProperty("itemvalue", "price:number");
 
-  var getItemPrice = function(params) {
+  var getItemPrice = function (params) {
     //this.row property available in cells of dropdown and dynamic matrices questions
     var question = !!this.row
       ? this.row.getQuestionByColumnName(params[0])
@@ -966,10 +966,12 @@ function init() {
     ]
   };
 
-  Survey.StylesManager.applyTheme("default");
+  //Survey.StylesManager.applyTheme("default");
+  //Survey.StylesManager.applyTheme("modern");
+  Survey.StylesManager.applyTheme("defaultV2");
 
   window.survey = new Survey.Model(json);
-  survey.onComplete.add(function(result) {
+  survey.onComplete.add(function (result) {
     document.querySelector("#surveyResultElement").innerHTML =
       "result: " + JSON.stringify(result.data);
   });

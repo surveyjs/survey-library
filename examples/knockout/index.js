@@ -997,7 +997,10 @@ function init() {
     ]
   };
 
-  Survey.StylesManager.applyTheme("default");
+  //Survey.StylesManager.applyTheme("default");
+  //Survey.StylesManager.applyTheme("modern");
+  Survey.StylesManager.applyTheme("defaultV2");
+
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
   window.survey = model;

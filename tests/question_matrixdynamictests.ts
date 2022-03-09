@@ -5908,6 +5908,33 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   assert.equal(rows.length, 1, "We removed data and detail panel row");
   assert.equal(rows[0].isDetailRow, false, "We removed correct row");
 });
+
+QUnit.test("Detail panel, rendered table design mode", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  survey.setDesignMode(true);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.renderedTable.rows;
+
+  matrix.visibleRows[0].showDetailPanel();
+
+  assert.equal(
+    rows[1].cells[0].colSpans,
+    4,
+    "colSpans set correctly for detail panel cell design mode"
+  );
+});
+
 QUnit.test("Detail panel, create elements in code", function (assert) {
   var survey = new SurveyModel({
     elements: [

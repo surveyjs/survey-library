@@ -822,6 +822,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
+    this.detailPanel.isInteractiveDesignElement = false;
+    this.detailPanel.showTitle = false;
     this.registerFunctionOnPropertyValueChanged(
       "columns",
       (newColumns: any) => {

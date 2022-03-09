@@ -602,6 +602,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
+    const panelFullWidth: boolean = this.matrix.isDesignMode;
     var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses, true);
     res.row = row;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
@@ -609,7 +610,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       buttonCell.colSpans = 2;
     }
     buttonCell.isEmpty = true;
-    res.cells.push(buttonCell);
+    if(!panelFullWidth) res.cells.push(buttonCell);
     var actionsCell = null;
     if (this.hasActionCellInRows("end")) {
       actionsCell = new QuestionMatrixDropdownRenderedCell();
@@ -619,7 +620,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell.panel = row.detailPanel;
     cell.colSpans =
       renderedRow.cells.length -
-      buttonCell.colSpans -
+      (!panelFullWidth ? buttonCell.colSpans : 0) -
       (!!actionsCell ? actionsCell.colSpans : 0);
     cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);

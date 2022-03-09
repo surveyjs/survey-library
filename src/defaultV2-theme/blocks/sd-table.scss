@@ -20,6 +20,9 @@
   padding-top: calcSize(1.5);
   padding-bottom: calcSize(3.5);
 }
+.sd-table__cell--detail-panel {
+  padding: 0 calcSize(1) calcSize(2);
+}
 .sd-table__cell--actions,
 .sd-matrixdynamic__add-btn {
   .sv-action-bar {

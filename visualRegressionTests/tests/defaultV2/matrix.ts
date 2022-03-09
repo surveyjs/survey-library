@@ -34,7 +34,10 @@ frameworks.forEach(framework => {
         },
       ],
     });
-    await t.click(Selector("#show-detail").nth(0));
+    await t
+      .click(Selector("#show-detail").nth(0))
+      .click(Selector("body"), { offsetX: 5, offsetY: 5 });
+
     const questionRoot = Selector(".sd-question");
     await checkElementScreenshot("question-matrix-detail.png", questionRoot, t);
   });

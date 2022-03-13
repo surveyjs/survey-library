@@ -11,7 +11,7 @@ const applyTheme = ClientFunction(theme => {
 
 const theme = "defaultV2";
 
-var json = {
+const json = {
   "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
   "pages": [{
     "name": "page1",

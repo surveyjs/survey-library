@@ -26,8 +26,8 @@ var json = {
   }, {
     "name": "page2",
     "navigationTitle": "Shipping",
-    "pageTitle": "Enter shipping information.",
-    "navigationDescription": "Initial sample",
+    "title": "Shipping",
+    "navigationDescription": "Enter shipping information.",
     "elements": [
       {
         "type": "radiogroup",

@@ -61,6 +61,7 @@ export class SurveyImplementor extends ImplementorBase {
     this.survey.disposeCallback = () => {
       this.dispose();
     };
+    new ImplementorBase(this.survey.timerModel);
   }
   public render(element: any = null) {
     if (typeof ko === "undefined")
@@ -149,9 +150,6 @@ LocalizableString.prototype["onChanged"] = function () {
   const hasHtml = this.hasHtml;
   this.koHasHtml(hasHtml);
   this.koRenderedHtml(hasHtml ? this.getHtmlValue() : this.calculatedText);
-};
-SurveyTimerModel.prototype["onCreating"] = function() {
-  new ImplementorBase(this);
 };
 
 ko.components.register("survey", {

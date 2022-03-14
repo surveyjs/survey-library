@@ -13,6 +13,6 @@ export class SurveyTimerPanel extends ReactSurveyElement {
     return this.props.timerModel;
   }
   render(): JSX.Element {
-    return <div>{this.timerModel.text}</div>;
+    return <div className={this.timerModel.survey.getCss().timerRoot}>{this.timerModel.text}</div>;
   }
 }

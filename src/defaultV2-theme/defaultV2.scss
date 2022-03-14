@@ -83,6 +83,9 @@
   .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
+    border-radius: calcSize(0.5);
+    padding: calcSize(1) 0;
+    background-color: $background;
 
     &::-webkit-scrollbar {
       width: 12px;

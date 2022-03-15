@@ -1,13 +1,8 @@
-import { Selector, ClientFunction } from "testcafe";
-import { frameworks, initSurvey, url, url_test, checkElementScreenshot } from "../../helper";
+import { Selector } from "testcafe";
+import { frameworks, initSurvey, url, url_test, checkElementScreenshot, applyTheme } from "../../helper";
 
 const title = "Popup Screenshot";
-
 fixture`${title}`.page`${url}`;
-
-const applyTheme = ClientFunction(theme => {
-  (<any>window).Survey.StylesManager.applyTheme(theme);
-});
 
 const json = {
   showQuestionNumbers: "off",
@@ -56,10 +51,9 @@ frameworks.forEach(framework => {
     });
 
   test("Popup styles", async t => {
+    await t.resizeWindow(1000, 1000);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
-    await t
-      .resizeWindow(1000, 1000)
-      .click(clickButton);
+    await t.click(clickButton);
     await checkElementScreenshot("popup.png", popupSelector, t);
   });
 });

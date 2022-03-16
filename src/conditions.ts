@@ -41,9 +41,8 @@ export interface IExpresionExecutor {
   isAsync: boolean;
 }
 
-export var createExpressionExecutorFactory: () => IExpresionExecutor = () => { return new ExpressionExecutor(); };
-
 export class ExpressionExecutor implements IExpresionExecutor {
+  public static createExpressionExecutor: () => IExpresionExecutor = () => { return new ExpressionExecutor(); }
   public onComplete: (res: any) => void;
   private expressionValue: string;
   private operand: Operand;
@@ -124,7 +123,7 @@ export class ExpressionRunnerBase {
   private expressionExecutor: IExpresionExecutor;
 
   public constructor(expression: string) {
-    this.expressionExecutor = createExpressionExecutorFactory();
+    this.expressionExecutor = ExpressionExecutor.createExpressionExecutor();
     this.expressionExecutor.onComplete = (res: any) => { this.doOnComplete(res); };
     this.expression = expression;
   }

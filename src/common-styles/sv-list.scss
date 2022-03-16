@@ -4,6 +4,7 @@ $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
 
 $foreground-light: var(--foreground-light, #909090);
+$border: var(--border, #d6d6d6);
 //todo: discuss this variable
 $foreground: var(--foreground, #161616);
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
@@ -39,6 +40,9 @@ $base-unit: var(--base-unit, 8px);
     background-color: $background-dim;
     outline: none;
   }
+  &.sv-list__item--separator {
+    padding: 0;
+  }
 }
 
 .sv-list__item-icon {
@@ -71,6 +75,11 @@ $base-unit: var(--base-unit, 8px);
   color: $foreground-disabled;
   cursor: default;
   pointer-events: none;
+}
+.sv-list__item--separator {
+  background-color: $border;
+  height: 1px;
+  margin: 8px;
 }
 
 .sv-list__item span {

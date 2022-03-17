@@ -1,5 +1,6 @@
 import { Action } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
+import { PopupModel } from "../../src/popup";
 import { settings } from "../../src/settings";
 import { getIconNameFromProxy } from "../../src/utils/utils";
 
@@ -85,4 +86,20 @@ QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
   model["hideItemsGreaterN"](0);
   assert.equal(model.actions[0].mode, "large");
   assert.equal(model.actions[1].mode, "popup");
+});
+
+QUnit.test("Check dropdown action pressed state", (assert) => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.setItems([
+    { id: "first",
+      component: "sv-action-bar-item-dropdown",
+      popupModel: new PopupModel("", "")
+    },
+  ]);
+  const action = model.actions[0];
+  assert.notOk(action.pressed);
+  action.popupModel.isVisible = true;
+  assert.ok(action.pressed);
+  action.popupModel.isVisible = false;
+  assert.notOk(action.pressed);
 });

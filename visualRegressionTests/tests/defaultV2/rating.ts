@@ -81,4 +81,36 @@ frameworks.forEach(framework => {
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("question-rating-dropdown.png", questionRoot, t);
   });
+
+  test("Check rating question - long items", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "rating",
+          name: "question1",
+          "rateValues": [
+            {
+              "value": 1,
+              "text": "first item"
+            },
+            {
+              "value": 2,
+              "text": "second item"
+            },
+            {
+              "value": 3,
+              "text": "third item"
+            }
+          ],
+          width: "708px"
+        }
+      ]
+    });
+
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("question-rating-long-items.png", questionRoot, t);
+  });
 });

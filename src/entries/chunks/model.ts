@@ -46,7 +46,7 @@ export {
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../choicesRestful";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
-export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor, createExpressionExecutorFactory } from "../../conditions";
+export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor } from "../../conditions";
 export {
   Operand,
   Const,

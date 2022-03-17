@@ -132,7 +132,11 @@ export class Action extends Base implements IAction {
   @property() css: string;
   @property() innerCss: string;
   @property() data: any;
-  @property() popupModel: any;
+  @property({
+    onSet: (_, target: Action) => {
+      target.setupPopupCallbacks();
+    }
+  }) popupModel: any;
   @property() needSeparator: boolean;
   @property() active: boolean;
   @property() pressed: boolean;
@@ -196,6 +200,19 @@ export class Action extends Base implements IAction {
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
       .toString();
+  }
+  private setupPopupCallbacks() {
+    if(this.component === "sv-action-bar-item-dropdown") {
+      const popupModel = this.popupModel;
+      if(!popupModel) return;
+      popupModel.registerFunctionOnPropertyValueChanged("isVisible", () => {
+        if(!popupModel.isVisible) {
+          this.pressed = false;
+        } else {
+          this.pressed = true;
+        }
+      });
+    }
   }
 
   minDimension: number;

@@ -47,11 +47,10 @@ frameworks.forEach(framework => {
     .page`${url_test}${theme}/${framework}.html`
     .beforeEach(async t => {
       await applyTheme(theme);
-      await initSurvey(framework, json);
     });
 
   test("Popup styles", async t => {
-    await t.resizeWindow(1000, 1000);
+    await t.resizeWindow(1000, 600);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
     await t.click(clickButton);
     await checkElementScreenshot("popup.png", popupSelector, t);

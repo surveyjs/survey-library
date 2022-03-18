@@ -5,6 +5,10 @@ export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
 });
 
+export const applyTheme = ClientFunction(theme => {
+  (<any>window).Survey.StylesManager.applyTheme(theme);
+});
+
 export async function checkElementScreenshot(screenshotName: string, element: Selector, t: TestController): Promise<void> {
   const comparer = createScreenshotsComparer(t);
   await t

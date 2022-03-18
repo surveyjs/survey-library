@@ -50,14 +50,18 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
 
     return attachKey2click(
       <li
-        style={style}
-        className={className}
-        onClick={() => {
-          this.model.selectItem(this.item);
-        }}
-        onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
-      >
-        {content}
+        className={this.model.getListItemWrapperClass(this.item)}>
+        {this.item.needSeparator ? <div></div> : null}
+        <div
+          style={style}
+          className={className}
+          onClick={() => {
+            this.model.selectItem(this.item);
+          }}
+          onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
+        >
+          {content}
+        </div>
       </li>
     );
   }

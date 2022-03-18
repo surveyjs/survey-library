@@ -1,5 +1,10 @@
 <template>
-  <li
+<li
+  v-bind:class="model.getListItemWrapperClass(item)">
+  <div
+    v-if="item.needSeparator">
+  </div>
+  <div
     tabindex="0"
     v-show="item.visible"
     :style="{ paddingLeft: model.getItemIndent(item) }"
@@ -16,7 +21,8 @@
     <span v-if="!item.component">{{ item.title }}</span>
 
     <component v-if="item.component" :is="item.component" :item="item"> </component>
-  </li>
+  </div>
+</li>
 </template>
 
 <script lang="ts">

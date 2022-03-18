@@ -26,6 +26,12 @@ $base-unit: var(--base-unit, 8px);
   list-style-type: none;
 }
 
+.sv-list__item-wrapper--separator div:first-child {
+  background-color: $border;
+  height: 1px;
+  margin: calcSize(1) 0;
+}
+
 .sv-list__item {
   width: 100%;
   align-items: center;
@@ -39,9 +45,6 @@ $base-unit: var(--base-unit, 8px);
   &:hover, &:focus {
     background-color: $background-dim;
     outline: none;
-  }
-  &.sv-list__item--separator {
-    padding: 0;
   }
 }
 
@@ -75,11 +78,6 @@ $base-unit: var(--base-unit, 8px);
   color: $foreground-disabled;
   cursor: default;
   pointer-events: none;
-}
-.sv-list__item--separator {
-  background-color: $border;
-  height: 1px;
-  margin: 8px;
 }
 
 .sv-list__item span {

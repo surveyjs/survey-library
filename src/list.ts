@@ -66,16 +66,22 @@ export class ListModel extends ActionContainer {
     return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
-  public isItemSeparator: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!itemValue.innerItem && itemValue.innerItem.id === "list_separator";
-  };
-
   public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
       .append("sv-list__item")
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
       .append("sv-list__item--selected", this.isItemSelected(itemValue))
-      .append("sv-list__item--separator", this.isItemSeparator(itemValue))
+      .toString();
+  };
+
+  public isWrapperWithSeparator: (itemValue: Action) => boolean = (itemValue: Action) => {
+    return !!itemValue.needSeparator;
+  };
+
+  public getListItemWrapperClass: (itemValue: Action) => string = (itemValue: Action) => {
+    return new CssClassBuilder()
+      .append("sv-list__item-wrapper")
+      .append("sv-list__item-wrapper--separator", this.isWrapperWithSeparator(itemValue))
       .toString();
   };
 

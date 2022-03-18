@@ -468,7 +468,7 @@ export class QuestionFileModel extends Question {
   public getChooseFileCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.chooseFile)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlDisabled, this.isInputReadOnly)
       .append(this.cssClasses.chooseFileAsText, !this.isAnswered)
       .append(this.cssClasses.chooseFileAsIcon, this.isAnswered)
       .toString();

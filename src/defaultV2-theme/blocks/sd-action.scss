@@ -17,6 +17,7 @@
 }
 .sd-action.sd-action--disabled {
   color: $foreground;
+  cursor: default;
   opacity: 0.25;
 }
 .sd-action.sd-action--icon {

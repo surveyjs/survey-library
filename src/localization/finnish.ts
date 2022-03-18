@@ -46,6 +46,7 @@ export var finnishSurveyStrings = {
     "Tiedostoa lähetetään. Odota muutama sekunti ja yritä uudelleen.",
   loadingFile: "Ladataan...",
   chooseFile: "Valitse tiedosto(t)...",
+  fileDragAreaPlaceholder: "Pudota tiedosto tähän tai lataa tiedosto napsauttamalla alla olevaa painiketta.",
   noFileChosen: "Ei tiedostoa valittuna",
   confirmDelete: "Haluatko poistaa osion?",
   keyDuplicationError: "Tämä arvo on jo käytössä. Syötä toinen arvo.",

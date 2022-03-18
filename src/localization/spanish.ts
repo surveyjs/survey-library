@@ -47,6 +47,7 @@ export var spanishSurveyStrings = {
     "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
   loadingFile: "Cargando...",
   chooseFile: "Elija archivo(s)...",
+  fileDragAreaPlaceholder: "Suelte un archivo aquí o haga clic en el botón de abajo para cargar el archivo",
   noFileChosen: "No se ha elegido ningún archivo",
   confirmDelete: "¿Quieres borrar el registro?",
   keyDuplicationError: "Este valor debe ser único.",

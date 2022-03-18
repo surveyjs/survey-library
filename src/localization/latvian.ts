@@ -45,6 +45,7 @@ export var latvianSurveyStrings = {
     "Jūsu fails tiek augšupielādēts. Lūdzu, uzgaidiet dažas sekundes un mēģiniet vēlreiz.",
   loadingFile: "Notiek ielāde ...",
   chooseFile: "Izvēlieties failus ...",
+  fileDragAreaPlaceholder: "Lai pievienotu, ievelciet failu šeit vai arī klikšķiniet uz zemāk redzamās pogas",
   noFileChosen: "Nav izvēlēts neviens fails",
   confirmDelete: "Vai vēlaties izdzēst ierakstu?",
   keyDuplicationError: "Šai vērtībai jābūt unikālai.",

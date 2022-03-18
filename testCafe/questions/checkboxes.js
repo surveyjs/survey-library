@@ -390,4 +390,7 @@ frameworks.forEach((framework) => {
     var json = JSON.parse(await getQuestionJson());
     assert.equal(json.choices[0].text, newTitle);
   });
+  test(`check other comment is focused after other item is selected `, async (t) => {
+    await t.click("input[value='other']").expect(Selector("textarea").focused).ok();
+  });
 });

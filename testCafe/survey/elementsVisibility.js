@@ -61,3 +61,38 @@ frameworks.forEach(framework => {
     await t.expect(Selector(`input[value=Complete]`).visible).ok();
   });
 });
+
+const json2 = {
+  pages: [
+    {
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "radiogroup", name: "q1", choices: ["Yes", "No"] },
+        {
+          type: "text",
+          name: "q2",
+          defaultValue: "q2Value",
+          visibleIf: "{q1} = 'No'",
+        }
+      ],
+    },
+  ],
+};
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json2);
+    }
+  );
+
+  test(`test focus after visibility change`, async t => {
+    const noChoice = Selector(`input[value="No"]`);
+    await t
+      .expect(Selector(`div[data-name=q2]`).visible).notOk()
+      .click(noChoice)
+      .expect(noChoice.checked)
+      .ok();
+    await t.expect(Selector(`div[data-name=q2]`).visible).ok();
+    await t.expect(ClientFunction(() => { return document.activeElement == document.querySelector(`input[value="No"]`) })()).ok()
+  });
+});

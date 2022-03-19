@@ -2803,8 +2803,10 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
-      page.focusFirstQuestion();
+    else {
+      if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
+        page.focusFirstQuestion();
+      }
     }
   }
   /**

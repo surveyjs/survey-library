@@ -132,11 +132,7 @@ export class Action extends Base implements IAction {
   @property() css: string;
   @property() innerCss: string;
   @property() data: any;
-  @property({
-    onSet: (_, target: Action) => {
-      target.setupPopupCallbacks();
-    }
-  }) popupModel: any;
+  @property() popupModel: any;
   @property() needSeparator: boolean;
   @property() active: boolean;
   @property() pressed: boolean;
@@ -201,20 +197,34 @@ export class Action extends Base implements IAction {
       .append(this.innerCss)
       .toString();
   }
-  private setupPopupCallbacks() {
-    if(this.component === "sv-action-bar-item-dropdown") {
-      const popupModel = this.popupModel;
-      if(!popupModel) return;
-      popupModel.registerFunctionOnPropertyValueChanged("isVisible", () => {
-        if(!popupModel.isVisible) {
-          this.pressed = false;
-        } else {
-          this.pressed = true;
-        }
-      });
-    }
-  }
 
   minDimension: number;
   maxDimension: number;
+}
+
+export class ActionDropdownViewModel {
+  private popupModel: any;
+  private funcKey = "sv-dropdown-action";
+  constructor(private item: Action) {
+    this.setupPopupCallbacks();
+  }
+  private setupPopupCallbacks() {
+    const popupModel = this.popupModel = this.item.popupModel;
+    if(!popupModel) return;
+    popupModel.registerFunctionOnPropertyValueChanged("isVisible", () => {
+      if(!popupModel.isVisible) {
+        this.item.pressed = false;
+      } else {
+        this.item.pressed = true;
+      }
+    }, this.funcKey);
+  }
+  private removePopupCallbacks() {
+    if(!!this.popupModel) {
+      this.popupModel.unRegisterFunctionOnPropertyValueChanged("isVisible", this.funcKey);
+    }
+  }
+  public dispose(): void {
+    this.removePopupCallbacks();
+  }
 }

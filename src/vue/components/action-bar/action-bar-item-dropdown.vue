@@ -44,8 +44,7 @@ export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {
     super();
     this.viewModel = new ActionDropdownViewModel(this.item);
   }
-  destroyed() {
-    super.destroyed();
+  onDestroyed() {
     this.viewModel.dispose();
   }
 }

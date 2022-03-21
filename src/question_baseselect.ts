@@ -1285,6 +1285,29 @@ export class QuestionSelectBase extends Question {
   public getItemEnabled(item: ItemValue) {
     return !this.isInputReadOnly && item.isEnabled;
   }
+  private rootElement: HTMLElement;
+  public afterRender(el: HTMLElement) {
+    super.afterRender(el);
+    this.rootElement = el;
+  }
+  private focusOtherComment() {
+    if(!!this.rootElement) {
+      setTimeout(() => {
+        const commentEl = this.rootElement.querySelector("textarea");
+        if (!!commentEl) {
+          commentEl.focus();
+        }
+      }, 10);
+    }
+  }
+  private prevIsOtherSelected: boolean = false;
+  protected onValueChanged(): void {
+    super.onValueChanged();
+    if(!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+      this.focusOtherComment();
+    }
+    this.prevIsOtherSelected = this.isOtherSelected;
+  }
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.

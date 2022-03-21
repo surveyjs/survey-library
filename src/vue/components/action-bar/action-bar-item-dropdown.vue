@@ -35,9 +35,19 @@
 import { Component } from "vue-property-decorator";
 import Vue from "vue";
 import ActionBarItemViewModel from "./action-bar-item.vue";
+import { ActionDropdownViewModel } from "survey-core";
 
 @Component
-export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {}
+export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {
+  private viewModel: ActionDropdownViewModel;
+  constructor() {
+    super();
+    this.viewModel = new ActionDropdownViewModel(this.item);
+  }
+  onDestroyed() {
+    this.viewModel.dispose();
+  }
+}
 Vue.component("sv-action-bar-item-dropdown", ActionBarItemDropdownViewModel);
 export default ActionBarItemDropdownViewModel;
 </script>

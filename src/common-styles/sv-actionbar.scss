@@ -196,3 +196,7 @@ button.sv-action-bar-item {
 .sv-action--space {
   margin-left: auto;
 }
+.sv-action-bar-item--pressed {
+  background-color: $background-dim;
+  opacity: 50%;
+}

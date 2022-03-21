@@ -76,12 +76,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       },
       popupModel: this.dotsItemPopupModel
     });
-    this.dotsItemPopupModel.onHide = () => {
-      this.dotsItem.pressed = false;
-    };
-    this.dotsItemPopupModel.onShow = () => {
-      this.dotsItem.pressed = true;
-    };
   }
   protected onSet() {
     this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));

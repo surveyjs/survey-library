@@ -45,10 +45,11 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(3) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(4) div:nth-child(1) label input`)
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(4) label input`)
+      .debug()
+      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
+      .click(Selector(".sv_q_checkbox_control_label").withText("Audi"))
+      .click(Selector(".sv_q_checkbox_control_label").withText("Vauxhall"))
+      .click(Selector(".sv_q_checkbox_control_label").withText("None"))
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -59,7 +60,7 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
+      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -70,8 +71,8 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`.sv_q_select_column:nth-child(5) div:nth-child(2) label input`)
-      .click(`.sv_q_select_column:nth-child(2) div:nth-child(2) label input`)
+      .click(Selector(".sv_q_checkbox_control_label").withText("BMW"))
+      .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -80,14 +81,18 @@ frameworks.forEach((framework) => {
 
   test(`change column count`, async (t) => {
     const getClassName = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset > div`).className
+      () => document.querySelector(`div[id*=sq_1] fieldset .sv_q_select_column`).className
     );
+    await t.debug();
     let className = await getClassName();
+
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);
 
     await setOptions("car", { colCount: 1 });
-
-    className = await getClassName();
+    const getClassNameOneCol = ClientFunction(
+      () => document.querySelector(`div[id*=sq_1] fieldset > .sv_q_checkbox`).className
+    );
+    className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);
 
     await setOptions("car", { colCount: 2 });
@@ -104,17 +109,13 @@ frameworks.forEach((framework) => {
         ).length
     );
     const getFirst = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(2) > div",
-      {
-        index: 0,
-      }
-    );
+      "div[id*=sq_1] .sv_q_select_column:nth-child(1) .sv-string-viewer"
+    ).nth(0);
     const getSecond = Selector(
-      "div[id*=sq_1] fieldset > div:nth-child(3) > div",
-      {
-        index: 0,
-      }
-    );
+      "div[id*=sq_1] .sv_q_select_column:nth-child(2) .sv-string-viewer"
+    ).nth(0);
+
+
     let rnd_count = 0;
     let first, second, first_2;
     let choicesCount = await getChoicesCount();
@@ -123,7 +124,6 @@ frameworks.forEach((framework) => {
     await setOptions("car", { choicesOrder: "asc" });
     first = await getFirst();
     second = await getSecond();
-
     assert.equal(first.textContent.trim(), "Audi");
     assert.equal(second.textContent.trim(), "BMW");
 
@@ -211,18 +211,17 @@ frameworks.forEach((framework) => {
     await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok()
   });
 
-  test(`check "other" choice doesn't change order`, async (t) => {
+  test.only(`check "other" choice doesn't change order`, async (t) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(5) div:nth-child(3)`
+          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-child(4)`
         )[0]
     );
     let otherChoice;
 
     await setOptions("car", { hasOther: true });
     await setOptions("car", { choicesOrder: "desc" });
-
     otherChoice = await getOtherChoice();
     assert.equal(otherChoice.textContent.trim(), "Other (describe)");
   });
@@ -243,7 +242,7 @@ frameworks.forEach((framework) => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
-  
+
   test(`choose other and "textUpdateMode": "onTyping"`, async (t) => {
     const setSurveyOptions = ClientFunction(() => {
       survey.textUpdateMode = "onTyping";

@@ -578,7 +578,7 @@ export class QuestionSelectBase extends Question {
   /**
    *  Use this property to show "Select All", "None" and "Other" choices in multi columns .
    */
-  @property({ defaultValue: true }) separateSpecialChoices: boolean;
+  @property({ defaultValue: false }) separateSpecialChoices: boolean;
   /**
    *  Use this property to set the place holder text for other or comment field  .
    */

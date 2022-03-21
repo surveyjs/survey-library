@@ -315,7 +315,7 @@ export class PanelModelBase extends SurveyElement
   protected canShowTitle(): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
-    return (<any>this.survey).showPageTitles && this.hasDescription ||
+    return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
     (this.showDescription && this.isDesignMode &&
       settings.allowShowEmptyTitleInDesignMode &&
       settings.allowShowEmptyDescriptionInDesignMode);

@@ -169,7 +169,7 @@ export interface IObject {
  * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
  */
 export class JsonObjectProperty implements IObject {
-  public static getItemValuesDefaultValue: (val: any, type:string) => any;
+  public static getItemValuesDefaultValue: (val: any, type: string) => any;
   [key: string]: any;
   private static Index = 1;
   private static mergableValues = [
@@ -267,6 +267,7 @@ export class JsonObjectProperty implements IObject {
   }
   public set type(value: string) {
     if (value === "itemvalues") value = "itemvalue[]";
+    if (value === "textitems") value = "textitem[]";
     this.typeValue = value;
     if (this.typeValue.indexOf("[]") === this.typeValue.length - 2) {
       this.isArray = true;

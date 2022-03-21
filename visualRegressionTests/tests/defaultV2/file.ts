@@ -59,7 +59,8 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1080);
     await ClientFunction(()=>{
       (window as any).survey.resizeObserver.disconnect();
-      (window as any).survey.setIsMobile(true);
+      (window as any).survey.setIsMobile(false);
+      (window as any).survey.getAllQuestions()[0].isMobile = true;
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);

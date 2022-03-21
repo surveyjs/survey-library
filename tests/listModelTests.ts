@@ -90,13 +90,24 @@ QUnit.test("hasText method", assert => {
   assert.ok(listModel["hasText"](item, "best"));
 });
 
+QUnit.test("needSeparator property", assert => {
+  const itemWithSeparator = new Action({ id: "1" });
+  itemWithSeparator.needSeparator = true;
+  const itemWithoutSeparator = new Action({ id: "2" });
+  const listModel = new ListModel([itemWithSeparator, itemWithoutSeparator], () => { }, true);
+  const classesWithSeparator = listModel.getListItemWrapperClass(listModel.actions[0]);
+  assert.equal(classesWithSeparator, "sv-list__item-wrapper sv-list__item-wrapper--separator");
+  const classesWithoutSeparator = listModel.getListItemWrapperClass(listModel.actions[1]);
+  assert.equal(classesWithoutSeparator, "sv-list__item-wrapper");
+});
+
 class MyObject {
   myOnFilter(text: string) {
     this.myItems.forEach(item => {
       item.visible = !!text ? item.title.indexOf("1") !== -1 : true;
     });
   }
-  constructor(public myItems: Array<IAction>) {}
+  constructor(public myItems: Array<IAction>) { }
 }
 
 QUnit.test("ListModel custom onFilter", assert => {

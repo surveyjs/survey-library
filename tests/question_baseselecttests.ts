@@ -170,3 +170,30 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
   assert.equal(question.visibleChoices[0].value, "Item1");
   assert.equal(question.visibleChoices[1].value, "Item2");
 });
+
+QUnit.test("check focus comment of other select", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true,
+        choices: ["item1"]
+      }
+    ]
+  });
+  let counter = 0;
+  const q = survey.getQuestionByName("q1");
+  q["focusOtherComment"] = () => {
+    counter ++;
+  };
+  assert.equal(counter, 0);
+  q.value = ["other"];
+  assert.equal(counter, 1);
+  q.value = ["other", "item1"];
+  assert.equal(counter, 1);
+  q.value = ["item1"];
+  assert.equal(counter, 1);
+  q.value = ["item1", "other"];
+  assert.equal(counter, 2);
+});

@@ -2803,10 +2803,8 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    else {
-      if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
-        page.focusFirstQuestion();
-      }
+    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
+      page.focusFirstQuestion();
     }
   }
   /**
@@ -2955,6 +2953,9 @@ export class SurveyModel extends SurveyElementCore
       isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
+    if(options.allowChanging) {
+      this.isCurrentPageRendering = true;
+    }
     return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
@@ -4126,11 +4127,13 @@ export class SurveyModel extends SurveyElementCore
     this.onUpdateChoiceItemCss.fire(this, options);
   }
   private isFirstPageRendering: boolean = true;
+  private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode) {
       this.scrollToTopOnPageChange(!this.isFirstPageRendering);
     }
     this.isFirstPageRendering = false;
+    this.isCurrentPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,

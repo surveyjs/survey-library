@@ -375,6 +375,7 @@ export var defaultV2Css = {
     noFileChosen: "sd-description sd-file__no-file-chosen",
     chooseFile: "sd-file__choose-btn",
     chooseFileAsText: "sd-action sd-file__choose-btn--text",
+    chooseFileAsTextDisabled: "sd-action--disabled",
     chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
@@ -394,7 +395,7 @@ export var defaultV2Css = {
     imageWrapper: "sd-file__image-wrapper",
     single: "sd-file--single",
     singleImage: "sd-file--single-image",
-    mobile: "sd-file--mobile"
+    mobile: "sd-file--mobile",
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",

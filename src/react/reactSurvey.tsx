@@ -84,7 +84,8 @@ export class Survey extends SurveyElementBase<any, any>
     if (this.survey.hasLogo) {
       customHeader = null;
     }
-    const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + this.css.root : this.css.root;
+    const rootCss = this.survey.getRootCss();
+    const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>

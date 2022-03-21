@@ -51,6 +51,7 @@
 @import "./defaultV2.m600.scss";
 
 .sd-root-modern {
+  --sd-mobile-width: 600px;
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;

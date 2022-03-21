@@ -3,16 +3,13 @@
   --sd-base-padding: calc(5 * #{$base-unit});
   --sd-base-vertical-padding: calc(4 * #{$base-unit});
   --sd-page-vertical-padding: calc(3 * #{$base-unit});
-
-  @media (max-width: 600px) {
-    --sd-base-padding: calc(3 * #{$base-unit});
-    --sd-base-vertical-padding: calc(2 * #{$base-unit});
-    --sd-page-vertical-padding: calc(2 * #{$base-unit});
-  }
 }
 
 .sd-root-modern {
-  @media (max-width: 600px) {
+  &.sd-root-modern--mobile {
+    --sd-base-padding: calc(3 * #{$base-unit});
+    --sd-base-vertical-padding: calc(2 * #{$base-unit});
+    --sd-page-vertical-padding: calc(2 * #{$base-unit});
     .sd-element__num {
       @include num_inline();
     }

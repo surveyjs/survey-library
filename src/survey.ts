@@ -2805,6 +2805,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
       page.focusFirstQuestion();
+      this.isCurrentPageRendering = false;
     }
   }
   /**
@@ -4130,10 +4131,9 @@ export class SurveyModel extends SurveyElementCore
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode) {
-      this.scrollToTopOnPageChange(!this.isFirstPageRendering);
+      setTimeout(()=>this.scrollToTopOnPageChange(!this.isFirstPageRendering), 0);
     }
     this.isFirstPageRendering = false;
-    this.isCurrentPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.activePage,

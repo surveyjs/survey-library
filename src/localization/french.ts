@@ -41,6 +41,7 @@ export var frenchSurveyStrings = {
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
   chooseFile: "Ajouter des fichiers...",
+  fileDragAreaPlaceholder: "Déposez un fichier ici ou cliquez sur le bouton ci-dessous pour charger le fichier.",
   noFileChosen: "Aucun fichier ajouté",
   confirmDelete: "Voulez-vous supprimer cet enregistrement ?",
   keyDuplicationError: "Cette valeur doit être unique.",

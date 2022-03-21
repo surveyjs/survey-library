@@ -12,6 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { timeStamp } from "console";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -575,6 +576,10 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("otherText");
   }
   /**
+   *  Use this property to show "Select All", "None" and "Other" choices in multi columns .
+   */
+  @property({ defaultValue: true }) separateSpecialChoices: boolean;
+  /**
    *  Use this property to set the place holder text for other or comment field  .
    */
   @property({ localizable: true }) otherPlaceHolder: string;
@@ -653,14 +658,14 @@ export class QuestionSelectBase extends Question {
       }
     }
     if (
-      this.supportOther() && this.canShowOptionItem(this.otherItem, isAddAll, this.hasOther)
-    ) {
-      items.push(this.otherItem);
-    }
-    if (
       this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.hasNone)
     ) {
       items.push(this.noneItem);
+    }
+    if (
+      this.supportOther() && this.canShowOptionItem(this.otherItem, isAddAll, this.hasOther)
+    ) {
+      items.push(this.otherItem);
     }
   }
   protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
@@ -1190,25 +1195,56 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
       .toString() || undefined;
   }
+  get headItems():ItemValue[] {
+    let items: ItemValue[] = [];
+    if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
+      let i= 0;
+      while(i < this.visibleChoices.length && this.isBuiltInChoice(this.visibleChoices[i], this)) {
+        items.push(this.visibleChoices[i]);
+        i++;
+      }
+    }
+    return items;
+  }
+  get footItems():ItemValue[] {
+    let items: ItemValue[] = [];
+    if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
+      let i = this.visibleChoices.length - 1;
+      while(i >= 0 && this.isBuiltInChoice(this.visibleChoices[i], this)) {
+        items.unshift(this.visibleChoices[i]);
+        i--;
+      }
+    }
+    return items;
+  }
+  get hasHeadItems(): boolean {
+    return this.headItems.length > 0;
+  }
+  get hasFootItems(): boolean {
+    return this.footItems.length > 0;
+  }
   get columns() {
     var columns = [];
     var colCount = this.colCount;
     if (this.hasColumns && this.visibleChoices.length > 0) {
+      let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isDesignMode) ?
+        this.visibleChoices :
+        this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));
       if (settings.showItemsInOrder == "column") {
         var prevIndex = 0;
-        var leftElementsCount = this.visibleChoices.length % colCount;
+        var leftElementsCount = choicesToBuildColumns.length % colCount;
         for (var i = 0; i < colCount; i++) {
           var column = [];
           for (
             var j = prevIndex;
-            j < prevIndex + Math.floor(this.visibleChoices.length / colCount);
+            j < prevIndex + Math.floor(choicesToBuildColumns.length / colCount);
             j++
           ) {
-            column.push(this.visibleChoices[j]);
+            column.push(choicesToBuildColumns[j]);
           }
           if (leftElementsCount > 0) {
             leftElementsCount--;
-            column.push(this.visibleChoices[j]);
+            column.push(choicesToBuildColumns[j]);
             j++;
           }
           prevIndex = j;
@@ -1217,8 +1253,8 @@ export class QuestionSelectBase extends Question {
       } else {
         for (var i = 0; i < colCount; i++) {
           var column = [];
-          for (var j = i; j < this.visibleChoices.length; j += colCount) {
-            column.push(this.visibleChoices[j]);
+          for (var j = i; j < choicesToBuildColumns.length; j += colCount) {
+            column.push(choicesToBuildColumns[j]);
           }
           columns.push(column);
         }
@@ -1227,7 +1263,7 @@ export class QuestionSelectBase extends Question {
     return columns;
   }
   get hasColumns() {
-    return this.colCount > 1;
+    return !this.isMobile && this.colCount > 1;
   }
   public choicesLoaded(): void {
     this.isChoicesLoaded = true;
@@ -1270,7 +1306,7 @@ export class QuestionSelectBase extends Question {
     return this.cssClasses.itemSvgIconId;
   }
   public getSelectBaseRootCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.root).append(this.cssClasses.rootMultiColumn, this.hasColumns).toString();
+    return new CssClassBuilder().append(this.cssClasses.root).toString();
   }
 
   public getAriaItemLabel(item: ItemValue) {
@@ -1385,6 +1421,7 @@ Serializer.addClass(
         return !obj.choicesFromQuestion;
       },
     },
+    "separateSpecialChoices:boolean",
     "hasOther:boolean",
     "hasNone:boolean",
     {

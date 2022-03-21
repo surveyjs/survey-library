@@ -170,7 +170,7 @@ export var defaultV2Css = {
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     other: "sd-input sd-comment sd-selectbase__other",
-    column: "sd-selectbase__column"
+    column: "sd-selectbase__column",
   },
   radiogroup: {
     root: "sd-selectbase",

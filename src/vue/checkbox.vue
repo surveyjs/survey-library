@@ -9,8 +9,22 @@
       :question="question"
       :item="item"
       :index="index"
-    ></survey-checkbox-item><div
+    ></survey-checkbox-item>
+    <survey-checkbox-item
+        v-for="(item, index) in question.headItems"
+        v-if="question.hasColumns && question.hasHeadItems"
+        :key="item.value"
+        :class="question.getItemClass(item)"
+        :question="question"
+        :item="item"
+        :index="'' + index"
+      ></survey-checkbox-item>
+    <div 
       v-if="question.hasColumns"
+      :class="question.cssClasses.rootMultiColumn">
+
+    <div
+      
       v-for="(column, colIndex) in question.columns"
       :class="question.getColumnClass()"
       role="presentation"
@@ -23,7 +37,24 @@
         :item="item"
         :index="'' + colIndex + index"
       ></survey-checkbox-item>
-    </div></fieldset>
+    </div>
+    </div>
+        <survey-checkbox-item
+        v-for="(item, index) in question.footItems"
+        v-if="question.hasColumns && question.hasFootItems"
+        :key="item.value"
+        :class="question.getItemClass(item)"
+        :question="question"
+        :item="item"
+        :index="'' + index"
+      ></survey-checkbox-item>
+      <survey-other-choice
+        v-if="
+          question.renderedValue && question.isOtherSelected
+        "
+        :question="question"
+      />
+      </fieldset>
 </template>
 
 <script lang="ts">

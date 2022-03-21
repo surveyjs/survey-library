@@ -58,7 +58,8 @@ frameworks.forEach(framework => {
   test("Check file question mobile mode", async (t) => {
     await t.resizeWindow(1920, 1080);
     await ClientFunction(()=>{
-      const question = (window as any).survey.setIsMobile(true);
+      (window as any).survey.resizeObserver.disconnect();
+      (window as any).survey.setIsMobile(true);
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);

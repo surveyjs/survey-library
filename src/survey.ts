@@ -4131,7 +4131,7 @@ export class SurveyModel extends SurveyElementCore
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode) {
-      setTimeout(()=>this.scrollToTopOnPageChange(!this.isFirstPageRendering), 0);
+      setTimeout(()=>this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -6219,6 +6219,7 @@ export class SurveyModel extends SurveyElementCore
     this.currentPage = <PageModel>question.page;
     question.focus();
     this.isFocusingQuestion = false;
+    this.isCurrentPageRendering = false;
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {

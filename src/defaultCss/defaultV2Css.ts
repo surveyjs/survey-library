@@ -452,7 +452,9 @@ export var defaultV2Css = {
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
   },
-  mobileWidth: "--sd-mobile-width"
+  variables: {
+    mobileWidth: "--sd-mobile-width"
+  }
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

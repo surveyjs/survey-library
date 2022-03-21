@@ -4107,13 +4107,16 @@ export class SurveyModel extends SurveyElementCore
     if(Array.isArray(htmlElement)) {
       observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
-    const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(this.css.mobileWidth));
-    if(!!mobileWidth) {
-      this.resizeObserver = new ResizeObserver(() => {
-        if(!observedElement.isConnected) { this.destroyResizeObserver(); }
-        else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
-      });
-      this.resizeObserver.observe(observedElement);
+    const cssVariables = this.css.variables;
+    if(!!cssVariables) {
+      const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
+      if(!!mobileWidth) {
+        this.resizeObserver = new ResizeObserver(() => {
+          if(!observedElement.isConnected) { this.destroyResizeObserver(); }
+          else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
+        });
+        this.resizeObserver.observe(observedElement);
+      }
     }
     this.onAfterRenderSurvey.fire(this, {
       survey: this,

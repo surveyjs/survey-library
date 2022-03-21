@@ -14585,7 +14585,7 @@ QUnit.test("Check survey resize observer", function (assert) {
       }
     ]
   });
-  survey.getCss().mobileWidth = "--test-mobile-width";
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
   survey.afterRenderSurvey(rootEl);
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");

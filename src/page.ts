@@ -40,7 +40,7 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && (<any>this.survey).showPageNumbers;
   }
   protected canShowTitle(): boolean {
-    return (<any>this.survey).showPageTitles;
+    return this.survey && (<any>this.survey).showPageTitles;
   }
   /**
    * Use this property to show title in navigation buttons. If the value is empty then page name is used.

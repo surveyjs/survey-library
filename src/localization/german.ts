@@ -45,6 +45,7 @@ export var germanSurveyStrings = {
     "Bitte warten Sie bis der Upload Ihrer Dateien abgeschlossen ist.",
   loadingFile: "Wird hochgeladen...",
   chooseFile: "Datei(en) auswählen...",
+  fileDragAreaPlaceholder: "Legen Sie hier eine Datei ab oder klicken Sie auf die Schaltfläche unten, um die Datei zu laden.",
   noFileChosen: "Keine Datei ausgewählt",
   confirmDelete: "Wollen Sie den Eintrag löschen?",
   keyDuplicationError: "Dieser Wert muss einmalig sein.",

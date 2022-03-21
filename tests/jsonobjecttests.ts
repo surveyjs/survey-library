@@ -1719,6 +1719,25 @@ QUnit.test("Add property into questionbase", function (assert) {
   Serializer.removeProperty("questionbase", "custom");
 });
 
+QUnit.test("Add textitems (array) property into questionbase", function (
+  assert
+) {
+  Serializer.addProperty("questionbase", {
+    name: "customItems",
+    type: "textitems",
+  });
+  var question = new Question("q1");
+
+  var property = Serializer.findProperty("questionbase", "customItems");
+  assert.equal(
+    property.type,
+    "textitem[]",
+    "Property should have correct type"
+  );
+
+  Serializer.removeProperty("questionbase", "customItems");
+});
+
 QUnit.test("Add itemvalues (array) property into questionbase", function (
   assert
 ) {
@@ -2617,9 +2636,11 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
     { name: "text", visible: false },
     { name: "color", type: "color" }],
   null, "itemvalue");
-  Serializer.addProperty("car", { name: "colors",
+  Serializer.addProperty("car", {
+    name: "colors",
     default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
-    className: "coloritemvalue", type: "coloritemvalue[]" });
+    className: "coloritemvalue", type: "coloritemvalue[]"
+  });
 
   const car: any = new Car();
   assert.equal(car.colors.length, 2, "There are two colors by default");

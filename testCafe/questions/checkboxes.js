@@ -83,7 +83,7 @@ frameworks.forEach((framework) => {
     const getClassName = ClientFunction(
       () => document.querySelector(`div[id*=sq_1] fieldset .sv_q_select_column`).className
     );
-    await t.debug();
+
     let className = await getClassName();
 
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);

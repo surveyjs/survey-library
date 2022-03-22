@@ -12,7 +12,6 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { timeStamp } from "console";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.

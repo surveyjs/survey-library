@@ -39,8 +39,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
           : this.getItems(cssClasses)}
-        {clearButton}
         {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther(cssClasses) : null}
+        {clearButton}
       </fieldset>
     );
   }

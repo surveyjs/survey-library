@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, checkElementScreenshot, applyTheme } from "../../helper";
+import { frameworks, initSurvey, url, url_test, checkElementScreenshot, applyTheme, explicitErrorHandler } from "../../helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -46,6 +46,7 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`
     .beforeEach(async t => {
+      await explicitErrorHandler();
       await applyTheme(theme);
     });
 

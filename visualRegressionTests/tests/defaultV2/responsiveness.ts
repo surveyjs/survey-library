@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, checkElementScreenshot, frameworks, initSurvey, url_test } from "../../helper";
+import { url, checkElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -17,6 +17,7 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
     await applyTheme(theme);
   });
   test("Check simple question in small screen", async (t) => {

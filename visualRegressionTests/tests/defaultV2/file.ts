@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
 
 const title = "File Screenshot";
 
@@ -26,6 +26,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
@@ -57,7 +58,9 @@ frameworks.forEach(framework => {
   test("Check file question mobile mode", async (t) => {
     await t.resizeWindow(1920, 1080);
     await ClientFunction(()=>{
-      const question = (window as any).survey.setIsMobile(true);
+      (window as any).survey.resizeObserver.disconnect();
+      (window as any).survey.setIsMobile(false);
+      (window as any).survey.getAllQuestions()[0].isMobile = true;
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);

@@ -1893,10 +1893,12 @@ export class SurveyModel extends SurveyElementCore
   }
   //#endregion
 
-  private _isMobile = false;
+  @property() _isMobile = false;
   public setIsMobile(newVal = true) {
-    this._isMobile = newVal;
-    this.getAllQuestions().map(q => q.isMobile = newVal);
+    if(this.isMobile !== newVal) {
+      this._isMobile = newVal;
+      this.getAllQuestions().map(q => q.isMobile = newVal);
+    }
   }
   private get isMobile() {
     return isMobile() || this._isMobile;
@@ -4099,11 +4101,41 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
+  public getRootCss(): string {
+    return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
+  }
+  private resizeObserver: ResizeObserver;
+
   afterRenderSurvey(htmlElement: any) {
+    let observedElement:HTMLElement = htmlElement;
+    if(Array.isArray(htmlElement)) {
+      observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);
+    }
+    const cssVariables = this.css.variables;
+    if(!!cssVariables) {
+      const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
+      if(!!mobileWidth) {
+        this.resizeObserver = new ResizeObserver(() => {
+          if(!observedElement.isConnected) { this.destroyResizeObserver(); }
+          else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
+        });
+        this.resizeObserver.observe(observedElement);
+      }
+    }
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement,
     });
+  }
+  private processResponsiveness(width: number, mobileWidth: number) {
+    const isMobile = width < mobileWidth;
+    this.setIsMobile(isMobile);
+  }
+  private destroyResizeObserver() {
+    if(!!this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
   }
   updateQuestionCssClasses(question: IQuestion, cssClasses: any) {
     this.onUpdateQuestionCssClasses.fire(this, {
@@ -6272,6 +6304,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose() {
     this.currentPage = null;
+    this.destroyResizeObserver();
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;

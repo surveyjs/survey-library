@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultV2Css = {
   root: "sd-root-modern",
+  rootMobile: "sd-root-modern--mobile",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
@@ -451,7 +452,9 @@ export var defaultV2Css = {
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
   },
-
+  variables: {
+    mobileWidth: "--sd-mobile-width"
+  }
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

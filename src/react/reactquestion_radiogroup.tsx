@@ -37,17 +37,41 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         ref={(fieldset) => (this.control = fieldset)}
       >
         {this.question.hasColumns
-          ? this.getColumns(cssClasses)
+          ? this.getColumnedBody(cssClasses)
           : this.getItems(cssClasses)}
         {clearButton}
+        {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther(cssClasses) : null}
       </fieldset>
+    );
+  }
+  protected getFooter() {
+    if (this.question.hasFootItems) {
+      return this.question.footItems.map((item: any, ii: number) =>
+        this.renderItem(
+          "item_f" + ii,
+          item,
+          false,
+          this.question.cssClasses,
+          null
+        )
+      );
+    }
+  }
+  protected getColumnedBody(cssClasses: any) {
+    return (
+      <>
+        <div className={cssClasses.rootMultiColumn}>
+          {this.getColumns(cssClasses)}
+        </div>
+        {this.getFooter()}
+      </>
     );
   }
   protected getColumns(cssClasses: any) {
     var value = this.getStateValue();
     return this.question.columns.map((column: any, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(item, value, cssClasses, "" + ci + ii)
+        this.renderItem("item" + ci + ii, item, value, cssClasses, "" + ci + ii)
       );
       return (
         <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
@@ -61,7 +85,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var renderedItem = this.renderItem(item, value, cssClasses, "" + i);
+      var renderedItem = this.renderItem("item" + i, item, value, cssClasses, "" + i);
       items.push(renderedItem);
     }
     return items;
@@ -69,13 +93,25 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected get textStyle(): any {
     return null;//{ display: "inline", position: "static" };
   }
+  protected renderOther(cssClasses: any): JSX.Element {
+    return (
+      <div className="form-group">
+        <SurveyQuestionCommentItem
+          question={this.question}
+          otherCss={cssClasses.other}
+          cssClasses={cssClasses}
+          isDisplayMode={this.isDisplayMode}
+        />
+      </div>
+    );
+  }
   private renderItem(
+    key: string,
     item: ItemValue,
     value: any,
     cssClasses: any,
     index: string
   ): JSX.Element {
-    var key = "item" + index;
     const renderedItem = (
       <SurveyQuestionRadioItem
         key={key}
@@ -142,11 +178,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return !!this.question && !!this.item;
   }
   protected renderElement(): JSX.Element {
-    var otherItem =
-      this.question.isOtherItem(this.item) && this.question.isOtherSelected
-        ? this.renderOther(this.cssClasses)
-        : null;
-
     var itemText = !this.hideCaption
       ? this.renderLocString(this.item.locText, this.textStyle)
       : "";
@@ -190,19 +221,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             {itemText}
           </span>
         </label>
-        {otherItem}
-      </div>
-    );
-  }
-  protected renderOther(cssClasses: any): JSX.Element {
-    return (
-      <div className="form-group">
-        <SurveyQuestionCommentItem
-          question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
       </div>
     );
   }

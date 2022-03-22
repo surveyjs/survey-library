@@ -137,6 +137,7 @@
     "standard-version": "^8.0.1",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
+    "svg-inline-loader": "^0.8.2",
     "testcafe": "1.16.1",
     "testcafe-hammerhead": "24.5.4",
     "testcafe-reporter-dashboard": "^0.2.4-rc.1",

@@ -41,6 +41,11 @@ export class SvgIconRegistry {
     }
 
   }
+  public registerIconsFromFolder(r: any) {
+    r.keys().forEach((key: string) => {
+      this.registerIconFromSvg(key.substring(2, key.length - 4).toLowerCase(), r(key));
+    });
+  }
   public iconsRenderedHtml() {
     return Object.keys(this.icons).map(icon => this.icons[icon]).join("");
   }
@@ -57,11 +62,6 @@ export class SvgIconRegistry {
 }
 export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export var SvgBundleViewModel: any;
+const path = (<any>require).context("./images", false, /\.svg$/);
 
-if (!!(<any>global).document) {
-  var svgTemplate = require("html-loader?interpolate!val-loader!./svgbundle.html");
-  var templateHolder = document.createElement("div");
-  templateHolder.style.display = "none";
-  templateHolder.innerHTML = svgTemplate;
-  document.head.appendChild(templateHolder);
-}
+SvgRegistry.registerIconsFromFolder(path);

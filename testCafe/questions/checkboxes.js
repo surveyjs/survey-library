@@ -211,7 +211,7 @@ frameworks.forEach((framework) => {
     await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok()
   });
 
-  test.only(`check "other" choice doesn't change order`, async (t) => {
+  test(`check "other" choice doesn't change order`, async (t) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(

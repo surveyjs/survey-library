@@ -8,7 +8,11 @@
       :question="question"
       :item="item"
       :index="index"
-    ></survey-radiogroup-item><div
+    ></survey-radiogroup-item>
+    <div 
+      v-if="question.hasColumns"
+      :class="question.cssClasses.rootMultiColumn">
+    <div
       v-if="question.hasColumns"
       v-for="(column, colIndex) in question.columns"
       :class="question.getColumnClass()"
@@ -22,7 +26,24 @@
         :item="item"
         :index="'' + colIndex + index"
       ></survey-radiogroup-item>
-    </div><div v-if="question.canShowClearButton">
+    </div>
+    </div>
+        <survey-radiogroup-item
+        v-for="(item, index) in question.footItems"
+        v-if="question.hasColumns && question.hasFootItems"
+        :key="item.value"
+        :class="question.getItemClass(item)"
+        :question="question"
+        :item="item"
+        :index="'' + index"
+      ></survey-radiogroup-item>
+      <survey-other-choice
+        v-if="
+          question.renderedValue && question.isOtherSelected
+        "
+        :question="question"
+      />
+    <div v-if="question.canShowClearButton">
       <input
         type="button"
         :class="question.cssClasses.clearButton"

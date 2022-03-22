@@ -8,14 +8,27 @@
     <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: question.hasColumns -->
-    <!-- ko foreach: question.columns -->
-    <div data-bind="css: question.getColumnClass()" role="presentation">
-      <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender } -->
-        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+      <div data-bind="css: question.koCss().rootMultiColumn">
+
+        <!-- ko foreach: question.columns -->
+        <div data-bind="css: question.getColumnClass()" role="presentation">
+          <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender } -->
+            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+            <!-- /ko -->
+          <!-- /ko -->
+        </div>
+        <!-- /ko -->
+      </div>
+      <!-- ko if: question.hasFootItems  -->
+        <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
+          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+          <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
-    </div>
+
     <!-- /ko -->
+    <!-- ko if: question.hasOther && question.isOtherSelected -->
+      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
     <!-- /ko -->
     <!-- ko if: question.canShowClearButton -->
     <div>
@@ -50,11 +63,5 @@
         <!-- /ko -->
       </span>
     </label>
-    <!-- ko if: question.isOtherItem(item) -->
-    <div
-      class="form-group"
-      data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected}}"
-    ></div>
-    <!-- /ko -->
   </div>
 </script>

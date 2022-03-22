@@ -40,6 +40,118 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
     "check showItemsBy column"
   );
 });
+
+QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        choices: ["Item1", "Item2", "Item3", "Item4", "Item5"],
+        colCount: 3,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  assert.notOk(question.hasHeadItems);
+  assert.notOk(question.hasFootItems);
+
+  var columns = getValuesInColumns(question);
+  columns = getValuesInColumns(question);
+  settings.showItemsInOrder = "column";
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - runtime"
+  );
+
+  survey.setDesignMode(true);
+  settings.supportCreatorV2 = true;
+  (<any>question).updateVisibleChoices();
+  assert.ok(question.hasHeadItems);
+  assert.ok(question.hasFootItems);
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - design"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "other"],
+    "check foot items"
+  );
+  settings.showItemsInOrder = "row";
+  settings.supportCreatorV2 = false;
+});
+
+QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        choices: ["Item1", "Item2"],
+        hasOther: true,
+        hasSelectAll: true,
+        hasNone: true,
+        colCount: 2
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  question.separateSpecialChoices = false;
+  assert.notOk(question.hasHeadItems);
+  assert.notOk(question.hasFootItems);
+
+  var columns = getValuesInColumns(question);
+  columns = getValuesInColumns(question);
+  settings.showItemsInOrder = "column";
+  assert.deepEqual(
+    columns,
+    [["selectall", "Item2", "other"], ["Item1", "none"]],
+    "check columns with no separateSpecialChoices"
+  );
+
+  question.separateSpecialChoices = true;
+  assert.ok(question.hasHeadItems);
+  assert.ok(question.hasFootItems);
+
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1"], ["Item2"]],
+    "check columns with separateSpecialChoices"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["none", "other"],
+    "check foot items"
+  );
+  settings.showItemsInOrder = "row";
+  settings.supportCreatorV2 = false;
+});
+
 QUnit.test("Set ", function (assert) {
   var json = {
     questions: [
@@ -158,8 +270,8 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
   assert.equal(question.visibleChoices.length, 4);
   assert.equal(question.visibleChoices[0].value, "Item2");
   assert.equal(question.visibleChoices[1].value, "Item3");
-  assert.equal(question.visibleChoices[2].value, "other");
-  assert.equal(question.visibleChoices[3].value, "none");
+  assert.equal(question.visibleChoices[2].value, "none");
+  assert.equal(question.visibleChoices[3].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
     if (options.question.name !== "q1") return;

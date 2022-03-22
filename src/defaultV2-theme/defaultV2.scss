@@ -85,8 +85,6 @@
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
     border-radius: calcSize(0.5);
-    padding: calcSize(1) 0;
-    background-color: $background;
 
     &::-webkit-scrollbar {
       width: 12px;
@@ -111,6 +109,11 @@
   }
 }
 
+.sv-popup .sv-popup_shadow {
+  padding: calcSize(1) 0;
+  background-color: $background;
+}
+
 .sv-popup.sv-popup--modal {
   .sv-popup__container {
     filter: drop-shadow(0px 2px 6px $shadow-medium);
@@ -122,4 +125,8 @@
     padding-bottom: 2px;
   }
   padding: calcSize(4);
+}
+
+.sv-list__input:focus {
+  border: 1px solid transparent;
 }

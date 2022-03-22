@@ -2803,8 +2803,9 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    if (this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
+    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
       page.focusFirstQuestion();
+      this.isCurrentPageRendering = false;
     }
   }
   /**
@@ -2953,6 +2954,9 @@ export class SurveyModel extends SurveyElementCore
       isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
+    if(options.allowChanging) {
+      this.isCurrentPageRendering = true;
+    }
     return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
@@ -4124,9 +4128,10 @@ export class SurveyModel extends SurveyElementCore
     this.onUpdateChoiceItemCss.fire(this, options);
   }
   private isFirstPageRendering: boolean = true;
+  private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode) {
-      this.scrollToTopOnPageChange(!this.isFirstPageRendering);
+      setTimeout(()=>this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -6214,6 +6219,7 @@ export class SurveyModel extends SurveyElementCore
     this.currentPage = <PageModel>question.page;
     question.focus();
     this.isFocusingQuestion = false;
+    this.isCurrentPageRendering = false;
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {

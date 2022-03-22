@@ -4,7 +4,12 @@
   .sd-body__page {
     min-width: calc(300px + 6 * #{$base-unit});
   }
+  .sd-body__timer {
+    padding: calcSize(2) calcSize(2) 0;
+    box-sizing: border-box;
+  }
   &.sd-body--static {
+    .sd-body__timer,
     .sd-body__navigation,
     .sd-body__page {
       margin-left: auto;
@@ -14,6 +19,7 @@
   }
   &.sd-body--responsive {
     max-width: initial;
+    .sd-body__timer,
     .sd-body__navigation {
       padding: calcSize(2) calcSize(3);
     }

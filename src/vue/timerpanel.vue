@@ -1,5 +1,5 @@
 <template>
-  <div>{{ text }}</div>
+  <div :class="css.timerRoot">{{ text }}</div>
 </template>
 
 <script lang="ts">

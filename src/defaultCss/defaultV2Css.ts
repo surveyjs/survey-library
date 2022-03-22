@@ -15,6 +15,7 @@ export var defaultV2Css = {
   headerText: "sd-header__text",
   navigationButton: "",
   completedPage: "sd-completedpage",
+  timerRoot: "sd-body__timer",
   navigation: {
     complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
     prev: "sd-btn sd-navigation__prev-btn",

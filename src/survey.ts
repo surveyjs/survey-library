@@ -1726,6 +1726,10 @@ export class SurveyModel extends SurveyElementCore
     if (!!page) {
       page.locStrsChanged();
     }
+    const visPages = this.visiblePages;
+    for(var i = 0; i < visPages.length; i ++) {
+      visPages[i].navigationLocStrChanged();
+    }
   }
 
   public getMarkdownHtml(text: string, name: string): string {

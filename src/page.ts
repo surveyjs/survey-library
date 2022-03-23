@@ -64,6 +64,10 @@ export class PageModel extends PanelModelBase implements IPage {
   public get locNavigationDescription(): LocalizableString {
     return this.getLocalizableString("navigationDescription");
   }
+  public navigationLocStrChanged(): void {
+    this.locNavigationTitle.strChanged();
+    this.locNavigationDescription.strChanged();
+  }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);
   }

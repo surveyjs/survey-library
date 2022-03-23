@@ -2,11 +2,26 @@
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
 import Comment from './components/Comment.vue'
+import { Model } from "survey-core";
+
+var json = {
+    "elements": [
+        {
+          "type": "comment",
+          "name": "comment1"
+        }
+    ]
+};
+
+const survey = new Model(json);
+const question = survey.getAllQuestions()[0];
+
+window.survey = survey;
 </script>
 
 <template> 
   <header>
-   <Comment value="Hello SurveyJS Comment Question !!!" />
+   <Comment :question="question" />
   </header>
 
   <main>

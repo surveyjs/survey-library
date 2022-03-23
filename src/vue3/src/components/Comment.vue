@@ -1,28 +1,16 @@
 <script setup lang="ts">
-import { Question, Model } from "survey-core";
+import { QuestionCommentModel } from "survey-core";
+import {toRefs} from "vue";
+import {makeReactive} from "./base";
 
-defineProps<{
-  value: string
-}>()
-
-var json = {
-    "elements": [
-        {
-          "type": "comment",
-          "name": "comment1"
-        }
-    ]
-};
-
-const survey = new Model(json);
-const question = survey.getAllQuestions()[0];
-
-window.survey = survey;
+const props = defineProps<{
+  question: QuestionCommentModel
+}>();
 
 function change(event: any) {
-  question.value = event.target.value;
+  props.question.value = event.target.value;
 }
-
+makeReactive(props.question);
 </script>
 
 <template>

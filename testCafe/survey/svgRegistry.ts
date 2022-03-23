@@ -24,10 +24,12 @@ frameworks.forEach(async framework => {
     }
   );
   test("Check svg icons", async t => {
+    var svgContainer = ClientFunction(() => {
+      return document.querySelector("#sv-icon-holder-global-container").innerHTML;
+    });
     await t
       .expect(Selector("#sv-icon-holder-global-container").exists).ok()
-      .expect(ClientFunction(() => {
-        return document.querySelector("#sv-icon-holder-global-container").innerHTML;
-      })()).eql("<svg style=\"display:none;\"><symbol id=\"icon-icon-test\" viewBox=\"1 2 3 4\"></symbol></svg>");
+      .expect(svgContainer()).contains("<symbol id=\"icon-icon-test\" viewBox=\"1 2 3 4\"></symbol>")
+      .expect(svgContainer()).contains("<symbol id=\"icon-left\"");
   });
 });

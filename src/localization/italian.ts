@@ -46,6 +46,8 @@ export var italianSurveyStrings = {
     "File in caricamento. Attendi alcuni secondi e riprova",
   loadingFile: "Caricamento...",
   chooseFile: "Selezionare file(s)...",
+  fileDragAreaPlaceholder: "Trascina un file qui o fai clic sul pulsante in basso per caricare il file.",
+
   noFileChosen: "Nessun file selezionato",
   confirmDelete: "Sei sicuro di voler elminare il record?",
   keyDuplicationError: "Questo valore deve essere univoco.",

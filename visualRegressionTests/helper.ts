@@ -5,6 +5,17 @@ export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
 });
 
+export const explicitErrorHandler = ClientFunction(() => { window.addEventListener("error", e => {
+  if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    e.message === "ResizeObserver loop limit exceeded") {
+    e.stopImmediatePropagation();
+  } });
+});
+
+export const applyTheme = ClientFunction(theme => {
+  (<any>window).Survey.StylesManager.applyTheme(theme);
+});
+
 export async function checkElementScreenshot(screenshotName: string, element: Selector, t: TestController): Promise<void> {
   const comparer = createScreenshotsComparer(t);
   await t

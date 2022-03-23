@@ -1,6 +1,7 @@
 import { surveyCss } from "./cssstandard";
 export var modernCss = {
   root: "sv-root-modern",
+  timerRoot: "sv-body__timer",
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",

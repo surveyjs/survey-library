@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultV2Css = {
   root: "sd-root-modern",
+  rootMobile: "sd-root-modern--mobile",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
@@ -14,6 +15,7 @@ export var defaultV2Css = {
   headerText: "sd-header__text",
   navigationButton: "",
   completedPage: "sd-completedpage",
+  timerRoot: "sd-body__timer",
   navigation: {
     complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
     prev: "sd-btn sd-navigation__prev-btn",
@@ -170,7 +172,7 @@ export var defaultV2Css = {
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     other: "sd-input sd-comment sd-selectbase__other",
-    column: "sd-selectbase__column"
+    column: "sd-selectbase__column",
   },
   radiogroup: {
     root: "sd-selectbase",
@@ -375,6 +377,7 @@ export var defaultV2Css = {
     noFileChosen: "sd-description sd-file__no-file-chosen",
     chooseFile: "sd-file__choose-btn",
     chooseFileAsText: "sd-action sd-file__choose-btn--text",
+    chooseFileAsTextDisabled: "sd-action--disabled",
     chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
@@ -394,7 +397,7 @@ export var defaultV2Css = {
     imageWrapper: "sd-file__image-wrapper",
     single: "sd-file--single",
     singleImage: "sd-file--single-image",
-    mobile: "sd-file--mobile"
+    mobile: "sd-file--mobile",
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",
@@ -450,7 +453,9 @@ export var defaultV2Css = {
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
   },
-
+  variables: {
+    mobileWidth: "--sd-mobile-width"
+  }
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

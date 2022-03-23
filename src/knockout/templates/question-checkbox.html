@@ -8,6 +8,13 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.hasColumns  -->
+        <!-- ko if: question.hasHeadItems  -->
+          <!-- ko foreach: { data: question.headItems, as: 'item', afterRender: question.koAfterRender }  -->
+            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
+            <!-- /ko -->
+          <!-- /ko -->
+        <!-- /ko -->
+        <div data-bind="css: question.koCss().rootMultiColumn">
         <!-- ko foreach: question.columns -->
             <div data-bind="css: question.getColumnClass()" role="presentation">
             <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
@@ -16,6 +23,16 @@
             <!-- /ko -->
             </div>
         <!-- /ko -->
+        </div>
+        <!-- ko if: question.hasFootItems  -->
+          <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
+            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
+            <!-- /ko -->
+          <!-- /ko -->
+        <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.hasOther && question.isOtherSelected -->
+      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
       <!-- /ko -->
     </fieldset>
 </script>
@@ -23,7 +40,7 @@
   <div role="presentation" data-bind="css: question.getItemClass(item)">
       <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
           <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
@@ -42,8 +59,5 @@
               <!-- /ko -->
           </span>
       </label>
-      <!-- ko if: question.isOtherItem(item) -->
-      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
-      <!-- /ko -->
   </div>
 </script>

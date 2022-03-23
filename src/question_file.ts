@@ -466,11 +466,13 @@ export class QuestionFileModel extends Question {
     return true;
   }
   public getChooseFileCss(): string {
+    const isAnswered = this.isAnswered;
     return new CssClassBuilder()
       .append(this.cssClasses.chooseFile)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .append(this.cssClasses.chooseFileAsText, !this.isAnswered)
-      .append(this.cssClasses.chooseFileAsIcon, this.isAnswered)
+      .append(this.cssClasses.chooseFileAsText, !isAnswered)
+      .append(this.cssClasses.chooseFileAsTextDisabled, !isAnswered && this.isInputReadOnly)
+      .append(this.cssClasses.chooseFileAsIcon, isAnswered)
       .toString();
   }
   public getReadOnlyFileCss(): string {

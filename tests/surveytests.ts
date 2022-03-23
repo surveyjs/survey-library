@@ -14569,3 +14569,43 @@ QUnit.test("Run expressions on changing comments", function (assert) {
   survey.setComment("question1", "abc");
   assert.equal(question2.isVisible, false, "Invisible again");
 });
+
+QUnit.test("Check survey resize observer", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  survey.afterRenderSurvey(rootEl);
+  assert.notOk(survey["resizeObserver"]);
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  survey.afterRenderSurvey(rootEl);
+  assert.ok(survey["resizeObserver"]);
+  survey.dispose();
+  assert.notOk(survey["resizeObserver"]);
+  window.getComputedStyle = getComputedStyle;
+});
+QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey["processResponsiveness"](500, 600);
+  assert.ok(survey._isMobile);
+  survey["processResponsiveness"](600, 500);
+  assert.notOk(survey._isMobile);
+});

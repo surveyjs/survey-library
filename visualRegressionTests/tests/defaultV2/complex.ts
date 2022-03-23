@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
 
 const title = "Complex Screenshot";
 
@@ -89,6 +89,7 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
     await applyTheme(theme);
   });
   test("Check complex question", async (t) => {

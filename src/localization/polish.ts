@@ -45,6 +45,7 @@ export var polishSurveyStrings = {
     "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   loadingFile: "Ładowanie...",
   chooseFile: "Wybierz plik(i)...",
+  fileDragAreaPlaceholder: "Upuść plik tutaj lub kliknij przycisk poniżej, aby załadować plik.",
   noFileChosen: "Nie wybrano żadnego pliku",
   confirmDelete: "Chcesz skasować nagranie?",
   keyDuplicationError: "Ta wartość powinna być wyjątkowa.",

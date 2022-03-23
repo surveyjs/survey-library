@@ -45,6 +45,7 @@ export var russianSurveyStrings = {
     "Ваш файл загружается. Подождите несколько секунд и попробуйте снова.",
   loadingFile: "Загрузка...",
   chooseFile: "Выберите файл(ы)...",
+  fileDragAreaPlaceholder: "Перетащите файл сюда или нажмите кнопку ниже, чтобы загрузить файл.",
   noFileChosen: "Файл не выбран",
   confirmDelete: "Вы точно хотите удалить запись?",
   keyDuplicationError: "Это значение должно быть уникальным.",

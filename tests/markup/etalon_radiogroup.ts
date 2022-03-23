@@ -163,5 +163,74 @@ registerMarkupTests(
     },
     snapshot: "radiogroup-columns",
   },
+  {
+    name: "Test radiogroup columns in mobile mode",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 2,
+          "isMobile": true,
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "radiogroup-columns-mobile",
+    initSurvey: survey => survey.setIsMobile(true),
+  },
+  {
+    name: "Test radiogroup columns with header and footer",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 2,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          hasNone: true,
+          hasOther: true,
+          titleLocation: "hidden",
+          separateSpecialChoices: true
+        }
+      ]
+    },
+    snapshot: "radiogroup-columns-head-foot",
+  },
+  {
+    name: "Test radiogroup columns with no header and footer",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 2,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          hasNone: true,
+          hasOther: true,
+          separateSpecialChoices: false,
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "radiogroup-columns-no-head-foot",
+  },
   ]
 );

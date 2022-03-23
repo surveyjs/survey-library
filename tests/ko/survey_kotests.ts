@@ -2475,3 +2475,30 @@ QUnit.test("Initial Text Processing in panel title and ko", function (assert) {
     "Text processing on setting value"
   );
 });
+QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        navigationTitle: { default: "title1 en", de: "title1 de" },
+        elements: [{ type: "text", name: "question1" }]
+      },
+      {
+        navigationTitle: { default: "title2 en", de: "title2 de" },
+        elements: [{ type: "text", name: "question1" }]
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  const page1 = survey.pages[0];
+  const page2 = survey.pages[1];
+  assert.equal(page1.locNavigationTitle["koRenderedHtml"](), "title1 en", "en - title1");
+  assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 en", "en - title2");
+  survey.locale = "de";
+  assert.equal(page1.locNavigationTitle.text, "title1 de", "de text - title1");
+  assert.equal(page2.locNavigationTitle.text, "title2 de", "de text - title2");
+  assert.equal(page1.locNavigationTitle["koRenderedHtml"](), "title1 de", "de - title1");
+  assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 de", "de - title2");
+  survey.locale = "";
+});

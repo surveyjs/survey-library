@@ -26,11 +26,7 @@
       >
         <survey-string :locString="item.locText" />
       </span> </label
-    ><survey-other-choice
-      v-show="question.isOtherSelected"
-      v-if="question.isOtherItem(item)"
-      :question="question"
-    />
+    >
   </div>
 </template>
 

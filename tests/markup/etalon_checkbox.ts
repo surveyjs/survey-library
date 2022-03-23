@@ -145,5 +145,76 @@ registerMarkupTests(
       },
       snapshot: "checkbox-columns",
     },
+    {
+      name: "Test checkbox columns in mobile mode",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "showClearButton": true,
+            "colCount": 2,
+            "isMobile": true,
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-columns-mobile",
+      initSurvey: survey => survey.setIsMobile(true),
+    },
+    {
+      name: "Test checkbox columns with header and footer",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "showClearButton": true,
+            "colCount": 2,
+            "choices": [
+              "item1",
+              "item2"
+            ],
+            hasSelectAll: true,
+            hasNone: true,
+            hasOther: true,
+            titleLocation: "hidden",
+            separateSpecialChoices: true
+          }
+        ]
+      },
+      snapshot: "checkbox-columns-head-foot",
+    },
+    {
+      name: "Test checkbox columns with no header and footer",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "showClearButton": true,
+            "colCount": 2,
+            "choices": [
+              "item1",
+              "item2"
+            ],
+            hasSelectAll: true,
+            hasNone: true,
+            hasOther: true,
+            separateSpecialChoices: false,
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-columns-no-head-foot",
+    },
   ]
 );

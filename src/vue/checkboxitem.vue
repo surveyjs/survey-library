@@ -33,13 +33,7 @@
       >
         <survey-string :locString="item.locText" />
       </span>
-    </label><survey-other-choice
-      v-show="
-        question.renderedValue && question.isOtherSelected
-      "
-      v-if="question.isOtherItem(item)"
-      :question="question"
-    />
+    </label>
   </div>
 </template>
 
@@ -59,7 +53,7 @@ export class CheckboxItem extends BaseVue {
     return this.item;
   }
   get isAllSelected() {
-    return this.question.isAllSelected;
+    return this.question.isAllSelected || "";
   }
   set isAllSelected(val: boolean) {
     this.question.isAllSelected = val;

@@ -1,5 +1,5 @@
 <template>
-  <div :class="css.root">
+  <div :class="survey.getRootCss()">
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">

@@ -77,7 +77,13 @@ export class MatrixCells {
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
   }
-  public setCellText(row: any, column: any, val: string) {
+  public onValuesChanged: () => void;
+  private valuesChanged(): void {
+    if(!!this.onValuesChanged) {
+      this.onValuesChanged();
+    }
+  }
+  public setCellText(row: any, column: any, val: string): void {
     row = this.getCellRowColumnValue(row, this.rows);
     column = this.getCellRowColumnValue(column, this.columns);
     if (!row || !column) return;
@@ -98,6 +104,7 @@ export class MatrixCells {
         }
       }
     }
+    this.valuesChanged();
   }
   public setDefaultCellText(column: any, val: string) {
     this.setCellText(settings.matrixDefaultRowName, column, val);
@@ -167,20 +174,22 @@ export class MatrixCells {
     }
     return res;
   }
-  public setJson(value: any) {
+  public setJson(value: any): void {
     this.values = {};
-    if (!value) return;
-    for (var row in value) {
-      if (row == "pos") continue;
-      var rowValues = value[row];
-      this.values[row] = {};
-      for (var col in rowValues) {
-        if (col == "pos") continue;
-        var loc = this.createString();
-        loc.setJson(rowValues[col]);
-        this.values[row][col] = loc;
+    if (!!value) {
+      for (var row in value) {
+        if (row == "pos") continue;
+        var rowValues = value[row];
+        this.values[row] = {};
+        for (var col in rowValues) {
+          if (col == "pos") continue;
+          var loc = this.createString();
+          loc.setJson(rowValues[col]);
+          this.values[row][col] = loc;
+        }
       }
     }
+    this.valuesChanged();
   }
   protected createString(): LocalizableString {
     return new LocalizableString(this.cellsOwner, true);
@@ -199,17 +208,19 @@ export class QuestionMatrixModel
   constructor(name: string) {
     super(name);
     this.cellsValue = new MatrixCells(this);
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("columns", function() {
-      self.onColumnsChanged();
+    this.cellsValue.onValuesChanged = () => {
+      this.updateHasCellText();
+    };
+    this.registerFunctionOnPropertyValueChanged("columns", () => {
+      this.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
-      if (!self.filterItems()) {
-        self.onRowsChanged();
+    this.registerFunctionOnPropertyValueChanged("rows", () => {
+      if (!this.filterItems()) {
+        this.onRowsChanged();
       }
     });
-    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", function() {
-      self.updateVisibilityBasedOnRows();
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", () => {
+      this.updateVisibilityBasedOnRows();
     });
   }
   public getType(): string {
@@ -360,7 +371,10 @@ export class QuestionMatrixModel
     this.cells.setJson(value && value.getJson ? value.getJson() : null);
   }
   public get hasCellText(): boolean {
-    return !this.cells.isEmpty;
+    return this.getPropertyValue("hasCellText", false);
+  }
+  protected updateHasCellText(): void {
+    this.setPropertyValue("hasCellText", !this.cells.isEmpty);
   }
   public setCellText(row: any, column: any, val: string) {
     this.cells.setCellText(row, column, val);

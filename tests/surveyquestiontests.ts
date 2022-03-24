@@ -593,6 +593,30 @@ QUnit.test(
   }
 );
 
+QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"]
+    }]
+  });
+  var matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.hasCellText, false, "There is no cell text");
+  survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"],
+      cells: { default: { col1: "text" } }
+    }]
+  });
+  matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.hasCellText, true, "There is cell text");
+});
+
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];

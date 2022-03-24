@@ -14591,6 +14591,14 @@ QUnit.test("Check survey resize observer", function (assert) {
   window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
   survey.afterRenderSurvey(rootEl);
   assert.ok(survey["resizeObserver"]);
+  const firstResizeObserver = survey["resizeObserver"];
+  let firstResizeObserverIsConnected = true;
+  firstResizeObserver.disconnect = () => {
+    firstResizeObserverIsConnected = false;
+  };
+  survey.afterRenderSurvey(rootEl);
+  assert.notOk(survey["resizeObserver"] == firstResizeObserver, "check that new resize observer is created after second afterRender");
+  assert.notOk(firstResizeObserverIsConnected, "check that old resize observer is disconnected after second afterRender");
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;

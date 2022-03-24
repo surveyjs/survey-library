@@ -4111,6 +4111,7 @@ export class SurveyModel extends SurveyElementCore
   private resizeObserver: ResizeObserver;
 
   afterRenderSurvey(htmlElement: any) {
+    this.destroyResizeObserver();
     let observedElement:HTMLElement = htmlElement;
     if(Array.isArray(htmlElement)) {
       observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);

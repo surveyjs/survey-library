@@ -41,12 +41,12 @@ export class ImplementorBase {
     };
     element.setPropertyValueCoreHandler = (hash, key, val) => {
       if(hash[key] !== undefined) {
-        if(hash[key]() === val) {
-          hash[key].notifySubscribers();
-        }
+        // if(hash[key]() === val) {
+        //   hash[key].notifySubscribers();
+        // }
         hash[key](val);
       } else {
-        (hash[key] = ko.observable(val));
+        hash[key] = ko.observable(val);
       }
     };
     (<any>element)[this.implementedMark] = true;

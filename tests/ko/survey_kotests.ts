@@ -543,7 +543,7 @@ QUnit.test(
     );
     assert.equal(
       readOnlyChangedCounter,
-      4,
+      3,
       "readOnlyChangedCounter - mode changed 2"
     );
   }

@@ -10,23 +10,23 @@
       "Items": [
         {
           "Name": "get-started-angular",
-          "Title": "Use with Angular"
+          "Title": "Angular"
         },
         {
           "Name": "get-started-vue",
-          "Title": "Use with Vue"
+          "Title": "Vue"
         },
         {
           "Name": "get-started-react",
-          "Title": "Use with React"
+          "Title": "React"
         },
         {
           "Name": "get-started-knockout",
-          "Title": "Use with Knockout"
+          "Title": "Knockout"
         },
         {
           "Name": "get-started-jquery",
-          "Title": "Use with jQuery"
+          "Title": "jQuery"
         }
       ]
     },

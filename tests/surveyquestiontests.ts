@@ -3893,6 +3893,14 @@ QUnit.test("question.getSupportedValidators", function(assert) {
     "answercount",
   ]);
 });
+QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function(assert) {
+  const q = new QuestionImagePickerModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.multiSelect = true;
+  assert.equal(q.supportGoNextPageAutomatic(), false, "It doesn't support it for multiselect");
+  q.multiSelect = false;
+  assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
+});
 
 QUnit.test("Question<=Base propertyValueChanged", function(assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };

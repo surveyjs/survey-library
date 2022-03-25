@@ -327,6 +327,7 @@ export class PageModel extends PanelModelBase implements IPage {
       }
 
       if (!!src && !!src.parent) {
+        (this.survey as SurveyModel).startMovingQuestion();
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);
@@ -338,6 +339,7 @@ export class PageModel extends PanelModelBase implements IPage {
       if (targetIndex > -1) {
         row.panel.addElement(target, targetIndex);
       }
+      (this.survey as SurveyModel).stopMovingQuestion();
     }
     elementsToSetSWNL.map((e) => { e.startWithNewLine = true; });
     elementsToResetSWNL.map((e) => { e.startWithNewLine = false; });

@@ -5703,13 +5703,16 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.onQuestionAdded.fire(this, {
-      question: question,
-      name: question.name,
-      index: index,
-      parentPanel: parentPanel,
-      rootPanel: rootPanel,
-    });
+    if(!this.isMovingQuestion) {
+      this.onQuestionAdded.fire(this, {
+        question: question,
+        name: question.name,
+        index: index,
+        parentPanel: parentPanel,
+        rootPanel: rootPanel,
+      });
+    }
+
   }
   questionRemoved(question: IQuestion) {
     this.questionHashesRemoved(
@@ -6244,6 +6247,14 @@ export class SurveyModel extends SurveyElementCore
     this.setTriggerValue(name, value, false);
   }
   private isFocusingQuestion: boolean;
+
+  private isMovingQuestion: boolean;
+  public startMovingQuestion(): void {
+    this.isMovingQuestion = true;
+  }
+  public stopMovingQuestion(): void {
+    this.isMovingQuestion = false;
+  }
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.

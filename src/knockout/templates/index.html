@@ -74,5 +74,6 @@
       <input type="button" data-bind="event: { mousedown: nextPageMouseDown }, value: locPageNextText.koRenderedHtml, click: nextPageUIClick, visible: isShowNextButton, css: cssNavigationNext" />
       <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPreviewText.koRenderedHtml, click: showPreview, visible: isPreviewButtonVisible, css: cssNavigationPreview" />
       <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locCompleteText.koRenderedHtml, click: completeLastPage, visible: isCompleteButtonVisible, css: cssNavigationComplete" />
+    <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
   </div>
 </script>

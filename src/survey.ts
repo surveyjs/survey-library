@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base, EventBase, ComputedUpdater } from "./base";
 import {
   ISurvey,
   ISurveyData,
@@ -41,9 +41,9 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
-import { IAction } from "./actions/action";
+import { IAction, Action } from "./actions/action";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { element } from "angular";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -92,6 +92,8 @@ export class SurveyModel extends SurveyElementCore
 
   private textPreProcessor: TextPreProcessor;
   private timerModelValue: SurveyTimerModel;
+
+  private navigationBarValue: ActionContainer;
 
   //#region Event declarations
 
@@ -1082,6 +1084,7 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
+    this.navigationBarValue = this.createNavigationBar();
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -2022,6 +2025,9 @@ export class SurveyModel extends SurveyElementCore
   }
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
+  }
+  public get navigationBar(): ActionContainer {
+    return this.navigationBarValue;
   }
   /**
    * Gets or sets the 'Start' button caption.
@@ -5261,6 +5267,53 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
+  }
+  protected createNavigationBar(): ActionContainer {
+    const res = new ActionContainer();
+    res.actions = this.createNavigationActions();
+    return res;
+  }
+  protected createNavigationActions(): Array<Action> {
+    const actions: Array<IAction> = [
+      {
+        id: "sv-nav-start",
+        title: this.startSurveyText,
+        visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
+        css: this.cssNavigationStart,
+        action: () => { this.start(); }
+      },
+      {
+        id: "sv-nav-prev",
+        title: this.pagePrevText,
+        visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
+        css: this.cssNavigationPrev,
+        action: () => { this.prevPage(); }
+      },
+      {
+        id: "sv-nav-next",
+        title: this.pageNextText,
+        visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
+        css: this.cssNavigationNext,
+        action: () => { this.nextPageUIClick(); }
+      },
+      {
+        id: "sv-nav-preview",
+        title: this.previewText,
+        visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
+        css: this.cssNavigationPreview,
+        action: () => { this.showPreview(); }
+      },
+      {
+        id: "sv-nav-complete",
+        title: this.completeText,
+        visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+        css: this.cssNavigationComplete,
+        action: () => { this.doComplete(); }
+      }
+    ];
+    const res = new Array<Action>();
+    actions.forEach(a => res.push(new Action(a)));
+    return res;
   }
   protected onBeforeCreating() { }
   protected onCreating() { }

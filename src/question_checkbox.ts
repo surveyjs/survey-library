@@ -438,6 +438,7 @@ Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",
+    { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",

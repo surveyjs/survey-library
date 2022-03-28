@@ -1,34 +1,15 @@
 <template>
   <div :class="row.getRowCss()">
-    <div
+    <survey-element
       v-for="element in row.visibleElements"
       :key="element.id"
       :style="element.rootStyle"
+      :element="element"
+      :survey="survey"
+      :css="css"
+      :row="row"
     >
-      <component
-        :is="element.getType"
-        v-if="row.isNeedRender"
-        :id="element.id"
-        :role="element.ariaRole"
-        :aria-required="element.ariaRequired"
-        :aria-invalid="element.ariaInvalid"
-        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
-        :data-name="element.name"
-        :style="{
-          paddingLeft: element.paddingLeft,
-          paddingRight: element.paddingRight,
-        }"
-        :element="element"
-        :survey="survey"
-        :css="css"
-      ></component>
-      <component
-        v-if="!row.isNeedRender && !!element.skeletonComponentName"
-        :is="element.skeletonComponentName"
-        :question="element"
-        :css="css"
-      ></component>
-    </div>
+    </survey-element>
   </div>
 </template>
 

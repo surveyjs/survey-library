@@ -1,5 +1,12 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null" role="presentation">
+  <div :class="!element.isPanel ? element.getRootCss() : null" 
+        v-if="row.isNeedRender"
+        :id="element.id"
+        :role="element.ariaRole"
+        :aria-required="element.ariaRequired"
+        :aria-invalid="element.ariaInvalid"
+        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
+        :data-name="element.name">
     <survey-errors
       v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
       :element="element"
@@ -10,40 +17,36 @@
       :element="element"
       :css="css"
     />
+    <survey-errors
+      v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip && (element.isPanel || !element.isCollapsed)"
+      :element="element"
+      :location="'top'"
+    />
+    <component
+      :is="getComponentName(element)"
+      v-if="element.isPanel || !element.isCollapsed"
+      :question="element"
+      :css="css"
+    />
+    <div v-if="element.hasComment && (element.isPanel || !element.isCollapsed)" :class="element.cssClasses.formGroup">
+      <div>{{ element.commentText }}</div>
+      <survey-other-choice :commentClass="css.comment" :question="element" />
+    </div>
+    <survey-errors
+      v-if="!element.isPanel && hasErrorsOnBottom && !element.isErrorsModeTooltip && (element.isPanel || !element.isCollapsed)"
+      :element="element"
+      :location="'bottom'"
+    />
+    <survey-errors
+      v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent && (element.isPanel || !element.isCollapsed)"
+      :element="element"
+      :location="'tooltip'"
+    />
     <div
-      :class="getContentClass(element)"
-      v-show="element.isPanel || !element.isCollapsed"
+      v-if="!element.isPanel && element.hasDescriptionUnderInput"
+      :class="element.cssClasses.descriptionUnderInput"
     >
-      <survey-errors
-        v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip"
-        :element="element"
-        :location="'top'"
-      />
-      <component
-        :is="getComponentName(element)"
-        :question="element"
-        :css="css"
-      />
-      <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
-        <div>{{ element.commentText }}</div>
-        <survey-other-choice :commentClass="css.comment" :question="element" />
-      </div>
-      <survey-errors
-        v-if="!element.isPanel && hasErrorsOnBottom && !element.isErrorsModeTooltip"
-        :element="element"
-        :location="'bottom'"
-      />
-        <survey-errors
-        v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
-        :element="element"
-        :location="'tooltip'"
-      />
-      <div
-        v-if="!element.isPanel && element.hasDescriptionUnderInput"
-        :class="element.cssClasses.descriptionUnderInput"
-      >
-        <survey-string :locString="element.locDescription" />
-      </div>
+      <survey-string :locString="element.locDescription" />
     </div>
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnBottom"
@@ -51,12 +54,18 @@
       :css="css"
     />
   </div>
+  <component
+  v-else-if="!!element.skeletonComponentName"
+  :is="element.skeletonComponentName"
+  :question="element"
+  :css="css"
+></component>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base, SurveyModel, Question, SurveyElement } from "survey-core";
+import { Base, SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -64,6 +73,7 @@ export class SurveyElementVue extends BaseVue {
   @Prop() css: any;
   @Prop() survey: SurveyModel;
   @Prop() element: SurveyElement;
+  @Prop() row: QuestionRowModel;
   protected getModel(): Base {
     return this.element;
   }

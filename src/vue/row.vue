@@ -1,11 +1,12 @@
 <template>
-  <div class="sv-vue-row-additional-div">
+  <div :class="row.getRowCss()">
     <div
       v-for="element in row.visibleElements"
       :key="element.id"
       :style="element.rootStyle"
     >
-      <survey-element
+      <component
+        :is="element.getType"
         v-if="row.isNeedRender"
         :id="element.id"
         :role="element.ariaRole"
@@ -20,7 +21,7 @@
         :element="element"
         :survey="survey"
         :css="css"
-      ></survey-element>
+      ></component>
       <component
         v-if="!row.isNeedRender && !!element.skeletonComponentName"
         :is="element.skeletonComponentName"

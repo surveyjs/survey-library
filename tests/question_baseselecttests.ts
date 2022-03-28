@@ -5,6 +5,7 @@ import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionButtonGroupModel } from "../src/question_buttongroup";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("baseselect");
 
@@ -308,4 +309,11 @@ QUnit.test("check focus comment of other select", (assert) => {
   assert.equal(counter, 1);
   q.value = ["item1", "other"];
   assert.equal(counter, 2);
+});
+QUnit.test("check separateSpecialChoices property visibility", (assert) => {
+  assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("checkbox", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("radiogroup", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });

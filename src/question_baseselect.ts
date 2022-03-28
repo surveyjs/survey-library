@@ -1443,7 +1443,7 @@ Serializer.addClass(
         return !obj.choicesFromQuestion;
       },
     },
-    "separateSpecialChoices:boolean",
+    { name: "separateSpecialChoices:boolean", visible: false },
     "hasOther:boolean",
     "hasNone:boolean",
     {

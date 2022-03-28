@@ -684,9 +684,9 @@ export class QuestionSelectBase extends Question {
     if (item === this.newItemValue) return false;
     return true;
   }
-  protected get isAddDefaultItems() {
+  protected get isAddDefaultItems(): boolean {
     return (
-      settings.supportCreatorV2 && this.isDesignMode && !this.isContentElement
+      settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 && this.isDesignMode && !this.isContentElement
     );
   }
   public getPlainData(

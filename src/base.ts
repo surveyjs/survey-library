@@ -267,7 +267,28 @@ export class Base {
   }
   protected onBaseCreating() { }
   /**
-   * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
+   * Returns the question type.
+   * Possible values:
+   * - [*"boolean"*](https://surveyjs.io/Documentation/Library?id=questionbooleanmodel)
+   * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
+   * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
+   * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel) 
+   * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel) 
+   * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) 
+   * - [*"image"*](https://surveyjs.io/Documentation/Library?id=questionimagemodel)
+   * - [*"imagepicker"*](https://surveyjs.io/Documentation/Library?id=questionimagepickermodel)
+   * - [*"matrix"*](https://surveyjs.io/Documentation/Library?id=questionmatrixmodel) 
+   * - [*"matrixdropdown"*](https://surveyjs.io/Documentation/Library?id=questionmatrixdropdownmodel) 
+   * - [*"matrixdynamic"*](https://surveyjs.io/Documentation/Library?id=questionmatrixdynamicmodel) 
+   * - [*"multipletext"*](https://surveyjs.io/Documentation/Library?id=questionmultipletextmodel) 
+   * - [*"panel"*](https://surveyjs.io/Documentation/Library?id=panelmodel) 
+   * - [*"paneldynamic"*](https://surveyjs.io/Documentation/Library?id=questionpaneldynamicmodel) 
+   * - [*"radiogroup"*](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) 
+   * - [*"rating"*](https://surveyjs.io/Documentation/Library?id=questionratingmodel) 
+   * - [*"ranking"*](https://surveyjs.io/Documentation/Library?id=questionrankingmodel)
+   * - [*"signaturepad"*](https://surveyjs.io/Documentation/Library?id=questionsignaturepadmodel)
+   * - [*"text"*](https://surveyjs.io/Documentation/Library?id=questiontextmodel)
    */
   public getType(): string {
     return "base";

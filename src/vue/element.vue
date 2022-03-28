@@ -75,7 +75,7 @@ export class SurveyElementVue extends BaseVue {
     return element.getComponentName();
   }
   getContentClass(element: Question) {
-    return element.cssContent;
+    return ("sv-vue-collapsable-panel " + (element.cssContent || '')).trim();
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

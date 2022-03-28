@@ -2,7 +2,6 @@
   <div
     v-if="question.isVisible"
     :class="question.getContainerCss()"
-    :style="rootStyle"
   >
     <div v-if="question.hasTitle || question.hasDescription" :class="question.cssClasses.panel.header">
       <survey-element-title :element="question" :css="css"/>

@@ -1838,8 +1838,13 @@ export class Question extends SurveyElement
   protected supportResponsiveness() {
     return false;
   }
-  private checkForResponsiveness(el: HTMLElement): void {
-    if(this.supportResponsiveness()) {
+
+  protected needResponsiveness() {
+    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+  }
+
+  protected checkForResponsiveness(el: HTMLElement): void {
+    if(this.needResponsiveness()) {
       if(this.isCollapsed) {
         const onStateChanged = () => {
           if(this.isExpanded) {
@@ -1854,9 +1859,14 @@ export class Question extends SurveyElement
     }
   }
   private resizeObserver: ResizeObserver;
+
+  protected getObservedElementSelector(): string {
+    return ".sd-scrollable-container";
+  }
+
   private initResponsiveness(el: HTMLElement) {
-    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
-      const scrollableSelector = ".sd-scrollable-container";
+    if(!!el && this.isDefaultRendering()) {
+      const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
         const requiredWidth = defaultRootEl.scrollWidth;

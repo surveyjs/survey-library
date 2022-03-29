@@ -256,6 +256,7 @@ export var defaultV2Css = {
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
     root: "sd-imagepicker",
+    rootResponsive: "sd-imagepicker--responsive",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
     itemInline: "sd-imagepicker__item--inline",
@@ -454,7 +455,8 @@ export var defaultV2Css = {
     itemTitle: "sd-action__title",
   },
   variables: {
-    mobileWidth: "--sd-mobile-width"
+    mobileWidth: "--sd-mobile-width",
+    imagepickerGapBetweenItems: "--sd-imagepicker-gap"
   }
 };
 

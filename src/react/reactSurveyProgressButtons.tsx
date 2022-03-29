@@ -91,15 +91,15 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     listContainerElement: Element,
     isLeftScroll: boolean
   ): void {
-    listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+    if(!!listContainerElement) {
+      listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+    }
   }
   componentDidMount() {
     this.updateScroller = setInterval(() => {
-      this.setState({
-        hasScroller:
-          this.listContainerRef.current.scrollWidth >
-          this.listContainerRef.current.offsetWidth,
-      });
+      if(!!this.listContainerRef.current) {
+        this.setState({ hasScroller: this.listContainerRef.current.scrollWidth > this.listContainerRef.current.offsetWidth, });
+      }
     }, 100);
   }
   componentWillUnmount() {

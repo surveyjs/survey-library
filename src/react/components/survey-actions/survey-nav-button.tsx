@@ -15,7 +15,7 @@ export class SurveyNavigationButton extends ReactSurveyElement {
       <input
         className={this.item.innerCss}
         type="button"
-        onMouseDown={this.item.data && this.item.data.mouseDown}
+        onMouseDown={this.item.data && (() => { this.item.data.mouseDown(); })}
         onClick={() => this.item.action()}
         value={this.item.title}
       />

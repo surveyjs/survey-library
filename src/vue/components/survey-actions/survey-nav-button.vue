@@ -23,8 +23,8 @@ export class SurveyNavigationButton extends BaseVue {
   getModel(): Base {
     return this.item;
   }
-  get mouseDown() {
-    return this.item.data && this.item.data.mouseDown;
+  mouseDown() {
+    return this.item.data && this.item.data.mouseDown();
   }
 }
 

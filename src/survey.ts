@@ -5343,7 +5343,7 @@ export class SurveyModel extends SurveyElementCore
         data: {
           mouseDown: this.navigationMouseDown
         },
-        action: () => { this.doComplete(); },
+        action: () => { this.completeLastPage(); },
         component: defaultComponent
       }
     ];

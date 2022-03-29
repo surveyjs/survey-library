@@ -77,6 +77,7 @@ export { SurveyQuestionPanelDynamicAddButton } from "../react/components/paneldy
 export { SurveyQuestionPanelDynamicPrevButton } from "../react/components/paneldynamic-actions/paneldynamic-prev-btn";
 export { SurveyQuestionPanelDynamicNextButton } from "../react/components/paneldynamic-actions/paneldynamic-next-btn";
 export { SurveyQuestionPanelDynamicProgressText } from "../react/components/paneldynamic-actions/paneldynamic-progress-text";
+export { SurveyNavigationButton } from "../react/components/survey-actions/survey-nav-button";
 
 export { MatrixRow } from "../react/components/matrix/row";
 export { Skeleton } from "../react/components/skeleton";

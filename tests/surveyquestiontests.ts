@@ -619,10 +619,16 @@ QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
 
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
+  let counter = 0;
+  matrix.registerFunctionOnPropertyValueChanged("cells", () => {
+    counter ++;
+  });
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.hasCellText, false, "There is no cell text");
+  assert.equal(counter, 0, "no changes in cells");
   matrix.setCellText(0, 0, "cell11");
+  assert.equal(counter, 1, "one change in cells");
   assert.equal(matrix.hasCellText, true, "There is cell text");
   assert.equal(
     matrix.getCellText(0, 0),
@@ -630,6 +636,7 @@ QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
     "get/set by index works correctly"
   );
   matrix.setCellText(0, 0, "");
+  assert.equal(counter, 2, "second cells change");
   assert.equal(matrix.hasCellText, false, "There is no cell text again");
 });
 QUnit.test("Rubric Matrix Question cells get cell displayText", function(

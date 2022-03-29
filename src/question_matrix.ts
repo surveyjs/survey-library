@@ -210,6 +210,7 @@ export class QuestionMatrixModel
     this.cellsValue = new MatrixCells(this);
     this.cellsValue.onValuesChanged = () => {
       this.updateHasCellText();
+      this.propertyValueChanged("cells", this.cells, this.cells);
     };
     this.registerFunctionOnPropertyValueChanged("columns", () => {
       this.onColumnsChanged();

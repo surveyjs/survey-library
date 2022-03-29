@@ -26,7 +26,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   componentDidMount() {
     super.componentDidMount();
     this.popup.mountPopupContainer();
-    this.popup.targetElement = this.containerRef.current.parentElement;
+    if(!!this.containerRef.current) {
+      this.popup.targetElement = this.containerRef.current.parentElement;
+    }
   }
   componentWillUnmount() {
     this.popup.destroyPopupContainer();

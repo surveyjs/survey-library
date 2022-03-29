@@ -146,8 +146,15 @@
     text-decoration: none;
     color: $foreground;
     white-space: normal;
-    word-break: normal;
-    width: 96px;
+    word-break: break-all;
+    width: calcSize(12);
+    overflow: hidden;
+    max-height: calcSize(6);
+    text-overflow: ellipsis;
+    line-height: calcSize(2);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
 }
 .sd-file__remove-file-button {

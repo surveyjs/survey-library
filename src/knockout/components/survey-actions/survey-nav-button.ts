@@ -7,7 +7,7 @@ export var SurveyNavigationButton: any;
 ko.components.register("sv-nav-btn", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return params.item;
+      return params;
     },
   },
   template: template,

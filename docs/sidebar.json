@@ -31,8 +31,22 @@
       ]
     },
     {
-      "Name": "Create-a-quiz",
-      "Title": "Create a quiz"
+      "Name": "design-survey",
+      "Title": "Design a Survey",
+      "Items": [
+        {
+          "Name": "design-survey-create-a-simple-survey",
+          "Title": "Create a Simple Survey"
+        },
+        {
+          "Name": "design-survey-create-a-multi-page-survey",
+          "Title": "Create a Multi-Page Survey"
+        },
+        {
+          "Name": "design-survey-create-a-quiz",
+          "Title": "Create a Quiz"
+        }
+      ]
     },
     {
       "Name": "api",

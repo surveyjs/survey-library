@@ -14617,3 +14617,26 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   survey["processResponsiveness"](600, 500);
   assert.notOk(survey._isMobile);
 });
+QUnit.test("Check addNavigationBarItem", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.addNavigationBarItem({ id: "custom-btn", visibleIndex: 3 });
+  assert.equal(survey.navigationBar.actions[0].id, "custom-btn");
+  assert.equal(survey.navigationBar.actions[0].innerCss, "sv_nav_btn");
+  assert.equal(survey.navigationBar.actions[0].component, "sv-nav-btn");
+
+  survey.addNavigationBarItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+  assert.equal(survey.navigationBar.actions[3].id, "custom-btn-2");
+  assert.equal(survey.navigationBar.actions[3].innerCss, "custom-css");
+  assert.equal(survey.navigationBar.actions[3].component, "sv-nav-btn");
+
+  survey.addNavigationBarItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
+  assert.equal(survey.navigationBar.actions[5].id, "custom-btn-3");
+  assert.equal(survey.navigationBar.actions[5].component, "custom-component");
+});

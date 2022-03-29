@@ -19,7 +19,7 @@ export var defaultStandardCss = {
   logo: "sv_logo",
   logoImage: "sv_logo__image",
   headerText: "sv_header__text",
-  navigationButton: "",
+  navigationButton: "sv_nav_btn",
   completedPage: "sv_completed_page",
   navigation: {
     complete: "sv_complete_btn",

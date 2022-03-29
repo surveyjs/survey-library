@@ -662,7 +662,22 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
       .sv_nav {
         padding: 1em 0;
         min-height: $base-line-height;
-
+        .sv_nav_btn {
+          float: right;
+          margin: 0 16px;
+        }
+        .sv-action-bar, .sv-action {
+          padding: 0;
+          display: block;
+        }
+        .sv-action:not(:last-child) {
+          .sv-action__content {
+            padding: 0;
+          }
+        }
+        .sv-action__content {
+          display: block;
+        }
         .sv_start_btn,
         .sv_next_btn,
         .sv_complete_btn {

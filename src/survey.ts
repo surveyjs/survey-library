@@ -2029,6 +2029,15 @@ export class SurveyModel extends SurveyElementCore
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
   }
+  public addNavigationBarItem(val: IAction): void {
+    if(!val.component) {
+      val.component = "sv-nav-btn";
+    }
+    if(!val.innerCss) {
+      val.innerCss = this.css.navigationButton;
+    }
+    this.navigationBar.addAction(val);
+  }
   /**
    * Gets or sets the 'Start' button caption.
    * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
@@ -5270,50 +5279,75 @@ export class SurveyModel extends SurveyElementCore
   }
   protected createNavigationBar(): ActionContainer {
     const res = new ActionContainer();
-    res.actions = this.createNavigationActions();
+    const cssClasses = this.css.actionBar;
+    if (!!cssClasses) {
+      res.cssClasses = cssClasses;
+    }
+    res.setItems(this.createNavigationActions());
     return res;
   }
-  protected createNavigationActions(): Array<Action> {
+  protected createNavigationActions(): Array<IAction> {
+    const defaultComponent = "sv-nav-btn";
     const actions: Array<IAction> = [
       {
         id: "sv-nav-start",
         title: this.startSurveyText,
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
-        css: this.cssNavigationStart,
-        action: () => { this.start(); }
+        innerCss: this.cssNavigationStart,
+        visibleIndex: 10,
+        action: () => { this.start(); },
+        component: defaultComponent
       },
       {
         id: "sv-nav-prev",
         title: this.pagePrevText,
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
-        css: this.cssNavigationPrev,
-        action: () => { this.prevPage(); }
+        innerCss: this.cssNavigationPrev,
+        visibleIndex: 20,
+        data: {
+          mouseDown: this.navigationMouseDown
+        },
+        action: () => { this.prevPage(); },
+        component: defaultComponent
       },
       {
         id: "sv-nav-next",
         title: this.pageNextText,
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
-        css: this.cssNavigationNext,
-        action: () => { this.nextPageUIClick(); }
+        innerCss: this.cssNavigationNext,
+        visibleIndex: 30,
+        data: {
+          mouseDown: this.nextPageMouseDown
+        },
+        action: () => { this.nextPageUIClick(); },
+        component: defaultComponent
       },
       {
         id: "sv-nav-preview",
         title: this.previewText,
         visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
-        css: this.cssNavigationPreview,
-        action: () => { this.showPreview(); }
+        innerCss: this.cssNavigationPreview,
+        visibleIndex: 30,
+        data: {
+          mouseDown: this.navigationMouseDown
+        },
+        action: () => { this.showPreview(); },
+        component: defaultComponent
       },
       {
         id: "sv-nav-complete",
         title: this.completeText,
         visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-        css: this.cssNavigationComplete,
-        action: () => { this.doComplete(); }
+        innerCss: this.cssNavigationComplete,
+        visibleIndex: 40,
+        data: {
+          mouseDown: this.navigationMouseDown
+        },
+        action: () => { this.doComplete(); },
+        component: defaultComponent
       }
     ];
-    const res = new Array<Action>();
-    actions.forEach(a => res.push(new Action(a)));
-    return res;
+    return actions;
   }
   protected onBeforeCreating() { }
   protected onCreating() { }

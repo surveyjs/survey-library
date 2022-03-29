@@ -980,6 +980,7 @@ export class StylesManager {
       "background-color: $disabled-slider-color;",
 
     ".sv-btn": "color: $button-text-color;",
+    ".sv-btn--navigation": "background-color: $main-color",
     ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
     ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
       "background-color: $main-hover-color; fill: $checkmark-color;",
@@ -1008,12 +1009,6 @@ export class StylesManager {
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",
-    ".sv-footer__complete-btn": "background-color: $main-color;",
-    ".sv-footer__next-btn": "background-color: $main-color;",
-    ".sv-footer__prev-btn": "background-color: $main-color;",
-    ".sv-footer__start-btn": "background-color: $main-color;",
-    ".sv-footer__preview-btn": "background-color: $main-color;",
-    ".sv-footer__edit-btn": "background-color: $main-color;",
     ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
       "background-color: $main-hover-color; border-color: $main-hover-color;",
     ".sv-imagepicker__item--checked .sv-imagepicker__image":

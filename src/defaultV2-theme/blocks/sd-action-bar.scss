@@ -1,6 +1,9 @@
 .sd-action-bar {
   display: flex;
   align-items: center;
+  .sv-action:not(.sv-action--hidden) ~ .sv-action:not(.sv-action--hidden) {
+    margin-left: calcSize(2);
+  }
   .sv-action:not(:last-child) {
     .sv-action__content {
       padding-right: 0;

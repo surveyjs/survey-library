@@ -13,16 +13,16 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
-  navigationButton: "",
+  navigationButton: "sd-btn",
   completedPage: "sd-completedpage",
   timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
-    prev: "sd-btn sd-navigation__prev-btn",
-    next: "sd-btn sd-navigation__next-btn",
-    start: "sd-btn sd-navigation__start-btn",
-    preview: "sd-btn sd-navigation__preview-btn",
-    edit: "sd-btn sd-navigation__edit-btn"
+    complete: "sd-btn--action sd-navigation__complete-btn",
+    prev: "sd-navigation__prev-btn",
+    next: "sd-navigation__next-btn",
+    start: "sd-navigation__start-btn",
+    preview: "sd-navigation__preview-btn",
+    edit: "sd-navigation__edit-btn"
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",

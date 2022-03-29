@@ -14632,11 +14632,11 @@ QUnit.test("Check addNavigationBarItem", function (assert) {
   assert.equal(survey.navigationBar.actions[0].component, "sv-nav-btn");
 
   survey.addNavigationBarItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
-  assert.equal(survey.navigationBar.actions[3].id, "custom-btn-2");
-  assert.equal(survey.navigationBar.actions[3].innerCss, "custom-css");
-  assert.equal(survey.navigationBar.actions[3].component, "sv-nav-btn");
+  assert.equal(survey.navigationBar.actions[2].id, "custom-btn-2");
+  assert.equal(survey.navigationBar.actions[2].innerCss, "custom-css");
+  assert.equal(survey.navigationBar.actions[2].component, "sv-nav-btn");
 
   survey.addNavigationBarItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
-  assert.equal(survey.navigationBar.actions[5].id, "custom-btn-3");
-  assert.equal(survey.navigationBar.actions[5].component, "custom-component");
+  assert.equal(survey.navigationBar.actions[4].id, "custom-btn-3");
+  assert.equal(survey.navigationBar.actions[4].component, "custom-component");
 });

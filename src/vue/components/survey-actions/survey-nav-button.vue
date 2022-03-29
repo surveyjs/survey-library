@@ -4,7 +4,7 @@
     type="button"
     :value="item.title"
     :class="item.innerCss"
-    @mousedown="mouseDown"
+    @mousedown="item.data && item.data.mouseDown"
     @click="item.action"
   />
 </template>
@@ -22,9 +22,6 @@ export class SurveyNavigationButton extends BaseVue {
 
   getModel(): Base {
     return this.item;
-  }
-  mouseDown() {
-    return this.item.data && this.item.data.mouseDown();
   }
 }
 

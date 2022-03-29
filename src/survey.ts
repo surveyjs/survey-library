@@ -5305,7 +5305,7 @@ export class SurveyModel extends SurveyElementCore
         innerCss: this.cssNavigationPrev,
         visibleIndex: 20,
         data: {
-          mouseDown: this.navigationMouseDown
+          mouseDown: () => { this.navigationMouseDown(); },
         },
         action: () => { this.prevPage(); },
         component: defaultComponent
@@ -5317,7 +5317,7 @@ export class SurveyModel extends SurveyElementCore
         innerCss: this.cssNavigationNext,
         visibleIndex: 30,
         data: {
-          mouseDown: this.nextPageMouseDown
+          mouseDown: () => { this.nextPageMouseDown(); },
         },
         action: () => { this.nextPageUIClick(); },
         component: defaultComponent
@@ -5329,7 +5329,7 @@ export class SurveyModel extends SurveyElementCore
         innerCss: this.cssNavigationPreview,
         visibleIndex: 30,
         data: {
-          mouseDown: this.navigationMouseDown
+          mouseDown: () => { this.navigationMouseDown(); },
         },
         action: () => { this.showPreview(); },
         component: defaultComponent
@@ -5341,7 +5341,7 @@ export class SurveyModel extends SurveyElementCore
         innerCss: this.cssNavigationComplete,
         visibleIndex: 40,
         data: {
-          mouseDown: this.navigationMouseDown
+          mouseDown: () => { this.navigationMouseDown(); },
         },
         action: () => { this.completeLastPage(); },
         component: defaultComponent

@@ -1,5 +1,5 @@
 <template>
-  <fragment>
+  <div>
     <survey-string v-if="!element.isTitleOwner" :locString="element.locTitle" />
     <span
       v-if="element.isTitleOwner && element.isRequireTextOnStart"
@@ -30,7 +30,7 @@
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
-  </fragment>
+  </div>
 </template>
 
 <script lang="ts">
@@ -38,8 +38,6 @@ import { Component, Prop } from "vue-property-decorator";
 
 import Vue from "vue";
 import { SurveyElementCore } from "survey-core";
-import { Fragment } from 'vue-frag'
-Vue.component('Fragment', Fragment)
 @Component
 export class TitleContent extends Vue {
   @Prop() element: SurveyElementCore;

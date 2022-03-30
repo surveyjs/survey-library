@@ -17,43 +17,18 @@
       :element="element"
       :css="css"
     />
-    <survey-errors
-      v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip && (element.isPanel || !element.isCollapsed)"
+    <survey-element-content
       :element="element"
-      :location="'top'"
-    />
-    <component
-      :is="getComponentName(element)"
-      v-if="element.isPanel || !element.isCollapsed"
-      :question="element"
       :css="css"
+      :survey="survey"
     />
-    <div v-if="element.hasComment && (element.isPanel || !element.isCollapsed)" :class="element.cssClasses.formGroup">
-      <div>{{ element.commentText }}</div>
-      <survey-other-choice :commentClass="css.comment" :question="element" />
-    </div>
-    <survey-errors
-      v-if="!element.isPanel && hasErrorsOnBottom && !element.isErrorsModeTooltip && (element.isPanel || !element.isCollapsed)"
-      :element="element"
-      :location="'bottom'"
-    />
-    <survey-errors
-      v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent && (element.isPanel || !element.isCollapsed)"
-      :element="element"
-      :location="'tooltip'"
-    />
-    <div
-      v-if="!element.isPanel && element.hasDescriptionUnderInput"
-      :class="element.cssClasses.descriptionUnderInput"
-    >
-      <survey-string :locString="element.locDescription" />
-    </div>
     <survey-element-header
       v-if="!element.isPanel && element.hasTitleOnBottom"
       :element="element"
       :css="css"
     />
   </div>
+  
   <component
   v-else-if="!!element.skeletonComponentName"
   :is="element.skeletonComponentName"
@@ -77,29 +52,12 @@ export class SurveyElementVue extends BaseVue {
   protected getModel(): Base {
     return this.element;
   }
-  getComponentName(element: Question) {
-    if (element.customWidget) return "survey-customwidget";
-    if (element.getType() === "panel" || element.isDefaultRendering()) {
-      return "survey-" + element.getTemplate();
-    }
-    return element.getComponentName();
-  }
-  getContentClass(element: Question) {
-    return ("sv-vue-collapsable-panel " + (element.cssContent || '')).trim();
-  }
-  get hasErrorsOnTop() {
-    return !this.element.isPanel && this.survey.questionErrorLocation === "top";
-  }
-  get hasErrorsOnBottom() {
-    return (
-      !this.element.isPanel && this.survey.questionErrorLocation === "bottom"
-    );
-  }
   mounted() {
     if (!this.element.isPanel) {
       (<Question>this.element).afterRender(this.$el as HTMLElement);
     }
   }
+
 }
 Vue.component("survey-element", SurveyElementVue);
 export default SurveyElementVue;

@@ -1,15 +1,21 @@
 <template>
   <div :class="row.getRowCss()">
+    <div v-for="element in row.visibleElements" :style="element.rootStyle">
     <survey-element
-      v-for="element in row.visibleElements"
+      
       :key="element.id"
-      :style="element.rootStyle"
+      
       :element="element"
       :survey="survey"
       :css="css"
       :row="row"
+      :style="{
+          paddingLeft: element.paddingLeft,
+          paddingRight: element.paddingRight,
+        }"
     >
     </survey-element>
+    </div>
   </div>
 </template>
 

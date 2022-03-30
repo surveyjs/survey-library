@@ -88,15 +88,17 @@ export function testQuestionMarkup(assert, test, platform) {
     test.before();
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
-  platform.survey["onAfterRenderQuestion"].add(function (survey, options) {
+  platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
     var all = options.htmlElement.getElementsByTagName("*");
     for (var i = 0, max = all.length; i < max; i++) {
+      all[i].removeAttribute("aria-labelledby");
       all[i].removeAttribute("data-bind");
       all[i].removeAttribute("data-key");
       all[i].removeAttribute("data-rendered");
       all[i].removeAttribute("id");
       all[i].removeAttribute("for");
       all[i].removeAttribute("list");
+      all[i].removeAttribute("fragment");
       if(all[i].getAttribute("name") !== "name")
         all[i].removeAttribute("name");
       if(all[i].checked) {

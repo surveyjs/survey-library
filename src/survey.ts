@@ -1165,6 +1165,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
+    this.updateNavigationItemCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1690,7 +1691,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
-    this.onNavigationStringsChanged();
+    this.updateNavigationItemTitles();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -2050,7 +2051,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
-    this.onNavigationStringsChanged("startSurveyText");
+    this.updateNavigationItemTitles("startSurveyText");
   }
   get locStartSurveyText(): LocalizableString {
     return this.getLocalizableString("startSurveyText");
@@ -2064,7 +2065,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
-    this.onNavigationStringsChanged("pagePrevText");
+    this.updateNavigationItemTitles("pagePrevText");
   }
   get locPagePrevText(): LocalizableString {
     return this.getLocalizableString("pagePrevText");
@@ -2078,7 +2079,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
-    this.onNavigationStringsChanged("pageNextText");
+    this.updateNavigationItemTitles("pageNextText");
   }
   get locPageNextText(): LocalizableString {
     return this.getLocalizableString("pageNextText");
@@ -2092,7 +2093,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
-    this.onNavigationStringsChanged("completeText");
+    this.updateNavigationItemTitles("completeText");
   }
   get locCompleteText(): LocalizableString {
     return this.getLocalizableString("completeText");
@@ -2109,7 +2110,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
-    this.onNavigationStringsChanged("previewText");
+    this.updateNavigationItemTitles("previewText");
   }
   get locPreviewText(): LocalizableString {
     return this.getLocalizableString("previewText");
@@ -5284,11 +5285,17 @@ export class SurveyModel extends SurveyElementCore
     this.hasDescription = !!this.description;
   }
 
-  private onNavigationStringsChanged(strName?: string) {
-    !!this.onNavigationStringsChangedCallback && this.onNavigationStringsChangedCallback(strName);
+  private updateNavigationItemTitles(strName?: string) {
+    !!this.updateNavigationItemTitlesCallback && this.updateNavigationItemTitlesCallback(strName);
   }
 
-  private onNavigationStringsChangedCallback: (strName?: string) => void;
+  private updateNavigationItemTitlesCallback: (strName?: string) => void;
+
+  private updateNavigationItemCss() {
+    !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
+  }
+
+  private updateNavigationItemCssCallback: (strName?: string) => void;
 
   protected createNavigationBar(): ActionContainer {
     const res = new ActionContainer();
@@ -5304,9 +5311,7 @@ export class SurveyModel extends SurveyElementCore
     const strToTitleMap: { [strName: string]: IAction } = {};
     const navStart = new Action({
       id: "sv-nav-start",
-      title: <any>new ComputedUpdater<string>(() => { let _dummy = this.getPropertyValue("locale"); strToTitleMap["loca"]; return this.startSurveyText; }),
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
-      innerCss: this.cssNavigationStart,
       visibleIndex: 10,
       action: () => { this.start(); },
       component: defaultComponent
@@ -5314,9 +5319,7 @@ export class SurveyModel extends SurveyElementCore
     strToTitleMap["startSurveyText"] = navStart;
     const navPrev = new Action({
       id: "sv-nav-prev",
-      title: <any>new ComputedUpdater<string>(() => { let _dummy = this.getPropertyValue("locale"); return this.pagePrevText; }),
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
-      innerCss: this.cssNavigationPrev,
       visibleIndex: 20,
       data: {
         mouseDown: () => { this.navigationMouseDown(); },
@@ -5327,9 +5330,7 @@ export class SurveyModel extends SurveyElementCore
     strToTitleMap["pagePrevText"] = navPrev;
     const navNext = new Action({
       id: "sv-nav-next",
-      title: <any>new ComputedUpdater<string>(() => { let _dummy = this.getPropertyValue("locale"); return this.pageNextText; }),
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
-      innerCss: this.cssNavigationNext,
       visibleIndex: 30,
       data: {
         mouseDown: () => { this.nextPageMouseDown(); },
@@ -5340,9 +5341,7 @@ export class SurveyModel extends SurveyElementCore
     strToTitleMap["pageNextText"] = navNext;
     const navPreview = new Action({
       id: "sv-nav-preview",
-      title: <any>new ComputedUpdater<string>(() => { let _dummy = this.getPropertyValue("locale"); return this.previewText; }),
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
-      innerCss: this.cssNavigationPreview,
       visibleIndex: 30,
       data: {
         mouseDown: () => { this.navigationMouseDown(); },
@@ -5353,9 +5352,7 @@ export class SurveyModel extends SurveyElementCore
     strToTitleMap["previewText"] = navPreview;
     const navComplete = new Action({
       id: "sv-nav-complete",
-      title: this.completeText,
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-      innerCss: this.cssNavigationComplete,
       visibleIndex: 40,
       data: {
         mouseDown: () => { this.navigationMouseDown(); },
@@ -5364,13 +5361,22 @@ export class SurveyModel extends SurveyElementCore
       component: defaultComponent
     });
     strToTitleMap["completeText"] = navComplete;
-    this.onNavigationStringsChangedCallback = (strName?: string) => {
+    this.updateNavigationItemTitlesCallback = (strName?: string) => {
       if(!strName) {
         Object.keys(strToTitleMap).forEach((key) => strToTitleMap[key].title = this[key]);
       } else {
         strToTitleMap[strName].title = this[strName];
       }
     };
+    this.updateNavigationItemTitlesCallback();
+    this.updateNavigationItemCssCallback = () => {
+      navStart.innerCss = this.cssNavigationStart;
+      navPrev.innerCss = this.cssNavigationPrev;
+      navNext.innerCss = this.cssNavigationNext;
+      navPreview.innerCss = this.cssNavigationPreview;
+      navComplete.innerCss = this.cssNavigationComplete;
+    };
+    this.updateNavigationItemCssCallback();
     return [navStart, navPrev, navNext, navPreview, navComplete];
   }
   protected onBeforeCreating() { }

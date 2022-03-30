@@ -5291,7 +5291,7 @@ export class SurveyModel extends SurveyElementCore
     const actions: Array<IAction> = [
       {
         id: "sv-nav-start",
-        title: this.startSurveyText,
+        title: <any>new ComputedUpdater<string>(() => { let _dummy = this.locale; return this.startSurveyText; }),
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
         innerCss: this.cssNavigationStart,
         visibleIndex: 10,
@@ -5300,7 +5300,7 @@ export class SurveyModel extends SurveyElementCore
       },
       {
         id: "sv-nav-prev",
-        title: this.pagePrevText,
+        title: <any>new ComputedUpdater<string>(() => { let _dummy = this.locale; return this.pagePrevText; }),
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
         innerCss: this.cssNavigationPrev,
         visibleIndex: 20,
@@ -5312,7 +5312,7 @@ export class SurveyModel extends SurveyElementCore
       },
       {
         id: "sv-nav-next",
-        title: this.pageNextText,
+        title: <any>new ComputedUpdater<string>(() => { let _dummy = this.locale; return this.pageNextText; }),
         visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
         innerCss: this.cssNavigationNext,
         visibleIndex: 30,
@@ -5324,7 +5324,7 @@ export class SurveyModel extends SurveyElementCore
       },
       {
         id: "sv-nav-preview",
-        title: this.previewText,
+        title: <any>new ComputedUpdater<string>(() => { let _dummy = this.locale; return this.previewText; }),
         visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
         innerCss: this.cssNavigationPreview,
         visibleIndex: 30,
@@ -5336,7 +5336,7 @@ export class SurveyModel extends SurveyElementCore
       },
       {
         id: "sv-nav-complete",
-        title: this.completeText,
+        title: <any>new ComputedUpdater<string>(() => { let _dummy = this.locale; return this.completeText; }),
         visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
         innerCss: this.cssNavigationComplete,
         visibleIndex: 40,

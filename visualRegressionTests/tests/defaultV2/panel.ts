@@ -125,4 +125,43 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+
+  test("Check panel in row", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          type: "html",
+          name: "question0",
+          html: "HTML1",
+          title: "Question title",
+          titleLocation: "hidden"
+        },
+        {
+          type: "panel",
+          name: "name",
+          showQuestionNumbers: "off",
+          startWithNewLine: false,
+          elements: [
+            {
+              type: "html",
+              name: "question1",
+              html: "HTML2",
+              title: "Question title",
+              titleLocation: "hidden"
+            }
+          ]
+        }
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const rowRoot = Selector(".sd-row");
+    await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await takeScreenshot("panel-in-row.png", rowRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
+
 });

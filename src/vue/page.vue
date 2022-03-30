@@ -4,13 +4,14 @@
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
-    <div
-      v-for="(row, index) in rows"
+      <survey-row  
+      v-for="(row, index) in rows" 
       v-if="row.visible"
       :key="page.id + '_' + index"
-      :class="row.getRowCss()"
-    >
-      <survey-row :row="row" :survey="survey" :css="css"></survey-row>
+      :row="row" 
+      :survey="survey" 
+      :css="css">
+      </survey-row>
     </div>
   </div>
 </template>

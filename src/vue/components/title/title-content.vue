@@ -35,10 +35,11 @@
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { Plugin } from "vue-fragment"
+
 import Vue from "vue";
 import { SurveyElementCore } from "survey-core";
-Vue.use(Plugin)
+import { Fragment } from 'vue-frag'
+Vue.component('Fragment', Fragment)
 @Component
 export class TitleContent extends Vue {
   @Prop() element: SurveyElementCore;

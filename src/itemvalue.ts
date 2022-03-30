@@ -323,16 +323,22 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   public get shortcutText(): string {
     return this.text;
   }
+  private canSerializeValue(): boolean {
+    const val = this.value;
+    if(val === undefined || val === null) return false;
+    return !Array.isArray(val) && typeof val !== "object";
+  }
   public getData(): any {
     var json = this.toJSON();
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
     if (Helpers.isValueEmpty(json.value)) return json;
-    const canSerializeAsContant = !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    const canSerializeVal = this.canSerializeValue();
+    const canSerializeAsContant = !canSerializeVal || !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
     if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
-    if (settings.itemValueAlwaysSerializeText && json.text === undefined) {
+    if (settings.itemValueAlwaysSerializeText && json.text === undefined && canSerializeVal) {
       json.text = this.value.toString();
     }
     return json;

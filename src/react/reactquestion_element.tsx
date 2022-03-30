@@ -113,8 +113,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
+  private canMakeReact(stateElement: Base): boolean {
+    return !!stateElement && !!stateElement.iteratePropertiesHash;
+  }
   private makeBaseElementReact(stateElement: Base) {
-    if (!stateElement) return;
+    if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
       if (!this.canUsePropInState(key)) return;
       var val: any = hash[key];
@@ -153,7 +156,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return true;
   }
   private unMakeBaseElementReact(stateElement: Base) {
-    if (!stateElement) return;
+    if (!this.canMakeReact(stateElement)) return;
     stateElement.setPropertyValueCoreHandler = undefined;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];

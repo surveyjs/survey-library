@@ -1,3 +1,4 @@
+import { setTimeout } from "timers";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 
@@ -30,7 +31,7 @@ export class ResponsivityManager {
       if(isResetInitialized)
         this.isInitialized = false;
       else
-        this.process();
+        setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((_) => this.process());

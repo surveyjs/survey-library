@@ -4,7 +4,7 @@
     type="button"
     :value="item.title"
     :class="item.innerCss"
-    @mousedown="item.data && item.data.mouseDown"
+    @mousedown="buttonMouseDown"
     @click="item.action"
   />
 </template>
@@ -19,9 +19,11 @@ import { BaseVue } from "src/vue/base";
 @Component
 export class SurveyNavigationButton extends BaseVue {
   @Prop() public item: Action;
-
   getModel(): Base {
     return this.item;
+  }
+  buttonMouseDown(): Base {
+    return this.item.data && this.item.data.mouseDown();
   }
 }
 

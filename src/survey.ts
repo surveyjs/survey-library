@@ -5313,7 +5313,7 @@ export class SurveyModel extends SurveyElementCore
       id: "sv-nav-start",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
       visibleIndex: 10,
-      action: () => { this.start(); },
+      action: () => this.start(),
       component: defaultComponent
     });
     strToTitleMap["startSurveyText"] = navStart;
@@ -5322,9 +5322,9 @@ export class SurveyModel extends SurveyElementCore
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
       visibleIndex: 20,
       data: {
-        mouseDown: () => { this.navigationMouseDown(); },
+        mouseDown: () => this.navigationMouseDown(),
       },
-      action: () => { this.prevPage(); },
+      action: () => this.prevPage(),
       component: defaultComponent
     });
     strToTitleMap["pagePrevText"] = navPrev;
@@ -5333,9 +5333,9 @@ export class SurveyModel extends SurveyElementCore
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
       visibleIndex: 30,
       data: {
-        mouseDown: () => { this.nextPageMouseDown(); },
+        mouseDown: () => this.nextPageMouseDown(),
       },
-      action: () => { this.nextPageUIClick(); },
+      action: () => this.nextPageUIClick(),
       component: defaultComponent
     });
     strToTitleMap["pageNextText"] = navNext;
@@ -5344,9 +5344,9 @@ export class SurveyModel extends SurveyElementCore
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
       visibleIndex: 30,
       data: {
-        mouseDown: () => { this.navigationMouseDown(); },
+        mouseDown: () => this.navigationMouseDown(),
       },
-      action: () => { this.showPreview(); },
+      action: () => this.showPreview(),
       component: defaultComponent
     });
     strToTitleMap["previewText"] = navPreview;
@@ -5355,9 +5355,9 @@ export class SurveyModel extends SurveyElementCore
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
       visibleIndex: 40,
       data: {
-        mouseDown: () => { this.navigationMouseDown(); },
+        mouseDown: () => this.navigationMouseDown(),
       },
-      action: () => { this.completeLastPage(); },
+      action: () => this.completeLastPage(),
       component: defaultComponent
     });
     strToTitleMap["completeText"] = navComplete;

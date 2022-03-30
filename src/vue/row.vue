@@ -2,7 +2,7 @@
   <div :class="row.getRowCss()">
     <div v-for="element in row.visibleElements" :style="element.rootStyle">
     <survey-element
-      
+      v-if="!element.isPanel" 
       :key="element.id"
       
       :element="element"
@@ -15,6 +15,14 @@
         }"
     >
     </survey-element>
+    <survey-panel
+      v-if="element.isPanel"
+            :key="element.id"
+      
+      :question="element"
+      :css="css">
+    </survey-panel>
+
     </div>
   </div>
 </template>

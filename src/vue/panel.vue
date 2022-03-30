@@ -1,10 +1,10 @@
 <template>
-  <div
-    v-if="question.isVisible"
-    :class="question.getContainerCss()"
-  >
-    <div v-if="question.hasTitle || question.hasDescription" :class="question.cssClasses.panel.header">
-      <survey-element-title :element="question" :css="css"/>
+  <div v-if="question.isVisible" :class="question.getContainerCss()">
+    <div
+      v-if="question.hasTitle || question.hasDescription"
+      :class="question.cssClasses.panel.header"
+    >
+      <survey-element-title :element="question" :css="css" />
       <div v-if="question.hasDescription" :class="question.cssClasses.panel.description">
         <survey-string :locString="question.locDescription" />
       </div>
@@ -16,18 +16,16 @@
       v-if="!isCollapsed"
       :class="question.cssClasses.panel.content"
     >
-
-    <survey-row  
-      v-for="(row, index) in rows" 
-      v-if="row.visible"
-      :key="question.id + '_' + index"
-      :row="row" 
-      :survey="survey" 
-      :css="css">
-     </survey-row>
-    <sv-action-bar
-      :model="question.getFooterToolbar()"
-    ></sv-action-bar>
+      <survey-row
+        v-for="(row, index) in rows"
+        v-if="row.visible"
+        :key="question.id + '_' + index"
+        :row="row"
+        :survey="survey"
+        :css="css"
+      >
+      </survey-row>
+      <sv-action-bar :model="question.getFooterToolbar()"></sv-action-bar>
     </div>
   </div>
 </template>

@@ -4,7 +4,6 @@ export { SurveyString } from "../vue/string.vue";
 export { SurveyStringViewer } from "../vue/string-viewer.vue";
 export { SurveyStringEditor } from "../vue/string-editor.vue";
 export { SurveyElementVue } from "../vue/element.vue";
-export { SurveyElementContentVue } from "../vue/element-content.vue";
 export { Window, Window as SurveyWindow } from "../vue/window.vue";
 export { Page } from "../vue/page.vue";
 export { Radiogroup } from "../vue/radiogroup.vue";

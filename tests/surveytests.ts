@@ -14640,3 +14640,23 @@ QUnit.test("Check addNavigationBarItem", function (assert) {
   assert.equal(survey.navigationBar.actions[4].id, "custom-btn-3");
   assert.equal(survey.navigationBar.actions[4].component, "custom-component");
 });
+
+QUnit.test("Check default navigation items relevance", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { navigationButton: "custom-css" };
+  const action = survey.navigationBar.actions[0];
+  assert.ok(action.innerCss.includes("custom-css"));
+  survey.locale = "ru";
+  assert.equal(action.title, "Начать");
+  survey.locale = "en";
+  assert.equal(action.title, "Start");
+  survey.startSurveyText = "custom-text";
+  assert.equal(action.title, "custom-text");
+});

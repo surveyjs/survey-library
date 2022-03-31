@@ -5303,6 +5303,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!cssClasses) {
       res.cssClasses = cssClasses;
     }
+    res.containerCss = this.css.footer;
     res.setItems(this.createNavigationActions());
     return res;
   }

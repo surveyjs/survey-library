@@ -3,7 +3,6 @@ export { Survey, attachKey2click } from "../react/reactSurvey";
 export { ReactSurveyElementsWrapper } from "../react/reactsurveymodel";
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
-export { SurveyNavigation } from "../react/reactSurveyNavigation";
 export { SurveyPage } from "../react/page";
 export { SurveyRow } from "../react/row";
 export { SurveyPanel } from "../react/panel";

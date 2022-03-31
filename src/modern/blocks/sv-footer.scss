@@ -1,10 +1,10 @@
-.sv-footer {
+.sv-footer.sv-action-bar {
+  display: block;
   min-height: $base-line-height;
   padding: 2.5em 0 0.87em 0;
-  .sv-action__content,
-  .sv-action-bar {
+  margin-left: auto;
+  .sv-action__content {
     display: block;
-    padding: 0;
   }
   .sv-action:not(:last-child) {
     .sv-action__content {

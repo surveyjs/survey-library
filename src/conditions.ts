@@ -13,9 +13,9 @@ export interface IExpresionExecutor {
    */
   onComplete: (res: any) => void;
   /**
-   * The expression as string, property with get/set
+   * The expression as string, property with get
    */
-  expression: string;
+  get expression(): string;
   /**
    * Returns true if the expression is valid and can be executed
    */
@@ -42,7 +42,8 @@ export interface IExpresionExecutor {
 }
 
 export class ExpressionExecutor implements IExpresionExecutor {
-  public static createExpressionExecutor: () => IExpresionExecutor = () => { return new ExpressionExecutor(); }
+  public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
+    (expression: string) => { return new ExpressionExecutor(expression); }
   public onComplete: (res: any) => void;
   private expressionValue: string;
   private operand: Operand;
@@ -51,11 +52,13 @@ export class ExpressionExecutor implements IExpresionExecutor {
   private isAsyncValue: boolean = false;
   private hasFunctionValue: boolean = false;
   private asyncFuncList: Array<FunctionOperand>;
-
+  constructor(expression: string) {
+    this.setExpression(expression);
+  }
   public get expression(): string {
     return this.expressionValue;
   }
-  public set expression(value: string) {
+  private setExpression(value: string): void {
     if (this.expression === value) return;
     this.expressionValue = value;
     this.operand = this.parser.parseExpression(value);
@@ -123,16 +126,16 @@ export class ExpressionRunnerBase {
   private expressionExecutor: IExpresionExecutor;
 
   public constructor(expression: string) {
-    this.expressionExecutor = ExpressionExecutor.createExpressionExecutor();
-    this.expressionExecutor.onComplete = (res: any) => { this.doOnComplete(res); };
     this.expression = expression;
   }
   public get expression(): string {
-    return this.expressionExecutor.expression;
+    return !!this.expressionExecutor ? this.expressionExecutor.expression : "";
   }
 
   public set expression(value: string) {
-    this.expressionExecutor.expression = value;
+    if(!!this.expressionExecutor && value === this.expression) return;
+    this.expressionExecutor = ExpressionExecutor.createExpressionExecutor(value);
+    this.expressionExecutor.onComplete = (res: any) => { this.doOnComplete(res); };
   }
 
   public getVariables(): Array<string> {

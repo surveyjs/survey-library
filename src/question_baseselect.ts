@@ -1198,7 +1198,7 @@ export class QuestionSelectBase extends Question {
     let items: ItemValue[] = [];
     if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
       let i= 0;
-      while(i < this.visibleChoices.length && this.isBuiltInChoice(this.visibleChoices[i], this)) {
+      while(i < this.visibleChoices.length && this.isBuiltInChoice(this.visibleChoices[i], this) && this.visibleChoices[i] !== this.newItemValue) {
         items.push(this.visibleChoices[i]);
         i++;
       }
@@ -1209,7 +1209,7 @@ export class QuestionSelectBase extends Question {
     let items: ItemValue[] = [];
     if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
       let i = this.visibleChoices.length - 1;
-      while(i >= 0 && this.isBuiltInChoice(this.visibleChoices[i], this)) {
+      while(i >= 0 && this.isBuiltInChoice(this.visibleChoices[i], this) && this.visibleChoices[i].value !== "selectall") {
         items.unshift(this.visibleChoices[i]);
         i--;
       }

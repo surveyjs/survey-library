@@ -1,7 +1,6 @@
 import { frameworks, url_test, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
-const title = `questionsInOneLine and question visibility`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "questionsInOneLine and question visibility";
 
 const json = {
   pages: [
@@ -32,7 +31,7 @@ const json = {
 };
 
 const applyTheme = ClientFunction((theme) => {
-  Survey.StylesManager.applyTheme(theme);
+  window["Survey"].StylesManager.applyTheme(theme);
 });
 
 frameworks.forEach((framework) => {
@@ -42,7 +41,7 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, json);
   });
 
-  test(`Make invisible question visible`, async (t) => {
+  test("Make invisible question visible", async (t) => {
     await t.expect(Selector("span").withText("q1").visible).ok();
     await t.expect(Selector("span").withText("q2").visible).notOk();
     await t.click(Selector("span").withText("item 1"));

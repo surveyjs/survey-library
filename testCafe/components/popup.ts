@@ -309,7 +309,7 @@ frameworks.forEach(async framework => {
       });
       opt.titleActions = [item];
     };
-    const insertContainer = ClientFunction(()=>{
+    const insertContainer = ClientFunction(() => {
       const container = document.createElement("div");
       container.style.height = "200px";
       document.body.insertBefore(container, document.getElementById("surveyElement"));

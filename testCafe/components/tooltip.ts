@@ -61,7 +61,7 @@ frameworks.forEach((framework) => {
   });
   test("check errors tooltip", async (t) => {
     const focusBody = ClientFunction(() => { document.body.focus(); });
-    const getTooltipPosition = (base:number, offset: number): string => {
+    const getTooltipPosition = (base: number, offset: number): string => {
       return base + offset + 12 + "px";
     };
     const matrixCellSelector = Selector(".sd-table__cell:not(.sd-table__cell--header)");

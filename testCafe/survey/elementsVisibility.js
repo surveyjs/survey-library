@@ -1,7 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const assert = require("assert");
-const title = `Elements Visibility`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "Elements Visibility";
 
 const json = {
   pages: [
@@ -31,10 +30,10 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`showInvisibleElements = true`, async t => {
-    await t.expect(Selector(`input[value=Complete]`).visible).notOk();
-    await t.expect(Selector(`input[value=Next]`).visible).ok();
-    await t.expect(Selector(`input[value=Next]`).visible).ok();
+  test("showInvisibleElements = true", async t => {
+    await t.expect(Selector("input[value=Complete]").visible).notOk();
+    await t.expect(Selector("input[value=Next]").visible).ok();
+    await t.expect(Selector("input[value=Next]").visible).ok();
     await t.expect(Selector("span").withText("2.").visible).ok();
   });
 });
@@ -44,21 +43,21 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json);
     }
   );
-  test(`make element on another page visible`, async t => {
-    await t.expect(Selector(`input[value=Complete]`).visible).ok();
-    const yesChoice = Selector(`input[value="Yes"]`);
-    const noChoice = Selector(`input[value="No"]`);
+  test("make element on another page visible", async t => {
+    await t.expect(Selector("input[value=Complete]").visible).ok();
+    const yesChoice = Selector("input[value=\"Yes\"]");
+    const noChoice = Selector("input[value=\"No\"]");
     await t
       .click(yesChoice)
       .expect(yesChoice.checked)
       .ok();
-    await t.expect(Selector(`input[value=Complete]`).visible).notOk();
-    await t.expect(Selector(`input[value=Next]`).visible).ok();
+    await t.expect(Selector("input[value=Complete]").visible).notOk();
+    await t.expect(Selector("input[value=Next]").visible).ok();
     await t
       .click(noChoice)
       .expect(noChoice.checked)
       .ok();
-    await t.expect(Selector(`input[value=Complete]`).visible).ok();
+    await t.expect(Selector("input[value=Complete]").visible).ok();
   });
 });
 
@@ -85,14 +84,14 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`test focus after visibility change`, async t => {
-    const noChoice = Selector(`input[value="No"]`);
+  test("test focus after visibility change", async t => {
+    const noChoice = Selector("input[value=\"No\"]");
     await t
-      .expect(Selector(`div[data-name=q2]`).visible).notOk()
+      .expect(Selector("div[data-name=q2]").visible).notOk()
       .click(noChoice)
       .expect(noChoice.checked)
       .ok();
-    await t.expect(Selector(`div[data-name=q2]`).visible).ok();
-    await t.expect(ClientFunction(() => { return document.activeElement == document.querySelector(`input[value="No"]`) })()).ok()
+    await t.expect(Selector("div[data-name=q2]").visible).ok();
+    await t.expect(ClientFunction(() => { return document.activeElement == document.querySelector("input[value=\"No\"]"); })()).ok();
   });
 });

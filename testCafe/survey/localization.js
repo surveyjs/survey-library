@@ -1,30 +1,30 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
-const title = `localization`;
+import { ClientFunction, fixture, test } from "testcafe";
+const title = "localization";
 
 const setRu = ClientFunction(() => {
-  survey.locale = "ru";
-  survey.render();
+  window["survey"].locale = "ru";
+  window["survey"].render();
 });
 
 const setEn = ClientFunction(() => {
-  survey.locale = "en";
-  survey.render();
+  window["survey"].locale = "en";
+  window["survey"].render();
 });
 
 const setDe = ClientFunction(() => {
-  survey.locale = "de";
-  survey.render();
+  window["survey"].locale = "de";
+  window["survey"].render();
 });
 
 const setFi = ClientFunction(() => {
-  survey.locale = "fi";
-  survey.render();
+  window["survey"].locale = "fi";
+  window["survey"].render();
 });
 
 const setFr = ClientFunction(() => {
-  survey.locale = "fr";
-  survey.render();
+  window["survey"].locale = "fr";
+  window["survey"].render();
 });
 
 const json = {
@@ -104,20 +104,20 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`next`, async t => {
+  test("next", async t => {
     await setRu();
-    await t.hover(`input[value=Далее]`);
+    await t.hover("input[value=Далее]");
 
     await setEn();
-    await t.hover(`input[value=Next]`);
+    await t.hover("input[value=Next]");
 
     await setDe();
-    await t.hover(`input[value=Weiter]`);
+    await t.hover("input[value=Weiter]");
 
     await setFi();
-    await t.hover(`input[value=Seuraava]`);
+    await t.hover("input[value=Seuraava]");
 
     await setFr();
-    await t.hover(`input[value=Suivant]`);
+    await t.hover("input[value=Suivant]");
   });
 });

@@ -86,6 +86,7 @@ export var spanishSurveyStrings = {
   questionTitlePatternText: "Título de la pregunta",
   modalCancelButtonText: "Anular",
   modalApplyButtonText: "Aplicar",
+  ratingOptionsCaption: "Toca aquí para calificar...",
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;

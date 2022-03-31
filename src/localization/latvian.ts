@@ -79,6 +79,7 @@ export var latvianSurveyStrings = {
   confirmRemoveFile: "Vai tiešām vēlaties noņemt šo failu: {0}?",
   confirmRemoveAllFiles: "Vai tiešām vēlaties noņemt visus failus?",
   questionTitlePatternText: "Jautājuma nosaukums",
+  ratingOptionsCaption: "Nospiediet šeit, lai novērtētu...",
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;

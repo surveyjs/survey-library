@@ -79,6 +79,7 @@ export var russianSurveyStrings = {
   confirmRemoveFile: "Вы уверены, что хотите удалить этот файл: {0}?",
   confirmRemoveAllFiles: "Вы уверены, что хотите удалить все файлы?",
   questionTitlePatternText: "Название вопроса",
+  ratingOptionsCaption: "Нажмите здесь, чтобы оценить...",
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;

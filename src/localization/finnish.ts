@@ -83,6 +83,7 @@ export var finnishSurveyStrings = {
   questionTitlePatternText: "Kysymyksen otsikko",
   modalCancelButtonText: "Peruuta",
   modalApplyButtonText: "Käytä",
+  ratingOptionsCaption: "Arvioi napauttamalla tätä...",
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;

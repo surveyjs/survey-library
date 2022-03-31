@@ -81,6 +81,7 @@ export var italianSurveyStrings = {
   confirmRemoveFile: "Sei sicuro di voler elminare questo file: {0}?",
   confirmRemoveAllFiles: "Sei sicuro di voler elminare tutti i files?",
   questionTitlePatternText: "Titolo della domanda",
+  ratingOptionsCaption: "Tocca qui per valutare...",
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;

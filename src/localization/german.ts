@@ -79,6 +79,7 @@ export var germanSurveyStrings = {
   confirmRemoveFile: "Sind Sie sicher, dass Sie diese Datei löschen möchten: {0}?",
   confirmRemoveAllFiles: "Sind Sie sicher, dass Sie alle Dateien löschen möchten?",
   questionTitlePatternText: "Fragentitel",
+  ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

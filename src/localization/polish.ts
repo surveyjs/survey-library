@@ -78,6 +78,7 @@ export var polishSurveyStrings = {
   confirmRemoveFile: "Jesteś pewien, że chcesz usunąć ten plik: {0}?",
   confirmRemoveAllFiles: "Jesteś pewien, że chcesz usunąć wszystkie pliki?",
   questionTitlePatternText: "Tytuł pytania",
+  ratingOptionsCaption: "Kliknij tutaj, aby ocenić...",
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;

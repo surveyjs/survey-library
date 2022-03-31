@@ -74,6 +74,7 @@ export var frenchSurveyStrings = {
   confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
+  ratingOptionsCaption: "Appuyez ici pour noter...",
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

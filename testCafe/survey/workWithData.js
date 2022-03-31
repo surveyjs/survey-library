@@ -3,16 +3,16 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "workWithData";
 
 const set_data = ClientFunction(() => {
-  window["Survey"].data = {
+  window["survey"].data = {
     name: "John Doe",
     email: "johndoe@nobody.com",
     car: ["Ford"]
   };
-  window["Survey"].render();
+  window["survey"].render();
 });
 
 const add_value_changed_listener = ClientFunction(() => {
-  window["Survey"].onValueChanged.add(function (sender, options) {
+  window["survey"].onValueChanged.add(function (sender, options) {
     let divElement = document.body.getElementsByClassName("new-element")[0];
     if (!divElement) {
       divElement = document.createElement("div");
@@ -24,14 +24,14 @@ const add_value_changed_listener = ClientFunction(() => {
 });
 
 const set_values = ClientFunction(() => {
-  window["Survey"].setValue("name", "Wombat");
-  window["Survey"].setValue("email", "wo@mbat.com");
-  window["Survey"].setValue("car", ["BMW", "Ford"]);
+  window["survey"].setValue("name", "Wombat");
+  window["survey"].setValue("email", "wo@mbat.com");
+  window["survey"].setValue("car", ["BMW", "Ford"]);
 });
 
 const get_value = ClientFunction(() => {
   document.documentElement.appendChild(
-    document.createTextNode(window["Survey"].getValue("car"))
+    document.createTextNode(window["survey"].getValue("car"))
   );
 });
 

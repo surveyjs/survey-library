@@ -2,7 +2,8 @@ import { ClientFunction, Selector } from "testcafe";
 // eslint-disable-next-line no-undef
 const minimist = require("minimist");
 
-const args = minimist(window["process"].argv.slice(2));
+// eslint-disable-next-line no-undef
+const args = minimist(process.argv.slice(2));
 const environment = args.env;
 
 export const frameworks = environment ? [environment] : ["knockout", "react", "vue"];

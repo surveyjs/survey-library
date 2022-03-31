@@ -5,7 +5,7 @@ const setupSurvey = ClientFunction(() => {
   function isNumber(n) {
     return n && !isNaN(parseFloat(n)) && isFinite(n);
   }
-  window["Survey"].onValidateQuestion.add(function(s, options) {
+  window["survey"].onValidateQuestion.add(function(s, options) {
     if (options.name == "pricelimit") {
       var leastamount = options.value["leastamount"];
       var mostamount = options.value["mostamount"];

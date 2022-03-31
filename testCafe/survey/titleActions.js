@@ -30,7 +30,7 @@ frameworks.forEach((framework) => {
     });
 
     var getQuestionState = ClientFunction(() => {
-      return window["Survey"].getAllQuestions()[0].state;
+      return window["survey"].getAllQuestions()[0].state;
     });
 
     const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
@@ -132,7 +132,7 @@ frameworks.forEach((framework) => {
 
   test("check expand/collapse action", async (t) => {
     const elementTitle = Selector(".sv_q_title");
-    const getQuestionState = ClientFunction(() => { return window["Survey"].getAllQuestions()[0].state; });
+    const getQuestionState = ClientFunction(() => { return window["survey"].getAllQuestions()[0].state; });
 
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => { },
@@ -200,8 +200,8 @@ frameworks.forEach((framework) => {
   });
 
   test("check responsivity manager is disposed when action bar is disposed", async (t) => {
-    const getToolbarResponsivityManager = ClientFunction(() => !!window["Survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
-    const setQuestionVisibility = ClientFunction((visible) => { window["Survey"].getQuestionByName("actions_question").visible = visible; });
+    const getToolbarResponsivityManager = ClientFunction(() => !!window["survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
+    const setQuestionVisibility = ClientFunction((visible) => { window["survey"].getQuestionByName("actions_question").visible = visible; });
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {
         opt.titleActions = [

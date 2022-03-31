@@ -35,10 +35,10 @@ frameworks.forEach(framework => {
   );
 
   const changePattern = ClientFunction(value => {
-    window["Survey"].questionTitlePattern = value;
+    window["survey"].questionTitlePattern = value;
   });
   const changeQuestionStartIndex = ClientFunction(value => {
-    window["Survey"].questionStartIndex = value;
+    window["survey"].questionStartIndex = value;
   });
 
   test("check questionTitlePattern", async t => {

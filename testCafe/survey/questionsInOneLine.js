@@ -5,8 +5,8 @@ const assert = require("assert");
 const title = "questionsInOneLine and titles location";
 
 const changeTitleLocation = ClientFunction(location => {
-  window["Survey"].questionTitleLocation = location;
-  window["Survey"].render();
+  window["survey"].questionTitleLocation = location;
+  window["survey"].render();
 });
 
 const json = {

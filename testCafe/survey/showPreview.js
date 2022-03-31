@@ -17,13 +17,13 @@ const json = {
 };
 
 const showAnsweredQuestions = ClientFunction(() => {
-  window["Survey"].showPreviewBeforeComplete = "showAnsweredQuestions";
+  window["survey"].showPreviewBeforeComplete = "showAnsweredQuestions";
 });
 const showAllQuestions = ClientFunction(() => {
-  window["Survey"].showPreviewBeforeComplete = "showAllQuestions";
+  window["survey"].showPreviewBeforeComplete = "showAllQuestions";
 });
 const goLastPage = ClientFunction(() => {
-  window["Survey"].currentPageNo = window["Survey"].visiblePageCount - 1;
+  window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
 });
 
 frameworks.forEach((framework) => {

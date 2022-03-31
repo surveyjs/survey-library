@@ -122,7 +122,7 @@ frameworks.forEach((framework) => {
   test("isAnswered for matrix with loading answers from data - #2239", async (t) => {
     const setData = ClientFunction(
       () =>
-        (window["Survey"].data = {
+        (window["survey"].data = {
           Quality: {
             affordable: "1",
             "does what it claims": "1",
@@ -133,7 +133,7 @@ frameworks.forEach((framework) => {
     );
     await setData();
     const getIsAnswered = ClientFunction(
-      () => window["Survey"].getAllQuestions()[0].isAnswered
+      () => window["survey"].getAllQuestions()[0].isAnswered
     );
     assert.equal(await getIsAnswered(), true);
   });

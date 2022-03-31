@@ -80,7 +80,6 @@ export var germanSurveyStrings = {
   confirmRemoveAllFiles: "Sind Sie sicher, dass Sie alle Dateien löschen möchten?",
   questionTitlePatternText: "Fragentitel",
   ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
-
   emptyRowsText: "Es gibt keine Reihen.",
   filteredTextPlaceholder: "Tippe um zu suchen...",
   indexText: "{0} von {1}",
@@ -90,7 +89,7 @@ export var germanSurveyStrings = {
   modalCancelButtonText: "Stornieren",
   multipletext_itemname: "Text",
   noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
-  signaturePlaceHolder: "Hier unterschreiben"
+  signaturePlaceHolder: "Hier unterschreiben",
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

@@ -79,7 +79,6 @@ export var polishSurveyStrings = {
   confirmRemoveAllFiles: "Jesteś pewien, że chcesz usunąć wszystkie pliki?",
   questionTitlePatternText: "Tytuł pytania",
   ratingOptionsCaption: "Kliknij tutaj, aby ocenić...",
-
   emptyRowsText: "Nie ma rzędów.",
   filteredTextPlaceholder: "Wpisz aby wyszukać...",
   indexText: "{0} od {1}",
@@ -89,7 +88,7 @@ export var polishSurveyStrings = {
   modalCancelButtonText: "Anulować",
   multipletext_itemname: "tekst",
   noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
-  signaturePlaceHolder: "Podpisz tutaj"
+  signaturePlaceHolder: "Podpisz tutaj",
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;

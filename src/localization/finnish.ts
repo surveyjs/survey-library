@@ -84,7 +84,6 @@ export var finnishSurveyStrings = {
   modalCancelButtonText: "Peruuta",
   modalApplyButtonText: "Käytä",
   ratingOptionsCaption: "Arvioi napauttamalla tätä...",
-
   emptyRowsText: "Ei ole rivejä.",
   filteredTextPlaceholder: "Hae kirjoittamalla...",
   indexText: "{0} / {1}",
@@ -94,7 +93,7 @@ export var finnishSurveyStrings = {
   modalCancelButtonText: "Peruuttaa",
   multipletext_itemname: "teksti",
   noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
-  signaturePlaceHolder: "Allekirjoita tähän"
+  signaturePlaceHolder: "Allekirjoita tähän",
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;

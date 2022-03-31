@@ -80,7 +80,6 @@ export var russianSurveyStrings = {
   confirmRemoveAllFiles: "Вы уверены, что хотите удалить все файлы?",
   questionTitlePatternText: "Название вопроса",
   ratingOptionsCaption: "Нажмите здесь, чтобы оценить...",
-
   emptyRowsText: "Рядов нет.",
   filteredTextPlaceholder: "Введите для поиска...",
   indexText: "{0} из {1}",
@@ -90,7 +89,7 @@ export var russianSurveyStrings = {
   modalCancelButtonText: "Отменить",
   multipletext_itemname: "текст",
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
-  signaturePlaceHolder: "Подпишите здесь"
+  signaturePlaceHolder: "Подпишите здесь",
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;

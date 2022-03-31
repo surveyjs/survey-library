@@ -75,7 +75,6 @@ export var frenchSurveyStrings = {
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
   ratingOptionsCaption: "Appuyez ici pour noter...",
-
   emptyRowsText: "Il n'y a pas de lignes.",
   filteredTextPlaceholder: "Tapez pour rechercher...",
   indexText: "{0} sur {1}",
@@ -85,7 +84,7 @@ export var frenchSurveyStrings = {
   modalCancelButtonText: "Annuler",
   multipletext_itemname: "texte",
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
-  signaturePlaceHolder: "Signez ici"
+  signaturePlaceHolder: "Signez ici",
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

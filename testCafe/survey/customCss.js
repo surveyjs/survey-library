@@ -1,7 +1,7 @@
 import { frameworks, url } from "../helper";
-import { ClientFunction, Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test } from "testcafe";
 const title = "customCss";
-const initSurvey = ClientFunction((framework, json) => {
+const initSurvey = (framework, json) => {
   window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
   window["Survey"].StylesManager.applyTheme("bootstrap");
 
@@ -20,13 +20,13 @@ const initSurvey = ClientFunction((framework, json) => {
     model.css = myCss;
     model.render("surveyElement");
   } else if (framework === "react") {
-    window["ReactDOM"] && window["ReactDOM"].render(
-      window["React"] && window["React"].createElement(window["Survey"].Survey, { model: model, css: myCss }),
+    window["ReactDOM"].render(
+      window["React"].createElement(window["Survey"].Survey, { model: model, css: myCss }),
       document.getElementById("surveyElement")
     );
   } else if (framework === "vue") {
     model.css = myCss;
-    var app = new window["Vue"] && window["Vue"]({
+    var app = new window["Vue"]({
       el: "#surveyElement",
       data: {
         survey: model
@@ -35,7 +35,7 @@ const initSurvey = ClientFunction((framework, json) => {
   }
 
   window["survey"] = model;
-});
+};
 
 const json = {
   questions: [
@@ -65,13 +65,12 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
-      await initSurvey(framework, json);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check custom class", async t => {
+    initSurvey(framework, json);
+
     await t.expect(Selector("input[value=\"Complete\"]").classNames).contains("btn-lg");
   });
 });
+

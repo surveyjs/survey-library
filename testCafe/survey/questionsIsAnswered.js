@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "questions isAnswered title style";
 
@@ -10,10 +10,6 @@ const json = {
     { type: "checkbox", name: "q4", choices: ["item 7", "item 8"], defaultValue: ["item 7"] },
   ],
 };
-
-const applyTheme = ClientFunction((theme) => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title} modern`

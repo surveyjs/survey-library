@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey } from "../helper";
-import { Selector, ClientFunction, fixture, test } from "testcafe";
+import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
+import { Selector, fixture, test } from "testcafe";
 const title = "questionsInOneLine and question visibility";
 
 const json = {
@@ -29,10 +29,6 @@ const json = {
     },
   ],
 };
-
-const applyTheme = ClientFunction((theme) => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title} modern`

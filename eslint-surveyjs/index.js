@@ -16,7 +16,9 @@ module.exports = {
     "no-test-debug": context =>
     ({
       MemberExpression: function (node) {
-        if (node.object.type === "CallExpression" && node.property.name === "debug" ){
+        if (node.object.name === "test" && node.property.name === "debug") {
+          context.report(node, debugMessage);
+        } else if (node.object.type === "CallExpression" && node.property.name === "debug") {
           context.report(node, debugMessage);
         }
       }

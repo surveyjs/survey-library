@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton } from "../helper";
+import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -149,10 +149,6 @@ var json = {
     },
   ],
 };
-
-const applyTheme = ClientFunction(theme => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
 
 ["modern", "bootstrap"].forEach(theme => {
   frameworks.forEach(framework => {

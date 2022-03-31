@@ -1,9 +1,10 @@
-import { frameworks, url } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { frameworks, url, applyTheme } from "../helper";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "customCss";
-const initSurvey = (framework, json) => {
+const initSurvey = ClientFunction(async(framework, json) => {
   window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
-  window["Survey"].StylesManager.applyTheme("bootstrap");
+
+  await applyTheme("bootstrap");
 
   var model = new window["Survey"].Model(json);
 
@@ -35,7 +36,7 @@ const initSurvey = (framework, json) => {
   }
 
   window["survey"] = model;
-};
+});
 
 const json = {
   questions: [
@@ -68,7 +69,7 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check custom class", async t => {
-    initSurvey(framework, json);
+    await initSurvey(framework, json);
 
     await t.expect(Selector("input[value=\"Complete\"]").classNames).contains("btn-lg");
   });

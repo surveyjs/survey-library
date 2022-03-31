@@ -1,4 +1,4 @@
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "progressButtons";
 
@@ -35,10 +35,6 @@ const json = {
   showProgressBar: "top",
   progressBarType: "buttons"
 };
-
-const applyTheme = ClientFunction((theme) => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
 
 ["default", "modern", "bootstrap"].forEach((theme) => {
   frameworks.forEach((framework) => {

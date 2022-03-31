@@ -1,2 +1,7 @@
 node_modules
 dist
+build
+build-scripts
+doc_generator
+docs
+eslint-surveyjs

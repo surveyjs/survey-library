@@ -674,6 +674,7 @@ QUnit.test("file.cleanButtonCaption localization", (assert) => {
   assert.equal(q.cleanButtonCaption, "Clean");
   survey.locale = "fr";
   assert.equal(q.cleanButtonCaption, "Nettoyer");
+  survey.locale = "";
 });
 
 QUnit.test("Question File responsive", (assert) => {
@@ -689,6 +690,7 @@ QUnit.test("Question File responsive", (assert) => {
   };
 
   var survey = new SurveyModel(json);
+  survey.locale = "";
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
 
   survey.onUploadFiles.add((survey, options) => {

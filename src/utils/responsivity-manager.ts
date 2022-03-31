@@ -88,9 +88,9 @@ export class ResponsivityManager {
     );
   }
   private process(): void {
-    if (this.isContainerVisible) {
+    if (this.isContainerVisible && !this.model.isResponsivenessDisabled) {
       if (!this.isInitialized) {
-        this.model.actions.forEach((action) => (action.mode = "large"));
+        this.model.setActionsMode("large");
         this.calcItemsSizes();
         this.isInitialized = true;
       }

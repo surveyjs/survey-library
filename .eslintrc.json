@@ -23,6 +23,7 @@
 	],
 	"rules": {
 		"surveyjs/no-test-only": 2,
+		"surveyjs/no-test-debug": 2,
 		"no-console": 2, // Remember, this means error!
 		"indent": [
 			"error",

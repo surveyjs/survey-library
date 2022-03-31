@@ -87,6 +87,17 @@ export var spanishSurveyStrings = {
   modalCancelButtonText: "Anular",
   modalApplyButtonText: "Aplicar",
   ratingOptionsCaption: "Toca aquí para calificar...",
+
+  emptyRowsText: "No hay filas.",
+  filteredTextPlaceholder: "Escribe para buscar...",
+  indexText: "{0} de {1}",
+  minError: "El valor no debe ser inferior a {0}",
+  maxError: "El valor no debe ser mayor que {0}",
+  modalApplyButtonText: "Aplicar",
+  modalCancelButtonText: "Cancelar",
+  multipletext_itemname: "texto",
+  noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
+  signaturePlaceHolder: "Firma aquí"
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;

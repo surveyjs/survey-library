@@ -80,6 +80,17 @@ export var latvianSurveyStrings = {
   confirmRemoveAllFiles: "Vai tiešām vēlaties noņemt visus failus?",
   questionTitlePatternText: "Jautājuma nosaukums",
   ratingOptionsCaption: "Nospiediet šeit, lai novērtētu...",
+
+  emptyRowsText: "Nav rindu.",
+  filteredTextPlaceholder: "Ierakstiet, lai meklētu...",
+  indexText: "{0} no {1}",
+  minError: "Vērtība nedrīkst būt mazāka par {0}",
+  maxError: "Vērtība nedrīkst būt lielāka par {0}",
+  modalApplyButtonText: "Pielietot",
+  modalCancelButtonText: "Atcelt",
+  multipletext_itemname: "teksts",
+  noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
+  signaturePlaceHolder: "Parakstieties šeit"
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;

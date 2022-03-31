@@ -5343,7 +5343,7 @@ export class SurveyModel extends SurveyElementCore
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
-      visibleIndex: 30,
+      visibleIndex: 40,
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
@@ -5354,7 +5354,7 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-      visibleIndex: 40,
+      visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },

@@ -1,7 +1,7 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { PopupModel } from "../popup";
-import { Action, IAction } from "./action";
+import { Action, actionModeType, IAction } from "./action";
 import { ActionContainer } from "./container";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
@@ -9,6 +9,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   protected dotsItemPopupModel: PopupModel;
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
+  public isResponsivenessDisabled = false;
   protected invisibleItemsListModel: ListModel = new ListModel(
     [],
     (item: T) => {
@@ -93,6 +94,12 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return this.actions;
   }
 
+  protected raiseUpdate(isResetInitialized: boolean) {
+    if (!this.isResponsivenessDisabled) {
+      super.raiseUpdate(isResetInitialized);
+    }
+  }
+
   public fit(dimension: number, dotsItemSize: number) {
     if (dimension <= 0) return;
 
@@ -107,9 +114,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     });
 
     if (dimension >= maxSize) {
-      items.forEach((item) => (item.mode = "large"));
+      this.setActionsMode("large");
     } else if (dimension < minSize) {
-      items.forEach((item) => (item.mode = "small"));
+      this.setActionsMode("small");
       this.hideItemsGreaterN(this.getVisibleItemsCount(dimension - dotsItemSize));
       this.dotsItem.visible = true;
     } else {
@@ -127,6 +134,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
     }
+  }
+  public setActionsMode(mode: actionModeType) {
+    this.actions.forEach((action) => (action.mode = mode));
   }
   public dispose(): void {
     super.dispose();

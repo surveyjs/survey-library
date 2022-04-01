@@ -3,7 +3,7 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "customCss";
 const initSurvey = ClientFunction((framework, json) => {
   window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
-  await applyTheme("bootstrap");
+  window["Survey"].StylesManager.applyTheme("bootstrap");
 
   var model = new window["Survey"].Model(json);
 

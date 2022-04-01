@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
-const title = `standardValidators`;
+import { Selector, fixture, test } from "testcafe";
+const title = "standardValidators";
 
 const json = {
   questions: [
@@ -47,7 +47,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`check validation`, async (t) => {
+  test("check validation", async (t) => {
     const getError = Selector((text, index) => {
       var nodes = [];
       document.querySelectorAll("*").forEach(function (node) {
@@ -64,56 +64,56 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click(`input[value="Complete"]`)
-      .hover(getError(`Response required.`, 0))
-      .hover(getError(`Response required.`, 1))
-      .hover(getError(`Response required.`, 2));
+      .click("input[value=\"Complete\"]")
+      .hover(getError("Response required.", 0))
+      .hover(getError("Response required.", 1))
+      .hover(getError("Response required.", 2));
 
     await t
-      .typeText(await getTextInputByIndex(0), `wombat`)
-      .click(`input[value="Complete"]`)
-      .hover(getError(`Please enter a valid e-mail address.`, 0))
-      .hover(getError(`Response required.`, 0))
-      .hover(getError(`Response required.`, 1));
+      .typeText(await getTextInputByIndex(0), "wombat")
+      .click("input[value=\"Complete\"]")
+      .hover(getError("Please enter a valid e-mail address.", 0))
+      .hover(getError("Response required.", 0))
+      .hover(getError("Response required.", 1));
 
     await t
-      .typeText(await getTextInputByIndex(0), `wombat@mail.mail`, {
+      .typeText(await getTextInputByIndex(0), "wombat@mail.mail", {
         replace: true,
       })
-      .typeText(await getTextInputByIndex(1), `wombat`)
-      .click(`input[value="Complete"]`)
-      .hover(getError(`The value should be numeric.`, 0))
-      .hover(getError(`Response required.`, 0));
+      .typeText(await getTextInputByIndex(1), "wombat")
+      .click("input[value=\"Complete\"]")
+      .hover(getError("The value should be numeric.", 0))
+      .hover(getError("Response required.", 0));
 
     await t
-      .typeText(await getTextInputByIndex(1), `0`, { replace: true })
-      .typeText(await getTextInputByIndex(2), `10000`)
-      .click(`input[value="Complete"]`)
+      .typeText(await getTextInputByIndex(1), "0", { replace: true })
+      .typeText(await getTextInputByIndex(2), "10000")
+      .click("input[value=\"Complete\"]")
       .hover(
         getError(
-          `The 'value' should be at least 10 and at most 10000`,
+          "The 'value' should be at least 10 and at most 10000",
           0
         )
       )
-      .hover(getError(`Response required.`, 0));
+      .hover(getError("Response required.", 0));
 
     await t
-      .typeText(await getTextInputByIndex(1), `10`, { replace: true })
-      .typeText(await getTextarea(), `0123456789`)
-      .click(`input[value="Complete"]`)
-      .hover(getError(`Please enter at least 20 character(s).`, 0));
+      .typeText(await getTextInputByIndex(1), "10", { replace: true })
+      .typeText(await getTextarea(), "0123456789")
+      .click("input[value=\"Complete\"]")
+      .hover(getError("Please enter at least 20 character(s).", 0));
 
     await t
-      .typeText(await getTextarea(), `01234567890123456789`, { replace: true })
-      .click(`input[value="Complete"]`);
+      .typeText(await getTextarea(), "01234567890123456789", { replace: true })
+      .click("input[value=\"Complete\"]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       email: "wombat@mail.mail",
       firstcomputer: "01234567890123456789",
       pricelimit: {
-        leastamount: '10',
-        mostamount: '10000',
+        leastamount: "10",
+        mostamount: "10000",
       },
     });
   });

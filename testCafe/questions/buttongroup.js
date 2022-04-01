@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `button-group`;
+const title = "button-group";
 
 var json = {
   questions: [
@@ -16,11 +17,11 @@ var json = {
 };
 const setQuestionProperty = ClientFunction(
   (questionName, propertyName, propertyValue) => {
-    survey.getQuestionByName(questionName)[propertyName] = propertyValue;
+    window["survey"].getQuestionByName(questionName)[propertyName] = propertyValue;
   }
 );
 const getQuestionProperty = ClientFunction((questionName, properyName) => {
-  return survey.getQuestionByName(questionName)[properyName];
+  return window["survey"].getQuestionByName(questionName)[properyName];
 });
 
 frameworks.forEach(framework => {
@@ -30,7 +31,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test.skip(`selected class`, async t => {
+  test.skip("selected class", async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--selected").exists)
     );
@@ -54,7 +55,7 @@ frameworks.forEach(framework => {
     );
   });
 
-  test.skip(`readOnly items`, async t => {
+  test.skip("readOnly items", async t => {
     assert.ok(
       !(await Selector("label.sv-button-group__item--disabled").exists)
     );
@@ -73,7 +74,7 @@ frameworks.forEach(framework => {
 
   test.skip("hide caption", async t => {
     const hideFirstItemCaption = ClientFunction(() => {
-      window.survey.getQuestionByName(
+      window["survey"].getQuestionByName(
         "radio"
       ).visibleChoices[0].showCaption = false;
     });
@@ -92,7 +93,7 @@ frameworks.forEach(framework => {
 
   test.skip("show icon", async t => {
     const setFirtItemIcon = ClientFunction(iconName => {
-      window.survey.getQuestionByName(
+      window["survey"].getQuestionByName(
         "radio"
       ).visibleChoices[0].iconName = iconName;
     });

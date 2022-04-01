@@ -1,7 +1,8 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `dropdown`;
+const title = "dropdown";
 
 const json = {
   questions: [
@@ -35,28 +36,28 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`choose empty`, async (t) => {
+  test("choose empty", async (t) => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async (t) => {
+  test("choose value", async (t) => {
     let surveyResult;
 
     await t
-      .click(`select`)
-      .click(`option[value=Nissan]`)
-      .click(`input[value=Complete]`);
+      .click("select")
+      .click("option[value=Nissan]")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "Nissan");
   });
 
-  test(`change choices order`, async (t) => {
+  test("change choices order", async (t) => {
     const getChoicesCount = ClientFunction(
-      () => document.querySelectorAll(`select option`).length
+      () => document.querySelectorAll("select option").length
     );
-    const getFirst = Selector(`select option`, { index: 1 });
-    const getSecond = Selector(`select option`, { index: 2 });
+    const getFirst = Selector("select option", { index: 1 });
+    const getSecond = Selector("select option", { index: 2 });
     let rnd_count = 0;
     let first, second, first_2;
     let choicesCount = await getChoicesCount();
@@ -78,7 +79,7 @@ frameworks.forEach((framework) => {
 
     // rnd
     if (choicesCount === 1) {
-      assert(false, `need to more than one choices`);
+      assert(false, "need to more than one choices");
     }
 
     for (let i = 0; i < 15; i++) {
@@ -100,7 +101,7 @@ frameworks.forEach((framework) => {
     assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
-  test(`check integrity`, async (t) => {
+  test("check integrity", async (t) => {
     const choices = [
       "None",
       "Ford",
@@ -137,7 +138,7 @@ frameworks.forEach((framework) => {
     await checkIntegrity();
   });
 
-  test(`show "other" choice`, async (t) => {
+  test("show \"other\" choice", async (t) => {
     await t
       .click(Selector(".sv_row select"))
       .expect(Selector(".sv_row select option").count).eql(12);
@@ -149,9 +150,9 @@ frameworks.forEach((framework) => {
       .expect(Selector(".sv_row select option").nth(12).textContent).contains("Other");
   });
 
-  test(`check "other" choice doesn't change order`, async (t) => {
+  test("check \"other\" choice doesn't change order", async (t) => {
     const getOtherChoice = Selector(
-      () => document.querySelectorAll(`select option`)[12]
+      () => document.querySelectorAll("select option")[12]
     );
     let otherChoice;
 
@@ -162,17 +163,17 @@ frameworks.forEach((framework) => {
     assert.equal(otherChoice.textContent.trim(), "Other");
   });
 
-  test(`choose other`, async (t) => {
+  test("choose other", async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
-      .click(`select`)
-      .click(`option[value=other]`)
+      .click("select")
+      .click("option[value=other]")
       .typeText(getOtherInput, "Zaporozec")
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     let surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
@@ -187,22 +188,22 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
+  test("click on question title state editable", async (t) => {
     var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`;
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 });

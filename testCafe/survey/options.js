@@ -1,50 +1,50 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const title = `options`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "options";
 
 const change_question_required_text = ClientFunction(() => {
-  survey.requiredText = "😱";
-  survey.render();
+  window["survey"].requiredText = "😱";
+  window["survey"].render();
 });
 
 const set_question_numbers_on_page = ClientFunction(() => {
-  survey.showQuestionNumbers = "onPage";
-  survey.render();
+  window["survey"].showQuestionNumbers = "onPage";
+  window["survey"].render();
 });
 
 const set_question_numbers_off = ClientFunction(() => {
-  survey.showQuestionNumbers = "off";
-  survey.render();
+  window["survey"].showQuestionNumbers = "off";
+  window["survey"].render();
 });
 
 const hide_survey_title = ClientFunction(() => {
-  survey.showTitle = false;
-  survey.render();
+  window["survey"].showTitle = false;
+  window["survey"].render();
 });
 
 const hide_page_title = ClientFunction(() => {
-  survey.showPageTitles = false;
-  survey.render();
+  window["survey"].showPageTitles = false;
+  window["survey"].render();
 });
 
 const show_page_numbers = ClientFunction(() => {
-  survey.showPageNumbers = true;
-  survey.render();
+  window["survey"].showPageNumbers = true;
+  window["survey"].render();
 });
 
 const show_top_progress_bar = ClientFunction(() => {
-  survey.showProgressBar = "top";
-  survey.render();
+  window["survey"].showProgressBar = "top";
+  window["survey"].render();
 });
 
 const show_bottom_progress_bar = ClientFunction(() => {
-  survey.showProgressBar = "bottom";
-  survey.render();
+  window["survey"].showProgressBar = "bottom";
+  window["survey"].render();
 });
 
 const set_completed_html = ClientFunction(() => {
-  survey.completedHtml = "<h1>Wombat</h1>";
-  survey.render();
+  window["survey"].completedHtml = "<h1>Wombat</h1>";
+  window["survey"].render();
 });
 
 const json = {
@@ -124,7 +124,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`change question required text`, async t => {
+  test("change question required text", async t => {
     const requiredElement = Selector(".sv_q_required_text");
 
     await t.expect(requiredElement.textContent).eql("*");
@@ -132,19 +132,19 @@ frameworks.forEach(framework => {
     await t.expect(requiredElement.textContent).eql("😱");
   });
 
-  test(`set question numbers on page`, async t => {
+  test("set question numbers on page", async t => {
     const questionNumber = Selector(".sv_q_num");
 
     await t
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
       .expect(questionNumber.textContent).eql("2.");
 
     await set_question_numbers_on_page();
     await t.expect(questionNumber.textContent).eql("1.");
   });
 
-  test(`set question numbers off`, async t => {
+  test("set question numbers off", async t => {
     const questionNumber = Selector(".sv_q_num");
     await t.expect(questionNumber.textContent).eql("1.");
 
@@ -152,21 +152,21 @@ frameworks.forEach(framework => {
     await t.expect(questionNumber.exists).notOk();
   });
 
-  test(`hide survey title`, async t => {
+  test("hide survey title", async t => {
     const surveyTitle = Selector("h3").withText("Software developer survey.");
     await t.expect(surveyTitle.visible).ok();
     await hide_survey_title();
     await t.expect(surveyTitle.exists).notOk();
   });
 
-  test(`hide page title`, async t => {
+  test("hide page title", async t => {
     const pageTitle = Selector("h4").withText("What operating system do you use?");
     await t.expect(pageTitle.visible).ok();
     await hide_page_title();
     await t.expect(pageTitle.exists).notOk();
   });
 
-  test(`show page numbers`, async t => {
+  test("show page numbers", async t => {
     const pageTitle = Selector(".sv_page_title .sv-string-viewer");
 
     await t.expect(pageTitle.textContent).eql("What operating system do you use?");
@@ -174,20 +174,20 @@ frameworks.forEach(framework => {
     await t
       .expect(pageTitle.textContent).eql("1. What operating system do you use?")
 
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
       .expect(pageTitle.textContent).eql("2. What language(s) are you currently using?");
   });
 
   const progressbar = Selector(".sv_progress").filterVisible();
 
-  test(`no progress bar`, async t => {
+  test("no progress bar", async t => {
     await t.expect(progressbar.exists).notOk();
   });
 
-  test(`show top progress bar`, async t => {
+  test("show top progress bar", async t => {
     const questionElements = Selector(".sv_body > div");
-    await t.expect(progressbar.exists).notOk()
+    await t.expect(progressbar.exists).notOk();
 
     await show_top_progress_bar();
     await t
@@ -196,9 +196,9 @@ frameworks.forEach(framework => {
       .expect(questionElements.nth(0).classNames).contains("sv_progress");
   });
 
-  test(`show bottom progress bar`, async t => {
+  test("show bottom progress bar", async t => {
     const questionElements = Selector(".sv_body > div");
-    await t.expect(progressbar.exists).notOk()
+    await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();
     await t
@@ -207,38 +207,38 @@ frameworks.forEach(framework => {
       .expect(questionElements.nth(1).classNames).contains("sv_progress");
   });
 
-  test(`check progress bar page 2`, async t => {
-    await t.expect(progressbar.exists).notOk()
+  test("check progress bar page 2", async t => {
+    await t.expect(progressbar.exists).notOk();
     await show_top_progress_bar();
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3")
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
-      .expect(progressbar.textContent).contains("Page 2 of 3")
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
+      .expect(progressbar.textContent).contains("Page 2 of 3");
   });
 
-  test(`set completed html`, async t => {
+  test("set completed html", async t => {
     await set_completed_html();
     await t
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
-      .click(`input[value="Complete"]`)
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
+      .click("input[value=\"Complete\"]")
       .expect(Selector(".sv_completed_page h1").withText("Wombat").visible).ok();
   });
 
-  test(`check previous`, async t => {
+  test("check previous", async t => {
     const pageTitle = Selector(".sv_page_title .sv-string-viewer");
 
     await t
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
-      .click(`input[type=checkbox]`)
-      .click(`input[value="Next"]`)
-      .click(`input[value="Previous"]`)
-      .click(`input[value="Previous"]`);
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
+      .click("input[type=checkbox]")
+      .click("input[value=\"Next\"]")
+      .click("input[value=\"Previous\"]")
+      .click("input[value=\"Previous\"]");
 
     await t.expect(pageTitle.textContent).eql("What operating system do you use?");
   });

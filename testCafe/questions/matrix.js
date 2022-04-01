@@ -1,7 +1,8 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `matrix`;
+const title = "matrix";
 
 const json = {
   questions: [
@@ -37,24 +38,24 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`choose value`, async (t) => {
+  test("choose value", async (t) => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
-      .click(`input[value=Complete]`);
+      .click("input[name=\"sq_100_easy_to_use\"][value=\"5\"]")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.Quality[`easy to use`], `5`);
+    assert.equal(surveyResult.Quality["easy to use"], "5");
   });
 
-  test(`choose several values`, async (t) => {
+  test("choose several values", async (t) => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
-      .click(`input[value=Complete]`);
+      .click("input[name=\"sq_100_does_what_it_claims\"][value=\"4\"]")
+      .click("input[name=\"sq_100_easy_to_use\"][value=\"5\"]")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({
@@ -63,20 +64,20 @@ frameworks.forEach((framework) => {
     });
   });
 
-  test(`require answer for all rows`, async (t) => {
+  test("require answer for all rows", async (t) => {
     await setOptions("Quality", { isAllRowRequired: true });
-    await t.click(`input[value=Complete]`);
-    await t.expect(Selector(".sv-string-viewer").withText("Response required: answer questions in all rows.").visible).ok()
+    await t.click("input[value=Complete]");
+    await t.expect(Selector(".sv-string-viewer").withText("Response required: answer questions in all rows.").visible).ok();
 
     let surveyResult = await getSurveyResult();
-    await t.expect(typeof surveyResult).eql(`undefined`);
+    await t.expect(typeof surveyResult).eql("undefined");
 
     await t
-      .click(`input[name="sq_100_affordable"][value="3"]`)
-      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
-      .click(`input[name="sq_100_better_than_others"][value="2"]`)
-      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
-      .click(`input[value=Complete]`);
+      .click("input[name=\"sq_100_affordable\"][value=\"3\"]")
+      .click("input[name=\"sq_100_does_what_it_claims\"][value=\"4\"]")
+      .click("input[name=\"sq_100_better_than_others\"][value=\"2\"]")
+      .click("input[name=\"sq_100_easy_to_use\"][value=\"5\"]")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({
@@ -87,7 +88,7 @@ frameworks.forEach((framework) => {
     });
   });
 
-  test(`checked class`, async (t) => {
+  test("checked class", async (t) => {
     const isCheckedClassExistsByIndex = ClientFunction((index) =>
       document
         .querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`)
@@ -97,37 +98,36 @@ frameworks.forEach((framework) => {
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
-    await t.click(`input[name="sq_100_affordable"][value="2"]`);
+    await t.click("input[name=\"sq_100_affordable\"][value=\"2\"]");
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
-    await t.click(`input[name="sq_100_affordable"][value="3"]`);
+    await t.click("input[name=\"sq_100_affordable\"][value=\"3\"]");
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
   });
 
-  test(`isAnswered for matrix with loading answers from data - #2239`, async (t) => {
+  test("isAnswered for matrix with loading answers from data - #2239", async (t) => {
     const setData = ClientFunction(
       () =>
-      (survey.data = {
-        Quality: {
-          affordable: "1",
-          "does what it claims": "1",
-          "better than others": "1",
-          "easy to use": "1",
-        },
-      })
+        (window["survey"].data = {
+          Quality: {
+            affordable: "1",
+            "does what it claims": "1",
+            "better than others": "1",
+            "easy to use": "1",
+          },
+        })
     );
     await setData();
     const getIsAnswered = ClientFunction(
-      () => survey.getAllQuestions()[0].isAnswered
+      () => window["survey"].getAllQuestions()[0].isAnswered
     );
     assert.equal(await getIsAnswered(), true);
   });
 });
-
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -136,59 +136,59 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
-  test(`click on column title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on column title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = `.sv_q_matrix th`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_q_matrix th";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.columns[0].text, newTitle);
   });
 
-  test(`click on row title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on row title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var selector = `.sv_q_matrix tbody tr td .sv-string-editor`;
+    var selector = ".sv_q_matrix tbody tr td .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.rows[0].text, newTitle);
   });
 });

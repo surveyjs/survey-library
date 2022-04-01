@@ -1,3 +1,8 @@
 node_modules
 dist
-**/*.js
+build
+build-scripts
+doc_generator
+eslint-surveyjs
+examples
+examples_test

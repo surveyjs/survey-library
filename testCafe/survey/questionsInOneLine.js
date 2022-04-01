@@ -1,11 +1,12 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `questionsInOneLine and titles location`;
+const title = "questionsInOneLine and titles location";
 
 const changeTitleLocation = ClientFunction(location => {
-  survey.questionTitleLocation = location;
-  survey.render();
+  window["survey"].questionTitleLocation = location;
+  window["survey"].render();
 });
 
 const json = {
@@ -49,7 +50,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check one line`, async t => {
+  test("check one line", async t => {
     const isOneLine = ClientFunction(
       () =>
         document.querySelector("div[data-name='city']").parentNode.style.flex === "1 1 50%" &&
@@ -62,7 +63,7 @@ frameworks.forEach(framework => {
     assert(await isCountRight());
   });
 
-  test(`change title location`, async t => {
+  test("change title location", async t => {
     const isInputAboveHeader = ClientFunction(() => {
       var h5 = document.querySelectorAll("h5:last-of-type")[2],
         input = h5.parentNode.parentNode.querySelector("input");
@@ -82,7 +83,7 @@ frameworks.forEach(framework => {
     assert(await isHeaderAboveInput());
   });
 
-  test(`change title location left`, async t => {
+  test("change title location left", async t => {
     const isInputAboveHeader = ClientFunction(() => {
       var h5 = document.querySelectorAll("h5:first-of-type")[2],
         input = h5.parentNode.parentNode.querySelector("input");

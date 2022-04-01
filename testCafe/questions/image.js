@@ -1,7 +1,6 @@
-import { Selector } from "testcafe";
+import { Selector, fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-const assert = require("assert");
-const title = `imagepicker`;
+const title = "imagepicker";
 
 const json = {
   questions: [
@@ -32,9 +31,9 @@ frameworks.forEach(framework => {
 
   function SelectorByNumber(questionNumber) {
     return Selector(".sv_body .sv_row")
-            .nth(questionNumber)
-            .find(".sv_qstn")
-            .find(".sv_q_image")
+      .nth(questionNumber)
+      .find(".sv_qstn")
+      .find(".sv_q_image");
   }
 
   test("Check image question layout", async t => {

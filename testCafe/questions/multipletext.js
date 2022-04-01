@@ -1,7 +1,8 @@
+import { fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `multipletext`;
+const title = "multipletext";
 
 const json = {
   questions: [
@@ -31,13 +32,13 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`fill text fields`, async t => {
+  test("fill text fields", async t => {
     let surveyResult;
 
     await t
-      .typeText(`tr > td:nth-child(1) input`, `All my money`)
-      .typeText(`tr > td:nth-child(2) input`, `Zero`)
-      .click(`input[value=Complete]`);
+      .typeText("tr > td:nth-child(1) input", "All my money")
+      .typeText("tr > td:nth-child(2) input", "Zero")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
 
@@ -49,7 +50,6 @@ frameworks.forEach(framework => {
     });
   });
 });
-
 
 frameworks.forEach((framework) => {
 
@@ -68,47 +68,47 @@ frameworks.forEach((framework) => {
       }
     ]
   };
-    
+
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
       await initSurvey(framework, localJson, undefined, true);
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json =JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
-  test(`click on row title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on row title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
-    var selector = `.sv_q_mt_title .sv-string-editor`;
+
+    var selector = ".sv_q_mt_title .sv-string-editor";
     await t
-      .click(selector, {offsetX: 10, offsetY: 10})
+      .click(selector, { offsetX: 10, offsetY: 10 })
       .typeText(selector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json =JSON.parse(await getQuestionJson());
     assert.equal(json.items[0].title, newTitle);
   });
 });

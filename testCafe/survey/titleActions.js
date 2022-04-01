@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const title = `titleActions`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "titleActions";
 
 const json = {
   elements: [
@@ -30,7 +30,7 @@ frameworks.forEach((framework) => {
     });
 
     var getQuestionState = ClientFunction(() => {
-      return survey.getAllQuestions()[0].state;
+      return window["survey"].getAllQuestions()[0].state;
     });
 
     const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
@@ -132,7 +132,7 @@ frameworks.forEach((framework) => {
 
   test("check expand/collapse action", async (t) => {
     const elementTitle = Selector(".sv_q_title");
-    const getQuestionState = ClientFunction(() => { return survey.getAllQuestions()[0].state; });
+    const getQuestionState = ClientFunction(() => { return window["survey"].getAllQuestions()[0].state; });
 
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => { },
@@ -141,7 +141,7 @@ frameworks.forEach((framework) => {
     await t
       .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
       .expect(elementTitle.hasClass("sv_q_title_expanded")).notOk()
-      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok()
+      .expect(elementTitle.hasClass("sv_q_title_collapsed")).ok();
     await t.expect(await getQuestionState()).eql("collapsed");
 
     await t
@@ -149,7 +149,7 @@ frameworks.forEach((framework) => {
       .expect(elementTitle.hasClass("sv_q_title_expandable")).ok()
       .expect(elementTitle.hasClass("sv_q_title_expanded")).ok()
       .expect(elementTitle.hasClass("sv_q_title_collapsed")).notOk();
-    await t.expect(await getQuestionState()).eql("expanded")
+    await t.expect(await getQuestionState()).eql("expanded");
 
     await t
       .click(elementTitle)
@@ -200,8 +200,8 @@ frameworks.forEach((framework) => {
   });
 
   test("check responsivity manager is disposed when action bar is disposed", async (t) => {
-    const getToolbarResponsivityManager = ClientFunction(() => !!survey.getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
-    const setQuestionVisibility = ClientFunction((visible) => { survey.getQuestionByName("actions_question").visible = visible });
+    const getToolbarResponsivityManager = ClientFunction(() => !!window["survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager);
+    const setQuestionVisibility = ClientFunction((visible) => { window["survey"].getQuestionByName("actions_question").visible = visible; });
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {
         opt.titleActions = [

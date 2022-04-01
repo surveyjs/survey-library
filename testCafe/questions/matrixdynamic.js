@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `matrixdynamic`;
+const title = "matrixdynamic";
 
 const json = {
   questions: [
@@ -106,36 +107,36 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`choose empty`, async (t) => {
+  test("choose empty", async (t) => {
     const matrixRow = Selector(".sv_matrix_row");
     const getRequiredElement = (rowIndex) => {
       return matrixRow.nth(rowIndex).find(".sv-string-viewer").withText("Response required.");
-    }
+    };
 
     await t
       .expect(getRequiredElement(0).exists).notOk()
       .expect(getRequiredElement(1).exists).notOk()
 
-      .click(`input[value=Complete]`)
+      .click("input[value=Complete]")
       .expect(getRequiredElement(0).visible).ok()
       .expect(getRequiredElement(1).visible).ok();
 
     let surveyResult = await getSurveyResult();
-    await t.expect(typeof surveyResult).eql(`undefined`);
+    await t.expect(typeof surveyResult).eql("undefined");
 
     await t
       .click(matrixRow.nth(0).find("select"))
       .click(matrixRow.nth(0).find("select option[value=\"Science: Physical Science\"]"))
 
-      .click(`input[value=Complete]`)
+      .click("input[value=Complete]")
       .expect(getRequiredElement(0).exists).notOk()
       .expect(getRequiredElement(1).visible).ok();
 
     surveyResult = await getSurveyResult();
-    await t.expect(typeof surveyResult).eql(`undefined`);
+    await t.expect(typeof surveyResult).eql("undefined");
   });
 
-  test(`choose several values`, async (t) => {
+  test("choose several values", async (t) => {
     const matrixCellSelector = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
@@ -150,15 +151,15 @@ frameworks.forEach((framework) => {
       }
 
       await t // answer comments
-        .typeText(`${matrixCellSelector`${rowNumber}${13}`} textarea`, `Wombats`)
-        .typeText(`${matrixCellSelector`${rowNumber}${14}`} textarea`, `Wombats`)
-        .typeText(`${matrixCellSelector`${rowNumber}${15}`} textarea`, `Wombats`);
+        .typeText(`${matrixCellSelector`${rowNumber}${13}`} textarea`, "Wombats")
+        .typeText(`${matrixCellSelector`${rowNumber}${14}`} textarea`, "Wombats")
+        .typeText(`${matrixCellSelector`${rowNumber}${15}`} textarea`, "Wombats");
     };
 
     await fillTheRow(1);
     await fillTheRow(2);
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -201,9 +202,9 @@ frameworks.forEach((framework) => {
     });
   });
 
-  test(`remove row`, async (t) => {
+  test("remove row", async (t) => {
     const getRowCount = ClientFunction(
-      () => document.querySelectorAll(`tbody > tr`).length
+      () => document.querySelectorAll("tbody > tr").length
     );
     const oldCount = await getRowCount();
     const matrixCellSelector = function (strings, ...values) {
@@ -228,15 +229,15 @@ frameworks.forEach((framework) => {
     const newCount = await getRowCount();
     assert(newCount === oldCount - 1);
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.teachersRate.length, 1);
   });
 
-  test(`add row`, async (t) => {
+  test("add row", async (t) => {
     const getRowCount = ClientFunction(
-      () => document.querySelectorAll(`tbody > tr`).length
+      () => document.querySelectorAll("tbody > tr").length
     );
     const oldCount = await getRowCount();
     const matrixCellSelector = function (strings, ...values) {
@@ -244,7 +245,7 @@ frameworks.forEach((framework) => {
     };
 
     await t
-      .click(Selector(`button[type=button]`).withText("Add Subject"))
+      .click(Selector("button[type=button]").withText("Add Subject"))
       .click(`${matrixCellSelector`${1}${1}`} select`)
       .click(
         `${matrixCellSelector`${1}${1}`} select option[value="Science: Physical Science"]`
@@ -261,7 +262,7 @@ frameworks.forEach((framework) => {
     const newCount = await getRowCount();
     assert(newCount === oldCount + 1);
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.teachersRate.length, 3);

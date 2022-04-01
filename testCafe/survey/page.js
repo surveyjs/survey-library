@@ -1,30 +1,31 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `page`;
+const title = "page";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
     .page`${url}${framework}`.beforeEach(async t => {});
 
   const setSurveyInDesignMode = ClientFunction(() => {
-    survey.setDesignMode(true);
-    survey.render();
+    window["survey"].setDesignMode(true);
+    window["survey"].render();
   });
 
   const addPageDescriptionClass = ClientFunction(
-    () => (Survey.defaultStandardCss.page.description = "sv_page_description")
+    () => (window["Survey"].defaultStandardCss.page.description = "sv_page_description")
   );
 
   const isPageTitleExists = ClientFunction(
-    () => !!document.querySelector(`.sv_page_title`)
+    () => !!document.querySelector(".sv_page_title")
   );
 
   const isDescriptionExists = ClientFunction(
-    () => !!document.querySelector(`.sv_page_description`)
+    () => !!document.querySelector(".sv_page_description")
   );
 
-  test(`page title`, async t => {
+  test("page title", async t => {
     var json = {
       pages: [
         {
@@ -47,7 +48,7 @@ frameworks.forEach(framework => {
     assert.equal(await isPageTitleExists(), true);
   });
 
-  test(`page description`, async t => {
+  test("page description", async t => {
     await addPageDescriptionClass();
     var json = {
       pages: [
@@ -71,7 +72,7 @@ frameworks.forEach(framework => {
     assert.equal(await isDescriptionExists(), true);
   });
 
-  test(`page title empty`, async t => {
+  test("page title empty", async t => {
     var json = {
       pages: [
         {
@@ -94,7 +95,7 @@ frameworks.forEach(framework => {
     assert.equal(await isPageTitleExists(), true);
   });
 
-  test(`page description empty`, async t => {
+  test("page description empty", async t => {
     await addPageDescriptionClass();
     var json = {
       pages: [

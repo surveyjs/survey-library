@@ -1,8 +1,9 @@
 import { frameworks, url } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
 import uuid from "node-uuid";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `runSurveyOneTime`;
+const title = "runSurveyOneTime";
 const initSurvey = ClientFunction(framework => {
   document
     .querySelector("#surveyElement")
@@ -42,20 +43,20 @@ const initSurvey = ClientFunction(framework => {
       document.getElementById("surveyMsg").innerHTML =
         "You have already run the survey!";
     } else {
-      runSurvey();
+      window["runSurvey"]();
     }
   }
 
   function runSurveyCheck() {
     var clientId = document.getElementById("clientId").value;
-    new Survey.dxSurveyService().isCompleted(
+    new window["Survey"].dxSurveyService().isCompleted(
       "47e699f7-d523-4476-8fcd-be601c91d119",
       clientId,
       onIsSurveyCompleted
     );
   }
 
-  window.runSurveyCheck = runSurveyCheck;
+  window["runSurveyCheck"] = runSurveyCheck;
 
   function surveySendResult(survey) {
     var text =
@@ -73,8 +74,8 @@ const initSurvey = ClientFunction(framework => {
   }
 
   if (framework === "knockout") {
-    function runSurvey() {
-      var survey = new Survey.Survey(
+    window["runSurvey"] = () => {
+      var survey = new window["Survey"].Survey(
         {
           surveyId: "e7866476-e901-4ab7-9f38-574416387f73",
           surveyPostId: "df2a04fb-ce9b-44a6-a6a7-6183ac555a68"
@@ -100,12 +101,11 @@ const initSurvey = ClientFunction(framework => {
         memo.value = memo.value + text;
       });
       document.getElementById("clientIdContainer").style.display = "none";
-    }
+    };
 
-    window.runSurvey = runSurvey;
   } else if (framework === "react") {
-    function runSurvey() {
-      var survey = new Survey.Model({
+    window["runSurvey"] = () => {
+      var survey = new window["Survey"].Model({
         surveyId: "e7866476-e901-4ab7-9f38-574416387f73",
         surveyPostId: "df2a04fb-ce9b-44a6-a6a7-6183ac555a68",
         clientId: document.getElementById("clientId").value
@@ -114,19 +114,18 @@ const initSurvey = ClientFunction(framework => {
       survey.sendResultOnPageNext = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
-      ReactDOM.render(
-        React.createElement(Survey.Survey, {
+      window["ReactDOM"].render(
+        window["React"].createElement(window["Survey"].Survey, {
           model: survey,
           onComplete: surveyComplete,
           onSendResult: surveySendResult
         }),
         document.getElementById("surveyElement")
       );
-    }
-    window.runSurvey = runSurvey;
+    };
   } else if (framework === "vue") {
-    function runSurvey() {
-      var survey = new Survey.Model(
+    window["runSurvey"] = () => {
+      var survey = new window["Survey"].Model(
         {
           surveyId: "e7866476-e901-4ab7-9f38-574416387f73",
           surveyPostId: "df2a04fb-ce9b-44a6-a6a7-6183ac555a68"
@@ -141,9 +140,8 @@ const initSurvey = ClientFunction(framework => {
       survey.onSendResult.add(surveySendResult);
       document.getElementById("clientIdContainer").style.display = "none";
 
-      new Vue({ el: "#surveyElement", data: { survey: survey } });
-    }
-    window.runSurvey = runSurvey;
+      new window["Vue"]({ el: "#surveyElement", data: { survey: survey } });
+    };
   }
 });
 
@@ -154,7 +152,7 @@ frameworks.forEach(framework => {
     }
   );
   //TODO fix the service
-  test.skip(`check one time run`, async t => {
+  test.skip("check one time run", async t => {
     const getResultTextArea = Selector(() =>
       document.querySelector("#sentResults")
     );
@@ -165,13 +163,13 @@ frameworks.forEach(framework => {
     let resultTextArea;
 
     await t
-      .typeText(`#clientId`, clientID)
-      .click(`#btnStartSurvey`)
-      .click(`div:nth-child(2) label input`)
-      .click(`input[value=Next]`)
-      .click(`div:nth-child(2) label input`)
-      .click(`input[value=Next]`)
-      .click(`input[value=Complete]`);
+      .typeText("#clientId", clientID)
+      .click("#btnStartSurvey")
+      .click("div:nth-child(2) label input")
+      .click("input[value=Next]")
+      .click("div:nth-child(2) label input")
+      .click("input[value=Next]")
+      .click("input[value=Complete]");
 
     resultTextArea = await getResultTextArea();
     assert.equal(
@@ -179,12 +177,12 @@ frameworks.forEach(framework => {
       `clientId:${clientID}. The results are:{"opSystem":["Windows"],"langs":["Javascript"]}\n`
     );
 
-    await t.click(`#btnStartSurvey`);
+    await t.click("#btnStartSurvey");
 
     assert.equal(await getSurveyMsg(), "You have already run the survey!");
   });
   //TODO fix the service
-  test.skip(`send results before moving on the next page`, async t => {
+  test.skip("send results before moving on the next page", async t => {
     const getResultTextArea = Selector(
       () => document.querySelector("#sentResults"),
       { timeout: 10000 }
@@ -193,11 +191,11 @@ frameworks.forEach(framework => {
     let resultTextArea;
 
     await t
-      .click(`#sendResultOnPageNext`)
-      .typeText(`#clientId`, clientID)
-      .click(`#btnStartSurvey`)
-      .click(`div:nth-child(2) label input`)
-      .click(`input[value=Next]`);
+      .click("#sendResultOnPageNext")
+      .typeText("#clientId", clientID)
+      .click("#btnStartSurvey")
+      .click("div:nth-child(2) label input")
+      .click("input[value=Next]");
 
     resultTextArea = await getResultTextArea();
     assert.equal(

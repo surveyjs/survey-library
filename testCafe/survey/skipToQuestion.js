@@ -1,5 +1,6 @@
+import { fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, } from "../helper";
-const title = `autoNextPage`;
+const title = "autoNextPage";
 
 const json = {
   pages: [
@@ -35,11 +36,11 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`skip to question should focus the correct question`, async (t) => {
+  test("skip to question should focus the correct question", async (t) => {
     let surveyResult;
 
-    await t.click(`input[value="item2"]`);
-    await t.pressKey("a b c").click(`input[value="Complete"]`);
+    await t.click("input[value=\"item2\"]");
+    await t.pressKey("a b c").click("input[value=\"Complete\"]");
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       q1: "item2",

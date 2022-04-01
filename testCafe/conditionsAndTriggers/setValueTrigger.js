@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
-const title = `setValueTrigger`;
+import { Selector, fixture, test } from "testcafe";
+const title = "setValueTrigger";
 
 const json = {
   triggers: [
@@ -89,10 +89,10 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`check visibility`, async (t) => {
+  test("check visibility", async (t) => {
     await t
-      .click(`input[value="Yes"]`)
-      .click(`input[value="Complete"]`)
+      .click("input[value=\"Yes\"]")
+      .click("input[value=\"Complete\"]")
       .expect(Selector(".sv_completed_page").textContent).contains("Jon Snow");
 
     const surveyResult = await getSurveyResult();

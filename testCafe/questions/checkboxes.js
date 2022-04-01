@@ -1,7 +1,8 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `checkboxes`;
+const title = "checkboxes";
 
 const json = {
   questions: [
@@ -37,51 +38,50 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`choose empty`, async (t) => {
+  test("choose empty", async (t) => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose none`, async (t) => {
+  test("choose none", async (t) => {
     let surveyResult;
 
     await t
-      .debug()
       .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
       .click(Selector(".sv_q_checkbox_control_label").withText("Audi"))
       .click(Selector(".sv_q_checkbox_control_label").withText("Vauxhall"))
       .click(Selector(".sv_q_checkbox_control_label").withText("None"))
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql(["none"]);
   });
 
-  test(`choose value`, async (t) => {
+  test("choose value", async (t) => {
     let surveyResult;
 
     await t
       .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "Nissan");
   });
 
-  test(`choose several values`, async (t) => {
+  test("choose several values", async (t) => {
     let surveyResult;
 
     await t
       .click(Selector(".sv_q_checkbox_control_label").withText("BMW"))
       .click(Selector(".sv_q_checkbox_control_label").withText("Nissan"))
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql(["BMW", "Nissan"]);
   });
 
-  test(`change column count`, async (t) => {
+  test("change column count", async (t) => {
     const getClassName = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset .sv_q_select_column`).className
+      () => document.querySelector("div[id*=sq_1] fieldset .sv_q_select_column").className
     );
 
     let className = await getClassName();
@@ -90,7 +90,7 @@ frameworks.forEach((framework) => {
 
     await setOptions("car", { colCount: 1 });
     const getClassNameOneCol = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset > .sv_q_checkbox`).className
+      () => document.querySelector("div[id*=sq_1] fieldset > .sv_q_checkbox").className
     );
     className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);
@@ -101,11 +101,11 @@ frameworks.forEach((framework) => {
     assert.notEqual(className.indexOf("sv-q-column-2"), -1);
   });
 
-  test(`change choices order`, async (t) => {
+  test("change choices order", async (t) => {
     const getChoicesCount = ClientFunction(
       () =>
         document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_checkbox_control_item`
+          "div[id*=sq_1] fieldset .sv_q_checkbox_control_item"
         ).length
     );
     const getFirst = Selector(
@@ -114,7 +114,6 @@ frameworks.forEach((framework) => {
     const getSecond = Selector(
       "div[id*=sq_1] .sv_q_select_column:nth-child(2) .sv-string-viewer"
     ).nth(0);
-
 
     let rnd_count = 0;
     let first, second, first_2;
@@ -136,7 +135,7 @@ frameworks.forEach((framework) => {
 
     // rnd
     if (choicesCount === 1) {
-      assert(false, `need to more than one choices`);
+      assert(false, "need to more than one choices");
     }
 
     for (let i = 0; i < 15; i++) {
@@ -158,7 +157,7 @@ frameworks.forEach((framework) => {
     assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
-  test(`check integrity`, async (t) => {
+  test("check integrity", async (t) => {
     let i;
     const getChoicesCount = ClientFunction(
       () =>
@@ -206,16 +205,16 @@ frameworks.forEach((framework) => {
     await checkIntegrity();
   });
 
-  test(`show "other" choice`, async (t) => {
+  test("show \"other\" choice", async (t) => {
     await setOptions("car", { hasOther: true });
-    await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok()
+    await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok();
   });
 
-  test(`check "other" choice doesn't change order`, async (t) => {
+  test("check \"other\" choice doesn't change order", async (t) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(
-          `div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-child(4)`
+          "div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-child(4)"
         )[0]
     );
     let otherChoice;
@@ -226,7 +225,7 @@ frameworks.forEach((framework) => {
     assert.equal(otherChoice.textContent.trim(), "Other (describe)");
   });
 
-  test(`choose other`, async (t) => {
+  test("choose other", async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );
@@ -234,18 +233,18 @@ frameworks.forEach((framework) => {
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(Selector("span").withText('Other (describe)'))
+      .click(Selector("span").withText("Other (describe)"))
       .typeText(getOtherInput, "Zaporozec")
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
 
-  test(`choose other and "textUpdateMode": "onTyping"`, async (t) => {
+  test("choose other and \"textUpdateMode\": \"onTyping\"", async (t) => {
     const setSurveyOptions = ClientFunction(() => {
-      survey.textUpdateMode = "onTyping";
+      window["survey"].textUpdateMode = "onTyping";
     });
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
@@ -255,17 +254,17 @@ frameworks.forEach((framework) => {
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(Selector("span").withText('Other (describe)'))
+      .click(Selector("span").withText("Other (describe)"))
       .click(getOtherInput)
       .pressKey("C o m m e n t")
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Comment");
   });
 
-  test(`trim other`, async (t) => {
+  test("trim other", async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );
@@ -273,23 +272,23 @@ frameworks.forEach((framework) => {
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(Selector("span").withText('Other (describe)'))
+      .click(Selector("span").withText("Other (describe)"))
       .typeText(getOtherInput, "     ");
-    await t.pressKey('shift+tab')
-      .pressKey('tab')
+    await t.pressKey("shift+tab")
+      .pressKey("tab")
       .typeText(getOtherInput, "ab  ");
-    await t.pressKey('shift+tab')
-      .pressKey('tab')
+    await t.pressKey("shift+tab")
+      .pressKey("tab")
       .typeText(getOtherInput, "cd  ");
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "abcd");
   });
 
-  test(`checked class`, async (t) => {
+  test("checked class", async (t) => {
     const isCheckedClassExistsByIndex = ClientFunction((index) =>
       document
         .querySelector(
@@ -303,10 +302,10 @@ frameworks.forEach((framework) => {
 
     await t
       .click(
-        `fieldset .sv_q_select_column:nth-child(3) div:nth-child(2) label input`
+        "fieldset .sv_q_select_column:nth-child(3) div:nth-child(2) label input"
       )
       .click(
-        `fieldset .sv_q_select_column:nth-child(3) div:nth-child(3) label input`
+        "fieldset .sv_q_select_column:nth-child(3) div:nth-child(3) label input"
       );
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
@@ -315,15 +314,15 @@ frameworks.forEach((framework) => {
 
   test("Check that selectAll item is checked after loading data - https://surveyjs.answerdesk.io/internal/ticket/details/T4979", async (t) => {
     const enableHasSelectAll = ClientFunction(() => {
-      window.survey.getAllQuestions()[0].hasSelectAll = true;
+      window["survey"].getAllQuestions()[0].hasSelectAll = true;
     });
     const isSelectAllChecked = ClientFunction(() => {
       return document.querySelector(
-        `fieldset .sv_q_select_column:nth-of-type(1) div:nth-of-type(1) input`
+        "fieldset .sv_q_select_column:nth-of-type(1) div:nth-of-type(1) input"
       ).checked;
     });
     const setData = ClientFunction(() => {
-      window.survey.data = {
+      window["survey"].data = {
         car: [
           "Unknown",
           "Ford",
@@ -352,45 +351,45 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
 
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
-  test(`click on checkbox title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on checkbox title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
 
-    var outerSelector = `.sv_q_checkbox_control_label`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_q_checkbox_control_label";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue.length, 0);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.choices[0].text, newTitle);
   });
-  test(`check other comment is focused after other item is selected `, async (t) => {
-    await ClientFunction(() => { window.survey.setDesignMode(false)})();
+  test("check other comment is focused after other item is selected ", async (t) => {
+    await ClientFunction(() => { window["survey"].setDesignMode(false); })();
     await t.click("input[value='other']").expect(Selector("textarea").focused).ok();
   });
 });

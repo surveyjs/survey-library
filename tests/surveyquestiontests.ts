@@ -3980,7 +3980,7 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function(assert) {
   var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
-QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText max/maxValueExpression, today()", function(assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
@@ -3990,6 +3990,27 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
     question.renderedMax,
     todayStr,
     "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function(assert) {
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
+  });
+  const question = <QuestionTextModel>survey.getQuestionByName("q");
+  const todayStr = new Date().toISOString().slice(0, 10);
+  var maxDate = new Date();
+  maxDate.setUTCHours(0, 0, 0, 0);
+  maxDate.setDate(maxDate.getDate() + 10);
+  var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+  assert.equal(
+    question.renderedMax,
+    todayPlus10DaysStr,
+    "renderedMax: today + 10 days in format yyyy-mm-dd"
   );
 });
 QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {

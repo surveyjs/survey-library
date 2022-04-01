@@ -805,7 +805,13 @@ export class QuestionSelectBase extends Question {
     }
     return false;
   }
-  protected isBuiltInChoice(
+  protected isHeadChoice(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): boolean {
+    return false;
+  }
+  protected isFootChoice(
     item: ItemValue,
     question: QuestionSelectBase
   ): boolean {
@@ -814,6 +820,12 @@ export class QuestionSelectBase extends Question {
       item === question.otherItem ||
       item === question.newItemValue
     );
+  }
+  protected isBuiltInChoice(
+    item: ItemValue,
+    question: QuestionSelectBase
+  ): boolean {
+    return this.isHeadChoice(item, question) || this.isFootChoice(item, question);
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;
@@ -1195,26 +1207,12 @@ export class QuestionSelectBase extends Question {
       .toString() || undefined;
   }
   get headItems():ItemValue[] {
-    let items: ItemValue[] = [];
-    if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
-      let i= 0;
-      while(i < this.visibleChoices.length && this.isBuiltInChoice(this.visibleChoices[i], this) && this.visibleChoices[i] !== this.newItemValue) {
-        items.push(this.visibleChoices[i]);
-        i++;
-      }
-    }
-    return items;
+    return (this.separateSpecialChoices || this.isDesignMode)?
+      this.visibleChoices.filter(choice => this.isHeadChoice(choice, this)) :[];
   }
   get footItems():ItemValue[] {
-    let items: ItemValue[] = [];
-    if(this.visibleChoices.length > 0 && (this.separateSpecialChoices || this.isDesignMode)) {
-      let i = this.visibleChoices.length - 1;
-      while(i >= 0 && this.isBuiltInChoice(this.visibleChoices[i], this) && this.visibleChoices[i].value !== "selectall") {
-        items.unshift(this.visibleChoices[i]);
-        i--;
-      }
-    }
-    return items;
+    return (this.separateSpecialChoices || this.isDesignMode)?
+      this.visibleChoices.filter(choice => this.isFootChoice(choice, this)) :[];
   }
   get hasHeadItems(): boolean {
     return this.headItems.length > 0;

@@ -42,6 +42,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this._allowComponentUpdate = false;
   }
   shouldComponentUpdate(nextProps:any, nextState:any):boolean {
+    if(this._allowComponentUpdate) {
+      this.unMakeBaseElementsReact();
+    }
     return this._allowComponentUpdate;
   }
   render(): JSX.Element {
@@ -62,15 +65,18 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return element;
   }
   protected get isRendering(): boolean {
-    var stateEl: any = this.getStateElement();
-    return !!stateEl && stateEl.reactRendering > 0;
+    var stateEls: Array<any> = this.getRenderedElements();
+    for(let stateEl of stateEls) {
+      if(stateEl.reactRendering > 0) return true;
+    }
+    return false;
   }
-  protected getRenderedElement(): Base {
-    return this.getStateElement();
+  protected getRenderedElements(): Base[] {
+    return this.getStateElements();
   }
   private startEndRendering(val: number) {
-    var stateEl: any = this.getRenderedElement();
-    if (!!stateEl) {
+    var stateEls: Array<any> = this.getRenderedElements();
+    for(let stateEl of stateEls) {
       if (!stateEl.reactRendering) stateEl.reactRendering = 0;
       stateEl.reactRendering += val;
     }
@@ -208,8 +214,8 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   protected get questionBase(): Question {
     return this.props.question;
   }
-  protected getRenderedElement(): Base {
-    return this.questionBase;
+  protected getRenderedElements(): Base[] {
+    return [this.questionBase];
   }
   protected get creator(): ISurveyCreator {
     return this.props.creator;

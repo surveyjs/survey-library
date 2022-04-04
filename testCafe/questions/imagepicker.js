@@ -1,4 +1,4 @@
-import { fixture, test } from "testcafe";
+import { ClientFunction, fixture, Selector, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -65,6 +65,12 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.choosepicture, "giraffe");
+  });
+  test("imagelink reactiveness", async t => {
+    await ClientFunction(()=>{
+      window.survey.getAllQuestions()[0].choices[0].imageLink = "custom_link";
+    })();
+    await t.expect(Selector("img[src='custom_link']").exists).ok();
   });
 });
 

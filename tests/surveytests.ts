@@ -14617,7 +14617,7 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   survey["processResponsiveness"](600, 500);
   assert.notOk(survey._isMobile);
 });
-QUnit.test("Check addNavigationBarItem", function (assert) {
+QUnit.test("Check addNavigationItem", function (assert) {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -14626,19 +14626,22 @@ QUnit.test("Check addNavigationBarItem", function (assert) {
       }
     ]
   });
-  survey.addNavigationBarItem({ id: "custom-btn", visibleIndex: 3 });
-  assert.equal(survey.navigationBar.actions[0].id, "custom-btn");
-  assert.equal(survey.navigationBar.actions[0].innerCss, "sv_nav_btn");
-  assert.equal(survey.navigationBar.actions[0].component, "sv-nav-btn");
+  const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
+  assert.ok(action1 === survey.navigationBar.actions[0]);
+  assert.equal(action1.id, "custom-btn");
+  assert.equal(action1.innerCss, "sv_nav_btn");
+  assert.equal(action1.component, "sv-nav-btn");
 
-  survey.addNavigationBarItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
-  assert.equal(survey.navigationBar.actions[2].id, "custom-btn-2");
-  assert.equal(survey.navigationBar.actions[2].innerCss, "custom-css");
-  assert.equal(survey.navigationBar.actions[2].component, "sv-nav-btn");
+  const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+  assert.ok(action2 === survey.navigationBar.actions[2]);
+  assert.equal(action2.id, "custom-btn-2");
+  assert.equal(action2.innerCss, "custom-css");
+  assert.equal(action2.component, "sv-nav-btn");
 
-  survey.addNavigationBarItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
-  assert.equal(survey.navigationBar.actions[4].id, "custom-btn-3");
-  assert.equal(survey.navigationBar.actions[4].component, "custom-component");
+  const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
+  assert.ok(action3 === survey.navigationBar.actions[4]);
+  assert.equal(action3.id, "custom-btn-3");
+  assert.equal(action3.component, "custom-component");
 });
 
 QUnit.test("Check default navigation items relevance", function (assert) {

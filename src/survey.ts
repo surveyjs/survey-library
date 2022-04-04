@@ -2031,14 +2031,14 @@ export class SurveyModel extends SurveyElementCore
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
   }
-  public addNavigationBarItem(val: IAction): void {
+  public addNavigationItem(val: IAction): Action {
     if(!val.component) {
       val.component = "sv-nav-btn";
     }
     if(!val.innerCss) {
       val.innerCss = this.css.navigationButton;
     }
-    this.navigationBar.addAction(val);
+    return this.navigationBar.addAction(val);
   }
   /**
    * Gets or sets the 'Start' button caption.

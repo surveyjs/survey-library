@@ -78,10 +78,11 @@ export class ActionContainer<T extends Action = Action> extends Base {
     private createAction(item: IAction) {
       return item instanceof Action ? item : new Action(item);
     }
-    public addAction(val: IAction, sortByVisibleIndex = true) {
-      val = this.createAction(val);
-      this.actions.push(<T>val);
+    public addAction(val: IAction, sortByVisibleIndex = true): Action {
+      const res: Action = this.createAction(val);
+      this.actions.push(<T>res);
       this.sortItems();
+      return res;
     }
     private sortItems(): void {
       this.actions = []

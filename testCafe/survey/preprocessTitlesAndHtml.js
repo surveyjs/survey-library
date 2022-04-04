@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const title = `preprocessTitlesAndHtml`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "preprocessTitlesAndHtml";
 
 const json = {
   questionTitleTemplate: "{no}) {title} {require}:",
@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check title and html`, async t => {
+  test("check title and html", async t => {
     const getFirstTitle = Selector(() => document.querySelectorAll("h5"), {
       text: "A) Please type your name (*):",
       visibilityCheck: true,
@@ -75,14 +75,14 @@ frameworks.forEach(framework => {
     await t.hover(getFirstTitle).hover(getSecondTitle);
 
     await t
-      .typeText(getFirstInput, `wombat`)
-      .typeText(getSecondInput, `wombat@mail.mail`)
-      .click(`input[value="Next"]`);
+      .typeText(getFirstInput, "wombat")
+      .typeText(getSecondInput, "wombat@mail.mail")
+      .click("input[value=\"Next\"]");
 
     await t
       .hover(getThirdTitle)
-      .typeText(`textarea`, `fresh grasses`)
-      .click(`input[value="Complete"]`)
+      .typeText("textarea", "fresh grasses")
+      .click("input[value=\"Complete\"]")
       .expect(Selector(".sv_completed_page").textContent).eql(getcompletedHtml);
   });
 });

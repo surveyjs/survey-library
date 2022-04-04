@@ -1,7 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
-const assert = require("assert");
-const title = `matrixdropdownMultiplecolumns`;
+import { Selector, fixture, test } from "testcafe";
+const title = "matrixdropdownMultiplecolumns";
 
 const json = {
   questions: [
@@ -49,7 +48,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`multiple columns`, async (t) => {
+  test("multiple columns", async (t) => {
     const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
     };
@@ -63,16 +62,16 @@ frameworks.forEach((framework) => {
       .click(`${baseSelectorFunc`${3}${4}`} input[type=radio]`)
       .click(`${baseSelectorFunc`${4}${5}`} input[type=radio]`)
       .click(`${baseSelectorFunc`${5}${6}`} input[type=radio]`)
-      .typeText(`${baseSelectorFunc`${1}${7}`} textarea`, `Some comment`);
+      .typeText(`${baseSelectorFunc`${1}${7}`} textarea`, "Some comment");
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     let surveyResult = await getSurveyResult();
-    await t.expect(surveyResult.question1.Excited).eql( {
+    await t.expect(surveyResult.question1.Excited).eql({
       col1: "Strongly disagree",
       comment: "Some comment",
     });
-    await t.expect(surveyResult.question1["Emotionally safe"]).eql( {
+    await t.expect(surveyResult.question1["Emotionally safe"]).eql({
       col1: "Strongly agree",
     });
   });

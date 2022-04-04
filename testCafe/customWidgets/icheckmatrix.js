@@ -1,7 +1,6 @@
 import { frameworks, url_test, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
-import { ClientFunction } from "testcafe";
-const assert = require("assert");
-const title = `icheckmatrix`;
+import { fixture, Selector, test } from "testcafe";
+const title = "icheckmatrix";
 
 const json = {
   questions: [
@@ -34,28 +33,28 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
     .page`${url_test}customWidget/${framework}.html`.beforeEach(async ctx => {
-      await initSurvey(framework, json);
-    });
-
-  test(`check integrity`, async t => {
-    const getCount = ClientFunction(
-      () => document.querySelectorAll("ins.iCheck-helper").length
-    );
-
-    assert.equal(await getCount(), 20);
+    await initSurvey(framework, json);
   });
 
-  test(`choose empty`, async t => {
+  test("check integrity", async t => {
+    // const getCount = ClientFunction(
+    //   () => document.querySelectorAll("ins.iCheck-helper").length
+    // );
+
+    await t.expect(Selector("ins.iCheck-helper").count).eql(20);
+  });
+
+  test("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async t => {
+  test("choose value", async t => {
     let surveyResult;
 
     await t
-      .click(`table tr:nth-child(1) td:nth-child(3) ins`)
-      .click(`table tr:nth-child(2) td:nth-child(4) ins`)
-      .click(`input[value=Complete]`);
+      .click("table tr:nth-child(1) td:nth-child(3) ins")
+      .click("table tr:nth-child(2) td:nth-child(4) ins")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({

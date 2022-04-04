@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `customNavigation`;
+const title = "customNavigation";
 
 const setCustomNavigation = ClientFunction(() => {
   document
@@ -20,50 +21,50 @@ const setCustomNavigation = ClientFunction(() => {
     );
 
   document.getElementById("surveyPrev").onclick = function() {
-    survey.prevPage();
+    window["survey"].prevPage();
   };
   document.getElementById("surveyNext").onclick = function() {
-    survey.nextPage();
+    window["survey"].nextPage();
   };
   document.getElementById("surveyComplete").onclick = function() {
-    survey.completeLastPage();
+    window["survey"].completeLastPage();
   };
 
-  survey.showTitle = false;
+  window["survey"].showTitle = false;
 
-  survey.onCurrentPageChanged.add(function(sender) {
+  window["survey"].onCurrentPageChanged.add(function(sender) {
     setNavigationVisibility(sender);
   });
 
   function setNavigationVisibility(survey) {
-    document.getElementById("surveyPrev").style.display = !survey.isFirstPage
+    document.getElementById("surveyPrev").style.display = !window["survey"].isFirstPage
       ? "inline"
       : "none";
-    document.getElementById("surveyNext").style.display = !survey.isLastPage
+    document.getElementById("surveyNext").style.display = !window["survey"].isLastPage
       ? "inline"
       : "none";
-    document.getElementById("surveyComplete").style.display = survey.isLastPage
+    document.getElementById("surveyComplete").style.display = window["survey"].isLastPage
       ? "inline"
       : "none";
     document.getElementById("surveyProgress").innerText =
       "Page " +
-      (survey.currentPage.visibleIndex + 1) +
+      (window["survey"].currentPage.visibleIndex + 1) +
       " of " +
-      survey.visiblePageCount +
+      window["survey"].visiblePageCount +
       ".";
   }
 });
 
 const changePrevNextCompleteText = ClientFunction(() => {
-  survey.pagePrevText = "back";
-  survey.pageNextText = "forward";
-  survey.completeText = "done";
-  survey.render();
+  window["survey"].pagePrevText = "back";
+  window["survey"].pageNextText = "forward";
+  window["survey"].completeText = "done";
+  window["survey"].render();
 });
 
 const hideStandardNav = ClientFunction(() => {
-  survey.showNavigationButtons = false;
-  survey.render();
+  window["survey"].showNavigationButtons = false;
+  window["survey"].render();
 });
 
 const json = {
@@ -143,7 +144,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`set custom navigation`, async t => {
+  test("set custom navigation", async t => {
     const getPrevDsplay = ClientFunction(
       () => document.querySelector("#surveyPrev").style.display
     );
@@ -169,7 +170,7 @@ frameworks.forEach(framework => {
     assert.notEqual(await getProgressBarDsplay(), "none");
     assert.equal(await getProgressText(), "Page 1 of 3.");
 
-    await t.click(`input[type=checkbox]`).click(`#surveyNext`);
+    await t.click("input[type=checkbox]").click("#surveyNext");
 
     assert.notEqual(await getPrevDsplay(), "none");
     assert.notEqual(await getNextDsplay(), "none");
@@ -177,7 +178,7 @@ frameworks.forEach(framework => {
     assert.notEqual(await getProgressBarDsplay(), "none");
     assert.equal(await getProgressText(), "Page 2 of 3.");
 
-    await t.click(`input[type=checkbox]`).click(`#surveyNext`);
+    await t.click("input[type=checkbox]").click("#surveyNext");
 
     assert.notEqual(await getPrevDsplay(), "none");
     assert.equal(await getNextDsplay(), "none");
@@ -185,7 +186,7 @@ frameworks.forEach(framework => {
     assert.notEqual(await getProgressBarDsplay(), "none");
     assert.equal(await getProgressText(), "Page 3 of 3.");
 
-    await t.click(`#surveyPrev`);
+    await t.click("#surveyPrev");
 
     assert.notEqual(await getPrevDsplay(), "none");
     assert.notEqual(await getNextDsplay(), "none");
@@ -193,7 +194,7 @@ frameworks.forEach(framework => {
     assert.notEqual(await getProgressBarDsplay(), "none");
     assert.equal(await getProgressText(), "Page 2 of 3.");
 
-    await t.click(`#surveyNext`).click(`#surveyComplete`);
+    await t.click("#surveyNext").click("#surveyComplete");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -202,33 +203,33 @@ frameworks.forEach(framework => {
     });
   });
 
-  test(`change prev next complete text`, async t => {
+  test("change prev next complete text", async t => {
     await changePrevNextCompleteText();
     await t
-      .click(`input[type=checkbox]`)
-      .click(`input[value="forward"]`)
-      .click(`input[type=checkbox]`)
-      .click(`input[value="forward"]`)
-      .click(`input[value="back"]`)
-      .click(`input[value="forward"]`)
-      .click(`input[value="done"]`);
+      .click("input[type=checkbox]")
+      .click("input[value=\"forward\"]")
+      .click("input[type=checkbox]")
+      .click("input[value=\"forward\"]")
+      .click("input[value=\"back\"]")
+      .click("input[value=\"forward\"]")
+      .click("input[value=\"done\"]");
   });
 
-  test(`hide standard nav`, async t => {
+  test("hide standard nav", async t => {
     const getPrev = Selector(
-      () => document.querySelector(`input[value=Prev]`),
+      () => document.querySelector("input[value=Prev]"),
       { visibilityCheck: true, timeout: 1000 }
     );
     const getNext = Selector(
-      () => document.querySelector(`input[value=Next]`),
+      () => document.querySelector("input[value=Next]"),
       { visibilityCheck: true, timeout: 1000 }
     );
     const getComplete = Selector(
-      () => document.querySelector(`input[value=Complete]`),
+      () => document.querySelector("input[value=Complete]"),
       { visibilityCheck: true, timeout: 1000 }
     );
 
-    await t.click(`input[type=checkbox]`).click(getNext);
+    await t.click("input[type=checkbox]").click(getNext);
 
     await hideStandardNav();
 
@@ -236,7 +237,7 @@ frameworks.forEach(framework => {
     assert.equal(await getNext(), null);
 
     await setCustomNavigation();
-    await t.click(`input[type=checkbox]`).click(`#surveyNext`);
+    await t.click("input[type=checkbox]").click("#surveyNext");
 
     assert.equal(await getComplete(), null);
   });

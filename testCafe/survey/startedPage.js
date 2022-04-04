@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
-const title = `First Page is Started`;
+import { Selector, fixture, test } from "testcafe";
+const title = "First Page is Started";
 
 const json = {
   pages: [
@@ -21,11 +21,11 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`Enter data on first question`, async (t) => {
-    await t.typeText(Selector(`input[type=text]`), "Jon Snow");
-    await t.click(`input[value=Start]`);
-    await t.typeText(Selector(`input[type=text]`), "Winterfell");
-    await t.click(`input[value=Complete]`);
+  test("Enter data on first question", async (t) => {
+    await t.typeText(Selector("input[type=text]"), "Jon Snow");
+    await t.click("input[value=Start]");
+    await t.typeText(Selector("input[type=text]"), "Winterfell");
+    await t.click("input[value=Complete]");
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       name: "Jon Snow",

@@ -1,18 +1,18 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
-const title = `workWithData`;
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+const title = "workWithData";
 
 const set_data = ClientFunction(() => {
-  survey.data = {
+  window["survey"].data = {
     name: "John Doe",
     email: "johndoe@nobody.com",
     car: ["Ford"]
   };
-  survey.render();
+  window["survey"].render();
 });
 
 const add_value_changed_listener = ClientFunction(() => {
-  survey.onValueChanged.add(function (sender, options) {
+  window["survey"].onValueChanged.add(function (sender, options) {
     let divElement = document.body.getElementsByClassName("new-element")[0];
     if (!divElement) {
       divElement = document.createElement("div");
@@ -24,14 +24,14 @@ const add_value_changed_listener = ClientFunction(() => {
 });
 
 const set_values = ClientFunction(() => {
-  survey.setValue("name", "Wombat");
-  survey.setValue("email", "wo@mbat.com");
-  survey.setValue("car", ["BMW", "Ford"]);
+  window["survey"].setValue("name", "Wombat");
+  window["survey"].setValue("email", "wo@mbat.com");
+  window["survey"].setValue("car", ["BMW", "Ford"]);
 });
 
 const get_value = ClientFunction(() => {
   document.documentElement.appendChild(
-    document.createTextNode(survey.getValue("car"))
+    document.createTextNode(window["survey"].getValue("car"))
   );
 });
 
@@ -69,11 +69,11 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`set data`, async t => {
+  test("set data", async t => {
     let surveyResult;
 
     await set_data();
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -83,26 +83,26 @@ frameworks.forEach(framework => {
     });
   });
 
-  test(`add value changed listener`, async t => {
+  test("add value changed listener", async t => {
     const resultElement = Selector(".new-element");
 
     await add_value_changed_listener();
     await t
       .expect(resultElement.exists).notOk()
-      .typeText(`.sv_row input`, `John Doe`)
+      .typeText(".sv_row input", "John Doe")
       .pressKey("tab")
       .expect(resultElement.textContent).eql("John Doe")
 
-      .click(`div input[type=checkbox]`)
+      .click("div input[type=checkbox]")
       .pressKey("tab")
       .expect(resultElement.textContent).eql("John DoeNone");
   });
 
-  test(`set values`, async t => {
+  test("set values", async t => {
     let surveyResult;
 
     await set_values();
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -112,7 +112,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test(`get value`, async t => {
+  test("get value", async t => {
     await set_values();
     await set_values();
 

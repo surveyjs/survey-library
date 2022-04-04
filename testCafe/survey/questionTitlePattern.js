@@ -1,6 +1,6 @@
 import { frameworks, url, joinElementInnerText, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const title = `questionTitlePattern`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "questionTitlePattern";
 
 const json = {
   questionStartIndex: "# 1.",
@@ -35,13 +35,13 @@ frameworks.forEach(framework => {
   );
 
   const changePattern = ClientFunction(value => {
-    window.survey.questionTitlePattern = value;
+    window["survey"].questionTitlePattern = value;
   });
   const changeQuestionStartIndex = ClientFunction(value => {
-    window.survey.questionStartIndex = value;
+    window["survey"].questionStartIndex = value;
   });
 
-  test(`check questionTitlePattern`, async t => {
+  test("check questionTitlePattern", async t => {
     await t.expect(joinElementInnerText("h5", 1)).eql("# 2. q1");
     await t.expect(joinElementInnerText("td", 0)).eql("item1 (*)");
     await t.click(Selector("input[value = '1']"));
@@ -56,7 +56,7 @@ frameworks.forEach(framework => {
     await t.expect(joinElementInnerText("h5", 1)).eql("# 2. q1");
     await t.expect(joinElementInnerText("td", 0)).eql("item1");
   });
-  test(`check questionStartIndex`, async t => {
+  test("check questionStartIndex", async t => {
     await changeQuestionStartIndex("1.");
     await t.expect(joinElementInnerText("h5", 1)).eql("2. q1");
     await changeQuestionStartIndex("# (1)");

@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `dropdownRestful`;
+const title = "dropdownRestful";
 
 const json = {
   questions: [
@@ -21,7 +22,7 @@ const json = {
 };
 
 export const changeValue = ClientFunction(() => {
-  var q = survey.getQuestionByName("country");
+  var q = window["survey"].getQuestionByName("country");
   q.choicesByUrl.valueName = "alpha2_code";
   q.choicesByUrl.titleName = "name";
   q.choicesByUrl.run();
@@ -34,24 +35,24 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`choose empty`, async t => {
+  test("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async t => {
+  test("choose value", async t => {
     let surveyResult;
 
     await t
       .wait(1000)
-      .click(`select`)
-      .click(`option[value=Cuba]`)
-      .click(`input[value=Complete]`);
+      .click("select")
+      .click("option[value=Cuba]")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.country, "Cuba");
   });
 
-  test(`change "value" in the returned json`, async t => {
+  test("change \"value\" in the returned json", async t => {
     await t
       .wait(1000)
       .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).ok()
@@ -61,9 +62,9 @@ frameworks.forEach(framework => {
     await t
       .expect(Selector(".sv_row select option[value=\"Cuba\"]").exists).notOk()
       .expect(Selector(".sv_row select option[value=\"CU\"]").exists).ok()
-      .click(`select`)
-      .click(Selector(`option`).withText("Cuba"))
-      .click(`input[value=Complete]`);
+      .click("select")
+      .click(Selector("option").withText("Cuba"))
+      .click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.country).eql("CU");

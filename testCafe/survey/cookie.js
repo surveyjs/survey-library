@@ -1,10 +1,10 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
-const title = `cookie`;
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+const title = "cookie";
 const deleteCookie = ClientFunction(() => {
-  survey.deleteCookie();
-  survey.clear();
-  survey.render();
+  window["survey"].deleteCookie();
+  window["survey"].clear();
+  window["survey"].render();
 });
 
 const json = {
@@ -40,18 +40,18 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check works and delete`, async t => {
+  test("check works and delete", async t => {
     await t
-      .click(`input[type=checkbox]`)
-      .click(`input[value=Complete]`)
-      .navigateTo(`http://surveyjs.io`)
+      .click("input[type=checkbox]")
+      .click("input[value=Complete]")
+      .navigateTo("http://surveyjs.io")
       .navigateTo(url + framework);
     await initSurvey(framework, json);
 
-    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").visible).ok()
+    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").visible).ok();
     await deleteCookie();
-    await t.hover(`input[type=checkbox]`);
+    await t.hover("input[type=checkbox]");
 
-    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").exist).notOk()
+    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey!").exist).notOk();
   });
 });

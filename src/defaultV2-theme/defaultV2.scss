@@ -109,7 +109,7 @@
   }
 }
 
-.sv-popup .sv-popup_shadow {
+.sv-popup:not(.sv-popup--modal) .sv-popup_shadow {
   padding: calcSize(1) 0;
   background-color: $background;
 }

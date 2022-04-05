@@ -234,20 +234,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   //responsive mode
   @property({}) public isResponsive = false;
-  // @property({}) private imageWrapperWidth: string = "auto";
-  // @property({}) private imageWrapperHeight: string = "auto";
   @property({}) public imageMaxWidth: number;
   @property({}) public imageMinWidth: number;
   @property({}) public imageMaxHeight: number;
   @property({}) public imageMinHeight: number;
 
-  // public getImageWrapperStyle () {
-  //   const isResponsive = this.isResponsive && this.colCount === 0;
-  //   const getStyle = (val: number | string) => {
-  //     return isResponsive ? val : undefined;
-  //   };
-  //   return { width: getStyle(this.imageWrapperWidth), height: getStyle(this.imageWrapperHeight) };
-  // }
   protected getObservedElementSelector(): string {
     return "." + this.cssClasses.root;
   }
@@ -257,9 +248,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected needResponsiveness() {
     return this.supportResponsiveness() && this.isDefaultV2Theme && this.contentMode == "image";
   }
-  public getSelectBaseRootCss(): string {
-    return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootResponsive, this.isResponsive).toString();
-  }
+
   private _width: number;
 
   private onImageLoaded = (item: ImageItemValue, event: any) => {

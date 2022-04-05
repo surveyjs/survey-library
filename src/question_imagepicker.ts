@@ -5,6 +5,7 @@ import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   constructor(
@@ -27,6 +28,8 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   public set imageLink(val: string) {
     this.setLocalizableStringText("imageLink", val);
   }
+  private aspectRatio: number;
+
   get locImageLink(): LocalizableString {
     return this.getLocalizableString("imageLink");
   }
@@ -54,7 +57,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.registerFunctionOnPropertiesValueChanged(["imageMinWidth", "imageMaxWidth", "visibleChoices"], ()=>{
+    this.registerFunctionOnPropertiesValueChanged(["imageMinWidth", "imageMaxWidth", "imageMinHeight", "imageMaxHeight", "visibleChoices"], ()=>{
       if(!!this._width) {
         this.processResponsiveness(0, this._width);
       }
@@ -173,26 +176,31 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * The image height.
    */
-  public get imageHeight(): string {
+  public get imageHeight() {
     return this.getPropertyValue("imageHeight");
   }
-  public set imageHeight(val: string) {
+  public set imageHeight(val: number) {
     this.setPropertyValue("imageHeight", val);
   }
+  @property({}) private responsiveImageHeight: number;
   public get renderedImageHeight() {
-    return this.imageHeight ? this.imageHeight + "px" : undefined;
+    const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
+    return height ? height + "px" : undefined;
   }
   /**
    * The image width.
    */
-  public get imageWidth(): string {
+  public get imageWidth() {
     return this.getPropertyValue("imageWidth");
   }
-  public set imageWidth(val: string) {
+  public set imageWidth(val: number) {
     this.setPropertyValue("imageWidth", val);
   }
+
+  @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth() {
-    return this.imageWidth ? this.imageWidth + "px" : undefined;
+    const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
+    return width ? width + "px" : undefined;
   }
   /**
    * The image fit mode.
@@ -226,23 +234,20 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   //responsive mode
   @property({}) public isResponsive = false;
-  @property({}) private imageWrapperWidth: string = "auto";
-  @property({}) private imageMaxWidth: number = 400;
-  @property({}) private imageMinWidth: number = 200;
-  @property({}) private imageMaxHeight: number = 300;
-  @property({}) private imageMinHight: number = 150;
+  // @property({}) private imageWrapperWidth: string = "auto";
+  // @property({}) private imageWrapperHeight: string = "auto";
+  @property({}) public imageMaxWidth: number;
+  @property({}) public imageMinWidth: number;
+  @property({}) public imageMaxHeight: number;
+  @property({}) public imageMinHeight: number;
 
-  public getImageWrapperStyle () {
-    const isResponsive = this.isResponsive && this.colCount === 0;
-    const getStyle = (val: number | string) => {
-      return isResponsive ? val : undefined;
-    };
-    return { width: getStyle(this.imageWrapperWidth),
-      maxWidth: getStyle(this.imageMaxWidth),
-      minWidth: getStyle(this.imageMinWidth),
-      minHeight: getStyle(this.imageMinHight),
-      maxHeight: getStyle(this.imageMaxHeight) };
-  }
+  // public getImageWrapperStyle () {
+  //   const isResponsive = this.isResponsive && this.colCount === 0;
+  //   const getStyle = (val: number | string) => {
+  //     return isResponsive ? val : undefined;
+  //   };
+  //   return { width: getStyle(this.imageWrapperWidth), height: getStyle(this.imageWrapperHeight) };
+  // }
   protected getObservedElementSelector(): string {
     return "." + this.cssClasses.root;
   }
@@ -250,24 +255,50 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return true;
   }
   protected needResponsiveness() {
-    return this.supportResponsiveness() && this.isDefaultV2Theme;
+    return this.supportResponsiveness() && this.isDefaultV2Theme && this.contentMode == "image";
   }
   public getSelectBaseRootCss(): string {
     return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootResponsive, this.isResponsive).toString();
   }
   private _width: number;
+
+  private onImageLoaded = (item: ImageItemValue, event: any) => {
+    const img: HTMLImageElement = event.target;
+    item["aspectRatio"] = img.naturalWidth / img.naturalHeight;
+    this.processResponsiveness(0, this._width);
+  }
+
   protected processResponsiveness(_: number, availableWidth: number): void {
     this._width = availableWidth;
+    availableWidth = Math.floor(availableWidth - 1);
     if(this.colCount === 0 && this.isResponsive) {
       const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
       const gap = this.gapBetweenItems || 0;
       const minWidth = this.imageMinWidth;
+      const maxWidth = this.imageMaxWidth;
+      const maxHeight = this.imageMaxHeight;
+      const minHeight = this.imageMinHeight;
+      let width: number;
       if ((gap + minWidth) * itemsCount - gap > availableWidth) {
-        const itemsInRow = Math.floor(availableWidth / (minWidth + gap));
-        const width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
-        this.imageWrapperWidth = width + "px";
+        let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
+        if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
+        width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
+        this.responsiveImageWidth = width;
       } else {
-        this.imageWrapperWidth = "auto";
+        width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
+        this.responsiveImageWidth = (width > maxWidth ? maxWidth : width);
+      }
+      let height: number = Number.MIN_VALUE;
+      this.choices.forEach((item:ImageItemValue) => {
+        const tempHeight = width / item["aspectRatio"];
+        height = tempHeight > height ? tempHeight : height;
+      });
+      if(height > maxHeight) {
+        this.responsiveImageHeight = maxHeight;
+      } else if (height < minHeight) {
+        this.responsiveImageHeight = minHeight;
+      } else {
+        this.responsiveImageHeight = height;
       }
     }
   }
@@ -319,13 +350,13 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "isResponsive:boolean", default: false },
+    { name: "isResponsive:boolean", default: false, visibleIf: (obj: any) => settings.supportCreatorV2 },
     { name: "imageHeight:number", default: 150, minValue: 0, visibleIf: visibleIfResponsive(false) },
     { name: "imageWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(false) },
     { name: "imageMinWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(true) },
-    { name: "imageMinHeight:number", default: 150, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "imageMinHeight:number", default: 133, minValue: 0, visibleIf: visibleIfResponsive(true) },
     { name: "imageMaxWidth:number", default: 400, minValue: 0, visibleIf: visibleIfResponsive(true) },
-    { name: "imageMaxHeight:number", default: 300, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "imageMaxHeight:number", default: 266, minValue: 0, visibleIf: visibleIfResponsive(true) },
 
   ],
   function() {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImagePickerModel } from "survey-core";
-import { ItemValue, SurveyModel } from "survey-core";
+import { ImageItemValue, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
@@ -43,7 +43,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = this.question.name + "-" + item.value;
-      items.push(this.renderItem(key, item, cssClasses));
+      items.push(this.renderItem(key, item as ImageItemValue, cssClasses));
     }
     return items;
   }
@@ -52,7 +52,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
   protected renderItem(
     key: string,
-    item: ItemValue,
+    item: ImageItemValue,
     cssClasses: any
   ): JSX.Element {
     var isChecked = this.question.isItemSelected(item);
@@ -80,6 +80,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
           height={ this.question.renderedImageHeight }
           alt={item.locText.renderedHtml}
           style={style}
+          onLoad={(event: any) => { this.question["onImageLoaded"](item, event.nativeEvent); }}
         />
       );
     }

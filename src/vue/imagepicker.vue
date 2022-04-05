@@ -46,6 +46,8 @@
               :height="question.renderedImageHeight"
               v-bind:style="{ objectFit: question.imageFit }"
               :alt="item.locText.renderedHtml"
+              @load="(event) => { question.onImageLoaded(item, event) }"
+
             /><video controls
               v-if="question.contentMode === 'video'"
               :class="question.cssClasses.image"

@@ -1162,6 +1162,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
+    this.rootCss = this.getRootCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -4105,6 +4106,7 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
+  @property() rootCss: string;
   public getRootCss(): string {
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }

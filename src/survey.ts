@@ -1099,6 +1099,7 @@ export class SurveyModel extends SurveyElementCore
     if(!!renderedElement) {
       this.render(renderedElement);
     }
+    this.rootCss = this.getRootCss();
   }
 
   /**

@@ -100,6 +100,7 @@ QUnit.test("check process responsiveness for imagepicker", function(
   question.choices = [{ value: "item1" }, { value: "item2" }, { value: "item3" }, { value: "item4" }];
   question.choices[0]["aspectRatio"] = question.choices[1]["aspectRatio"] = question.choices[2]["aspectRatio"] = 2;
   question.choices[3]["aspectRatio"] = 3;
+  question.isResponsive = true;
   question["gapBetweenItems"] = 16;
   question.imageMinWidth = 100;
   question.imageMaxWidth = 200;

@@ -1903,6 +1903,7 @@ export class SurveyModel extends SurveyElementCore
   public setIsMobile(newVal = true) {
     if(this.isMobile !== newVal) {
       this._isMobile = newVal;
+      this.rootCss = this.getRootCss();
       this.getAllQuestions().map(q => q.isMobile = newVal);
     }
   }

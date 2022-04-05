@@ -16,6 +16,19 @@ var json = {
   ],
 };
 
+var jsonCheckbox = {
+  questions: [
+    {
+      type: "boolean",
+      name: "bool",
+      title: "Response required.",
+      label: "Are you 21 or older?",
+      renderAs: "checkbox",
+      isRequired: true,
+    },
+  ],
+};
+
 var jsonRadio = {
   questions: [
     {
@@ -146,6 +159,19 @@ frameworks.forEach((framework) => {
     json = JSON.parse(await getQuestionJson());
     assert.equal(json.labelFalse, newLabelFalse);
     assert.equal(json.labelTrue, labelTrue);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, jsonCheckbox);
+    }
+  );
+  test("check first clink on boolean-checkbox input", async (t) => {
+    const selector = Selector(".sv_qbln input");
+    await ClientFunction(() => { document.querySelector(".sv_qbln input").click(); })();
+    await t.expect(selector.checked).ok();
   });
 
 });

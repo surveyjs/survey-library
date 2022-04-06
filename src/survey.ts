@@ -4116,10 +4116,10 @@ export class SurveyModel extends SurveyElementCore
 
   afterRenderSurvey(htmlElement: any) {
     this.destroyResizeObserver();
-    let observedElement:HTMLElement = htmlElement;
     if(Array.isArray(htmlElement)) {
-      observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);
+      htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
+    let observedElement:HTMLElement = htmlElement;
     const cssVariables = this.css.variables;
     if(!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));

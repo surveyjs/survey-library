@@ -328,6 +328,9 @@ export var defaultStandardCss = {
       buttonCollapsed: "",
     },
   },
+  variables: {
+    themeMark: "--sv_theme_mark"
+  }
 };
 
 surveyCss["standard"] = defaultStandardCss;

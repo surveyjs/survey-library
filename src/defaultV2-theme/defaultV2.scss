@@ -50,6 +50,10 @@
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
 
+body {
+  --sd-theme-mark: true;
+}
+
 .sd-root-modern {
   --sd-mobile-width: 600px;
   width: 100%;

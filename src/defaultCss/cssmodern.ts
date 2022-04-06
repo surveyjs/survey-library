@@ -368,6 +368,9 @@ export var modernCss = {
       buttonCollapsed: "",
     },
   },
+  variables: {
+    themeMark: "--sv-theme-mark"
+  }
 };
 
 surveyCss["modern"] = modernCss;

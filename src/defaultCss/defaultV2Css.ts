@@ -454,7 +454,8 @@ export var defaultV2Css = {
     itemTitle: "sd-action__title",
   },
   variables: {
-    mobileWidth: "--sd-mobile-width"
+    mobileWidth: "--sd-mobile-width",
+    themeMark: "--sd-theme-mark"
   }
 };
 

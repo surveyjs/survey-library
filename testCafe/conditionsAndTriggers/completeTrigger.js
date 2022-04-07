@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
-const title = `completeTrigger`;
+import { Selector, fixture, test } from "testcafe";
+const title = "completeTrigger";
 
 const json = {
   triggers: [
@@ -94,13 +94,13 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check visibility`, async t => {
+  test("check visibility", async t => {
     await t
       .expect(Selector(".sv-string-viewer").withText("4. Do you want to finish the survey?").exists).notOk()
-      .click(`input[value="No"]`)
-      .click(`input[value="Next"]`)
-      .click(`input[value="Yes"]`)
-      .click(`input[value="Next"]`);
+      .click("input[value=\"No\"]")
+      .click("input[value=\"Next\"]")
+      .click("input[value=\"Yes\"]")
+      .click("input[value=\"Next\"]");
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ exit1: "No", exit2: "Yes" });

@@ -41,6 +41,42 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
     "check showItemsBy column"
   );
 });
+QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        colCount: 2,
+      },
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [[], []],
+    "one column"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "other"],
+    "check foot items"
+  );
+  settings.supportCreatorV2 = false;
+});
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
   var json = {

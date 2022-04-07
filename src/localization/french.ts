@@ -74,6 +74,17 @@ export var frenchSurveyStrings = {
   confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
+  ratingOptionsCaption: "Appuyez ici pour noter...",
+  emptyRowsText: "Il n'y a pas de lignes.",
+  filteredTextPlaceholder: "Tapez pour rechercher...",
+  indexText: "{0} sur {1}",
+  minError: "La valeur ne doit pas être inférieure à {0}",
+  maxError: "La valeur ne doit pas être supérieure à {0}",
+  modalApplyButtonText: "Appliquer",
+  modalCancelButtonText: "Annuler",
+  multipletext_itemname: "texte",
+  noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
+  signaturePlaceHolder: "Signez ici",
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

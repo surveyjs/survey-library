@@ -52,8 +52,14 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
+      question.onCommentChange(event);
     };
-    let comment = !!this.state && this.state.comment !== undefined ? this.state.comment : question.comment || "";
+    let stateComment: string = !!this.state ? this.state.comment : undefined;
+    if(stateComment !== undefined && stateComment.trim() !== question.comment) {
+      stateComment = question.comment;
+    }
+    let comment = stateComment !== undefined ? stateComment : question.comment || "";
+
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
     }

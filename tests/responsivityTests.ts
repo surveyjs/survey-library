@@ -17,11 +17,14 @@ class SimpleContainer {
   getClientRects() {
     return this.clientRects;
   }
+  querySelectorAll() {
+
+  }
 }
 
 class ResizeObserver {
   observe() { }
-  disconnect() {}
+  disconnect() { }
 }
 window.ResizeObserver = <any>ResizeObserver;
 
@@ -255,7 +258,7 @@ QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
 
 QUnit.test(
   "ResponsivityManager process test: stop when container is invisible",
-  function(assert) {
+  function (assert) {
     const container: SimpleContainer = new SimpleContainer({});
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     const manager: ResponsivityManager = new ResponsivityManager(
@@ -272,9 +275,8 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "ResponsivityManager - vertical",
-  function(assert) {
+QUnit.test("ResponsivityManager - vertical",
+  function (assert) {
     const container: SimpleContainer = new SimpleContainer({});
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model, "");
@@ -288,3 +290,51 @@ QUnit.test(
     assert.equal(manager["calcMinDimension"](newAction), 40);
   }
 );
+
+QUnit.test("isResponsivenessDisabled", function (assert) {
+  const itemSmallWidth = 48;
+  const container: SimpleContainer = new SimpleContainer({});
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const manager: VerticalResponsivityManager = new VerticalResponsivityManager(<any>container, <any>model, "");
+  manager["getAvailableSpace"] = () => { return 142; };
+  manager["itemSmallWidth"] = itemSmallWidth;
+
+  const item1 = new Action(<any>{});
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemSmallWidth;
+  model.actions.push(item1);
+  const item2 = new Action(<any>{});
+  item2.minDimension = itemSmallWidth;
+  item2.maxDimension = 200;
+  model.actions.push(item2);
+  const item3 = new Action(<any>{});
+  item3.minDimension = itemSmallWidth;
+  item3.maxDimension = 200;
+  model.actions.push(item3);
+  assert.equal(model.actions.length, 3);
+  assert.equal(model.renderedActions.length, 4);
+  assert.equal(model.isResponsivenessDisabled, false);
+
+  manager["isInitialized"] = true;
+  manager["process"]();
+  assert.equal(model.renderedActions.length, 4, "dimension 300");
+  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
+  assert.equal(model.renderedActions[1].isVisible, false, "invisible 2");
+  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions[3].isVisible, true, "dots button");
+  assert.equal(item1.mode, "small", "dimension 300");
+  assert.equal(item2.mode, "popup", "dimension 300");
+  assert.equal(item3.mode, "popup", "dimension 300");
+
+  model.setActionsMode("large");
+  model.isResponsivenessDisabled = true;
+  manager["process"]();
+  assert.equal(model.renderedActions.length, 4, "dimension 300");
+  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
+  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
+  assert.equal(model.renderedActions[2].isVisible, true, "visible 3");
+
+  assert.equal(item1.mode, "large", "dimension 300");
+  assert.equal(item2.mode, "large", "dimension 300");
+  assert.equal(item3.mode, "large", "dimension 300");
+});

@@ -32,7 +32,7 @@ import { Base, SurveyWindowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
-export class Window extends BaseVue {
+export class SurveyWindow extends BaseVue {
   @Prop() window: SurveyWindowModel;
   @Prop() survey: SurveyModel;
   @Prop() isExpanded: boolean;
@@ -83,6 +83,6 @@ export class Window extends BaseVue {
     this.surveyWindow.changeExpandCollapse();
   }
 }
-Vue.component("survey-window", Window);
-export default Window;
+Vue.component("survey-window", SurveyWindow);
+export default SurveyWindow;
 </script>

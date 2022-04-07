@@ -1099,6 +1099,7 @@ export class SurveyModel extends SurveyElementCore
     if(!!renderedElement) {
       this.render(renderedElement);
     }
+    this.rootCss = this.getRootCss();
   }
 
   /**
@@ -1162,6 +1163,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
+    this.rootCss = this.getRootCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1901,6 +1903,7 @@ export class SurveyModel extends SurveyElementCore
   public setIsMobile(newVal = true) {
     if(this.isMobile !== newVal) {
       this._isMobile = newVal;
+      this.rootCss = this.getRootCss();
       this.getAllQuestions().map(q => q.isMobile = newVal);
     }
   }
@@ -4105,6 +4108,7 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
+  @property() rootCss: string;
   public getRootCss(): string {
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }
@@ -4112,6 +4116,7 @@ export class SurveyModel extends SurveyElementCore
 
   afterRenderSurvey(htmlElement: HTMLElement|Array<HTMLElement>) {
     this.destroyResizeObserver();
+<<<<<<< HEAD
     let observedElement:HTMLElement;
 
     if(Array.isArray(htmlElement)) {
@@ -4120,6 +4125,12 @@ export class SurveyModel extends SurveyElementCore
       observedElement = htmlElement;
     }
 
+=======
+    if(Array.isArray(htmlElement)) {
+      htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
+    }
+    let observedElement:HTMLElement = htmlElement;
+>>>>>>> origin/master
     const cssVariables = this.css.variables;
     if(!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));

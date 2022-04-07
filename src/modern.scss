@@ -49,3 +49,7 @@
 
 //@import "./main.rtl.scss";
 @import "./modern.m600.scss";
+
+body {
+  --sv-modern-mark: true;
+}

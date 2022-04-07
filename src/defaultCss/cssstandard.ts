@@ -329,7 +329,7 @@ export var defaultStandardCss = {
     },
   },
   variables: {
-    themeMark: "--sv_theme_mark"
+    themeMark: "--sv-default-mark"
   }
 };
 

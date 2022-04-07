@@ -455,7 +455,7 @@ export var defaultV2Css = {
   },
   variables: {
     mobileWidth: "--sd-mobile-width",
-    themeMark: "--sd-theme-mark"
+    themeMark: "--sv-defaultV2-mark"
   }
 };
 

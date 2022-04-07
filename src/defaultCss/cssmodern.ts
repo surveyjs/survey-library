@@ -369,7 +369,7 @@ export var modernCss = {
     },
   },
   variables: {
-    themeMark: "--sv-theme-mark"
+    themeMark: "--sv-modern-mark"
   }
 };
 

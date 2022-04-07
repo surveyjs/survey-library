@@ -269,7 +269,10 @@ export var defaultV2Css = {
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
     clearButton: "sd-btn",
-    other: "sd-input sd-comment"
+    other: "sd-input sd-comment",
+    itemNoImage: "sd-imagepicker__no-image",
+    itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
+    itemNoImageSvgIconId: "#icon-no-image",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",

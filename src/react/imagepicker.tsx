@@ -121,7 +121,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     var style: any = { objectFit: this.question.imageFit };
 
     var control = null;
-    if (this.question.contentMode === "image") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
       control = (
         <img
           className={cssClasses.image}
@@ -133,7 +133,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         />
       );
     }
-    if (this.question.contentMode === "video") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "video") {
       control = (
         <video controls
           className={cssClasses.image}
@@ -142,6 +142,27 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           height={ this.question.renderedImageHeight }
           style={style}
         ></video>
+      );
+    }
+    if (!item.locImageLink.renderedHtml) {
+      let style: any = {
+        width: this.question.renderedImageWidth,
+        height: this.question.renderedImageHeight,
+        objectFit: this.question.imageFit
+      };
+      control = (
+        <div
+          className={cssClasses.itemNoImage}
+          style={style}
+        >
+          {
+            cssClasses.itemNoImageSvgIcon ?
+              <svg className={cssClasses.itemNoImageSvgIcon}>
+                <use xlinkHref={cssClasses.itemNoImageSvgIconId}></use>
+              </svg>:
+              null
+          }
+        </div>
       );
     }
 

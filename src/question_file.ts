@@ -11,9 +11,9 @@ import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 
 interface FileEntry {
-  content: string,
-  name?: string,
-  type?: string,
+  content: string;
+  name?: string;
+  type?: string;
 }
 /**
  * A Model for a file question
@@ -306,8 +306,8 @@ export class QuestionFileModel extends Question {
       } else {
         if (this.survey) {
           this.survey.uploadFiles(this, this.name, files, (status, data: {
-            file: {name: string; type:string},
-            content: string
+            file: {name: string, type:string},
+            content: string,
           }[]) => {
             if (status === "error") {
               this.stateChanged("error");

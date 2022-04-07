@@ -4116,7 +4116,6 @@ export class SurveyModel extends SurveyElementCore
 
   afterRenderSurvey(htmlElement: HTMLElement|Array<HTMLElement>) {
     this.destroyResizeObserver();
-<<<<<<< HEAD
     let observedElement:HTMLElement;
 
     if(Array.isArray(htmlElement)) {
@@ -4125,12 +4124,6 @@ export class SurveyModel extends SurveyElementCore
       observedElement = htmlElement;
     }
 
-=======
-    if(Array.isArray(htmlElement)) {
-      htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
-    }
-    let observedElement:HTMLElement = htmlElement;
->>>>>>> origin/master
     const cssVariables = this.css.variables;
     if(!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));

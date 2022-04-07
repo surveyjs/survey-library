@@ -10,6 +10,11 @@ import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 
+interface FileEntry {
+  content: string,
+  name?: string,
+  type?: string,
+}
 /**
  * A Model for a file question
  */
@@ -300,13 +305,16 @@ export class QuestionFileModel extends Question {
         });
       } else {
         if (this.survey) {
-          this.survey.uploadFiles(this, this.name, files, (status, data) => {
+          this.survey.uploadFiles(this, this.name, files, (status, data: {
+            file: {name: string; type:string},
+            content: string
+          }[]) => {
             if (status === "error") {
               this.stateChanged("error");
             }
             if (status === "success") {
               this.value = (this.value || []).concat(
-                data.map((r: any) => {
+                data.map((r): FileEntry => {
                   return {
                     name: r.file.name,
                     type: r.file.type,
@@ -325,7 +333,7 @@ export class QuestionFileModel extends Question {
       this.clear(loadFilesProc);
     }
   }
-  public canPreviewImage(fileItem: any): boolean {
+  public canPreviewImage(fileItem: null|FileEntry): boolean {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
@@ -360,7 +368,6 @@ export class QuestionFileModel extends Question {
       if (state === "loading") this.stateChanged("loaded");
     } else {
       newValues.forEach((value) => {
-        var content = value.content || value;
         if (this.survey) {
           this.survey.downloadFile(this.name, value, (status, data) => {
             if (status === "success") {

@@ -330,6 +330,8 @@ export var defaultV2Css = {
     buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    dragElementDecorator: "sd-drag-element__svg",
+    iconDragElement: "#icon-v2dragelement_16x16",
     footer: "sd-matrixdynamic__footer",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",

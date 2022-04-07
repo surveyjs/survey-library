@@ -13,7 +13,7 @@
   }
 }
 .sd-imagepicker__item {
-  img {
+  img, .sd-imagepicker__image-container>div {
     border-radius: calcSize(0.5);
   }
 }
@@ -82,4 +82,13 @@
 }
 .sd-imagepicker__item.sv-q-col-5 {
   width: calc(20% - calc(8 / 5 * #{$base-unit}));
+}
+.sd-imagepicker__no-image {
+  display: flex;
+  background-color: $background-dim-light;
+}
+.sd-imagepicker__no-image-svg {
+  height: calcSize(6);
+  width: calcSize(6);
+  margin:auto;
 }

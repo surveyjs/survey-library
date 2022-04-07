@@ -2441,7 +2441,7 @@ export class SurveyModel extends SurveyElementCore
     this.setCalcuatedValuesIntoResult(result);
     return result;
   }
-  public set data(data: any) {
+  public set data(data: {[key: string]:any}) {
     this.valuesHash = {};
     this.setDataCore(data);
   }
@@ -2451,13 +2451,13 @@ export class SurveyModel extends SurveyElementCore
    * @see data
    * @see setValue
    */
-  public mergeData(data: any) {
+  public mergeData(data: {[key: string]:any}|null) {
     if (!data) return;
     this.setDataCore(data);
   }
-  public setDataCore(data: any) {
+  public setDataCore(data: { [key: string]:any }|null) {
     if (data) {
-      for (var key in data) {
+      for (let key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
       }
     }
@@ -4110,12 +4110,16 @@ export class SurveyModel extends SurveyElementCore
   }
   private resizeObserver: ResizeObserver;
 
-  afterRenderSurvey(htmlElement: any) {
+  afterRenderSurvey(htmlElement: HTMLElement|Array<HTMLElement>) {
     this.destroyResizeObserver();
-    let observedElement:HTMLElement = htmlElement;
+    let observedElement:HTMLElement;
+
     if(Array.isArray(htmlElement)) {
       observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);
+    } else {
+      observedElement = htmlElement;
     }
+
     const cssVariables = this.css.variables;
     if(!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));

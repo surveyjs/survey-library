@@ -63,7 +63,7 @@ export class SurveyImplementor extends ImplementorBase {
     };
     new ImplementorBase(this.survey.timerModel);
   }
-  public render(element: any = null) {
+  public render(element: string|HTMLElement|null = null) {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
     const page = this.survey.activePage;
@@ -71,12 +71,10 @@ export class SurveyImplementor extends ImplementorBase {
       page.updateCustomWidgets();
     }
     this.survey.updateElementCss(false);
-    if (element && typeof element === "string") {
-      element = document.getElementById(element);
-    }
-    if (element) {
-      this.renderedElement = element;
-    }
+
+    let newRenderTarget:HTMLElement|null;
+    newRenderTarget = typeof element === "string" ? document.getElementById(element) : element;
+    this.renderedElement = newRenderTarget ?? this.renderedElement;
     this.survey.startTimerFromUI();
     this.applyBinding();
   }
@@ -90,9 +88,9 @@ export class SurveyImplementor extends ImplementorBase {
       this.renderedElement
     );
   }
-  public koEventAfterRender(element: any, survey: any) {
+  public koEventAfterRender(element: any) {
     SvgRegistry.renderIcons();
-    survey.afterRenderSurvey(element);
+    this.survey.afterRenderSurvey(element);
   }
   public dispose(): void {
     super.dispose();

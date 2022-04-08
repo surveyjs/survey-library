@@ -61,6 +61,7 @@ import { LocalizableString } from "../src/localizablestring";
 import { getSize, increaseHeightByContent } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("Survey");
 
@@ -14662,4 +14663,16 @@ QUnit.test("Check default navigation items relevance", function (assert) {
   assert.equal(action.title, "Start");
   survey.startSurveyText = "custom-text";
   assert.equal(action.title, "custom-text");
+});
+QUnit.test("Check rootCss property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { root: "test-root-class" };
+  assert.equal(survey.rootCss, "test-root-class");
 });

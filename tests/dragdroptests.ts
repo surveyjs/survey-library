@@ -985,3 +985,22 @@ QUnit.test("Move flow panel up", function (assert) {
   );
   assert.equal(page.elements[1].name, "q1", "The second element is a question");
 });
+
+QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page.addNewQuestion("text", "q3");
+  var target = new QuestionTextModel("q1");
+  var eventIsFired = false;
+  survey.onQuestionAdded
+    .add(function (sender, options) {
+      eventIsFired = true;
+    });
+  page.dragDropStart(q1, target);
+  page.dragDropMoveTo(q3, true);
+  page.dragDropFinish();
+
+  assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging");
+});

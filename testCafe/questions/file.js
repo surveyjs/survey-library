@@ -1,7 +1,8 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `file`;
+const title = "file";
 
 const json = {
   questions: [
@@ -26,12 +27,12 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`choose file`, async t => {
+  test("choose file", async t => {
     let surveyResult;
 
-    await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
+    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -45,16 +46,16 @@ frameworks.forEach(framework => {
     });
   });
 
-  test(`choose multiple files`, async t => {
+  test("choose multiple files", async t => {
     let surveyResult;
 
-    await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
+    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
     await t.setFilesToUpload(
-      `input[type=file]`,
-      `../resources/small_Dashka.jpg`
+      "input[type=file]",
+      "../resources/small_Dashka.jpg"
     );
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.image.length, 2);
@@ -62,19 +63,19 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
   });
 
-  test(`choose image`, async t => {
+  test("choose image", async t => {
     let surveyResult;
 
     await t
-      .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`)
-      .hover(`img`)
-      .click(`input[value=Complete]`);
+      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg")
+      .hover("img")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
-  test(`without preview`, async t => {
+  test("without preview", async t => {
     let surveyResult;
     const getImageExistance = ClientFunction(
       () =>
@@ -84,38 +85,38 @@ frameworks.forEach(framework => {
 
     await setOptions("image", { showPreview: false });
     await t.setFilesToUpload(
-      `input[type=file]`,
-      `../resources/small_Dashka.jpg`
+      "input[type=file]",
+      "../resources/small_Dashka.jpg"
     );
 
     assert(await getImageExistance());
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
-  test(`file not in data`, async t => {
+  test("file not in data", async t => {
     let surveyResult;
 
     await setOptions("image", { storeDataAsText: false });
     await t
-      .setFilesToUpload(`input[type=file]`, `../resources/stub.txt`)
-      .click(`input[value=Complete]`);
+      .setFilesToUpload("input[type=file]", "../resources/stub.txt")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({});
   });
-  test(`change preview height width`, async t => {
+  test("change preview height width", async t => {
     const getWidth = ClientFunction(() => document.querySelector("img").width);
     const getHeight = ClientFunction(
       () => document.querySelector("img").height
     );
 
     await t.setFilesToUpload(
-      `input[type=file]`,
-      `../resources/small_Dashka.jpg`
+      "input[type=file]",
+      "../resources/small_Dashka.jpg"
     );
 
     await setOptions("image", {
@@ -126,10 +127,10 @@ frameworks.forEach(framework => {
     assert.equal(await getWidth(), 50);
     assert.equal(await getHeight(), 50);
   });
-  test(`confirm remove file`, async t => {
+  test("confirm remove file", async t => {
     await t.setFilesToUpload(
-      `input[type=file]`,
-      `../resources/small_Dashka.jpg`
+      "input[type=file]",
+      "../resources/small_Dashka.jpg"
     );
     await t
       .setNativeDialogHandler(() => {

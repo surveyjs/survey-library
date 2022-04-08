@@ -1,14 +1,14 @@
-import { frameworks, url } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
-const title = `customCss`;
+import { frameworks, url, applyTheme } from "../helper";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+const title = "customCss";
 const initSurvey = ClientFunction((framework, json) => {
-  Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
-  Survey.StylesManager.applyTheme("bootstrap");
+  window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
+  window["Survey"].StylesManager.applyTheme("bootstrap");
 
-  var model = new Survey.Model(json);
+  var model = new window["Survey"].Model(json);
 
   model.onComplete.add(function(model) {
-    window.SurveyResult = model.data;
+    window["SurveyResult"] = model.data;
   });
 
   var myCss = {
@@ -20,13 +20,13 @@ const initSurvey = ClientFunction((framework, json) => {
     model.css = myCss;
     model.render("surveyElement");
   } else if (framework === "react") {
-    ReactDOM.render(
-      React.createElement(Survey.Survey, { model: model, css: myCss }),
+    window["ReactDOM"].render(
+      window["React"].createElement(window["Survey"].Survey, { model: model, css: myCss }),
       document.getElementById("surveyElement")
     );
   } else if (framework === "vue") {
     model.css = myCss;
-    var app = new Vue({
+    var app = new window["Vue"]({
       el: "#surveyElement",
       data: {
         survey: model
@@ -34,7 +34,7 @@ const initSurvey = ClientFunction((framework, json) => {
     });
   }
 
-  window.survey = model;
+  window["survey"] = model;
 });
 
 const json = {
@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check custom class`, async t => {
+  test("check custom class", async t => {
     await t.expect(Selector("input[value=\"Complete\"]").classNames).contains("btn-lg");
   });
 });

@@ -869,6 +869,21 @@ QUnit.test(
       { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] },
       "serialize ItemValueListOwner without text");
   });
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true, do not serialiye ",
+  function (assert) {
+    settings.itemValueAlwaysSerializeText = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue({ val: 1, text: "Item1" }, "Item 1"));
+    list.items.push(new ItemValue({ val: 1, text: "Item1" }));
+    let jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
+        { val: 1, text: "Item1" }] }, "Do not serialize objects");
+    settings.itemValueAlwaysSerializeText = false;
+  });
+
 QUnit.test("LongNamesOwner serialization", function (assert) {
   var owner = new LongNamesOwner();
   var l1 = new LongNameItemA();

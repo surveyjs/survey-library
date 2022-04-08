@@ -191,6 +191,7 @@ export var settings = {
     ) => void
     >undefined,
   supportCreatorV2: false,
+  showDefaultItemsInCreatorV2: true,
   /**
    * Specifies a list of custom icons.
    * Use this property to replace SurveyJS default icons (displayed in UI elements of SurveyJS Library or Creator) with your custom icons.

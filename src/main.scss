@@ -30,6 +30,11 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
+
+body {
+  --sv-default-mark: true;
+}
+
 .sv_main.sv_frame {
   .sv_container {
     max-width: 80%;

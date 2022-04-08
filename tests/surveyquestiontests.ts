@@ -619,10 +619,16 @@ QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
 
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
+  let counter = 0;
+  matrix.registerFunctionOnPropertyValueChanged("cells", () => {
+    counter ++;
+  });
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.hasCellText, false, "There is no cell text");
+  assert.equal(counter, 0, "no changes in cells");
   matrix.setCellText(0, 0, "cell11");
+  assert.equal(counter, 1, "one change in cells");
   assert.equal(matrix.hasCellText, true, "There is cell text");
   assert.equal(
     matrix.getCellText(0, 0),
@@ -630,6 +636,7 @@ QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
     "get/set by index works correctly"
   );
   matrix.setCellText(0, 0, "");
+  assert.equal(counter, 2, "second cells change");
   assert.equal(matrix.hasCellText, false, "There is no cell text again");
 });
 QUnit.test("Rubric Matrix Question cells get cell displayText", function(
@@ -3973,7 +3980,7 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function(assert) {
   var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
-QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText max/maxValueExpression, today()", function(assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
@@ -3983,6 +3990,27 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
     question.renderedMax,
     todayStr,
     "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function(assert) {
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
+  });
+  const question = <QuestionTextModel>survey.getQuestionByName("q");
+  const todayStr = new Date().toISOString().slice(0, 10);
+  var maxDate = new Date();
+  maxDate.setUTCHours(0, 0, 0, 0);
+  maxDate.setDate(maxDate.getDate() + 10);
+  var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+  assert.equal(
+    question.renderedMax,
+    todayPlus10DaysStr,
+    "renderedMax: today + 10 days in format yyyy-mm-dd"
   );
 });
 QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
@@ -5379,6 +5407,37 @@ QUnit.test(
       7,
       "Show SelectAll+None+hasOther+new: 3+4"
     );
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
+  "Creator V2 + showDefaultItemsInCreatorV2: add into visibleChoices others/hasOther items in design mode, add new question",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    settings.showDefaultItemsInCreatorV2 = false;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q2 = new QuestionCheckboxModel("q2");
+    q2.choices = ["item1", "item2", "item3"];
+    survey.pages[0].addQuestion(q2);
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    (q1.choices = ["item1", "item2", "item3"]),
+    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+    assert.equal(
+      q2.visibleChoices.length,
+      3,
+      "Show SelectAll+None+hasOther+new: 3"
+    );
+    settings.showDefaultItemsInCreatorV2 = true;
     settings.supportCreatorV2 = false;
   }
 );

@@ -1,7 +1,8 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `radiogroup`;
+const title = "radiogroup";
 
 const json = {
   questions: [
@@ -35,20 +36,20 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`choose empty`, async t => {
+  test("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async t => {
-    await t.click(`input[value=Nissan]`).click(`input[value=Complete]`);
+  test("choose value", async t => {
+    await t.click("input[value=Nissan]").click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "Nissan");
   });
 
-  test(`change column count`, async t => {
+  test("change column count", async t => {
     const getClassName = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset .sv_q_select_column`).className
+      () => document.querySelector("div[id*=sq_1] fieldset .sv_q_select_column").className
     );
     let className = await getClassName();
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);
@@ -56,7 +57,7 @@ frameworks.forEach(framework => {
     await setOptions("car", { colCount: 1 });
 
     const getClassNameOneCol = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset > .sv_q_radiogroup`).className
+      () => document.querySelector("div[id*=sq_1] fieldset > .sv_q_radiogroup").className
     );
     className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);
@@ -67,23 +68,23 @@ frameworks.forEach(framework => {
     assert.notEqual(className.indexOf("sv-q-column-2"), -1);
   });
 
-  test(`change choices order`, async t => {
-    const radiogroup = Selector(`[role="radiogroup"]`);
-    const chocies = radiogroup.find(`input[type="radio"]`).parent("label").parent();
+  test("change choices order", async t => {
+    const radiogroup = Selector("[role=\"radiogroup\"]");
+    const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
 
     //asc
     await setOptions("car", { choicesOrder: "asc" });
-    await t.expect(chocies.nth(0).find(`[aria-label="Audi"]`).exists).ok();
-    await t.expect(chocies.nth(3).find(`[aria-label="BMW"]`).exists).ok();
+    await t.expect(chocies.nth(0).find("[aria-label=\"Audi\"]").exists).ok();
+    await t.expect(chocies.nth(3).find("[aria-label=\"BMW\"]").exists).ok();
 
     //desc
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(0).find(`[aria-label="Volkswagen"]`).exists).ok();
-    await t.expect(chocies.nth(3).find(`[aria-label="Vauxhall"]`).exists).ok();
+    await t.expect(chocies.nth(0).find("[aria-label=\"Volkswagen\"]").exists).ok();
+    await t.expect(chocies.nth(3).find("[aria-label=\"Vauxhall\"]").exists).ok();
 
     //random
     if (chocies.count === 1) {
-      assert(false, `need to more than one choices`);
+      assert(false, "need to more than one choices");
     }
 
     let first = chocies.nth(0);
@@ -104,7 +105,7 @@ frameworks.forEach(framework => {
     assert(random_count >= 4);
   });
 
-  test(`check integrity`, async t => {
+  test("check integrity", async t => {
     const choices = [
       "None",
       "Ford",
@@ -139,46 +140,46 @@ frameworks.forEach(framework => {
     await checkIntegrity();
   });
 
-  test(`show "other" choice`, async t => {
+  test("show \"other\" choice", async t => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t.expect(Selector(".sv-string-viewer").withText("Other").visible).ok();
-    await t.expect(Selector('textarea').visible).notOk();
-    await t.click(`input[value=Ford]`);
-    await t.expect(Selector('textarea').visible).notOk();
-    await t.click(`input[value=other]`);
-    await t.expect(Selector('textarea').visible).ok();
+    await t.expect(Selector("textarea").visible).notOk();
+    await t.click("input[value=Ford]");
+    await t.expect(Selector("textarea").visible).notOk();
+    await t.click("input[value=other]");
+    await t.expect(Selector("textarea").visible).ok();
   });
 
-  test(`check "other" choice doesn't change order`, async t => {
-    const radiogroup = Selector(`[role="radiogroup"]`);
-    const chocies = radiogroup.find(`input[type="radio"]`).parent("label").parent();
+  test("check \"other\" choice doesn't change order", async t => {
+    const radiogroup = Selector("[role=\"radiogroup\"]");
+    const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
 
     await setOptions("car", { hasOther: true, otherText: "Other Test" });
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(11).find(`[aria-label="Other Test"]`).exists).ok();
+    await t.expect(chocies.nth(11).find("[aria-label=\"Other Test\"]").exists).ok();
   });
 
-  test(`choose other`, async t => {
+  test("choose other", async t => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]);
 
     await setOptions("car", { hasOther: true });
 
-    const radiogroup = Selector(`[role="radiogroup"]`);
-    const chocies = radiogroup.find(`input[type="radio"]`).parent("label").parent();
-    const otherText = chocies.nth(11).find(`[aria-label="Other (describe)"]`);
+    const radiogroup = Selector("[role=\"radiogroup\"]");
+    const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
+    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
 
     await t
       .click(otherText)
       .typeText(getOtherInput, "Zaporozec")
-      .click(`input[value=Complete]`);
+      .click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
 
-  test(`checked class`, async t => {
+  test("checked class", async t => {
     const isCheckedClassExistsByIndex = ClientFunction(index =>
       document
         .querySelector(
@@ -191,14 +192,14 @@ frameworks.forEach(framework => {
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      `fieldset .sv_q_select_column:nth-child(3) div:nth-child(2) label input`
+      "fieldset .sv_q_select_column:nth-child(3) div:nth-child(2) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      `fieldset .sv_q_select_column:nth-child(3) div:nth-child(3) label input`
+      "fieldset .sv_q_select_column:nth-child(3) div:nth-child(3) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
@@ -213,17 +214,17 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    const newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    const newTitle = "MyText";
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    const outerSelector = `.sv_q_title`;
-    const innerSelector = `.sv-string-editor`
+    const outerSelector = ".sv_q_title";
+    const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
@@ -231,16 +232,16 @@ frameworks.forEach((framework) => {
     assert.equal(json.title, newTitle);
   });
 
-  test(`click on radio title state editable`, async (t) => {
-    const newTitle = 'MyText';
+  test("click on radio title state editable", async (t) => {
+    const newTitle = "MyText";
     let questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    const selector = `.sv_q_radiogroup_label .sv-string-editor`
+    const selector = ".sv_q_radiogroup_label .sv-string-editor";
     await t
       .click(selector)
       .typeText(selector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);

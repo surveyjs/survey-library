@@ -1,8 +1,4 @@
-import {
-  frameworks,
-  url_test,
-  initSurvey
-} from "../helper";
+import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "Tooltip errors";
 
@@ -46,22 +42,19 @@ var json = {
   ],
 };
 
-const applyTheme = ClientFunction((theme) => {
-  window["Survey"].StylesManager.applyTheme(theme);
-});
-
 const themeName = "defaultV2";
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}.html`.beforeEach(async (t) => {
-    await applyTheme(themeName);
-    await initSurvey(framework, json);
-    await t.resizeWindow(1000, 1000);
-  });
+    .page`${url_test}${themeName}/${framework}.html`
+    .beforeEach(async (t) => {
+      await applyTheme(themeName);
+      await initSurvey(framework, json);
+      await t.resizeWindow(1000, 1000);
+    });
   test("check errors tooltip", async (t) => {
     const focusBody = ClientFunction(() => { document.body.focus(); });
-    const getTooltipPosition = (base:number, offset: number): string => {
+    const getTooltipPosition = (base: number, offset: number): string => {
       return base + offset + 12 + "px";
     };
     const matrixCellSelector = Selector(".sd-table__cell:not(.sd-table__cell--header)");

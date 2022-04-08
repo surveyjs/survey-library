@@ -1,21 +1,21 @@
 import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
-import { Question } from "./question";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator, SurveyValidator } from "./validator";
 import { SurveyError } from "./survey-error";
-import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { ExpressionRunner } from "./conditions";
 
 /**
  * A Model for an input text question.
  */
 export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
+  private minValueRunner: ExpressionRunner;
+  private maxValueRunner: ExpressionRunner;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -280,8 +280,9 @@ export class QuestionTextModel extends QuestionTextBase {
     values: HashTable<any> = null,
     properties: HashTable<any> = null
   ) {
+    this.minValueRunner = this.getDefaultRunner(this.minValueRunner, this.minValueExpression);
     this.setValueAndRunExpression(
-      this.minValueExpression,
+      this.minValueRunner,
       this.min,
       (val) => {
         if (!val && this.isDateInputType && !!settings.minDate) {
@@ -292,8 +293,9 @@ export class QuestionTextModel extends QuestionTextBase {
       values,
       properties
     );
+    this.maxValueRunner = this.getDefaultRunner(this.maxValueRunner, this.maxValueExpression);
     this.setValueAndRunExpression(
-      this.maxValueExpression,
+      this.maxValueRunner,
       this.max,
       (val) => {
         if (!val && this.isDateInputType) {

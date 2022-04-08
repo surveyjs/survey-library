@@ -1,3 +1,8 @@
-<span
-  data-bind="css: question.koCss().iconDrag"
-></span>
+<!-- ko if: question.iconDragElement -->
+<svg data-bind="css: question.koCss().dragElementDecorator">
+  <use data-bind="attr: { 'xlink:href': question.iconDragElement }" xlink:href=''></use>
+</svg>
+<!-- /ko -->
+<!-- ko ifnot: question.iconDragElement -->
+<span data-bind="css: question.koCss().iconDrag"></span>
+<!-- /ko -->

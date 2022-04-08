@@ -6,6 +6,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
+- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 
@@ -289,6 +290,10 @@ $(function() {
 ```
 </details>
 
-## Conclusion
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-jquery" target="_blank">View full code on GitHub</a>
 
-You have learnt how to add a survey to your jQuery application. For further information, refer to help topics within the [Design a Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-simple-survey) section.
+## Further Reading
+
+- [Create a Simple Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-simple-survey)
+- [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
+- [Create a Quiz](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-quiz)

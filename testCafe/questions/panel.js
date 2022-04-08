@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getQuestionValue, getPanelJson } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `panel`;
+const title = "panel";
 
 var json = {
   pages: [
@@ -80,7 +81,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`titles and margins`, async (t) => {
+  test("titles and margins", async (t) => {
     const getTitle1 = Selector("div").withText("question1").with({
       visibilityCheck: true,
       timeout: 1000,
@@ -110,7 +111,7 @@ frameworks.forEach((framework) => {
     assert.equal(await getPanelsCountByMargin(), 2);
   });
 
-  test(`expand collapse title`, async (t) => {
+  test("expand collapse title", async (t) => {
     const panelTitle = Selector("h4").withText("Panel 1");
     const contentItem = Selector("[data-name='question2']");
 
@@ -119,9 +120,9 @@ frameworks.forEach((framework) => {
     assert.equal(await contentItem.visible, false);
   });
 
-  test(`panel description reactivity`, async (t) => {
+  test("panel description reactivity", async (t) => {
     await ClientFunction(() => {
-      window.survey.getAllPanels()[0].description = 'desc1';
+      window["survey"].getAllPanels()[0].description = "desc1";
     })();
     await t
       .expect(Selector(".sv_p_description").withText("desc1").visible).ok();
@@ -135,17 +136,17 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on panel title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on panel title state editable", async (t) => {
+    var newTitle = "MyText";
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = `.sv_p_title`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_p_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);

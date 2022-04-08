@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { Selector } from "testcafe";
+import { Selector, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `text`;
+const title = "text";
 
 const json = {
   questions: [
@@ -95,12 +96,12 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test.skip(`fill text field`, async (t) => {
+  test.skip("fill text field", async (t) => {
     let surveyResult;
 
     await t
-      .typeText(`input[type=email]`, `stub@gmail.com`)
-      .click(`input[value=Complete]`);
+      .typeText("input[type=email]", "stub@gmail.com")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -127,7 +128,7 @@ frameworks.forEach((framework) => {
   //   });
   // }
 
-  test(`check input types`, async (t) => {
+  test("check input types", async (t) => {
     const types = [
       "color",
       "date",
@@ -149,7 +150,7 @@ frameworks.forEach((framework) => {
     }
   });
 
-  test(`expand collapse title`, async (t) => {
+  test("expand collapse title", async (t) => {
     const title = "Please enter your name:";
     const questionTitle = Selector("h5").withText(title);
     const contentItem = Selector(`input[aria-label='${title}']`);
@@ -167,22 +168,22 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-  
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 });

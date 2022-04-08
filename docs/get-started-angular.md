@@ -7,6 +7,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
+- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 
@@ -73,16 +74,16 @@ To apply the referenced theme, call the `applyTheme(themeName)` method. Its argu
 For instance, the following code applies the Modern theme:
 
 ```js
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { StylesManager } from "survey-angular";
+
+StylesManager.applyTheme("modern");
 
 @Component({
   // ...
 })
-export class AppComponent implements OnInit {
-  ngOnInit() {
-    StylesManager.applyTheme("modern");
-  }
+export class AppComponent {
+  // ...
 }
 ```
 
@@ -117,7 +118,6 @@ import { ..., Model } from "survey-angular";
 })
 export class AppComponent implements OnInit {
   ngOnInit() {
-    // ...
     const survey = new Model(surveyJson);
   }
 }
@@ -129,6 +129,8 @@ export class AppComponent implements OnInit {
 ```js
 import { Component, OnInit } from '@angular/core';
 import { Model, StylesManager } from "survey-angular";
+
+StylesManager.applyTheme("modern");
 
 const surveyJson = {
   elements: [{
@@ -149,9 +151,7 @@ const surveyJson = {
 })
 export class AppComponent implements OnInit {
   title = 'My First Survey';
-  ngOnInit() {
-    StylesManager.applyTheme("modern");
-    
+  ngOnInit() {    
     const survey = new Model(surveyJson);
   }
 }
@@ -198,6 +198,8 @@ If you replicate the code correctly, you should see the following survey:
 import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
+StylesManager.applyTheme("modern");
+
 const surveyJson = {
   elements: [{
     name: "FirstName",
@@ -217,9 +219,7 @@ const surveyJson = {
 })
 export class AppComponent implements OnInit {
   title = 'My First Survey';
-  ngOnInit() {
-    StylesManager.applyTheme("modern");
-    
+  ngOnInit() {    
     const survey = new Model(surveyJson);
     SurveyNG.render("surveyContainer", { model: survey });
   }
@@ -266,6 +266,8 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
+StylesManager.applyTheme("modern");
+
 const surveyJson = {
   elements: [{
     name: "FirstName",
@@ -290,8 +292,6 @@ export class AppComponent implements OnInit {
     alert(results);
   }
   ngOnInit() {
-    StylesManager.applyTheme("modern");
-
     const survey = new Model(surveyJson);
     survey.onComplete.add(this.alertResults);
     SurveyNG.render("surveyContainer", { model: survey });
@@ -300,6 +300,10 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-## Conclusion
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">View full code on GitHub</a>
 
-You have learnt how to add a survey to your Angular application. For further information, refer to help topics within the [Design a Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-simple-survey) section.
+## Further Reading
+
+- [Create a Simple Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-simple-survey)
+- [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
+- [Create a Quiz](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-quiz)

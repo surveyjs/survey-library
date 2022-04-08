@@ -226,8 +226,13 @@ function preventDefaults(event: any) {
   event.preventDefault();
   event.stopPropagation();
 }
+function classesToSelector(str: string) {
+  const re = /\s*(\w+)\s*/g;
+  return str.replace(re, ".$1");
+}
 
 export {
+  classesToSelector,
   compareVersions,
   confirmAction,
   detectIEOrEdge,

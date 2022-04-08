@@ -1096,10 +1096,10 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     this.onCreating();
-    if(!!renderedElement) {
+    if (!!renderedElement) {
       this.render(renderedElement);
     }
-    this.rootCss = this.getRootCss();
+    this.updateCss();
   }
 
   /**
@@ -1154,6 +1154,15 @@ export class SurveyModel extends SurveyElementCore
     return this.css;
   }
   private cssValue: any = null;
+  private updateCompletedPage() {
+    this.containerCss = this.css.container;
+    this.completedCss = new CssClassBuilder().append(this.css.body)
+      .append(this.css.completedPage).toString(); // for completed page
+  }
+  private updateCss() {
+    this.rootCss = this.getRootCss();
+    this.updateCompletedPage();
+  }
   public get css(): any {
     if (!this.cssValue) {
       this.cssValue = {};
@@ -1163,7 +1172,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
-    this.rootCss = this.getRootCss();
+    this.updateCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1209,10 +1218,8 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.body + "--" + this.calculateWidthMode()).toString();
   }
-  public get completedCss(): string {
-    return new CssClassBuilder().append(this.css.body)
-      .append(this.css.completedPage).toString();
-  }
+  @property() completedCss: string;
+  @property() containerCss: string;
   public get completedStateCss(): string {
     return this.getPropertyValue("completedStateCss", "");
   }
@@ -1901,9 +1908,9 @@ export class SurveyModel extends SurveyElementCore
 
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
-    if(this.isMobile !== newVal) {
+    if (this.isMobile !== newVal) {
       this._isMobile = newVal;
-      this.rootCss = this.getRootCss();
+      this.updateCss();
       this.getAllQuestions().map(q => q.isMobile = newVal);
     }
   }

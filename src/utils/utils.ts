@@ -228,7 +228,7 @@ function preventDefaults(event: any) {
   event.stopPropagation();
 }
 function classesToSelector(str: string) {
-  const re = /\s*(\w+)\s*/g;
+  const re = /\s*?([\w-]+)\s*?/g;
   return str.replace(re, ".$1");
 }
 

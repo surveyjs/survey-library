@@ -269,7 +269,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   private onImageLoaded = (item: ImageItemValue, event: any) => {
     const img: HTMLImageElement = event.target;
     item["aspectRatio"] = img.naturalWidth / img.naturalHeight;
-    this.processResponsiveness(0, this._width);
+    this._width && this.processResponsiveness(0, this._width);
   }
 
   protected processResponsiveness(_: number, availableWidth: number): void {

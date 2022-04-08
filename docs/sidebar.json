@@ -10,29 +10,43 @@
       "Items": [
         {
           "Name": "get-started-angular",
-          "Title": "Use with Angular"
+          "Title": "Angular"
         },
         {
           "Name": "get-started-vue",
-          "Title": "Use with Vue"
+          "Title": "Vue"
         },
         {
           "Name": "get-started-react",
-          "Title": "Use with React"
+          "Title": "React"
         },
         {
           "Name": "get-started-knockout",
-          "Title": "Use with Knockout"
+          "Title": "Knockout"
         },
         {
           "Name": "get-started-jquery",
-          "Title": "Use with jQuery"
+          "Title": "jQuery"
         }
       ]
     },
     {
-      "Name": "Create-a-quiz",
-      "Title": "Create a quiz"
+      "Name": "design-survey",
+      "Title": "Design a Survey",
+      "Items": [
+        {
+          "Name": "design-survey-create-a-simple-survey",
+          "Title": "Create a Simple Survey"
+        },
+        {
+          "Name": "design-survey-create-a-multi-page-survey",
+          "Title": "Create a Multi-Page Survey"
+        },
+        {
+          "Name": "design-survey-create-a-quiz",
+          "Title": "Create a Quiz"
+        }
+      ]
     },
     {
       "Name": "api",

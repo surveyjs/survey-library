@@ -1,12 +1,12 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
 const setupSurvey = ClientFunction(() => {
-  window.survey.onSendResult.add(function(s, options) {
+  window["survey"].onSendResult.add(function(s, options) {
     if (options.success) {
       s.getResult("a15eee7a-9418-4eb4-9671-2009c8ff6b24", "langs");
     }
   });
-  window.survey.onGetResult.add(function(s, options) {
+  window["survey"].onGetResult.add(function(s, options) {
     if (options.success) {
       var element = document.createElement("div");
       element.id = "hasResult";
@@ -14,8 +14,8 @@ const setupSurvey = ClientFunction(() => {
     }
   });
 });
-const assert = require("assert");
-const title = `getSurveyResult`;
+
+const title = "getSurveyResult";
 
 const json = {
   surveyId: "5af48e08-a0a5-44a5-83f4-1c90e8e98de1",
@@ -30,12 +30,12 @@ frameworks.forEach(framework => {
   );
 
   //TODO need to fix service
-  test.skip(`correct get result`, async t => {
+  test.skip("correct get result", async t => {
     const hasResult = Selector("#hasResult");
     await setupSurvey();
     await t
-      .click(`div:nth-child(20) label input`)
-      .click(`input[value="Complete"]`)
+      .click("div:nth-child(20) label input")
+      .click("input[value=\"Complete\"]")
       .wait(5000)
       .expect(hasResult.exists)
       .ok();

@@ -1,7 +1,9 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
+import { imageSource } from "../../constants";
 
-const title = "Selectbase Screenshot";
+const title = "Image Screenshot";
 
 fixture`${title}`.page`${url}`.beforeEach(async (t) => {
 
@@ -19,6 +21,7 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
+
   test("Check responsive imagepicker", async (t) => {
     await t.resizeWindow(1920, 1500);
     await initSurvey(framework, {
@@ -57,5 +60,30 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("imagepicker-responsive-medium.png", Selector(".sd-question"), t);
     await t.resizeWindow(500, 1500);
     await checkElementScreenshot("imagepicker-responsive-min.png", Selector(".sd-question"), t);
+  });
+  test("Check image picker question", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": imageSource
+            },
+            "item1"
+          ],
+          "imageFit": "cover"
+        }
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const questionRoot = Selector(".sd-imagepicker");
+    await takeScreenshot("imagepicker-question.png", questionRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
   });
 });

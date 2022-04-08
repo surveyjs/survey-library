@@ -1,7 +1,6 @@
 import { frameworks, url, initSurvey, getData, setData } from "../helper";
-import { Selector } from "testcafe";
-const assert = require("assert");
-const title = `ranking`;
+import { Selector, fixture, test } from "testcafe";
+const title = "ranking";
 
 const json = {
   pages: [
@@ -76,7 +75,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`ranking: simple using`, async (t) => {
+  test("ranking: simple using", async (t) => {
     const PriceItem = Selector("span")
       .withText(
         "Please rank the following smartphone features in order of importance:"
@@ -107,7 +106,7 @@ frameworks.forEach((framework) => {
     ]);
   });
 
-  test(`ranking: predeficed data`, async (t) => {
+  test("ranking: predeficed data", async (t) => {
     const PriceItem = Selector("span")
       .withText(
         "Please rank the following smartphone features in order of importance:"
@@ -165,7 +164,7 @@ frameworks.forEach((framework) => {
     ]);
   });
 
-  test(`ranking: carry forward`, async (t) => {
+  test("ranking: carry forward", async (t) => {
     const rankPriceItem = Selector("span")
       .withText(
         "Please rank the following smartphone features in order of importance:"
@@ -241,7 +240,7 @@ frameworks.forEach((framework) => {
     await t.expect(typeof data.bestcar).eql("undefined");
   });
 
-  test(`ranking: keyborad`, async (t) => {
+  test("ranking: keyborad", async (t) => {
     const PriceItem = Selector("span")
       .withText(
         "Please rank the following smartphone features in order of importance:"
@@ -250,7 +249,7 @@ frameworks.forEach((framework) => {
       .find("span")
       .withText("Price");
 
-    await t.pressKey("tab").pressKey("tab").pressKey('up');
+    await t.pressKey("tab").pressKey("tab").pressKey("up");
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
       "Screen size",
@@ -262,7 +261,7 @@ frameworks.forEach((framework) => {
       "Price",
     ]);
 
-    await t.pressKey('down');
+    await t.pressKey("down");
     data = await getData();
     await t.expect(data["smartphone-features"]).eql([
       "Battery life",

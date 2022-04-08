@@ -275,13 +275,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     super.addToVisibleChoices(items, isAddAll);
   }
-  protected isBuiltInChoice(
+  protected isHeadChoice(
     item: ItemValue,
     question: QuestionSelectBase
   ): boolean {
     return (
-      item === (<QuestionCheckboxBase>question).selectAllItem ||
-      super.isBuiltInChoice(item, question)
+      item === (<QuestionCheckboxBase>question).selectAllItem
     );
   }
   /**
@@ -438,6 +437,7 @@ Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",
+    { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",

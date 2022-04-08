@@ -1,6 +1,8 @@
+import { ClientFunction, fixture, Selector, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `imagepicker`;
+const title = "imagepicker";
 
 const json = {
   questions: [
@@ -42,27 +44,33 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check integrity`, async t => {
+  test("check integrity", async t => {
     await t
-      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(2)`)
-      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)`)
-      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(4)`)
-      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(5)`);
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(2)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(4)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(5)");
   });
 
-  test(`choose empty`, async t => {
+  test("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async t => {
+  test("choose value", async t => {
     let surveyResult;
 
     await t
-      .click(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)`)
-      .click(`input[value=Complete]`);
+      .click("fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)")
+      .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.choosepicture, "giraffe");
+  });
+  test("imagelink reactiveness", async t => {
+    await ClientFunction(()=>{
+      window.survey.getAllQuestions()[0].choices[0].imageLink = "custom_link";
+    })();
+    await t.expect(Selector("img[src='custom_link']").exists).ok();
   });
 });
 
@@ -73,22 +81,22 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`click on question title state editable`, async (t) => {
-    var newTitle = 'MyText';
+  test("click on question title state editable", async (t) => {
+    var newTitle = "MyText";
     var json = JSON.parse(await getQuestionJson());
     var questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
 
-    var outerSelector = `.sv_q_title`;
-    var innerSelector = `.sv-string-editor`
+    var outerSelector = ".sv_q_title";
+    var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .typeText(outerSelector + ` ` + innerSelector, newTitle, { replace: true })
-      .click(`body`, { offsetX: 0, offsetY: 0 });
+      .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
+      .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    var json = JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 });

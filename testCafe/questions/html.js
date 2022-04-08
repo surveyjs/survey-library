@@ -1,6 +1,6 @@
 import { frameworks, url, setOptions, initSurvey } from "../helper";
-import { ClientFunction, Selector } from "testcafe";
-const title = `html`;
+import { ClientFunction, Selector, fixture, test } from "testcafe";
+const title = "html";
 
 const json = {
   elements: [
@@ -29,7 +29,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check html elements`, async t => {
+  test("check html elements", async t => {
     const getImageExistance = ClientFunction(
       () =>
         !!document.querySelector(
@@ -51,13 +51,13 @@ frameworks.forEach(framework => {
     await t.expect(await getLinkExistance()).ok();
   });
 
-  test(`change html`, async t => {
+  test("change html", async t => {
     await setOptions("info", { html: "<h1>Wombat</h1>" });
-    await t.expect(Selector("h1").withText("Wombat").visible).ok()
+    await t.expect(Selector("h1").withText("Wombat").visible).ok();
   });
-  test(`text processing`, async t => {
-    await t.typeText(`input[type=text]`, `John`)
-      .pressKey( "tab" )
+  test("text processing", async t => {
+    await t.typeText("input[type=text]", "John")
+      .pressKey("tab")
       .expect(Selector("span").withText("John").visible).ok();
   });
 });

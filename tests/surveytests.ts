@@ -61,6 +61,7 @@ import { LocalizableString } from "../src/localizablestring";
 import { getSize, increaseHeightByContent } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("Survey");
 
@@ -14591,6 +14592,14 @@ QUnit.test("Check survey resize observer", function (assert) {
   window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
   survey.afterRenderSurvey(rootEl);
   assert.ok(survey["resizeObserver"]);
+  const firstResizeObserver = survey["resizeObserver"];
+  let firstResizeObserverIsConnected = true;
+  firstResizeObserver.disconnect = () => {
+    firstResizeObserverIsConnected = false;
+  };
+  survey.afterRenderSurvey(rootEl);
+  assert.notOk(survey["resizeObserver"] == firstResizeObserver, "check that new resize observer is created after second afterRender");
+  assert.notOk(firstResizeObserverIsConnected, "check that old resize observer is disconnected after second afterRender");
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
@@ -14608,4 +14617,16 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   assert.ok(survey._isMobile);
   survey["processResponsiveness"](600, 500);
   assert.notOk(survey._isMobile);
+});
+QUnit.test("Check rootCss property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { root: "test-root-class" };
+  assert.equal(survey.rootCss, "test-root-class");
 });

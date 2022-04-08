@@ -137,7 +137,8 @@ function createSvg(
   iconName: string,
   svgElem: any
 ) {
-  if(size !== "auto") {
+  if (!svgElem) return;
+  if (size !== "auto") {
     svgElem.style.width = (size || width || 16) + "px";
     svgElem.style.height = (size || height || 16) + "px";
   }

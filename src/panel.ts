@@ -54,14 +54,13 @@ export class QuestionRowModel extends Base {
     findScrollableContainer = findScrollableParent
   ) {
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
-    this.isNeedRender = !(
-      this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight
-    );
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
     if (this._scrollableParent === document.documentElement) {
       this._scrollableParent = window;
     }
-    if (!this.isNeedRender) {
+    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
+    this.isNeedRender = !hasScroll;
+    if (hasScroll) {
       this._updateVisibility = () => {
         var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
         if (!this.isNeedRender && isRowContainerDivVisible) {

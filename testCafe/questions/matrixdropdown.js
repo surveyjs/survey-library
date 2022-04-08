@@ -1,6 +1,6 @@
+import { fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-const assert = require("assert");
-const title = `matrixdropdown`;
+const title = "matrixdropdown";
 
 const json = {
   questions: [
@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`choose several values`, async t => {
+  test("choose several values", async t => {
     let surveyResult;
     const baseSelectorFunc = function (strings, ...values) {
       return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
@@ -72,7 +72,7 @@ frameworks.forEach(framework => {
       .click(`${baseSelectorFunc`${1}${4}`} div:nth-child(4) label input`)
       .typeText(
         `${baseSelectorFunc`${1}${5}`} input`,
-        `why hello world so hard`
+        "why hello world so hard"
       )
       .click(`${baseSelectorFunc`${1}${6}`} select`)
       .click(`${baseSelectorFunc`${1}${6}`} select option[value="Excelent"]`);
@@ -84,11 +84,11 @@ frameworks.forEach(framework => {
       .click(`${baseSelectorFunc`${3}${3}`} select option[value="5"]`)
       .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(2) label input`)
       .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(5) label input`)
-      .typeText(`${baseSelectorFunc`${3}${5}`} input`, `it is not 2016`)
+      .typeText(`${baseSelectorFunc`${3}${5}`} input`, "it is not 2016")
       .click(`${baseSelectorFunc`${3}${6}`} select`)
       .click(`${baseSelectorFunc`${3}${6}`} select option[value="Good"]`);
 
-    await t.click(`input[value=Complete]`);
+    await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
 

@@ -3,6 +3,8 @@ import { property } from "../jsonobject";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
+export type actionModeType = "large" | "small" | "popup";
+
 /**
  * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
  */
@@ -96,7 +98,7 @@ export interface IAction {
   /**
    * Action button display mode
    */
-  mode?: "large" | "small" | "popup";
+  mode?: actionModeType;
   visibleIndex?: number;
   needSpace?: boolean;
 }
@@ -140,7 +142,7 @@ export class Action extends Base implements IAction {
   @property() component: string;
   @property() items: any;
   @property() visibleIndex: number;
-  @property({ defaultValue: "large" }) mode: "large" | "small" | "popup";
+  @property({ defaultValue: "large" }) mode: actionModeType;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
   @property({ defaultValue: false }) needSpace: boolean;

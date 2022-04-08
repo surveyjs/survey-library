@@ -978,7 +978,8 @@ export class Question extends SurveyElement
     this.runEnableIfCondition(values, properties);
     this.runRequiredIfCondition(values, properties);
     if (!this.isValueChangedDirectly) {
-      this.runDefaultValueExpression(this.defaultValueExpression, values, properties);
+      this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
+      this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
   }
   private runVisibleIfCondition(
@@ -1377,9 +1378,19 @@ export class Question extends SurveyElement
   protected isDefaultValueEmpty(): boolean {
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
+  protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
+    if(!runner && !!expression) {
+      runner = new ExpressionRunner(expression);
+    }
+    if(!!runner) {
+      runner.expression = expression;
+    }
+    return runner;
+  }
   protected setDefaultValue(): void {
+    this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
     this.setValueAndRunExpression(
-      this.defaultValueExpression,
+      this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
       (val) => {
         this.value = val;
@@ -1390,7 +1401,7 @@ export class Question extends SurveyElement
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }
   protected setValueAndRunExpression(
-    expression: string,
+    runner: ExpressionRunner,
     defaultValue: any,
     setFunc: (val: any) => void,
     values: HashTable<any> = null,
@@ -1399,7 +1410,7 @@ export class Question extends SurveyElement
     const func = (val: any) => {
       this.runExpressionSetValue(val, setFunc);
     };
-    if (!this.runDefaultValueExpression(expression, values, properties, func)) {
+    if (!this.runDefaultValueExpression(runner, values, properties, func)) {
       func(defaultValue);
     }
   }
@@ -1409,12 +1420,9 @@ export class Question extends SurveyElement
     }
     setFunc(val);
   }
-  private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
+  private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
-    if (!expression || !this.data) return false;
-    if (!this.defaultValueRunner) {
-      this.defaultValueRunner = new ExpressionRunner(expression);
-    }
+    if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val, (val: any): void => { this.value = val; });
@@ -1422,14 +1430,14 @@ export class Question extends SurveyElement
     }
     if (!values) values = this.data.getFilteredValues();
     if (!properties) properties = this.data.getFilteredProperties();
-    if (this.defaultValueRunner.canRun) {
-      this.defaultValueRunner.onRunComplete = (res) => {
+    if (!!runner && runner.canRun) {
+      runner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;
         this.isChangingViaDefaultValue = true;
         setFunc(res);
         this.isChangingViaDefaultValue = false;
       };
-      this.defaultValueRunner.run(values, properties);
+      runner.run(values, properties);
     }
     return true;
   }

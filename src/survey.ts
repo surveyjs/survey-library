@@ -1099,6 +1099,7 @@ export class SurveyModel extends SurveyElementCore
     if(!!renderedElement) {
       this.render(renderedElement);
     }
+    this.rootCss = this.getRootCss();
   }
 
   /**
@@ -1162,6 +1163,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
+    this.rootCss = this.getRootCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1901,6 +1903,7 @@ export class SurveyModel extends SurveyElementCore
   public setIsMobile(newVal = true) {
     if(this.isMobile !== newVal) {
       this._isMobile = newVal;
+      this.rootCss = this.getRootCss();
       this.getAllQuestions().map(q => q.isMobile = newVal);
     }
   }
@@ -4105,16 +4108,18 @@ export class SurveyModel extends SurveyElementCore
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
+  @property() rootCss: string;
   public getRootCss(): string {
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }
   private resizeObserver: ResizeObserver;
 
   afterRenderSurvey(htmlElement: any) {
-    let observedElement:HTMLElement = htmlElement;
+    this.destroyResizeObserver();
     if(Array.isArray(htmlElement)) {
-      observedElement = SurveyElement.GetFirstNonTextElement(htmlElement);
+      htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
+    let observedElement:HTMLElement = htmlElement;
     const cssVariables = this.css.variables;
     if(!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
@@ -5702,13 +5707,16 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.onQuestionAdded.fire(this, {
-      question: question,
-      name: question.name,
-      index: index,
-      parentPanel: parentPanel,
-      rootPanel: rootPanel,
-    });
+    if(!this.isMovingQuestion) {
+      this.onQuestionAdded.fire(this, {
+        question: question,
+        name: question.name,
+        index: index,
+        parentPanel: parentPanel,
+        rootPanel: rootPanel,
+      });
+    }
+
   }
   questionRemoved(question: IQuestion) {
     this.questionHashesRemoved(
@@ -6243,6 +6251,14 @@ export class SurveyModel extends SurveyElementCore
     this.setTriggerValue(name, value, false);
   }
   private isFocusingQuestion: boolean;
+
+  private isMovingQuestion: boolean;
+  public startMovingQuestion(): void {
+    this.isMovingQuestion = true;
+  }
+  public stopMovingQuestion(): void {
+    this.isMovingQuestion = false;
+  }
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.

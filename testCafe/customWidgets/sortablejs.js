@@ -1,5 +1,6 @@
+import { fixture, test } from "testcafe";
 import { frameworks, url_test, initSurvey, checkSurveyWithEmptyQuestion } from "../helper";
-const title = `sortablejs`;
+const title = "sortablejs";
 
 const json = {
   questions: [
@@ -17,25 +18,25 @@ const json = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
     .page`${url_test}customWidget/${framework}.html`.beforeEach(
-      async (ctx) => {
-        await initSurvey(framework, json);
-      }
-    );
+    async (ctx) => {
+      await initSurvey(framework, json);
+    }
+  );
 
-  test(`check integrity`, async (t) => {
+  test("check integrity", async (t) => {
     await t
-      .hover(`div[data-value]:nth-child(1)`)
-      .hover(`div[data-value]:nth-child(2)`)
-      .hover(`div[data-value]:nth-child(3)`)
-      .hover(`div[data-value]:nth-child(4)`)
-      .hover(`div[data-value]:nth-child(5)`);
+      .hover("div[data-value]:nth-child(1)")
+      .hover("div[data-value]:nth-child(2)")
+      .hover("div[data-value]:nth-child(3)")
+      .hover("div[data-value]:nth-child(4)")
+      .hover("div[data-value]:nth-child(5)");
   });
 
-  test(`choose empty`, async (t) => {
+  test("choose empty", async (t) => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test(`choose value`, async (t) => {
+  test("choose value", async (t) => {
     // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
     // let surveyResult;
     //
@@ -48,7 +49,7 @@ frameworks.forEach((framework) => {
     // assert.deepEqual(surveyResult.lifepriopity, ["travels","family"]);
   });
 
-  test(`change priority`, async (t) => {
+  test("change priority", async (t) => {
     // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
     // let surveyResult;
     //

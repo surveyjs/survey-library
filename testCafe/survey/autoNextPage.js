@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `autoNextPage`;
+const title = "autoNextPage";
 
 const json = {
   title: "American History",
@@ -67,17 +68,17 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check auto next page`, async t => {
+  test("check auto next page", async t => {
     const getProgressTextPosition = ClientFunction(index =>
       document.documentElement.innerHTML.indexOf("Page " + index + " of 3")
     );
     let surveyResult;
     assert.notEqual(await getProgressTextPosition(1), -1);
-    await t.click(`input[type=radio]`);
+    await t.click("input[type=radio]");
     assert.notEqual(await getProgressTextPosition(2), -1);
-    await t.click(`input[type=radio]`);
+    await t.click("input[type=radio]");
     assert.notEqual(await getProgressTextPosition(3), -1);
-    await t.click(`input[type=radio]`);
+    await t.click("input[type=radio]");
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       civilwar: "1750-1800",

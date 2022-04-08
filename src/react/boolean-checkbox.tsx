@@ -12,7 +12,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
     const itemClass = this.question.getItemCss();
     return (
       <div className={cssClasses.root}>
-        <label className={itemClass} onClick={this.handleOnClick}>
+        <label className={itemClass}>
           <input
             ref={this.checkRef}
             type="checkbox"

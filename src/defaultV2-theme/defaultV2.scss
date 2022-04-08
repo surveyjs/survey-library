@@ -50,6 +50,10 @@
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
 
+body {
+  --sv-defaultV2-mark: true;
+}
+
 .sd-root-modern {
   --sd-mobile-width: 600px;
   --sd-imagepicker-gap: 16px;
@@ -110,7 +114,7 @@
   }
 }
 
-.sv-popup .sv-popup_shadow {
+.sv-popup:not(.sv-popup--modal) .sv-popup_shadow {
   padding: calcSize(1) 0;
   background-color: $background;
 }

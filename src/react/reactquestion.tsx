@@ -126,7 +126,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
     return (
       <div
-        className={question.cssContent}
+        className={question.cssContent || undefined}
         style={contentStyle}
         role="presentation"
       >

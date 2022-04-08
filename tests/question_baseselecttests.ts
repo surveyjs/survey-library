@@ -5,6 +5,7 @@ import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionButtonGroupModel } from "../src/question_buttongroup";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("baseselect");
 
@@ -39,6 +40,42 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
     "check showItemsBy column"
   );
+});
+QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        colCount: 2,
+      },
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [[], []],
+    "one column"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "other"],
+    "check foot items"
+  );
+  settings.supportCreatorV2 = false;
 });
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
@@ -308,4 +345,11 @@ QUnit.test("check focus comment of other select", (assert) => {
   assert.equal(counter, 1);
   q.value = ["item1", "other"];
   assert.equal(counter, 2);
+});
+QUnit.test("check separateSpecialChoices property visibility", (assert) => {
+  assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("checkbox", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("radiogroup", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });

@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base, EventBase, ComputedUpdater } from "./base";
 import {
   ISurvey,
   ISurveyData,
@@ -41,9 +41,9 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
-import { IAction } from "./actions/action";
+import { IAction, Action } from "./actions/action";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { element } from "angular";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -92,6 +92,8 @@ export class SurveyModel extends SurveyElementCore
 
   private textPreProcessor: TextPreProcessor;
   private timerModelValue: SurveyTimerModel;
+
+  private navigationBarValue: ActionContainer;
 
   //#region Event declarations
 
@@ -1082,6 +1084,7 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
+    this.navigationBarValue = this.createNavigationBar();
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1164,6 +1167,7 @@ export class SurveyModel extends SurveyElementCore
   public set css(value: any) {
     this.mergeValues(value, this.css);
     this.rootCss = this.getRootCss();
+    this.updateNavigationItemCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1689,6 +1693,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
+    this.updateNavigationItemTitles();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -2026,6 +2031,22 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
+  public get navigationBar(): ActionContainer {
+    return this.navigationBarValue;
+  }
+  /**
+   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
+   * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
+  */
+  public addNavigationItem(val: IAction): Action {
+    if(!val.component) {
+      val.component = "sv-nav-btn";
+    }
+    if(!val.innerCss) {
+      val.innerCss = this.css.navigationButton;
+    }
+    return this.navigationBar.addAction(val);
+  }
   /**
    * Gets or sets the 'Start' button caption.
    * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
@@ -2037,6 +2058,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
+    this.updateNavigationItemTitles("startSurveyText");
   }
   get locStartSurveyText(): LocalizableString {
     return this.getLocalizableString("startSurveyText");
@@ -2050,6 +2072,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
+    this.updateNavigationItemTitles("pagePrevText");
   }
   get locPagePrevText(): LocalizableString {
     return this.getLocalizableString("pagePrevText");
@@ -2063,6 +2086,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
+    this.updateNavigationItemTitles("pageNextText");
   }
   get locPageNextText(): LocalizableString {
     return this.getLocalizableString("pageNextText");
@@ -2076,6 +2100,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
+    this.updateNavigationItemTitles("completeText");
   }
   get locCompleteText(): LocalizableString {
     return this.getLocalizableString("completeText");
@@ -2092,6 +2117,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
+    this.updateNavigationItemTitles("previewText");
   }
   get locPreviewText(): LocalizableString {
     return this.getLocalizableString("previewText");
@@ -5265,6 +5291,102 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
+  }
+
+  private updateNavigationItemTitles(strName?: string) {
+    !!this.updateNavigationItemTitlesCallback && this.updateNavigationItemTitlesCallback(strName);
+  }
+
+  private updateNavigationItemTitlesCallback: (strName?: string) => void;
+
+  private updateNavigationItemCss() {
+    !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
+  }
+
+  private updateNavigationItemCssCallback: (strName?: string) => void;
+
+  protected createNavigationBar(): ActionContainer {
+    const res = new ActionContainer();
+    const cssClasses = this.css.actionBar;
+    if (!!cssClasses) {
+      res.cssClasses = cssClasses;
+    }
+    res.containerCss = this.css.footer;
+    res.setItems(this.createNavigationActions());
+    return res;
+  }
+  protected createNavigationActions(): Array<IAction> {
+    const defaultComponent = "sv-nav-btn";
+    const strToTitleMap: { [strName: string]: IAction } = {};
+    const navStart = new Action({
+      id: "sv-nav-start",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
+      visibleIndex: 10,
+      action: () => this.start(),
+      component: defaultComponent
+    });
+    strToTitleMap["startSurveyText"] = navStart;
+    const navPrev = new Action({
+      id: "sv-nav-prev",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
+      visibleIndex: 20,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.prevPage(),
+      component: defaultComponent
+    });
+    strToTitleMap["pagePrevText"] = navPrev;
+    const navNext = new Action({
+      id: "sv-nav-next",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
+      visibleIndex: 30,
+      data: {
+        mouseDown: () => this.nextPageMouseDown(),
+      },
+      action: () => this.nextPageUIClick(),
+      component: defaultComponent
+    });
+    strToTitleMap["pageNextText"] = navNext;
+    const navPreview = new Action({
+      id: "sv-nav-preview",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
+      visibleIndex: 40,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.showPreview(),
+      component: defaultComponent
+    });
+    strToTitleMap["previewText"] = navPreview;
+    const navComplete = new Action({
+      id: "sv-nav-complete",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      visibleIndex: 50,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.completeLastPage(),
+      component: defaultComponent
+    });
+    strToTitleMap["completeText"] = navComplete;
+    this.updateNavigationItemTitlesCallback = (strName?: string) => {
+      if(!strName) {
+        Object.keys(strToTitleMap).forEach((key) => strToTitleMap[key].title = this[key]);
+      } else {
+        strToTitleMap[strName].title = this[strName];
+      }
+    };
+    this.updateNavigationItemTitlesCallback();
+    this.updateNavigationItemCssCallback = () => {
+      navStart.innerCss = this.cssNavigationStart;
+      navPrev.innerCss = this.cssNavigationPrev;
+      navNext.innerCss = this.cssNavigationNext;
+      navPreview.innerCss = this.cssNavigationPreview;
+      navComplete.innerCss = this.cssNavigationComplete;
+    };
+    this.updateNavigationItemCssCallback();
+    return [navStart, navPrev, navNext, navPreview, navComplete];
   }
   protected onBeforeCreating() { }
   protected onCreating() { }

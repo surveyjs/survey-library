@@ -3,7 +3,6 @@ export { Survey, attachKey2click } from "../react/reactSurvey";
 export { ReactSurveyElementsWrapper } from "../react/reactsurveymodel";
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
-export { SurveyNavigation } from "../react/reactSurveyNavigation";
 export { SurveyPage } from "../react/page";
 export { SurveyRow } from "../react/row";
 export { SurveyPanel } from "../react/panel";
@@ -77,6 +76,7 @@ export { SurveyQuestionPanelDynamicAddButton } from "../react/components/paneldy
 export { SurveyQuestionPanelDynamicPrevButton } from "../react/components/paneldynamic-actions/paneldynamic-prev-btn";
 export { SurveyQuestionPanelDynamicNextButton } from "../react/components/paneldynamic-actions/paneldynamic-next-btn";
 export { SurveyQuestionPanelDynamicProgressText } from "../react/components/paneldynamic-actions/paneldynamic-progress-text";
+export { SurveyNavigationButton } from "../react/components/survey-actions/survey-nav-button";
 
 export { MatrixRow } from "../react/components/matrix/row";
 export { Skeleton } from "../react/components/skeleton";

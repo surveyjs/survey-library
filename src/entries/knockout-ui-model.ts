@@ -66,6 +66,7 @@ export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../knockout/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
 export { TooltipErrorViewModel } from "../knockout/components/tooltip-error/tooltip-error";
+export { SurveyNavigationButton } from "../knockout/components/survey-actions/survey-nav-button";
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 
 import * as ko from "knockout";

@@ -75,21 +75,27 @@ export class ActionContainer<T extends Action = Action> extends Base {
     public get cssClasses(): any {
       return this.cssClassesValue || defaultActionBarCss;
     }
-
-    private sortItems(items: Array<T>) {
-      return []
-        .concat(items.filter((item) => item.visibleIndex >= 0 || item.visibleIndex === undefined))
+    private createAction(item: IAction) {
+      return item instanceof Action ? item : new Action(item);
+    }
+    public addAction(val: IAction, sortByVisibleIndex = true): Action {
+      const res: Action = this.createAction(val);
+      this.actions.push(<T>res);
+      this.sortItems();
+      return res;
+    }
+    private sortItems(): void {
+      this.actions = []
+        .concat(this.actions.filter((item) => item.visibleIndex === undefined || item.visibleIndex >= 0))
         .sort((firstItem, secondItem) => {
           return firstItem.visibleIndex - secondItem.visibleIndex;
         });
     }
 
     public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
-      const actions: Array<T> = <any>items.map((item) => (item instanceof Action ? item : new Action(item)));
+      this.actions = <any>items.map((item) => this.createAction(item));
       if (sortByVisibleIndex) {
-        this.actions = this.sortItems(actions);
-      } else {
-        this.actions = actions;
+        this.sortItems();
       }
     }
     public initResponsivityManager(container: HTMLDivElement): void {

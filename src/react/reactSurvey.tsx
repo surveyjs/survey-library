@@ -6,10 +6,10 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyLocStringViewer } from "./string-viewer";
 import { SurveyHeader } from "./components/survey-header/survey-header";
 import { SurveyTimerPanel } from "./reacttimerpanel";
-import { SurveyNavigation } from "./reactSurveyNavigation";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
 import { doKey2ClickBlur, doKey2ClickDown } from "../utils/utils";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -224,7 +224,7 @@ export class Survey extends SurveyElementBase<any, any>
     ) {
       return null;
     }
-    return <SurveyNavigation survey={this.survey} css={this.css} />;
+    return <SurveyActionBar model={this.survey.navigationBar} />;
   }
   protected renderEmptySurvey(): JSX.Element {
     return <span>{this.survey.emptySurveyText}</span>;
@@ -267,6 +267,7 @@ export class Survey extends SurveyElementBase<any, any>
       }
       if (key == "css") {
         this.survey.mergeValues(newProps.css, this.survey.getCss());
+        this.survey["updateNavigationItemCss"]();
         this.survey["updateElementCss"]();
         continue;
       }

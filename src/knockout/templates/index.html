@@ -21,8 +21,7 @@
                   <!-- /ko -->
                   <!-- /ko -->
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
-                  <!-- ko template: { name: 'survey-navigation' } -->
-                  <!-- /ko -->
+                    <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->
                   <!-- ko if: activePage -->
                     <div data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }"></div>
@@ -40,8 +39,7 @@
                   <!-- /ko -->
                   <!-- /ko -->
                   <!-- ko if: isNavigationButtonsShowingOnBottom -->
-                  <!-- ko template: { name: 'survey-navigation' } -->
-                  <!-- /ko -->
+                    <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->
               </div>
               <!-- /ko -->
@@ -65,14 +63,5 @@
               <!-- /ko -->
           </div>
       </form>
-  </div>
-</script>
-<script type="text/html" id="survey-navigation">
-  <div data-bind="css: css.footer">
-      <input type="button" data-bind="value: startSurveyText, click: start, visible: isShowStartingPage, css: cssNavigationStart"/>
-      <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPagePrevText.koRenderedHtml, click: prevPage, visible: isShowPrevButton, css: cssNavigationPrev" />
-      <input type="button" data-bind="event: { mousedown: nextPageMouseDown }, value: locPageNextText.koRenderedHtml, click: nextPageUIClick, visible: isShowNextButton, css: cssNavigationNext" />
-      <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locPreviewText.koRenderedHtml, click: showPreview, visible: isPreviewButtonVisible, css: cssNavigationPreview" />
-      <input type="button" data-bind="event: { mousedown: navigationMouseDown }, value: locCompleteText.koRenderedHtml, click: completeLastPage, visible: isCompleteButtonVisible, css: cssNavigationComplete" />
   </div>
 </script>

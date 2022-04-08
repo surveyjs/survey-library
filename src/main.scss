@@ -665,9 +665,24 @@ body {
       }
 
       .sv_nav {
+        display: block;
         padding: 1em 0;
         min-height: $base-line-height;
-
+        .sv_nav_btn {
+          float: right;
+          margin: 0 16px;
+        }
+        .sv-action {
+          display: block;
+        }
+        .sv-action:not(:last-child) {
+          .sv-action__content {
+            padding: 0;
+          }
+        }
+        .sv-action__content {
+          display: block;
+        }
         .sv_start_btn,
         .sv_next_btn,
         .sv_complete_btn {

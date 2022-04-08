@@ -98,5 +98,54 @@ registerMarkupTests(
     },
     snapshot: "imagepicker-labels",
   },
+  {
+    name: "Test image picker no-image markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "#item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": ""
+            }
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "imagepicker-no-image",
+  }
+  ,
+  {
+    name: "Test image picker no-image V2 markup",
+    json: {
+      questions: [
+        {
+          "type": "imagepicker",
+          "name": "question1",
+          "choices": [
+            {
+              "value": "item1",
+              "imageLink": "#item1.jpg"
+            },
+            {
+              "value": "item2",
+              "imageLink": ""
+            }
+          ],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "imagepicker-no-image-v2",
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
   ]
 );

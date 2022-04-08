@@ -9,11 +9,13 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
   }
 
   protected renderElement(): JSX.Element {
-    return (
-      <span
-        className={this.question.cssClasses.iconDrag}
-      />
-    );
+    if(this.question.iconDragElement) {
+      return (<svg className={this.question.cssClasses.dragElementDecorator} >
+        <use xlinkHref={this.question.iconDragElement}></use>
+      </svg>);
+    } else {
+      return (<span className={this.question.cssClasses.iconDrag} />);
+    }
   }
 }
 

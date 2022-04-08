@@ -6,7 +6,7 @@ import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
-import { classesToSelector } from "./utils/utils";
+import { classesToSelector, propertiesAreDefault } from "./utils/utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   constructor(
@@ -248,10 +248,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   private get isResponsive() {
     return this.isResponsiveValue && this.isDefaultV2Theme;
   }
+  private get responsivePropertiesAreDefault(): boolean {
+    return this.propertiesAreDefault(["minImageHeight", "maxImageHeight", "minImageWidth", "maxImageWidth"]);
+  }
+  private get staticPropertiesAreDefault(): boolean {
+    return this.propertiesAreDefault(["imageHeight", "imageWidth"]);
+  }
+  private propertiesAreDefault(props: string[]): boolean {
+    return propertiesAreDefault(this, props);
+  }
   private calcIsReponsive() {
-    const isImageWidthDefault = Serializer.findProperty("imagepicker", "imageHeight").isDefaultValue(this.imageHeight);
-    const isImageHeightDefault = Serializer.findProperty("imagepicker", "imageWidth").isDefaultValue(this.imageWidth);
-    this.isResponsiveValue = isImageWidthDefault && isImageHeightDefault && this.colCount === 0;
+    this.isResponsiveValue = this.staticPropertiesAreDefault && this.colCount === 0;
   }
 
   protected getObservedElementSelector(): string {
@@ -326,6 +333,16 @@ Serializer.addProperty("imageitemvalue", {
   serializationProperty: "locImageLink",
 });
 
+function visibleIfResponsive(isResponsive: boolean) {
+  return (obj: any) => {
+    if(obj.staticPropertiesAreDefault && obj.responsivePropertiesAreDefault) {
+      return true;
+    } else {
+      return obj.isResponsive == isResponsive;
+    }
+  };
+}
+
 Serializer.addClass(
   "imagepicker",
   [
@@ -346,12 +363,12 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 },
-    { name: "minImageWidth:number", default: 200, minValue: 0 },
-    { name: "minImageHeight:number", default: 133, minValue: 0 },
-    { name: "maxImageWidth:number", default: 400, minValue: 0 },
-    { name: "maxImageHeight:number", default: 266, minValue: 0 },
+    { name: "imageHeight:number", default: 150, minValue: 0, visibleIf: visibleIfResponsive(false) },
+    { name: "imageWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(false) },
+    { name: "minImageWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "minImageHeight:number", default: 133, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "maxImageWidth:number", default: 400, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "maxImageHeight:number", default: 266, minValue: 0, visibleIf: visibleIfResponsive(true) },
 
   ],
   function() {
@@ -367,6 +384,7 @@ Serializer.addProperty("imagepicker", {
   name: "colCount:number",
   default: 0,
   choices: [0, 1, 2, 3, 4, 5],
+  visibleIf: visibleIfResponsive(false)
 });
 Serializer.addProperty("imagepicker", {
   name: "multiSelect:boolean",

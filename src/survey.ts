@@ -2031,6 +2031,10 @@ export class SurveyModel extends SurveyElementCore
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
   }
+  /**
+   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
+   * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
+  */
   public addNavigationItem(val: IAction): Action {
     if(!val.component) {
       val.component = "sv-nav-btn";

@@ -384,10 +384,10 @@ Serializer.addClass(
     },
     { name: "imageHeight:number", default: 150, minValue: 0 },
     { name: "imageWidth:number", default: 200, minValue: 0 },
-    { name: "minImageWidth:number", default: 200, minValue: 0 },
-    { name: "minImageHeight:number", default: 133, minValue: 0 },
-    { name: "maxImageWidth:number", default: 400, minValue: 0 },
-    { name: "maxImageHeight:number", default: 266, minValue: 0 },
+    { name: "minImageWidth:number", default: 200, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "minImageHeight:number", default: 133, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageWidth:number", default: 400, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageHeight:number", default: 266, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
 
   ],
   function() {

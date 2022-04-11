@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionCheckboxBase } from "./question_baseselect";
+import { QuestionCheckboxBase, QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -58,7 +58,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "isResponsive"], ()=>{
+    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount"], ()=>{
       if(!!this._width) {
         this.processResponsiveness(0, this._width);
       }
@@ -232,12 +232,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected convertDefaultValue(val: any): any {
     return val;
   }
-  public get hasColumns(): boolean {
-    return false;
-  }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
   }
+
+  protected isFootChoice(_item: ItemValue, _question: QuestionSelectBase): boolean {
+    return false;
+  }
+  public getSelectBaseRootCss(): string {
+    return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1).toString();
+  }
+
   //responsive mode
   @property({}) private isResponsiveValue = false;
   @property({}) public maxImageWidth: number;
@@ -279,26 +284,50 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this._width && this.processResponsiveness(0, this._width);
   }
 
+  @property({}) private responsiveColCount: number;
+
+  protected getCurrentColCount(): number {
+    if(this.responsiveColCount === undefined) {
+      return this.colCount;
+    }
+    return this.responsiveColCount;
+  }
+
   protected processResponsiveness(_: number, availableWidth: number): void {
     this._width = availableWidth;
-    availableWidth = Math.floor(availableWidth - 1);
-    if(this.colCount === 0 && this.isResponsive) {
+    const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
+      let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
+      if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
+      return itemsInRow;
+    };
+    if(this.isResponsive) {
       const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
       const gap = this.gapBetweenItems || 0;
       const minWidth = this.minImageWidth;
       const maxWidth = this.maxImageWidth;
       const maxHeight = this.maxImageHeight;
       const minHeight = this.minImageHeight;
+      let colCount = this.colCount;
       let width: number;
-      if ((gap + minWidth) * itemsCount - gap > availableWidth) {
-        let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
-        if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
-        width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
-        this.responsiveImageWidth = width;
+      if(colCount === 0) {
+        if ((gap + minWidth) * itemsCount - gap > availableWidth) {
+          let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
+          if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
+          width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
+        } else {
+          width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
+        }
       } else {
-        width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
-        this.responsiveImageWidth = (width > maxWidth ? maxWidth : width);
+        const availableColumnsCount = calcAvailableColumnsCount(availableWidth, minWidth, gap);
+        if(availableColumnsCount < colCount) {
+          this.responsiveColCount = availableColumnsCount >= 1 ? availableColumnsCount : 1;
+          colCount = this.responsiveColCount;
+        } else {
+          this.responsiveColCount = colCount;
+        }
+        width = Math.floor((availableWidth - gap * (colCount - 1)) / colCount);
       }
+      this.responsiveImageWidth = width = Math.max(minWidth, Math.min(width, maxWidth));
       let height: number = Number.MIN_VALUE;
       this.choices.forEach((item:ImageItemValue) => {
         const tempHeight = width / item["aspectRatio"];
@@ -333,16 +362,6 @@ Serializer.addProperty("imageitemvalue", {
   serializationProperty: "locImageLink",
 });
 
-function visibleIfResponsive(isResponsive: boolean) {
-  return (obj: any) => {
-    if(obj.staticPropertiesAreDefault && obj.responsivePropertiesAreDefault) {
-      return true;
-    } else {
-      return obj.isResponsive == isResponsive;
-    }
-  };
-}
-
 Serializer.addClass(
   "imagepicker",
   [
@@ -363,12 +382,12 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0, visibleIf: visibleIfResponsive(false) },
-    { name: "imageWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(false) },
-    { name: "minImageWidth:number", default: 200, minValue: 0, visibleIf: visibleIfResponsive(true) },
-    { name: "minImageHeight:number", default: 133, minValue: 0, visibleIf: visibleIfResponsive(true) },
-    { name: "maxImageWidth:number", default: 400, minValue: 0, visibleIf: visibleIfResponsive(true) },
-    { name: "maxImageHeight:number", default: 266, minValue: 0, visibleIf: visibleIfResponsive(true) },
+    { name: "imageHeight:number", default: 150, minValue: 0 },
+    { name: "imageWidth:number", default: 200, minValue: 0 },
+    { name: "minImageWidth:number", default: 200, minValue: 0 },
+    { name: "minImageHeight:number", default: 133, minValue: 0 },
+    { name: "maxImageWidth:number", default: 400, minValue: 0 },
+    { name: "maxImageHeight:number", default: 266, minValue: 0 },
 
   ],
   function() {
@@ -384,7 +403,6 @@ Serializer.addProperty("imagepicker", {
   name: "colCount:number",
   default: 0,
   choices: [0, 1, 2, 3, 4, 5],
-  visibleIf: visibleIfResponsive(false)
 });
 Serializer.addProperty("imagepicker", {
   name: "multiSelect:boolean",

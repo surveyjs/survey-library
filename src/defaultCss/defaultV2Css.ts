@@ -255,8 +255,8 @@ export var defaultV2Css = {
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
-    root: "sd-imagepicker",
-    rootResponsive: "sd-imagepicker--responsive",
+    root: "sd-selectbase sd-imagepicker",
+    rootColumn: "sd-imagepicker--column",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
     itemInline: "sd-imagepicker__item--inline",
@@ -274,6 +274,7 @@ export var defaultV2Css = {
     itemNoImage: "sd-imagepicker__no-image",
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
     itemNoImageSvgIconId: "#icon-no-image",
+    column: "sd-selectbase__column sd-imagepicker__column",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",

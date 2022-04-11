@@ -1,9 +1,21 @@
 ﻿<script type="text/html" id="survey-question-imagepicker">
-    <fieldset data-bind="css: question.koCss().root">
+    <fieldset data-bind="css: question.getSelectBaseRootCss()">
         <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }" role="radio"></legend>
-        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->
+        <!-- ko ifnot: question.hasColumns -->
+          <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->
+          <!-- /ko -->
+          <!-- /ko -->
         <!-- /ko -->
+        <!-- ko if: question.hasColumns -->
+            <!-- ko foreach: question.columns -->
+            <div data-bind="css: question.getColumnClass()" role="presentation">
+              <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
+                <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->
+                <!-- /ko -->
+              <!-- /ko -->
+              </div>
+          <!-- /ko -->
         <!-- /ko -->
     </fieldset>
 </script>

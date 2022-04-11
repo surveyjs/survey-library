@@ -61,6 +61,43 @@ frameworks.forEach(framework => {
     await t.resizeWindow(500, 1500);
     await checkElementScreenshot("imagepicker-responsive-min.png", Selector(".sd-question"), t);
   });
+  test("Check image picker responsive, colCount !== 0", async (t) => {
+    await t.resizeWindow(1920, 1500);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      widthMode: "responsive",
+      questions: [
+        {
+          type: "imagepicker",
+          name: "choosepicture",
+          title: "Imagepicker",
+          colCount: 3,
+          choices: [{
+            value: "lion",
+            imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+          },
+          {
+            value: "giraffe",
+            imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+          },
+          {
+            value: "panda",
+            imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+          },
+          {
+            value: "camel",
+            imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+          },
+          ]
+        }
+      ]
+    });
+    await ClientFunction(() => { document.body.focus(); })();
+    await t.wait(1000);
+    await checkElementScreenshot("imagepicker-responsive-col-count-3.png", Selector(".sd-question"), t);
+    await ClientFunction(() => { (<any>window).survey.getAllQuestions()[0].colCount = 1; })();
+    await checkElementScreenshot("imagepicker-responsive-col-count-1.png", Selector(".sd-question"), t);
+  });
   test("Check image picker question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

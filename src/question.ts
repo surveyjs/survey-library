@@ -1882,7 +1882,7 @@ export class Question extends SurveyElement
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+            this.processResponsiveness(requiredWidth, Math.floor(rootEl.getBoundingClientRect().width));
           }
         });
         this.resizeObserver.observe(el);

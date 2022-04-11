@@ -15,14 +15,32 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
-      <fieldset className={cssClasses.root}>
+      <fieldset className={this.question.getSelectBaseRootCss()}>
         <legend
           role="radio"
           aria-label={this.question.locTitle.renderedHtml} />
-        {this.getItems(cssClasses)}
+        {this.question.hasColumns ? this.getColumns(cssClasses) : this.getItems(cssClasses)}
       </fieldset>
     );
   }
+
+  protected getColumns(cssClasses: any) {
+    return this.question.columns.map((column: any, ci: number) => {
+      var items = column.map((item: any, ii: number) =>
+        this.renderItem(
+          "item" + ii,
+          item,
+          cssClasses
+        )
+      );
+      return (
+        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+          {items}
+        </div>
+      );
+    });
+  }
+
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {

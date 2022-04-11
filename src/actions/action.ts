@@ -6,98 +6,114 @@ import { defaultActionBarCss } from "./container";
 export type actionModeType = "large" | "small" | "popup";
 
 /**
- * Defines an individual action. Action items can be displayed in certain survey elements - in Toolbar (or action bar), in titles (of pages, panels, questions), in matrix rows (as 'expand details' or 'remove row' buttons), and etc.
+ * An action item.
+ * Action items are used in Toolbar, matrix rows, titles of pages, panels, and questions, and in other survey elements.
  */
 export interface IAction {
   /**
-   * Unique string id
+   * A unique action item identifier.
    */
   id: string;
   /**
-   * Set this property to false to make the toolbar item invisible.
+   * Specifies the action item's visibility.
+   * @see enabled
+   * @see active
    */
   visible?: boolean;
   /**
-   * Toolbar item title
+   * The action item's title.
+   * @see showTitle
+   * @see disableShrink
    */
   title?: string;
   /**
-   * Toolbar item tooltip
+   * The action item's tooltip.
    */
   tooltip?: string;
   /**
-   * Set this property to false to disable the toolbar item.
+   * Specifies whether users can interact with the action item.
+   * @see active
+   * @see visible
    */
   enabled?: boolean;
   /**
-   * Set this property to false to hide the toolbar item title.
+   * Specifies the visibility of the action item's title.
+   * @see title
+   * @see disableShrink
    */
   showTitle?: boolean;
   /**
-   * A callback that calls on toolbar item click.
+   * A function that is executed when users click the action item.
    */
   action?: (context?: any) => void;
   /**
-   * Toolbar item css class
+   * One or several CSS classes that you want to apply to the outer `<div>` element.
+   * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `css` property applies classes to the `<div>`.
+   * To apply several classes, separate them with a space character: "myclass1 myclass2".
+   * @see innerCss
    */
   css?: string;
   /**
-   * Toolbar inner element css class
+   * One or several CSS classes that you want to apply to the inner `<input>` element.
+   * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`.
+   * To apply several classes, separate them with a space character: "myclass1 myclass2".
+   * @see css
    */
   innerCss?: string;
   /**
-   * Toolbar item data object. Used as data for custom template or component rendering
+   * The action item's data object. Use it to pass required data to a custom template or component.
    */
   data?: any;
   popupModel?: any; //TODO: temp, use data instead
   needSeparator?: boolean; //TODO: temp
   /**
-   * Set this property to true to activate the toolbar item (page)
+   * Specifies whether the action item is active.
+   * Use it as a flag to specify different action item appearances in different states.
+   * @see enabled
+   * @see visible
    */
   active?: boolean;
   pressed?: boolean;
   /**
-   * Toolbar item template name
+   * Specifies the name of a template used to render the action item.
+   * @see component
    */
   template?: string;
   /**
-   * Toolbar item component name
+   * Specifies the name of a component used to render the action item.
    */
   component?: string;
   /**
-   * Toolbar item icon name
+   * The action item's icon name.
+   * @see iconSize
    */
   iconName?: string;
   /**
-   * Toolbar item icon size
+   * The action item's icon size in pixels.
+   * @see iconName
    */
   iconSize?: number;
   /**
-   * Toolbar item child items. Can be used as contianer for options
-   */
-  items?: any;
-  /**
-   * Gets or sets an action's location in a matrix question's row.
+   * The action item's location in a matrix question's row.
    *
-   * The following options are available:
+   * The following values are available:
    *
-   * - `start` - An action is located at the beginning of a row.
-   * - `end` - An action is located at the end of a row.
+   * - `"start"` - The action item is located at the beginning of the row.
+   * - `"end"` - The action is located at the end of the row.
    */
   location?: string;
   /**
-   * Set it to true to make the tabIndex -1 to disable keyboard navigation to this item
+   * Set this property to `true` if you want to disable keyboard navigation for the action item (sets the `tabIndex` attribute to -1).
    */
   disableTabStop?: boolean;
 
   /**
-   * Set it to false to force action "large" mode even if has icon and does not fit to action bar space
+   * Set this property to `true` if you want the item's `title` to be always visible.
+   * If you set it to `false`, the `title` hides when the screen space is limited, and the item displays only the icon.
+   * @see title
+   * @see iconName
    */
   disableShrink?: boolean;
-
-  /**
-   * Action button display mode
-   */
   mode?: actionModeType;
   visibleIndex?: number;
   needSpace?: boolean;

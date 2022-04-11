@@ -143,6 +143,11 @@
         {
           "Name": "questionpaneldynamicmodel",
           "Title": "Panel Dynamic"
+        },
+        {
+          "Name": "IAction",
+          "Title": "IAction",
+          "IsHidden": true
         }
       ]
     }

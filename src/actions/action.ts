@@ -7,7 +7,8 @@ export type actionModeType = "large" | "small" | "popup";
 
 /**
  * An action item.
- * Action items are used in Toolbar, matrix rows, titles of pages, panels, and questions, and in other survey elements.
+ * Action items are used in the Toolbar, matrix rows, titles of pages, panels, questions, and other survey elements.
+
  */
 export interface IAction {
   /**

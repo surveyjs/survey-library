@@ -267,7 +267,7 @@ export class Survey extends SurveyElementBase<any, any>
       }
       if (key == "css") {
         this.survey.mergeValues(newProps.css, this.survey.getCss());
-        this.survey["updateNavigationItemCss"]();
+        this.survey["updateNavigationCss"]();
         this.survey["updateElementCss"]();
         continue;
       }

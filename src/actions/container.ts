@@ -71,6 +71,9 @@ export class ActionContainer<T extends Action = Action> extends Base {
     }
     public set cssClasses(val: any) {
       this.cssClassesValue = val;
+      this.actions.forEach((action: T) => {
+        this.setActionCssClasses(action);
+      });
     }
     public get cssClasses(): any {
       return this.cssClassesValue || defaultActionBarCss;

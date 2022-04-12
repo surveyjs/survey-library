@@ -1164,6 +1164,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
+    this.updateNavigationCss();
     this.updateCompletedPageCss();
   }
   public get css(): any {
@@ -1176,7 +1177,6 @@ export class SurveyModel extends SurveyElementCore
   public set css(value: any) {
     this.mergeValues(value, this.css);
     this.updateCss();
-    this.updateNavigationItemCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -5306,19 +5306,25 @@ export class SurveyModel extends SurveyElementCore
 
   private updateNavigationItemTitlesCallback: (strName?: string) => void;
 
-  private updateNavigationItemCss() {
-    !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
+  private updateNavigationCss() {
+    if(!!this.navigationBar) {
+      this.updateNavigationBarCss();
+      !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
+    }
   }
 
   private updateNavigationItemCssCallback: (strName?: string) => void;
 
-  protected createNavigationBar(): ActionContainer {
-    const res = new ActionContainer();
+  private updateNavigationBarCss() {
+    const val = this.navigationBar;
     const cssClasses = this.css.actionBar;
     if (!!cssClasses) {
-      res.cssClasses = cssClasses;
+      val.cssClasses = cssClasses;
     }
-    res.containerCss = this.css.footer;
+    val.containerCss = this.css.footer;
+  }
+  protected createNavigationBar(): ActionContainer {
+    const res = new ActionContainer();
     res.setItems(this.createNavigationActions());
     return res;
   }
@@ -5392,7 +5398,6 @@ export class SurveyModel extends SurveyElementCore
       navPreview.innerCss = this.cssNavigationPreview;
       navComplete.innerCss = this.cssNavigationComplete;
     };
-    this.updateNavigationItemCssCallback();
     return [navStart, navPrev, navNext, navPreview, navComplete];
   }
   protected onBeforeCreating() { }

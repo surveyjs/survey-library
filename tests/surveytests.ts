@@ -14654,9 +14654,9 @@ QUnit.test("Check default navigation items relevance", function (assert) {
       }
     ]
   });
-  survey.css = { navigationButton: "custom-css" };
+  survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
-  assert.ok(action.innerCss.includes("custom-css"));
+  assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
   assert.equal(action.title, "Начать");
   survey.locale = "en";
@@ -14675,4 +14675,17 @@ QUnit.test("Check rootCss property", function (assert) {
   });
   survey.css = { root: "test-root-class" };
   assert.equal(survey.rootCss, "test-root-class");
+});
+
+QUnit.test("Check navigation bar css update", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { actionBar: { root: "custom-navigation" }, footer: "custom-footer" };
+  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });

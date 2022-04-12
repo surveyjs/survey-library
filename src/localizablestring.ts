@@ -37,6 +37,7 @@ export class LocalizableString implements ILocalizableString {
   public localizationName: string;
   public onGetTextCallback: (str: string) => string;
   public onGetDefaultTextCallback: () => string;
+  public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
@@ -102,6 +103,9 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!res && !!this.localizationName) {
       res = this.getLocalizationStr();
+      if(!!this.onGetLocalizationTextCallback) {
+        res = this.onGetLocalizationTextCallback(res);
+      }
     }
     if (!res) res = "";
     return res;

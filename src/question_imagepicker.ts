@@ -58,8 +58,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], ()=>{
-      if(!!this._width) {
+    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
+      if (!!this._width) {
         this.processResponsiveness(0, this._width);
       }
     });
@@ -90,7 +90,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return false;
   }
   public isAnswerCorrect(): boolean {
-    if(!this.multiSelect) return super.isAnswerCorrect();
+    if (!this.multiSelect) return super.isAnswerCorrect();
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
   /**
@@ -275,7 +275,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
   private onContentLoaded = (item: ImageItemValue, event: any) => {
     const content: any = event.target;
-    if(this.contentMode == "video") {
+    if (this.contentMode == "video") {
       item["aspectRatio"] = content.videoWidth / content.videoHeight;
     } else {
       item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
@@ -286,7 +286,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveColCount: number;
 
   protected getCurrentColCount(): number {
-    if(this.responsiveColCount === undefined) {
+    if (this.responsiveColCount === undefined || this.colCount === 0) {
       return this.colCount;
     }
     return this.responsiveColCount;
@@ -296,10 +296,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this._width = availableWidth;
     const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
       let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
-      if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
+      if ((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow++;
       return itemsInRow;
     };
-    if(this.isResponsive) {
+    if (this.isResponsive) {
       const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
       const gap = this.gapBetweenItems || 0;
       const minWidth = this.minImageWidth;
@@ -308,7 +308,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       const minHeight = this.minImageHeight;
       let colCount = this.colCount;
       let width: number;
-      if(colCount === 0) {
+      if (colCount === 0) {
         if ((gap + minWidth) * itemsCount - gap > availableWidth) {
           let itemsInRow = calcAvailableColumnsCount(availableWidth, minWidth, gap);
           width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
@@ -317,7 +317,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         }
       } else {
         const availableColumnsCount = calcAvailableColumnsCount(availableWidth, minWidth, gap);
-        if(availableColumnsCount < colCount) {
+        if (availableColumnsCount < colCount) {
           this.responsiveColCount = availableColumnsCount >= 1 ? availableColumnsCount : 1;
           colCount = this.responsiveColCount;
         } else {
@@ -327,11 +327,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       }
       this.responsiveImageWidth = width = Math.max(minWidth, Math.min(width, maxWidth));
       let height: number = Number.MIN_VALUE;
-      this.choices.forEach((item:ImageItemValue) => {
+      this.choices.forEach((item: ImageItemValue) => {
         const tempHeight = width / item["aspectRatio"];
         height = tempHeight > height ? tempHeight : height;
       });
-      if(height > maxHeight) {
+      if (height > maxHeight) {
         this.responsiveImageHeight = maxHeight;
       } else if (height < minHeight) {
         this.responsiveImageHeight = minHeight;
@@ -344,7 +344,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public afterRender(el: HTMLElement): void {
     super.afterRender(el);
     const variables = this.survey.getCss().variables;
-    if(!!variables) {
+    if (!!variables) {
       this.gapBetweenItems = Number.parseInt(window.getComputedStyle(el).getPropertyValue(variables.imagepickerGapBetweenItems)) || 0;
     }
   }
@@ -393,7 +393,7 @@ Serializer.addClass(
     { name: "maxImageHeight:responsiveImageSize", default: 266, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
 
   ],
-  function() {
+  function () {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"

@@ -18,9 +18,9 @@ const targetRect = {
 
 //TODO: disable setTimeout when testing
 const toggleVisibility = PopupModel.prototype.toggleVisibility;
-PopupModel.prototype.toggleVisibility = function() {
+PopupModel.prototype.toggleVisibility = function () {
   var prevSetTimeout = window.setTimeout;
-  (<any>window).setTimeout = function(callback: any) {
+  (<any>window).setTimeout = function (callback: any) {
     callback();
   };
   toggleVisibility.apply(this, arguments);
@@ -112,28 +112,19 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--left"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
 
   viewModel.popupDirection = "down";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--down"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--down");
 
   model.showPointer = false;
-  assert.equal(viewModel.styleClass, "my-css-class");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -840,13 +831,12 @@ QUnit.test(
     assert.equal(newVerticalDimensions.top, 0);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
-
   }
 );
 
@@ -890,7 +880,7 @@ QUnit.test("PopupModel displayMode", (assert) => {
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.isModal = true;
   assert.equal(viewModel.showFooter, true);
   assert.equal(viewModel.styleClass, "sv-popup--modal");

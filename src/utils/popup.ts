@@ -16,6 +16,8 @@ export interface ISize {
 }
 
 export class PopupUtils {
+  public static bottomIndent = 16;
+
   public static calculatePosition(
     targetRect: ClientRect,
     height: number,
@@ -56,7 +58,7 @@ export class PopupUtils {
     if (top < 0) {
       result = { height: height + top, top: 0 };
     } else if (height + top > windowHeight) {
-      let newHeight = Math.min(height, windowHeight - top);
+      let newHeight = Math.min(height, windowHeight - top - PopupUtils.bottomIndent);
       result = { height: newHeight, top: top };
     }
     return result;

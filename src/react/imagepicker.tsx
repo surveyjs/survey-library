@@ -148,7 +148,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           height={ this.question.renderedImageHeight }
           alt={item.locText.renderedHtml}
           style={style}
-          onLoad={(event: any) => { this.question["onImageLoaded"](item, event.nativeEvent); }}
+          onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         />
       );
     }
@@ -160,6 +160,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           style={style}
+          onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         ></video>
       );
     }

@@ -270,14 +270,18 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return true;
   }
   protected needResponsiveness() {
-    return this.supportResponsiveness() && this.isDefaultV2Theme && this.contentMode == "image";
+    return this.supportResponsiveness() && this.isDefaultV2Theme;
   }
 
   private _width: number;
 
-  private onImageLoaded = (item: ImageItemValue, event: any) => {
-    const img: HTMLImageElement = event.target;
-    item["aspectRatio"] = img.naturalWidth / img.naturalHeight;
+  private onContentLoaded = (item: ImageItemValue, event: any) => {
+    const content: any = event.target;
+    if(this.contentMode == "video") {
+      item["aspectRatio"] = content.videoWidth / content.videoHeight;
+    } else {
+      item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
+    }
     this._width && this.processResponsiveness(0, this._width);
   }
 

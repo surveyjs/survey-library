@@ -153,10 +153,6 @@ QUnit.test("check isResponsive getter", function(assert) {
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   assert.ok(question["isResponsive"]);
-  question.imageWidth = 159;
-  assert.notOk(question["isResponsive"]);
   question.imageWidth = 200;
-  assert.ok(question["isResponsive"]);
-  question.imageHeight = 159;
   assert.notOk(question["isResponsive"]);
 });

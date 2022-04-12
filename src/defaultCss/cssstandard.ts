@@ -279,6 +279,7 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
+    column: "sv_q_select_column"
   },
   rating: {
     root: "sv_q_rating",

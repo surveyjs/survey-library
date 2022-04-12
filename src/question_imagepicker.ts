@@ -190,7 +190,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveImageHeight: number;
   public get renderedImageHeight() {
     const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
-    return height ? height + "px" : undefined;
+    return (height ? height : 150) + "px";
   }
   /**
    * The image width.
@@ -206,7 +206,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth() {
     const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
-    return width ? width + "px" : undefined;
+    return (width ? width : 200) + "px";
   }
   /**
    * The image fit mode.
@@ -252,9 +252,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
   private get isResponsive() {
     return this.isResponsiveValue && this.isDefaultV2Theme;
-  }
-  private get responsivePropertiesAreDefault(): boolean {
-    return this.propertiesAreDefault(["minImageHeight", "maxImageHeight", "minImageWidth", "maxImageWidth"]);
   }
   private get staticPropertiesAreDefault(): boolean {
     return this.propertiesAreDefault(["imageHeight", "imageWidth"]);
@@ -387,8 +384,8 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 },
+    { name: "imageHeight:number", minValue: 0 },
+    { name: "imageWidth:number", minValue: 0 },
     { name: "minImageWidth:responsiveImageSize", default: 200, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
     { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
     { name: "maxImageWidth:responsiveImageSize", default: 400, minValue: 0, visibleIf: () => settings.supportCreatorV2 },

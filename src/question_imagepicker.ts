@@ -255,13 +255,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.isResponsiveValue && this.isDefaultV2Theme;
   }
   private get exactSizesAreEmpty(): boolean {
-    const props = ["imageHeight", "imageWidth"];
-    for (let i = 0; i < props.length; i++) {
-      if(this[props[i]] !== undefined && this[props[i]] !== null) {
-        return false;
-      }
-    }
-    return true;
+    return !(["imageHeight", "imageWidth"].some(propName => this[propName] !== undefined && this[propName] !== null));
   }
   private calcIsResponsive() {
     this.isResponsiveValue = this.exactSizesAreEmpty;

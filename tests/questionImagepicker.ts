@@ -155,4 +155,50 @@ QUnit.test("check isResponsive getter", function(assert) {
   assert.ok(question["isResponsive"]);
   question.imageWidth = 200;
   assert.notOk(question["isResponsive"]);
+  question.imageWidth = undefined;
+  question.imageHeight = 150;
+  assert.notOk(question["isResponsive"]);
+});
+
+QUnit.test("check isResponsive getter after end of loading json", function(assert) {
+  let survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+          imageWidth: 200,
+          imageHeight: 150,
+        }
+      ]
+    }
+  );
+  survey.css = defaultV2Css;
+  let q = survey.getAllQuestions()[0];
+  assert.notOk(q.isResponsive);
+  survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  survey.css = defaultV2Css;
+  q = survey.getAllQuestions()[0];
+  assert.ok(q.isResponsive);
 });

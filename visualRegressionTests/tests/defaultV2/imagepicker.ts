@@ -32,7 +32,6 @@ frameworks.forEach(framework => {
           type: "imagepicker",
           name: "choosepicture",
           title: "Imagepicker",
-          isResponsive: true,
           choices: [{
             value: "lion",
             imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
@@ -112,6 +111,8 @@ frameworks.forEach(framework => {
             },
             "item1"
           ],
+          imageWidth: 200,
+          imageHeight: 150,
           "imageFit": "cover"
         }
       ]

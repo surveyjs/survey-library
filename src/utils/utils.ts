@@ -234,15 +234,8 @@ function classesToSelector(str: string): string {
   return str.replace(re, ".$1");
 }
 
-function propertiesAreDefault(obj: Base, props: string[]): boolean {
-  let res = true;
-  props.forEach((propName: string) => { res &&= Serializer.findProperty(obj.getType(), propName).isDefaultValue((<any>obj)[propName]); });
-  return res;
-}
-
 export {
   classesToSelector,
-  propertiesAreDefault,
   compareVersions,
   confirmAction,
   detectIEOrEdge,

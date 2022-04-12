@@ -6,7 +6,7 @@ import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
-import { classesToSelector, propertiesAreDefault } from "./utils/utils";
+import { classesToSelector } from "./utils/utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   constructor(
@@ -64,9 +64,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       }
     });
     this.registerFunctionOnPropertiesValueChanged(["imageWidth", "imageHeight"], () => {
-      this.calcIsReponsive();
+      this.calcIsResponsive();
     });
-    this.calcIsReponsive();
+    this.calcIsResponsive();
   }
   public getType(): string {
     return "imagepicker";
@@ -156,6 +156,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.createNewArray("renderedValue");
       this.createNewArray("value");
     }
+    this.calcIsResponsive();
   }
   protected getValueCore() {
     var value = super.getValueCore();
@@ -253,14 +254,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   private get isResponsive() {
     return this.isResponsiveValue && this.isDefaultV2Theme;
   }
-  private get staticPropertiesAreDefault(): boolean {
-    return this.propertiesAreDefault(["imageHeight", "imageWidth"]);
+  private get exactSizesAreEmpty(): boolean {
+    const props = ["imageHeight", "imageWidth"];
+    for (let i = 0; i < props.length; i++) {
+      if(this[props[i]] !== undefined && this[props[i]] !== null) {
+        return false;
+      }
+    }
+    return true;
   }
-  private propertiesAreDefault(props: string[]): boolean {
-    return propertiesAreDefault(this, props);
-  }
-  private calcIsReponsive() {
-    this.isResponsiveValue = this.staticPropertiesAreDefault && this.colCount === 0;
+  private calcIsResponsive() {
+    this.isResponsiveValue = this.exactSizesAreEmpty;
   }
 
   protected getObservedElementSelector(): string {

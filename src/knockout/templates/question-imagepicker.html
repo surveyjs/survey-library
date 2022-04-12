@@ -14,12 +14,22 @@
             />
             <div data-bind="css: question.koCss().itemDecorator">
                 <div data-bind="css: question.koCss().imageContainer">
-                  <!-- ko if: question.contentMode === "image" -->
+                  <!-- ko if: $data.locImageLink.koRenderedHtml() && question.contentMode === "image" -->
                   <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
                   <!-- /ko -->
-                  <!-- ko if: question.contentMode === "video" -->
+                  <!-- ko if: $data.locImageLink.koRenderedHtml() && question.contentMode === "video" -->
                   <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }"></video>
                   <!-- /ko -->
+                  <!-- ko ifnot: $data.locImageLink.koRenderedHtml() -->
+                  <div data-bind="css: question.koCss().itemNoImage, style: {width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit}">
+                    <!-- ko if: question.koCss().itemNoImageSvgIconId -->
+                    <svg data-bind="css:question.koCss().itemNoImageSvgIcon">
+                      <use data-bind="attr:{'xlink:href':question.koCss().itemNoImageSvgIconId}" xlink:href=''></use>
+                    </svg>
+                    <!-- /ko -->
+                  </div>
+                  <!-- /ko -->
+                  
                 </div>
                 <!-- ko if: question.showLabel -->
                 <span data-bind="css: question.koCss().itemText">

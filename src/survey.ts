@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base, EventBase, ComputedUpdater } from "./base";
 import {
   ISurvey,
   ISurveyData,
@@ -41,9 +41,9 @@ import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
 import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
-import { IAction } from "./actions/action";
+import { IAction, Action } from "./actions/action";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { element } from "angular";
 
 /**
  * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
@@ -92,6 +92,8 @@ export class SurveyModel extends SurveyElementCore
 
   private textPreProcessor: TextPreProcessor;
   private timerModelValue: SurveyTimerModel;
+
+  private navigationBarValue: ActionContainer;
 
   //#region Event declarations
 
@@ -1082,6 +1084,7 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.onCallbacksChanged = () => {
       this.rebuildQuestionChoices();
     };
+    this.navigationBarValue = this.createNavigationBar();
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1096,10 +1099,10 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     this.onCreating();
-    if(!!renderedElement) {
+    if (!!renderedElement) {
       this.render(renderedElement);
     }
-    this.rootCss = this.getRootCss();
+    this.updateCss();
   }
 
   /**
@@ -1154,6 +1157,16 @@ export class SurveyModel extends SurveyElementCore
     return this.css;
   }
   private cssValue: any = null;
+  private updateCompletedPageCss() {
+    this.containerCss = this.css.container;
+    this.completedCss = new CssClassBuilder().append(this.css.body)
+      .append(this.css.completedPage).toString(); // for completed page
+  }
+  private updateCss() {
+    this.rootCss = this.getRootCss();
+    this.updateNavigationCss();
+    this.updateCompletedPageCss();
+  }
   public get css(): any {
     if (!this.cssValue) {
       this.cssValue = {};
@@ -1163,7 +1176,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set css(value: any) {
     this.mergeValues(value, this.css);
-    this.rootCss = this.getRootCss();
+    this.updateCss();
     this.updateElementCss(false);
   }
   public get cssTitle(): string {
@@ -1209,10 +1222,8 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.body + "--" + this.calculateWidthMode()).toString();
   }
-  public get completedCss(): string {
-    return new CssClassBuilder().append(this.css.body)
-      .append(this.css.completedPage).toString();
-  }
+  @property() completedCss: string;
+  @property() containerCss: string;
   public get completedStateCss(): string {
     return this.getPropertyValue("completedStateCss", "");
   }
@@ -1689,6 +1700,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
+    this.updateNavigationItemTitles();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -1729,7 +1741,7 @@ export class SurveyModel extends SurveyElementCore
       page.locStrsChanged();
     }
     const visPages = this.visiblePages;
-    for(var i = 0; i < visPages.length; i ++) {
+    for (var i = 0; i < visPages.length; i++) {
       visPages[i].navigationLocStrChanged();
     }
   }
@@ -1901,9 +1913,9 @@ export class SurveyModel extends SurveyElementCore
 
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
-    if(this.isMobile !== newVal) {
+    if (this.isMobile !== newVal) {
       this._isMobile = newVal;
-      this.rootCss = this.getRootCss();
+      this.updateCss();
       this.getAllQuestions().map(q => q.isMobile = newVal);
     }
   }
@@ -2026,6 +2038,22 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
+  public get navigationBar(): ActionContainer {
+    return this.navigationBarValue;
+  }
+  /**
+   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
+   * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
+  */
+  public addNavigationItem(val: IAction): Action {
+    if (!val.component) {
+      val.component = "sv-nav-btn";
+    }
+    if (!val.innerCss) {
+      val.innerCss = this.css.navigationButton;
+    }
+    return this.navigationBar.addAction(val);
+  }
   /**
    * Gets or sets the 'Start' button caption.
    * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
@@ -2037,6 +2065,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
+    this.updateNavigationItemTitles("startSurveyText");
   }
   get locStartSurveyText(): LocalizableString {
     return this.getLocalizableString("startSurveyText");
@@ -2050,6 +2079,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
+    this.updateNavigationItemTitles("pagePrevText");
   }
   get locPagePrevText(): LocalizableString {
     return this.getLocalizableString("pagePrevText");
@@ -2063,6 +2093,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
+    this.updateNavigationItemTitles("pageNextText");
   }
   get locPageNextText(): LocalizableString {
     return this.getLocalizableString("pageNextText");
@@ -2076,6 +2107,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
+    this.updateNavigationItemTitles("completeText");
   }
   get locCompleteText(): LocalizableString {
     return this.getLocalizableString("completeText");
@@ -2092,6 +2124,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
+    this.updateNavigationItemTitles("previewText");
   }
   get locPreviewText(): LocalizableString {
     return this.getLocalizableString("previewText");
@@ -2597,18 +2630,18 @@ export class SurveyModel extends SurveyElementCore
   valueHashSetDataCallback: (valuesHash: any, key: string, value: any) => void;
   valueHashDeleteDataCallback: (valuesHash: any, key: string) => void;
   private getDataFromValueHash(valuesHash: any, key: string): any {
-    if(!!this.valueHashGetDataCallback) return this.valueHashGetDataCallback(valuesHash, key);
+    if (!!this.valueHashGetDataCallback) return this.valueHashGetDataCallback(valuesHash, key);
     return valuesHash[key];
   }
   private setDataToValueHash(valuesHash: any, key: string, value: any): void {
-    if(!!this.valueHashSetDataCallback) {
+    if (!!this.valueHashSetDataCallback) {
       this.valueHashSetDataCallback(valuesHash, key, value);
     } else {
       valuesHash[key] = value;
     }
   }
   private deleteDataFromValueHash(valuesHash: any, key: string): void {
-    if(!!this.valueHashDeleteDataCallback) {
+    if (!!this.valueHashDeleteDataCallback) {
       this.valueHashDeleteDataCallback(valuesHash, key);
     } else {
       delete valuesHash[key];
@@ -2747,7 +2780,7 @@ export class SurveyModel extends SurveyElementCore
   public get isShowingPage(): boolean {
     return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
   }
-  private updateActivePage() : void {
+  private updateActivePage(): void {
     const newPage = this.isShowStartingPage ? this.startedPage : this.currentPage;
     this.setPropertyValue("activePage", newPage);
   }
@@ -2832,7 +2865,7 @@ export class SurveyModel extends SurveyElementCore
   public get state(): string {
     return this.getPropertyValue("state", "empty");
   }
-  private updateState() : void {
+  private updateState(): void {
     this.setPropertyValue("state", this.calcState());
   }
   private calcState(): string {
@@ -2963,7 +2996,7 @@ export class SurveyModel extends SurveyElementCore
       isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
-    if(options.allowChanging) {
+    if (options.allowChanging) {
       this.isCurrentPageRendering = true;
     }
     return options.allowChanging;
@@ -4123,13 +4156,12 @@ export class SurveyModel extends SurveyElementCore
     } else {
       observedElement = htmlElement;
     }
-
     const cssVariables = this.css.variables;
-    if(!!cssVariables) {
+    if (!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
-      if(!!mobileWidth) {
+      if (!!mobileWidth) {
         this.resizeObserver = new ResizeObserver(() => {
-          if(!observedElement.isConnected) { this.destroyResizeObserver(); }
+          if (!observedElement.isConnected) { this.destroyResizeObserver(); }
           else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
         });
         this.resizeObserver.observe(observedElement);
@@ -4145,7 +4177,7 @@ export class SurveyModel extends SurveyElementCore
     this.setIsMobile(isMobile);
   }
   private destroyResizeObserver() {
-    if(!!this.resizeObserver) {
+    if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
     }
@@ -4176,7 +4208,7 @@ export class SurveyModel extends SurveyElementCore
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode) {
-      setTimeout(()=>this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
+      setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -4890,7 +4922,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].checkBindings(valueName, newValue);
     }
     this.isRunningElementsBindings = false;
-    if(this.updateVisibleIndexAfterBindings) {
+    if (this.updateVisibleIndexAfterBindings) {
       this.updateVisibleIndexes();
       this.updateVisibleIndexAfterBindings = false;
     }
@@ -5211,7 +5243,7 @@ export class SurveyModel extends SurveyElementCore
       this.conditionUpdateVisibleIndexes = true;
       return;
     }
-    if(this.isRunningElementsBindings) {
+    if (this.isRunningElementsBindings) {
       this.updateVisibleIndexAfterBindings = true;
       return;
     }
@@ -5270,6 +5302,107 @@ export class SurveyModel extends SurveyElementCore
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
   }
+
+  private updateNavigationItemTitles(strName?: string) {
+    !!this.updateNavigationItemTitlesCallback && this.updateNavigationItemTitlesCallback(strName);
+  }
+
+  private updateNavigationItemTitlesCallback: (strName?: string) => void;
+
+  private updateNavigationCss() {
+    if(!!this.navigationBar) {
+      this.updateNavigationBarCss();
+      !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
+    }
+  }
+
+  private updateNavigationItemCssCallback: (strName?: string) => void;
+
+  private updateNavigationBarCss() {
+    const val = this.navigationBar;
+    const cssClasses = this.css.actionBar;
+    if (!!cssClasses) {
+      val.cssClasses = cssClasses;
+    }
+    val.containerCss = this.css.footer;
+  }
+  protected createNavigationBar(): ActionContainer {
+    const res = new ActionContainer();
+    res.setItems(this.createNavigationActions());
+    return res;
+  }
+  protected createNavigationActions(): Array<IAction> {
+    const defaultComponent = "sv-nav-btn";
+    const strToTitleMap: { [strName: string]: IAction } = {};
+    const navStart = new Action({
+      id: "sv-nav-start",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
+      visibleIndex: 10,
+      action: () => this.start(),
+      component: defaultComponent
+    });
+    strToTitleMap["startSurveyText"] = navStart;
+    const navPrev = new Action({
+      id: "sv-nav-prev",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
+      visibleIndex: 20,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.prevPage(),
+      component: defaultComponent
+    });
+    strToTitleMap["pagePrevText"] = navPrev;
+    const navNext = new Action({
+      id: "sv-nav-next",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
+      visibleIndex: 30,
+      data: {
+        mouseDown: () => this.nextPageMouseDown(),
+      },
+      action: () => this.nextPageUIClick(),
+      component: defaultComponent
+    });
+    strToTitleMap["pageNextText"] = navNext;
+    const navPreview = new Action({
+      id: "sv-nav-preview",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
+      visibleIndex: 40,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.showPreview(),
+      component: defaultComponent
+    });
+    strToTitleMap["previewText"] = navPreview;
+    const navComplete = new Action({
+      id: "sv-nav-complete",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      visibleIndex: 50,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      action: () => this.completeLastPage(),
+      component: defaultComponent
+    });
+    strToTitleMap["completeText"] = navComplete;
+    this.updateNavigationItemTitlesCallback = (strName?: string) => {
+      if (!strName) {
+        Object.keys(strToTitleMap).forEach((key) => strToTitleMap[key].title = this[key]);
+      } else {
+        strToTitleMap[strName].title = this[strName];
+      }
+    };
+    this.updateNavigationItemTitlesCallback();
+    this.updateNavigationItemCssCallback = () => {
+      navStart.innerCss = this.cssNavigationStart;
+      navPrev.innerCss = this.cssNavigationPrev;
+      navNext.innerCss = this.cssNavigationNext;
+      navPreview.innerCss = this.cssNavigationPreview;
+      navComplete.innerCss = this.cssNavigationComplete;
+    };
+    return [navStart, navPrev, navNext, navPreview, navComplete];
+  }
   protected onBeforeCreating() { }
   protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
@@ -5306,7 +5439,7 @@ export class SurveyModel extends SurveyElementCore
       return;
     }
     const builtInVar = this.getBuiltInVariableValue(name);
-    if(builtInVar !== undefined) {
+    if (builtInVar !== undefined) {
       textValue.isExists = true;
       textValue.value = builtInVar;
       return;
@@ -5617,7 +5750,7 @@ export class SurveyModel extends SurveyElementCore
         this.checkQuestionErrorOnValueChanged(questions[i]);
       }
     }
-    if(!locNotification) {
+    if (!locNotification) {
       this.runConditionOnValueChanged(name, this.getValue(name));
     }
     if (locNotification !== "text") {
@@ -5711,7 +5844,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    if(!this.isMovingQuestion) {
+    if (!this.isMovingQuestion) {
       this.onQuestionAdded.fire(this, {
         question: question,
         name: question.name,
@@ -6336,7 +6469,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);
-    if(this.disposeCallback) {
+    if (this.disposeCallback) {
       this.disposeCallback();
     }
   }

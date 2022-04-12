@@ -39,7 +39,7 @@
         /><div :class="question.cssClasses.itemDecorator">
           <div :class="question.cssClasses.imageContainer">
             <img
-              v-if="question.contentMode === 'image'"
+              v-if="item.imageLink && question.contentMode === 'image'"
               :class="question.cssClasses.image"
               :src="item.imageLink"
               :width="question.renderedImageWidth"
@@ -47,13 +47,24 @@
               v-bind:style="{ objectFit: question.imageFit }"
               :alt="item.locText.renderedHtml"
             /><video controls
-              v-if="question.contentMode === 'video'"
+              v-if="item.imageLink && question.contentMode === 'video'"
               :class="question.cssClasses.image"
               :src="item.imageLink"
               :width="question.renderedImageWidth"
               :height="question.renderedImageHeight"
               v-bind:style="{ objectFit: question.imageFit }"
             ></video>
+            <div
+              v-if="!item.imageLink"
+              :class="question.cssClasses.itemNoImage"
+              v-bind:style="{ width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit }"
+            >
+              <svg v-if="question.cssClasses.itemNoImageSvgIconId"
+                :class="question.cssClasses.itemNoImageSvgIcon"
+              >
+                <use :xlink:href="question.cssClasses.itemNoImageSvgIconId"></use>
+              </svg>
+            </div>
           </div><span
             v-if="question.showLabel"
             :class="question.cssClasses.itemText"

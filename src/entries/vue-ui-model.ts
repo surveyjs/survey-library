@@ -41,7 +41,6 @@ export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
-export { Navigation } from "../vue/navigation.vue";
 export { Progress } from "../vue/progress.vue";
 export { ProgressButtons } from "../vue/progressButtons.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
@@ -72,6 +71,7 @@ export { PanelDynamicAddBtn } from "../vue/components/paneldynamic-actions/panel
 export { PanelDynamicNextBtn } from "../vue/components/paneldynamic-actions/paneldynamic-next-btn.vue";
 export { PanelDynamicPrevBtn } from "../vue/components/paneldynamic-actions/paneldynamic-prev-btn.vue";
 export { PanelDynamicProgressText } from "../vue/components/paneldynamic-actions/paneldynamic-progress-text.vue";
+export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 
 import { SurveyModel } from "survey-core";

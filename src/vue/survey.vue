@@ -19,11 +19,10 @@
               :timerModel="vueSurvey.timerModel"
               :css="css"
             />
-            <survey-navigation
+            <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"
-              :survey="vueSurvey"
-              :css="css"
+              :model="vueSurvey.navigationBar"
             />
             <survey-page
               :key="pageId"
@@ -42,11 +41,10 @@
               :survey="vueSurvey"
               :css="css"
             />
-            <survey-navigation
+            <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnBottom"
               :key="navId + 'bottom'"
-              :survey="vueSurvey"
-              :css="css"
+              :model="vueSurvey.navigationBar"
             />
           </div>
         </template>

@@ -1,29 +1,31 @@
-.sv-footer {
+.sv-footer.sv-action-bar {
+  display: block;
   min-height: $base-line-height;
   padding: 2.5em 0 0.87em 0;
+  margin-left: auto;
+  .sv-action__content {
+    display: block;
+  }
+  .sv-action:not(:last-child) {
+    .sv-action__content {
+      padding-right: 0;
+    }
+  }
 }
-.sv-footer__complete-btn {
-  background-color: $main-color;
+.sv-btn--navigation {
+  margin: 0 1em;
   float: right;
-}
-.sv-footer__next-btn {
   background-color: $main-color;
-  float: right;
 }
-.sv-footer__prev-btn {
-  background-color: $main-color;
-  float: left;
-}
+.sv-footer__complete-btn,
+.sv-footer__next-btn,
 .sv-footer__preview-btn {
-  background-color: $main-color;
   float: right;
 }
+
+.sv-footer__prev-btn,
 .sv-footer__edit-btn {
-  background-color: $main-color;
   float: left;
-}
-.sv-footer__start-btn {
-  background-color: $main-color;
 }
 
 [dir="rtl"],

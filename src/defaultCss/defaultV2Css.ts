@@ -13,16 +13,16 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
-  navigationButton: "",
+  navigationButton: "sd-btn",
   completedPage: "sd-completedpage",
   timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
-    prev: "sd-btn sd-navigation__prev-btn",
-    next: "sd-btn sd-navigation__next-btn",
-    start: "sd-btn sd-navigation__start-btn",
-    preview: "sd-btn sd-navigation__preview-btn",
-    edit: "sd-btn sd-navigation__edit-btn"
+    complete: "sd-btn--action sd-navigation__complete-btn",
+    prev: "sd-navigation__prev-btn",
+    next: "sd-navigation__next-btn",
+    start: "sd-navigation__start-btn",
+    preview: "sd-navigation__preview-btn",
+    edit: "sd-navigation__edit-btn"
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",
@@ -269,7 +269,10 @@ export var defaultV2Css = {
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
     clearButton: "sd-btn",
-    other: "sd-input sd-comment"
+    other: "sd-input sd-comment",
+    itemNoImage: "sd-imagepicker__no-image",
+    itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
+    itemNoImageSvgIconId: "#icon-no-image",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -330,6 +333,8 @@ export var defaultV2Css = {
     buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    dragElementDecorator: "sd-drag-element__svg",
+    iconDragElement: "#icon-v2dragelement_16x16",
     footer: "sd-matrixdynamic__footer",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
@@ -454,7 +459,8 @@ export var defaultV2Css = {
     itemTitle: "sd-action__title",
   },
   variables: {
-    mobileWidth: "--sd-mobile-width"
+    mobileWidth: "--sd-mobile-width",
+    themeMark: "--sv-defaultV2-mark"
   }
 };
 

@@ -14618,6 +14618,52 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   survey["processResponsiveness"](600, 500);
   assert.notOk(survey._isMobile);
 });
+QUnit.test("Check addNavigationItem", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
+  assert.ok(action1 === survey.navigationBar.actions[0]);
+  assert.equal(action1.id, "custom-btn");
+  assert.equal(action1.innerCss, "sv_nav_btn");
+  assert.equal(action1.component, "sv-nav-btn");
+
+  const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+  assert.ok(action2 === survey.navigationBar.actions[2]);
+  assert.equal(action2.id, "custom-btn-2");
+  assert.equal(action2.innerCss, "custom-css");
+  assert.equal(action2.component, "sv-nav-btn");
+
+  const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
+  assert.ok(action3 === survey.navigationBar.actions[4]);
+  assert.equal(action3.id, "custom-btn-3");
+  assert.equal(action3.component, "custom-component");
+});
+
+QUnit.test("Check default navigation items relevance", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
+  const action = survey.navigationBar.actions[0];
+  assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
+  survey.locale = "ru";
+  assert.equal(action.title, "Начать");
+  survey.locale = "en";
+  assert.equal(action.title, "Start");
+  survey.startSurveyText = "custom-text";
+  assert.equal(action.title, "custom-text");
+});
 QUnit.test("Check rootCss property", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -14629,4 +14675,17 @@ QUnit.test("Check rootCss property", function (assert) {
   });
   survey.css = { root: "test-root-class" };
   assert.equal(survey.rootCss, "test-root-class");
+});
+
+QUnit.test("Check navigation bar css update", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { actionBar: { root: "custom-navigation" }, footer: "custom-footer" };
+  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });

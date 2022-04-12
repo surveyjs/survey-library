@@ -30,6 +30,11 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
+
+body {
+  --sv-default-mark: true;
+}
+
 .sv_main.sv_frame {
   .sv_container {
     max-width: 80%;
@@ -660,9 +665,24 @@ $label-disabled-color: rgba(64, 64, 64, 0.5);
       }
 
       .sv_nav {
+        display: block;
         padding: 1em 0;
         min-height: $base-line-height;
-
+        .sv_nav_btn {
+          float: right;
+          margin: 0 16px;
+        }
+        .sv-action {
+          display: block;
+        }
+        .sv-action:not(:last-child) {
+          .sv-action__content {
+            padding: 0;
+          }
+        }
+        .sv-action__content {
+          display: block;
+        }
         .sv_start_btn,
         .sv_next_btn,
         .sv_complete_btn {

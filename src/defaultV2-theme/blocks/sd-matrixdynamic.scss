@@ -41,4 +41,12 @@
   }
 }
 
+.sd-drag-element__svg {
+  width: calcSize(2);
+  height: calcSize(2);
+  display: block;
 
+  use {
+    fill: $foreground-light;
+  }
+}

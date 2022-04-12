@@ -252,6 +252,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("allowRowsDragAndDrop", val);
   }
 
+  public get iconDragElement(): string {
+    return this.cssClasses.iconDragElement;
+  }
+
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDynamicRenderedTable(this);
   }

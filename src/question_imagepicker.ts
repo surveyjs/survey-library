@@ -310,8 +310,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       let width: number;
       if(colCount === 0) {
         if ((gap + minWidth) * itemsCount - gap > availableWidth) {
-          let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
-          if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow ++;
+          let itemsInRow = calcAvailableColumnsCount(availableWidth, minWidth, gap);
           width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
         } else {
           width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));

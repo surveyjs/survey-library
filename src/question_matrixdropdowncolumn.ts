@@ -195,8 +195,8 @@ export class MatrixDropdownColumn extends Base
   }
   public set cellType(val: string) {
     val = val.toLocaleLowerCase();
+    this.updateTemplateQuestion(val);
     this.setPropertyValue("cellType", val);
-    this.updateTemplateQuestion();
     if (!!this.colOwner) {
       this.colOwner.onColumnCellTypeChanged(this);
     }
@@ -435,16 +435,17 @@ export class MatrixDropdownColumn extends Base
     }
     return cellType;
   }
-  private getDefaultCellQuestionType(): string {
-    if (this.cellType !== "default") return this.cellType;
+  private getDefaultCellQuestionType(cellType?: string): string {
+    if(!cellType) cellType = this.cellType;
+    if (cellType !== "default") return cellType;
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrixDefaultCellType;
   }
-  protected updateTemplateQuestion() {
-    var prevCellType = this.templateQuestion
+  protected updateTemplateQuestion(newCellType?: string): void {
+    const curCellType = this.getDefaultCellQuestionType(newCellType);
+    const prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
       : "";
-    var curCellType = this.calcCellQuestionType(null);
     if (curCellType === prevCellType) return;
     if (this.templateQuestion) {
       this.removeProperties(prevCellType);

@@ -998,10 +998,11 @@ export class SurveyModel extends SurveyElementCore
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
+    const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
+    this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
+    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
+    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
     this.createLocalizableString("logo", this, false);
-    this.createLocalizableString("completedHtml", this);
-    this.createLocalizableString("completedBeforeHtml", this);
-    this.createLocalizableString("loadingHtml", this);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -1104,7 +1105,9 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
   }
-
+  private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
+    this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
+  }
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -2037,6 +2040,13 @@ export class SurveyModel extends SurveyElementCore
   }
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
+  }
+  /**
+   * Default value for loadingHtml property
+   * @see loadingHtml
+   */
+  public get defaultLoadingHtml(): string {
+    return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
@@ -4034,10 +4044,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
-    if (html) {
-      return this.processHtml(html);
-    }
-    return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
+    return !!html ? this.processHtml(html) : "";
   }
   /**
    * Returns the HTML content, that is shown to a user that had completed the survey before.
@@ -4045,19 +4052,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    if (this.completedBeforeHtml) {
-      return this.processHtml(this.completedBeforeHtml);
-    }
-    return "<h3>" + this.getLocString("completingSurveyBefore") + "</h3>";
+    return this.processHtml(this.completedBeforeHtml);
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    if (this.loadingHtml) {
-      return this.processHtml(this.loadingHtml);
-    }
-    return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
+    return this.processHtml(this.loadingHtml);
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;

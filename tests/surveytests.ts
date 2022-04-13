@@ -3139,6 +3139,14 @@ QUnit.test("pre process title, 'locale' variable", function (assert) {
   );
 });
 
+QUnit.test("Default value completedHtml, completedBeforeHtml and loadingHtml", function (assert) {
+  const survey = new SurveyModel();
+  survey.locale = "";
+  assert.ok(survey.completedHtml.indexOf("</h3>") > -1, "h3 is here, default completedHtml");
+  assert.ok(survey.completedBeforeHtml.indexOf("</h3>") > -1, "h3 is here, default completedBeforeHtml");
+  assert.ok(survey.loadingHtml.indexOf("</h3>") > -1, "h3 is here, default loadingHtml");
+});
+
 QUnit.test(
   "pre process title with variables in Capital letters, bug#1099",
   function (assert) {

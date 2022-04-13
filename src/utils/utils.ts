@@ -1,4 +1,6 @@
 import { settings } from "./../settings";
+import { Serializer } from "../jsonobject";
+import { Base } from "src/base";
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -227,8 +229,13 @@ function preventDefaults(event: any) {
   event.preventDefault();
   event.stopPropagation();
 }
+function classesToSelector(str: string): string {
+  const re = /\s*?([\w-]+)\s*?/g;
+  return str.replace(re, ".$1");
+}
 
 export {
+  classesToSelector,
   compareVersions,
   confirmAction,
   detectIEOrEdge,

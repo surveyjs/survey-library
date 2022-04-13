@@ -237,7 +237,8 @@ export var modernCss = {
     onError: "sv-dropdown--error",
   },
   imagepicker: {
-    root: "sv-imagepicker",
+    root: "sv-selectbase sv-imagepicker",
+    column: "sv-selectbase__column",
     item: "sv-imagepicker__item",
     itemInline: "sv-imagepicker__item--inline",
     itemChecked: "sv-imagepicker__item--checked",

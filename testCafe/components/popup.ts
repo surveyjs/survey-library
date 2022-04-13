@@ -61,11 +61,7 @@ function addDropdownTitleAction(_, opt) {
     model: new window["Survey"].ListModel([
       new window["Survey"].Action({ title: "Item 1" }),
     ]),
-  },
-    "bottom",
-    "left",
-    true
-  );
+  }, "bottom", "left", true);
   const item = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "Click",

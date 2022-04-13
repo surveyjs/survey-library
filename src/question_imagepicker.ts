@@ -1,9 +1,12 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionCheckboxBase } from "./question_baseselect";
+import { QuestionCheckboxBase, QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
+import { classesToSelector } from "./utils/utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   constructor(
@@ -26,6 +29,8 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   public set imageLink(val: string) {
     this.setLocalizableStringText("imageLink", val);
   }
+  private aspectRatio: number;
+
   get locImageLink(): LocalizableString {
     return this.getLocalizableString("imageLink");
   }
@@ -53,6 +58,15 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
+    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
+      if (!!this._width) {
+        this.processResponsiveness(0, this._width);
+      }
+    });
+    this.registerFunctionOnPropertiesValueChanged(["imageWidth", "imageHeight"], () => {
+      this.calcIsResponsive();
+    });
+    this.calcIsResponsive();
   }
   public getType(): string {
     return "imagepicker";
@@ -76,7 +90,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return false;
   }
   public isAnswerCorrect(): boolean {
-    if(!this.multiSelect) return super.isAnswerCorrect();
+    if (!this.multiSelect) return super.isAnswerCorrect();
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
   /**
@@ -142,6 +156,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.createNewArray("renderedValue");
       this.createNewArray("value");
     }
+    this.calcIsResponsive();
   }
   protected getValueCore() {
     var value = super.getValueCore();
@@ -167,26 +182,32 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * The image height.
    */
-  public get imageHeight(): string {
+  public get imageHeight() {
     return this.getPropertyValue("imageHeight");
   }
-  public set imageHeight(val: string) {
+  public set imageHeight(val: number) {
     this.setPropertyValue("imageHeight", val);
   }
+  @property({}) private responsiveImageHeight: number;
   public get renderedImageHeight() {
-    return this.imageHeight ? this.imageHeight + "px" : undefined;
+    const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
+    return (height ? height : 150) + "px";
   }
   /**
    * The image width.
    */
-  public get imageWidth(): string {
+
+  public get imageWidth() {
     return this.getPropertyValue("imageWidth");
   }
-  public set imageWidth(val: string) {
+  public set imageWidth(val: number) {
     this.setPropertyValue("imageWidth", val);
   }
+
+  @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth() {
-    return this.imageWidth ? this.imageWidth + "px" : undefined;
+    const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
+    return (width ? width : 200) + "px";
   }
   /**
    * The image fit mode.
@@ -212,14 +233,122 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected convertDefaultValue(val: any): any {
     return val;
   }
-  public get hasColumns(): boolean {
-    return false;
-  }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
   }
-}
 
+  protected isFootChoice(_item: ItemValue, _question: QuestionSelectBase): boolean {
+    return false;
+  }
+  public getSelectBaseRootCss(): string {
+    return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1).toString();
+  }
+
+  //responsive mode
+  @property({}) private isResponsiveValue = false;
+  @property({}) public maxImageWidth: number;
+  @property({}) public minImageWidth: number;
+  @property({}) public maxImageHeight: number;
+  @property({}) public minImageHeight: number;
+
+  private get isResponsive() {
+    return this.isResponsiveValue && this.isDefaultV2Theme;
+  }
+  private get exactSizesAreEmpty(): boolean {
+    return !(["imageHeight", "imageWidth"].some(propName => this[propName] !== undefined && this[propName] !== null));
+  }
+  private calcIsResponsive() {
+    this.isResponsiveValue = this.exactSizesAreEmpty;
+  }
+
+  protected getObservedElementSelector(): string {
+    return classesToSelector(this.cssClasses.root);
+  }
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected needResponsiveness() {
+    return this.supportResponsiveness() && this.isDefaultV2Theme;
+  }
+
+  private _width: number;
+
+  private onContentLoaded = (item: ImageItemValue, event: any) => {
+    const content: any = event.target;
+    if (this.contentMode == "video") {
+      item["aspectRatio"] = content.videoWidth / content.videoHeight;
+    } else {
+      item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
+    }
+    this._width && this.processResponsiveness(0, this._width);
+  }
+
+  @property({}) private responsiveColCount: number;
+
+  protected getCurrentColCount(): number {
+    if (this.responsiveColCount === undefined || this.colCount === 0) {
+      return this.colCount;
+    }
+    return this.responsiveColCount;
+  }
+
+  protected processResponsiveness(_: number, availableWidth: number): void {
+    this._width = availableWidth;
+    const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
+      let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
+      if ((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow++;
+      return itemsInRow;
+    };
+    if (this.isResponsive) {
+      const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
+      const gap = this.gapBetweenItems || 0;
+      const minWidth = this.minImageWidth;
+      const maxWidth = this.maxImageWidth;
+      const maxHeight = this.maxImageHeight;
+      const minHeight = this.minImageHeight;
+      let colCount = this.colCount;
+      let width: number;
+      if (colCount === 0) {
+        if ((gap + minWidth) * itemsCount - gap > availableWidth) {
+          let itemsInRow = calcAvailableColumnsCount(availableWidth, minWidth, gap);
+          width = Math.floor((availableWidth - gap * (itemsInRow - 1)) / itemsInRow);
+        } else {
+          width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
+        }
+      } else {
+        const availableColumnsCount = calcAvailableColumnsCount(availableWidth, minWidth, gap);
+        if (availableColumnsCount < colCount) {
+          this.responsiveColCount = availableColumnsCount >= 1 ? availableColumnsCount : 1;
+          colCount = this.responsiveColCount;
+        } else {
+          this.responsiveColCount = colCount;
+        }
+        width = Math.floor((availableWidth - gap * (colCount - 1)) / colCount);
+      }
+      this.responsiveImageWidth = width = Math.max(minWidth, Math.min(width, maxWidth));
+      let height: number = Number.MIN_VALUE;
+      this.choices.forEach((item: ImageItemValue) => {
+        const tempHeight = width / item["aspectRatio"];
+        height = tempHeight > height ? tempHeight : height;
+      });
+      if (height > maxHeight) {
+        this.responsiveImageHeight = maxHeight;
+      } else if (height < minHeight) {
+        this.responsiveImageHeight = minHeight;
+      } else {
+        this.responsiveImageHeight = height;
+      }
+    }
+  }
+  private gapBetweenItems: number;
+  public afterRender(el: HTMLElement): void {
+    super.afterRender(el);
+    const variables = this.survey.getCss().variables;
+    if (!!variables) {
+      this.gapBetweenItems = Number.parseInt(window.getComputedStyle(el).getPropertyValue(variables.imagepickerGapBetweenItems)) || 0;
+    }
+  }
+}
 Serializer.addClass(
   "imageitemvalue",
   [],
@@ -230,7 +359,12 @@ Serializer.addProperty("imageitemvalue", {
   name: "imageLink",
   serializationProperty: "locImageLink",
 });
-
+Serializer.addClass(
+  "responsiveImageSize",
+  [],
+  undefined,
+  "number"
+);
 Serializer.addClass(
   "imagepicker",
   [
@@ -251,10 +385,15 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 },
+    { name: "imageHeight:number", minValue: 0 },
+    { name: "imageWidth:number", minValue: 0 },
+    { name: "minImageWidth:responsiveImageSize", default: 200, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageWidth:responsiveImageSize", default: 400, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+    { name: "maxImageHeight:responsiveImageSize", default: 266, minValue: 0, visibleIf: () => settings.supportCreatorV2 },
+
   ],
-  function() {
+  function () {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"

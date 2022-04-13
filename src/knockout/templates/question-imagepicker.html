@@ -1,11 +1,23 @@
 ﻿<script type="text/html" id="survey-question-imagepicker">
-  <fieldset data-bind="css: question.koCss().root">
-      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }" role="radio"></legend>
-      <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+    <fieldset data-bind="css: question.getSelectBaseRootCss()">
+        <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }" role="radio"></legend>
+        <!-- ko ifnot: question.hasColumns -->
+        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
         <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->
         <!-- /ko -->
-      <!-- /ko -->
-  </fieldset>
+        <!-- /ko -->
+        <!-- /ko -->
+        <!-- ko if: question.hasColumns -->
+        <!-- ko foreach: question.columns -->
+        <div data-bind="css: question.getColumnClass()" role="presentation">
+            <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
+            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->
+            <!-- /ko -->
+            <!-- /ko -->
+        </div>
+        <!-- /ko -->
+        <!-- /ko -->
+    </fieldset>
 </script>
 <script type="text/html" id="survey-imagepicker-item">
     <div data-bind="css: question.getItemClass(item)">
@@ -14,14 +26,15 @@
             />
             <div data-bind="css: question.koCss().itemDecorator">
                 <div data-bind="css: question.koCss().imageContainer">
+
                   <!-- ko if: $data.locImageLink.koRenderedHtml() && question.contentMode === "image" -->
-                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }"/>
+                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }, event: { load: question.onContentLoaded }"/>
                   <!-- /ko -->
                   <!-- ko if: $data.locImageLink.koRenderedHtml() && question.contentMode === "video" -->
-                  <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }"></video>
+                  <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }, event: { loadedmetadata: question.onContentLoaded }"></video>
                   <!-- /ko -->
                   <!-- ko ifnot: $data.locImageLink.koRenderedHtml() -->
-                  <div data-bind="css: question.koCss().itemNoImage, style: {width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit}">
+                  <div data-bind="css: question.koCss().itemNoImage, style: { width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit}">
                     <!-- ko if: question.koCss().itemNoImageSvgIconId -->
                     <svg data-bind="css:question.koCss().itemNoImageSvgIcon">
                       <use data-bind="attr:{'xlink:href':question.koCss().itemNoImageSvgIconId}" xlink:href=''></use>

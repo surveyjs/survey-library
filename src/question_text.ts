@@ -214,7 +214,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see max
    */
   public get isMinMaxType(): boolean {
-    return minMaxTypes.indexOf(this.inputType) > -1;
+    return isMinMaxType(this);
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -384,6 +384,12 @@ const minMaxTypes = [
   "week",
 ];
 
+function isMinMaxType(obj: any): boolean {
+  const t = !!obj ? obj.inputType : "";
+  if(!t) return false;
+  return minMaxTypes.indexOf(t) > -1;
+}
+
 Serializer.addClass(
   "text",
   [
@@ -488,7 +494,7 @@ Serializer.addClass(
       name: "min",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
@@ -501,7 +507,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       nextToProperty: "*min",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
@@ -514,7 +520,7 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -522,7 +528,7 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -530,7 +536,7 @@ Serializer.addClass(
       serializationProperty: "locMinErrorText",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -538,7 +544,7 @@ Serializer.addClass(
       serializationProperty: "locMaxErrorText",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {

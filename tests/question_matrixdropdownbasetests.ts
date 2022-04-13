@@ -1,3 +1,4 @@
+import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyModel } from "../src/survey";
@@ -50,4 +51,18 @@ QUnit.test("Change templateQuestion on changing cellType faster reacting onPrope
     assert.equal(column.templateQuestion.getType(), "text");
   });
   column.cellType = "text";
+});
+QUnit.test("visible attribute for min property  should return true for text question with inputType number/month", function (assert) {
+  const column = new MatrixDropdownColumn("col1");
+  assert.equal(column.cellType, "default");
+  const property = Serializer.findProperty("text", "min");
+  assert.equal(property.visibleIf(column), false, "cell type is default");
+  column.cellType = "text";
+  assert.equal(property.visibleIf(column), false, "inputType is text");
+  (<any>column).inputType = "number";
+  assert.equal(property.visibleIf(column), true, "inputType is number");
+  (<any>column).inputType = "month";
+  assert.equal(property.visibleIf(column), true, "inputType is month");
+  (<any>column).inputType = "text";
+  assert.equal(property.visibleIf(column), false, "inputType is text");
 });

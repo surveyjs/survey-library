@@ -54,7 +54,7 @@
               {{ model.cancelButtonText }}
             </button>
             <button
-              class="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
+              class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
               v-if="model.isModal"
               type="button"
               v-on:click="

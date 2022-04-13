@@ -95,13 +95,15 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           this.clickInside(ev);
         }}
       >
-        <div className="sv-popup_shadow">
+        <div className="sv-popup__shadow">
           {pointer}
-          {header}
-          <div className="sv-popup__scrolling-content">
-            {content}
+          <div className="sv-popup__body-content">
+            {header}
+            <div className="sv-popup__scrolling-content">
+              {content}
+            </div>
+            {footer}
           </div>
-          {footer}
         </div>
       </div>
     );
@@ -118,7 +120,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
   }
   renderHeader() {
-    return <div className="sv-popup__header">{this.model.title}</div>;
+    return <div className="sv-popup__body-header">{this.model.title}</div>;
   }
   renderContent() {
     const contentComponent = ReactElementFactory.Instance.createElement(
@@ -131,7 +133,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <button
         type="button"
-        className="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
         onClick={() => {
           this.model.cancel();
         }}
@@ -144,7 +146,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <button
         type="button"
-        className="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
         onClick={() => {
           this.model.apply();
         }}
@@ -155,7 +157,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   renderFooter() {
     return (
-      <div className="sv-popup__footer">
+      <div className="sv-popup__body-footer">
         {this.renderCancelButton()}
         {this.model.isModal ? this.renderApplyButton() : null}
       </div>

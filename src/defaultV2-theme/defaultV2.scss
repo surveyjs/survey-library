@@ -89,7 +89,6 @@ body {
   .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
-    border-radius: calcSize(0.5);
 
     &::-webkit-scrollbar {
       width: 12px;
@@ -114,22 +113,30 @@ body {
   }
 }
 
-.sv-popup:not(.sv-popup--modal) .sv-popup_shadow {
-  padding: calcSize(1) 0;
-  background-color: $background;
+.sv-popup.sv-popup--dropdown {
+  .sv-popup__shadow {
+    filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
+  }
+  .sv-popup__body-content {
+    background-color: $background;
+    padding: calcSize(1) 0;
+  }
 }
 
 .sv-popup.sv-popup--modal {
-  .sv-popup__container {
-    filter: drop-shadow(0px 2px 6px $shadow-medium);
+  .sv-popup__body-content {
+    box-shadow: 0px calcSize(1) calcSize(2) $shadow-medium;
+    background-color: $background-dim-light;
   }
-  .sv-popup_shadow {
-    filter: drop-shadow(0px calcSize(1) calcSize(2) $shadow-medium);
-  }
-  .sv-popup__footer {
+  .sv-popup__body-footer {
     padding-bottom: 2px;
   }
-  padding: calcSize(4);
+}
+
+.sv-popup.sv-popup--overlay {
+  .sv-popup__body-content {
+    background-color: $background-dim;
+  }
 }
 
 .sv-list__input:focus {

@@ -57,3 +57,7 @@ svg.sd-action--icon {
   width: 24px;
   height: 24px;
 }
+.sd-action.sd-action--pressed {
+  background-color: $background-dim;
+  opacity: 0.5;
+}

@@ -7,7 +7,6 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
-- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 

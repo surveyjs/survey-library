@@ -2,16 +2,15 @@
 
 This step-by-step tutorial will help you get started with the SurveyJS Library in a React application. To add a survey to your React application, follow the steps below:
 
-- [Install the `survey-react` npm Package](#install-the-survey-react-npm-package)
+- [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
-- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 
-<iframe src="https://codesandbox.io/embed/musing-visvesvaraya-j206b?fontsize=14&hidenavigation=1&module=%2Fsrc%2FApp.js&theme=dark"
+<iframe src="https://codesandbox.io/embed/surveyjs-add-a-survey-to-a-react-application-j206b?fontsize=14&hidenavigation=1&theme=dark"
     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
     title="SurveyJS - Add a Survey to a React Application"
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
@@ -19,12 +18,12 @@ As a result, you will create a survey displayed below:
 
 You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-react" target="_blank">Get Started with SurveyJS - React</a>.
 
-## Install the `survey-react` npm Package
+## Install the `survey-react-ui` npm Package
 
-The SurveyJS Library for React is distributed as a <a href="https://www.npmjs.com/package/survey-react" target="_blank">survey-react</a> npm package. Run the following command to install it:
+The SurveyJS Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
 
 ```cmd
-npm install survey-react --save
+npm install survey-react-ui --save
 ```
 
 ## Configure Styles
@@ -46,10 +45,10 @@ For instance, the following code applies the Modern theme:
 
 ```js
 // Modern theme
-import 'survey-react/modern.min.css';
+import 'survey-core/modern.min.css';
 // Default theme
-// import 'survey-react/survey.min.css';
-import { StylesManager } from 'survey-react';
+// import 'survey-core/survey.min.css';
+import { StylesManager } from 'survey-core';
 
 StylesManager.applyTheme("modern");
 ```
@@ -77,7 +76,7 @@ const surveyJson = {
 To instantiate a model, pass the model definition to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey.
 
 ```js
-import { ..., Model } from 'survey-react';
+import { ..., Model } from 'survey-core';
 // ...
 function App() {
   const survey = new Model(surveyJson);
@@ -90,9 +89,9 @@ function App() {
     <summary>View full code</summary>  
 
 ```js
-import 'survey-react/modern.min.css';
-// import 'survey-react/survey.min.css';
-import { StylesManager, Model } from 'survey-react';
+import 'survey-core/modern.min.css';
+// import 'survey-core/survey.min.css';
+import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
 
@@ -122,7 +121,7 @@ export default App;
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
 
 ```js
-import { ..., Survey } from 'survey-react';
+import { Survey } from 'survey-react-ui';
 // ...
 const surveyJson = { ... };
 
@@ -141,9 +140,10 @@ If you replicate the code correctly, you should see the following survey:
     <summary>View full code</summary>  
 
 ```js
-import 'survey-react/modern.min.css';
-// import 'survey-react/survey.min.css';
-import { Survey, StylesManager, Model } from 'survey-react';
+import 'survey-core/modern.min.css';
+// import 'survey-core/survey.min.css';
+import { StylesManager, Model } from 'survey-core';
+import { Survey } from 'survey-react-ui';
 
 StylesManager.applyTheme("modern");
 
@@ -201,9 +201,10 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 ```js
 import { useCallback } from 'react';
 
-import 'survey-react/modern.min.css';
-// import 'survey-react/survey.min.css';
-import { Survey, StylesManager, Model } from 'survey-react';
+import 'survey-core/modern.min.css';
+// import 'survey-core/survey.min.css';
+import { StylesManager, Model } from 'survey-core';
+import { Survey } from 'survey-react-ui';
 
 StylesManager.applyTheme("modern");
 

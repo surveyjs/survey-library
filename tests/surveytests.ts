@@ -14712,3 +14712,16 @@ QUnit.test("Set correct activePage on fromSurvey and update buttons visibility",
   assert.equal(survey.activePage.id, survey.pages[0].id, "Initially active page is correct");
   assert.equal(survey.navigationBar.getActionById("sv-nav-prev").visible, false, "PrevButton is not shown #2");
 });
+QUnit.test("Navigation buttons text from JSON", function (assert) {
+  const survey = new SurveyModel({
+    completeText: "Submit",
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  assert.equal(survey.completeText, "Submit", "text is correct");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").title, "Submit", "Text in bar is correct");
+});

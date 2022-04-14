@@ -105,4 +105,10 @@ export class ActionContainer<T extends Action = Action> extends Base {
       return;
     }
     public resetResponsivityManager(): void {}
+    public getActionById(id: string): T {
+      for(var i = 0; i < this.actions.length; i ++) {
+        if(this.actions[i].id === id) return this.actions[i];
+      }
+      return null;
+    }
 }

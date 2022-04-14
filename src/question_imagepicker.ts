@@ -293,7 +293,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   protected processResponsiveness(_: number, availableWidth: number): void {
-    this._width = availableWidth;
+    this._width = availableWidth = Math.floor(availableWidth);
     const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
       let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
       if ((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow++;

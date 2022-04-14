@@ -1882,7 +1882,7 @@ export class Question extends SurveyElement
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, Math.floor(rootEl.getBoundingClientRect().width));
+            this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
           }
         });
         this.resizeObserver.observe(el);
@@ -1896,6 +1896,7 @@ export class Question extends SurveyElement
     return "default";
   }
   protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+    availableWidth = Math.round(availableWidth);
     if(requiredWidth > availableWidth) {
       this.renderAs = this.getCompactRenderAs();
     } else {

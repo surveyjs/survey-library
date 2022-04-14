@@ -18,6 +18,7 @@ export var frenchSurveyStrings = {
   completingSurveyBefore: "Nos données indiquent que vous avez déjà rempli ce questionnaire.",
   loadingSurvey: "Le questionnaire est en cours de chargement...",
   optionsCaption: "Choisissez...",
+  ratingOptionsCaption: "Choisissez...",
   value: "valeur",
   requiredError: "La réponse à cette question est obligatoire.",
   requiredErrorInPanel: "Merci de répondre au moins à une question.",

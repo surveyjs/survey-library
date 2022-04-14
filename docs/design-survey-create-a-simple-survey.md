@@ -7,7 +7,6 @@ This article illustrates a SurveyJS survey structure and the different ways you 
   - [Define a Static Survey Model in JSON](#define-a-static-survey-model-in-json)
   - [Create or Change a Survey Model Dynamically](#create-or-change-a-survey-model-dynamically)
 - [Display the Survey](#display-the-survey)
-- [Further Reading](#further-reading)
 
 ## Survey Structure
 
@@ -215,7 +214,8 @@ export class AppComponent implements OnInit {
 </template>
 
 <script>
-import { Model, Survey, SurveyWindow } from 'survey-vue';
+import { Model } from 'survey-core';
+import { Survey, SurveyWindow } from 'survey-vue-ui';
 
 const surveyJson = {
   // ...
@@ -242,7 +242,8 @@ export default {
     <summary>React</summary> 
 
 ```js
-import { Model, Survey, SurveyWindow } from 'survey-react';
+import { Model } from 'survey-core';
+import { Survey, SurveyWindow } from 'survey-react-ui';
 
 const surveyJson = {
   // ...

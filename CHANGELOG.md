@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.25](https://github.com/surveyjs/survey-library/compare/v1.9.24...v1.9.25) (2022-04-14)
+
 ### [1.9.24](https://github.com/surveyjs/survey-library/compare/v1.9.23...v1.9.24) (2022-04-12)
 
 ### [1.9.23](https://github.com/surveyjs/survey-library/compare/v1.9.22...v1.9.23) (2022-04-05)

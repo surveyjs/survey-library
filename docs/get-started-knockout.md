@@ -20,7 +20,7 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library ships with a script and several style sheets that implement different themes. Insert links to the script and one of the style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
+The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes style sheets and scripts. Insert links to these resources within the `<head>` tag on your HTML page _after_ the Knockout link:
 
 ```html
 <head>
@@ -28,15 +28,15 @@ The SurveyJS Library ships with a script and several style sheets that implement
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
     <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
     <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
 
     <!-- Bootstrap theme -->
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-
-    <script type="text/javascript" src="https://unpkg.com/survey-knockout/survey.ko.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <!-- ... -->
 </head>
 ```
@@ -96,15 +96,15 @@ const survey = new Survey.Model(surveyJson);
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
     <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
     <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
 
     <!-- Bootstrap theme -->
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-
-    <script type="text/javascript" src="https://unpkg.com/survey-knockout/survey.ko.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
@@ -167,15 +167,15 @@ If you replicate the code correctly, you should see the following survey:
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
     <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
     <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
 
     <!-- Bootstrap theme -->
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-
-    <script type="text/javascript" src="https://unpkg.com/survey-knockout/survey.ko.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
@@ -240,15 +240,15 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
     <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
     <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-knockout/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
 
     <!-- Bootstrap theme -->
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-
-    <script type="text/javascript" src="https://unpkg.com/survey-knockout/survey.ko.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>

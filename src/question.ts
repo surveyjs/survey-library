@@ -1871,18 +1871,26 @@ export class Question extends SurveyElement
   protected getObservedElementSelector(): string {
     return ".sd-scrollable-container";
   }
-
   private initResponsiveness(el: HTMLElement) {
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
         const requiredWidth = defaultRootEl.scrollWidth;
+        let oldWidth: number = undefined;
+        this.onDomUpdatedCallback = () => {
+          oldWidth = el.offsetWidth;
+        };
+        let isProcessed = false;
         this.resizeObserver = new ResizeObserver(()=>{
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+            if(isProcessed) {
+              isProcessed = false;
+            } else {
+              isProcessed = this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+            }
           }
         });
         this.resizeObserver.observe(el);
@@ -1895,18 +1903,21 @@ export class Question extends SurveyElement
   protected getDesktopRenderAs(): string {
     return "default";
   }
-  protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+  protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
     availableWidth = Math.round(availableWidth);
+    const oldRenderAs = this.renderAs;
     if(requiredWidth > availableWidth) {
       this.renderAs = this.getCompactRenderAs();
     } else {
       this.renderAs = this.getDesktopRenderAs();
     }
+    return oldRenderAs !== this.renderAs;
   }
   private destroyResizeObserver() {
     if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
+      this.onDomUpdatedCallback = undefined;
     }
   }
   public dispose() {

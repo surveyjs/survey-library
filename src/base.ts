@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
@@ -9,6 +9,13 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { ExpressionRunner } from "./conditions";
+
+interface IExpressionRunnerInfo {
+  onExecute: (obj: Base, res: any) => void;
+  canRun?: (obj: Base) => boolean;
+  runner?: ExpressionRunner;
+}
 
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
@@ -201,6 +208,7 @@ export class Base {
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
+  private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private onPropChangeFunctions: Array<{
@@ -295,6 +303,13 @@ export class Base {
   }
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
+  }
+  /**
+   * Returns true if the question in design mode right now.
+   */
+  public get isDesignMode(): boolean {
+    const survey = this.getSurvey();
+    return !!survey && survey.isDesignMode;
   }
   /**
    * Returns true if the object is inluded into survey, otherwise returns false.
@@ -551,7 +566,7 @@ export class Base {
       arrayChanges,
       this
     );
-
+    this.checkConditionPropertyChanged(name);
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
@@ -590,6 +605,42 @@ export class Base {
         arrayChanges
       );
     }
+  }
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
+    if(!this.expressionInfo) {
+      this.expressionInfo = {};
+    }
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
+  }
+  public getDataFilteredValues(): any {
+    return {};
+  }
+  public getDataFilteredProperties(): any {
+    return {};
+  }
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    if(!this.expressionInfo) return;
+    for(var key in this.expressionInfo) {
+      this.runConditionItemCore(key, values, properties);
+    }
+  }
+  private checkConditionPropertyChanged(propName: string): void {
+    if(!this.expressionInfo || !this.expressionInfo[propName] || this.isDesignMode) return;
+    this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
+  }
+  private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
+    const info = this.expressionInfo[propName];
+    const expression = this.getPropertyValue(propName);
+    if(!expression) return;
+    if(!!info.canRun && !info.canRun(this)) return;
+    if(!info.runner) {
+      info.runner = new ExpressionRunner(expression);
+      info.runner.onRunComplete = (res: any) => {
+        info.onExecute(this, res);
+      };
+    }
+    info.runner.expression = expression;
+    info.runner.run(values, properties);
   }
   /**
    * Register a function that will be called on a property value changed.

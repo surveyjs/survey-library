@@ -14725,3 +14725,30 @@ QUnit.test("Navigation buttons text from JSON", function (assert) {
   assert.equal(survey.completeText, "Submit", "text is correct");
   assert.equal(survey.navigationBar.getActionById("sv-nav-complete").title, "Submit", "Text in bar is correct");
 });
+
+QUnit.test("Do not execute visibleIf in design mode", function (assert) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "panel",
+        name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+        ],
+      }
+    ]
+  });
+  const question = survey.getQuestionByName("q1");
+  assert.equal(question.visible, true, "It is visible initially");
+  question.visibleIf = "{q2} = 1";
+  assert.equal(question.visible, true, "It is still visible");
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  const panel2 = <PanelModel>panel.clone();
+  const question2 = panel2.questions[0];
+  assert.equal(question2.visibleIf, "{q2} = 1", "It is visible");
+  assert.equal(question2.visible, true, "It is visible");
+  survey.pages[0].addElement(panel2);
+  assert.equal(question2.visible, true, "It is visible, #2");
+});

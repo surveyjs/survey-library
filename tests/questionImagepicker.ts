@@ -202,3 +202,61 @@ QUnit.test("check isResponsive getter after end of loading json", function(asser
   q = survey.getAllQuestions()[0];
   assert.ok(q.isResponsive);
 });
+
+class CustomResizeObserver {
+  constructor(private callback: () => void) {}
+  observe() {
+    this.call();
+  }
+  call() {
+    this.callback();
+  }
+}
+
+QUnit.test("check resizeObserver behavior", function(assert) {
+  const ResizeObserver = window.ResizeObserver;
+  const setTimeout = window.setTimeout;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  window.setTimeout = <any>((f) => f());
+  const rootEl = document.createElement("div");
+  const contentEl = document.createElement("div");
+  contentEl.className = "sd-selectbase sd-imagepicker";
+  rootEl.appendChild(contentEl);
+
+  window.document.body.appendChild(rootEl);
+
+  const survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  survey.css = defaultV2Css;
+  const q = survey.getAllQuestions()[0];
+  let trace = "";
+  q["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  q.afterRender(rootEl);
+  assert.equal(trace, "->processed");
+  (<any>q["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "prevent from double call");
+  (<any>q["resizeObserver"]).call();
+  assert.equal(trace, "->processed->processed");
+  survey.setIsMobile(true);
+  assert.equal(trace, "->processed->processed->processed", "always process when isMobile changed");
+  window.ResizeObserver = ResizeObserver;
+  window.setTimeout = setTimeout;
+});
+

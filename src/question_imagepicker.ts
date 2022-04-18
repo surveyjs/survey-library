@@ -292,7 +292,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.responsiveColCount;
   }
 
-  protected processResponsiveness(_: number, availableWidth: number): void {
+  protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth = Math.floor(availableWidth);
     const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
       let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
@@ -325,20 +325,24 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         }
         width = Math.floor((availableWidth - gap * (colCount - 1)) / colCount);
       }
-      this.responsiveImageWidth = width = Math.max(minWidth, Math.min(width, maxWidth));
+      width = Math.max(minWidth, Math.min(width, maxWidth));
       let height: number = Number.MIN_VALUE;
       this.choices.forEach((item: ImageItemValue) => {
         const tempHeight = width / item["aspectRatio"];
         height = tempHeight > height ? tempHeight : height;
       });
       if (height > maxHeight) {
-        this.responsiveImageHeight = maxHeight;
+        height = maxHeight;
       } else if (height < minHeight) {
-        this.responsiveImageHeight = minHeight;
-      } else {
-        this.responsiveImageHeight = height;
+        height = minHeight;
       }
+      const oldResponsiveImageWidth = this.responsiveImageWidth;
+      const oldResponsiveImageHeight = this.responsiveImageHeight;
+      this.responsiveImageWidth = width;
+      this.responsiveImageHeight = height;
+      return oldResponsiveImageWidth !== this.responsiveImageWidth || oldResponsiveImageHeight !== this.responsiveImageHeight;
     }
+    return false;
   }
   private gapBetweenItems: number;
   public afterRender(el: HTMLElement): void {

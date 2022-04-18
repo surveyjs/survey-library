@@ -4147,7 +4147,6 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }
   private resizeObserver: ResizeObserver;
-
   afterRenderSurvey(htmlElement: any) {
     this.destroyResizeObserver();
     if (Array.isArray(htmlElement)) {
@@ -4158,9 +4157,14 @@ export class SurveyModel extends SurveyElementCore
     if (!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
+        let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
-          if (!observedElement.isConnected) { this.destroyResizeObserver(); }
-          else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
+          if (!observedElement.isConnected) { this.destroyResizeObserver(); return; }
+          if(isProcessed) {
+            isProcessed = false;
+          } else {
+            isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
+          }
         });
         this.resizeObserver.observe(observedElement);
       }
@@ -4170,9 +4174,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
-  private processResponsiveness(width: number, mobileWidth: number) {
+  private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
-    this.setIsMobile(isMobile);
+    if(this.isMobile === isMobile) {
+      return false;
+    } else {
+      this.setIsMobile(isMobile);
+      return true;
+    }
   }
   private destroyResizeObserver() {
     if (!!this.resizeObserver) {

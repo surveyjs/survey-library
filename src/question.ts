@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -119,6 +119,9 @@ export class Question extends SurveyElement
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+      this.onMobileChanged();
+    });
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -1823,19 +1826,37 @@ export class Question extends SurveyElement
     return ".sd-scrollable-container";
   }
 
+  private onMobileChanged() {
+    this.onMobileChangedCallback && this.onMobileChangedCallback();
+  }
+
+  private onMobileChangedCallback: () => void;
+
   private initResponsiveness(el: HTMLElement) {
+    this.destroyResizeObserver();
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
         const requiredWidth = defaultRootEl.scrollWidth;
-        this.resizeObserver = new ResizeObserver(()=>{
+        let isProcessed = false;
+        this.resizeObserver = new ResizeObserver(() => {
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+            if(isProcessed) {
+              isProcessed = false;
+            } else {
+              isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+            }
           }
         });
+        this.onMobileChangedCallback = () => {
+          setTimeout(() => {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }, 0);
+        };
         this.resizeObserver.observe(el);
       }
     }
@@ -1846,18 +1867,21 @@ export class Question extends SurveyElement
   protected getDesktopRenderAs(): string {
     return "default";
   }
-  protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+  protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
     availableWidth = Math.round(availableWidth);
+    const oldRenderAs = this.renderAs;
     if(requiredWidth > availableWidth) {
       this.renderAs = this.getCompactRenderAs();
     } else {
       this.renderAs = this.getDesktopRenderAs();
     }
+    return oldRenderAs !== this.renderAs;
   }
   private destroyResizeObserver() {
     if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
+      this.onMobileChangedCallback = undefined;
     }
   }
   public dispose() {

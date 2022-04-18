@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -1882,6 +1882,7 @@ export class Question extends SurveyElement
   private onMobileChangedCallback: () => void;
 
   private initResponsiveness(el: HTMLElement) {
+    this.destroyResizeObserver();
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
@@ -1895,14 +1896,14 @@ export class Question extends SurveyElement
             if(isProcessed) {
               isProcessed = false;
             } else {
-              isProcessed = this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+              isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
             }
           }
         });
         this.onMobileChangedCallback = () => {
           setTimeout(() => {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
           }, 0);
         };
         this.resizeObserver.observe(el);

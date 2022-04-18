@@ -93,6 +93,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
     if (!this.allowRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
+    this.visibleRows.forEach((row: MatrixDynamicRowModel) => { row.hideDetailPanel(); });
     this.draggedRow = row;
     this.dragOrClickHelper.onPointerDown(pointerDownEvent);
   }

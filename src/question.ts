@@ -114,6 +114,9 @@ export class Question extends SurveyElement
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+      this.onMobileChanged();
+    });
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -1871,18 +1874,21 @@ export class Question extends SurveyElement
   protected getObservedElementSelector(): string {
     return ".sd-scrollable-container";
   }
+
+  private onMobileChanged() {
+    this.onMobileChangedCallback && this.onMobileChangedCallback();
+  }
+
+  private onMobileChangedCallback: () => void;
+
   private initResponsiveness(el: HTMLElement) {
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
         const requiredWidth = defaultRootEl.scrollWidth;
-        let oldWidth: number = undefined;
-        this.onDomUpdatedCallback = () => {
-          oldWidth = el.offsetWidth;
-        };
         let isProcessed = false;
-        this.resizeObserver = new ResizeObserver(()=>{
+        this.resizeObserver = new ResizeObserver(() => {
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
@@ -1893,6 +1899,12 @@ export class Question extends SurveyElement
             }
           }
         });
+        this.onMobileChangedCallback = () => {
+          setTimeout(() => {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, rootEl.getBoundingClientRect().width);
+          }, 0);
+        };
         this.resizeObserver.observe(el);
       }
     }
@@ -1917,7 +1929,7 @@ export class Question extends SurveyElement
     if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
-      this.onDomUpdatedCallback = undefined;
+      this.onMobileChangedCallback = undefined;
     }
   }
   public dispose() {

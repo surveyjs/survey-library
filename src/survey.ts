@@ -4187,7 +4187,6 @@ export class SurveyModel extends SurveyElementCore
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
-      this.onDomUpdatedCallback = undefined;
     }
   }
   updateQuestionCssClasses(question: IQuestion, cssClasses: any) {

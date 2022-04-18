@@ -350,6 +350,14 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.clearCssClasses();
     }
   }
+  public getDataFilteredValues(): any {
+    return !!this.data ? this.data.getFilteredValues() : null;
+  }
+  public getDataFilteredProperties(): any {
+    var props = !!this.data ? this.data.getFilteredProperties() : {};
+    props.question = this;
+    return props;
+  }
   protected get surveyImpl() {
     return this.surveyImplValue;
   }
@@ -380,12 +388,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if (!!this.surveyChangedCallback) {
       this.surveyChangedCallback();
     }
-  }
-  /**
-   * Returns true if the question in design mode right now.
-   */
-  public get isDesignMode(): boolean {
-    return !!this.survey && this.survey.isDesignMode;
   }
   public isContentElement: boolean = false;
   public isEditableTemplateElement: boolean = false;

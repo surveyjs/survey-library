@@ -202,6 +202,7 @@ export class JsonObjectProperty implements IObject {
     "showMode",
     "dependedProperties",
     "visibleIf",
+    "onExecuteExpression",
     "onPropertyEditorUpdate",
     "maxLength",
     "maxValue",
@@ -210,41 +211,42 @@ export class JsonObjectProperty implements IObject {
   ];
   private idValue: number;
   private classInfoValue: JsonMetadataClass;
-  private typeValue: string = null;
-  private choicesValue: Array<any> = null;
-  private baseValue: any = null;
+  private typeValue: string;
+  private choicesValue: Array<any>;
+  private baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
-  private readOnlyValue: boolean | null = null;
-  private visibleValue: boolean | null = null;
-  private isLocalizableValue: boolean | null = null;
-  private choicesfunc: (obj: any, choicesCallback: any) => Array<any> = null;
-  private dependedProperties: Array<string> = null;
+  private readOnlyValue: boolean | null;
+  private visibleValue: boolean | null;
+  private isLocalizableValue: boolean | null;
+  private choicesfunc: (obj: any, choicesCallback: any) => Array<any>;
+  private dependedProperties: Array<string>;
   public isSerializable: boolean = true;
   public isLightSerializable: boolean = true;
   public isCustom: boolean = false;
   public isDynamicChoices: boolean = false; //TODO obsolete, use dependsOn attribute
   public isBindable: boolean = false;
-  public className: string = null;
-  public alternativeName: string = null;
-  public classNamePart: string = null;
-  public baseClassName: string = null;
-  public defaultValueValue: any = null;
-  public serializationProperty: string = null;
-  public displayName: string = null;
+  public className: string;
+  public alternativeName: string;
+  public classNamePart: string;
+  public baseClassName: string;
+  public defaultValueValue: any;
+  public serializationProperty: string ;
+  public displayName: string;
   public category: string = "";
   public categoryIndex: number = -1;
   public visibleIndex: number = -1;
-  public nextToProperty: string = null;
-  public showMode: string = null;
+  public nextToProperty: string;
+  public showMode: string;
   public maxLength: number = -1;
   public maxValue: any;
   public minValue: any;
   private dataListValue: Array<string>;
-  public layout: string = null;
-  public onGetValue: (obj: any) => any = null;
-  public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
-  public visibleIf: (obj: any) => boolean = null;
+  public layout: string;
+  public onGetValue: (obj: any) => any;
+  public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
+  public visibleIf: (obj: any) => boolean;
+  public onExecuteExpression: (obj: any, res: any) => any;
   public onPropertyEditorUpdate: (obj: any, propEditor: any) => any;
 
   constructor(
@@ -577,6 +579,11 @@ export class CustomPropertiesCollection {
         Object.defineProperty(obj, prop.name, desc);
       }
     }
+    if(prop.type === "condition" || prop.type === "expression") {
+      if(!!prop.onExecuteExpression) {
+        obj.addExpressionProperty(prop.name, prop.onExecuteExpression);
+      }
+    }
   }
 }
 
@@ -682,6 +689,9 @@ export class JsonMetadataClass {
       }
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
+      }
+      if (!!propInfo.onExecuteExpression) {
+        prop.onExecuteExpression = propInfo.onExecuteExpression;
       }
       if (!!propInfo.onPropertyEditorUpdate) {
         prop.onPropertyEditorUpdate = propInfo.onPropertyEditorUpdate;

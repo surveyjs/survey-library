@@ -40,7 +40,6 @@ export class Question extends SurveyElement
   private static getQuestionId(): string {
     return "sq_" + Question.questionCounter++;
   }
-  private conditionRunner: ConditionRunner = null;
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
@@ -48,8 +47,6 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private conditionEnabelRunner: ConditionRunner;
-  private conditionRequiredRunner: ConditionRunner;
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
@@ -86,7 +83,15 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+
+    this.addExpressionProperty("visibleIf",
+      (obj: Base, res: any) => { this.visible = res === true; },
+      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+
     this.createLocalizableString("commentText", this, true, "otherItemText");
+    this.createLocalizableString("comment,Text", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -264,7 +269,6 @@ export class Question extends SurveyElement
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
-    this.runConditions();
   }
   /**
    * Returns true if the question is visible or survey is in design mode right now.
@@ -346,14 +350,6 @@ export class Question extends SurveyElement
     if (isLight !== true) {
       this.runConditions();
     }
-  }
-  public getDataFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : null;
-  }
-  public getDataFilteredProperties(): any {
-    var props = !!this.data ? this.data.getFilteredProperties() : {};
-    props.question = this;
-    return props;
   }
   /**
    * A parent element. It can be panel or page.
@@ -880,7 +876,6 @@ export class Question extends SurveyElement
   }
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
-    this.runConditions();
   }
   /**
    * Set it to true, to add a comment for the question.
@@ -957,7 +952,6 @@ export class Question extends SurveyElement
   }
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
-    this.runConditions();
   }
   public surveyChoiceItemVisibilityChange(): void { }
   /**
@@ -972,54 +966,11 @@ export class Question extends SurveyElement
     if (this.isDesignMode) return;
     if (!properties) properties = {};
     properties["question"] = this;
-    if (!this.areInvisibleElementsShowing) {
-      this.runVisibleIfCondition(values, properties);
-    }
-    this.runEnableIfCondition(values, properties);
-    this.runRequiredIfCondition(values, properties);
+    this.runConditionCore(values, properties);
     if (!this.isValueChangedDirectly) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
       this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
-  }
-  private runVisibleIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.visibleIf) return;
-    if (!this.conditionRunner)
-      this.conditionRunner = new ConditionRunner(this.visibleIf);
-    this.conditionRunner.expression = this.visibleIf;
-    this.conditionRunner.onRunComplete = (res: boolean) => {
-      this.visible = res;
-    };
-    this.conditionRunner.run(values, properties);
-  }
-  private runEnableIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.enableIf) return;
-    if (!this.conditionEnabelRunner)
-      this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
-    this.conditionEnabelRunner.expression = this.enableIf;
-    this.conditionEnabelRunner.onRunComplete = (res: boolean) => {
-      this.readOnly = !res;
-    };
-    this.conditionEnabelRunner.run(values, properties);
-  }
-  private runRequiredIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.requiredIf) return;
-    if (!this.conditionRequiredRunner)
-      this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
-    this.conditionRequiredRunner.expression = this.requiredIf;
-    this.conditionRequiredRunner.onRunComplete = (res: boolean) => {
-      this.isRequired = res;
-    };
-    this.conditionRequiredRunner.run(values, properties);
   }
   /**
    * The property returns the question number. If question is invisible then it returns empty string.

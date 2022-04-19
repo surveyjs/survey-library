@@ -13,13 +13,21 @@ import { IAction } from "./actions/action";
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
+  private getVisibleListItems() {
+    return this.visibleChoices.map((choice: ItemValue) => <IAction>{
+      id: choice.value,
+      title: choice.text,
+      visible: choice.isVisible,
+      enabled: choice.isEnabled,
+    });
+  }
   constructor(name: string) {
     super(name);
     this.createLocalizableString("optionsCaption", this, false, true);
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
-      function() {
+      function () {
         self.onVisibleChoicesChanged();
       }
     );
@@ -66,7 +74,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (
       this.minMaxChoices.length === 0 ||
       this.minMaxChoices.length !==
-        (this.choicesMax - this.choicesMin) / this.choicesStep + 1
+      (this.choicesMax - this.choicesMin) / this.choicesStep + 1
     ) {
       this.minMaxChoices = [];
       for (
@@ -137,19 +145,21 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
 
+  protected onVisibleChoicesChanged(): void {
+    super.onVisibleChoicesChanged();
+
+    if (this.popupModel) {
+      this.popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+    }
+  }
+
   private _popupModel: PopupModel;
   public get popupModel(): PopupModel {
     if (this.renderAs === "select" && !this._popupModel) {
 
-      const actions = this.visibleChoices.map((choice: ItemValue) => <IAction>{
-        id: choice.value,
-        title: choice.text,
-        visible: choice.isVisible,
-        enabled: choice.isEnabled,
-      });
       this._popupModel = new PopupModel("sv-list", {
         model: new ListModel(
-          actions,
+          this.getVisibleListItems(),
           (item: IAction) => {
             this.value = item.id;
             this.popupModel.toggleVisibility();
@@ -228,7 +238,7 @@ Serializer.addClass(
     },
     { name: "renderAs", default: "default", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionDropdownModel("");
   },
   "selectbase"

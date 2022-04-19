@@ -1,2 +1,6 @@
 export * from "./core";
-export * from "./react-ui";
+
+// localization
+import "./chunks/localization";
+
+export * from "./react-ui-model";

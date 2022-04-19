@@ -4,9 +4,9 @@ import { LocalizableString } from "survey-core";
 import { Question } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ArrayChanges } from "survey-core";
+import { Base, ArrayChanges, SurveyModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -33,6 +33,20 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   componentDidUpdate(prevProps: any, prevState: any) {
     this.makeBaseElementsReact();
   }
+  private _allowComponentUpdate = true;
+  protected allowComponentUpdate() {
+    this._allowComponentUpdate = true;
+    this.forceUpdate();
+  }
+  protected denyComponentUpdate() {
+    this._allowComponentUpdate = false;
+  }
+  shouldComponentUpdate(nextProps:any, nextState:any):boolean {
+    if(this._allowComponentUpdate) {
+      this.unMakeBaseElementsReact();
+    }
+    return this._allowComponentUpdate;
+  }
   render(): JSX.Element {
     if (!this.canRender()) {
       return null;
@@ -51,15 +65,18 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return element;
   }
   protected get isRendering(): boolean {
-    var stateEl: any = this.getStateElement();
-    return !!stateEl && stateEl.reactRendering > 0;
+    var stateEls: Array<any> = this.getRenderedElements();
+    for(let stateEl of stateEls) {
+      if(stateEl.reactRendering > 0) return true;
+    }
+    return false;
   }
-  protected getRenderedElement(): Base {
-    return this.getStateElement();
+  protected getRenderedElements(): Base[] {
+    return this.getStateElements();
   }
   private startEndRendering(val: number) {
-    var stateEl: any = this.getRenderedElement();
-    if (!!stateEl) {
+    var stateEls: Array<any> = this.getRenderedElements();
+    for(let stateEl of stateEls) {
       if (!stateEl.reactRendering) stateEl.reactRendering = 0;
       stateEl.reactRendering += val;
     }
@@ -102,8 +119,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
   }
+  private canMakeReact(stateElement: Base): boolean {
+    return !!stateElement && !!stateElement.iteratePropertiesHash;
+  }
   private makeBaseElementReact(stateElement: Base) {
-    if (!stateElement) return;
+    if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
       if (!this.canUsePropInState(key)) return;
       var val: any = hash[key];
@@ -142,7 +162,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return true;
   }
   private unMakeBaseElementReact(stateElement: Base) {
-    if (!stateElement) return;
+    if (!this.canMakeReact(stateElement)) return;
     stateElement.setPropertyValueCoreHandler = undefined;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
@@ -194,8 +214,8 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   protected get questionBase(): Question {
     return this.props.question;
   }
-  protected getRenderedElement(): Base {
-    return this.questionBase;
+  protected getRenderedElements(): Base[] {
+    return [this.questionBase];
   }
   protected get creator(): ISurveyCreator {
     return this.props.creator;
@@ -203,7 +223,9 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   protected canRender(): boolean {
     return !!this.questionBase && !!this.creator;
   }
-  public shouldComponentUpdate(): boolean {
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+
     return (
       !this.questionBase.customWidget ||
       !!this.questionBase.customWidgetData.isNeedRender ||
@@ -226,11 +248,11 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     if (!reason) {
       return element;
     }
-    const survey: ReactSurveyModel = this.questionBase
-      .survey as ReactSurveyModel;
+    const survey: SurveyModel = this.questionBase
+      .survey as SurveyModel;
     let wrapper: JSX.Element;
     if (survey) {
-      wrapper = survey.wrapMatrixCell(element, cell, reason);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
   }

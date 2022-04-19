@@ -40,3 +40,13 @@
     margin-left: 0;
   }
 }
+
+.sd-drag-element__svg {
+  width: calcSize(2);
+  height: calcSize(2);
+  display: block;
+
+  use {
+    fill: $foreground-light;
+  }
+}

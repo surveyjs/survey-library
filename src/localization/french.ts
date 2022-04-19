@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
@@ -18,6 +18,7 @@ export var frenchSurveyStrings = {
   completingSurveyBefore: "Nos données indiquent que vous avez déjà rempli ce questionnaire.",
   loadingSurvey: "Le questionnaire est en cours de chargement...",
   optionsCaption: "Choisissez...",
+  ratingOptionsCaption: "Appuyez ici pour noter...",
   value: "valeur",
   requiredError: "La réponse à cette question est obligatoire.",
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
@@ -41,6 +42,7 @@ export var frenchSurveyStrings = {
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
   chooseFile: "Ajouter des fichiers...",
+  fileDragAreaPlaceholder: "Déposez un fichier ici ou cliquez sur le bouton ci-dessous pour charger le fichier.",
   noFileChosen: "Aucun fichier ajouté",
   confirmDelete: "Voulez-vous supprimer cet enregistrement ?",
   keyDuplicationError: "Cette valeur doit être unique.",
@@ -73,6 +75,16 @@ export var frenchSurveyStrings = {
   confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
+  emptyRowsText: "Il n'y a pas de lignes.",
+  filteredTextPlaceholder: "Tapez pour rechercher...",
+  indexText: "{0} sur {1}",
+  minError: "La valeur ne doit pas être inférieure à {0}",
+  maxError: "La valeur ne doit pas être supérieure à {0}",
+  modalApplyButtonText: "Appliquer",
+  modalCancelButtonText: "Annuler",
+  multipletext_itemname: "texte",
+  noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
+  signaturePlaceHolder: "Signez ici",
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

@@ -2,9 +2,10 @@ import { SurveyModel } from "../src/survey";
 
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
-import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionButtonGroupModel } from "../src/question_buttongroup";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("baseselect");
 
@@ -12,7 +13,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
   return question.columns.map((column) => column.map((choice) => choice.value));
 }
 
-QUnit.test("Check QuestionSelectBase columns property", function(assert) {
+QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   var json = {
     questions: [
       {
@@ -40,7 +41,155 @@ QUnit.test("Check QuestionSelectBase columns property", function(assert) {
     "check showItemsBy column"
   );
 });
-QUnit.test("Set ", function(assert) {
+QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        colCount: 2,
+      },
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [[], []],
+    "one column"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "other"],
+    "check foot items"
+  );
+  settings.supportCreatorV2 = false;
+});
+
+QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        choices: ["Item1", "Item2", "Item3", "Item4", "Item5"],
+        colCount: 3,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  assert.notOk(question.hasHeadItems);
+  assert.notOk(question.hasFootItems);
+
+  var columns = getValuesInColumns(question);
+  columns = getValuesInColumns(question);
+  settings.showItemsInOrder = "column";
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - runtime"
+  );
+
+  survey.setDesignMode(true);
+  settings.supportCreatorV2 = true;
+  (<any>question).updateVisibleChoices();
+  assert.ok(question.hasHeadItems);
+  assert.ok(question.hasFootItems);
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - design"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "other"],
+    "check foot items"
+  );
+  settings.showItemsInOrder = "row";
+  settings.supportCreatorV2 = false;
+});
+
+QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        choices: ["Item1", "Item2"],
+        hasOther: true,
+        hasSelectAll: true,
+        hasNone: true,
+        colCount: 2
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  question.separateSpecialChoices = false;
+  assert.notOk(question.hasHeadItems);
+  assert.notOk(question.hasFootItems);
+
+  var columns = getValuesInColumns(question);
+  columns = getValuesInColumns(question);
+  settings.showItemsInOrder = "column";
+  assert.deepEqual(
+    columns,
+    [["selectall", "Item2", "other"], ["Item1", "none"]],
+    "check columns with no separateSpecialChoices"
+  );
+
+  question.separateSpecialChoices = true;
+  assert.ok(question.hasHeadItems);
+  assert.ok(question.hasFootItems);
+
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1"], ["Item2"]],
+    "check columns with separateSpecialChoices"
+  );
+  let headItems = question.headItems.map((item) => item.value);
+  let footItems = question.footItems.map((item) => item.value);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["none", "other"],
+    "check foot items"
+  );
+  settings.showItemsInOrder = "row";
+  settings.supportCreatorV2 = false;
+});
+
+QUnit.test("Set ", function (assert) {
   var json = {
     questions: [
       {
@@ -140,4 +289,67 @@ QUnit.test("check item locstring owner and name", (assert) => {
   var itemValue = (question.choices[0]);
   assert.equal(itemValue.locText.owner.getType(), "itemvalue", "Owner for radio question item text is itemvalue");
   assert.equal(itemValue.locText.name, "text", "Name for radio question item text is text");
+});
+
+QUnit.test("check onShowingChoiceItem event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: "Item1", visibleIf: "1 = 2" }, "Item2", "Item3"],
+        hasNone: true,
+        hasOther: true
+      }]
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 4);
+  assert.equal(question.visibleChoices[0].value, "Item2");
+  assert.equal(question.visibleChoices[1].value, "Item3");
+  assert.equal(question.visibleChoices[2].value, "none");
+  assert.equal(question.visibleChoices[3].value, "other");
+
+  survey.onShowingChoiceItem.add((sender, options) => {
+    if (options.question.name !== "q1") return;
+    options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
+  });
+
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].value, "Item1");
+  assert.equal(question.visibleChoices[1].value, "Item2");
+});
+
+QUnit.test("check focus comment of other select", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true,
+        choices: ["item1"]
+      }
+    ]
+  });
+  let counter = 0;
+  const q = survey.getQuestionByName("q1");
+  q["focusOtherComment"] = () => {
+    counter ++;
+  };
+  assert.equal(counter, 0);
+  q.value = ["other"];
+  assert.equal(counter, 1);
+  q.value = ["other", "item1"];
+  assert.equal(counter, 1);
+  q.value = ["item1"];
+  assert.equal(counter, 1);
+  q.value = ["item1", "other"];
+  assert.equal(counter, 2);
+});
+QUnit.test("check separateSpecialChoices property visibility", (assert) => {
+  assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("checkbox", "separateSpecialChoices").visible);
+  assert.ok(Serializer.findProperty("radiogroup", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
+  assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });

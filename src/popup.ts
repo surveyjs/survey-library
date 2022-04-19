@@ -22,7 +22,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
-  @property({ defaultValue: "popup" }) displayMode: "popup"|"overlay";
+  @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -83,7 +83,7 @@ export function createPopupModalViewModel(
   onShow = () => { },
   cssClass?: string,
   title?: string,
-  displayMode: "popup"|"overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup"
 ) {
   const popupModel = new PopupModel(
     componentName,
@@ -160,7 +160,7 @@ export class PopupBaseViewModel extends Base {
     return this.model.contentComponentData;
   }
   public get showPointer(): boolean {
-    return this.model.showPointer;
+    return this.model.showPointer && !this.isOverlay && !this.isModal;
   }
   public get isModal(): boolean {
     return this.model.isModal;
@@ -175,6 +175,7 @@ export class PopupBaseViewModel extends Base {
     return new CssClassBuilder()
       .append(this.model.cssClass)
       .append("sv-popup--modal", this.isModal && !this.isOverlay)
+      .append("sv-popup--dropdown", !this.isModal && !this.isOverlay)
       .append("sv-popup--show-pointer", !this.isModal && !this.isOverlay && this.showPointer)
       .append(`sv-popup--${this.popupDirection}`, !this.isModal && !this.isOverlay && this.showPointer)
       .append(`sv-popup--${this.model.displayMode}`, this.isOverlay)
@@ -223,23 +224,20 @@ export class PopupBaseViewModel extends Base {
     }
   }
   private updatePosition() {
-    if(this.model.displayMode !== "overlay") {
+    if (this.model.displayMode !== "overlay") {
       const rect = this.targetElement.getBoundingClientRect();
       const background = <HTMLElement>this.container.children[0];
       const popupContainer = <HTMLElement>background.children[0];
       const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
       const popupComputedStyle = window.getComputedStyle(popupContainer);
-      const margin = (parseFloat(popupComputedStyle.marginLeft)||0) + (parseFloat(popupComputedStyle.marginRight)||0);
-      let height =
-        popupContainer.offsetHeight -
-        scrollContent.offsetHeight +
-        scrollContent.scrollHeight;
-      const width = popupContainer.offsetWidth;
-      const widthMargins = popupContainer.offsetWidth + margin;
+      const margin = (parseFloat(popupComputedStyle.marginLeft) || 0) + (parseFloat(popupComputedStyle.marginRight) || 0);
+      let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
+      const width = popupContainer.getBoundingClientRect().width;
+      const widthMargins = width + margin;
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
-        height = Math.min(height, window.innerHeight * 0.9);
+        height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
         verticalPosition = PopupUtils.updateVerticalPosition(
           rect,
           height,
@@ -255,7 +253,7 @@ export class PopupBaseViewModel extends Base {
       const pos = PopupUtils.calculatePosition(
         rect,
         height,
-        width,
+        widthMargins,
         verticalPosition,
         this.model.horizontalPosition,
         this.showPointer
@@ -290,13 +288,14 @@ export class PopupBaseViewModel extends Base {
           pos.top,
           pos.left,
           verticalPosition,
-          this.model.horizontalPosition
+          this.model.horizontalPosition,
+          width,
+          margin
         );
       }
       this.pointerTarget.top += "px";
       this.pointerTarget.left += "px";
-    }
-    else{
+    } else {
       this.left = null;
       this.top = null;
       this.height = null;

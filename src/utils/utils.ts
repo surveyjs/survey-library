@@ -1,4 +1,6 @@
 import { settings } from "./../settings";
+import { Serializer } from "../jsonobject";
+import { Base } from "src/base";
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -137,7 +139,8 @@ function createSvg(
   iconName: string,
   svgElem: any
 ) {
-  if(size !== "auto") {
+  if (!svgElem) return;
+  if (size !== "auto") {
     svgElem.style.width = (size || width || 16) + "px";
     svgElem.style.height = (size || height || 16) + "px";
   }
@@ -174,6 +177,13 @@ export function getSize(value: any) {
   return value;
 }
 
+const keyFocusedClassName = "sv-focused--by-key";
+function doKey2ClickBlur(evt: KeyboardEvent): void {
+  const element: any = evt.target;
+  if (!element || !element.classList) return;
+  element.classList.remove(keyFocusedClassName);
+}
+
 function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
@@ -181,7 +191,11 @@ function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void
   const element: any = evt.target;
   if (!element) return;
   const char: number = evt.which || evt.keyCode;
-  if (char === 13 || char === 32) {
+  if (char === 9) {
+    if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
+      element.classList.add(keyFocusedClassName);
+    }
+  } else if (char === 13 || char === 32) {
     if (element.click) element.click();
   } else if (options.processEsc && char === 27) {
     if (element.blur) element.blur();
@@ -215,8 +229,18 @@ function preventDefaults(event: any) {
   event.preventDefault();
   event.stopPropagation();
 }
+function classesToSelector(str: string): string {
+  const re = /\s*?([\w-]+)\s*?/g;
+  return str.replace(re, ".$1");
+}
+
+function getElementWidth(el: HTMLElement) {
+  return !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
+}
 
 export {
+  getElementWidth,
+  classesToSelector,
   compareVersions,
   confirmAction,
   detectIEOrEdge,
@@ -227,6 +251,7 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
+  doKey2ClickBlur,
   doKey2ClickUp,
   doKey2ClickDown,
   getIconNameFromProxy,

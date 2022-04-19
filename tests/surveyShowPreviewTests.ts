@@ -366,7 +366,7 @@ QUnit.test(
     );
     var action = actionContainer.actions[0];
     assert.equal(action.title, "Edit");
-    assert.equal(action.innerCss, "sv_edit_btn");
+    assert.equal(action.innerCss, "sv_nav_btn sv_edit_btn");
     var panel = <PanelModel>survey.getAllPanels()[1].elements[0];
     assert.equal(
       panel.hasEditButton,

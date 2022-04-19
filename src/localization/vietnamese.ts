@@ -1,5 +1,5 @@
 //Uncomment this line on creating a translation file
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var vietnameseSurveyStrings = {
   pagePrevText: "Trở về",

@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ overflowX: question.horizontalScroll ? 'scroll' : '' }">
+  <div :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' }">
     <div
       v-if="question.renderedTable.showAddRowOnTop"
       :class="question.cssClasses.footer"

@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { Base, EventBase } from "./base";
 import {
@@ -54,14 +54,13 @@ export class QuestionRowModel extends Base {
     findScrollableContainer = findScrollableParent
   ) {
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
-    this.isNeedRender = !(
-      this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight
-    );
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
     if (this._scrollableParent === document.documentElement) {
       this._scrollableParent = window;
     }
-    if (!this.isNeedRender) {
+    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
+    this.isNeedRender = !hasScroll;
+    if (hasScroll) {
       this._updateVisibility = () => {
         var isRowContainerDivVisible = isElementVisible(rowContainerDiv, 50);
         if (!this.isNeedRender && isRowContainerDivVisible) {
@@ -277,6 +276,13 @@ export class PanelModelBase extends SurveyElement
       this.onRemoveElement.bind(this)
     );
     this.id = PanelModelBase.getPanelId();
+
+    this.addExpressionProperty("visibleIf",
+      (obj: Base, res: any) => { this.visible = res === true; },
+      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
       this.onVisibleChanged.bind(this);
@@ -305,16 +311,18 @@ export class PanelModelBase extends SurveyElement
     this.markQuestionListDirty();
     this.onRowsChanged();
   }
+  @property({ defaultValue: true }) showTitle: boolean;
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.title.length > 0) ||
-      (this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.showTitle && this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
     );
   }
   protected canShowTitle(): boolean { return true; }
+  @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
-    return (<any>this.survey).showPageTitles && this.hasDescription ||
-    (this.isDesignMode &&
+    return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
+    (this.showDescription && this.isDesignMode &&
       settings.allowShowEmptyTitleInDesignMode &&
       settings.allowShowEmptyDescriptionInDesignMode);
   }
@@ -1363,44 +1371,7 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < elements.length; i++) {
       elements[i].runCondition(values, properties);
     }
-    if (!this.areInvisibleElementsShowing) {
-      this.runVisibleCondition(values, properties);
-    }
-    this.runEnableCondition(values, properties);
-    this.runRequiredCondition(values, properties);
-  }
-  private runVisibleCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.visibleIf) return;
-    var conditionRunner = new ConditionRunner(this.visibleIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.visible = res;
-    };
-    conditionRunner.run(values, properties);
-  }
-  private runEnableCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.enableIf) return;
-    var conditionRunner = new ConditionRunner(this.enableIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.readOnly = !res;
-    };
-    conditionRunner.run(values, properties);
-  }
-  private runRequiredCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.requiredIf) return;
-    var conditionRunner = new ConditionRunner(this.requiredIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.isRequired = res;
-    };
-    conditionRunner.run(values, properties);
+    this.runConditionCore(values, properties);
   }
   onAnyValueChanged(name: string) {
     var els = this.elements;
@@ -1898,12 +1869,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public needResponsiveWidth() {
-    if (this.startWithNewLine) {
+    if (!this.startWithNewLine) {
       return true;
     }
-    else
-      super.needResponsiveWidth();
-    return false;
+    else {
+      return super.needResponsiveWidth();
+    }
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
@@ -1977,7 +1948,7 @@ Serializer.addClass(
       isSerializable: false,
       visibleIf: function (obj: any) {
         var survey = obj ? obj.survey : null;
-        return !survey || survey.pages.length > 1;
+        return !survey || !survey.pages || survey.pages.length > 1;
       },
       choices: function (obj: any) {
         var survey = obj ? obj.survey : null;

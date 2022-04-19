@@ -5,10 +5,9 @@ import {
 } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { QuestionCheckboxModel } from "../question_checkbox";
-import { Base } from "../base";
-import { ItemValue } from "../itemvalue";
+import { Base, ItemValue, SurveyModel } from "survey-core";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -27,9 +26,48 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       >
         <legend role="presentation" className={"sv-hidden"}></legend>
         {this.question.hasColumns
-          ? this.getColumns(cssClasses)
+          ? this.getColumnedBody(cssClasses)
           : this.getItems(cssClasses)}
+        {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther() : null}
       </fieldset>
+    );
+  }
+
+  protected getHeader() {
+    if (this.question.hasHeadItems) {
+      return this.question.headItems.map((item: any, ii: number) =>
+        this.renderItem(
+          "item_h" + ii,
+          item,
+          false,
+          this.question.cssClasses,
+          null
+        )
+      );
+    }
+  }
+  protected getFooter() {
+    if (this.question.hasFootItems) {
+      return this.question.footItems.map((item: any, ii: number) =>
+        this.renderItem(
+          "item_f" + ii,
+          item,
+          false,
+          this.question.cssClasses,
+          null
+        )
+      );
+    }
+  }
+  protected getColumnedBody(cssClasses: any) {
+    return (
+      <>
+        {this.getHeader()}
+        <div className={cssClasses.rootMultiColumn}>
+          {this.getColumns(cssClasses)}
+        </div>
+        {this.getFooter()}
+      </>
     );
   }
   protected getColumns(cssClasses: any) {
@@ -63,6 +101,19 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   protected get textStyle(): any {
     return null;
   }
+  protected renderOther(): JSX.Element {
+    let cssClasses = this.question.cssClasses;
+    return (
+      <div className="form-group">
+        <SurveyQuestionCommentItem
+          question={this.question}
+          otherCss={cssClasses.other}
+          cssClasses={cssClasses}
+          isDisplayMode={this.isDisplayMode}
+        />
+      </div>
+    );
+  }
   protected renderItem(
     key: string,
     item: any,
@@ -82,10 +133,10 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         index={index}
       />
     );
-    const survey = this.question.survey as ReactSurveyModel;
+    const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
     if(!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
   }
@@ -115,7 +166,8 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
-  public shouldComponentUpdate(): boolean {
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -145,10 +197,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     var isChecked = this.question.isItemSelected(this.item);
-    var otherItem = this.question.isOtherItem(this.item) && isChecked
-      ? this.renderOther()
-      : null;
-    return this.renderCheckbox(isChecked, otherItem);
+    return this.renderCheckbox(isChecked, null);
   }
   protected get inputStyle(): any {
     return null;//{ marginRight: "3px" };
@@ -175,7 +224,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             className={this.cssClasses.itemControl}
             type="checkbox"
             name={this.question.name}
-            value={this.item.value}
+            value={this.item.value != "selectall" ? this.item.value : undefined}
             id={id}
             style={this.inputStyle}
             disabled={!this.question.getItemEnabled(this.item)}
@@ -197,23 +246,11 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={this.cssClasses.controlLabel} title={locText.renderedHtml}>
+          <span className={this.cssClasses.controlLabel}>
             {text}
           </span>
         </label>
         {otherItem}
-      </div>
-    );
-  }
-  protected renderOther(): JSX.Element {
-    return (
-      <div className="form-group">
-        <SurveyQuestionCommentItem
-          question={this.question}
-          otherCss={this.cssClasses.other}
-          cssClasses={this.cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
       </div>
     );
   }

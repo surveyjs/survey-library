@@ -5,8 +5,7 @@ import { QuestionRowModel } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
 import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { settings } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Question } from "../question";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
@@ -14,6 +13,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
     this.rootRef = React.createRef();
+    this.recalculateCss();
+  }
+  private recalculateCss() {
+    this.row.visibleElements.map(element => (element as Question).cssClasses);
   }
   protected getStateElement(): Base {
     return this.row;
@@ -37,7 +40,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     var elements = null;
     elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
-      const css = (element as Question).cssClasses;
+      const css = (element as Question).cssClassesValue;
       return (
         <div
           className={css.questionWrapper}
@@ -58,9 +61,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     );
   }
   protected renderElement(): JSX.Element {
-    const survey: ReactSurveyModel = this.survey as ReactSurveyModel;
+    const survey: SurveyModel = this.survey as SurveyModel;
     const content = this.renderElementContent();
-    const wrapper = survey.wrapRow(content, this.row);
+    const wrapper = ReactSurveyElementsWrapper.wrapRow(survey, content, this.row);
     return wrapper || content;
   }
   componentDidMount() {
@@ -74,10 +77,13 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+
     if (nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
       this.stopLazyRendering();
     }
+    this.recalculateCss();
     return true;
   }
   private stopLazyRendering() {

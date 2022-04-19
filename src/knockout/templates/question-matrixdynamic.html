@@ -1,4 +1,4 @@
-﻿﻿<script type="text/html" id="survey-question-matrixdynamic">
+﻿<script type="text/html" id="survey-question-matrixdynamic">
     <div>
     <!-- ko if: question.koTable().showAddRowOnTop -->
     <div
@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
     <div
-      data-bind="visible: question.koTable().showTable, style: { overflowX: question.horizontalScroll ? 'scroll': '' }"
+      data-bind="visible: question.koTable().showTable, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
     >
       <table data-bind="css: question.koCss().root">
         <!-- ko if: question.koTable().showHeader -->
@@ -40,7 +40,7 @@
         <tbody>
           <!-- ko foreach: question.koTable().rows -->
           <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
-          <tr data-bind="css: $data.className, attr: attributes">
+          <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
             <!-- ko foreach: $data.cells -->
             <!-- ko if: $data.isDragHandlerCell -->
             <td data-bind="css:$data.className, attr: {colspan: $data.colSpans}">

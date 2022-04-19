@@ -19,7 +19,7 @@ var svgStoreUtils = require(path.resolve(
   "../node_modules/webpack-svgstore-plugin/src/helpers/utils.js"
 ));
 
-module.exports = function(options, packageJson, chunkName) {
+module.exports = function (options, packageJson, chunkName) {
   packageJson.version = packageJsonWithVersion.version;
   const today = new Date();
   const year = today.getFullYear();
@@ -94,7 +94,6 @@ module.exports = function(options, packageJson, chunkName) {
   var percentage_handler = function handler(percentage, msg) {
     if (0 == percentage) {
       console.log("Build started... good luck!");
-      createSVGBundle();
     } else if (1 == percentage) {
       if (isProductionBuild) {
         console.log("Generating d.ts file: " + dts_generator);
@@ -194,9 +193,9 @@ module.exports = function(options, packageJson, chunkName) {
           loader: "html-loader",
         },
         {
-          test: /\.(svg|png)$/,
+          test: /\.(svg)$/,
           use: {
-            loader: "url-loader",
+            loader: "svg-inline-loader",
             options: {},
           },
         },

@@ -1,5 +1,6 @@
 <!-- ko with: $data.item -->
 <div data-bind="class: $data.getActionRootCss(), attr: { id: $data.id }">
+    <!-- ko ifnot: $data.isEmpty -->
     <div class="sv-action__content">
         <!-- ko if: $data.needSeparator -->
         <sv-action-bar-separator></sv-action-bar-separator>
@@ -13,5 +14,6 @@
         <!-- /ko -->
         <!-- /ko -->
     </div>
+    <!-- /ko -->
 </div>
 <!-- /ko -->

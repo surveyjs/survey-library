@@ -1,5 +1,7 @@
 @import "../variables.scss";
 
+
+
 .sd-btn {
   padding: calcSize(2) calcSize(6);
   background: $background;
@@ -17,24 +19,28 @@
   border: 2px solid transparent;
   outline: none;
 }
-.sd-btn:hover {
-  border-color: $primary;
+.sd-btn:not(:disabled) {
+  &:hover, &:focus {
+    box-shadow: 0 0 0 2px $primary; 
+  }
 }
 
 .sd-btn:disabled {
   color: $foreground-disabled;
   cursor: default;
-  &:hover {
-    box-shadow: 0px 1px 2px $shadow-inner;
-  }
 }
 
 .sd-btn--action {
   background-color: $primary;
-  border: 2px solid $primary;
   color: $primary-foreground;
+}
+.sd-btn--action:not(:disabled) {
+  &:hover, &:focus {
+    color: $primary;
+    background-color: $background;
+  }
 }
 
 .sd-btn--action:disabled {
-  background-color: $background-dim;
+  color: $primary-foreground-disabled;
 }

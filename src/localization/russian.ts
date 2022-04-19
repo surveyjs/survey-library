@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var russianSurveyStrings = {
   pagePrevText: "Назад",
@@ -12,7 +12,7 @@ export var russianSurveyStrings = {
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
   panelDynamicProgressText: "Запись {0} из {1}",
-  questionsProgressText: "Ответы на {0}/{1}вопросы",
+  questionsProgressText: "Oтвечено на {0}/{1} вопросов",
   emptySurvey: "Нет ни одного вопроса.",
   completingSurvey: "Благодарим Вас за заполнение анкеты!",
   completingSurveyBefore:
@@ -45,6 +45,7 @@ export var russianSurveyStrings = {
     "Ваш файл загружается. Подождите несколько секунд и попробуйте снова.",
   loadingFile: "Загрузка...",
   chooseFile: "Выберите файл(ы)...",
+  fileDragAreaPlaceholder: "Перетащите файл сюда или нажмите кнопку ниже, чтобы загрузить файл.",
   noFileChosen: "Файл не выбран",
   confirmDelete: "Вы точно хотите удалить запись?",
   keyDuplicationError: "Это значение должно быть уникальным.",
@@ -78,6 +79,17 @@ export var russianSurveyStrings = {
   confirmRemoveFile: "Вы уверены, что хотите удалить этот файл: {0}?",
   confirmRemoveAllFiles: "Вы уверены, что хотите удалить все файлы?",
   questionTitlePatternText: "Название вопроса",
+  ratingOptionsCaption: "Нажмите здесь, чтобы оценить...",
+  emptyRowsText: "Рядов нет.",
+  filteredTextPlaceholder: "Введите для поиска...",
+  indexText: "{0} из {1}",
+  minError: "Значение не должно быть меньше {0}.",
+  maxError: "Значение не должно превышать {0}.",
+  modalApplyButtonText: "Применять",
+  modalCancelButtonText: "Отменить",
+  multipletext_itemname: "текст",
+  noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
+  signaturePlaceHolder: "Подпишите здесь",
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;

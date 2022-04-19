@@ -593,12 +593,42 @@ QUnit.test(
   }
 );
 
+QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"]
+    }]
+  });
+  var matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.hasCellText, false, "There is no cell text");
+  survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"],
+      cells: { default: { col1: "text" } }
+    }]
+  });
+  matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.hasCellText, true, "There is cell text");
+});
+
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
+  let counter = 0;
+  matrix.registerFunctionOnPropertyValueChanged("cells", () => {
+    counter ++;
+  });
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.hasCellText, false, "There is no cell text");
+  assert.equal(counter, 0, "no changes in cells");
   matrix.setCellText(0, 0, "cell11");
+  assert.equal(counter, 1, "one change in cells");
   assert.equal(matrix.hasCellText, true, "There is cell text");
   assert.equal(
     matrix.getCellText(0, 0),
@@ -606,6 +636,7 @@ QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
     "get/set by index works correctly"
   );
   matrix.setCellText(0, 0, "");
+  assert.equal(counter, 2, "second cells change");
   assert.equal(matrix.hasCellText, false, "There is no cell text again");
 });
 QUnit.test("Rubric Matrix Question cells get cell displayText", function(
@@ -3869,6 +3900,14 @@ QUnit.test("question.getSupportedValidators", function(assert) {
     "answercount",
   ]);
 });
+QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function(assert) {
+  const q = new QuestionImagePickerModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.multiSelect = true;
+  assert.equal(q.supportGoNextPageAutomatic(), false, "It doesn't support it for multiselect");
+  q.multiSelect = false;
+  assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
+});
 
 QUnit.test("Question<=Base propertyValueChanged", function(assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
@@ -3941,7 +3980,7 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function(assert) {
   var todayStr = new Date().toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
-QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText max/maxValueExpression, today()", function(assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
@@ -3951,6 +3990,27 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
     question.renderedMax,
     todayStr,
     "renderedMax: today in format yyyy-mm-dd"
+  );
+});
+QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function(assert) {
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
+  });
+  const question = <QuestionTextModel>survey.getQuestionByName("q");
+  const todayStr = new Date().toISOString().slice(0, 10);
+  var maxDate = new Date();
+  maxDate.setUTCHours(0, 0, 0, 0);
+  maxDate.setDate(maxDate.getDate() + 10);
+  var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
+  assert.equal(
+    question.renderedMin,
+    todayStr,
+    "renderedMin: today in format yyyy-mm-dd"
+  );
+  assert.equal(
+    question.renderedMax,
+    todayPlus10DaysStr,
+    "renderedMax: today + 10 days in format yyyy-mm-dd"
   );
 });
 QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
@@ -5205,23 +5265,23 @@ QUnit.test(
       "new item is never in the list"
     );
 
-    assert.equal(q1.visibleChoices[5].value, "none", "index=5, none");
+    assert.equal(q1.visibleChoices[4].value, "none", "index=4, none");
     assert.equal(
-      q1.isItemInList(q1.visibleChoices[5]),
+      q1.isItemInList(q1.visibleChoices[4]),
       false,
       "none not in list"
     );
     q1.hasNone = true;
-    assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "none in list");
+    assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "none in list");
 
-    assert.equal(q1.visibleChoices[4].value, "other", "index=4, other");
+    assert.equal(q1.visibleChoices[5].value, "other", "index=5, other");
     assert.equal(
-      q1.isItemInList(q1.visibleChoices[4]),
+      q1.isItemInList(q1.visibleChoices[5]),
       false,
       "other not in list"
     );
     q1.hasOther = true;
-    assert.equal(q1.isItemInList(q1.visibleChoices[4]), true, "other in list");
+    assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "other in list");
 
     assert.equal(q2.visibleChoices[0].value, "selectall", "index=0, selectall");
     assert.equal(
@@ -5347,6 +5407,37 @@ QUnit.test(
       7,
       "Show SelectAll+None+hasOther+new: 3+4"
     );
+    settings.supportCreatorV2 = false;
+  }
+);
+QUnit.test(
+  "Creator V2 + showDefaultItemsInCreatorV2: add into visibleChoices others/hasOther items in design mode, add new question",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+        },
+      ],
+    };
+    settings.supportCreatorV2 = true;
+    settings.showDefaultItemsInCreatorV2 = false;
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q2 = new QuestionCheckboxModel("q2");
+    q2.choices = ["item1", "item2", "item3"];
+    survey.pages[0].addQuestion(q2);
+    var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    (q1.choices = ["item1", "item2", "item3"]),
+    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+    assert.equal(
+      q2.visibleChoices.length,
+      3,
+      "Show SelectAll+None+hasOther+new: 3"
+    );
+    settings.showDefaultItemsInCreatorV2 = true;
     settings.supportCreatorV2 = false;
   }
 );

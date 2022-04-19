@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `customValidators`;
+const title = "customValidators";
 
 const setupSurvey = ClientFunction(() => {
   function __extends(thisClass, baseClass) {
@@ -15,7 +16,7 @@ const setupSurvey = ClientFunction(() => {
         ? Object.create(baseClass)
         : ((__.prototype = baseClass.prototype), new __());
   }
-  
+
   var MyTextValidator = (function(_super) {
     __extends(MyTextValidator, _super);
     function MyTextValidator() {
@@ -27,9 +28,9 @@ const setupSurvey = ClientFunction(() => {
     MyTextValidator.prototype.validate = function(value, name) {
       if (value.indexOf("survey") < 0) {
         //report an error
-        return new Survey.ValidatorResult(
+        return new window["Survey"].ValidatorResult(
           null,
-          new Survey.CustomError(this.getErrorText(name))
+          new window["Survey"].CustomError(this.getErrorText(name))
         );
       }
       //return Survey.ValidatorResult object if you want to correct the entered value
@@ -42,10 +43,10 @@ const setupSurvey = ClientFunction(() => {
       return "You text should contains 'survey' word.";
     };
     return MyTextValidator;
-  })(Survey.SurveyValidator);
-  Survey.MyTextValidator = MyTextValidator;
+  })(window["Survey"].SurveyValidator);
+  window["Survey"].MyTextValidator = MyTextValidator;
   //add into survey Json metaData
-  Survey.Serializer.addClass(
+  window["Survey"].Serializer.addClass(
     "mytextvalidator",
     [],
     function() {
@@ -75,7 +76,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`check validation`, async t => {
+  test("check validation", async t => {
     const getError1Div = Selector("div").withText("Response required.").with({
       visibilityCheck: true,
       timeout: 1000
@@ -86,15 +87,15 @@ frameworks.forEach(framework => {
     });
     let surveyResult;
 
-    await t.click(`input[value="Complete"]`);
+    await t.click("input[value=\"Complete\"]");
 
     assert(await getError1Div());
 
-    await t.typeText(`textarea`, `wombat`).click(`input[value="Complete"]`);
+    await t.typeText("textarea", "wombat").click("input[value=\"Complete\"]");
 
     assert(await getError2Div());
 
-    await t.typeText(`textarea`, ` survey`).click(`input[value="Complete"]`);
+    await t.typeText("textarea", " survey").click("input[value=\"Complete\"]");
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ memo: "wombat survey" });

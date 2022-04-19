@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
-const title = `ShowPreview`;
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+const title = "ShowPreview";
 
 const json = {
   pages: [
@@ -17,13 +17,13 @@ const json = {
 };
 
 const showAnsweredQuestions = ClientFunction(() => {
-  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  window["survey"].showPreviewBeforeComplete = "showAnsweredQuestions";
 });
 const showAllQuestions = ClientFunction(() => {
-  survey.showPreviewBeforeComplete = "showAllQuestions";
+  window["survey"].showPreviewBeforeComplete = "showAllQuestions";
 });
 const goLastPage = ClientFunction(() => {
-  survey.currentPageNo = survey.visiblePageCount - 1;
+  window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
 });
 
 frameworks.forEach((framework) => {
@@ -33,18 +33,18 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`showPreview = showAllQuestions`, async (t) => {
+  test("showPreview = showAllQuestions", async (t) => {
     await showAllQuestions();
     await goLastPage();
-    await t.click(`input[value=Preview]`);
-    await t.expect(Selector(`button`).find("span").withText("Edit").count).eql(4);
-    await t.click(Selector(`button`).find("span").withText("Edit").nth(1));
-    await t.typeText(Selector(`input[type=text]`).nth(1), "val3");
+    await t.click("input[value=Preview]");
+    await t.expect(Selector("button").find("span").withText("Edit").count).eql(4);
+    await t.click(Selector("button").find("span").withText("Edit").nth(1));
+    await t.typeText(Selector("input[type=text]").nth(1), "val3");
     await t
-      .click(`input[value=Next]`)
-      .click(`input[value=Next]`)
-      .click(`input[value=Preview]`)
-      .click(`input[value=Complete]`);
+      .click("input[value=Next]")
+      .click("input[value=Next]")
+      .click("input[value=Preview]")
+      .click("input[value=Complete]");
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       q2: "2",
@@ -52,18 +52,18 @@ frameworks.forEach((framework) => {
       q4: "4",
     });
   });
-  test(`showPreview = showAnsweredQuestions`, async (t) => {
+  test("showPreview = showAnsweredQuestions", async (t) => {
     await showAnsweredQuestions();
     await goLastPage();
-    await t.click(`input[value=Preview]`);
-    await t.expect(Selector(`button`).find("span").withText("Edit").count).eql(2);
-    await t.click(Selector(`button`).find("span").withText("Edit").nth(0));
-    await t.typeText(Selector(`input[type=text]`).nth(1), "val3");
+    await t.click("input[value=Preview]");
+    await t.expect(Selector("button").find("span").withText("Edit").count).eql(2);
+    await t.click(Selector("button").find("span").withText("Edit").nth(0));
+    await t.typeText(Selector("input[type=text]").nth(1), "val3");
     await t
-      .click(`input[value=Next]`)
-      .click(`input[value=Next]`)
-      .click(`input[value=Preview]`)
-      .click(`input[value=Complete]`);
+      .click("input[value=Next]")
+      .click("input[value=Next]")
+      .click("input[value=Preview]")
+      .click("input[value=Complete]");
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       q2: "2",

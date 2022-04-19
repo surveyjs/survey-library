@@ -1,5 +1,5 @@
-//Uncomment this line on creating a translation file
-//import { surveyLocalization } from "../surveyStrings";
+// Uncomment this line on creating a translation file
+// import { surveyLocalization } from "survey-core";
 
 export var englishStrings = {
   pagePrevText: "Previous",
@@ -12,7 +12,8 @@ export var englishStrings = {
   noneItemText: "None",
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
-  panelDynamicProgressText: "Record {0} of {1}",
+  indexText: "{0} of {1}",
+  panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "Answered {0}/{1} questions",
   emptySurvey: "There is no visible page or question in the survey.",
   completingSurvey: "Thank you for completing the survey!",
@@ -20,6 +21,7 @@ export var englishStrings = {
     "Our records show that you have already completed this survey.",
   loadingSurvey: "Loading Survey...",
   optionsCaption: "Choose...",
+  ratingOptionsCaption: "Tap to rate here...",
   value: "value",
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",

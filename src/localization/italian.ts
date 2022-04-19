@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var italianSurveyStrings = {
   pagePrevText: "Precedente",
@@ -46,6 +46,8 @@ export var italianSurveyStrings = {
     "File in caricamento. Attendi alcuni secondi e riprova",
   loadingFile: "Caricamento...",
   chooseFile: "Selezionare file(s)...",
+  fileDragAreaPlaceholder: "Trascina un file qui o fai clic sul pulsante in basso per caricare il file.",
+
   noFileChosen: "Nessun file selezionato",
   confirmDelete: "Sei sicuro di voler elminare il record?",
   keyDuplicationError: "Questo valore deve essere univoco.",
@@ -79,6 +81,17 @@ export var italianSurveyStrings = {
   confirmRemoveFile: "Sei sicuro di voler elminare questo file: {0}?",
   confirmRemoveAllFiles: "Sei sicuro di voler elminare tutti i files?",
   questionTitlePatternText: "Titolo della domanda",
+  ratingOptionsCaption: "Tocca qui per valutare...",
+  emptyRowsText: "Non ci sono righe.",
+  filteredTextPlaceholder: "Digita per cercare...",
+  indexText: "{0} da {1}",
+  minError: "Il valore non deve essere inferiore a {0}",
+  maxError: "Il valore non deve essere maggiore di {0}",
+  modalApplyButtonText: "Applicare",
+  modalCancelButtonText: "Annulla",
+  multipletext_itemname: "testo",
+  noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
+  signaturePlaceHolder: "Firmare qui",
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;

@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
 
 const title = "Complex Screenshot";
 
@@ -89,13 +89,17 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
     await applyTheme(theme);
   });
   test("Check complex question", async (t) => {
     await t.resizeWindow(1920, 1800);
     await ClientFunction(() => { (window as any).Survey.surveyLocalization.locales.en.panelDynamicProgressText = "{0} of {1}"; })();
     await initSurvey(framework, json);
-    await ClientFunction(() => { (window as any).survey.getQuestionByName("order").currentIndex = 4; })();
+    await ClientFunction(() => {
+      const panel = (window as any).survey.getQuestionByName("order");
+      panel.currentIndex = 4;
+    })();
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
     await takeScreenshot("complex-question.png", questionRoot, screenshotComparerOptions);

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var macedonianSurveyStrings = {
   pagePrevText: "Претходна",
@@ -47,6 +47,7 @@ export var macedonianSurveyStrings = {
     "Вашата датотека се поставува. Ве молиме почекајте неколку секунди и обидете се повторно.",
   loadingFile: "Се вчитува ...",
   chooseFile: "Изберете датотека (и) ...",
+  fileDragAreaPlaceholder: "Пуштете датотека овде или кликнете на копчето подолу за да ја вчитате датотеката.",
   noFileChosen: "Не се избрани датотеки",
   confirmDelete: "Дали сакате да го избришете записот?",
   keyDuplicationError: "Оваа вредност треба да биде единствена.",

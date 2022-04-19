@@ -39,6 +39,12 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       this.updateStateOnCallback();
     };
     this.question.onRenderedTableResetCallback = () => {
+      this.question.renderedTable.renderedRowsChangedCallback = () => {
+        this.updateStateOnCallback();
+      };
+      this.updateStateOnCallback();
+    };
+    this.question.renderedTable.renderedRowsChangedCallback = () => {
       this.updateStateOnCallback();
     };
   }
@@ -46,6 +52,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     super.componentWillUnmount();
     this.question.visibleRowsChangedCallback = undefined;
     this.question.onRenderedTableResetCallback = undefined;
+    this.question.renderedTable.renderedRowsChangedCallback = undefined;
   }
   protected renderElement(): JSX.Element {
     return this.renderTableDiv();
@@ -54,7 +61,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var header = this.renderHeader();
     var footers = this.renderFooter();
     var rows = this.renderRows();
-    var divStyle = this.question.horizontalScroll
+    var divStyle = this.question.showHorizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
@@ -135,7 +142,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
 
     return (
       <React.Fragment key={key}>
-        <MatrixRow model={row}>{matrixrow}</MatrixRow>
+        <MatrixRow model={row} parentMatrix={this.question}>{matrixrow}</MatrixRow>
       </React.Fragment>
     );
   }

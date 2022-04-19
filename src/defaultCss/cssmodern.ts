@@ -1,6 +1,7 @@
 import { surveyCss } from "./cssstandard";
 export var modernCss = {
   root: "sv-root-modern",
+  timerRoot: "sv-body__timer",
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
@@ -12,15 +13,15 @@ export var modernCss = {
   logo: "sv-logo",
   logoImage: "sv-logo__image",
   headerText: "sv-header__text",
-  navigationButton: "",
+  navigationButton: "sv-btn sv-btn--navigation",
   completedPage: "sv-completedpage",
   navigation: {
-    complete: "sv-btn sv-footer__complete-btn",
-    prev: "sv-btn sv-footer__prev-btn",
-    next: "sv-btn sv-footer__next-btn",
-    start: "sv-btn sv-footer__start-btn",
-    preview: "sv-btn sv-footer__preview-btn",
-    edit: "sv-btn sv-footer__edit-btn",
+    complete: "sv-footer__complete-btn",
+    prev: "sv-footer__prev-btn",
+    next: "sv-footer__next-btn",
+    start: "sv-footer__start-btn",
+    preview: "sv-footer__preview-btn",
+    edit: "sv-footer__edit-btn",
   },
   panel: {
     title: "sv-title sv-panel__title",
@@ -50,6 +51,8 @@ export var modernCss = {
       "sv-paneldynamic__progress sv-paneldynamic__progress--bottom",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
+    buttonPrevDisabled: "sv-paneldynamic__prev-btn--disabled",
+    buttonNextDisabled: "sv-paneldynamic__next-btn--disabled",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
@@ -195,6 +198,7 @@ export var modernCss = {
   },
   boolean: {
     root: "sv_qbln",
+    rootRadio: "sv_qbln",
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
@@ -233,14 +237,15 @@ export var modernCss = {
     onError: "sv-dropdown--error",
   },
   imagepicker: {
-    root: "sv-imagepicker",
+    root: "sv-selectbase sv-imagepicker",
+    column: "sv-selectbase__column",
     item: "sv-imagepicker__item",
     itemInline: "sv-imagepicker__item--inline",
     itemChecked: "sv-imagepicker__item--checked",
     itemDisabled: "sv-imagepicker__item--disabled",
     itemHover: "sv-imagepicker__item--allowhover",
     label: "sv-imagepicker__label",
-    itemControl: "sv-imagepicker__control",
+    itemControl: "sv-imagepicker__control sv-visuallyhidden",
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
     clearButton: "sv-btn",
@@ -303,8 +308,7 @@ export var modernCss = {
     emptyRowsSection: "sv-table__empty--rows--section",
     emptyRowsText: "sv-table__empty--rows--text",
     emptyRowsButton: "",
-    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
-    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
   },
   rating: {
     root: "sv-rating",
@@ -365,6 +369,9 @@ export var modernCss = {
       buttonCollapsed: "",
     },
   },
+  variables: {
+    themeMark: "--sv-modern-mark"
+  }
 };
 
 surveyCss["modern"] = modernCss;

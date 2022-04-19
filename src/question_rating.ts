@@ -7,6 +7,7 @@ import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
+import { HtmlConditionItem } from "./expressionItems";
 
 export class RenderedRatingItem extends Base {
   public get value(): number {
@@ -33,6 +34,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertyValueChanged("rateValues", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
+    this.createLocalizableString("ratingOptionsCaption", this, false, true);
     this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
@@ -175,7 +177,7 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return true;
+    return false;
   }
   /**
    * The description of minimum (first) item.
@@ -228,6 +230,8 @@ export class QuestionRatingModel extends Question {
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
+  @property({ defaultValue: "auto", onSet: (val, target) =>{ } }) useDropdown: "always" | "never" | "auto";
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -245,6 +249,12 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+
+  public get ratingRootCss(): string {
+    return ((this.useDropdown == "never" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : this.cssClasses.root;
+  }
+
   public getItemClass(item: ItemValue) {
     const isSelected = this.value == item.value;
     const isDisabled = this.isReadOnly && !item.isEnabled;
@@ -257,6 +267,62 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.itemHover, allowHover)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .toString();
+  }
+  //methods for mobile view
+  public getControlClass(): string {
+    this.isEmpty();
+    return new CssClassBuilder()
+      .append(this.cssClasses.control)
+      .append(this.cssClasses.controlEmpty, this.isEmpty())
+      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .toString();
+  }
+  public get optionsCaption(): string {
+    return this.getLocalizableStringText("ratingOptionsCaption");
+  }
+  public set optionsCaption(val: string) {
+    this.setLocalizableStringText("ratingOptionsCaption", val);
+  }
+  get locOptionsCaption(): LocalizableString {
+    return this.getLocalizableString("ratingOptionsCaption");
+  }
+  get showOptionsCaption(): boolean {
+    return true;
+  }
+  public get renderedValue(): boolean {
+    return this.value;
+  }
+  public set renderedValue(val: any) {
+    this.value = val;
+  }
+  public get visibleChoices(): ItemValue[] {
+    return this.visibleRateValues;
+  }
+  public get readOnlyText() {
+    return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
+
+  public needResponsiveWidth() {
+    const rateValues = this.getPropertyValue("rateValues");
+    const rateStep = this.getPropertyValue("rateStep");
+    const rateMax = this.getPropertyValue("rateMax");
+    const rateMin = this.getPropertyValue("rateMin");
+    return this.useDropdown != "always" && !!(this.hasMinRateDescription ||
+      this.hasMaxRateDescription ||
+      rateValues.length > 0 ||
+      (rateStep && (rateMax -rateMin)/rateStep > 9));
+  }
+
+  // TODO: return responsiveness after design improvement
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getCompactRenderAs(): string {
+    return (this.useDropdown == "never")?"default":"dropdown";
+  }
+  protected getDesktopRenderAs(): string {
+    return (this.useDropdown == "always")?"dropdown":"default";
   }
 }
 Serializer.addClass(
@@ -300,6 +366,11 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
     },
     { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    {
+      name: "useDropdown",
+      default: "auto",
+      choices: ["auto", "never", "always"],
+    }
   ],
   function() {
     return new QuestionRatingModel("");

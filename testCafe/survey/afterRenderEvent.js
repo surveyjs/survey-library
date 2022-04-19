@@ -1,7 +1,8 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction } from "testcafe";
+import { ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `afterRenderQuestionEvent`;
+const title = "afterRenderQuestionEvent";
 
 const json = {
   pages: [
@@ -48,9 +49,9 @@ const json = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
-      var f = function(survey, options) {
+      var f = function (survey, options) {
         if (options.question.name == "question4a") {
-          var title = options.htmlElement.querySelector("[title='Yes']");
+          var title = options.htmlElement.querySelector("input[value='valueYes']");
           title.style.color = "tomato";
         }
         if (options.question.name == "question4b") {
@@ -63,9 +64,9 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test(`afterRenderQuestion fires for initially hidden questions`, async (t) => {
+  test("afterRenderQuestion fires for initially hidden questions", async (t) => {
     const isTitleOk = ClientFunction(
-      () => document.querySelector("[title='Yes']").style.color === "tomato"
+      () => document.querySelector("input[value='valueYes']").style.color === "tomato"
     );
     const getQuestionCount = ClientFunction(
       () => document.querySelectorAll(".sv_q.sv_qstn").length
@@ -77,7 +78,7 @@ frameworks.forEach((framework) => {
     );
 
     assert.equal(await getQuestionCount(), 1);
-    await t.click(`input[value=valueYes]`);
+    await t.click("input[value=valueYes]");
     assert.equal(await getQuestionCount(), 2);
     assert.ok(await isBorderOk());
     assert.ok(await isTitleOk());

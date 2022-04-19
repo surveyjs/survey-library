@@ -26,36 +26,6 @@ import { ItemValue } from "../../src/itemvalue";
 
 export default QUnit.module("koTests");
 
-QUnit.test("Survey.koCurrentPage", function (assert) {
-  var survey = new Survey();
-  survey.addPage(createPageWithQuestion("Page 1"));
-  survey.addPage(createPageWithQuestion("Page 2"));
-  survey.addPage(createPageWithQuestion("Page 3"));
-  assert.equal(survey.currentPageNo, 0, "the first page is current");
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.currentPage.name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, true, "is first page");
-  assert.equal(survey.isLastPage, false, "is first page");
-  survey.nextPage();
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.pages[1].name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, false, "is second page");
-  assert.equal(survey.isLastPage, false, "is second page");
-  survey.nextPage();
-  assert.equal(
-    survey.koCurrentPage().name,
-    survey.pages[2].name,
-    "ko current page is equal"
-  );
-  assert.equal(survey.isFirstPage, false, "is last page");
-  assert.equal(survey.isLastPage, true, "is last page");
-});
 QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
@@ -563,7 +533,7 @@ QUnit.test(
     assert.equal(
       readOnlyChangedCounter,
       2,
-      "readOnlyChangedCounter - mode chanhed 1"
+      "readOnlyChangedCounter - mode changed 1"
     );
     survey.mode = "edit";
     assert.equal(
@@ -574,7 +544,7 @@ QUnit.test(
     assert.equal(
       readOnlyChangedCounter,
       3,
-      "readOnlyChangedCounter - mode chanhed 2"
+      "readOnlyChangedCounter - mode changed 2"
     );
   }
 );
@@ -928,10 +898,9 @@ QUnit.test("koSurvey matrix.rowsVisibleIf", function (assert) {
 export class DesignerSurveyTester extends Survey {
   constructor(
     jsonObj: any = null,
-    renderedElement: any = null,
-    css: any = null
+    renderedElement: any = null
   ) {
-    super(jsonObj, renderedElement, css);
+    super(jsonObj, renderedElement);
   }
   protected onBeforeCreating() {
     super.onBeforeCreating();
@@ -1036,7 +1005,7 @@ QUnit.test(
 
     var question = <QuestionRating>survey.getAllQuestions()[0];
     assert.equal(
-      question["koVisibleRateValues"]().length,
+      question["renderedRateItems"].length,
       4,
       "There are 4 items: 2, 4, 6, 8"
     );
@@ -2505,4 +2474,31 @@ QUnit.test("Initial Text Processing in panel title and ko", function (assert) {
     "title:q1-title",
     "Text processing on setting value"
   );
+});
+QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        navigationTitle: { default: "title1 en", de: "title1 de" },
+        elements: [{ type: "text", name: "question1" }]
+      },
+      {
+        navigationTitle: { default: "title2 en", de: "title2 de" },
+        elements: [{ type: "text", name: "question1" }]
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  const page1 = survey.pages[0];
+  const page2 = survey.pages[1];
+  assert.equal(page1.locNavigationTitle["koRenderedHtml"](), "title1 en", "en - title1");
+  assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 en", "en - title2");
+  survey.locale = "de";
+  assert.equal(page1.locNavigationTitle.text, "title1 de", "de text - title1");
+  assert.equal(page2.locNavigationTitle.text, "title2 de", "de text - title2");
+  assert.equal(page1.locNavigationTitle["koRenderedHtml"](), "title1 de", "de - title1");
+  assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 de", "de - title2");
+  survey.locale = "";
 });

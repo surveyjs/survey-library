@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var hungarianSurveyStrings = {
   pagePrevText: "Vissza",
@@ -44,6 +44,7 @@ export var hungarianSurveyStrings = {
     "Feltöltés folyamatban. Várjon pár másodpercet, majd próbálja újra.",
   loadingFile: "Betöltés...",
   chooseFile: "Fájlok kiválasztása ...",
+  fileDragAreaPlaceholder: "Dobjon ide egy fájlt, vagy kattintson az alábbi gombra a fájl betöltéséhez.",
   noFileChosen: "Nincs kiválasztva fájl",
   confirmDelete: "Törli ezt a rekordot?",
   keyDuplicationError: "Az értéknek egyedinek kell lennie.",

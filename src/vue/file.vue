@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.getFileRootCss()">
+  <div :class="question.fileRootCss">
     <input
       :class="question.cssClasses.fileInput"
       v-if="!question.isReadOnly"
@@ -19,6 +19,7 @@
       type="file"
       disabled
       :class="question.getReadOnlyFileCss()"
+      :multiple="question.allowMultiple ? 'multiple' : undefined"
       :placeholder="question.title"
       style="color: transparent"
     />
@@ -55,11 +56,11 @@
       <span>{{ question.cleanButtonCaption }}</span>
       <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'"></sv-svg-icon>
     </button>
-    <div :class="question.cssClasses.fileList" v-if="!question.isEmpty()">
+    <div :class="question.cssClasses.fileList || undefined" v-if="!question.isEmpty()">
       <span
         v-for="(val, index) in question.previewValue"
         :key="question.inputId + '_' + index"
-        v-show="val"
+        v-show="val && question.isPreviewVisible(index)"
         :class="question.cssClasses.preview"
       >
         <div v-if="val.name && question.cssClasses.fileSign" :class="question.cssClasses.fileSign">
@@ -80,11 +81,8 @@
             :width="question.imageWidth"
             alt="File preview"
           />
-          <img v-if="!question.canPreviewImage(val) && !!question.cssClasses.defaultImage"
-            :class="question.cssClasses.defaultImage"
-            :height="question.imageHeight"
-            :width="question.imageWidth"
-          />
+          <sv-svg-icon v-if="!question.canPreviewImage(val) && !!question.cssClasses.defaultImage" 
+            :iconName="question.cssClasses.defaultImageIconId" :class="question.cssClasses.defaultImage" :size="'auto'"></sv-svg-icon>
           <div v-if="val.name && !question.isReadOnly" :class="question.cssClasses.removeFileButton" @click="question.doRemoveFile(val)">
             <span
               :class="question.cssClasses.removeFile"
@@ -114,6 +112,7 @@
       <span>{{ question.cleanButtonCaption }}</span>
       <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'"></sv-svg-icon>
     </button>
+    <sv-action-bar v-if="question.mobileFileNavigatorVisible" :model="question.mobileFileNavigator"></sv-action-bar>
   </div>
 </template>
 

@@ -1,3 +1,4 @@
+import { setTimeout } from "timers";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 
@@ -30,7 +31,7 @@ export class ResponsivityManager {
       if(isResetInitialized)
         this.isInitialized = false;
       else
-        this.process();
+        setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((_) => this.process());
@@ -87,9 +88,9 @@ export class ResponsivityManager {
     );
   }
   private process(): void {
-    if (this.isContainerVisible) {
+    if (this.isContainerVisible && !this.model.isResponsivenessDisabled) {
       if (!this.isInitialized) {
-        this.model.actions.forEach((action) => (action.mode = "large"));
+        this.model.setActionsMode("large");
         this.calcItemsSizes();
         this.isInitialized = true;
       }
@@ -110,10 +111,11 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     container: HTMLDivElement,
     model: AdaptiveActionContainer,
     itemsSelector: string,
-    dotsItemSize?: number
+    dotsItemSize?: number,
+    minDimension = 40
   ) {
     super(container, model, itemsSelector, dotsItemSize);
-    this.minDimensionConst = 40;
+    this.minDimensionConst = minDimension;
     this.recalcMinDimensionConst = false;
   }
 

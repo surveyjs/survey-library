@@ -1,4 +1,4 @@
-import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
+import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject } from "./question";
 import { HashTable, Helpers } from "./helpers";
@@ -378,7 +378,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       questions[i].onAnyValueChanged(name);
     }
   }
-  public getDataValueCore(valuesHash: any, key: string) {
+  public getDataValueCore(valuesHash: any, key: string): any {
     var survey = this.getSurvey();
     if (!!survey) {
       return (<any>survey).getDataValueCore(valuesHash, key);
@@ -822,6 +822,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
+    this.detailPanel.isInteractiveDesignElement = false;
+    this.detailPanel.showTitle = false;
     this.registerFunctionOnPropertyValueChanged(
       "columns",
       (newColumns: any) => {
@@ -851,6 +853,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       ],
       () => {
         this.resetRenderedTable();
+      });
+    this.registerFunctionOnPropertiesValueChanged(
+      [
+        "isMobile"
+      ],
+      () => {
+        if (this.columnLayout === "vertical") {
+          this.resetRenderedTable();
+        }
       }
     );
   }
@@ -917,6 +928,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see columnLayout
    */
   public get isColumnLayoutHorizontal() {
+    if(this.isMobile) return true;
     return this.columnLayout != "vertical";
   }
   /**
@@ -965,6 +977,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return true;
   }
+  public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {}
   protected onRowsChanged() {
     this.resetRenderedTable();
     super.onRowsChanged();
@@ -1653,10 +1666,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return [];
   }
   public getProgressInfo(): IProgressInfo {
-    return SurveyElement.getProgressInfoByElements(
-      this.getCellQuestions(),
-      this.isRequired
-    );
+    if(!!this.generatedVisibleRows)
+      return SurveyElement.getProgressInfoByElements(
+        this.getCellQuestions(),
+        this.isRequired
+      );
+    const res = Base.createProgressInfo();
+    this.updateProgressInfoByValues(res);
+    return res;
+  }
+  protected updateProgressInfoByValues(res: IProgressInfo): void {}
+  protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
+    res.questionCount += this.columns.length;
+    for(var i = 0; i < this.columns.length; i ++) {
+      const col = this.columns[i];
+      res.requiredQuestionCount += col.isRequired;
+      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
+      res.answeredQuestionCount += hasValue ? 1 : 0;
+      res.requiredAnsweredQuestionCount += hasValue && col.isRequired ? 1 : 0;
+    }
   }
   private getCellQuestions(): Array<Question> {
     const rows = this.visibleRows;
@@ -2214,6 +2242,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public getRowHeaderWrapperComponentData(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentData(cell, "row-header");
+  }
+  public get showHorizontalScroll(): boolean {
+    return !this.isDefaultV2Theme && this.horizontalScroll;
+  }
+  public getRootCss(): string {
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
   }
 }
 

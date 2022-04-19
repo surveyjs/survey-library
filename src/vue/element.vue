@@ -1,5 +1,12 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null" role="presentation">
+  <div :class="!element.isPanel ? element.getRootCss() : null" 
+        v-if="row.isNeedRender"
+        :id="element.id"
+        :role="element.ariaRole"
+        :aria-required="element.ariaRequired"
+        :aria-invalid="element.ariaInvalid"
+        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
+        :data-name="element.name">
     <survey-errors
       v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
       :element="element"
@@ -11,8 +18,8 @@
       :css="css"
     />
     <div
-      :class="getContentClass(element)"
-      v-show="element.isPanel || !element.isCollapsed"
+      :class="getContentClass(element) || undefined"
+      v-show="element.isPanel || !element.isCollapsed"  role="presentation"
     >
       <survey-errors
         v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip"
@@ -21,6 +28,7 @@
       />
       <component
         :is="getComponentName(element)"
+        v-if="element.isPanel || !element.isCollapsed"
         :question="element"
         :css="css"
       />
@@ -33,7 +41,7 @@
         :element="element"
         :location="'bottom'"
       />
-        <survey-errors
+      <survey-errors
         v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
         :element="element"
         :location="'tooltip'"
@@ -51,12 +59,19 @@
       :css="css"
     />
   </div>
+  
+  <component
+  v-else-if="!!element.skeletonComponentName"
+  :is="element.skeletonComponentName"
+  :question="element"
+  :css="css"
+></component>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base, SurveyModel, Question, SurveyElement } from "survey-core";
+import { Base, SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -64,10 +79,11 @@ export class SurveyElementVue extends BaseVue {
   @Prop() css: any;
   @Prop() survey: SurveyModel;
   @Prop() element: SurveyElement;
+  @Prop() row: QuestionRowModel;
   protected getModel(): Base {
     return this.element;
   }
-  getComponentName(element: Question) {
+    getComponentName(element: Question) {
     if (element.customWidget) return "survey-customwidget";
     if (element.getType() === "panel" || element.isDefaultRendering()) {
       return "survey-" + element.getTemplate();
@@ -90,6 +106,7 @@ export class SurveyElementVue extends BaseVue {
       (<Question>this.element).afterRender(this.$el as HTMLElement);
     }
   }
+
 }
 Vue.component("survey-element", SurveyElementVue);
 export default SurveyElementVue;

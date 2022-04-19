@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
 import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
@@ -130,7 +130,7 @@ export class QuestionMatrixDropdownRenderedCell {
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
-  @property({ defaultValue: null }) ghostPosition: string;
+  @property({ defaultValue: null }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
 
   public row: MatrixDropdownRowModelBase;
@@ -155,8 +155,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return new CssClassBuilder()
       .append(this.cssClasses.row)
       .append(this.cssClasses.detailRow, this.isDetailRow)
-      .append(this.cssClasses.dragDropGhostPositionTop, this.ghostPosition === "top")
-      .append(this.cssClasses.dragDropGhostPositionBottom, this.ghostPosition === "bottom")
+      .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
   }
@@ -168,9 +167,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private hasRemoveRowsValue: boolean;
   private rowsActions: Array<Array<IAction>>;
   private cssClasses: any;
+  public renderedRowsChangedCallback = ():void=>{};
+  @propertyArray({
+    onPush: (_: any, i: number, target: QuestionMatrixDropdownRenderedTable) => {
+      target.renderedRowsChangedCallback();
+    },
+  }) rows: Array<QuestionMatrixDropdownRenderedRow>;
+
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();
-    this.createNewArray("rows");
     this.build();
   }
   public get showTable(): boolean {
@@ -206,9 +211,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get footerRow(): QuestionMatrixDropdownRenderedRow {
     return this.footerRowValue;
   }
-  public get rows(): Array<QuestionMatrixDropdownRenderedRow> {
-    return this.getPropertyValue("rows");
-  }
   protected build() {
     this.hasRemoveRowsValue = this.matrix.canRemoveRows;
     //build rows now
@@ -231,7 +233,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var showAddRowOnBottom = showAddRow;
     if (showAddRowOnTop) {
       if (this.matrix.getAddRowLocation() === "default") {
-        showAddRowOnTop = this.matrix.columnLayout === "vertical";
+        showAddRowOnTop = !this.matrix.isColumnLayoutHorizontal;
       } else {
         showAddRowOnTop = this.matrix.getAddRowLocation() !== "bottom";
       }
@@ -392,7 +394,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var rows = this.matrix.isColumnLayoutHorizontal
       ? this.buildHorizontalRows()
       : this.buildVerticalRows();
-    this.setPropertyValue("rows", rows);
+    this.rows = rows;
   }
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {
@@ -600,6 +602,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     renderedRow: QuestionMatrixDropdownRenderedRow
   ): QuestionMatrixDropdownRenderedRow {
+    const panelFullWidth: boolean = this.matrix.isDesignMode;
     var res = new QuestionMatrixDropdownRenderedRow(this.cssClasses, true);
     res.row = row;
     var buttonCell = new QuestionMatrixDropdownRenderedCell();
@@ -607,7 +610,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       buttonCell.colSpans = 2;
     }
     buttonCell.isEmpty = true;
-    res.cells.push(buttonCell);
+    if(!panelFullWidth) res.cells.push(buttonCell);
     var actionsCell = null;
     if (this.hasActionCellInRows("end")) {
       actionsCell = new QuestionMatrixDropdownRenderedCell();
@@ -617,7 +620,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell.panel = row.detailPanel;
     cell.colSpans =
       renderedRow.cells.length -
-      buttonCell.colSpans -
+      (!panelFullWidth ? buttonCell.colSpans : 0) -
       (!!actionsCell ? actionsCell.colSpans : 0);
     cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);

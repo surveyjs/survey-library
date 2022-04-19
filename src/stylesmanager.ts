@@ -220,12 +220,9 @@ export class StylesManager {
     ".sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv-matrixdynamic__drag-icon:after":
       "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
-    ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
-      "position: relative;",
-    ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":
-      "content: ''; width: 100%; height: 4px; background-color: #19b394; position: absolute; left: 0;",
-    ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
+
+    ".sv-matrix-row--drag-drop-ghost-mod td": "background-color: #f3f3f3;",
+    ".sv-matrix-row--drag-drop-ghost-mod td > *": "visibility: hidden",
     //eo drag-drop
 
     ".sv_qstn .sv_q_select_column":
@@ -359,49 +356,46 @@ export class StylesManager {
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none;",
-    ".sv-popup__scrolling-content": "overflow: auto;",
+    ".sv-popup__container": "filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); position: absolute; padding: 0;",
+    ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
     ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
-    ".sv-popup--modal .sv-popup__container": "position: static; border-radius: 4px;",
-    ".sv-popup--modal .sv-popup_shadow": "padding: calc(4 * 8px);",
-    ".sv-popup__container": "position: absolute; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); max-height: 90vh; max-width: 90vw; box-sizing: border-box;",
-    ".sv-popup_shadow": "filter: drop-shadow(0px calc(1 * 8px) calc(2 * 8px) rgba(0, 0, 0, 0.1)); width: 100%; height: 100%; display: flex; flex-direction: column;",
-    ".sv-popup__scrolling-content::-webkit-scrollbar":
-      "height: 6px; width: 6px; background-color: #f3f3f3;",
-    ".sv-popup__scrolling-content::-webkit-scrollbar-thumb":
-      "background: rgba(25, 179, 148, 0.1);",
+    ".sv-popup--modal .sv-popup__container": "position: static;",
+    ".sv-popup--modal .sv-popup__body-content": "padding: calc(4 * var(--base-unit, 8px));",
+    ".sv-popup--overlay": "width: 100%;",
+    ".sv-popup--overlay .sv-popup__container": "background: rgba(144, 144, 144, 0.5); max-width: 100vw; max-height: calc(100vh - 1 * var(--base-unit, 8px)); height: calc(100vh - 1 * var(--base-unit, 8px)); width: 100%; padding-top: calc(2 * var(--base-unit, 8px)); border: unset;",
+    ".sv-popup__shadow": "width: 100%; height: 100%;",
+    ".sv-popup--overlay .sv-popup__body-content": "border-radius: calc(2 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) 0px 0px; background: var(--background, #fff); box-shadow: 0px calc(1 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) rgba(0, 0, 0, 0.1); padding: calc(3 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)); height: calc(100% - calc(1 * var(--base-unit, 8px))); max-height: 100vh; max-width: 100vw;",
+    ".sv-popup--overlay .sv-popup__scrolling-content": "height: calc(100% - (10 * var(--base-unit, 8px)));",
+    ".sv-popup--overlay .sv-popup__body-footer": "margin-top: calc(2 * var(--base-unit, 8px));",
+    ".sv-popup--overlay .sv-popup__body-footer-item": "width: 100%;",
+    ".sv-popup--overlay .sv-popup__button--cancel": "background-color: var(--primary, #19b394); border: 2px solid var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-popup__scrolling-content": "height: 100%; overflow: auto;",
+    ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
+    ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
     ".sv-popup__content": "min-width: 100%;",
-    ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer":
-      "transform: translate(calc(-1 * 8px)) rotate(180deg);",
-    ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer":
-      "transform: translate(calc(-1 * 8px), calc(-1 * 8px));",
-    ".sv-popup--show-pointer.sv-popup--right":
-      "transform: translate(calc(1 * 8px));",
-    ".sv-popup--show-pointer.sv-popup--right .sv-popup__pointer":
-      "transform: translate(-12px, -4px) rotate(-90deg);",
-    ".sv-popup--show-pointer.sv-popup--left":
-      "transform: translate(calc(-1 * 8px));",
-    ".sv-popup--show-pointer.sv-popup--left .sv-popup__pointer":
-      "transform: translate(-4px, -4px) rotate(90deg);",
+    ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px))) rotate(180deg);",
+    ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));",
+    ".sv-popup--show-pointer.sv-popup--right": "transform: translate(calc(1 * var(--base-unit, 8px)));",
+    ".sv-popup--show-pointer.sv-popup--right .sv-popup__pointer": "transform: translate(-12px, -4px) rotate(-90deg);",
+    ".sv-popup--show-pointer.sv-popup--left": "transform: translate(calc(-1 * var(--base-unit, 8px)));",
+    ".sv-popup--show-pointer.sv-popup--left .sv-popup__pointer": "transform: translate(-4px, -4px) rotate(90deg);",
     ".sv-popup__pointer": "display: block; position: absolute;",
-    ".sv-popup__pointer:after":
-      "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * 8px) solid transparent; border-right: calc(1 * 8px) solid transparent; border-bottom: calc(1 * 8px) solid white; align-self: center;",
-    ".sv-popup__header": "font-family: Open Sans; font-size: calc(3 * 8px); line-height: calc(4 * 8px); font-style: normal; font-weight: 700; margin-bottom: calc(2 * 8px); color: rgb(22, 22, 22)",
-    ".sv-popup__footer": "display: flex; margin-top: calc(4 * 8px);",
-    ".sv-popup__footer-item:first-child": "margin-left: auto;",
-    ".sv-popup__footer-item + .sv-popup__footer-item":
-      "margin-left: calc(1 * 8px);",
-    ".sv-popup__button":
-      "padding: calc(2 * 8px) calc(6 * 8px); background: #fff; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; cursor: pointer; margin: 2px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * 8px); line-height: calc(3 * 8px); text-align: center; color: #19b394; border: none; outline: none;",
-    ".sv-popup__button:hover": "box-shadow: 0 0 0 2px #19b394;",
-    ".sv-popup__button:disabled": "color: rgba(22, 22, 22, 0.16); cursor: default;",
+    ".sv-popup__pointer:after": "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * var(--base-unit, 8px)) solid transparent; border-right: calc(1 * var(--base-unit, 8px)) solid transparent; border-bottom: calc(1 * var(--base-unit, 8px)) solid var(--background, #fff); align-self: center;",
+    ".sv-popup__body-header": "font-family: Open Sans; font-size: calc(3 * var(--base-unit, 8px)); line-height: calc(4 * var(--base-unit, 8px)); font-style: normal; font-weight: 700; margin-bottom: calc(2 * var(--base-unit, 8px)); color: var(--foreground, #161616);",
+    ".sv-popup__body-footer": "display: flex; margin-top: calc(4 * var(--base-unit, 8px));",
+    ".sv-popup__body-footer-item:first-child": "margin-left: auto;",
+    ".sv-popup__body-footer-item + .sv-popup__body-footer-item": "margin-left: calc(1 * var(--base-unit, 8px));",
+    ".sv-popup__button": "padding: calc(2 * var(--base-unit, 8px)) calc(6 * var(--base-unit, 8px)); background: var(--background, #fff); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; margin: 2px; cursor: pointer; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); text-align: center; color: var(--primary, #19b394); border: none; outline: none;",
+    ".sv-popup__button:hover": "box-shadow: 0 0 0 2px var(--primary, #19b394);",
+    ".sv-popup__button:disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default;",
     ".sv-popup__button:disabled:hover":
       "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
-    ".sv-popup__button.sv-popup__button--apply": "background-color: #19b394; color: #fff;",
-    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: #f3f3f3;",
+    ".sv-popup__button.sv-popup__button--apply": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: var(--background-dim, #f3f3f3);",
     //eo popup
     //list
     ".sv-list":
-      "padding: 0; margin: 0; background: #ffffff; font-family: 'Open Sans'; list-style-type: none;",
+      "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
       "width: 100%; box-sizing: border-box; padding: calc(1 * 8px) calc(2 * 8px); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
@@ -409,13 +403,13 @@ export class StylesManager {
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
     ".sv-list__item:not(.sv-list__item--selected):hover":
-      "background-color: #f3f3f3;",
-    ".sv-list__item--selected": "background-color: #19b394; color: #fff;",
-    ".sv-list__item--selected .sv-list__item-icon use": "fill: #fff;",
-    ".sv-list__item--disabled": "color: rgba(22, 22, 22, 0.16); cursor: default; pointer-events: none;",
+      "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
+    ".sv-list__item--disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default; pointer-events: none;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
-    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: #ffffff;",
+    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff);",
     ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 16px; padding-bottom: 16px; outline: none; font-size: 1em; border: 1px solid transparent;",
     ".sv-list__filter-icon": "display: block; position: absolute; top: 16px; left: 16px;",
     ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
@@ -835,8 +829,8 @@ export class StylesManager {
     ".sv_default_css .sv_progress-buttons__list li:before":
       "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
     ".sv_default_css .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
-    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
-    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color;",
+    ".sv_default_css .sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
     ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
       "border-color: $main-color; background-color: $main-color;",
     ".sv_default_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
@@ -983,6 +977,7 @@ export class StylesManager {
       "background-color: $disabled-slider-color;",
 
     ".sv-btn": "color: $button-text-color;",
+    ".sv-btn--navigation": "background-color: $main-color",
     ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
     ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
       "background-color: $main-hover-color; fill: $checkmark-color;",
@@ -1011,12 +1006,6 @@ export class StylesManager {
     ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
     ".sv-file__remove-svg": "fill: #ff1800;",
     ".sv-file__sign a": "color: $text-color;",
-    ".sv-footer__complete-btn": "background-color: $main-color;",
-    ".sv-footer__next-btn": "background-color: $main-color;",
-    ".sv-footer__prev-btn": "background-color: $main-color;",
-    ".sv-footer__start-btn": "background-color: $main-color;",
-    ".sv-footer__preview-btn": "background-color: $main-color;",
-    ".sv-footer__edit-btn": "background-color: $main-color;",
     ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
       "background-color: $main-hover-color; border-color: $main-hover-color;",
     ".sv-imagepicker__item--checked .sv-imagepicker__image":
@@ -1044,8 +1033,8 @@ export class StylesManager {
     ".sv_progress-buttons__list li:before":
       "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
     ".sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color;",
+    ".sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
       "border-color: $main-color; background-color: $main-color;",
     ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
@@ -1140,8 +1129,8 @@ export class StylesManager {
     ".sv_main .sv_progress-buttons__list li:before":
       "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
     ".sv_main .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
-    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
-    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color;",
+    ".sv_main .sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
     ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
       "border-color: $main-color; background-color: $main-color;",
     ".sv_main .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
@@ -1245,8 +1234,8 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li:before":
       "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
     ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
-    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-title": " color: $text-color;",
-    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-description": " color: $text-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
     ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
       "border-color: $main-color; background-color: $main-color;",
     ".sv_main.sv_bootstrapmaterial_css .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var germanSurveyStrings = {
   pagePrevText: "Zurück",
@@ -45,6 +45,7 @@ export var germanSurveyStrings = {
     "Bitte warten Sie bis der Upload Ihrer Dateien abgeschlossen ist.",
   loadingFile: "Wird hochgeladen...",
   chooseFile: "Datei(en) auswählen...",
+  fileDragAreaPlaceholder: "Legen Sie hier eine Datei ab oder klicken Sie auf die Schaltfläche unten, um die Datei zu laden.",
   noFileChosen: "Keine Datei ausgewählt",
   confirmDelete: "Wollen Sie den Eintrag löschen?",
   keyDuplicationError: "Dieser Wert muss einmalig sein.",
@@ -78,6 +79,17 @@ export var germanSurveyStrings = {
   confirmRemoveFile: "Sind Sie sicher, dass Sie diese Datei löschen möchten: {0}?",
   confirmRemoveAllFiles: "Sind Sie sicher, dass Sie alle Dateien löschen möchten?",
   questionTitlePatternText: "Fragentitel",
+  ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
+  emptyRowsText: "Es gibt keine Reihen.",
+  filteredTextPlaceholder: "Tippe um zu suchen...",
+  indexText: "{0} von {1}",
+  minError: "Der Wert sollte nicht kleiner als {0} sein",
+  maxError: "Der Wert sollte nicht größer als {0} sein",
+  modalApplyButtonText: "Anwenden",
+  modalCancelButtonText: "Stornieren",
+  multipletext_itemname: "Text",
+  noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
+  signaturePlaceHolder: "Hier unterschreiben",
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

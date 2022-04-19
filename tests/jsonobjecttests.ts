@@ -12,9 +12,11 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionMatrixModel } from "../src/question_matrix";
 import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
 import { englishStrings } from "../src/localization/english";
+import { SurveyModel } from "../src/survey";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -869,6 +871,21 @@ QUnit.test(
       { "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] },
       "serialize ItemValueListOwner without text");
   });
+QUnit.test(
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true, do not serialiye ",
+  function (assert) {
+    settings.itemValueAlwaysSerializeText = true;
+    const list = new ItemValueListOwner();
+    list.items.push(new ItemValue({ val: 1, text: "Item1" }, "Item 1"));
+    list.items.push(new ItemValue({ val: 1, text: "Item1" }));
+    let jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
+        { val: 1, text: "Item1" }] }, "Do not serialize objects");
+    settings.itemValueAlwaysSerializeText = false;
+  });
+
 QUnit.test("LongNamesOwner serialization", function (assert) {
   var owner = new LongNamesOwner();
   var l1 = new LongNameItemA();
@@ -1717,6 +1734,25 @@ QUnit.test("Add property into questionbase", function (assert) {
     "custom serialzied successful"
   );
   Serializer.removeProperty("questionbase", "custom");
+});
+
+QUnit.test("Add textitems (array) property into questionbase", function (
+  assert
+) {
+  Serializer.addProperty("questionbase", {
+    name: "customItems",
+    type: "textitems",
+  });
+  var question = new Question("q1");
+
+  var property = Serializer.findProperty("questionbase", "customItems");
+  assert.equal(
+    property.type,
+    "textitem[]",
+    "Property should have correct type"
+  );
+
+  Serializer.removeProperty("questionbase", "customItems");
 });
 
 QUnit.test("Add itemvalues (array) property into questionbase", function (
@@ -2617,9 +2653,11 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
     { name: "text", visible: false },
     { name: "color", type: "color" }],
   null, "itemvalue");
-  Serializer.addProperty("car", { name: "colors",
+  Serializer.addProperty("car", {
+    name: "colors",
     default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
-    className: "coloritemvalue", type: "coloritemvalue[]" });
+    className: "coloritemvalue", type: "coloritemvalue[]"
+  });
 
   const car: any = new Car();
   assert.equal(car.colors.length, 2, "There are two colors by default");
@@ -2643,4 +2681,31 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
 
   Serializer.removeProperty("car", "colors");
   Serializer.removeClass("coloritemvalue");
+});
+QUnit.test("Add condition custom property", function (assert) {
+  const newProp = Serializer.addProperty("matrix", { name: "showHeaderIf:condition", category: "logic",
+    onExecuteExpression: (obj: Base, res: any) => { (<any>obj).showHeader = res === true; }
+  });
+  assert.ok(newProp.onExecuteExpression, "onExecuteExpression function is set");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        rows: [1, 2, 3],
+        columns: [1, 2, 3]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(matrix.showHeader, true, "Header is visible");
+  matrix.showHeaderIf = "{val1} = 1";
+  assert.equal(matrix.showHeader, false, "Header is invisible #1");
+  survey.setValue("val1", 2);
+  assert.equal(matrix.showHeader, false, "Header is invisible #2");
+  survey.setValue("val1", 1);
+  assert.equal(matrix.showHeader, true, "Header is visible #3");
+  survey.setValue("val1", 3);
+  assert.equal(matrix.showHeader, false, "Header is invisible #4");
+  Serializer.removeProperty("matrix", "showHeaderIf");
 });

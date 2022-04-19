@@ -193,7 +193,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected setDefaultValue() {
     super.setDefaultValue();
     const val = this.defaultValue;
-    if(Array.isArray(val)) {
+    if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
         if (this.canClearValueAnUnknow(val[i])) {
           this.addIntoInvisibleOldValues(val[i]);
@@ -269,21 +269,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (
-      this.supportSelectAll() &&
-      ((isAddAll && this.canShowOptionItem(this.selectAllItem)) ||
-        this.hasSelectAll)
+      this.supportSelectAll() && this.canShowOptionItem(this.selectAllItem, isAddAll, this.hasSelectAll)
     ) {
       items.unshift(this.selectAllItem);
     }
     super.addToVisibleChoices(items, isAddAll);
   }
-  protected isBuiltInChoice(
+  protected isHeadChoice(
     item: ItemValue,
     question: QuestionSelectBase
   ): boolean {
     return (
-      item === (<QuestionCheckboxBase>question).selectAllItem ||
-      super.isBuiltInChoice(item, question)
+      item === (<QuestionCheckboxBase>question).selectAllItem
     );
   }
   /**
@@ -366,7 +363,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     for (var i = 0; i < visItems.length; i++) {
       var val = visItems[i].value;
       if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
-        if(!this.isItemSelected(visItems[i])) {
+        if (!this.isItemSelected(visItems[i])) {
           res.push(val);
         }
         delete this.invisibleOldValues[val];
@@ -440,17 +437,18 @@ Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",
+    { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",
       dependsOn: "hasSelectAll",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasSelectAll;
       }
     }
   ],
-  function() {
+  function () {
     return new QuestionCheckboxModel("");
   },
   "checkboxbase"

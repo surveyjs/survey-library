@@ -9,9 +9,10 @@ export class DragDropRankingChoices extends DragDropChoices {
 
   protected createDraggedElementShortcut(
     text: string,
-    draggedElementNode: HTMLElement
+    draggedElementNode: HTMLElement,
+    event: PointerEvent
   ): HTMLElement {
-    const draggedElementShortcut = document.createElement("div");
+    const draggedElementShortcut:any = document.createElement("div");
     draggedElementShortcut.className = this.shortcutClass;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -29,6 +30,10 @@ export class DragDropRankingChoices extends DragDropChoices {
     const isDeepClone = true;
     const clone = <HTMLElement>draggedElementNode.cloneNode(isDeepClone);
     draggedElementShortcut.appendChild(clone);
+
+    const rect = draggedElementNode.getBoundingClientRect();
+    draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
+    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
 
     return draggedElementShortcut;
   }

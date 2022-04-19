@@ -40,7 +40,7 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && (<any>this.survey).showPageNumbers;
   }
   protected canShowTitle(): boolean {
-    return (<any>this.survey).showPageTitles;
+    return this.survey && (<any>this.survey).showPageTitles;
   }
   /**
    * Use this property to show title in navigation buttons. If the value is empty then page name is used.
@@ -63,6 +63,10 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get locNavigationDescription(): LocalizableString {
     return this.getLocalizableString("navigationDescription");
+  }
+  public navigationLocStrChanged(): void {
+    this.locNavigationTitle.strChanged();
+    this.locNavigationDescription.strChanged();
   }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);
@@ -323,6 +327,7 @@ export class PageModel extends PanelModelBase implements IPage {
       }
 
       if (!!src && !!src.parent) {
+        (this.survey as SurveyModel).startMovingQuestion();
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);
@@ -334,6 +339,7 @@ export class PageModel extends PanelModelBase implements IPage {
       if (targetIndex > -1) {
         row.panel.addElement(target, targetIndex);
       }
+      (this.survey as SurveyModel).stopMovingQuestion();
     }
     elementsToSetSWNL.map((e) => { e.startWithNewLine = true; });
     elementsToResetSWNL.map((e) => { e.startWithNewLine = false; });

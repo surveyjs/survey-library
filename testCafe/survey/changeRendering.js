@@ -29,7 +29,7 @@ const setupSurvey = ClientFunction((framework) => {
         new Survey.SurveyTemplateText().replaceText('<div class="btn-group"><!-- ko foreach: { data: question.visibleChoices, as: "item", afterRender: question.koAfterRender}  --> <label class="btn btn-default" data-bind="css:{active: question.value.indexOf($data.value) > -1}, style:{width: question.koWidth}">   <input style="display:none;" type="checkbox" data-bind="attr: {name: question.name, value: item.value}, checked: question.value" /> <span data-bind="text: item.text"></span></label><!-- /ko --><div data-bind="visible:question.hasOther"><div data-bind="template: { name: \'survey-comment\', data: {\'question\': question, \'visible\': question.isOtherSelected } }"></div></div></div>', "question", "checkbox");
 
         survey.onComplete.add(function() {
-            window.SurveyResult = survey.data;
+            window["SurveyResult"] = survey.data;
         });
 
         survey.render();

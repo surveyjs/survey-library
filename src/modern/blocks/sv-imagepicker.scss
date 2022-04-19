@@ -26,6 +26,15 @@
     border-color: $main-hover-color;
   }
 }
+
+.sv-imagepicker__item:not(.sv-imagepicker__item--checked)
+  .sv-imagepicker__control:focus
+  ~ div
+  .sv-imagepicker__image {
+  background-color: $main-hover-color;
+  border-color: $main-hover-color;
+}
+
 .sv-imagepicker__item--checked {
   .sv-imagepicker__image {
     background-color: $main-color;

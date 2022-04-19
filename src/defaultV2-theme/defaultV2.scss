@@ -38,6 +38,7 @@
 @import "blocks/sd-action-bar.scss";
 @import "blocks/sd-context-btn.scss";
 @import "blocks/sd-completedpage.scss";
+@import "blocks/sd-progress-buttons.scss";
 @import "../common-styles/sv-actionbar.scss";
 @import "../common-styles/sv-popup.scss";
 @import "../common-styles/sv-list.scss";
@@ -45,9 +46,17 @@
 @import "../common-styles/sv-visuallyhidden.scss";
 @import "../common-styles/sv-hidden.scss";
 @import "../common-styles/sv-titleactions.scss";
+@import "../common-styles/window.scss";
 @import "../signaturepad.scss";
+@import "./defaultV2.m600.scss";
+
+body {
+  --sv-defaultV2-mark: true;
+}
 
 .sd-root-modern {
+  --sd-mobile-width: 600px;
+  --sd-imagepicker-gap: 16px;
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;
@@ -104,15 +113,32 @@
   }
 }
 
+.sv-popup.sv-popup--dropdown {
+  .sv-popup__shadow {
+    filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
+  }
+  .sv-popup__body-content {
+    background-color: $background;
+    padding: calcSize(1) 0;
+  }
+}
+
 .sv-popup.sv-popup--modal {
-  .sv-popup__container {
-    filter: drop-shadow(0px 2px 6px $shadow-medium);
+  .sv-popup__body-content {
+    box-shadow: 0px calcSize(1) calcSize(2) $shadow-medium;
+    background-color: $background-dim-light;
   }
-  .sv-popup_shadow {
-    filter: drop-shadow(0px calcSize(1) calcSize(2) $shadow-medium);
-  }
-  .sv-popup__footer {
+  .sv-popup__body-footer {
     padding-bottom: 2px;
   }
-  padding: calcSize(4);
+}
+
+.sv-popup.sv-popup--overlay {
+  .sv-popup__body-content {
+    background-color: $background-dim;
+  }
+}
+
+.sv-list__input:focus {
+  border: 1px solid transparent;
 }

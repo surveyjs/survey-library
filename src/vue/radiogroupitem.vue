@@ -23,15 +23,10 @@
       ><span
         v-if="!hideLabel"
         :class="getControlLabelClass(item)"
-        :title="item.locText.renderedHtml"
       >
         <survey-string :locString="item.locText" />
       </span> </label
-    ><survey-other-choice
-      v-show="question.isOtherSelected"
-      v-if="question.isOtherItem(item)"
-      :question="question"
-    />
+    >
   </div>
 </template>
 

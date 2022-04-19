@@ -1,3 +1,8 @@
+.sd-body--responsive {
+  .sd-page {
+    padding: calcSize(5) var(--sd-page-vertical-padding) calcSize(2);
+  }
+}
 .sd-page {
   position: relative;
   display: flex;

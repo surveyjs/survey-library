@@ -61,6 +61,7 @@ import { LocalizableString } from "../src/localizablestring";
 import { getSize, increaseHeightByContent } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("Survey");
 
@@ -360,6 +361,22 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
 });
+QUnit.test("Check page num when first page is started", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "html", name: "info" }] },
+      { name: "p2", elements: [{ type: "text", name: "q1" }] },
+      { name: "p3", elements: [{ type: "text", name: "q2" }] },
+    ],
+    firstPageIsStarted: true
+  });
+  assert.equal(survey.pages[0].num, -1);
+  assert.equal(survey.pages[0].visibleIndex, -1);
+  assert.equal(survey.pages[1].num, 1);
+  assert.equal(survey.pages[1].visibleIndex, 0);
+  assert.equal(survey.pages[2].num, 2);
+  assert.equal(survey.pages[2].visibleIndex, 1);
+});
 
 QUnit.test("Do not show errors in display mode", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -607,6 +624,10 @@ QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: show
   assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
   assert.equal(survey.isShowNextButton, false, "isShowNextButton #3");
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
+  survey.mode = "display";
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, read-only #4");
+  survey.mode = "edit";
+  assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible, edit mode #5");
 });
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert
@@ -3118,6 +3139,14 @@ QUnit.test("pre process title, 'locale' variable", function (assert) {
   );
 });
 
+QUnit.test("Default value completedHtml, completedBeforeHtml and loadingHtml", function (assert) {
+  const survey = new SurveyModel();
+  survey.locale = "";
+  assert.ok(survey.completedHtml.indexOf("</h3>") > -1, "h3 is here, default completedHtml");
+  assert.ok(survey.completedBeforeHtml.indexOf("</h3>") > -1, "h3 is here, default completedBeforeHtml");
+  assert.ok(survey.loadingHtml.indexOf("</h3>") > -1, "h3 is here, default loadingHtml");
+});
+
 QUnit.test(
   "pre process title with variables in Capital letters, bug#1099",
   function (assert) {
@@ -5221,7 +5250,7 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(
       options.name,
       "title",
@@ -5350,7 +5379,7 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(options.name, "title", "page title markdown preprocessing");
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
@@ -7051,6 +7080,31 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   survey.setValue("q1", "myanswer");
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
 });
+QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", correctAnswer: "val1" },
+      { type: "text", name: "q2", correctAnswer: "val2" },
+      { type: "text", name: "q3", correctAnswer: "val3" }
+    ],
+    calculatedValues: [
+      { name: "calc1", expression: "{correctAnswers}" },
+      { name: "calc2", expression: "{incorrectAnswers}" },
+      { name: "calc3", expression: "{questionCount}" },
+    ]
+  });
+  survey.setValue("q1", "val1");
+  survey.setValue("q3", "val_incorrect");
+  assert.equal(survey.calculatedValues[0].value, 1, "correctedAnswers");
+  assert.equal(survey.calculatedValues[1].value, 2, "inCorrectedAnswers");
+  assert.equal(survey.calculatedValues[2].value, 3, "questionCount");
+  survey.setValue("q2", "val2");
+  assert.equal(survey.calculatedValues[0].value, 2, "correctedAnswers #2");
+  assert.equal(survey.calculatedValues[1].value, 1, "inCorrectedAnswers #2");
+  assert.equal(survey.calculatedValues[2].value, 3, "questionCount #2");
+});
 QUnit.test(
   "Store data on the first page, firstPageIsStarted = true, Bug #1580",
   function (assert) {
@@ -7151,11 +7205,21 @@ QUnit.test(
       0,
       "The answer is incorrected"
     );
+    assert.equal(
+      survey.getCorrectAnswerCount(),
+      0,
+      "The answer is incorrect"
+    );
     q1.value = [3, 2];
     assert.equal(
       survey.getCorrectedAnswerCount(),
       1,
       "The answer is corrected now"
+    );
+    assert.equal(
+      survey.getCorrectAnswerCount(),
+      1,
+      "The answer is correct now"
     );
     survey.onIsAnswerCorrect.add(function (survey, options) {
       var x = options.question.value;
@@ -12157,7 +12221,9 @@ QUnit.test(
     assert.equal(survey.pages.length, 1, "One page");
     assert.equal(survey.pages[0].elements.length, 1, "One element");
     survey.dispose();
-    assert.equal(survey.pages.length, 0, "No pages");
+    if(!!survey.pages) {
+      assert.equal(survey.pages.length, 0, "No pages");
+    }
   }
 );
 
@@ -13740,6 +13806,15 @@ QUnit.test("getElementWrapperComponentName", function (assert) {
     "logo-image default component"
   );
 });
+QUnit.test("getQuestionContentWrapperComponentName", function (assert) {
+  var survey = new SurveyModel();
+  assert.deepEqual(
+    survey.getQuestionContentWrapperComponentName(null),
+    SurveyModel.TemplateRendererComponentName,
+    "default component"
+  );
+});
+
 QUnit.test(
   "Skip trigger test and auto focus first question on the page",
   function (assert) {
@@ -13891,6 +13966,20 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
   Serializer.findProperty("survey", "title").visible = true;
   Serializer.findProperty("survey", "logo").visible = true;
 });
+QUnit.test("Test survey renderedHasDescription property", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  assert.equal(survey.renderedHasDescription, false, "hasDescription, decription is invisible");
+
+  survey.setDesignMode(true);
+  assert.equal(survey.renderedHasDescription, true, "description is visible in design mode");
+
+  survey.setDesignMode(false);
+  survey.description = "description";
+  assert.equal(survey.renderedHasDescription, true, "There is description");
+});
+
 QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
   assert
 ) {
@@ -14238,6 +14327,7 @@ QUnit.test("firstPageIsStarted = true and prevPage()", function (assert) {
 });
 QUnit.test("firstPageIsStarted = true and invisible questions and clear", function (assert) {
   var survey = new SurveyModel({
+    firstPageIsStarted: true,
     pages: [
       {
         elements: [
@@ -14347,7 +14437,7 @@ QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
   });
   var counter = 0;
   survey.onQuestionAdded.add((sender, options) => {
-    counter ++;
+    counter++;
   });
   survey.currentPageNo = 1;
   assert.equal(counter, 0, "onQuestionAdded is not fired");
@@ -14375,9 +14465,11 @@ QUnit.test("Checkbox, invsible item with default Value", function (assert) {
   survey.fromJSON({
     elements: [
       { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
-      { type: "checkbox", name: "q2", defaultValue: [1], choices: [
-        { value: 1, visibleIf: "{q1} = 2" }, 2
-      ] },
+      {
+        type: "checkbox", name: "q2", defaultValue: [1], choices: [
+          { value: 1, visibleIf: "{q1} = 2" }, 2
+        ]
+      },
     ]
   });
   const q2 = survey.getQuestionByName("q2");
@@ -14392,4 +14484,330 @@ QUnit.test("Checkbox, invsible item with default Value", function (assert) {
   survey.setValue("q1", 1);
   survey.setValue("q1", 2);
   assert.deepEqual(q2.value, [2], "default value is goine");
+});
+QUnit.test("clearInvisibleValues: `none` and copyvalue trigger", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+      },
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "visible": false,
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{question1} notempty",
+        "fromName": "question1",
+        "setToName": "question2"
+      }
+    ],
+    "clearInvisibleValues": "none"
+  });
+  survey.setValue("question1", "item2");
+  assert.equal(survey.getValue("question2"), "item2", "Trigger is working");
+  assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { question1: "item2", question2: "item2" }, "Data is correct after completed");
+});
+QUnit.test("Assign survey data callback", function (assert) {
+  const survey = new SurveyModel();
+  let getCounter = 0;
+  let setCounter = 0;
+  let deleteCounter = 0;
+  survey.valueHashGetDataCallback = (valuesHash: any, key: string) : any => {
+    getCounter ++;
+    return valuesHash[key];
+  };
+  survey.valueHashSetDataCallback = (valuesHash: any, key: string, value : any): void => {
+    setCounter ++;
+    valuesHash[key] = value;
+  };
+  survey.valueHashDeleteDataCallback = (valuesHash: any, key: string) : void => {
+    deleteCounter ++;
+    delete valuesHash[key];
+  };
+  survey.setValue("a", "abc");
+  assert.equal(survey.getValue("a"), "abc");
+  survey.clearValue("a");
+  assert.equal(getCounter > 0, true, "getCounter");
+  assert.equal(setCounter, 1, "setCounter");
+  assert.equal(deleteCounter, 1, "deleteCounter");
+  const oldGetCount = getCounter;
+  assert.equal(survey.getValue("a"), undefined);
+  assert.equal(getCounter, oldGetCount + 1, "getCounter #2");
+});
+QUnit.test("Run expressions on changing comments", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "question1",
+        "choices": [
+          "item1",
+          "item2",
+          "item3"
+        ],
+        hasComment: true
+      },
+      {
+        type: "text",
+        name: "question2",
+        visibleIf: "{question1-Comment.length} > 3"
+      }
+    ]
+  });
+  const question2 = survey.getQuestionByName("question2");
+  assert.equal(question2.isVisible, false, "Invisible by default");
+  survey.setComment("question1", "abcd");
+  assert.equal(question2.isVisible, true, "visible");
+  survey.setComment("question1", "abc");
+  assert.equal(question2.isVisible, false, "Invisible again");
+});
+
+QUnit.test("Check survey resize observer", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  survey.afterRenderSurvey(rootEl);
+  assert.notOk(survey["resizeObserver"]);
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  survey.afterRenderSurvey(rootEl);
+  assert.ok(survey["resizeObserver"]);
+  const firstResizeObserver = survey["resizeObserver"];
+  let firstResizeObserverIsConnected = true;
+  firstResizeObserver.disconnect = () => {
+    firstResizeObserverIsConnected = false;
+  };
+  survey.afterRenderSurvey(rootEl);
+  assert.notOk(survey["resizeObserver"] == firstResizeObserver, "check that new resize observer is created after second afterRender");
+  assert.notOk(firstResizeObserverIsConnected, "check that old resize observer is disconnected after second afterRender");
+  survey.dispose();
+  assert.notOk(survey["resizeObserver"]);
+  window.getComputedStyle = getComputedStyle;
+});
+
+class CustomResizeObserver {
+  constructor(private callback: () => void) {}
+  observe() {
+    this.call();
+  }
+  call() {
+    this.callback();
+  }
+}
+
+QUnit.test("Check survey resize observer double process", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  let trace: string = "";
+  survey["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  survey.afterRenderSurvey(rootEl);
+  assert.equal(trace, "->processed");
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "prevent double process");
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed->processed");
+  window.ResizeObserver = ResizeObserver;
+  window.getComputedStyle = getComputedStyle;
+});
+
+QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  let isProcessed = survey["processResponsiveness"](500, 600);
+  assert.ok(survey._isMobile);
+  assert.ok(isProcessed);
+  isProcessed = survey["processResponsiveness"](600, 500);
+  assert.ok(isProcessed);
+  isProcessed = survey["processResponsiveness"](800, 500);
+  assert.notOk(survey._isMobile);
+  assert.notOk(isProcessed);
+});
+QUnit.test("Check addNavigationItem", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
+  assert.ok(action1 === survey.navigationBar.actions[0]);
+  assert.equal(action1.id, "custom-btn");
+  assert.equal(action1.innerCss, "sv_nav_btn");
+  assert.equal(action1.component, "sv-nav-btn");
+
+  const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+  assert.ok(action2 === survey.navigationBar.actions[2]);
+  assert.equal(action2.id, "custom-btn-2");
+  assert.equal(action2.innerCss, "custom-css");
+  assert.equal(action2.component, "sv-nav-btn");
+
+  const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
+  assert.ok(action3 === survey.navigationBar.actions[4]);
+  assert.equal(action3.id, "custom-btn-3");
+  assert.equal(action3.component, "custom-component");
+});
+
+QUnit.test("Check default navigation items relevance", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
+  const action = survey.navigationBar.actions[0];
+  assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
+  survey.locale = "ru";
+  assert.equal(action.title, "Начать");
+  survey.locale = "en";
+  assert.equal(action.title, "Start");
+  survey.startSurveyText = "custom-text";
+  assert.equal(action.title, "custom-text");
+});
+QUnit.test("Check rootCss property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { root: "test-root-class" };
+  assert.equal(survey.rootCss, "test-root-class");
+});
+
+QUnit.test("Check navigation bar css update", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = { actionBar: { root: "custom-navigation" }, footer: "custom-footer" };
+  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
+});
+QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  assert.equal(survey.activePage.id, survey.pages[0].id, "Initially active page is correct");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").visible, false, "PrevButton is not shown");
+  survey.fromJSON(survey.toJSON());
+  assert.equal(survey.activePage.id, survey.pages[0].id, "Initially active page is correct");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").visible, false, "PrevButton is not shown #2");
+});
+QUnit.test("Navigation buttons text from JSON", function (assert) {
+  const survey = new SurveyModel({
+    completeText: "Submit",
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  assert.equal(survey.completeText, "Submit", "text is correct");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").title, "Submit", "Text in bar is correct");
+});
+
+QUnit.test("Do not execute visibleIf in design mode", function (assert) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "panel",
+        name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+        ],
+      }
+    ]
+  });
+  const question = survey.getQuestionByName("q1");
+  assert.equal(question.visible, true, "It is visible initially");
+  question.visibleIf = "{q2} = 1";
+  assert.equal(question.visible, true, "It is still visible");
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  const panel2 = <PanelModel>panel.clone();
+  const question2 = panel2.questions[0];
+  assert.equal(question2.visibleIf, "{q2} = 1", "It is visible");
+  assert.equal(question2.visible, true, "It is visible");
+  survey.pages[0].addElement(panel2);
+  assert.equal(question2.visible, true, "It is visible, #2");
+  const newPanel = new PanelModel("newPanel");
+  newPanel.addNewQuestion("text", "q3_1");
+  newPanel.questions[0].visibleIf = "{q2} = 1";
+  assert.equal(newPanel.questions[0].visible, true, "new Panel question visible");
+  const newPanel2 = <PanelModel>newPanel.clone();
+  const newQuestion2 = newPanel2.questions[0];
+  assert.equal(newQuestion2.visibleIf, "{q2} = 1", "It is visible");
+  assert.equal(newQuestion2.visible, true, "It is visible");
+  survey.pages[0].addElement(newPanel2);
+  assert.equal(newQuestion2.visible, true, "It is visible, #2");
 });

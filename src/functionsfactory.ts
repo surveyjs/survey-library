@@ -137,25 +137,26 @@ function convertToNumber(val: any): number {
   if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : undefined;
   return val;
 }
-function processItemInArray(item: any, name: string, res: number, func: (res: number, val: number) => number): number {
+function processItemInArray(item: any, name: string, res: number,
+  func: (res: number, val: number) => number, needToConvert: boolean): number {
   if(!item || Helpers.isValueEmpty(item[name])) return res;
-  const val = convertToNumber(item[name]);
+  const val = needToConvert ? convertToNumber(item[name]) : 1;
   return func(res, val);
 }
 function calcInArray(
   params: any[],
-  func: (res: number, val: number) => number
+  func: (res: number, val: number) => number, needToConvert: boolean = true
 ): any {
   var v = getInArrayParams(params);
   if (!v) return undefined;
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {
-      res = processItemInArray(v.data[i], v.name, res, func);
+      res = processItemInArray(v.data[i], v.name, res, func, needToConvert);
     }
   } else {
     for (var key in v.data) {
-      res = processItemInArray(v.data[key], v.name, res, func);
+      res = processItemInArray(v.data[key], v.name, res, func, needToConvert);
     }
   }
   return res;
@@ -194,7 +195,7 @@ function countInArray(params: any[]): any {
     if (res == undefined) res = 0;
     if(val == undefined || val == null) return res;
     return res + 1;
-  });
+  }, false);
   return res !== undefined ? res : 0;
 }
 FunctionFactory.Instance.register("countInArray", countInArray);

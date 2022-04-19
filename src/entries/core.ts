@@ -1,9 +1,6 @@
 // model
 export * from "./chunks/model";
 
-// localization
-import "./chunks/localization";
-
 // css standard classes
 export { defaultStandardCss } from "../defaultCss/cssstandard";
 // css bootstrap classes
@@ -24,3 +21,4 @@ export * from "../actions/action";
 export * from "../actions/adaptive-container";
 export * from "../actions/container";
 export * from "../utils/tooltip";
+export * from "../utils/dragOrClickHelper";

@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var polishSurveyStrings = {
   pagePrevText: "Wstecz",
@@ -45,6 +45,7 @@ export var polishSurveyStrings = {
     "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   loadingFile: "Ładowanie...",
   chooseFile: "Wybierz plik(i)...",
+  fileDragAreaPlaceholder: "Upuść plik tutaj lub kliknij przycisk poniżej, aby załadować plik.",
   noFileChosen: "Nie wybrano żadnego pliku",
   confirmDelete: "Chcesz skasować nagranie?",
   keyDuplicationError: "Ta wartość powinna być wyjątkowa.",
@@ -77,6 +78,17 @@ export var polishSurveyStrings = {
   confirmRemoveFile: "Jesteś pewien, że chcesz usunąć ten plik: {0}?",
   confirmRemoveAllFiles: "Jesteś pewien, że chcesz usunąć wszystkie pliki?",
   questionTitlePatternText: "Tytuł pytania",
+  ratingOptionsCaption: "Kliknij tutaj, aby ocenić...",
+  emptyRowsText: "Nie ma rzędów.",
+  filteredTextPlaceholder: "Wpisz aby wyszukać...",
+  indexText: "{0} od {1}",
+  minError: "Wartość nie powinna być mniejsza niż {0}",
+  maxError: "Wartość nie powinna być większa niż {0}",
+  modalApplyButtonText: "Zastosować",
+  modalCancelButtonText: "Anulować",
+  multipletext_itemname: "tekst",
+  noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
+  signaturePlaceHolder: "Podpisz tutaj",
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;

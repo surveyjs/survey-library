@@ -193,3 +193,10 @@ button.sv-action-bar-item {
   box-sizing: content-box;
   padding-right: calcSize(2);
 }
+.sv-action--space {
+  margin-left: auto;
+}
+.sv-action-bar-item--pressed {
+  background-color: $background-dim;
+  opacity: 50%;
+}

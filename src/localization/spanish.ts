@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var spanishSurveyStrings = {
   pagePrevText: "Anterior",
@@ -47,6 +47,7 @@ export var spanishSurveyStrings = {
     "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
   loadingFile: "Cargando...",
   chooseFile: "Elija archivo(s)...",
+  fileDragAreaPlaceholder: "Suelte un archivo aquí o haga clic en el botón de abajo para cargar el archivo",
   noFileChosen: "No se ha elegido ningún archivo",
   confirmDelete: "¿Quieres borrar el registro?",
   keyDuplicationError: "Este valor debe ser único.",
@@ -85,6 +86,10 @@ export var spanishSurveyStrings = {
   questionTitlePatternText: "Título de la pregunta",
   modalCancelButtonText: "Anular",
   modalApplyButtonText: "Aplicar",
+  ratingOptionsCaption: "Toca aquí para calificar...",
+  filteredTextPlaceholder: "Escribe para buscar...",
+  indexText: "{0} de {1}",
+  noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;

@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -40,7 +40,6 @@ export class Question extends SurveyElement
   private static getQuestionId(): string {
     return "sq_" + Question.questionCounter++;
   }
-  private conditionRunner: ConditionRunner = null;
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
@@ -48,8 +47,6 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private conditionEnabelRunner: ConditionRunner;
-  private conditionRequiredRunner: ConditionRunner;
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
@@ -77,6 +74,8 @@ export class Question extends SurveyElement
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
+  @property({ defaultValue: false }) isMobile: boolean;
+
   constructor(name: string) {
     super(name);
     this.id = Question.getQuestionId();
@@ -84,7 +83,15 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+
+    this.addExpressionProperty("visibleIf",
+      (obj: Base, res: any) => { this.visible = res === true; },
+      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+
     this.createLocalizableString("commentText", this, true, "otherItemText");
+    this.createLocalizableString("comment,Text", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -112,6 +119,9 @@ export class Question extends SurveyElement
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+      this.onMobileChanged();
+    });
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -262,7 +272,6 @@ export class Question extends SurveyElement
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
-    this.runConditions();
   }
   /**
    * Returns true if the question is visible or survey is in design mode right now.
@@ -345,14 +354,6 @@ export class Question extends SurveyElement
       this.runConditions();
     }
   }
-  public getDataFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : null;
-  }
-  public getDataFilteredProperties(): any {
-    var props = !!this.data ? this.data.getFilteredProperties() : {};
-    props.question = this;
-    return props;
-  }
   /**
    * A parent element. It can be panel or page.
    */
@@ -409,10 +410,10 @@ export class Question extends SurveyElement
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
     if (this.isClearValueOnHidden) {
-      if(!this.visible) {
+      if (!this.visible) {
         this.clearValueIfInvisible();
       }
-      if(this.isVisible) {
+      if (this.isVisible) {
         this.updateValueWithDefaults();
       }
     }
@@ -576,7 +577,7 @@ export class Question extends SurveyElement
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
-      if(event.target) {
+      if (event.target) {
         this.comment = event.target.value;
       }
     }
@@ -605,6 +606,7 @@ export class Question extends SurveyElement
       this.commentElement = (document.getElementById(this.id) && document.getElementById(this.id).querySelector("textarea")) || null;
       this.updateCommentElement();
     }
+    this.checkForResponsiveness(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void { }
   /**
@@ -877,7 +879,6 @@ export class Question extends SurveyElement
   }
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
-    this.runConditions();
   }
   /**
    * Set it to true, to add a comment for the question.
@@ -954,8 +955,8 @@ export class Question extends SurveyElement
   }
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
-    this.runConditions();
   }
+  public surveyChoiceItemVisibilityChange(): void { }
   /**
    * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.
    * @param values Typically survey results
@@ -968,53 +969,11 @@ export class Question extends SurveyElement
     if (this.isDesignMode) return;
     if (!properties) properties = {};
     properties["question"] = this;
-    if (!this.areInvisibleElementsShowing) {
-      this.runVisibleIfCondition(values, properties);
+    this.runConditionCore(values, properties);
+    if (!this.isValueChangedDirectly) {
+      this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
+      this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
-    this.runEnableIfCondition(values, properties);
-    this.runRequiredIfCondition(values, properties);
-    if(!this.isValueChangedDirectly) {
-      this.runDefaultValueExpression(this.defaultValueExpression, values, properties);
-    }
-  }
-  private runVisibleIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.visibleIf) return;
-    if (!this.conditionRunner)
-      this.conditionRunner = new ConditionRunner(this.visibleIf);
-    this.conditionRunner.expression = this.visibleIf;
-    this.conditionRunner.onRunComplete = (res: boolean) => {
-      this.visible = res;
-    };
-    this.conditionRunner.run(values, properties);
-  }
-  private runEnableIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.enableIf) return;
-    if (!this.conditionEnabelRunner)
-      this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
-    this.conditionEnabelRunner.expression = this.enableIf;
-    this.conditionEnabelRunner.onRunComplete = (res: boolean) => {
-      this.readOnly = !res;
-    };
-    this.conditionEnabelRunner.run(values, properties);
-  }
-  private runRequiredIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.requiredIf) return;
-    if (!this.conditionRequiredRunner)
-      this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
-    this.conditionRequiredRunner.expression = this.requiredIf;
-    this.conditionRequiredRunner.onRunComplete = (res: boolean) => {
-      this.isRequired = res;
-    };
-    this.conditionRequiredRunner.run(values, properties);
   }
   /**
    * The property returns the question number. If question is invisible then it returns empty string.
@@ -1040,7 +999,7 @@ export class Question extends SurveyElement
   public onSurveyLoad(): void {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
-    if(this.isEmpty()) {
+    if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
   }
@@ -1150,9 +1109,12 @@ export class Question extends SurveyElement
     return true;
   }
   public clearValueIfInvisible(reason: string = "onHidden"): void {
-    if(this.clearIfInvisible === "none") return;
-    if(reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
-    if(reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
+    if (this.clearIfInvisible === "none") return;
+    if (reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
+    if (reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
+    this.clearValueIfInvisibleCore();
+  }
+  protected clearValueIfInvisibleCore(): void {
     if (this.canClearValueAsInvisible()) {
       this.clearValue();
     }
@@ -1307,8 +1269,8 @@ export class Question extends SurveyElement
   /**
    * The correct answer on the question. Set this value if you are doing a quiz.
    * Please note, this property is hidden for question without input, for example html question.
-   * @see SurveyModel.correctAnswers
-   * @see SurveyModel.inCorrectAnswers
+   * @see SurveyModel.getCorrectAnswerCount
+   * @see SurveyModel.getInCorrectAnswerCount
    */
   public get correctAnswer(): any {
     return this.getPropertyValue("correctAnswer");
@@ -1353,12 +1315,12 @@ export class Question extends SurveyElement
     if (!this.isDesignMode && !this.isEmpty()) return;
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     if (this.isClearValueOnHidden && !this.isVisible) return;
-    if(this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
+    if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
   protected get isClearValueOnHidden(): boolean {
-    if(this.clearIfInvisible === "none" || this.clearIfInvisible === "onComplete") return false;
-    if(this.clearIfInvisible === "onHidden") return true;
+    if (this.clearIfInvisible === "none" || this.clearIfInvisible === "onComplete") return false;
+    if (this.clearIfInvisible === "onHidden") return true;
     return !!this.survey && this.survey.isClearValueOnHidden;
   }
   getQuestionFromArray(name: string, index: number): IQuestion {
@@ -1370,9 +1332,19 @@ export class Question extends SurveyElement
   protected isDefaultValueEmpty(): boolean {
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
+  protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
+    if(!runner && !!expression) {
+      runner = new ExpressionRunner(expression);
+    }
+    if(!!runner) {
+      runner.expression = expression;
+    }
+    return runner;
+  }
   protected setDefaultValue(): void {
+    this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
     this.setValueAndRunExpression(
-      this.defaultValueExpression,
+      this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
       (val) => {
         this.value = val;
@@ -1383,7 +1355,7 @@ export class Question extends SurveyElement
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }
   protected setValueAndRunExpression(
-    expression: string,
+    runner: ExpressionRunner,
     defaultValue: any,
     setFunc: (val: any) => void,
     values: HashTable<any> = null,
@@ -1392,37 +1364,34 @@ export class Question extends SurveyElement
     const func = (val: any) => {
       this.runExpressionSetValue(val, setFunc);
     };
-    if (!this.runDefaultValueExpression(expression, values, properties, func)) {
+    if (!this.runDefaultValueExpression(runner, values, properties, func)) {
       func(defaultValue);
     }
   }
-  private runExpressionSetValue(val: any, setFunc?: (val: any) => void) : void {
+  private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
     if (val instanceof Date) {
       val = val.toISOString().slice(0, 10);
     }
     setFunc(val);
   }
-  private runDefaultValueExpression(expression: string, values: HashTable<any> = null,
+  private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
-    if(!expression || !this.data) return false;
-    if(!this.defaultValueRunner) {
-      this.defaultValueRunner = new ExpressionRunner(expression);
-    }
-    if(!setFunc) {
-      setFunc = (val: any) : void => {
-        this.runExpressionSetValue(val, (val: any) : void => { this.value = val; });
+    if (!runner || !this.data) return false;
+    if (!setFunc) {
+      setFunc = (val: any): void => {
+        this.runExpressionSetValue(val, (val: any): void => { this.value = val; });
       };
     }
     if (!values) values = this.data.getFilteredValues();
     if (!properties) properties = this.data.getFilteredProperties();
-    if (this.defaultValueRunner.canRun) {
-      this.defaultValueRunner.onRunComplete = (res) => {
+    if (!!runner && runner.canRun) {
+      runner.onRunComplete = (res) => {
         if (res == undefined) res = this.defaultValue;
         this.isChangingViaDefaultValue = true;
         setFunc(res);
         this.isChangingViaDefaultValue = false;
       };
-      this.defaultValueRunner.run(values, properties);
+      runner.run(values, properties);
     }
     return true;
   }
@@ -1467,7 +1436,7 @@ export class Question extends SurveyElement
   protected updateIsAnswered(): void {
     const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
-    if(oldVal !== this.isAnswered) {
+    if (oldVal !== this.isAnswered) {
       this.updateQuestionCss();
     }
   }
@@ -1738,7 +1707,7 @@ export class Question extends SurveyElement
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
-    if(!isEqual && !this.isChangingViaDefaultValue) {
+    if (!isEqual && !this.isChangingViaDefaultValue) {
       this.isValueChangedDirectly = true;
     }
     this.questionValue = newValue;
@@ -1822,8 +1791,102 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+  public transformToMobileView(): void {}
+  public transformToDesktopView(): void {}
   public needResponsiveWidth() {
     return false;
+  }
+  //responsiveness methods
+  protected supportResponsiveness() {
+    return false;
+  }
+
+  protected needResponsiveness() {
+    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+  }
+
+  protected checkForResponsiveness(el: HTMLElement): void {
+    if(this.needResponsiveness()) {
+      if(this.isCollapsed) {
+        const onStateChanged = () => {
+          if(this.isExpanded) {
+            this.initResponsiveness(el);
+            this.unRegisterFunctionOnPropertyValueChanged("state", "for-responsiveness");
+          }
+        };
+        this.registerFunctionOnPropertyValueChanged("state", onStateChanged, "for-responsiveness");
+      } else {
+        this.initResponsiveness(el);
+      }
+    }
+  }
+  private resizeObserver: ResizeObserver;
+
+  protected getObservedElementSelector(): string {
+    return ".sd-scrollable-container";
+  }
+
+  private onMobileChanged() {
+    this.onMobileChangedCallback && this.onMobileChangedCallback();
+  }
+
+  private onMobileChangedCallback: () => void;
+
+  private initResponsiveness(el: HTMLElement) {
+    this.destroyResizeObserver();
+    if(!!el && this.isDefaultRendering()) {
+      const scrollableSelector = this.getObservedElementSelector();
+      const defaultRootEl = el.querySelector(scrollableSelector);
+      if(!!defaultRootEl) {
+        const requiredWidth = defaultRootEl.scrollWidth;
+        let isProcessed = false;
+        this.resizeObserver = new ResizeObserver(() => {
+          if(!el.isConnected) { this.destroyResizeObserver(); }
+          else {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            if(isProcessed) {
+              isProcessed = false;
+            } else {
+              isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+            }
+          }
+        });
+        this.onMobileChangedCallback = () => {
+          setTimeout(() => {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }, 0);
+        };
+        this.resizeObserver.observe(el);
+      }
+    }
+  }
+  protected getCompactRenderAs(): string {
+    return "default";
+  }
+  protected getDesktopRenderAs(): string {
+    return "default";
+  }
+  protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
+    availableWidth = Math.round(availableWidth);
+    const oldRenderAs = this.renderAs;
+    if(requiredWidth > availableWidth) {
+      this.renderAs = this.getCompactRenderAs();
+    } else {
+      this.renderAs = this.getDesktopRenderAs();
+    }
+    return oldRenderAs !== this.renderAs;
+  }
+  private destroyResizeObserver() {
+    if(!!this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+      this.onMobileChangedCallback = undefined;
+    }
+  }
+  public dispose() {
+    super.dispose();
+    this.destroyResizeObserver();
   }
 }
 Serializer.addClass("question", [
@@ -1846,7 +1909,7 @@ Serializer.addClass("question", [
     isSerializable: false,
     visibleIf: function (obj: any) {
       var survey = obj ? obj.survey : null;
-      return !survey || survey.pages.length > 1;
+      return !survey || !survey.pages || survey.pages.length > 1;
     },
     choices: function (obj: any) {
       var survey = obj ? obj.survey : null;

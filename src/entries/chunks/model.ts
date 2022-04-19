@@ -46,7 +46,7 @@ export {
 export { HtmlConditionItem, UrlConditionItem } from "../../expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../choicesRestful";
 export { FunctionFactory, registerFunction } from "../../functionsfactory";
-export { ConditionRunner, ExpressionRunner } from "../../conditions";
+export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor } from "../../conditions";
 export {
   Operand,
   Const,
@@ -132,9 +132,10 @@ export {
   QuestionPanelDynamicItem
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
+export { SurveyTimerModel } from "../../surveyTimerModel";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
-export { SurveyModel } from "../../survey";
+export { SurveyModel, SurveyModel as Model } from "../../survey";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,

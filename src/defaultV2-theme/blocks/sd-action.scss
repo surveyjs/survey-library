@@ -17,6 +17,7 @@
 }
 .sd-action.sd-action--disabled {
   color: $foreground;
+  cursor: default;
   opacity: 0.25;
 }
 .sd-action.sd-action--icon {
@@ -31,7 +32,7 @@ svg.sd-action--icon {
   fill: $foreground-light;
 }
 .sd-action.sd-action:not(:disabled):not(.sd-action--disabled):hover,
-.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus-visible {
+.sd-action.sd-action:not(:disabled):not(.sd-action--disabled):focus {
   outline: none;
   background-color: $primary-light;
   cursor: pointer;
@@ -55,4 +56,8 @@ svg.sd-action--icon {
   display: block;
   width: 24px;
   height: 24px;
+}
+.sd-action.sd-action--pressed {
+  background-color: $background-dim;
+  opacity: 0.5;
 }

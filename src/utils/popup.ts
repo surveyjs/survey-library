@@ -16,6 +16,8 @@ export interface ISize {
 }
 
 export class PopupUtils {
+  public static bottomIndent = 16;
+
   public static calculatePosition(
     targetRect: ClientRect,
     height: number,
@@ -56,7 +58,7 @@ export class PopupUtils {
     if (top < 0) {
       result = { height: height + top, top: 0 };
     } else if (height + top > windowHeight) {
-      let newHeight = Math.min(height, windowHeight - top);
+      let newHeight = Math.min(height, windowHeight - top - PopupUtils.bottomIndent);
       result = { height: newHeight, top: top };
     }
     return result;
@@ -143,7 +145,9 @@ export class PopupUtils {
     top: number,
     left: number,
     verticalPosition: VerticalPosition,
-    horizontalPosition: HorizontalPosition
+    horizontalPosition: HorizontalPosition,
+    width: number = undefined,
+    margins: number = 0
   ) {
     var targetPos: INumberPosition = {};
     if (horizontalPosition != "center") {
@@ -151,10 +155,13 @@ export class PopupUtils {
       targetPos.left = targetRect[horizontalPosition];
     } else if (verticalPosition != "middle") {
       targetPos.top = targetRect[verticalPosition];
-      targetPos.left = targetRect.left + targetRect.width / 2;
+      targetPos.left = width ? left + width / 2 : targetRect.left + targetRect.width / 2;
     }
     targetPos.left = Math.round(targetPos.left - left);
     targetPos.top = Math.round(targetPos.top - top);
+    if (horizontalPosition == "left") {
+      targetPos.left -= margins;
+    }
     return targetPos;
   }
 }

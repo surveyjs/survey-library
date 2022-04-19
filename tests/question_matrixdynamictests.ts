@@ -17,7 +17,7 @@ import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
-import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
@@ -2371,6 +2371,7 @@ QUnit.test(
     );
 
     var totalRow = question.renderedTable.footerRow;
+    assert.equal(totalRow.cells[1].question.value, 2, "Two rows");
     assert.equal(totalRow.cells[3].question.value, 8, "5 + 3 items");
     assert.equal(
       totalRow.cells[4].question.value,
@@ -4336,6 +4337,72 @@ QUnit.test("showInMultipleColumns property", function (assert) {
     "footer cell:  isChoice should be false"
   );
 });
+QUnit.test("showInMultipleColumns property, change column choices in running", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum",
+          },
+          {
+            name: "col2",
+            cellType: "checkbox",
+            showInMultipleColumns: true
+          },
+          {
+            name: "col3",
+            cellType: "comment",
+          },
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 0,
+    "header: row value + 0 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 0,
+    "first row: row value + 0 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 0,
+    "footer: row value + 0 choices"
+  );
+  matrix.renderedTable["testId"] = 1;
+  const column = matrix.columns[1];
+  column.choices = ["1", "2", "3", "4", "5"];
+  assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 2 + 5,
+    "header: row value + 5 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 2 + 5,
+    "first row: row value + 5 choices"
+  );
+  assert.equal(
+    matrix.renderedTable.footerRow.cells.length,
+    1 + 2 + 5,
+    "footer: row value + 5 choices"
+  );
+  matrix.renderedTable["testId"] = 1;
+  assert.ok(column.templateQuestion.loadedChoicesFromServerCallback, "Calback is set");
+  column.templateQuestion.loadedChoicesFromServerCallback();
+  assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
+});
 QUnit.test(
   "showInMultipleColumns property + columnLayout = 'vertical'",
   function (assert) {
@@ -5052,13 +5119,79 @@ QUnit.test("getProgressInfo", function (assert) {
     ],
   });
   survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
-  var question = survey.getQuestionByName("matrix");
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.ok(question.renderedTable);
   assert.deepEqual(question.getProgressInfo(), {
     questionCount: 9 - 2,
     answeredQuestionCount: 2,
     requiredQuestionCount: 3,
     requiredAnsweredQuestionCount: 1,
   });
+});
+
+QUnit.test("getProgressInfo, matrix dynamic without creating table", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+      },
+    ],
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+  assert.notOk(question["generatedVisibleRows"]);
+});
+
+QUnit.test("getProgressInfo, matrix dropdown without creating table", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+          },
+          {
+            name: "col3",
+          },
+        ],
+        rows: ["row1", "row2", "row3"]
+      },
+    ],
+  });
+  survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
+  var question = survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 9,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 1,
+  });
+  assert.notOk(question["generatedVisibleRows"]);
 });
 
 QUnit.test(
@@ -5775,6 +5908,33 @@ QUnit.test("Detail panel, rendered table", function (assert) {
   assert.equal(rows.length, 1, "We removed data and detail panel row");
   assert.equal(rows[0].isDetailRow, false, "We removed correct row");
 });
+
+QUnit.test("Detail panel, rendered table design mode", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  survey.setDesignMode(true);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.renderedTable.rows;
+
+  matrix.visibleRows[0].showDetailPanel();
+
+  assert.equal(
+    rows[1].cells[0].colSpans,
+    4,
+    "colSpans set correctly for detail panel cell design mode"
+  );
+});
+
 QUnit.test("Detail panel, create elements in code", function (assert) {
   var survey = new SurveyModel({
     elements: [

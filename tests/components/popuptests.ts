@@ -1,6 +1,7 @@
 import { PopupUtils } from "../../src/utils/popup";
 import { PopupModel } from "../../src/popup";
 import { PopupBaseViewModel } from "../../src/popup";
+import { surveyLocalization } from "../../src/surveyStrings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -17,9 +18,9 @@ const targetRect = {
 
 //TODO: disable setTimeout when testing
 const toggleVisibility = PopupModel.prototype.toggleVisibility;
-PopupModel.prototype.toggleVisibility = function() {
+PopupModel.prototype.toggleVisibility = function () {
   var prevSetTimeout = window.setTimeout;
-  (<any>window).setTimeout = function(callback: any) {
+  (<any>window).setTimeout = function (callback: any) {
     callback();
   };
   toggleVisibility.apply(this, arguments);
@@ -63,6 +64,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
 });
 
 QUnit.test("PopupViewModel defaults", (assert) => {
+  surveyLocalization.currentLocale = "";
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
@@ -110,28 +112,19 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--left"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
 
   viewModel.popupDirection = "down";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--down"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--down");
 
   model.showPointer = false;
-  assert.equal(viewModel.styleClass, "my-css-class");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -838,13 +831,12 @@ QUnit.test(
     assert.equal(newVerticalDimensions.top, 0);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
-
   }
 );
 
@@ -888,7 +880,7 @@ QUnit.test("PopupModel displayMode", (assert) => {
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.isModal = true;
   assert.equal(viewModel.showFooter, true);
   assert.equal(viewModel.styleClass, "sv-popup--modal");
@@ -897,4 +889,64 @@ QUnit.test("PopupModel displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
   model.isModal = true;
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
+});
+
+QUnit.test("PopupModel position calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "1000px";
+  targetElement.style.left = "1000px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+  popupContainer.style.margin = "8px";
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.left, (1000 - 200 / 2 - 8 + 32 / 2) + "px");
+});
+
+QUnit.test("PopupModel position calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "top", "left", true);
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "1000px";
+  targetElement.style.left = "1000px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+  popupContainer.style.margin = "8px";
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.pointerTarget.left, "200px");
 });

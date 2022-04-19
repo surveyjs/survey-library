@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultV2Css = {
   root: "sd-root-modern",
+  rootMobile: "sd-root-modern--mobile",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
@@ -12,15 +13,16 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
-  navigationButton: "",
+  navigationButton: "sd-btn",
   completedPage: "sd-completedpage",
+  timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
-    prev: "sd-btn sd-navigation__prev-btn",
-    next: "sd-btn sd-navigation__next-btn",
-    start: "sd-btn sd-navigation__start-btn",
-    preview: "sd-btn sd-navigation__preview-btn",
-    edit: "sd-btn sd-navigation__edit-btn"
+    complete: "sd-btn--action sd-navigation__complete-btn",
+    prev: "sd-navigation__prev-btn",
+    next: "sd-navigation__next-btn",
+    start: "sd-navigation__start-btn",
+    preview: "sd-navigation__preview-btn",
+    edit: "sd-navigation__edit-btn"
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",
@@ -51,10 +53,9 @@ export var defaultV2Css = {
     button: "sd-action sd-paneldynamic__btn",
     buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
-    progressTop: "sd-paneldynamic__progress sd-paneldynamic__progress--top",
-    progressBottom:
-      "sd-paneldynamic__progress sd-paneldynamic__progress--bottom",
     buttonPrev: "sd-paneldynamic__prev-btn sd-action--icon sd-action",
+    buttonPrevDisabled: "sd-action--disabled",
+    buttonNextDisabled: "sd-action--disabled",
     buttonNext: "sd-paneldynamic__next-btn sd-action--icon sd-action",
     progressContainer: "sd-paneldynamic__progress-container",
     progress: "sd-progress",
@@ -71,6 +72,20 @@ export var defaultV2Css = {
   progress: "sd-progress sd-body__progress",
   progressBar: "sd-progress__bar",
   progressText: "sd-progress__text",
+  progressButtonsContainerCenter: "sd-progress-buttons__container-center",
+  progressButtonsContainer: "sd-progress-buttons__container",
+  progressButtonsImageButtonLeft: "sd-progress-buttons__image-button-left",
+  progressButtonsImageButtonRight: "sd-progress-buttons__image-button-right",
+  progressButtonsImageButtonHidden: "sd-progress-buttons__image-button--hidden",
+  progressButtonsListContainer: "sd-progress-buttons__list-container",
+  progressButtonsList: "sd-progress-buttons__list",
+  progressButtonsListElementPassed: "sd-progress-buttons__list-element--passed",
+  progressButtonsListElementCurrent:
+    "sd-progress-buttons__list-element--current",
+  progressButtonsListElementNonClickable:
+    "sd-progress-buttons__list-element--nonclickable",
+  progressButtonsPageTitle: "sd-progress-buttons__page-title",
+  progressButtonsPageDescription: "sd-progress-buttons__page-description",
   progressTextInBar: "sd-hidden",
   page: {
     root: "sd-page sd-body__page",
@@ -93,7 +108,7 @@ export var defaultV2Css = {
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
-    titleLeftRoot: "",
+    titleLeftRoot: "sd-question--left",
     titleOnAnswer: "sd-question__title--answer",
     titleOnError: "sd-question__title--error",
     title: "sd-title sd-element__title sd-question__title",
@@ -121,6 +136,7 @@ export var defaultV2Css = {
     mainRoot: "sd-question sd-question--image",
     root: "sd-image",
     image: "sd-image__image",
+    adaptive: "sd-image__image--adaptive",
     withFrame: ""
   },
   html: {
@@ -156,7 +172,7 @@ export var defaultV2Css = {
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     other: "sd-input sd-comment sd-selectbase__other",
-    column: "sd-selectbase__column"
+    column: "sd-selectbase__column",
   },
   radiogroup: {
     root: "sd-selectbase",
@@ -179,8 +195,14 @@ export var defaultV2Css = {
   },
   boolean: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
-    root: "sv_qcbc sv_qbln",
+    root: "sv_qcbc sv_qbln sd-scrollable-container",
+    rootRadio: "sv_qcbc sv_qbln sd-scrollable-container sd-scrollable-container--compact",
     item: "sd-boolean",
+    radioItem: "sd-item",
+    radioItemChecked: "sd-item--checked sd-radio--checked",
+    radioLabel: "sd-selectbase__label",
+    radioControlLabel: "sd-item__control-label",
+    radioFieldset: "sd-selectbase",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
@@ -191,8 +213,11 @@ export var defaultV2Css = {
     disabledLabel: "sd-checkbox__label--disabled",
     itemDecorator: "sd-checkbox__hidden",
     materialDecorator: "sd-checkbox__rectangle",
+    itemRadioDecorator: "sd-item__svg sd-radio__svg",
+    materialRadioDecorator: "sd-item__decorator sd-radio__decorator",
     sliderText: "sd-boolean__thumb-text",
-    slider: "sd-boolean__thumb"
+    slider: "sd-boolean__thumb",
+    itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
   },
   text: {
     root: "sd-input sd-text",
@@ -212,7 +237,6 @@ export var defaultV2Css = {
   dropdown: {
     root: "sd-selectbase",
     small: "sd-row__question--small",
-    control: "sd-input sd-dropdown",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",
     onError: "sd-input--error",
@@ -223,14 +247,16 @@ export var defaultV2Css = {
     itemHover: "sd-item--allowhover sd-radio--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
     itemDecorator: "sd-item__svg sd-radio__svg",
+    control: "sd-input sd-dropdown",
     controlDisabled: "sd-input--disabled",
-    controlLabel: "sd-item__control-label",
     controlEmpty: "sd-dropdown--empty",
+    controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
-    root: "sd-imagepicker",
+    root: "sd-selectbase sd-imagepicker",
+    rootColumn: "sd-imagepicker--column",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
     itemInline: "sd-imagepicker__item--inline",
@@ -240,16 +266,20 @@ export var defaultV2Css = {
     label: "sd-imagepicker__label",
     itemDecorator: "sd-imagepicker__item-decorator",
     imageContainer: "sd-imagepicker__image-container",
-    itemControl: "sd-imagepicker__control",
+    itemControl: "sd-imagepicker__control sd-visuallyhidden",
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
     clearButton: "sd-btn",
-    other: "sd-input sd-comment"
+    other: "sd-input sd-comment",
+    itemNoImage: "sd-imagepicker__no-image",
+    itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
+    itemNoImageSvgIconId: "#icon-no-image",
+    column: "sd-selectbase__column sd-imagepicker__column",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix",
-    root: "sd-table",
+    root: "sd-table sd-matrix__table",
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -267,7 +297,8 @@ export var defaultV2Css = {
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
-    root: "sd-table",
+    rootScroll: "sd-question--scroll",
+    root: "sd-table sd-matrixdropdown",
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
@@ -284,6 +315,7 @@ export var defaultV2Css = {
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
+    rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     cell: "sd-table__cell",
@@ -303,17 +335,20 @@ export var defaultV2Css = {
     buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: "",
+    dragElementDecorator: "sd-drag-element__svg",
+    iconDragElement: "#icon-v2dragelement_16x16",
     footer: "sd-matrixdynamic__footer",
     emptyRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",
-    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
-    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
     cellQuestionWrapper: "sd-table__question-wrapper"
   },
   rating: {
-    root: "sd-rating",
+    rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
+    root: "sd-scrollable-container sd-rating",
+    rootWrappable: "sd-scrollable-container sd-rating sd-rating--wrappable",
     item: "sd-rating__item",
     itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",
@@ -321,7 +356,11 @@ export var defaultV2Css = {
     minText: "sd-rating__item-text sd-rating__min-text",
     itemText: "sd-rating__item-text",
     maxText: "sd-rating__item-text sd-rating__max-text",
-    itemDisabled: "sd-rating__item--disabled"
+    itemDisabled: "sd-rating__item--disabled",
+    control: "sd-input sd-dropdown",
+    controlDisabled: "sd-input--disabled",
+    controlEmpty: "sd-dropdown--empty",
+    onError: "sd-input--error",
   },
   comment: {
     root: "sd-input sd-comment",
@@ -345,6 +384,7 @@ export var defaultV2Css = {
     noFileChosen: "sd-description sd-file__no-file-chosen",
     chooseFile: "sd-file__choose-btn",
     chooseFileAsText: "sd-action sd-file__choose-btn--text",
+    chooseFileAsTextDisabled: "sd-action--disabled",
     chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
@@ -356,11 +396,15 @@ export var defaultV2Css = {
     removeFileSvgIconId: "icon-delete",
     wrapper: "sd-file__wrapper",
     defaultImage: "sd-file__default-image",
+    defaultImageIconId: "icon-defaultfile",
+    leftIconId: "icon-arrowleft",
+    rightIconId: "icon-arrowright",
     removeFileButton: "sd-context-btn sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
     imageWrapper: "sd-file__image-wrapper",
     single: "sd-file--single",
-    singleImage: "sd-file--single-image"
+    singleImage: "sd-file--single-image",
+    mobile: "sd-file--mobile",
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",
@@ -408,12 +452,29 @@ export var defaultV2Css = {
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
   },
+  buttongroup: {
+    root: "sv-button-group",
+    item: "sv-button-group__item",
+    itemIcon: "sv-button-group__item-icon",
+    itemDecorator: "sv-button-group__item-decorator",
+    itemCaption: "sv-button-group__item-caption",
+    itemHover: "sv-button-group__item--hover",
+    itemSelected: "sv-button-group__item--selected",
+    itemDisabled: "sv-button-group__item--disabled",
+    itemControl: "sv-visuallyhidden",
+  },
   actionBar: {
     root: "sd-action-bar",
     item: "sd-action",
     itemPressed: "sd-action--pressed",
     itemAsIcon: "sd-action--icon",
-    itemIcon: "sd-action__icon"
+    itemIcon: "sd-action__icon",
+    itemTitle: "sd-action__title",
+  },
+  variables: {
+    mobileWidth: "--sd-mobile-width",
+    imagepickerGapBetweenItems: "--sd-imagepicker-gap",
+    themeMark: "--sv-defaultV2-mark"
   }
 };
 

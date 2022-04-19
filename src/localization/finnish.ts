@@ -1,4 +1,4 @@
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var finnishSurveyStrings = {
   pagePrevText: "Edellinen",
@@ -46,6 +46,7 @@ export var finnishSurveyStrings = {
     "Tiedostoa lähetetään. Odota muutama sekunti ja yritä uudelleen.",
   loadingFile: "Ladataan...",
   chooseFile: "Valitse tiedosto(t)...",
+  fileDragAreaPlaceholder: "Pudota tiedosto tähän tai lataa tiedosto napsauttamalla alla olevaa painiketta.",
   noFileChosen: "Ei tiedostoa valittuna",
   confirmDelete: "Haluatko poistaa osion?",
   keyDuplicationError: "Tämä arvo on jo käytössä. Syötä toinen arvo.",
@@ -82,6 +83,14 @@ export var finnishSurveyStrings = {
   questionTitlePatternText: "Kysymyksen otsikko",
   modalCancelButtonText: "Peruuta",
   modalApplyButtonText: "Käytä",
+  ratingOptionsCaption: "Arvioi napauttamalla tätä...",
+  filteredTextPlaceholder: "Hae kirjoittamalla...",
+  indexText: "{0} / {1}",
+  minError: "Arvo ei saa olla pienempi kuin {0}",
+  maxError: "Arvo ei saa olla suurempi kuin {0}",
+  multipletext_itemname: "teksti",
+  noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
+  signaturePlaceHolder: "Allekirjoita tähän",
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;

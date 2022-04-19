@@ -37,6 +37,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       background-color: white;
       border-radius: 36px;
       padding-right: 16px;
+      margin-left: 0;
     `;
 
     const dragIcon:any = clone.querySelector(".svc-item-value-controls__drag-icon");

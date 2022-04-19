@@ -1,2 +1,6 @@
 export * from "./core";
-export * from "./knockout-ui";
+
+// localization
+import "./chunks/localization";
+
+export * from "./knockout-ui-model";

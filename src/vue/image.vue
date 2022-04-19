@@ -1,21 +1,31 @@
 <template>
   <div :class="question.cssClasses.root">
     <img
-      v-if="question.contentMode === 'image'"
-      :class="question.cssClasses.image"
+      v-if="question.renderedMode === 'image'"
+      :class="question.getImageCss()"
       :src="question.imageLink"
       :alt="question.text || question.title"
-      :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
-      :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
+      :width="question.renderedWidth"
+      :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
-    /><video controls
-      v-if="question.contentMode === 'video'"
-      :class="question.cssClasses.image"
+    /><video
+      controls
+      v-if="question.renderedMode === 'video'"
+      :class="question.getImageCss()"
       :src="question.imageLink"
-      :width="question.imageWidth ? question.imageWidth + 'px' : undefined"
-      :height="question.imageHeight ? question.imageHeight + 'px' : undefined"
+      :width="question.renderedWidth"
+      :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
-    ></video></div>
+    ></video>
+    <iframe
+      v-if="question.renderedMode === 'youtube'"
+      :class="question.getImageCss()"
+      :src="question.imageLink"
+      :width="question.renderedWidth"
+      :height="question.renderedHeight"
+      v-bind:style="{ objectFit: question.imageFit }"
+    ></iframe>
+  </div>
 </template>
 
 <script lang="ts">

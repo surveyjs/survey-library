@@ -7,7 +7,7 @@ import { Serializer } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { IConditionObject } from "./question";
+import { IProgressInfo } from "./base-interfaces";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -128,8 +128,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     super.clearIncorrectValues();
   }
-  public clearValueIfInvisible() {
-    super.clearValueIfInvisible();
+  protected clearValueIfInvisibleCore(): void {
+    super.clearValueIfInvisibleCore();
     this.clearInvisibleValuesInRows();
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {
@@ -152,6 +152,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("rows");
+  }
+  protected updateProgressInfoByValues(res: IProgressInfo): void {
+    let val = this.value;
+    if(!val) val = {};
+    for(var i = 0; i < this.rows.length; i ++) {
+      const row = this.rows[i];
+      const rowValue = val[row.value];
+      this.updateProgressInfoByRow(res, !!rowValue ? rowValue : {});
+    }
   }
 }
 

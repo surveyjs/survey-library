@@ -1,7 +1,31 @@
 import { ClientFunction } from "testcafe";
+import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
+
 export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
 });
+
+export const explicitErrorHandler = ClientFunction(() => { window.addEventListener("error", e => {
+  if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    e.message === "ResizeObserver loop limit exceeded") {
+    e.stopImmediatePropagation();
+  } });
+});
+
+export const applyTheme = ClientFunction(theme => {
+  (<any>window).Survey.StylesManager.applyTheme(theme);
+});
+
+export async function checkElementScreenshot(screenshotName: string, element: Selector, t: TestController): Promise<void> {
+  const comparer = createScreenshotsComparer(t);
+  await t
+    .wait(1000)
+    .expect(element.visible).ok("element is invisible for " + screenshotName);
+  await comparer.takeScreenshot(screenshotName, element, screenshotComparerOptions);
+  await t
+    .expect(comparer.compareResults.isValid())
+    .ok(comparer.compareResults.errorMessages());
+}
 
 //devextreme-screenshot-comparer options
 export const screenshotComparerOptions = {

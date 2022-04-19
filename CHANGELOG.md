@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.25](https://github.com/surveyjs/survey-library/compare/v1.9.24...v1.9.25) (2022-04-14)
+
+### [1.9.24](https://github.com/surveyjs/survey-library/compare/v1.9.23...v1.9.24) (2022-04-12)
+
+### [1.9.23](https://github.com/surveyjs/survey-library/compare/v1.9.22...v1.9.23) (2022-04-05)
+
+### [1.9.22](https://github.com/surveyjs/survey-library/compare/v1.9.21...v1.9.22) (2022-03-29)
+
+### [1.9.21](https://github.com/surveyjs/survey-library/compare/v1.9.20...v1.9.21) (2022-03-24)
+
+### [1.9.20](https://github.com/surveyjs/survey-library/compare/v1.9.19...v1.9.20) (2022-03-17)
+
+### [1.9.19](https://github.com/surveyjs/survey-library/compare/v1.9.18...v1.9.19) (2022-03-09)
+
+### [1.9.18](https://github.com/surveyjs/survey-library/compare/v1.9.17...v1.9.18) (2022-02-24)
+
+### [1.9.17](https://github.com/surveyjs/survey-library/compare/v1.9.16...v1.9.17) (2022-02-24)
+
+### [1.9.16](https://github.com/surveyjs/survey-library/compare/v1.9.15...v1.9.16) (2022-02-23)
+
+### [1.9.15](https://github.com/surveyjs/survey-library/compare/v1.9.14...v1.9.15) (2022-02-22)
+
+### [1.9.14](https://github.com/surveyjs/survey-library/compare/v1.9.13...v1.9.14) (2022-02-17)
+
+### [1.9.13](https://github.com/surveyjs/survey-library/compare/v1.9.12...v1.9.13) (2022-02-14)
+
+### [1.9.12](https://github.com/surveyjs/survey-library/compare/v1.9.11...v1.9.12) (2022-02-10)
+
+### [1.9.11](https://github.com/surveyjs/survey-library/compare/v1.9.10...v1.9.11) (2022-02-09)
+
+### [1.9.10](https://github.com/surveyjs/survey-library/compare/v1.9.9...v1.9.10) (2022-02-09)
+
+### [1.9.9](https://github.com/surveyjs/survey-library/compare/v1.9.8...v1.9.9) (2022-02-09)
+
 ### [1.9.8](https://github.com/surveyjs/survey-library/compare/v1.9.7...v1.9.8) (2022-02-01)
 
 ### [1.9.7](https://github.com/surveyjs/survey-library/compare/v1.9.6...v1.9.7) (2022-01-25)

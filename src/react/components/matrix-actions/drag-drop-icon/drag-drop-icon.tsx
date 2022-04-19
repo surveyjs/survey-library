@@ -7,21 +7,15 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
   private get question(): QuestionMatrixDropdownModelBase {
     return this.props.item.data.question;
   }
-  private get row(): QuestionMatrixDropdownModelBase {
-    return this.props.item.data.row;
-  }
-
-  onPointerDownHandler(event: any) {
-    this.question.startDragMatrixRow(event.nativeEvent, this.row);
-  }
 
   protected renderElement(): JSX.Element {
-    return (
-      <span
-        className={this.question.cssClasses.iconDrag}
-        onPointerDown={(event: any) => this.onPointerDownHandler(event)}
-      />
-    );
+    if(this.question.iconDragElement) {
+      return (<svg className={this.question.cssClasses.dragElementDecorator} >
+        <use xlinkHref={this.question.iconDragElement}></use>
+      </svg>);
+    } else {
+      return (<span className={this.question.cssClasses.iconDrag} />);
+    }
   }
 }
 

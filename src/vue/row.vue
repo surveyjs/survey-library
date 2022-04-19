@@ -1,32 +1,28 @@
 <template>
-  <div class="sv-vue-row-additional-div">
-    <div
-      v-for="element in row.visibleElements"
+  <div :class="row.getRowCss()">
+    <div v-for="element in row.visibleElements" :style="element.rootStyle">
+    <survey-element
+      v-if="!element.isPanel" 
       :key="element.id"
-      :style="element.rootStyle"
-    >
-      <survey-element
-        v-if="row.isNeedRender"
-        :id="element.id"
-        :role="element.ariaRole"
-        :aria-required="element.ariaRequired"
-        :aria-invalid="element.ariaInvalid"
-        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
-        :data-name="element.name"
-        :style="{
+      
+      :element="element"
+      :survey="survey"
+      :css="css"
+      :row="row"
+      :style="{
           paddingLeft: element.paddingLeft,
           paddingRight: element.paddingRight,
         }"
-        :element="element"
-        :survey="survey"
-        :css="css"
-      ></survey-element>
-      <component
-        v-if="!row.isNeedRender && !!element.skeletonComponentName"
-        :is="element.skeletonComponentName"
-        :question="element"
-        :css="css"
-      ></component>
+    >
+    </survey-element>
+    <survey-panel
+      v-if="element.isPanel"
+            :key="element.id"
+      
+      :question="element"
+      :css="css">
+    </survey-panel>
+
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 //Created by https://github.com/agelospanagiotakis
-import { surveyLocalization } from "../surveyStrings";
+import { surveyLocalization } from "survey-core";
 
 export var greekSurveyStrings = {
   pagePrevText: "Προηγούμενο",

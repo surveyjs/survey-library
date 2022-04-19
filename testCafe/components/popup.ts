@@ -61,11 +61,7 @@ function addDropdownTitleAction(_, opt) {
     model: new window["Survey"].ListModel([
       new window["Survey"].Action({ title: "Item 1" }),
     ]),
-  },
-  "bottom",
-  "left",
-  true
-  );
+  }, "bottom", "left", true);
   const item = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "Click",
@@ -110,8 +106,10 @@ frameworks.forEach(async framework => {
 
       .click(clickButton)
       .expect(popupSelector.visible).ok()
+      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).ok()
       .pressKey("esc")
       .expect(popupSelector.exists).ok()
+      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
       .expect(popupSelector.visible).notOk();
 
     await disposeSurvey(framework);
@@ -307,7 +305,7 @@ frameworks.forEach(async framework => {
       });
       opt.titleActions = [item];
     };
-    const insertContainer = ClientFunction(()=>{
+    const insertContainer = ClientFunction(() => {
       const container = document.createElement("div");
       container.style.height = "200px";
       document.body.insertBefore(container, document.getElementById("surveyElement"));
@@ -318,11 +316,11 @@ frameworks.forEach(async framework => {
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(362)
+      .expect(popupContainerSelector.offsetHeight).eql(346)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(362);
+      .expect(popupContainerSelector.offsetHeight).eql(346);
   });
 });

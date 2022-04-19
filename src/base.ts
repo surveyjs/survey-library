@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import {
   CustomPropertiesCollection,
   JsonObject,
@@ -9,6 +9,13 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { ExpressionRunner } from "./conditions";
+
+interface IExpressionRunnerInfo {
+  onExecute: (obj: Base, res: any) => void;
+  canRun?: (obj: Base) => boolean;
+  runner?: ExpressionRunner;
+}
 
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
@@ -201,6 +208,7 @@ export class Base {
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
+  private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
   private onPropChangeFunctions: Array<{
@@ -267,13 +275,41 @@ export class Base {
   }
   protected onBaseCreating() { }
   /**
-   * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
+   * Returns the question type.
+   * Possible values:
+   * - [*"boolean"*](https://surveyjs.io/Documentation/Library?id=questionbooleanmodel)
+   * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
+   * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
+   * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel)
+   * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel)
+   * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel)
+   * - [*"image"*](https://surveyjs.io/Documentation/Library?id=questionimagemodel)
+   * - [*"imagepicker"*](https://surveyjs.io/Documentation/Library?id=questionimagepickermodel)
+   * - [*"matrix"*](https://surveyjs.io/Documentation/Library?id=questionmatrixmodel)
+   * - [*"matrixdropdown"*](https://surveyjs.io/Documentation/Library?id=questionmatrixdropdownmodel)
+   * - [*"matrixdynamic"*](https://surveyjs.io/Documentation/Library?id=questionmatrixdynamicmodel)
+   * - [*"multipletext"*](https://surveyjs.io/Documentation/Library?id=questionmultipletextmodel)
+   * - [*"panel"*](https://surveyjs.io/Documentation/Library?id=panelmodel)
+   * - [*"paneldynamic"*](https://surveyjs.io/Documentation/Library?id=questionpaneldynamicmodel)
+   * - [*"radiogroup"*](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel)
+   * - [*"rating"*](https://surveyjs.io/Documentation/Library?id=questionratingmodel)
+   * - [*"ranking"*](https://surveyjs.io/Documentation/Library?id=questionrankingmodel)
+   * - [*"signaturepad"*](https://surveyjs.io/Documentation/Library?id=questionsignaturepadmodel)
+   * - [*"text"*](https://surveyjs.io/Documentation/Library?id=questiontextmodel)
    */
   public getType(): string {
     return "base";
   }
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
+  }
+  /**
+   * Returns true if the question in design mode right now.
+   */
+  public get isDesignMode(): boolean {
+    const survey = this.getSurvey();
+    return !!survey && survey.isDesignMode;
   }
   /**
    * Returns true if the object is inluded into survey, otherwise returns false.
@@ -530,7 +566,7 @@ export class Base {
       arrayChanges,
       this
     );
-
+    this.checkConditionPropertyChanged(name);
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
@@ -569,6 +605,46 @@ export class Base {
         arrayChanges
       );
     }
+  }
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
+    if(!this.expressionInfo) {
+      this.expressionInfo = {};
+    }
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
+  }
+  public getDataFilteredValues(): any {
+    return {};
+  }
+  public getDataFilteredProperties(): any {
+    return {};
+  }
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    if(!this.expressionInfo) return;
+    for(var key in this.expressionInfo) {
+      this.runConditionItemCore(key, values, properties);
+    }
+  }
+  protected canRunConditions(): boolean {
+    return !this.isDesignMode;
+  }
+  private checkConditionPropertyChanged(propName: string): void {
+    if(!this.expressionInfo || !this.expressionInfo[propName]) return;
+    if(!this.canRunConditions()) return;
+    this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
+  }
+  private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
+    const info = this.expressionInfo[propName];
+    const expression = this.getPropertyValue(propName);
+    if(!expression) return;
+    if(!!info.canRun && !info.canRun(this)) return;
+    if(!info.runner) {
+      info.runner = new ExpressionRunner(expression);
+      info.runner.onRunComplete = (res: any) => {
+        info.onExecute(this, res);
+      };
+    }
+    info.runner.expression = expression;
+    info.runner.run(values, properties);
   }
   /**
    * Register a function that will be called on a property value changed.

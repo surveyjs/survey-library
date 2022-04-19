@@ -195,8 +195,8 @@ export class MatrixDropdownColumn extends Base
   }
   public set cellType(val: string) {
     val = val.toLocaleLowerCase();
+    this.updateTemplateQuestion(val);
     this.setPropertyValue("cellType", val);
-    this.updateTemplateQuestion();
     if (!!this.colOwner) {
       this.colOwner.onColumnCellTypeChanged(this);
     }
@@ -435,16 +435,17 @@ export class MatrixDropdownColumn extends Base
     }
     return cellType;
   }
-  private getDefaultCellQuestionType(): string {
-    if (this.cellType !== "default") return this.cellType;
+  private getDefaultCellQuestionType(cellType?: string): string {
+    if(!cellType) cellType = this.cellType;
+    if (cellType !== "default") return cellType;
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrixDefaultCellType;
   }
-  protected updateTemplateQuestion() {
-    var prevCellType = this.templateQuestion
+  protected updateTemplateQuestion(newCellType?: string): void {
+    const curCellType = this.getDefaultCellQuestionType(newCellType);
+    const prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
       : "";
-    var curCellType = this.calcCellQuestionType(null);
     if (curCellType === prevCellType) return;
     if (this.templateQuestion) {
       this.removeProperties(prevCellType);
@@ -486,10 +487,11 @@ export class MatrixDropdownColumn extends Base
     this.setQuestionProperties(question);
     return question;
   }
+  private previousChoicesId: string = undefined;
   protected setQuestionProperties(
     question: Question,
     onUpdateJson: (json: any) => any = null
-  ) {
+  ): void {
     if (this.templateQuestion) {
       var json = new JsonObject().toJsonObject(this.templateQuestion, true);
       if (onUpdateJson) {
@@ -498,6 +500,15 @@ export class MatrixDropdownColumn extends Base
       json.type = question.getType();
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
+      this.previousChoicesId = undefined;
+      question.loadedChoicesFromServerCallback = () => {
+        if(!this.isShowInMultipleColumns) return;
+        if(!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
+        this.previousChoicesId = question.id;
+        const choices = question.visibleChoices;
+        this.templateQuestion.choices = choices;
+        this.propertyValueChanged("choices", choices, choices);
+      };
     }
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {

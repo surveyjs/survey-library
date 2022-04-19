@@ -275,6 +275,11 @@ QUnit.test("Condition check for undefined #518", function(assert) {
   values = { var1: "a" };
   assert.equal(runner.run(values), true, "string is not undefined");
 });
+QUnit.test("Run count function with arrays", function(assert) {
+  var runner = new ExpressionRunner("count({var1})");
+  var values = { var1: [2, 5], var2: 3 };
+  assert.equal(runner.run(values), 2, "two rows");
+});
 
 QUnit.test("Run sum function", function(assert) {
   var runner = new ExpressionRunner("sum({var1},{var2},{var3},{var4})");
@@ -652,6 +657,11 @@ QUnit.test("ExpressionRunner: countInArray", function(assert) {
   assert.equal(runner.run(values), 0, "There is no values");
   var emptyValue = { a: {} };
   assert.equal(runner.run(emptyValue), 0, "object is empty");
+});
+QUnit.test("ExpressionRunner: countInArray, value as string", function(assert) {
+  var runner = new ExpressionRunner("countInArray({a}, 'val1')");
+  var values = { a: [{ val1: "abc" }, { val2: 10 }, { val1: "cde" }] };
+  assert.equal(runner.run(values), 2, "two items in array");
 });
 
 QUnit.test("ConditionRunner, iif simple", function(assert) {
@@ -1339,4 +1349,9 @@ QUnit.test("Operand.isEqual()", function(assert) {
   assert.equal(compareOperands("{a} < 3", "{b} < 3"), false, "#4.3");
   assert.equal(compareOperands("{val} = 1 and func({a}) < 3", "{val} = 1 or func({a}) < 3"), false, "#5");
   assert.equal(compareOperands("{val} = 1", "{val} != 1"), false, "#6");
+});
+
+QUnit.test("Expression decimal + string", function(assert) {
+  const expression = new ExpressionRunner("0.1 + 'abc'");
+  assert.equal(expression.run({}), "0.1abc");
 });

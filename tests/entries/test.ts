@@ -17,6 +17,7 @@ export * from "../question_matrixdropdownbasetests";
 export * from "../surveypaneldynamictests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
+export * from "../surveyWindowTests"; //
 export * from "../surveywidthmodetests"; //
 export * from "../surveytriggertests"; //
 export * from "../surveyvalidatortests"; //
@@ -37,6 +38,7 @@ export * from "../questionDropdown";
 export * from "../questionImagepicker";
 export * from "../questionBoolean";
 export * from "../question_baseselecttests";
+export * from "../question_imagetests";
 export * from "../question_ratingtests";
 export * from "../question_texttests";
 export * from "../question_customtests";

@@ -4,8 +4,8 @@ import { QuestionRadiogroupModel } from "survey-core";
 import { ItemValue } from "survey-core";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base } from "survey-core";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { Base, SurveyModel } from "survey-core";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
@@ -37,17 +37,41 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         ref={(fieldset) => (this.control = fieldset)}
       >
         {this.question.hasColumns
-          ? this.getColumns(cssClasses)
+          ? this.getColumnedBody(cssClasses)
           : this.getItems(cssClasses)}
+        {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther(cssClasses) : null}
         {clearButton}
       </fieldset>
+    );
+  }
+  protected getFooter() {
+    if (this.question.hasFootItems) {
+      return this.question.footItems.map((item: any, ii: number) =>
+        this.renderItem(
+          "item_f" + ii,
+          item,
+          false,
+          this.question.cssClasses,
+          null
+        )
+      );
+    }
+  }
+  protected getColumnedBody(cssClasses: any) {
+    return (
+      <>
+        <div className={cssClasses.rootMultiColumn}>
+          {this.getColumns(cssClasses)}
+        </div>
+        {this.getFooter()}
+      </>
     );
   }
   protected getColumns(cssClasses: any) {
     var value = this.getStateValue();
     return this.question.columns.map((column: any, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(item, value, cssClasses, "" + ci + ii)
+        this.renderItem("item" + ci + ii, item, value, cssClasses, "" + ci + ii)
       );
       return (
         <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
@@ -61,7 +85,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var renderedItem = this.renderItem(item, value, cssClasses, "" + i);
+      var renderedItem = this.renderItem("item" + i, item, value, cssClasses, "" + i);
       items.push(renderedItem);
     }
     return items;
@@ -69,13 +93,25 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected get textStyle(): any {
     return null;//{ display: "inline", position: "static" };
   }
+  protected renderOther(cssClasses: any): JSX.Element {
+    return (
+      <div className="form-group">
+        <SurveyQuestionCommentItem
+          question={this.question}
+          otherCss={cssClasses.other}
+          cssClasses={cssClasses}
+          isDisplayMode={this.isDisplayMode}
+        />
+      </div>
+    );
+  }
   private renderItem(
+    key: string,
     item: ItemValue,
     value: any,
     cssClasses: any,
     index: string
   ): JSX.Element {
-    var key = "item" + index;
     const renderedItem = (
       <SurveyQuestionRadioItem
         key={key}
@@ -88,10 +124,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         isChecked={value === item.value}
       />
     );
-    const survey = this.question.survey as ReactSurveyModel;
+    const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
     if (!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
   }
@@ -126,7 +162,8 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
-  public shouldComponentUpdate(): boolean {
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -141,11 +178,6 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return !!this.question && !!this.item;
   }
   protected renderElement(): JSX.Element {
-    var otherItem =
-      this.question.isOtherItem(this.item) && this.question.isOtherSelected
-        ? this.renderOther(this.cssClasses)
-        : null;
-
     var itemText = !this.hideCaption
       ? this.renderLocString(this.item.locText, this.textStyle)
       : "";
@@ -185,23 +217,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={controlLabelClass} title={locText.renderedHtml}>
+          <span className={controlLabelClass}>
             {itemText}
           </span>
         </label>
-        {otherItem}
-      </div>
-    );
-  }
-  protected renderOther(cssClasses: any): JSX.Element {
-    return (
-      <div className="form-group">
-        <SurveyQuestionCommentItem
-          question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
       </div>
     );
   }

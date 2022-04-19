@@ -1,7 +1,8 @@
-import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton, applyTheme } from "../helper";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
+// eslint-disable-next-line no-undef
 const assert = require("assert");
-const title = `allTypes`;
+const title = "allTypes";
 
 const img_base64 =
   "data:image/png;base64,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";
@@ -149,38 +150,34 @@ var json = {
   ],
 };
 
-const applyTheme = ClientFunction(theme => {
-  Survey.StylesManager.applyTheme(theme);
-});
-
 ["modern", "bootstrap"].forEach(theme => {
   frameworks.forEach(framework => {
     fixture`${framework} ${title} ${theme}`
       .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-        await applyTheme(theme);
-        await initSurvey(framework, json);
-      });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
     test("check survey will all types", async t => {
       await t
         .expect(Selector(".sv-string-editor").exists)
         .notOk("There should not be any editable elements outside design mode");
 
       await t.typeText(
-        Selector("span").withText('text_question')
+        Selector("span").withText("text_question")
           .parent("[aria-labelledby]")
           .find("input"),
         "test text"
       );
 
       await t.click(
-        Selector("span").withText('checkbox_question')
+        Selector("span").withText("checkbox_question")
           .parent("[aria-labelledby]")
           .find("span")
           .withText("item1")
       );
 
       await t.click(
-        Selector("span").withText('radiogroup_question')
+        Selector("span").withText("radiogroup_question")
           .parent("[aria-labelledby]")
           .find("span")
           .withText("item1")
@@ -197,21 +194,21 @@ const applyTheme = ClientFunction(theme => {
       );
 
       await t.typeText(
-        Selector("span").withText('comment_question')
+        Selector("span").withText("comment_question")
           .parent("[aria-labelledby]")
           .find("textarea"),
         "test comment"
       );
 
       await t.click(
-        Selector("span").withText('rating_question')
+        Selector("span").withText("rating_question")
           .parent("[aria-labelledby]")
           .find("span")
           .withText("3")
       );
 
       await t.click(
-        Selector("span").withText('imagepicker_question')
+        Selector("span").withText("imagepicker_question")
           .parent("[aria-labelledby]")
           .find("img")
           .withAttribute("alt", "item1")
@@ -219,7 +216,7 @@ const applyTheme = ClientFunction(theme => {
       );
 
       await t.click(
-        Selector("span").withText('boolean_question')
+        Selector("span").withText("boolean_question")
           .parent("[aria-labelledby]")
           .find("span")
           .withText("Yes")
@@ -230,21 +227,21 @@ const applyTheme = ClientFunction(theme => {
       assert.equal(await Selector(".sjs-html-question").innerText, "html text");
 
       await t.click(
-        Selector("span").withText('signature_question')
+        Selector("span").withText("signature_question")
           .parent("[aria-labelledby]")
           .find("button")
           .withAttribute("title", "Clear")
       );
 
       await t.hover(
-        Selector("span").withText('expression_question')
+        Selector("span").withText("expression_question")
           .parent("[aria-labelledby]")
           .find("div")
           .withText("1")
       );
 
       await t.click(
-        Selector("span").withText('file_question')
+        Selector("span").withText("file_question")
           .parent("[aria-labelledby]")
           .find("button")
           .withText("Clean")
@@ -252,7 +249,7 @@ const applyTheme = ClientFunction(theme => {
       );
 
       await t.click(
-        Selector("span").withText('matrix_question')
+        Selector("span").withText("matrix_question")
           .parent("[aria-labelledby]")
           .find("tr")
           .withText("Row 1")
@@ -261,7 +258,7 @@ const applyTheme = ClientFunction(theme => {
       );
 
       const matrixDropdownRow = Selector(
-        "span").withText('matrixdropdown_question')
+        "span").withText("matrixdropdown_question")
         .parent("[aria-labelledby]")
         .find("tr")
         .withText("Row 1");
@@ -269,21 +266,20 @@ const applyTheme = ClientFunction(theme => {
       await t.click(matrixDropdownRow.find("option").withText("1"));
 
       await t.click(
-        Selector("span").withText('matrixdynamic_question')
+        Selector("span").withText("matrixdynamic_question")
           .parent("[aria-labelledby]")
           .find("span")
           .withText("Remove")
       );
 
       await t.typeText(
-        Selector("span").withText('multipletext_question')
+        Selector("span").withText("multipletext_question")
           .parent("[aria-labelledby]")
           .find("input"),
         "test multiple text"
       );
 
       await t.click(Selector("span").withText("panel_title"));
-
 
       await t.click(getDynamicPanelRemoveButton("paneldynamic", "Remove"));
 

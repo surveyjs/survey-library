@@ -19,7 +19,7 @@ export var defaultStandardCss = {
   logo: "sv_logo",
   logoImage: "sv_logo__image",
   headerText: "sv_header__text",
-  navigationButton: "",
+  navigationButton: "sv_nav_btn",
   completedPage: "sv_completed_page",
   navigation: {
     complete: "sv_complete_btn",
@@ -106,6 +106,7 @@ export var defaultStandardCss = {
 
   boolean: {
     root: "sv_qcbc sv_qbln",
+    rootRadio: "sv_qcbc sv_qbln",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked checked",
@@ -213,8 +214,7 @@ export var defaultStandardCss = {
     emptyRowsSection: "sv_matrix_empty_rows_section",
     emptyRowsText: "sv_matrix_empty_rows_text",
     emptyRowsButton: "",
-    dragDropGhostPositionTop: "sv-matrix__drag-drop-ghost-position-top",
-    dragDropGhostPositionBottom: "sv-matrix__drag-drop-ghost-position-bottom",
+    ghostRow: "sv-matrix-row--drag-drop-ghost-mod"
   },
   paneldynamic: {
     root: "sv_panel_dynamic",
@@ -224,6 +224,8 @@ export var defaultStandardCss = {
     buttonRemove: "sv_p_remove_btn",
     buttonRemoveRight: "sv_p_remove_btn_right",
     buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonPrevDisabled: "sv-paneldynamic__prev-btn--disabled",
+    buttonNextDisabled: "sv-paneldynamic__next-btn--disabled",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
@@ -277,6 +279,7 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
+    column: "sv_q_select_column"
   },
   rating: {
     root: "sv_q_rating",
@@ -326,6 +329,9 @@ export var defaultStandardCss = {
       buttonCollapsed: "",
     },
   },
+  variables: {
+    themeMark: "--sv-default-mark"
+  }
 };
 
 surveyCss["standard"] = defaultStandardCss;

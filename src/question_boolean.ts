@@ -191,9 +191,9 @@ export class QuestionBooleanModel extends Question {
     newValue: any,
     updateIsAnswered: boolean = true
   ) {
-    if(newValue === "true") newValue = true;
-    if(newValue === "false") newValue = false;
-    if(newValue === "indeterminate") newValue = null;
+    if (newValue === "true" && this.valueTrue !== "true") newValue = true;
+    if (newValue === "false" && this.valueFalse !== "false") newValue = false;
+    if (newValue === "indeterminate") newValue = null;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */
@@ -217,6 +217,24 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   /* #endregion */
+
+  public getRadioItemClass(css: any, value: any): string {
+    let className = undefined;
+    if(css.radioItem) {
+      className = css.radioItem;
+    }
+    if(css.radioItemChecked && value === this.value) {
+      className = (className?className+" ":"") + css.radioItemChecked;
+    }
+    return className;
+  }
+
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getCompactRenderAs(): string {
+    return "radio";
+  }
 }
 
 Serializer.addClass(
@@ -236,7 +254,7 @@ Serializer.addClass(
     "valueFalse",
     { name: "renderAs", default: "default", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionBooleanModel("");
   },
   "question"

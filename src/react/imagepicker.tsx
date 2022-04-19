@@ -1,18 +1,109 @@
 import * as React from "react";
-import { SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
+import { ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImagePickerModel } from "survey-core";
-import { ItemValue } from "survey-core";
+import { ImageItemValue, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { ReactSurveyModel } from "./reactsurveymodel";
+import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionImagePickerModel {
     return this.questionBase as QuestionImagePickerModel;
   }
+  protected renderElement(): JSX.Element {
+    var cssClasses = this.question.cssClasses;
+    return (
+      <fieldset className={this.question.getSelectBaseRootCss()}>
+        <legend
+          role="radio"
+          aria-label={this.question.locTitle.renderedHtml} />
+        {this.question.hasColumns ? this.getColumns(cssClasses) : this.getItems(cssClasses)}
+      </fieldset>
+    );
+  }
+
+  protected getColumns(cssClasses: any) {
+    return this.question.columns.map((column: any, ci: number) => {
+      var items = column.map((item: any, ii: number) =>
+        this.renderItem(
+          "item" + ii,
+          item,
+          cssClasses
+        )
+      );
+      return (
+        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+          {items}
+        </div>
+      );
+    });
+  }
+
+  protected getItems(cssClasses: any): Array<any> {
+    var items = [];
+    for (var i = 0; i < this.question.visibleChoices.length; i++) {
+      var item = this.question.visibleChoices[i];
+      var key = this.question.name + "-" + item.value;
+      items.push(this.renderItem(key, item as ImageItemValue, cssClasses));
+    }
+    return items;
+  }
+  protected get textStyle(): any {
+    return { marginLeft: "3px", display: "inline", position: "static" };
+  }
+  protected renderItem(
+    key: string,
+    item: ImageItemValue,
+    cssClasses: any
+  ): JSX.Element {
+    const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
+    const survey = this.question.survey as SurveyModel;
+    let wrappedItem = null;
+    if(!!survey) {
+      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
+    }
+    return wrappedItem ?? renderedItem;
+  }
+}
+export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+    this.handleOnChange = this.handleOnChange.bind(this);
+  }
+  protected getStateElement() {
+    return this.item;
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    this.reactOnStrChanged();
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.item.locImageLink.onChanged = function () {};
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.reactOnStrChanged();
+  }
+  private reactOnStrChanged() {
+    this.item.locImageLink.onChanged = () => {
+      this.setState({ locImageLinkchanged: !!this.state && this.state.locImageLink ? this.state.locImageLink + 1 : 1 });
+    };
+  }
+  protected get cssClasses() {
+    return this.props.cssClasses;
+  }
+
+  protected get item() {
+    return this.props.item;
+  }
+
+  protected get question() {
+    return this.props.question;
+  }
+
   handleOnChange(event: any) {
     if (this.question.multiSelect) {
       if (event.target.checked) {
@@ -27,42 +118,18 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     }
     this.setState({ value: this.question.value });
   }
+
   protected renderElement(): JSX.Element {
-    var cssClasses = this.question.cssClasses;
-    return (
-      <fieldset className={cssClasses.root}>
-        <legend
-          role="radio"
-          aria-label={this.question.locTitle.renderedHtml} />
-        {this.getItems(cssClasses)}
-      </fieldset>
-    );
-  }
-  protected getItems(cssClasses: any): Array<any> {
-    var items = [];
-    for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i];
-      var key = this.question.name + "-" + item.value;
-      items.push(this.renderItem(key, item, cssClasses));
-    }
-    return items;
-  }
-  protected get textStyle(): any {
-    return { marginLeft: "3px", display: "inline", position: "static" };
-  }
-  protected renderItem(
-    key: string,
-    item: ItemValue,
-    cssClasses: any
-  ): JSX.Element {
-    var isChecked = this.question.isItemSelected(item);
-    var itemClass = this.question.getItemClass(item);
+    const item = this.item;
+    const question = this.question;
+    const cssClasses = this.cssClasses;
+    var isChecked = question.isItemSelected(item);
+    var itemClass = question.getItemClass(item);
     var text = null;
-    if (this.question.showLabel) {
+    if (question.showLabel) {
       text = (
         <span
-          title={item.locText.renderedHtml}
-          className={this.question.cssClasses.itemText}
+          className={question.cssClasses.itemText}
         >
           {item.text ? SurveyElementBase.renderLocString(item.locText) : item.value}
         </span>
@@ -72,35 +139,57 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var style: any = { objectFit: this.question.imageFit };
 
     var control = null;
-    if (this.question.contentMode === "image") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
       control = (
         <img
           className={cssClasses.image}
-          src={item["imageLink"]}
+          src={item.locImageLink.renderedHtml}
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           alt={item.locText.renderedHtml}
           style={style}
+          onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         />
       );
     }
-    if (this.question.contentMode === "video") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "video") {
       control = (
         <video controls
           className={cssClasses.image}
-          src={item["imageLink"]}
+          src={item.locImageLink.renderedHtml}
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           style={style}
+          onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         ></video>
+      );
+    }
+    if (!item.locImageLink.renderedHtml) {
+      let style: any = {
+        width: this.question.renderedImageWidth,
+        height: this.question.renderedImageHeight,
+        objectFit: this.question.imageFit
+      };
+      control = (
+        <div
+          className={cssClasses.itemNoImage}
+          style={style}
+        >
+          {
+            cssClasses.itemNoImageSvgIcon ?
+              <svg className={cssClasses.itemNoImageSvgIcon}>
+                <use xlinkHref={cssClasses.itemNoImageSvgIconId}></use>
+              </svg>:
+              null
+          }
+        </div>
       );
     }
 
     const renderedItem = (
-      <div key={key} className={itemClass}>
+      <div className={itemClass}>
         <label className={cssClasses.label}>
           <input
-            style={{ display: "none" }}
             className={cssClasses.itemControl}
             id={this.question.getItemId(item)}
             type={this.question.inputType}
@@ -123,12 +212,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
         </label>
       </div>
     );
-    const survey = this.question.survey as ReactSurveyModel;
-    let wrappedItem = null;
-    if(!!survey) {
-      wrappedItem = survey.wrapItemValue(renderedItem, this.question, item);
-    }
-    return wrappedItem ?? renderedItem;
+    return renderedItem;
   }
 }
 

@@ -1,45 +1,43 @@
 <template>
   <div>
     <survey-string v-if="!element.isTitleOwner" :locString="element.locTitle" />
-    <div v-if="element.isTitleOwner"> 
     <span
-      v-if="element.isRequireTextOnStart"
+      v-if="element.isTitleOwner && element.isRequireTextOnStart"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
     <span
-      v-if="element.no"
+      v-if="element.isTitleOwner && element.no"
       style="position: static"
       :class="element.cssClasses.number"
       :aria-hidden="true"
       >{{ element.no }}</span
     >
-    <span v-if="element.no">&nbsp;</span>
+    <span v-if="element.isTitleOwner && element.no">&nbsp;</span>
     <span
-      v-if="element.isRequireTextBeforeTitle"
+      v-if="element.isTitleOwner && element.isRequireTextBeforeTitle"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
-    <span v-if="element.isRequireTextBeforeTitle">&nbsp;</span>
-    <survey-string :locString="element.locTitle" />
-    <span v-if="element.isRequireTextAfterTitle">&nbsp;</span>
+    <span v-if="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
+    <survey-string v-if="element.isTitleOwner" :locString="element.locTitle" />
+    <span v-if="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
     <span
-      v-if="element.isRequireTextAfterTitle"
+      v-if="element.isTitleOwner && element.isRequireTextAfterTitle"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
+
 import Vue from "vue";
 import { SurveyElementCore } from "survey-core";
-
 @Component
 export class TitleContent extends Vue {
   @Prop() element: SurveyElementCore;

@@ -14612,6 +14612,51 @@ QUnit.test("Check survey resize observer", function (assert) {
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
 });
+
+class CustomResizeObserver {
+  constructor(private callback: () => void) {}
+  observe() {
+    this.call();
+  }
+  call() {
+    this.callback();
+  }
+}
+
+QUnit.test("Check survey resize observer double process", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  let trace: string = "";
+  survey["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  survey.afterRenderSurvey(rootEl);
+  assert.equal(trace, "->processed");
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "prevent double process");
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed->processed");
+  window.ResizeObserver = ResizeObserver;
+  window.getComputedStyle = getComputedStyle;
+});
+
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -14621,10 +14666,14 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
       }
     ]
   });
-  survey["processResponsiveness"](500, 600);
+  let isProcessed = survey["processResponsiveness"](500, 600);
   assert.ok(survey._isMobile);
-  survey["processResponsiveness"](600, 500);
+  assert.ok(isProcessed);
+  isProcessed = survey["processResponsiveness"](600, 500);
+  assert.ok(isProcessed);
+  isProcessed = survey["processResponsiveness"](800, 500);
   assert.notOk(survey._isMobile);
+  assert.notOk(isProcessed);
 });
 QUnit.test("Check addNavigationItem", function (assert) {
   const survey = new SurveyModel({

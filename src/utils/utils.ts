@@ -234,7 +234,12 @@ function classesToSelector(str: string): string {
   return str.replace(re, ".$1");
 }
 
+function getElementWidth(el: HTMLElement) {
+  return !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
+}
+
 export {
+  getElementWidth,
   classesToSelector,
   compareVersions,
   confirmAction,

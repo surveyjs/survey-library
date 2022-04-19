@@ -104,5 +104,25 @@ registerMarkupTests(
       },
       snapshot: "dropdown-readonly-selected"
     },
+    {
+      name: "Test Dropdown Select question markup",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden",
+            renderAs: "select"
+          }
+        ]
+      },
+      snapshot: "dropdown-select",
+    },
   ]
 );

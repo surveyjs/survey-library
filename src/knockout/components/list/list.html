@@ -1,7 +1,9 @@
 <div class="sv-list__container">
   <!-- ko if: $data.model.needFilter -->
   <div class="sv-list__filter">
-    <sv-svg-icon class="sv-list__filter-icon" params="iconName: 'icon-search', size: 24"></sv-svg-icon>
+    <div class="sv-list__filter-icon">
+      <sv-svg-icon params="iconName: 'icon-search', size: 24"></sv-svg-icon>
+    </div>
     <input type="text" class="sv-list__input"
       data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }"></input>
   </div>

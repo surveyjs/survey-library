@@ -58,6 +58,7 @@ export * from "../knockout/components/logo-image/logo-image";
 export * from "../knockout/components/skeleton/skeleton";
 export * from "../knockout/components/rating-dropdown/rating-dropdown";
 export * from "../knockout/components/dropdown/dropdown";
+export * from "../knockout/components/dropdown-select/dropdown-select";
 
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";

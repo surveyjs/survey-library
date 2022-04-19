@@ -1,7 +1,7 @@
 <div class="sv-popup" tabindex="-1"
   data-bind="visible: isVisible, click: clickOutside, class: styleClass, event: { keydown: function(data, event) { onKeyDown(event); return true; } }">
   <div class="sv-popup__container"
-    data-bind="style: { left: left, top: top, height: height },  click: function() { return true; }, clickBubble: false">
+    data-bind="style: { left: left, top: top, height: height, width: width }, click: function() { return true; }, clickBubble: false">
     <div class="sv-popup__shadow">
       <!-- ko if: showPointer -->
       <span class="sv-popup__pointer" data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }"></span>

@@ -10,6 +10,8 @@ import {
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class PopupModel<T = any> extends Base {
+  public width: number;
+
   @property() contentComponentName: string;
   @property() contentComponentData: T;
   @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
@@ -117,6 +119,7 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
+  @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } })
@@ -232,8 +235,9 @@ export class PopupBaseViewModel extends Base {
       const popupComputedStyle = window.getComputedStyle(popupContainer);
       const margin = (parseFloat(popupComputedStyle.marginLeft) || 0) + (parseFloat(popupComputedStyle.marginRight) || 0);
       let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
-      const width = popupContainer.getBoundingClientRect().width;
+      const width = this.model.width || popupContainer.getBoundingClientRect().width;
       const widthMargins = width + margin;
+      this.width = !!this.model.width ? (this.model.width + "px") : "auto";
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
@@ -299,6 +303,7 @@ export class PopupBaseViewModel extends Base {
       this.left = null;
       this.top = null;
       this.height = null;
+      this.width = null;
     }
   }
   private focusFirstInput() {

@@ -90,6 +90,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           left: this.model.left,
           top: this.model.top,
           height: this.model.height,
+          width: this.model.width,
         }}
         onClick={(ev: any) => {
           this.clickInside(ev);
@@ -165,11 +166,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   render() {
     const container = this.renderContainer();
-    const className = new CssClassBuilder()
-      .append("sv-popup").append(this.model.styleClass).toString();
-    const style = {
-      display: this.model.isVisible ? "" : "none",
-    };
+    const className = new CssClassBuilder().append("sv-popup").append(this.model.styleClass).toString();
+    const style = { display: this.model.isVisible ? "" : "none", };
     return (
       <div
         tabIndex={-1}

@@ -30,7 +30,6 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
-
 body {
   --sv-default-mark: true;
 }
@@ -426,7 +425,7 @@ body {
 
           div.sv_q_text_root,
           div.sv_q_dropdown_control {
-            min-height: 2.43em;
+            min-height: 2em;
             min-width: 7em;
           }
 

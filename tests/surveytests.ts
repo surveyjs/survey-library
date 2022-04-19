@@ -14751,4 +14751,14 @@ QUnit.test("Do not execute visibleIf in design mode", function (assert) {
   assert.equal(question2.visible, true, "It is visible");
   survey.pages[0].addElement(panel2);
   assert.equal(question2.visible, true, "It is visible, #2");
+  const newPanel = new PanelModel("newPanel");
+  newPanel.addNewQuestion("text", "q3_1");
+  newPanel.questions[0].visibleIf = "{q2} = 1";
+  assert.equal(newPanel.questions[0].visible, true, "new Panel question visible");
+  const newPanel2 = <PanelModel>newPanel.clone();
+  const newQuestion2 = newPanel2.questions[0];
+  assert.equal(newQuestion2.visibleIf, "{q2} = 1", "It is visible");
+  assert.equal(newQuestion2.visible, true, "It is visible");
+  survey.pages[0].addElement(newPanel2);
+  assert.equal(newQuestion2.visible, true, "It is visible, #2");
 });

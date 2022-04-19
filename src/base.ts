@@ -624,8 +624,12 @@ export class Base {
       this.runConditionItemCore(key, values, properties);
     }
   }
+  protected canRunConditions(): boolean {
+    return !this.isDesignMode;
+  }
   private checkConditionPropertyChanged(propName: string): void {
-    if(!this.expressionInfo || !this.expressionInfo[propName] || this.isDesignMode) return;
+    if(!this.expressionInfo || !this.expressionInfo[propName]) return;
+    if(!this.canRunConditions()) return;
     this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {

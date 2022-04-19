@@ -350,6 +350,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.clearCssClasses();
     }
   }
+  protected canRunConditions(): boolean {
+    return super.canRunConditions() && !!this.data;
+  }
   public getDataFilteredValues(): any {
     return !!this.data ? this.data.getFilteredValues() : null;
   }

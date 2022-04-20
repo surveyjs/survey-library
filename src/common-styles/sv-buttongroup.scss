@@ -20,10 +20,12 @@ $foreground: var(--foreground, #161616);
   overflow: auto;
   border: 1px solid $border;
 }
+
 .sv-button-group:focus-within {
   box-shadow: 0 0 0 1px $primary;
   border-color: $primary;
 }
+
 .sv-button-group__item {
   display: flex;
   box-sizing: border-box;
@@ -47,9 +49,11 @@ $foreground: var(--foreground, #161616);
     border-right: 1px solid $border;
   }
 }
+
 .sv-button-group__item--hover:hover {
   background-color: $background-dim;
 }
+
 .sv-button-group__item-icon {
   display: block;
   height: calcSize(3);
@@ -58,6 +62,7 @@ $foreground: var(--foreground, #161616);
     fill: $foreground-light;
   }
 }
+
 .sv-button-group__item--selected {
   font-weight: 600;
   color: $primary;
@@ -70,20 +75,24 @@ $foreground: var(--foreground, #161616);
     background-color: $background;
   }
 }
+
 .sv-button-group__item-decorator {
   display: flex;
   align-items: center;
   max-width: 100%;
 }
+
 .sv-button-group__item-caption {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .sv-button-group__item-icon+.sv-button-group__item-caption {
   margin-left: calcSize(1);
 }
+
 .sv-button-group__item--disabled {
   color: $foreground-disabled;
   cursor: default;
@@ -91,6 +100,7 @@ $foreground: var(--foreground, #161616);
   .sv-button-group__item-icon use {
     fill: $foreground-disabled;
   }
+
   &:hover {
     background-color: $background;
   }

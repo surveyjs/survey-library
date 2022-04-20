@@ -36,18 +36,18 @@ const registerButtongroup = ClientFunction((framework) => {
     });
 
   }
-})
+});
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-      await explicitErrorHandler();
-      await applyTheme(theme);
-    });
+    await explicitErrorHandler();
+    await applyTheme(theme);
+  });
   test("Check dropdown question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await registerButtongroup(framework);
-    if(framework === "vue") {
+    if (framework === "vue") {
       return;
     }
     await initSurvey(framework, {
@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
     const focusBody = ClientFunction(() => { document.body.focus(); });
     await focusBody();
     await checkElementScreenshot("buttongroup-question.png", questionRoot, t);
-    await ClientFunction(() => { (<HTMLEmbedElement>document.querySelector(".sv-button-group__item:nth-child(2)")).focus() })();
+    await ClientFunction(() => { (<HTMLEmbedElement>document.querySelector(".sv-button-group__item:nth-child(2)")).focus(); })();
     await checkElementScreenshot("buttongroup-question-focused.png", questionRoot, t);
     await focusBody();
     await t.hover(item);

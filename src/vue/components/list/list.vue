@@ -1,9 +1,9 @@
 <template>
   <div class="sv-list__container">
     <div class="sv-list__filter" v-if="model.needFilter">
-      <span class="sv-list__filter-icon">
-        <sv-svg-icon :iconName="icon-search" :size="'auto'"></sv-svg-icon>
-      </span>
+      <div class="sv-list__filter-icon">
+        <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
+      </div>
       <input
         type="text"
         class="sv-list__input"

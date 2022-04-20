@@ -67,13 +67,13 @@ export class List extends SurveyElementBase<IListProps, any> {
       };
       return (
         <div className="sv-list__filter">
-          <span className={"sv-list__filter-icon"}>
+          <div className={"sv-list__filter-icon"}>
             <SvgIcon
               iconName={"icon-search"}
               size={"auto"}
             >
             </SvgIcon>
-          </span>
+          </div>
           <input
             type="text"
             className="sv-list__input"

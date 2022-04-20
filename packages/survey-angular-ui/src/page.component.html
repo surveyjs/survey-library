@@ -11,8 +11,8 @@
   </div>
   <!-- ko template: { name: 'survey-rows', data: $data} -->
   <!-- /ko -->
-  <div *ngFor="let row of model.rows">
-    <div *ngFor="let element of row.visibleElements">
+  <div *ngFor="let row of model.rows" [class]="row.getRowCss()">
+    <div *ngFor="let element of row.visibleElements" [class]="element.cssClasses.questionWrapper" [style]="element.rootStyle">
       <element [model]="element"></element>
     </div>
   </div>

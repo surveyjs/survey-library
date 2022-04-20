@@ -7,27 +7,24 @@
     {
       "name": "page1",
       "title": "Page 1 Title",
-      "description": "This is the first page of test survey shown in survey-angular-ui module. Below you can see a list of question titles:",
+      "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
         {
           "name": "signature",
           "type": "signaturepad",
-          "title": "Sign here",
-          "isRequired": true
+          "title": "Sign here"
         },
         {
           "name": "name",
           "type": "text",
           "title": "Text",
-          "placeHolder": "Jon Snow",
-          "isRequired": true
+          "placeHolder": "Jon Snow"
         },
         {
           "name": "birthdate",
           "type": "text",
           "inputType": "date",
-          "title": "Text Date",
-          "isRequired": true
+          "title": "Text Date"
         },
         {
           "name": "color",
@@ -41,12 +38,28 @@
           "inputType": "email",
           "title": "Text Email",
           "placeHolder": "jon.snow@nightwatch.org",
-          "isRequired": true,
           "validators": [
             {
               "type": "email"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "page2",
+      "title": "Page 2",
+      "questions": [
+        {
+          "name": "surname",
+          "type": "text",
+          "title": "Surname",
+          "placeHolder": "Jon Snow"
+        },
+        {
+          "name": "radiogroup",
+          "type": "radiogroup",
+          "title": "Radiogroup"
         }
       ]
     }

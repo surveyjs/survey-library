@@ -1,5 +1,4 @@
 import { Component, Input } from "@angular/core";
-import { Observable, Subject, BehaviorSubject } from "rxjs";
 import { SurveyModel, PageModel } from "survey-core";
 import { ImplementorBase } from "./implementor-base";
 

@@ -1,14 +1,13 @@
 import { Component, Input } from "@angular/core";
-import { Observable, Subject, BehaviorSubject } from "rxjs";
-import { SurveyModel } from "survey-core";
+import { SurveyModel, PageModel } from "survey-core";
 import { ImplementorBase } from "./implementor-base";
 
 @Component({
-  selector: "survey",
-  templateUrl: "./survey.component.html",
-  styleUrls: ["./survey.component.scss"]
+  selector: "element-content",
+  templateUrl: "./element-content.component.html",
+  styleUrls: ["./element-content.component.scss"]
 })
-export class SurveyComponent {
+export class ElementContentComponent {
   @Input() model: any;
   constructor() {
   }

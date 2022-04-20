@@ -4,52 +4,39 @@
     <div [class]="model.css.container">
       <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
       <!-- /ko -->
-      <div *ngIf="model.state === 'starting'" [class]="model.bodyCss">
-        <!-- ko if: isNavigationButtonsShowingOnTop -->
-        <!-- ko template: { name: 'survey-navigation-start' } -->
-        <!-- /ko -->
-        <!-- /ko -->
-        <div
-          data-bind="attr: { id: startedPage.id }, template: { name: 'survey-page', data: startedPage, afterRender: koAfterRenderPage }">
-        </div>
-        <!-- ko if: isNavigationButtonsShowingOnBottom -->
-        <!-- ko template: { name: 'survey-navigation-start' } -->
-        <!-- /ko -->
-        <!-- /ko -->
-      </div>
-      <div *ngIf="model.state === 'running' || model.state === 'preview'" [class]="model.bodyCss">
-        <!-- ko if: isTimerPanelShowingOnTop -->
+      <div *ngIf="model.isShowingPage" [class]="model.bodyCss">
+        <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: isShowProgressBarOnTop -->
+        <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
         <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
         <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: isNavigationButtonsShowingOnTop -->
-        <!-- ko template: { name: 'survey-navigation' } -->
+          <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
         <!-- /ko -->
+        <!-- ko if: activePage -->
+          <div *ngIf="model.activePage" data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }">
+            <div [id]="model.activePage.id">
+              <page [model]="model.activePage"></page>
+            </div>
+          </div>
+          <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
+          <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
+          <!-- /ko -->
+          <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: koCurrentPage -->
-        <div [id]="model.currentPage.id">
-          <page [model]="model.currentPage"></page>
-        </div>
-        <!-- ko if: isCurrentPageEmpty() && $data.emptyPageTemplate -->
-        <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
-        <!-- /ko -->
-        <!-- /ko -->
-        <!-- /ko -->
-        <!-- ko if: isShowProgressBarOnBottom -->
+        <!-- ko if: isShowProgressBarOnBottom && !isShowStartingPage -->
         <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
         <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: isTimerPanelShowingOnBottom -->
+        <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: isNavigationButtonsShowingOnBottom -->
-        <!-- ko template: { name: 'survey-navigation' } -->
-        <!-- /ko -->
+          <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
         <!-- /ko -->
       </div>
       <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
@@ -68,13 +55,4 @@
       <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
     </div>
   </form>
-</div>
-<div style="margin-top: 100px;">
-  <button type="button" (click)="toggle()">Toggle</button>
-  <div [hidden]="!visible">
-    <div>
-      <code>observable|async</code>:
-      Time: {{ time | async }}
-    </div>
-  </div>
 </div>

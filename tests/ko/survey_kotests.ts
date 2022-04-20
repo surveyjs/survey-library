@@ -2502,3 +2502,26 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
   assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 de", "de - title2");
   survey.locale = "";
 });
+QUnit.test("koRenderedHtml: check onProcessHtml event", function (
+  assert
+) {
+  const json = {
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "html",
+            "name": "question3",
+            "html": "initial_html"
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new Survey(json);
+  survey.onProcessHtml.add((_, options) => {
+    options.html = "processed_html";
+  });
+  const q = survey.getAllQuestions()[0];
+  assert.equal(q.locHtml.koRenderedHtml(), "processed_html", "#onProcessHtml doesn't work with koRenderedHtml");
+});

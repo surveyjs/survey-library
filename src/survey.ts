@@ -1070,6 +1070,9 @@ export class SurveyModel extends SurveyElementCore
     this.onTextMarkdown.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
+    this.onProcessHtml.onCallbacksChanged = () => {
+      this.locStrsChanged();
+    };
     this.onGetQuestionTitle.onCallbacksChanged = () => {
       this.locStrsChanged();
     };

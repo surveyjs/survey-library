@@ -1,7 +1,9 @@
 import { Component } from "@angular/core";
-import { SurveyModel } from "survey-core";
+import { SurveyModel, StylesManager } from "survey-core";
 
 const json = require("../assets/survey.json");
+
+StylesManager.applyTheme("defaultV2");
 
 @Component({
   selector: "app-root",

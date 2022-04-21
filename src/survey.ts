@@ -6408,6 +6408,8 @@ export class SurveyModel extends SurveyElementCore
   public stopMovingQuestion(): void {
     this.isMovingQuestion = false;
   }
+  private needRenderIcons = true;
+
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.

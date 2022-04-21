@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-boolean">
-  <div data-bind="css: question.koCss().root">
+  <div data-bind="css: question.koCss().root, event: { keydown: question.onKeyDown}">
     <label data-bind="css: question.getItemCss()">
       <input
         type="checkbox"

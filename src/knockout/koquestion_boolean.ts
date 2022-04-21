@@ -19,6 +19,9 @@ export class QuestionBoolean extends QuestionBooleanModel {
   public onFalseLabelClick(data: any, event: any) {
     return this.onLabelClick(event, false);
   }
+  public onKeyDown(data: any, event: any): boolean {
+    return this.onKeyDownCore(event);
+  }
   public dispose() {
     this._implementor.dispose();
     this._implementor = undefined;

@@ -317,7 +317,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.getTitleActions().length > 0;
   }
   public get hasTitleEvents(): boolean {
-    return this.hasTitleActions || (this.state !== undefined && this.state !== "default");
+    return this.state !== undefined && this.state !== "default";
   }
   public getTitleComponentName(): string {
     var componentName = RendererFactory.Instance.getRenderer(

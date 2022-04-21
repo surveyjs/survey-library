@@ -143,6 +143,7 @@ LocalizableString.prototype["onCreating"] = function () {
 
 ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
+  this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 
 LocalizableString.prototype["onChanged"] = function () {

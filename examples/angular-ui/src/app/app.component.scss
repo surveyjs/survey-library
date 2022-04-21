@@ -62,11 +62,9 @@ p {
 
 .content {
   display: flex;
-  margin: 82px auto 32px;
-  padding: 0 16px;
-  max-width: 960px;
   flex-direction: column;
   align-items: center;
+  background-color: #19b394;
 }
 
 svg.material-icons {
@@ -90,9 +88,12 @@ a:hover {
 }
 
 footer {
-  margin-top: 100px;
+  margin-top: 16px;
   display: flex;
+  margin: 16px auto;
+  max-width: 960px;
   align-items: center;
+  vertical-align: middle;
   line-height: 20px;
 }
 

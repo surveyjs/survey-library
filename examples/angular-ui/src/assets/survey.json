@@ -10,9 +10,14 @@
       "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
         {
-          "name": "signature",
-          "type": "signaturepad",
-          "title": "Sign here"
+          "name": "radiogroup",
+          "type": "radiogroup",
+          "title": "Choose an item",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
         },
         {
           "name": "name",
@@ -54,12 +59,12 @@
           "name": "surname",
           "type": "text",
           "title": "Surname",
-          "placeHolder": "Jon Snow"
+          "placeHolder": "Snow"
         },
         {
-          "name": "radiogroup",
-          "type": "radiogroup",
-          "title": "Radiogroup"
+          "name": "signature",
+          "type": "signaturepad",
+          "title": "Sign here"
         }
       ]
     }

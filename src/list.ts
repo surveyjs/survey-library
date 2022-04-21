@@ -1,10 +1,16 @@
-import { property, propertyArray } from "./jsonobject";
+import { property } from "./jsonobject";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { surveyLocalization } from "./surveyStrings";
 
 export class ListModel extends ActionContainer {
+  @property({
+    defaultValue: false,
+    onSet: (newValue: boolean, target: ListModel) => {
+      target.onSet();
+    }
+  }) denySearch: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
@@ -44,7 +50,7 @@ export class ListModel extends ActionContainer {
   }
 
   protected onSet(): void {
-    this.needFilter = (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.needFilter = !this.denySearch && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 

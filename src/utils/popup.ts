@@ -72,7 +72,7 @@ export class PopupUtils {
   ) {
     let newWidth = width, newLeft = left;
 
-    if(horizontalPosition === "center") {
+    if (horizontalPosition === "center") {
       if (left < 0) {
         newLeft = 0;
         newWidth = Math.min(width, windowWidth);
@@ -83,13 +83,13 @@ export class PopupUtils {
       }
     }
 
-    if(horizontalPosition === "left") {
+    if (horizontalPosition === "left") {
       if (left < 0) {
         newLeft = 0;
         newWidth = Math.min(width, windowWidth);
       }
     }
-    if(horizontalPosition === "right") {
+    if (horizontalPosition === "right") {
       if (width + left > windowWidth) {
         newWidth = windowWidth - left;
       }

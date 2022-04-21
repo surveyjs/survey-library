@@ -41,7 +41,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.question.onLabelClick(event, value);
   }
   handleOnKeyDown(event: any) {
-    this.question.onKeyDownCore(event); 
+    this.question.onKeyDownCore(event);
   }
 
   protected updateDomElement() {

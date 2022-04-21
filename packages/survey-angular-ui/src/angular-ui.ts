@@ -10,3 +10,7 @@ export * from "./questions/text.component";
 export * from "./angular-ui.module";
 
 export * from "./component-factory";
+
+export * from "./components/action-bar.component";
+export * from "./components/action.component";
+export * from "./components/action-bar-item.component";

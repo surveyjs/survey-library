@@ -13,9 +13,7 @@
         <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
         <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: isNavigationButtonsShowingOnTop -->
-          <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
-        <!-- /ko -->
+        <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
         <!-- ko if: activePage -->
           <div *ngIf="model.activePage" data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }">
             <div [id]="model.activePage.id">
@@ -35,9 +33,7 @@
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: isNavigationButtonsShowingOnBottom -->
-          <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
-        <!-- /ko -->
+        <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>
       </div>
       <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
         [innerHtml]="model.processedCompletedHtml"></div>

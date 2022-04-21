@@ -1,12 +1,7 @@
 import { Base } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import {
-  PopupUtils,
-  VerticalPosition,
-  HorizontalPosition,
-  IPosition
-} from "./utils/popup";
+import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class PopupModel<T = any> extends Base {
@@ -25,6 +20,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
+  @property({ defaultValue: "contentWidth" }) widthMode: "contentWidth" | "fixedWidth";
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -237,7 +233,7 @@ export class PopupBaseViewModel extends Base {
       let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
       const width = this.model.width || popupContainer.getBoundingClientRect().width;
       const widthMargins = width + margin;
-      this.width = !!this.model.width ? (this.model.width + "px") : "auto";
+      this.width = (this.model.widthMode === "fixedWidth" && !!this.model.width) ? (this.model.width + "px") : "auto";
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {

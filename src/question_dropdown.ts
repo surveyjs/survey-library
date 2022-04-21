@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
@@ -132,6 +132,25 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public set autoComplete(val: string) {
     this.setPropertyValue("autoComplete", val);
   }
+
+  @property({
+    defaultValue: false,
+    onSet: (newValue: boolean, target: QuestionDropdownModel) => {
+      if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
+        const listModel = target.popupModel.contentComponentData.model as ListModel;
+        listModel.denySearch = newValue;
+      }
+    }
+  }) denySearch: boolean;
+  @property({
+    defaultValue: "editorWidth",
+    onSet: (newValue: "contentWidth" | "editorWidth", target: QuestionDropdownModel) => {
+      if (!!target.popupModel) {
+        target.popupModel.widthMode = (newValue === "editorWidth") ? "fixedWidth" : "contentWidth";
+      }
+    }
+  }) dropdownWidthMode: "contentWidth" | "editorWidth";
+
   public getControlClass(): string {
     this.isEmpty();
     return new CssClassBuilder()
@@ -156,16 +175,19 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   private _popupModel: PopupModel;
   public get popupModel(): PopupModel {
     if (this.renderAs === "select" && !this._popupModel) {
+      const listModel = new ListModel(
+        this.getVisibleListItems(),
+        (item: IAction) => {
+          this.value = item.id;
+          this.popupModel.toggleVisibility();
+        },
+        true);
+      listModel.denySearch = this.denySearch;
 
       this._popupModel = new PopupModel("sv-list", {
-        model: new ListModel(
-          this.getVisibleListItems(),
-          (item: IAction) => {
-            this.value = item.id;
-            this.popupModel.toggleVisibility();
-          },
-          true),
+        model: listModel,
       }, "bottom", "center", false);
+      this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
     }
     return this._popupModel;
   }
@@ -237,6 +259,8 @@ Serializer.addClass(
       ],
     },
     { name: "renderAs", default: "default", visible: false },
+    { name: "denySearch:boolean", default: false, visible: false },
+    { name: "dropdownWidthMode", default: "editorWidth", visible: false },
   ],
   function () {
     return new QuestionDropdownModel("");

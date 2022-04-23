@@ -1,7 +1,7 @@
 <div role="presentation" [class]="question.getItemClass(model)">
   <label [class]="question.getLabelClass(model)" [attr.aria-label]="question.getAriaItemLabel(model)">
     <input type="radio" [name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
-      [disabled]="!question.getItemEnabled(model)" [checked]="question.renderedValue" [value]="model.value"
+      [disabled]="!question.getItemEnabled(model)" [checked]="question.renderedValue" [(ngModel)]="question.value" [value]="model.value"
     />
     <span *ngIf="question.cssClasses.materialDecorator" [class]="question.cssClasses.materialDecorator">
       <svg *ngIf="question.itemSvgIcon" [class]="question.cssClasses.itemDecorator">

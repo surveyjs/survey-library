@@ -1,22 +1,22 @@
   <input *ngIf="!model.dataListId && !model.isInputTextUpdate && !model.isReadOnlyRenderDiv()"
     [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-    [(value)]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
+    [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
     data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
   />
   <input *ngIf="!model.dataListId && model.isInputTextUpdate && !model.isReadOnlyRenderDiv()"
     [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-    [(value)]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
+    [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
     data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
   />
   <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()">
     <input *ngIf="!model.isInputTextUpdate"
       [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-      [(value)]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
+      [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
       data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
     />
     <input *ngIf="model.isInputTextUpdate"
       [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-      [(value)]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
+      [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
       data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
     />
     <datalist [id]="model.dataListId">

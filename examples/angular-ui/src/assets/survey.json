@@ -23,6 +23,7 @@
           "name": "name",
           "type": "text",
           "title": "Text",
+          "enableIf": "{radiogroup} == 'item1'",
           "placeHolder": "Jon Snow"
         },
         {
@@ -40,6 +41,7 @@
         {
           "name": "email",
           "type": "text",
+          "visibleIf": "{radiogroup} == 'item1'",
           "inputType": "email",
           "title": "Text Email",
           "placeHolder": "jon.snow@nightwatch.org",

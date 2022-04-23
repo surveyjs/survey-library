@@ -82,6 +82,7 @@
     "@angular/compiler": "~13.0.0",
     "@angular/compiler-cli": "~13.0.0",
     "@angular/core": "~13.0.0",
+    "@angular/forms": "~13.0.0",
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@types/ace": "0.0.32",

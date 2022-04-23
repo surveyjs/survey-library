@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import { SurveyComponent } from "./survey.component";
 import { PageComponent } from "./page.component";
 import { ElementComponent } from "./element.component";
@@ -21,7 +22,7 @@ import { ActionBarItemComponent } from "./components/action-bar-item.component";
     ActionBarComponent, ActionComponent, ActionBarItemComponent
   ],
   imports: [
-    CommonModule
+    CommonModule, FormsModule
   ],
   exports: [
     SurveyComponent

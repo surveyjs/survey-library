@@ -4371,3 +4371,24 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   panel.isMobile = true;
   assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });
+QUnit.test("call locationChangedCallback for cell question", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+      }
+    ] });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  let counter = 0;
+  panel.panels[1].questions[0].localeChangedCallback = () => { counter ++; };
+  survey.locale = "de";
+  survey.locale = "";
+  assert.equal(counter, 2, "locationChangedCallback called");
+});

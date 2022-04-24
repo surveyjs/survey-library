@@ -3,21 +3,19 @@ import { IQuestion } from "./base-interfaces";
 
 export class QuestionCustomWidget {
   public htmlTemplate: string;
-  public isFirstRender: boolean = true;
 
   constructor(public name: string, public widgetJson: any) {
     this.htmlTemplate = widgetJson.htmlTemplate ? widgetJson.htmlTemplate : "";
   }
   public afterRender(question: IQuestion, el: any) {
-    if (this.isFirstRender) {
-      this.isFirstRender = false;
-      question.survey.onLocaleChangedEvent.add(() => {
+    if(!this.widgetJson.afterRender) return;
+    (<any>question).localeChangedCallback = () => {
+      if(this.widgetJson.willUnmount) {
         this.widgetJson.willUnmount(question, el);
-        this.widgetJson.afterRender(question, el);
-      });
-    }
-
-    if (this.widgetJson.afterRender) this.widgetJson.afterRender(question, el);
+      }
+      this.widgetJson.afterRender(question, el);
+    };
+    this.widgetJson.afterRender(question, el);
   }
   public willUnmount(question: IQuestion, el: any) {
     if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);

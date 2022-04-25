@@ -4230,6 +4230,35 @@ QUnit.test("Bindings to panelCount performance issue", function(assert) {
   assert.equal(counter, 1 + 4 * 2, "4 questions has been created");
   FunctionFactory.Instance.unregister("calcCount");
 });
+QUnit.test("Bindings to panelCount performance issue", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1" },
+          {
+            type: "matrixdynamic",
+            name: "q2",
+            bindings: {
+              "rowCount": "q1"
+            },
+            columns: [
+              { name: "col1" }
+            ]
+          }
+        ],
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.panels[0].questions[0].value = 3;
+  panel.panels[1].questions[0].value = 5;
+  assert.equal(panel.panels[0].questions[1].rowCount, 3, "matrix in first panel binds correctly");
+  assert.equal(panel.panels[1].questions[1].rowCount, 5, "matrix in second panel binds correctly");
+});
 QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleIndex/no", function(assert) {
   const survey = new SurveyModel({
     elements: [

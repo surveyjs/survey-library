@@ -1208,6 +1208,12 @@ export class QuestionPanelDynamicModel extends Question
     }
     super.onFirstRendering();
   }
+  public localeChanged() {
+    super.localeChanged();
+    for (var i = 0; i < this.panels.length; i++) {
+      this.panels[i].localeChanged();
+    }
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runPanelsCondition(values, properties);

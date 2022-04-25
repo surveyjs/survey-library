@@ -52,6 +52,7 @@ export class Question extends SurveyElement
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
+  localeChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
@@ -568,6 +569,12 @@ export class Question extends SurveyElement
   }
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
+  }
+  public localeChanged() {
+    super.localeChanged();
+    if(!!this.localeChangedCallback) {
+      this.localeChangedCallback();
+    }
   }
   public get isCompositeQuestion(): boolean {
     return false;

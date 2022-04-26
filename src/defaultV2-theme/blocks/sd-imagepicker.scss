@@ -48,6 +48,7 @@
   background-position: center;
   background-size: 22px calcSize(2);
   background-color: $background;
+  z-index: 1;
 }
 .sd-imagepicker_>_item--error .sd-imagepicker__image-container::before {
   display: block;
@@ -61,10 +62,9 @@
   border-radius: calcSize(0.5);
   background: linear-gradient(0deg, $red-light, $red-light);
 }
-.sd-imagepicker__item--allowhover {
-  .sd-imagepicker__image:hover {
-      opacity: 0.5;
-  }
+.sd-imagepicker__item:focus-within .sd-imagepicker__image,
+.sd-imagepicker__item--allowhover .sd-imagepicker__image:hover {
+  opacity: 0.5;
 }
 .sd-imagepicker__image {
   display: block;

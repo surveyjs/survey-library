@@ -498,18 +498,16 @@ export class Question extends SurveyElement
       ? this.survey.questionDescriptionLocation
       : "underTitle";
   }
-  public get clickTitleFunction(): any {
-    if (this.hasInput) {
-      var self = this;
-      return function () {
-        if (self.isCollapsed) return;
-        setTimeout(() => {
-          self.focus();
-        }, 1);
-        return true;
-      };
-    }
-    return undefined;
+  protected needClickTitleFunction(): boolean {
+    return super.needClickTitleFunction() || this.hasInput;
+  }
+  protected processTitleClick() {
+    super.processTitleClick();
+    if(this.isCollapsed) return;
+    setTimeout(() => {
+      this.focus();
+    }, 1);
+    return true;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.

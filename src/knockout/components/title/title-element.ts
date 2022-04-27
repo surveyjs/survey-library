@@ -12,7 +12,7 @@ ko.components.register("survey-element-title", {
       const ariaLabelAttr = element.getType() === "radiogroup" ? "" : "'aria-label': element.locTitle.renderedHtml,";
       let bindings = `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded }`;
       if(element.hasTitleEvents) {
-        bindings += ", click: function() { element.toggleState()}, key2click";
+        bindings += ", key2click";
       }
       titleEl.setAttribute("data-bind", bindings);
       titleEl.innerHTML = "<!-- ko component: { name: 'sv-title-actions', params: {element: element } } --><!-- /ko -->";

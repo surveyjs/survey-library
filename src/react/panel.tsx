@@ -56,7 +56,7 @@ export class SurveyPanel extends SurveyPanelBase {
     const title: JSX.Element = this.renderTitle();
     const description: JSX.Element = this.renderDescription();
     return (
-      <div className={this.panelBase.cssClasses.panel.header}>
+      <div className={this.panelBase.cssClasses.panel.header} onClick={this.panelBase.clickTitleFunction}>
         {title}
         {description}
       </div>

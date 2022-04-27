@@ -2,6 +2,7 @@
   <div v-if="question.isVisible" :class="question.getContainerCss()">
     <div
       v-if="question.hasTitle || question.hasDescription"
+      @click="question.clickTitleFunction"
       :class="question.cssClasses.panel.header"
     >
       <survey-element-title :element="question" :css="css" />

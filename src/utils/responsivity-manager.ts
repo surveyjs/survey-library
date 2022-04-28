@@ -1,6 +1,7 @@
 import { setTimeout } from "timers";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
+import { isContainerVisible } from "./utils";
 
 interface IDimensions {
   scroll: number;
@@ -81,11 +82,7 @@ export class ResponsivityManager {
       });
   }
   private get isContainerVisible(): boolean {
-    return !!(
-      this.container.offsetWidth ||
-      this.container.offsetHeight ||
-      this.container.getClientRects().length
-    );
+    return isContainerVisible(this.container);
   }
   private process(): void {
     if (this.isContainerVisible && !this.model.isResponsivenessDisabled) {

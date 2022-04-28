@@ -260,3 +260,44 @@ QUnit.test("check resizeObserver behavior", function(assert) {
   window.setTimeout = setTimeout;
 });
 
+QUnit.test("check resizeObserver not process if container is not visible", function(assert) {
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const rootEl = document.createElement("div");
+  const contentEl = document.createElement("div");
+  contentEl.className = "sd-selectbase sd-imagepicker";
+  rootEl.appendChild(contentEl);
+
+  window.document.body.appendChild(rootEl);
+
+  const survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  survey.css = defaultV2Css;
+  const q = survey.getAllQuestions()[0];
+  let trace = "";
+  q["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  rootEl.style.display = "none";
+  q.afterRender(rootEl);
+  assert.equal(trace, "", "do not process responsivness on invisible container");
+  rootEl.style.display = "block";
+  (<any>q["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "process responsivness on visible container");
+  window.ResizeObserver = ResizeObserver;
+});

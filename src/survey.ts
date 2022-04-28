@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -4163,7 +4163,7 @@ export class SurveyModel extends SurveyElementCore
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
           if (!observedElement.isConnected) { this.destroyResizeObserver(); return; }
-          if(isProcessed) {
+          if(isProcessed || !isContainerVisible(observedElement)) {
             isProcessed = false;
           } else {
             isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);

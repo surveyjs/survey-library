@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { getElementWidth, increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -1857,13 +1857,16 @@ export class Question extends SurveyElement
       const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
-        const requiredWidth = defaultRootEl.scrollWidth;
         let isProcessed = false;
+        let requiredWidth: number = undefined;
         this.resizeObserver = new ResizeObserver(() => {
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            if(isProcessed) {
+            if(!defaultRootEl.scrollWidth && this.isDefaultRendering()) {
+              requiredWidth = el.scrollWidth;
+            }
+            if(isProcessed || !isContainerVisible(el)) {
               isProcessed = false;
             } else {
               isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));

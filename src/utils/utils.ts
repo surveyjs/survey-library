@@ -238,8 +238,17 @@ function getElementWidth(el: HTMLElement) {
   return !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
 }
 
+function isContainerVisible(el: HTMLElement) {
+  return !!(
+    el.offsetWidth ||
+    el.offsetHeight ||
+    el.getClientRects().length
+  );
+}
+
 export {
   getElementWidth,
+  isContainerVisible,
   classesToSelector,
   compareVersions,
   confirmAction,

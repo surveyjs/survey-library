@@ -14676,6 +14676,40 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   window.getComputedStyle = getComputedStyle;
 });
 
+QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  let trace: string = "";
+  survey["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  rootEl.style.display = "none";
+  survey.afterRenderSurvey(rootEl);
+  assert.equal(trace, "", "do not process responsivness on invisible container");
+  rootEl.style.display = "block";
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "process responsivness on visible container");
+  window.ResizeObserver = ResizeObserver;
+  window.getComputedStyle = getComputedStyle;
+});
+
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
   const survey = new SurveyModel({
     "elements": [

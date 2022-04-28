@@ -1842,7 +1842,7 @@ export class PanelModel extends PanelModelBase implements IElement {
           action: () => { this.cancelPreview(); }
         });
       }
-      this.footerToolbarValue = this.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
       if (!!this.cssClasses.panel) {
         this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
       }

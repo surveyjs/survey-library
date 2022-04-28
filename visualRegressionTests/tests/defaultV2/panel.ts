@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -164,4 +164,23 @@ frameworks.forEach(framework => {
       .ok(compareResults.errorMessages());
   });
 
+  test("Check panel with actions", async(t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          type: "text",
+          name: "question1",
+          title: "Question title",
+        }
+      ]
+    });
+    await t.typeText(Selector(".sd-input"), "This is my answer");
+    await ClientFunction(()=>{
+      document.body.focus();
+      (<any>window).survey.showPreview();
+    })();
+    const panelRoot = Selector(".sd-panel");
+    await checkElementScreenshot("panel-with-actions.png", panelRoot, t);
+  });
 });

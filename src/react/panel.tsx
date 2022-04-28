@@ -8,6 +8,7 @@ import { PanelModel, doKey2ClickUp, SurveyModel } from "survey-core";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { TitleElement } from "./components/title/title-element";
+import { SurveyElementHeader } from "./element-header";
 
 export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
@@ -50,17 +51,10 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderHeader() {
-    if (!this.panelBase.hasTitle && !this.panelBase.hasDescription) {
+    if (!this.panel.hasTitle && !this.panel.hasDescription) {
       return null;
     }
-    const title: JSX.Element = this.renderTitle();
-    const description: JSX.Element = this.renderDescription();
-    return (
-      <div className={this.panelBase.cssClasses.panel.header}>
-        {title}
-        {description}
-      </div>
-    );
+    return <SurveyElementHeader element={this.panel}></SurveyElementHeader>;
   }
   protected wrapElement(element: JSX.Element): JSX.Element {
     const survey: SurveyModel = this.panel.survey as SurveyModel;

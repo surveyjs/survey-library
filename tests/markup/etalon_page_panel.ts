@@ -149,8 +149,6 @@ registerMarkupTest(
     snapshot: "page-swnl-v2",
   });
 
-/*
-// tests below are commented because Vue title-content requires wrapping div
 registerMarkupTest(
   {
     name: "Test Page - start with new line with panel and titles",
@@ -181,7 +179,6 @@ registerMarkupTest(
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-title-v2",
   });
-
 registerMarkupTest(
   {
     name: "Test Page - Text and Title",
@@ -223,4 +220,32 @@ registerMarkupTest(
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });
-*/
+
+registerMarkupTest(
+  {
+    name: "Test Panel - Panel/Questions titles and descriptions",
+    json: {
+      "elements": [
+        {
+          type: "panel",
+          name: "name",
+          title: "panel_title",
+          description: "panel_description",
+          showQuestionNumbers: "off",
+          startWithNewLine: false,
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              title: "Question title",
+              description: "Question description"
+            }
+          ]
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    event: "onAfterRenderPage",
+    snapshot: "panel-question-headers",
+  });

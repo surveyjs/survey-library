@@ -1,10 +1,12 @@
 <script type="text/html" id="survey-question-title">
   <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
-    <!-- ko component: { name: 'survey-element-title', params: {element: question } } --><!-- /ko -->
+    <!-- ko component: { name: 'survey-element-title', params: { element: $data } } --><!-- /ko -->
+    <!-- ko v-if: $data.hasDescriptionUnderTitle -->
     <div
-      data-bind="visible: question.hasDescriptionUnderTitle, css: koCss().description"
+      data-bind="visible: question.hasDescriptionUnderTitle, css: $data.cssDescription"
     >
-      <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+      <!-- ko template: { name: 'survey-string', data: $data.locDescription } --><!-- /ko -->
     </div>
+    <!-- /ko -->
   </div>
 </script>

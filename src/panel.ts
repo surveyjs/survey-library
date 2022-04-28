@@ -1576,6 +1576,16 @@ export class PanelModelBase extends SurveyElement
     return result;
   }
 
+  public get hasDescriptionUnderTitle(): boolean {
+    return this.hasDescription;
+  }
+  public get cssHeader(): string {
+    return this.cssClasses.panel.header;
+  }
+  public get cssDescription(): string {
+    return this.cssClasses.panel.description;
+  }
+
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {

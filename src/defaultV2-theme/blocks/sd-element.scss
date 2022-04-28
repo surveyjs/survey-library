@@ -50,9 +50,13 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
     box-shadow: 0px 1px 2px $shadow-inner;
     border-radius: calcSize(0.5);
   }
+  & > .sd-element__header:focus-within,
   & > .sd-element__header:hover {
     background-color: $background-dim-light;
   }
+}
+.sd-element__title {
+  outline: none;
 }
 .sd-element--collapsed:not(.sd-element--with-frame) > .sd-element__header {
   margin-left: calc(-1 * var(--sd-base-padding));

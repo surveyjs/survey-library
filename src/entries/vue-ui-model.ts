@@ -60,7 +60,6 @@ export { Composite } from "../vue/composite.vue";
 export { TitleElement } from "../vue/components/title/title-element.vue";
 export { TitleContent } from "../vue/components/title/title-content.vue";
 export { TitleActions } from "../vue/components/title/title-actions.vue";
-export { DefaultTitle } from "../vue/components/title/default-title.vue";
 export { ActionBarViewModel } from "../vue/components/action-bar/action-bar.vue";
 export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";

@@ -319,16 +319,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get hasTitleEvents(): boolean {
     return this.state !== undefined && this.state !== "default";
   }
-  public getTitleComponentName(): string {
-    var componentName = RendererFactory.Instance.getRenderer(
-      "element",
-      "title-actions"
-    );
-    if (componentName == "default") {
-      return "sv-default-title";
-    }
-    return componentName;
-  }
   public get titleTabIndex(): number {
     return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
@@ -771,5 +761,21 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       style["maxWidth"] = this.maxWidth;
     }
     return style;
+  }
+  public get clickTitleFunction(): any {
+    if(this.needClickTitleFunction()) {
+      return () => {
+        return this.processTitleClick();
+      };
+    }
+    return undefined;
+  }
+  protected needClickTitleFunction(): boolean {
+    return this.state !== "default";
+  }
+  protected processTitleClick() {
+    if (this.state !== "default") {
+      this.toggleState();
+    }
   }
 }

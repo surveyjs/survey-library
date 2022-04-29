@@ -1713,10 +1713,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private initFooterToolbar() {
-    this.footerToolbarValue = new ActionContainer();
-    if(!!this.survey && !!this.survey.getCss().actionBar) {
-      this.footerToolbarValue.cssClasses = this.survey.getCss().actionBar;
-    }
+    this.footerToolbarValue = this.createActionContainer();
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",

@@ -203,7 +203,7 @@ QUnit.test("check isResponsive getter after end of loading json", function(asser
   assert.ok(q.isResponsive);
 });
 
-class CustomResizeObserver {
+export class CustomResizeObserver {
   constructor(private callback: () => void) {}
   observe() {
     this.call();

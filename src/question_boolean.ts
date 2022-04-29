@@ -204,14 +204,24 @@ export class QuestionBooleanModel extends Question {
     }
     return true;
   }
+  private calculateCheckedValueByEvent(event: any, isRightClick: boolean) {
+    var isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
+    this.checkedValue = isRtl ? !isRightClick : isRightClick;
+  }
   public onSwitchClickModel(event: any) {
     if (this.allowClick) {
       preventDefaults(event);
       var isRightClick =
         event.offsetX / event.target.offsetWidth > 0.5;
-      var isRtl =
-        document.defaultView.getComputedStyle(event.target).direction == "rtl";
-      this.checkedValue = isRtl ? !isRightClick : isRightClick;
+      this.calculateCheckedValueByEvent(event, isRightClick);
+      return;
+    }
+    return true;
+  }
+  public onKeyDownCore(event: any): boolean {
+    if(event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      preventDefaults(event);
+      this.calculateCheckedValueByEvent(event, event.key === "ArrowRight");
       return;
     }
     return true;

@@ -29,6 +29,9 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
     await initSurvey(framework, json);
+    await ClientFunction(() => {
+      document.body.focus();
+    })();
   });
   test("Check file question", async (t) => {
     await t.resizeWindow(1920, 1080);

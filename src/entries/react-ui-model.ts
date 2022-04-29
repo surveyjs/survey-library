@@ -61,7 +61,6 @@ export { SurveyQuestionSignaturePad } from "../react/signaturepad";
 export { SurveyQuestionButtonGroup } from "../react/reactquestion_buttongroup";
 export { SurveyQuestionCustom, SurveyQuestionComposite } from "../react/reactquestion_custom";
 
-export { DefaultTitle } from "../react/components/title/default-title";
 export { Popup } from "../react/components/popup/popup";
 export { List } from "../react/components/list/list";
 export { TitleActions } from "../react/components/title/title-actions";

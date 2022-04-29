@@ -52,17 +52,16 @@ frameworks.forEach(framework => {
         },
       ]
     });
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
-    await takeScreenshot("question-collapse.png", questionRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+
+    await checkElementScreenshot("question-collapse.png", questionRoot, t);
+    await t.hover(".sd-element__header");
+    await checkElementScreenshot("question-collapse-hover-focus.png", questionRoot, t);
+    await t.hover("body");
+    await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-question__title")).focus(); })();
+    await checkElementScreenshot("question-collapse-hover-focus.png", questionRoot, t);
     await t.click(questionRoot);
-    await takeScreenshot("question-expand.png", questionRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await checkElementScreenshot("question-expand.png", questionRoot, t);
   });
   test("Check invisible question when showInvisibleElements: true", async (t) => {
     await t.resizeWindow(1920, 1080);

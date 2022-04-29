@@ -7306,3 +7306,25 @@ QUnit.test("Question defaultValueExpression in matrix dynamic", function(
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
+QUnit.test("call locationChangedCallback for cell question", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [
+          { name: "q1" }
+        ],
+      }
+    ] });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[1];
+  let counter = 0;
+  row.cells[0].question.localeChangedCallback = () => { counter ++; };
+  survey.locale = "de";
+  survey.locale = "";
+  assert.equal(counter, 2, "locationChangedCallback called");
+});

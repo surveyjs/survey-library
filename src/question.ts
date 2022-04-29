@@ -52,6 +52,7 @@ export class Question extends SurveyElement
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
+  localeChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
@@ -498,18 +499,16 @@ export class Question extends SurveyElement
       ? this.survey.questionDescriptionLocation
       : "underTitle";
   }
-  public get clickTitleFunction(): any {
-    if (this.hasInput) {
-      var self = this;
-      return function () {
-        if (self.isCollapsed) return;
-        setTimeout(() => {
-          self.focus();
-        }, 1);
-        return true;
-      };
-    }
-    return undefined;
+  protected needClickTitleFunction(): boolean {
+    return super.needClickTitleFunction() || this.hasInput;
+  }
+  protected processTitleClick() {
+    super.processTitleClick();
+    if(this.isCollapsed) return;
+    setTimeout(() => {
+      this.focus();
+    }, 1);
+    return true;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -568,6 +567,12 @@ export class Question extends SurveyElement
   }
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
+  }
+  public localeChanged() {
+    super.localeChanged();
+    if(!!this.localeChangedCallback) {
+      this.localeChangedCallback();
+    }
   }
   public get isCompositeQuestion(): boolean {
     return false;
@@ -722,6 +727,19 @@ export class Question extends SurveyElement
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
+  public get cssDescription(): string {
+    this.ensureElementCss();
+    return this.cssClasses.description;
+  }
+  protected setCssDescription(val: string): void {
+    this.setPropertyValue("cssDescription", "");
+  }
+  protected getCssDescription(cssClasses: any): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
+      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .toString();
+  }
   public get cssError(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssError", "");
@@ -770,6 +788,7 @@ export class Question extends SurveyElement
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
     this.setCssTitle(this.getCssTitle(cssClasses));
+    this.setCssDescription(this.getCssDescription(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
   }
   protected updateCssClasses(res: any, css: any): void {

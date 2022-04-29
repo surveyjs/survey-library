@@ -11,6 +11,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     this.handleOnClick = this.handleOnClick.bind(this);
     this.handleOnLabelClick = this.handleOnLabelClick.bind(this);
     this.handleOnSwitchClick = this.handleOnSwitchClick.bind(this);
+    this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
     this.checkRef = React.createRef();
   }
   protected getStateElement(): Base {
@@ -39,6 +40,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   handleOnLabelClick(event: any, value: boolean) {
     this.question.onLabelClick(event, value);
   }
+  handleOnKeyDown(event: any) {
+    this.question.onKeyDownCore(event);
+  }
 
   protected updateDomElement() {
     if (!this.question) return;
@@ -53,7 +57,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     const cssClasses = this.question.cssClasses;
     const itemClass: string = this.question.getItemCss();
     return (
-      <div className={cssClasses.root}>
+      <div className={cssClasses.root} onKeyDown={this.handleOnKeyDown}>
         <label className={itemClass} onClick={this.handleOnClick}>
           <input
             ref={this.checkRef}

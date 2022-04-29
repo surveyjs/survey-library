@@ -128,6 +128,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   public setValue(name: string, newValue: any) {
     this.data.setPanelItemData(this, name, newValue);
+    const questions = this.panel.questions;
+    for(var i = 0; i < questions.length; i ++) {
+      if(questions[i].getValueName() === name) continue;
+      questions[i].checkBindings(name, newValue);
+    }
   }
   getVariable(name: string): any {
     return undefined;
@@ -1203,6 +1208,12 @@ export class QuestionPanelDynamicModel extends Question
     }
     super.onFirstRendering();
   }
+  public localeChanged() {
+    super.localeChanged();
+    for (var i = 0; i < this.panels.length; i++) {
+      this.panels[i].localeChanged();
+    }
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runPanelsCondition(values, properties);
@@ -1702,10 +1713,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private initFooterToolbar() {
-    this.footerToolbarValue = new ActionContainer();
-    if(!!this.survey && !!this.survey.getCss().actionBar) {
-      this.footerToolbarValue.cssClasses = this.survey.getCss().actionBar;
-    }
+    this.footerToolbarValue = this.createActionContainer();
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",

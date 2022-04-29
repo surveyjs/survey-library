@@ -3,7 +3,7 @@
     <survey-element-title :element="element" :css="css"/>
     <div
       v-if="element.hasDescriptionUnderTitle"
-      :class="element.cssClasses.description"
+      :class="element.cssDescription"
     >
       <survey-string :locString="element.locDescription" />
     </div>
@@ -19,10 +19,7 @@ import { SurveyElement, doKey2ClickUp } from "survey-core";
 export class ElementHeader extends Vue {
   @Prop() element: SurveyElement;
   @Prop() css: any;
-
-  keyup(evt: any) {
-    doKey2ClickUp(evt);
-  }
+  
   clickTitleFunction() {
     if(typeof (<any>this.element).clickTitleFunction === "function") {
       (<any>this.element).clickTitleFunction();

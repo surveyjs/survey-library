@@ -1,14 +1,6 @@
 <template>
   <div v-if="question.isVisible" :class="question.getContainerCss()">
-    <div
-      v-if="question.hasTitle || question.hasDescription"
-      :class="question.cssClasses.panel.header"
-    >
-      <survey-element-title :element="question" :css="css" />
-      <div v-if="question.hasDescription" :class="question.cssClasses.panel.description">
-        <survey-string :locString="question.locDescription" />
-      </div>
-    </div>
+    <survey-element-header v-if="question.hasTitle || question.hasDescription" :element="question" :css="css"></survey-element-header>
     <survey-errors :element="question" />
     <div
       :id="question.contentId"
@@ -80,9 +72,6 @@ export class Panel extends BaseVue {
   }
   get survey(): ISurvey {
     return this.question.survey;
-  }
-  keyup(evt: any) {
-    doKey2ClickUp(evt);
   }
   cancelPreview() {
     this.question.cancelPreview();

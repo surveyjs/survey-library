@@ -1,6 +1,7 @@
 import { QuestionRatingModel } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { CustomResizeObserver } from "./questionImagepicker";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -73,6 +74,62 @@ QUnit.test("check rating initResponsiveness", (assert) => {
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
 });
+
+QUnit.test("check rating resize observer behavior", (assert) => {
+  const ResizeObserver = window.ResizeObserver;
+  const getComputedStyle = window.getComputedStyle;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  let currentScrollWidth = 0;
+  let currentOffsetWidth = 0;
+  window.getComputedStyle = <any>(() => {
+    return { width: currentOffsetWidth };
+  });
+  const rootElement = document.createElement("div");
+  const contentElement = document.createElement("div");
+  contentElement.className = "sd-scrollable-container";
+  rootElement.append(contentElement);
+
+  Object.defineProperty(rootElement, "isConnected", {
+    get: () => true
+  });
+  Object.defineProperties(contentElement, {
+    "scrollWidth": {
+      get: () => currentScrollWidth,
+    },
+    "offsetWidth": {
+      get: () => currentOffsetWidth,
+    }
+  }
+  );
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.css = defaultV2Css;
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.afterRender(rootElement);
+  assert.ok(q1["resizeObserver"]);
+  assert.equal(q1.renderAs, "default");
+  currentOffsetWidth = 300;
+  currentScrollWidth = 300;
+  (<any>q1["resizeObserver"]).call();
+  assert.equal(q1.renderAs, "default");
+  currentOffsetWidth = 200;
+  (<any>q1["resizeObserver"]).call();
+  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+  assert.equal(q1.renderAs, "dropdown");
+  currentOffsetWidth = 400;
+  (<any>q1["resizeObserver"]).call();
+  assert.equal(q1.renderAs, "default");
+  window.getComputedStyle = getComputedStyle;
+  window.ResizeObserver = ResizeObserver;
+});
+
 QUnit.test("check rating in case of state 'collapsed'", (assert) => {
   const rootElement = document.createElement("div");
   const contentElement = document.createElement("div");

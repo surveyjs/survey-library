@@ -1863,10 +1863,10 @@ export class Question extends SurveyElement
           if(!el.isConnected) { this.destroyResizeObserver(); }
           else {
             const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            if(!defaultRootEl.scrollWidth && this.isDefaultRendering()) {
-              requiredWidth = el.scrollWidth;
+            if(!requiredWidth && this.isDefaultRendering()) {
+              requiredWidth = rootEl.scrollWidth;
             }
-            if(isProcessed || !isContainerVisible(el)) {
+            if(isProcessed || !isContainerVisible(rootEl)) {
               isProcessed = false;
             } else {
               isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));

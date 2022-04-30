@@ -24,7 +24,13 @@ var platformDescriptor = {
 export default QUnit.module("Base");
 
 markupTests.forEach(markupTest => {
-  QUnit.test(markupTest.name, function (assert) {
-    testQuestionMarkup(assert, markupTest, platformDescriptor);
-  });
+  if(markupTest.excludePlatform === platformDescriptor.name) {
+    QUnit.skip(markupTest.name, function (assert) {
+      testQuestionMarkup(assert, markupTest, platformDescriptor);
+    });
+  } else {
+    QUnit.test(markupTest.name, function (assert) {
+      testQuestionMarkup(assert, markupTest, platformDescriptor);
+    });
+  }
 });

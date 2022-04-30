@@ -158,12 +158,9 @@
   .sd-table__cell.sd-matrix__cell {
     display: flex;
     align-items: flex-start;
-    &:after {
-      content: attr(data-responsive-title);
-      display: block;
+    .sd-matrix__responsive-title {
       margin-left: calcSize(1);
-      padding: calcSize(1.5) 0;
-      text-align: left;
+      text-align: left;  
     }
     &:first-child {
       padding-top: calcSize(2);

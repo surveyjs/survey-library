@@ -19,7 +19,7 @@
           <tr
             v-for="(row, rowIndex) in question.visibleRows"
             :key="'row_' + row.name + '_' + rowIndex"
-            :class="row.rowClasses"
+            :class="row.rowClasses || undefined"
           >
             <td :class="question.cssClasses.cell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
@@ -58,15 +58,14 @@
                   :aria-describedby="question.ariaDescribedBy"
                 />
                 <span :class="question.cssClasses.materialDecorator">
-                  <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
-                    <circle r="6" cx="0" cy="0" />
-                  </svg>
+                    <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+                      <use :xlink:href="question.itemSvgIcon"></use>
+                    </svg> 
+                  </span>
                 </span>
-                <span class="circle"></span>
-                <span class="check"></span>
-                <span :style="{ display: 'none' }">{{
-                  question.locTitle.renderedHtml
-                }}</span>
+                <span v-show="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
+                  <survey-string :locString="column.locText"></survey-string>
+                </span>
               </label>
             </td>
           </tr>
@@ -78,13 +77,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
-  cellClick(row: any, column: any) {
+   cellClick(row: any, column: any) {
     if (this.question.isInputReadOnly) return;
     row.value = column.value;
   }

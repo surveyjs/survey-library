@@ -173,6 +173,7 @@ export var defaultStandardCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",

@@ -3859,6 +3859,35 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   );
 });
 
+QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "1" }, { name: "2" }],
+      },
+    ],
+  });
+  survey.css.root = "sd-root-modern";
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[2].isActionsCell,
+    true,
+    "The first row can be removed (in actions cell)"
+  );
+  assert.equal(survey.css.root, "sd-root-modern", "Survey css root set correctly");
+  assert.equal(table.rows[0].cells[2].item.value.actions[0].component, "sv-action-bar-item", "Render as icon");
+  settings.matrixRenderRemoveAsIcon = false;
+  //Reset table
+  matrix.showHeader = false;
+  table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[2].item.value.actions[0].component, "sv-matrix-remove-button", "Render as button");
+  settings.matrixRenderRemoveAsIcon = true;
+});
+
 QUnit.test("column is requriedText, Bug #2297", function (assert) {
   var survey = new SurveyModel({
     questions: [

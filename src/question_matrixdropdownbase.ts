@@ -603,9 +603,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     );
   }
   public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
-    var questions = this.questions;
+    const questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].readOnly = parentIsReadOnly;
+      const q = questions[i];
+      q.setPropertyValue("isReadOnly", q.isReadOnly);
     }
     if (!!this.detailPanel) {
       this.detailPanel.readOnly = parentIsReadOnly;
@@ -1918,9 +1919,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     column: MatrixDropdownColumn
   ): Question {
     var question = column.createCellQuestion(row);
-    if (this.isReadOnly) {
-      question.readOnly = true;
-    }
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
     return question;

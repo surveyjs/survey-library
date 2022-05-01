@@ -527,6 +527,34 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "onShowingPreview && onServerValidateQuestions events",
+  function(assert) {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+      ],
+    });
+    let counterPreview = 0;
+    let counterServer = 0;
+    survey.onServerValidateQuestions.add(function (sender, options) {
+      counterServer ++;
+      options.complete();
+    });
+    survey.onShowingPreview.add((sender, options) => {
+      counterPreview ++;
+    });
+    assert.equal(counterServer, 0, "We do not call Server validation yet");
+    assert.equal(counterPreview, 0, "We do not call showing preview yet");
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We allow to show preview");
+    assert.equal(counterServer, 1, "Server validation is called");
+    assert.equal(counterPreview, 1, "Showing preview is called");
+  }
+);
+QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions' and invisible matrix dropdown, Bug#3176",
   function(assert) {
     var survey = new SurveyModel({

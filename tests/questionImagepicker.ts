@@ -211,6 +211,7 @@ export class CustomResizeObserver {
   call() {
     this.callback();
   }
+  disconnect() {}
 }
 
 QUnit.test("check resizeObserver behavior", function(assert) {

@@ -4165,7 +4165,6 @@ export class SurveyModel extends SurveyElementCore
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
-          if (!observedElement.isConnected) { this.destroyResizeObserver(); return; }
           if(isProcessed || !isContainerVisible(observedElement)) {
             isProcessed = false;
           } else {

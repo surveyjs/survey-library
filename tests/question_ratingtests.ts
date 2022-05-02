@@ -125,7 +125,14 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   assert.equal(q1.renderAs, "dropdown");
   currentOffsetWidth = 400;
   (<any>q1["resizeObserver"]).call();
+  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
   assert.equal(q1.renderAs, "default");
+  currentOffsetWidth = 200;
+  (<any>q1["resizeObserver"]).call();
+  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+  assert.equal(q1.renderAs, "dropdown");
+  q1["destroyResizeObserver"]();
+  assert.equal(q1.renderAs, "default", "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
 });

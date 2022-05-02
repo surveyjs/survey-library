@@ -293,7 +293,8 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
-    cellTextDisabled: "sd-matrix__text--disabled"
+    cellTextDisabled: "sd-matrix__text--disabled",
+    cellResponsiveTitle: "sd-matrix__responsive-title"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",

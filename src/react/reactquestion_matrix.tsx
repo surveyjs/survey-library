@@ -129,7 +129,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
     var tds = this.generateTds();
     return (
-      <tr className={this.row.rowClasses}>
+      <tr className={this.row.rowClasses || undefined}>
         {rowsTD}
         {tds}
       </tr>
@@ -187,17 +187,17 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 aria-describedby={this.question.ariaDescribedBy}
               />
               <span className={this.question.cssClasses.materialDecorator}>
-                <svg
-                  className={this.question.cssClasses.itemDecorator}
-                  viewBox="-12 -12 24 24"
-                >
-                  <circle r="6" cx="0" cy="0" />s
-                </svg>
+                {this.question.itemSvgIcon ?
+                  <svg
+                    className={this.cssClasses.itemDecorator}
+                  >
+                    <use xlinkHref={this.question.itemSvgIcon}></use>
+                  </svg> :
+                  null
+                }
               </span>
-              <span className="circle" />
-              <span className="check" />
-              <span style={{ display: "none" }}>
-                {this.question.locTitle.renderedHtml}
+              <span style={!this.question.isMobile ? { display: "none" } : undefined } className={this.question.cssClasses.cellResponsiveTitle}>
+                {this.renderLocString(column.locText)}
               </span>
             </label>
           </td>

@@ -164,6 +164,7 @@ export var defaultBootstrapMaterialCss = {
     itemChecked: "checked",
     itemDecorator: "sv-hidden",
     materialDecorator: "bmd-radio",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "table",

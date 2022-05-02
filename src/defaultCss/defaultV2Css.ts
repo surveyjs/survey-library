@@ -14,15 +14,16 @@ export var defaultV2Css = {
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
   navigationButton: "",
+  bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
   timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn sd-btn--action sd-navigation__complete-btn",
-    prev: "sd-btn sd-navigation__prev-btn",
-    next: "sd-btn sd-navigation__next-btn",
-    start: "sd-btn sd-navigation__start-btn",
-    preview: "sd-btn sd-navigation__preview-btn",
-    edit: ""
+    complete: "sd-btn--action sd-navigation__complete-btn",
+    prev: "sd-navigation__prev-btn",
+    next: "sd-navigation__next-btn",
+    start: "sd-navigation__start-btn",
+    preview: "sd-navigation__preview-btn",
+    edit: "",
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",
@@ -42,7 +43,8 @@ export var defaultV2Css = {
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
-    invisible: "sd-element--invisible"
+    invisible: "sd-element--invisible",
+    navigationButton: "",
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",

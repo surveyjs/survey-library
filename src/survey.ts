@@ -1190,13 +1190,13 @@ export class SurveyModel extends SurveyElementCore
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.complete
     );
   }
   public get cssNavigationPreview() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.preview
     );
   }
@@ -1208,21 +1208,24 @@ export class SurveyModel extends SurveyElementCore
   }
   public get cssNavigationPrev() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.prev
     );
   }
   public get cssNavigationStart() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.start
     );
   }
   public get cssNavigationNext() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.next
     );
+  }
+  private get cssSurveyNavigationButton(): string {
+    return new CssClassBuilder().append(this.css.navigationButton).append(this.css.bodyNavigationButton).toString();
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
@@ -2063,7 +2066,7 @@ export class SurveyModel extends SurveyElementCore
       val.component = "sv-nav-btn";
     }
     if (!val.innerCss) {
-      val.innerCss = this.css.navigationButton;
+      val.innerCss = this.cssSurveyNavigationButton;
     }
     return this.navigationBar.addAction(val);
   }

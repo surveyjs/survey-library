@@ -945,9 +945,10 @@ export class Question extends SurveyElement
    * @see readOnly
    */
   public get isReadOnly(): boolean {
-    var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
-    var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
+    const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
+    const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
+    const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;

@@ -182,3 +182,19 @@ QUnit.test("check rating useDropdown", (assert) => {
   q1["processResponsiveness"](600, 500);
   assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
 });
+QUnit.test("check getItemClass in display mode", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.mode = "display";
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemHover = "sv_q_rating_hover";
+  const item = q1.visibleRateValues[0];
+  assert.ok(q1.getItemClass(item).indexOf("sv_q_rating_hover") == -1);
+});

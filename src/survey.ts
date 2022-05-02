@@ -3550,10 +3550,13 @@ export class SurveyModel extends SurveyElementCore
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
     if (this.doServerValidation(true, true)) return false;
+    this.showPreviewCore();
+    return true;
+  }
+  private showPreviewCore(): void {
     var options = { allowShowPreview: true };
     this.onShowingPreview.fire(this, options);
     this.isShowingPreview = options.allowShowPreview;
-    return true;
   }
   /**
    * Cancels preview and switches back to the "running" state.
@@ -4015,7 +4018,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!hasErrors) {
       if (isPreview) {
-        this.isShowingPreview = true;
+        this.showPreviewCore();
       } else {
         if (self.isLastPage) self.doComplete();
         else self.doNextPage();

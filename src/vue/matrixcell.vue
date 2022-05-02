@@ -34,7 +34,7 @@
       <survey-radiogroup-item
         v-if="cell.isChoice && !cell.isCheckbox"
         :key="cell.item.value"
-        :class="getItemClass(cell.item)"
+        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
         :index="'' + cell.index"
@@ -43,7 +43,7 @@
       <survey-checkbox-item
         v-if="cell.isChoice && cell.isCheckbox"
         :key="cell.item.value"
-        :class="getItemClass(cell.item)"
+        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
         :index="'' + cell.index"
@@ -99,19 +99,6 @@ export class MatrixCell extends Vue {
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;
-  }
-  getItemClass(item: any) {
-    const cssClasses = this.cell.question.cssClasses;
-    const isDisabled = this.cell.question.isReadOnly || !item.isEnabled;
-    const isChecked = item.value === this.cell.question.renderedValue;
-    const allowHover = !isDisabled && !isChecked;
-
-    return new CssClassBuilder()
-      .append(this.cell.question.cssClasses.item)
-      .append(cssClasses.itemDisabled, isDisabled)
-      .append(cssClasses.itemChecked, isChecked)
-      .append(cssClasses.itemHover, allowHover)
-      .toString();
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;

@@ -31,11 +31,11 @@ export class QuestionRatingModel extends Question {
     super(name);
     this.createItemValues("rateValues");
     var self = this;
-    this.registerFunctionOnPropertyValueChanged("rateValues", function() {
+    this.registerFunctionOnPropertyValueChanged("rateValues", function () {
       self.fireCallback(self.rateValuesChangedCallback);
     });
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.onPropertyChanged.add(function(sender: any, options: any) {
+    this.onPropertyChanged.add(function (sender: any, options: any) {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
@@ -147,9 +147,9 @@ export class QuestionRatingModel extends Question {
   }
   get renderedRateItems(): RenderedRatingItem[] {
     return this.visibleRateValues.map((v, i) => {
-      if(this.displayRateDescriptionsAsExtremeItems) {
-        if(i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
-        if(i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
+      if (this.displayRateDescriptionsAsExtremeItems) {
+        if (i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
+        if (i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
       }
       return new RenderedRatingItem(v);
     });
@@ -230,7 +230,7 @@ export class QuestionRatingModel extends Question {
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
-  @property({ defaultValue: "auto", onSet: (val, target) =>{ } }) useDropdown: "always" | "never" | "auto";
+  @property({ defaultValue: "auto", onSet: (val, target) => { } }) useDropdown: "always" | "never" | "auto";
 
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
@@ -257,7 +257,7 @@ export class QuestionRatingModel extends Question {
 
   public getItemClass(item: ItemValue) {
     const isSelected = this.value == item.value;
-    const isDisabled = this.isReadOnly && !item.isEnabled;
+    const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && !isSelected && !(!!this.survey && this.survey.isDesignMode);
 
     return new CssClassBuilder()
@@ -311,7 +311,7 @@ export class QuestionRatingModel extends Question {
     return this.useDropdown != "always" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
       rateValues.length > 0 ||
-      (rateStep && (rateMax -rateMin)/rateStep > 9));
+      (rateStep && (rateMax - rateMin) / rateStep > 9));
   }
 
   // TODO: return responsiveness after design improvement
@@ -319,10 +319,10 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   protected getCompactRenderAs(): string {
-    return (this.useDropdown == "never")?"default":"dropdown";
+    return (this.useDropdown == "never") ? "default" : "dropdown";
   }
   protected getDesktopRenderAs(): string {
-    return (this.useDropdown == "always")?"dropdown":"default";
+    return (this.useDropdown == "always") ? "dropdown" : "default";
   }
 }
 Serializer.addClass(
@@ -332,7 +332,7 @@ Serializer.addClass(
     {
       name: "commentText",
       dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -342,13 +342,13 @@ Serializer.addClass(
       name: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceHolder",
       dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
     },
     {
       name: "rateValues:itemvalue[]",
-      baseValue: function() {
+      baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
     },
@@ -372,7 +372,7 @@ Serializer.addClass(
       choices: ["auto", "never", "always"],
     }
   ],
-  function() {
+  function () {
     return new QuestionRatingModel("");
   },
   "question"

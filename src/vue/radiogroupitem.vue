@@ -1,5 +1,5 @@
 <template>
-  <div role="presentation" :class="getItemClass(item)">
+  <div role="presentation">
     <label :class="getLabelClass(item)" :aria-label="question.getAriaItemLabel(item)">
       <input
         type="radio"
@@ -14,13 +14,19 @@
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"
       >
-        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+        <svg
+          v-if="question.itemSvgIcon"
+          :class="question.cssClasses.itemDecorator"
+        >
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
-      ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
+      ><span
+        v-if="!hideLabel"
+        :class="getControlLabelClass(item)"
+      >
         <survey-string :locString="item.locText" />
-      </span>
-    </label>
+      </span> </label
+    >
   </div>
 </template>
 
@@ -41,9 +47,6 @@ export class RadiogroupItem extends BaseVue {
   }
   getLabelClass(item: any) {
     return this.question.getLabelClass(item);
-  }
-  getItemClass(item: any) {
-    return this.question.getItemClass(item);
   }
   getControlLabelClass(item: any) {
     return this.question.getControlLabelClass(item);

@@ -1789,7 +1789,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "noEntriesText:text", visible: false, serializationProperty: "locNoEntriesText" },
+    { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

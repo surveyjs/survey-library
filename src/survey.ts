@@ -1929,14 +1929,14 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private get isMobile() {
-    return isMobile() || this._isMobile;
+    return this._isMobile;
   }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
     if (
-      !this.isMobile &&
+      !(isMobile() || this.isMobile) &&
       !this.isValueEmpty(this.isLogoImageChoosen()) &&
       !settings.supportCreatorV2
     ) {
@@ -4168,7 +4168,6 @@ export class SurveyModel extends SurveyElementCore
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
-          if (!observedElement.isConnected) { this.destroyResizeObserver(); return; }
           if(isProcessed || !isContainerVisible(observedElement)) {
             isProcessed = false;
           } else {

@@ -93,8 +93,8 @@ export class SurveyImplementor extends ImplementorBase {
   public koEventAfterRender(element: any, survey: any) {
     if(survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
-      survey.afterRenderSurvey(element);
     }
+    survey.afterRenderSurvey(element);
   }
   public dispose(): void {
     super.dispose();

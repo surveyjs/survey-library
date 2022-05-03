@@ -1926,14 +1926,14 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private get isMobile() {
-    return isMobile() || this._isMobile;
+    return this._isMobile;
   }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
     if (
-      !this.isMobile &&
+      !(isMobile() || this.isMobile) &&
       !this.isValueEmpty(this.isLogoImageChoosen()) &&
       !settings.supportCreatorV2
     ) {

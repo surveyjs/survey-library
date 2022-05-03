@@ -139,8 +139,9 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
   public updateVisible() {
-    this.visible = this.calcVisible();
+    const isVisible = this.calcVisible();
     this.setWidth();
+    this.visible = isVisible;
   }
   public addElement(q: IElement) {
     this.elements.push(q);

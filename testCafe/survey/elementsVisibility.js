@@ -95,3 +95,47 @@ frameworks.forEach(framework => {
     await t.expect(ClientFunction(() => { return document.activeElement == document.querySelector("input[value=\"No\"]"); })()).ok();
   });
 });
+
+const json3 = {
+  "elements": [
+    {
+      "type": "text",
+      "name": "country",
+    }, {
+      "type": "html",
+      "name": "requesting",
+      "html": "The data is requesting",
+      "visibleIf": "{request_processing} = true"
+    }, {
+      "type": "text",
+      "name": "name_official",
+      "readOnly": true,
+      "visibleIf": "{name_official} notempty"
+    },
+  ],
+};
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json3);
+    }
+  );
+
+  test("Bug #4302 check that element root styles applies correctly after element becomes visible", async t => {
+    await ClientFunction(()=> {
+      var survey = window.survey;
+      var officialName = "name_official";
+      survey.setVariable("request_processing", true);
+      setTimeout(() => {
+        survey.setValue(officialName, "Full Country Name");
+        survey.setVariable("hasError", false);
+        survey.setVariable("request_processing", false);
+      }, 0);
+    })();
+    const getRootStyle = ClientFunction(()=>{
+      return document.querySelector("div[data-name='name_official']").parentElement.style.flex;
+    });
+    await t.expect(getRootStyle()).eql("1 1 100%");
+  });
+});

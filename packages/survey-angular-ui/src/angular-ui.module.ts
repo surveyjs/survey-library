@@ -10,6 +10,8 @@ import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { TextQuestionComponent } from "./questions/text.component";
 import { RadiogroupComponent } from "./questions/radiogroup.component";
 import { RadiogroupItemComponent } from "./questions/radiogroup-item.component";
+import { CheckboxComponent } from "./questions/checkbox.component";
+import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
@@ -18,7 +20,7 @@ import { ActionBarItemComponent } from "./components/action-bar-item.component";
 @NgModule({
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, ElementContentComponent, StringViewerComponent,
-    QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent,
+    QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent
   ],
   imports: [

@@ -58,6 +58,16 @@
       "title": "Page 2",
       "questions": [
         {
+          "name": "checkbox",
+          "type": "checkbox",
+          "title": "Choose item(s)",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        {
           "name": "surname",
           "type": "text",
           "title": "Surname",

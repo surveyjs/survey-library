@@ -14,6 +14,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
+    var clearButton = this.renderCleanButton();
     return (
       <div className={cssClasses.root} ref={(root) => (this.control = root)} style={{ height: this.question.height, width: this.question.width }}>
         <div
@@ -25,17 +26,25 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
         <div>
           <canvas tabIndex={0}></canvas>
         </div>
-        <div className={cssClasses.controls}>
-          <button
-            type="button"
-            className={cssClasses.clearButton}
-            title={this.question.clearButtonCaption}
-          >
-            {this.question.cssClasses.clearButtonIconId ? <SvgIcon iconName={this.question.cssClasses.clearButtonIconId} size={"auto"}></SvgIcon> : <span>✖</span>}
-          </button>
-        </div>
+        {clearButton}
       </div>
     );
+  }
+
+  renderCleanButton(): JSX.Element {
+    if(!this.question.canShowClearButton) return null;
+
+    var cssClasses = this.question.cssClasses;
+    return <div className={cssClasses.controls}>
+      <button
+        type="button"
+        className={cssClasses.clearButton}
+        title={this.question.clearButtonCaption}
+        onClick={() => this.question.clearValue()}
+      >
+        {this.question.cssClasses.clearButtonIconId ? <SvgIcon iconName={this.question.cssClasses.clearButtonIconId} size={"auto"}></SvgIcon> : <span>✖</span>}
+      </button>
+    </div>;
   }
 }
 

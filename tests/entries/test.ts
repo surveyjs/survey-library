@@ -43,6 +43,7 @@ export * from "../question_ratingtests";
 export * from "../question_texttests";
 export * from "../question_customtests";
 export * from "../question_ranking_tests";
+export * from "../question_signaturepadtests";
 export * from "../question_matrix_base_tests";
 export * from "../cssClassBuilderTests";
 export * from "../listModelTests";

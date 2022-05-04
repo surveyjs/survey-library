@@ -6,8 +6,8 @@
   outline: none;
   svg {
     display: block;
-    width: 24px;
-    height: 24px;
+    width: calcSize(3);
+    height: calcSize(3);
   }
   use {
     fill: $foreground-light;

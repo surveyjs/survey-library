@@ -15,7 +15,7 @@
   padding: 0 var(--sd-base-padding) var(--sd-base-padding);
 }
 .sd-row--multiple {
-  gap: 16px;
+  gap: calcSize(2);
   margin-top: calcSize(2);
   .sd-question {
     padding-right: 0 !important;
@@ -25,7 +25,7 @@
     flex-wrap: initial;
     flex-direction: row;
     width: 100%;
-    gap: 16px;
+    gap: calcSize(2);
   }
 }
 .svc-row .sd-row--multiple {
@@ -34,7 +34,7 @@
 }
 .svc-row--multiple {
   .sd-row--multiple {
-    gap: 8px;
+    gap: calcSize(1);
   }
 }
 :not(.svc-row--ghost) > .sd-row {

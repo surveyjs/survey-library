@@ -3,8 +3,8 @@
 }
 .sd-checkbox__svg {
   display: none;
-  width: 20px;
-  height: 20px;
+  width: calcSize(2.5);
+  height: calcSize(2.5);
 }
 
 .sd-checkbox--checked .sd-checkbox__svg {

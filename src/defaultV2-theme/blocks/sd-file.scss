@@ -140,8 +140,8 @@
 .sd-file__sign {
   margin-top: calcSize(1);
   text-align: center;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calcSize(1.5);
+  line-height: calcSize(2);
   a {
     display: block;
     text-decoration: none;
@@ -167,14 +167,14 @@
 .sd-file__image-wrapper {
   position: relative;
   text-align: center;
-  min-width: 96px;
-  min-height: 96px;
+  min-width: calcSize(12);
+  min-height: calcSize(12);
   img:not(.sd-file__default-image) {
     display: block;
-    width: 96px;
-    height: 96px;
+    width: calcSize(12);
+    height: calcSize(12);
     object-fit: contain;
-    background: #f3f3f3;
+    background: $background-dim;
   }
 }
 .sd-file--single {
@@ -185,11 +185,11 @@
 
 .sd-file--mobile {
   .sd-file__list {
-    height: calc(100% - 4 * var(--base-unit, 8px));
+    height: calc(100% - 4 * #{$base-unit});
   }
 }
 .sd-file--single-image {
-  height: calc(36 * var(--base-unit, 8px));
+  height: calc(36 * #{$base-unit});
   .sd-file__list {
     padding: 0;
     height: 100%;

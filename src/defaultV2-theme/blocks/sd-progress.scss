@@ -1,6 +1,6 @@
 .sd-progress {
   height: 2px;
-  background-color: #E5E5E5;;
+  background-color: $border-light;
   position: relative;
 }
 .sd-progress__bar {
@@ -14,8 +14,8 @@
   margin-top: calcSize(1);
   right: calcSize(3);
   color: $foreground-light;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calcSize(1.5);
+  line-height: calcSize(2);
   font-weight: 600;
   @media only screen and (min-width: calcSize(125)) {
     margin-left: 5%;

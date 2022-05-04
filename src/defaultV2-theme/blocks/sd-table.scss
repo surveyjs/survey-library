@@ -93,7 +93,7 @@
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
   .sd-action-bar {
     margin-right: calcSize(-3);
-    justify-content: end;
+    justify-content: flex-end;
     background: $background;
   }
 }
@@ -223,7 +223,7 @@
     width: auto;
     .sd-action-bar {
       margin-right: calcSize(-3);
-      justify-content: end;
+      justify-content: flex-end;
       background: $background;
     }
   }

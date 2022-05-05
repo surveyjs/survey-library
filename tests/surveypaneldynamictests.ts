@@ -2435,6 +2435,45 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
     "defaultValueFromLastRow is merging with defaultPanelValue"
   );
 });
+QUnit.test("defaultValueFromLastPanel property && hasOther", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "root",
+        panelCount: 1,
+        templateElements: [
+          { type: "paneldynamic", name: "question",
+            defaultValueFromLastPanel: true,
+            panelCount: 0,
+            templateElements: [
+              { type: "dropdown", name: "q1", choices: [1, 2, 3], hasOther: true },
+              { type: "dropdown", name: "q2", choices: [1, 2, 3], hasOther: true }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("root");
+  const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
+  const panel1 = question.addPanel();
+  panel1.getQuestionByName("q1").value = "other";
+  panel1.getQuestionByName("q1").comment = "comment1";
+  panel1.getQuestionByName("q2").value = "other";
+  panel1.getQuestionByName("q2").comment = "comment2";
+  let counter = 0;
+  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  question.addPanel();
+  question.addPanel();
+  question.addPanel();
+  question.addPanel();
+  const panel6 = question.addPanel();
+  assert.equal(panel6.getQuestionByName("q1").value, "other", "Value set");
+  assert.equal(panel6.getQuestionByName("q1").comment, "comment1", "Comment set");
+  assert.equal(counter, 5 * 2, "Call updates 10 times");
+});
+
 QUnit.test("Generates error on clearIncorrectValue()", function(assert) {
   var survey = new SurveyModel({
     elements: [

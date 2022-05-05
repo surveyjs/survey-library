@@ -1700,6 +1700,7 @@ export class Question extends SurveyElement
   }
   protected onValueChanged(): void { }
   protected setNewComment(newValue: string): void {
+    if(this.questionComment === newValue) return;
     this.questionComment = newValue;
     if (this.data != null) {
       this.data.setComment(

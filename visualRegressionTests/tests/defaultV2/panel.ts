@@ -52,6 +52,41 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check panel with elements in one line", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "panel",
+          name: "delivery_details",
+          title: "Contact",
+          width: "780px",
+          elements: [
+            {
+              type: "text",
+              name: "question_with_num",
+              title: "Personal information"
+            },
+            {
+              type: "text",
+              name: "question_with_num",
+              startWithNewLine: false,
+              title: "Contact information"
+            },
+            {
+              type: "text",
+              name: "question_with_num",
+              startWithNewLine: false,
+              title: "Other information"
+            },
+          ]
+        },
+      ]
+    });
+    await ClientFunction(()=> document.body.focus())();
+    const panelRoot = Selector(".sd-panel");
+    await checkElementScreenshot("panel-elements-one-row.png", panelRoot, t);
+  });
   test("Check panel expand/collapse", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

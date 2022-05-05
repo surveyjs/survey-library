@@ -15,11 +15,25 @@
   padding: 0 var(--sd-base-padding) var(--sd-base-padding);
 }
 .sd-row--multiple {
-  gap: 16px;
   margin-top: calcSize(2);
   .sd-question {
     padding-right: 0 !important;
   }
+}
+:not(.svc-row) > .sd-row--multiple {
+  row-gap: var(--sd-row-gap);
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * #{$base-unit});
+  flex-wrap: wrap;
+  > div  {
+    box-sizing: border-box;
+    padding-left: calcSize(2); 
+  }
+}
+.sd-page:not(.svc-row) > .sd-row--multiple {
+  margin-left: 0;
+  width: 100%;
+  padding-left: calc(var(--sd-base-padding) - 2 * #{$base-unit})
 }
 .svc-row .sd-row--multiple {
   overflow: auto;
@@ -27,7 +41,7 @@
 }
 .svc-row--multiple {
   .sd-row--multiple {
-    gap: 8px;
+    gap: calcSize(1);
   }
 }
 :not(.svc-row--ghost) > .sd-row {

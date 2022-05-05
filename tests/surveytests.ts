@@ -6802,7 +6802,18 @@ QUnit.test(
     }
   }
 );
-
+QUnit.test("survey.questionsOnPageMode=questionOnPage, name pages better", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" }
+    ]
+  });
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, 2, "Two pages");
+  assert.equal(survey.pages[0].name, "firstName", "first page name");
+  assert.equal(survey.pages[1].name, "lastName", "last page name");
+});
 QUnit.test(
   "survey.questionsOnPageMode=singlePage, defualt value and visibleIf",
   function (assert) {
@@ -14233,7 +14244,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" },];
+    options.titleActions = [{ id: "action" }, ];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");

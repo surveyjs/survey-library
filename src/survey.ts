@@ -4359,6 +4359,9 @@ export class SurveyModel extends SurveyElementCore
   get isValidateOnValueChanging(): boolean {
     return this.checkErrorsMode === "onValueChanging";
   }
+  get isValidateOnValueChanged(): boolean {
+    return this.checkErrorsMode === "onValueChanged";
+  }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);

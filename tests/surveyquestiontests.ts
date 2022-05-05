@@ -4725,8 +4725,19 @@ QUnit.test(
     assert.equal(survey.getValue("q1"), 10, "Could not set -5 to survey");
     question.value = 500;
     assert.equal(survey.getValue("q1"), 10, "Could not set 500 to survey");
+    assert.equal(question.errors.length, 1, "There is an error");
     question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors");
     assert.equal(survey.getValue("q1"), 50, "Set 50 to survey");
+
+    question.value = 500;
+    assert.equal(question.errors.length, 1, "There is an error, #2");
+    question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors, #2");
+    question.value = 500;
+    assert.equal(question.errors.length, 1, "There is an error, #3");
+    question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors, #3");
   }
 );
 
@@ -5370,7 +5381,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
@@ -5400,7 +5411,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-      assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
     assert.equal(
       q2.visibleChoices.length,
       3,

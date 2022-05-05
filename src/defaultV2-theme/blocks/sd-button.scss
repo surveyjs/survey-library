@@ -3,6 +3,9 @@
 
 
 .sd-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;

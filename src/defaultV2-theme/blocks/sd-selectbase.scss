@@ -24,7 +24,7 @@
   flex: 1 1 0px;
 }
 .sd-selectbase__column:not(:last-child) {
-  padding-right: 16px;
+  padding-right: calcSize(2);
 }
 
 // Copied from stylesmanager

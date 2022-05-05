@@ -127,6 +127,9 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     return values[name];
   }
   public setValue(name: string, newValue: any) {
+    const oldItemData = this.data.getPanelItemData(this);
+    const oldValue = !!oldItemData ? oldItemData[name] : undefined;
+    if(typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
     this.data.setPanelItemData(this, name, newValue);
     const questions = this.panel.questions;
     for(var i = 0; i < questions.length; i ++) {
@@ -1789,7 +1792,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "noEntriesText:text", visible: false, serializationProperty: "locNoEntriesText" },
+    { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

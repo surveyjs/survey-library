@@ -50,7 +50,7 @@
 } 
 .sd-rating__item-text.sd-rating__item-text {
   line-height: calcSize(3);
-  min-width: 24px;
+  min-width: calcSize(3);
   display: inline-block;
   &.sd-rating__min-text,
   &.sd-rating__max-text {

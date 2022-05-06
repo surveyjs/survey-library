@@ -4244,6 +4244,17 @@ QUnit.test("Question defaultValueExpression change value until it is not modifie
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
+QUnit.test("defaultValueExpression for boolean question", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1", defaultValueExpression: "true" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.strictEqual(q1.value, true, "initial value set correctly");
+});
 
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");

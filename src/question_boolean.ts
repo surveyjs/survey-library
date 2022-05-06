@@ -145,10 +145,13 @@ export class QuestionBooleanModel extends Question {
   private getValueFalse(): any {
     return this.valueFalse ? this.valueFalse : false;
   }
-  protected setDefaultValue() {
-    if (this.defaultValue == "true" || this.defaultValue === this.valueTrue) this.setCheckedValue(true);
-    if (this.defaultValue == "false" || this.defaultValue === this.valueFalse) this.setCheckedValue(false);
+  protected setDefaultValue(): void {
+    if (this.isDefaultValueSet("true", this.valueTrue)) this.setCheckedValue(true);
+    if (this.isDefaultValueSet("false", this.valueFalse)) this.setCheckedValue(false);
     if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
+  }
+  private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any) : boolean {
+    return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;

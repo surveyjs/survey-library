@@ -159,6 +159,33 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check questions in one row (overflow content)", async (t) => {
+    await t.resizeWindow(1000, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "question_with_num",
+          title: "Personal information"
+        },
+        {
+          type: "text",
+          name: "question_with_num",
+          startWithNewLine: false,
+          title: "Contact information"
+        },
+        {
+          type: "text",
+          name: "question_with_num",
+          startWithNewLine: false,
+          title: "Other information"
+        },
+      ]
+    },);
+    const rowSelector = Selector(".sd-row");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("multiple-row-overflow.png", rowSelector, t);
+  });
   test("Check question error", async(t)=> {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

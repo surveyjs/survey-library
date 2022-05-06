@@ -502,11 +502,6 @@ export class StylesManager {
       media: "@supports (display: flex)",
     },
 
-    ".sv-vue-row-additional-div": {
-      style: " display: flex; flex-wrap: wrap; flex-basis: 100%; width: 100%;",
-      media: "@supports (display: flex)",
-    },
-
     ".sv-row > .sv-row__panel, .sv-row__question:not(:last-child)": {
       style: "float: left;",
       media:

@@ -11,22 +11,26 @@
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcSize(0.5);
 }
-.sd-page > .sd-row--multiple {
-  padding: 0 var(--sd-base-padding) var(--sd-base-padding);
-}
 .sd-row--multiple {
-  gap: calcSize(2);
   margin-top: calcSize(2);
   .sd-question {
     padding-right: 0 !important;
   }
-  .sv-vue-row-additional-div {
-    display: flex;
-    flex-wrap: initial;
-    flex-direction: row;
-    width: 100%;
-    gap: calcSize(2);
+}
+:not(.svc-row) > .sd-row--multiple {
+  row-gap: calcSize(1);
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * #{$base-unit});
+  flex-wrap: wrap;
+  > div  {
+    box-sizing: border-box;
+    padding-left: calcSize(2); 
   }
+}
+.sd-page:not(.svc-row) > .sd-row--multiple {
+  padding: 0  var(--sd-base-padding) var(--sd-base-padding) calc(var(--sd-base-padding) - 2 * #{$base-unit});
+  margin-left: 0;
+  width: 100%;
 }
 .svc-row .sd-row--multiple {
   overflow: auto;

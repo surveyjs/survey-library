@@ -221,7 +221,7 @@ export class QuestionTextModel extends QuestionTextBase {
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (isOnValueChanged || this.canSetValueToSurvey()) return;
+    if (isOnValueChanged) return;
     if (this.isValueLessMin) {
       errors.push(
         new CustomError(
@@ -247,9 +247,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
-    if (this.isValueLessMin) return false;
-    if (this.isValueGreaterMax) return false;
-    return true;
+    const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
+    if(this.inputType === "number" && !!this.survey &&
+      (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
+      this.hasErrors();
+    }
+    return isValid;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (!value) return errorText;

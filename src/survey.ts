@@ -2517,6 +2517,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
+    this.updateAllQuestionsValue();
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {

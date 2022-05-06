@@ -3766,7 +3766,7 @@ export class SurveyModel extends SurveyElementCore
 
         var page = <PageModel>Serializer.createClass(originalPage.getType());
         page.fromJSON(pageJson);
-        page.name = "page" + (res.length + 1);
+        page.name = originalElement.name;
         page.setSurveyImpl(this);
         res.push(page);
         var json = new JsonObject().toJsonObject(originalElement);

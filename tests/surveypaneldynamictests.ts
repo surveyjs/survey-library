@@ -2927,6 +2927,7 @@ QUnit.test("do not add new panel for list", function(assert) {
   panelDynamic.addPanelUI();
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
   assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
+  assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
   assert.equal(panelDynamic.currentPanel.hasErrors(), true);
 
   survey.data = { pd: [{ q1: "a" }] };

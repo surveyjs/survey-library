@@ -834,7 +834,6 @@ export class QuestionPanelDynamicModel extends Question
     if(this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
       return false;
     }
-    if (!this.canLeaveCurrentPanel()) return false;
     return (
       this.allowAddPanel &&
       !this.isReadOnly &&
@@ -948,6 +947,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
+    if(!this.canLeaveCurrentPanel()) return null;
     const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();

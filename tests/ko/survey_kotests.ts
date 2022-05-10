@@ -2429,9 +2429,10 @@ QUnit.test("pageNext/pagePrev... Text and koRenderedHtml", function (assert) {
       },
     ],
   });
-  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Complete");
-  survey.completeText = "Finish";
-  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Finish");
+  const completeAction = (<any>survey).navigationBar.getActionById("sv-nav-complete");
+  assert.equal(completeAction.title, "Complete");
+  (<any>survey).completeText = "Finish";
+  assert.equal(completeAction.title, "Finish");
 });
 QUnit.test("Initial Text Processing in panel title and ko", function (assert) {
   var survey = new Survey({

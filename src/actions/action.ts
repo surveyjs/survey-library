@@ -1,3 +1,4 @@
+import { LocalizableString } from "survey-core";
 import { Base } from "../base";
 import { property } from "../jsonobject";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
@@ -27,6 +28,7 @@ export interface IAction {
    * @see disableShrink
    */
   title?: string;
+  locTitle?: LocalizableString;
   /**
    * The action item's tooltip.
    */
@@ -143,7 +145,6 @@ export class Action extends Base implements IAction {
       target.raiseUpdate();
     }
   }) visible: boolean;
-  @property() title: string;
   @property() tooltip: string;
   @property() enabled: boolean;
   @property() showTitle: boolean;
@@ -163,6 +164,31 @@ export class Action extends Base implements IAction {
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
+  @property({ onSet: (val, obj) => {
+    val.onChanged = () => {
+      obj.updateTitleValue();
+    };
+    obj.updateTitleValue();
+  } }) locTitle: LocalizableString;
+
+  @property() private titleValue: string;
+
+  private updateTitleValue() {
+    if(!!this.locTitle) {
+      this.titleValue = this.locTitle.calculatedText;
+    }
+  }
+  public get title(): string {
+    return this.titleValue;
+  }
+  public set title(val: string) {
+    if(!!this.locTitle) {
+      this.locTitle.text = val;
+    } else {
+      this.titleValue = val;
+    }
+    this.updateTitleValue();
+  }
 
   private cssClassesValue: any;
 

@@ -1,5 +1,6 @@
 import { Action, ActionDropdownViewModel } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
+import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { settings } from "../../src/settings";
 import { getIconNameFromProxy } from "../../src/utils/utils";
@@ -102,4 +103,17 @@ QUnit.test("Check dropdown action pressed state", (assert) => {
   p1.isVisible = false;
   assert.notOk(action.pressed);
   action.popupModel = p2;
+});
+
+QUnit.test("Check action title", (assert) => {
+  const action = new Action({ id: "" });
+  action.title = "simple_title";
+  assert.equal(action.title, "simple_title");
+  const locTitle = new LocalizableString(null);
+  locTitle.text = "loc_title_1";
+  action.locTitle = locTitle;
+  assert.equal(action.title, "loc_title_1");
+  locTitle.text = "loc_title_2";
+  assert.equal(action.title, "loc_title_2");
+
 });

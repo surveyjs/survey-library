@@ -175,7 +175,7 @@ export class Action extends Base implements IAction {
 
   private updateTitleValue() {
     if(!!this.locTitle) {
-      this.titleValue = this.locTitle.calculatedText;
+      this.titleValue = this.locTitle.renderedHtml;
     }
   }
   public get title(): string {

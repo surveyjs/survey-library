@@ -187,7 +187,6 @@ export class Action extends Base implements IAction {
     } else {
       this.titleValue = val;
     }
-    this.updateTitleValue();
   }
 
   private cssClassesValue: any;

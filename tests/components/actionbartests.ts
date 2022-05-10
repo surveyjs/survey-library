@@ -115,5 +115,7 @@ QUnit.test("Check action title", (assert) => {
   assert.equal(action.title, "loc_title_1");
   locTitle.text = "loc_title_2";
   assert.equal(action.title, "loc_title_2");
-
+  action.title = "loc_title_3";
+  assert.equal(action.title, "loc_title_3");
+  assert.equal(locTitle.text, "loc_title_3");
 });

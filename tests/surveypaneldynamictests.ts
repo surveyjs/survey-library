@@ -2882,7 +2882,7 @@ QUnit.test("goToNextPanel method", function(assert) {
   };
 
   var survey = new SurveyModel(json);
-  var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
 
   panelDynamic.goToNextPanel();
@@ -2898,6 +2898,50 @@ QUnit.test("goToNextPanel method", function(assert) {
 
   panelDynamic.goToNextPanel();
   assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+});
+
+QUnit.test("do not add new panel for list", function(assert) {
+  const json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "pd",
+        renderMode: "progressTop",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            isRequired: true,
+            choices: ["a", "b"],
+          },
+        ],
+      },
+    ],
+  };
+
+  let survey = new SurveyModel(json);
+  let panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
+  assert.equal(panelDynamic.panelCount, 1, "There is one panel");
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
+  assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
+  assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
+  assert.equal(panelDynamic.currentPanel.hasErrors(), true);
+
+  survey.data = { pd: [{ q1: "a" }] };
+  assert.equal(panelDynamic.currentPanel.hasErrors(), false);
+
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+  assert.equal(panelDynamic.panelCount, 2, "There are two panels");
+
+  survey = new SurveyModel(json);
+  panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  panelDynamic.renderMode = "list";
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
 });
 
 QUnit.test("goToPrevPanel method", function(assert) {

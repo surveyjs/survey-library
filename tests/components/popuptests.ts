@@ -428,7 +428,7 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   assert.equal(container.parentElement, undefined);
 });
 
-QUnit.test("PopupViewModel unmountPopupContainer", (assert) => {
+QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
@@ -437,29 +437,16 @@ QUnit.test("PopupViewModel unmountPopupContainer", (assert) => {
     model,
     targetElement
   );
-  viewModel.initializePopupContainer();
-  viewModel.container.innerHTML = popupTemplate;
-
-  const container: HTMLElement = viewModel.container;
-
-  viewModel.dispose();
-
-  let trace: String = "";
-  model.onHide = () => {
-    trace += "->onHide";
-  };
-  model.onShow = () => {
-    trace += "->onShow";
-  };
-
-  model.toggleVisibility();
-  //viewModel.isVisible(!viewModel.isVisible());
-  assert.equal(trace, "->onShow");
 
   assert.equal(!!viewModel.container, false);
-  assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
-  assert.equal(container.parentElement, undefined);
+  viewModel.initializePopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.unmountPopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.dispose();
+  assert.equal(!!viewModel.container, false);
 });
 
 QUnit.test("Check calculatePosition method", (assert) => {

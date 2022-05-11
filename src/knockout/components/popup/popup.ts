@@ -6,8 +6,7 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    if (!popupViewModel.container)
-      popupViewModel.initializePopupContainer();
+    popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
@@ -21,7 +20,7 @@ export class PopupViewModel {
   }
   dispose() {
     ko.cleanNode(this.popupViewModel.container);
-    this.popupViewModel.destroyPopupContainer();
+    this.popupViewModel.dispose();
   }
 }
 

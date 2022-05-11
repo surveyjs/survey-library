@@ -409,7 +409,40 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   const container: HTMLElement = viewModel.container;
 
   viewModel.dispose();
-  viewModel.destroyPopupContainer();
+
+  let trace: String = "";
+  model.onHide = () => {
+    trace += "->onHide";
+  };
+  model.onShow = () => {
+    trace += "->onShow";
+  };
+
+  model.toggleVisibility();
+  //viewModel.isVisible(!viewModel.isVisible());
+  assert.equal(trace, "->onShow");
+
+  assert.equal(!!viewModel.container, false);
+  assert.equal(container.tagName, "DIV");
+  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+  assert.equal(container.parentElement, undefined);
+});
+
+QUnit.test("PopupViewModel unmountPopupContainer", (assert) => {
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data);
+
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  const container: HTMLElement = viewModel.container;
+
+  viewModel.dispose();
 
   let trace: String = "";
   model.onHide = () => {

@@ -31,7 +31,7 @@ export class Popup extends BaseVue {
   }
   destroyed() {
     this.popupContainer.$destroy();
-    this.popupViewModel.destroyPopupContainer();
+    this.popupViewModel.dispose();
   }
 }
 Vue.component("sv-popup", Popup);

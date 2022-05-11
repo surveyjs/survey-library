@@ -113,7 +113,7 @@ export function showModal(
     onCancel,
     () => {
       popup.$destroy();
-      popupViewModel.destroyPopupContainer();
+      popupViewModel.dispose();
     },
     undefined,
     cssClass,

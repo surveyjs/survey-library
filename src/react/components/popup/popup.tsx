@@ -1,5 +1,5 @@
-import React from "react";
 import ReactDOM from "react-dom";
+import React from "react";
 import { PopupModel, PopupBaseViewModel, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -15,7 +15,6 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.createPopupContainer();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -25,17 +24,22 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
-    this.popup.mountPopupContainer();
+    this.popup.initializePopupContainer();
     if(!!this.containerRef.current) {
       this.popup.targetElement = this.containerRef.current.parentElement;
     }
   }
   componentWillUnmount() {
-    this.popup.destroyPopupContainer();
+    this.popup.unmountPopupContainer();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    return nextProps.model !== this.popup.model;
+    const isNeedUpdate = nextProps.model !== this.popup.model;
+    if(isNeedUpdate) {
+      this.popup?.dispose();
+      this.popup = new PopupBaseViewModel(this.props.model);
+    }
+    return isNeedUpdate;
   }
   render() {
     this.popup.model = this.model;
@@ -201,7 +205,7 @@ export function showModal(
     onCancel,
     () => {
       ReactDOM.unmountComponentAtNode(popupViewModel.container);
-      popupViewModel.destroyPopupContainer();
+      popupViewModel.unmountPopupContainer();
     },
     undefined,
     cssClass,

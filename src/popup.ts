@@ -331,21 +331,18 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose() {
     super.dispose();
+    this.unmountPopupContainer();
+    this.container = undefined;
     this.model.onVisibilityChanged = undefined;
   }
-  public createPopupContainer() {
-    const container: HTMLElement = document.createElement("div");
-    this.container = container;
-  }
-  public mountPopupContainer() {
+  public initializePopupContainer() {
+    if (!this.container) {
+      const container: HTMLElement = document.createElement("div");
+      this.container = container;
+    }
     document.body.appendChild(this.container);
   }
-  public initializePopupContainer() {
-    this.createPopupContainer();
-    this.mountPopupContainer();
-  }
-  public destroyPopupContainer() {
+  public unmountPopupContainer() {
     this.container.remove();
-    this.container = undefined;
   }
 }

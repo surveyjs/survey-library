@@ -146,8 +146,8 @@ export class PopupUtils {
     left: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    width: number = undefined,
-    margins: number = 0
+    marginLeft: number = 0,
+    marginRight: number = 0
   ) {
     var targetPos: INumberPosition = {};
     if (horizontalPosition != "center") {
@@ -155,12 +155,15 @@ export class PopupUtils {
       targetPos.left = targetRect[horizontalPosition];
     } else if (verticalPosition != "middle") {
       targetPos.top = targetRect[verticalPosition];
-      targetPos.left = width ? left + width / 2 : targetRect.left + targetRect.width / 2;
+      targetPos.left = targetRect.left + targetRect.width / 2;
     }
     targetPos.left = Math.round(targetPos.left - left);
     targetPos.top = Math.round(targetPos.top - top);
     if (horizontalPosition == "left") {
-      targetPos.left -= margins;
+      targetPos.left -= marginLeft + marginRight;
+    }
+    if(horizontalPosition === "center") {
+      targetPos.left -= marginLeft;
     }
     return targetPos;
   }

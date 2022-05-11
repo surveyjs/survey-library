@@ -823,9 +823,11 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * Returns true when an end user may add a new panel. The question is not read only and panelCount less than maxPanelCount
+   * and renderMode is "list" or the current panel doesn't have any errors
    * @see isReadOnly
    * @see panelCount
    * @see maxPanelCount
+   * @see renderMode
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
@@ -937,6 +939,7 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
+   * If a renderMode is different from "list" and the current panel has erros, then
    * @see template
    * @see panelCount
    * @see panels
@@ -944,6 +947,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
+    if(!this.canLeaveCurrentPanel()) return null;
     const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
@@ -955,6 +959,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see template
    * @see panelCount
    * @see panels
+   * @see renderMode
    */
   public addPanel(): PanelModel {
     this.panelCount++;
@@ -992,6 +997,9 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.panels[this.panelCount - 1];
   }
+  private canLeaveCurrentPanel(): boolean {
+    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors());
+  }
   private copyValue(src: any, dest: any) {
     for (var key in dest) {
       src[key] = dest[key];
@@ -1014,12 +1022,14 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Goes to the next panel in the PanelDynamic
-   *
+   * Returns true, if it can move to the next panel. It can return false if the renderMode is "list" or the current panel has errors.
+   * @see renderMode
    */
-  public goToNextPanel() {
-    if (this.currentIndex < 0) return;
-    if (this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors()) return;
+  public goToNextPanel(): boolean {
+    if (this.currentIndex < 0) return false;
+    if (!this.canLeaveCurrentPanel()) return false;
     this.currentIndex++;
+    return true;
   }
   /**
    * Goes to the previous panel in the PanelDynamic

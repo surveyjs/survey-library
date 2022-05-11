@@ -689,9 +689,33 @@ QUnit.test("Check calculatePointer target method", (assert) => {
       10,
       10,
       "bottom",
+      "left",
+      10,
+      15
+    ),
+    { left: -15, top: 35 }, "pointer target takes into account margin"
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
       "center"
     ),
     { left: 35, top: 60 }
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
+      "center",
+      10,
+      15
+    ),
+    { left: 25, top: 60 }, "pointer target takes into account margin"
   );
   assert.deepEqual(
     PopupUtils.calculatePointerTarget(

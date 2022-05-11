@@ -154,7 +154,7 @@ To render a survey, import the `Survey` component, add it to the template, and p
 
 <script>
 // ...
-import { Survey } from 'survey-vue-ui;
+import { Survey } from 'survey-vue-ui';
 // ...
 const surveyJson = { ... };
 
@@ -188,7 +188,7 @@ If you replicate the code correctly, you should see the following survey:
 import 'survey-core/modern.min.css';
 // import 'survey-core/survey.min.css';
 import { StylesManager, Model } from 'survey-core';
-import { Survey } from 'survey-vue-ui;
+import { Survey } from 'survey-vue-ui';
 
 StylesManager.applyTheme("modern");
 
@@ -267,7 +267,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 import 'survey-core/modern.min.css';
 // import 'survey-core/survey.min.css';
 import { StylesManager, Model } from 'survey-core';
-import { Survey } from 'survey-vue-ui;
+import { Survey } from 'survey-vue-ui';
 
 StylesManager.applyTheme("modern");
 
@@ -307,7 +307,7 @@ export default {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-vue" target="_blank">View full code on GutHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-vue" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

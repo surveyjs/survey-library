@@ -1709,7 +1709,6 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
-    this.updateNavigationItemTitles();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -2081,7 +2080,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
-    this.updateNavigationItemTitles("startSurveyText");
   }
   get locStartSurveyText(): LocalizableString {
     return this.getLocalizableString("startSurveyText");
@@ -2095,7 +2093,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
-    this.updateNavigationItemTitles("pagePrevText");
   }
   get locPagePrevText(): LocalizableString {
     return this.getLocalizableString("pagePrevText");
@@ -2109,7 +2106,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
-    this.updateNavigationItemTitles("pageNextText");
   }
   get locPageNextText(): LocalizableString {
     return this.getLocalizableString("pageNextText");
@@ -2123,7 +2119,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
-    this.updateNavigationItemTitles("completeText");
   }
   get locCompleteText(): LocalizableString {
     return this.getLocalizableString("completeText");
@@ -2140,7 +2135,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
-    this.updateNavigationItemTitles("previewText");
   }
   get locPreviewText(): LocalizableString {
     return this.getLocalizableString("previewText");
@@ -2517,6 +2511,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
+    this.updateAllQuestionsValue();
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
@@ -5299,7 +5294,6 @@ export class SurveyModel extends SurveyElementCore
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
-    this.updateNavigationItemTitles(undefined);
   }
   public setJsonObject(jsonObj: any) {
     this.fromJSON(jsonObj);
@@ -5322,12 +5316,6 @@ export class SurveyModel extends SurveyElementCore
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
   }
-
-  private updateNavigationItemTitles(strName?: string) {
-    !!this.updateNavigationItemTitlesCallback && this.updateNavigationItemTitlesCallback(strName);
-  }
-
-  private updateNavigationItemTitlesCallback: (strName?: string) => void;
 
   private updateNavigationCss() {
     if(!!this.navigationBar) {
@@ -5353,15 +5341,14 @@ export class SurveyModel extends SurveyElementCore
   }
   protected createNavigationActions(): Array<IAction> {
     const defaultComponent = "sv-nav-btn";
-    const strToTitleMap: { [strName: string]: IAction } = {};
     const navStart = new Action({
       id: "sv-nav-start",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
       visibleIndex: 10,
+      locTitle: this.locStartSurveyText,
       action: () => this.start(),
       component: defaultComponent
     });
-    strToTitleMap["startSurveyText"] = navStart;
     const navPrev = new Action({
       id: "sv-nav-prev",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
@@ -5369,10 +5356,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locPagePrevText,
       action: () => this.prevPage(),
       component: defaultComponent
     });
-    strToTitleMap["pagePrevText"] = navPrev;
     const navNext = new Action({
       id: "sv-nav-next",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
@@ -5380,10 +5367,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.nextPageMouseDown(),
       },
+      locTitle: this.locPageNextText,
       action: () => this.nextPageUIClick(),
       component: defaultComponent
     });
-    strToTitleMap["pageNextText"] = navNext;
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
@@ -5391,10 +5378,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locPreviewText,
       action: () => this.showPreview(),
       component: defaultComponent
     });
-    strToTitleMap["previewText"] = navPreview;
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
@@ -5402,18 +5389,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locCompleteText,
       action: () => this.completeLastPage(),
       component: defaultComponent
     });
-    strToTitleMap["completeText"] = navComplete;
-    this.updateNavigationItemTitlesCallback = (strName?: string) => {
-      if (!strName) {
-        Object.keys(strToTitleMap).forEach((key) => strToTitleMap[key].title = this[key]);
-      } else {
-        strToTitleMap[strName].title = this[strName];
-      }
-    };
-    this.updateNavigationItemTitlesCallback();
     this.updateNavigationItemCssCallback = () => {
       navStart.innerCss = this.cssNavigationStart;
       navPrev.innerCss = this.cssNavigationPrev;

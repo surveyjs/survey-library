@@ -26,6 +26,7 @@ export { BooleanRadio } from "../vue/boolean-radio.vue";
 export { BooleanRadioItem } from "../vue/boolean-radio-item.vue";
 export { Empty } from "../vue/empty.vue";
 export { MultipleText } from "../vue/multipletext.vue";
+export { MultipleTextItem } from "../vue/multipletextitem.vue";
 export { Matrix } from "../vue/matrix.vue";
 export { Dropdown } from "../vue/dropdown.vue";
 export { DropdownSelect } from "../vue/dropdown-select.vue";

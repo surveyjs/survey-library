@@ -16,7 +16,7 @@ As a result, you will create a survey displayed below:
 </p>
 <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
 
 ## Link SurveyJS Resources
 
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", function() {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-knockout" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

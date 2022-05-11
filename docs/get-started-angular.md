@@ -16,7 +16,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">Get Started with SurveyJS - Angular</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">Get Started with SurveyJS - Angular</a>.
 
 ## Install the `survey-angular` npm Package
 
@@ -299,7 +299,7 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

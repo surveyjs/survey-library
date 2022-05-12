@@ -3043,14 +3043,14 @@ export class SurveyModel extends SurveyElementCore
     if (this.progressBarType !== "pages") {
       var info = this.getProgressInfo();
       if (this.progressBarType === "requiredQuestions") {
-        return info.requiredQuestionCount > 1
+        return info.requiredQuestionCount >= 1
           ? Math.ceil(
             (info.requiredAnsweredQuestionCount * 100) /
             info.requiredQuestionCount
           )
           : 100;
       }
-      return info.questionCount > 1
+      return info.questionCount >= 1
         ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
         : 100;
     }

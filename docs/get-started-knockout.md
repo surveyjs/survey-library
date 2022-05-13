@@ -20,7 +20,11 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes style sheets and scripts. Insert links to these resources within the `<head>` tag on your HTML page _after_ the Knockout link:
+The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
+
+![Themes in SurveyJS Library](images/survey-library-themes.png)
+
+Insert links to the scripts and style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
 
 ```html
 <head>
@@ -30,29 +34,16 @@ The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <!-- ... -->
 </head>
 ```
 
-To apply the linked theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
-
-- Modern theme      
-*"modern"*
-
-- Bootstrap theme       
-*"bootstrap"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-For instance, the following code applies the Modern theme:
+To apply the linked theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
 
 ```js
 Survey.StylesManager.applyTheme("modern");

@@ -28,26 +28,22 @@ npm install survey-react-ui --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Import one of the style sheets in the React component in which your survey will be.
+SurveyJS is shipped with two UI themes illustrated below: Modern and Default V2.
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
+![Themes in SurveyJS Library](images/survey-library-themes.png)
 
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+Open the React component in which your survey will be and import a style sheet that implements the required theme.
 
 ```js
 // Modern theme
 import 'survey-core/modern.min.css';
-// Default theme
-// import 'survey-core/survey.min.css';
+// Default V2 theme
+// import 'survey-core/defaultV2.min.css';
+```
+
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+
+```js
 import { StylesManager } from 'survey-core';
 
 StylesManager.applyTheme("modern");

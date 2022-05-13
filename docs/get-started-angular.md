@@ -28,7 +28,11 @@ npm install survey-angular --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Open the `angular.json` file and reference one of these style sheets in it:
+SurveyJS is shipped with two UI themes illustrated below: Modern and Default V2.
+
+![Themes in SurveyJS Library](images/survey-library-themes.png)
+
+Open the `angular.json` file and reference a style sheet that implements the required theme:
 
 ```js
 {
@@ -47,8 +51,8 @@ SurveyJS is shipped with several style sheets that implement different themes. O
               "src/styles.css",
               // Modern theme
               "node_modules/survey-angular/modern.min.css",
-              // Default theme
-              // "node_modules/survey-angular/survey.min.css"
+              // Default V2 theme
+              // "node_modules/survey-angular/defaultV2.min.css"
             ],
             // ...
           }
@@ -59,18 +63,7 @@ SurveyJS is shipped with several style sheets that implement different themes. O
 }
 ```
 
-To apply the referenced theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
-
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
 
 ```js
 import { Component } from '@angular/core';

@@ -194,6 +194,7 @@ function App() {
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
 
+To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 <details>
     <summary>View full code</summary>  

@@ -254,6 +254,8 @@ export class AppComponent implements OnInit {
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
 
+To view the application, run `ng serve` in a command line and open [http://localhost:4200/](http://localhost:4200/) in your browser.
+
 <details>
     <summary>View full code</summary>  
 

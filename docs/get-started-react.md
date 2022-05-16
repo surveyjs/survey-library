@@ -28,26 +28,22 @@ npm install survey-react-ui --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Import one of the style sheets in the React component in which your survey will be.
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
+![Themes in SurveyJS Library](images/survey-library-themes.png)
 
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+Open the React component in which your survey will be and import a style sheet that implements the required theme.
 
 ```js
 // Modern theme
 import 'survey-core/modern.min.css';
-// Default theme
-// import 'survey-core/survey.min.css';
+// Default V2 theme
+// import 'survey-core/defaultV2.min.css';
+```
+
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+
+```js
 import { StylesManager } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -90,7 +86,7 @@ function App() {
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -141,7 +137,7 @@ If you replicate the code correctly, you should see the following survey:
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -203,7 +199,7 @@ To view the application, run `npm run start` in a command line and open [http://
 import { useCallback } from 'react';
 
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 

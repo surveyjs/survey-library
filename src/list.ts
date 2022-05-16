@@ -29,10 +29,15 @@ export class ListModel extends ActionContainer {
     return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
   }
   private updateItemVisible(text: string) {
-    this.actions.forEach(item => {
-      item.visible = this.hasText(item, text);
+    this.actions.forEach((item: Action) => {
+      item.visibleByFilter = this.hasText(item, text);
     });
   }
+
+  public isItemVisible(item: Action) {
+    return item.visible && item.visibleByFilter;
+  }
+
   private filterByText(text: string) {
     if (!this.needFilter) return;
 

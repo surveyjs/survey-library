@@ -214,6 +214,9 @@ export class Action extends Base implements IAction {
   public get isVisible() {
     return this.visible && this.mode !== "popup";
   }
+
+  @property({ defaultValue: true }) public visibleByFilter: boolean
+
   public get canShrink() {
     return !!this.iconName;
   }

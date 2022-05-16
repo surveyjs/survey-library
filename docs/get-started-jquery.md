@@ -88,11 +88,8 @@ const survey = new Survey.Model(surveyJson);
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"> -->
-
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -159,11 +156,8 @@ If you replicate the code correctly, you should see the following survey:
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"> -->
-
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -232,11 +226,8 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"> -->
-
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>

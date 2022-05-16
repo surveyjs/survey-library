@@ -115,7 +115,7 @@ export default {
 
 <script>
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -189,7 +189,7 @@ If you replicate the code correctly, you should see the following survey:
 
 <script>
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
 
@@ -270,7 +270,7 @@ To view the application, run `npm run serve` in a command line and open [http://
 
 <script>
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
 

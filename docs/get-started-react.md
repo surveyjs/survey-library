@@ -86,7 +86,7 @@ function App() {
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -137,7 +137,7 @@ If you replicate the code correctly, you should see the following survey:
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -199,7 +199,7 @@ To view the application, run `npm run start` in a command line and open [http://
 import { useCallback } from 'react';
 
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 

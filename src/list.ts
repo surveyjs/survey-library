@@ -16,7 +16,7 @@ export class ListModel extends ActionContainer {
   @property() selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
-      target.filterByText(target.filteredText);
+      target.onFilteredTextChanged(target.filteredText);
     }
   }) filteredText: string;
 
@@ -28,27 +28,20 @@ export class ListModel extends ActionContainer {
     let textInLow = (item.title || "").toLocaleLowerCase();
     return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
   }
-  private updateItemVisible(text: string) {
-    this.actions.forEach((item: Action) => {
-      item.visibleByFilter = this.hasText(item, text);
-    });
-  }
-
   public isItemVisible(item: Action) {
-    return item.visible && item.visibleByFilter;
+    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
   }
-
-  private filterByText(text: string) {
+  private get shouldProcessFilter(): boolean {
+    return this.needFilter && !this.onFilteredTextChangedCallback;
+  }
+  private onFilteredTextChanged(text: string) {
     if (!this.needFilter) return;
-
-    if (!!this.onFilteredTextChange) {
-      this.onFilteredTextChange(text);
-    } else {
-      this.updateItemVisible(text);
+    if (!!this.onFilteredTextChangedCallback) {
+      this.onFilteredTextChangedCallback(text);
     }
   }
 
-  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChange?: (text: string) => void) {
+  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChangedCallback?: (text: string) => void) {
     super();
     this.setItems(items);
     this.selectedItem = selectedItem;

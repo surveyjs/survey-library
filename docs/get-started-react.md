@@ -28,7 +28,7 @@ npm install survey-react-ui --save
 
 ## Configure Styles
 
-SurveyJS is shipped with two UI themes illustrated below: Modern and Default V2.
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
 ![Themes in SurveyJS Library](images/survey-library-themes.png)
 

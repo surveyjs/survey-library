@@ -128,6 +128,7 @@ export class MatrixDropdownColumn extends Base
     super();
     var self = this;
     this.createLocalizableString("totalFormat", this);
+    this.createLocalizableString("hint", this);
     this.registerFunctionOnPropertyValueChanged(
       "showInMultipleColumns",
       function () {
@@ -332,6 +333,15 @@ export class MatrixDropdownColumn extends Base
   }
   get locTotalFormat(): LocalizableString {
     return this.getLocalizableString("totalFormat");
+  }
+  public get hint(): string {
+    return this.getLocalizableStringText("hint", "");
+  }
+  public set hint(val: string) {
+    this.setLocalizableStringText("hint", val);
+  }
+  get locHint(): LocalizableString {
+    return this.getLocalizableString("hint");
   }
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");
@@ -592,6 +602,7 @@ Serializer.addClass(
   [
     { name: "!name", isUnique: true },
     { name: "title", serializationProperty: "locTitle" },
+    { name: "hint", serializationProperty: "locHint", visible: false },
     {
       name: "cellType",
       default: "default",

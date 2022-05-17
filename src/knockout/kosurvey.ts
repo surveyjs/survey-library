@@ -88,17 +88,11 @@ export class SurveyImplementor extends ImplementorBase {
       this.renderedElement
     );
   }
-<<<<<<< HEAD
-  public koEventAfterRender(element: any) {
-    SvgRegistry.renderIcons();
-    this.survey.afterRenderSurvey(element);
-=======
-  public koEventAfterRender(element: any, survey: any) {
+  public koEventAfterRender(element: any, survey: Survey) {
     if(survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
     survey.afterRenderSurvey(element);
->>>>>>> origin/master
   }
   public dispose(): void {
     super.dispose();

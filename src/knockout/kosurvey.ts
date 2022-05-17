@@ -88,11 +88,11 @@ export class SurveyImplementor extends ImplementorBase {
       this.renderedElement
     );
   }
-  public koEventAfterRender(element: any, survey: Survey) {
-    if(survey["needRenderIcons"]) {
+  public koEventAfterRender() {
+    if(this.survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
-    survey.afterRenderSurvey(element);
+    this.survey.afterRenderSurvey(this.renderedElement);
   }
   public dispose(): void {
     super.dispose();
@@ -111,9 +111,11 @@ export class SurveyImplementor extends ImplementorBase {
 SurveyModel.prototype["onCreating"] = function() {
   this.implementor = new SurveyImplementor(this);
 };
+
 SurveyModel.prototype["render"] = function(element: any = null) {
   this.implementor.render(element);
 };
+
 SurveyModel.prototype["getHtmlTemplate"] = function(): string {
   return koTemplate;
 };

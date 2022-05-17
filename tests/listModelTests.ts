@@ -30,21 +30,22 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
     <IAction>{ id: "test4", title: "test4" },
     <IAction>{ id: "test5", title: "test5" },
     <IAction>{ id: "test6", title: "test6" },
-    <IAction>{ id: "test7", title: "test7" }
+    <IAction>{ id: "test7", title: "test7" },
+    <IAction>{ id: "test8", title: "test8", visible: false }
   ];
   const list = new ListModel(items, () => { }, true);
 
-  assert.equal(list.renderedActions.length, 7);
-  assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
+  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
   assert.ok(list.needFilter);
 
   list.filteredText = "test";
-  assert.equal(list.renderedActions.length, 7);
-  assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
+  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
 
   list.filteredText = "1";
-  assert.equal(list.renderedActions.length, 7);
-  assert.equal(list.renderedActions.filter(item => item.visible).length, 1);
+  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });

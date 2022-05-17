@@ -4151,12 +4151,8 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }
   private resizeObserver: ResizeObserver;
-<<<<<<< HEAD
 
   afterRenderSurvey(htmlElement: HTMLElement|Array<HTMLElement>) {
-=======
-  afterRenderSurvey(htmlElement: any) {
->>>>>>> origin/master
     this.destroyResizeObserver();
     let observedElement:HTMLElement;
 

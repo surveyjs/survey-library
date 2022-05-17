@@ -19,6 +19,7 @@ import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { ActionContainer } from "./actions/container";
 /**
  * Base class of SurveyJS Elements and Survey.
  */
@@ -287,13 +288,17 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
-      this.titleToolbarValue = new AdaptiveActionContainer();
-      if(this.survey && !!this.survey.getCss().actionBar) {
-        this.titleToolbarValue.cssClasses = this.survey.getCss().actionBar;
-      }
+      this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;
+  }
+  protected createActionContainer (allowAdaptiveActions?: boolean): ActionContainer {
+    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer(): new ActionContainer();
+    if(this.survey && !!this.survey.getCss().actionBar) {
+      actionContainer.cssClasses = this.survey.getCss().actionBar;
+    }
+    return actionContainer;
   }
   public get titleActions(): Array<any> {
     return this.getPropertyValue("titleActions");
@@ -317,17 +322,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.getTitleActions().length > 0;
   }
   public get hasTitleEvents(): boolean {
-    return this.hasTitleActions || (this.state !== undefined && this.state !== "default");
-  }
-  public getTitleComponentName(): string {
-    var componentName = RendererFactory.Instance.getRenderer(
-      "element",
-      "title-actions"
-    );
-    if (componentName == "default") {
-      return "sv-default-title";
-    }
-    return componentName;
+    return this.state !== undefined && this.state !== "default";
   }
   public get titleTabIndex(): number {
     return !this.isPage && this.state !== "default" ? 0 : undefined;
@@ -349,6 +344,17 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if(!!this.survey) {
       this.clearCssClasses();
     }
+  }
+  protected canRunConditions(): boolean {
+    return super.canRunConditions() && !!this.data;
+  }
+  public getDataFilteredValues(): any {
+    return !!this.data ? this.data.getFilteredValues() : null;
+  }
+  public getDataFilteredProperties(): any {
+    var props = !!this.data ? this.data.getFilteredProperties() : {};
+    props.question = this;
+    return props;
   }
   protected get surveyImpl() {
     return this.surveyImplValue;
@@ -380,12 +386,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if (!!this.surveyChangedCallback) {
       this.surveyChangedCallback();
     }
-  }
-  /**
-   * Returns true if the question in design mode right now.
-   */
-  public get isDesignMode(): boolean {
-    return !!this.survey && this.survey.isDesignMode;
   }
   public isContentElement: boolean = false;
   public isEditableTemplateElement: boolean = false;
@@ -766,5 +766,21 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       style["maxWidth"] = this.maxWidth;
     }
     return style;
+  }
+  public get clickTitleFunction(): any {
+    if(this.needClickTitleFunction()) {
+      return () => {
+        return this.processTitleClick();
+      };
+    }
+    return undefined;
+  }
+  protected needClickTitleFunction(): boolean {
+    return this.state !== "default";
+  }
+  protected processTitleClick() {
+    if (this.state !== "default") {
+      this.toggleState();
+    }
   }
 }

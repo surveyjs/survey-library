@@ -9,6 +9,13 @@ var platformDescriptor = {
   survey: null,
   surveyFactory: (json) => new (<any>VueModel)(json),
   render: (survey, element) => {
+    (<any>window).ResizeObserver = function () {
+      return {
+        observe: () => {},
+        disconnect: () => {},
+        unobserve: () => {},
+      };
+    };
     Vue.component("survey", SurveyVue);
     new Vue({ el: element, template: "<survey :survey='survey'/>", data: { survey: survey } });
   }
@@ -17,7 +24,13 @@ var platformDescriptor = {
 export default QUnit.module("Base");
 
 markupTests.forEach(markupTest => {
-  QUnit.test(markupTest.name, function (assert) {
-    testQuestionMarkup(assert, markupTest, platformDescriptor);
-  });
+  if(markupTest.excludePlatform === platformDescriptor.name) {
+    QUnit.skip(markupTest.name, function (assert) {
+      testQuestionMarkup(assert, markupTest, platformDescriptor);
+    });
+  } else {
+    QUnit.test(markupTest.name, function (assert) {
+      testQuestionMarkup(assert, markupTest, platformDescriptor);
+    });
+  }
 });

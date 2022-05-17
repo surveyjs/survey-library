@@ -14,7 +14,7 @@
 .sd-completedpage:after {
   display: block;
   width: calcSize(9);
-  margin-left: calc(50% - 36px);
+  margin-left: calc(50% - 4.5 * #{$base-unit});
   content: "";
 }
 

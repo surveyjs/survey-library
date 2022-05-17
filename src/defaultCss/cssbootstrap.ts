@@ -160,6 +160,7 @@ export var defaultBootstrapCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "table",

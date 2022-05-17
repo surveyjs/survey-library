@@ -88,9 +88,17 @@ export class SurveyImplementor extends ImplementorBase {
       this.renderedElement
     );
   }
+<<<<<<< HEAD
   public koEventAfterRender(element: any) {
     SvgRegistry.renderIcons();
     this.survey.afterRenderSurvey(element);
+=======
+  public koEventAfterRender(element: any, survey: any) {
+    if(survey["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    }
+    survey.afterRenderSurvey(element);
+>>>>>>> origin/master
   }
   public dispose(): void {
     super.dispose();
@@ -141,6 +149,7 @@ LocalizableString.prototype["onCreating"] = function () {
 
 ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
+  this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 
 LocalizableString.prototype["onChanged"] = function () {

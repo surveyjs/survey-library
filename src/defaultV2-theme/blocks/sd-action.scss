@@ -54,6 +54,10 @@ svg.sd-action--icon {
 }
 .sd-action__icon {
   display: block;
-  width: 24px;
-  height: 24px;
+  width: calcSize(3);
+  height: calcSize(3);
+}
+.sd-action.sd-action--pressed {
+  background-color: $background-dim;
+  opacity: 0.5;
 }

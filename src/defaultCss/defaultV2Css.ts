@@ -13,7 +13,8 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
-  navigationButton: "sd-btn",
+  navigationButton: "",
+  bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
   timerRoot: "sd-body__timer",
   navigation: {
@@ -22,7 +23,7 @@ export var defaultV2Css = {
     next: "sd-navigation__next-btn",
     start: "sd-navigation__start-btn",
     preview: "sd-navigation__preview-btn",
-    edit: "sd-navigation__edit-btn"
+    edit: "",
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",
@@ -42,7 +43,8 @@ export var defaultV2Css = {
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
-    invisible: "sd-element--invisible"
+    invisible: "sd-element--invisible",
+    navigationButton: "",
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -255,7 +257,8 @@ export var defaultV2Css = {
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
-    root: "sd-imagepicker",
+    root: "sd-selectbase sd-imagepicker",
+    rootColumn: "sd-imagepicker--column",
     item: "sd-imagepicker__item",
     itemOnError: "sd-imagepicker__item--error",
     itemInline: "sd-imagepicker__item--inline",
@@ -273,6 +276,7 @@ export var defaultV2Css = {
     itemNoImage: "sd-imagepicker__no-image",
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
     itemNoImageSvgIconId: "#icon-no-image",
+    column: "sd-selectbase__column sd-imagepicker__column",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -291,7 +295,8 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
-    cellTextDisabled: "sd-matrix__text--disabled"
+    cellTextDisabled: "sd-matrix__text--disabled",
+    cellResponsiveTitle: "sd-matrix__responsive-title"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -386,8 +391,8 @@ export var defaultV2Css = {
     chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
-    removeButton: "",
-    removeButtonBottom: "sd-context-btn sd-context-btn--negative sd-file__btn sd-file__clean-btn",
+    removeButton: "sd-context-btn sd-context-btn--negative sd-file__btn sd-file__clean-btn",
+    removeButtonBottom: "",
     removeButtonIconId: "icon-clear",
     removeFile: "sd-hidden",
     removeFileSvg: "",
@@ -450,6 +455,17 @@ export var defaultV2Css = {
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
   },
+  buttongroup: {
+    root: "sv-button-group",
+    item: "sv-button-group__item",
+    itemIcon: "sv-button-group__item-icon",
+    itemDecorator: "sv-button-group__item-decorator",
+    itemCaption: "sv-button-group__item-caption",
+    itemHover: "sv-button-group__item--hover",
+    itemSelected: "sv-button-group__item--selected",
+    itemDisabled: "sv-button-group__item--disabled",
+    itemControl: "sv-visuallyhidden",
+  },
   actionBar: {
     root: "sd-action-bar",
     item: "sd-action",
@@ -460,6 +476,7 @@ export var defaultV2Css = {
   },
   variables: {
     mobileWidth: "--sd-mobile-width",
+    imagepickerGapBetweenItems: "--sd-imagepicker-gap",
     themeMark: "--sv-defaultV2-mark"
   }
 };

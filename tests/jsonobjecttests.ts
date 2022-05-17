@@ -12,9 +12,11 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionMatrixModel } from "../src/question_matrix";
 import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
 import { englishStrings } from "../src/localization/english";
+import { SurveyModel } from "../src/survey";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2679,4 +2681,31 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
 
   Serializer.removeProperty("car", "colors");
   Serializer.removeClass("coloritemvalue");
+});
+QUnit.test("Add condition custom property", function (assert) {
+  const newProp = Serializer.addProperty("matrix", { name: "showHeaderIf:condition", category: "logic",
+    onExecuteExpression: (obj: Base, res: any) => { (<any>obj).showHeader = res === true; }
+  });
+  assert.ok(newProp.onExecuteExpression, "onExecuteExpression function is set");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        rows: [1, 2, 3],
+        columns: [1, 2, 3]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(matrix.showHeader, true, "Header is visible");
+  matrix.showHeaderIf = "{val1} = 1";
+  assert.equal(matrix.showHeader, false, "Header is invisible #1");
+  survey.setValue("val1", 2);
+  assert.equal(matrix.showHeader, false, "Header is invisible #2");
+  survey.setValue("val1", 1);
+  assert.equal(matrix.showHeader, true, "Header is visible #3");
+  survey.setValue("val1", 3);
+  assert.equal(matrix.showHeader, false, "Header is invisible #4");
+  Serializer.removeProperty("matrix", "showHeaderIf");
 });

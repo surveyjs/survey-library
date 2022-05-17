@@ -1,16 +1,22 @@
-import { property, propertyArray } from "./jsonobject";
+import { property } from "./jsonobject";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { surveyLocalization } from "./surveyStrings";
 
 export class ListModel extends ActionContainer {
+  @property({
+    defaultValue: false,
+    onSet: (newValue: boolean, target: ListModel) => {
+      target.onSet();
+    }
+  }) denySearch: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
-      target.filterByText(target.filteredText);
+      target.onFilteredTextChanged(target.filteredText);
     }
   }) filteredText: string;
 
@@ -22,29 +28,27 @@ export class ListModel extends ActionContainer {
     let textInLow = (item.title || "").toLocaleLowerCase();
     return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
   }
-  private updateItemVisible(text: string) {
-    this.actions.forEach(item => {
-      item.visible = this.hasText(item, text);
-    });
+  public isItemVisible(item: Action) {
+    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
   }
-  private filterByText(text: string) {
+  private get shouldProcessFilter(): boolean {
+    return this.needFilter && !this.onFilteredTextChangedCallback;
+  }
+  private onFilteredTextChanged(text: string) {
     if (!this.needFilter) return;
-
-    if (!!this.onFilteredTextChange) {
-      this.onFilteredTextChange(text);
-    } else {
-      this.updateItemVisible(text);
+    if (!!this.onFilteredTextChangedCallback) {
+      this.onFilteredTextChangedCallback(text);
     }
   }
 
-  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChange?: (text: string) => void) {
+  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChangedCallback?: (text: string) => void) {
     super();
     this.setItems(items);
     this.selectedItem = selectedItem;
   }
 
   protected onSet(): void {
-    this.needFilter = (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.needFilter = !this.denySearch && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 

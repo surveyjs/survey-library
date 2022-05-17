@@ -214,14 +214,14 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see max
    */
   public get isMinMaxType(): boolean {
-    return minMaxTypes.indexOf(this.inputType) > -1;
+    return isMinMaxType(this);
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (isOnValueChanged || this.canSetValueToSurvey()) return;
+    if (isOnValueChanged) return;
     if (this.isValueLessMin) {
       errors.push(
         new CustomError(
@@ -247,9 +247,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
-    if (this.isValueLessMin) return false;
-    if (this.isValueGreaterMax) return false;
-    return true;
+    const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
+    if(this.inputType === "number" && !!this.survey &&
+      (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
+      this.hasErrors();
+    }
+    return isValid;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (!value) return errorText;
@@ -384,6 +387,12 @@ const minMaxTypes = [
   "week",
 ];
 
+function isMinMaxType(obj: any): boolean {
+  const t = !!obj ? obj.inputType : "";
+  if(!t) return false;
+  return minMaxTypes.indexOf(t) > -1;
+}
+
 Serializer.addClass(
   "text",
   [
@@ -488,7 +497,7 @@ Serializer.addClass(
       name: "min",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
@@ -501,7 +510,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       nextToProperty: "*min",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
@@ -514,7 +523,7 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -522,7 +531,7 @@ Serializer.addClass(
       category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -530,7 +539,7 @@ Serializer.addClass(
       serializationProperty: "locMinErrorText",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {
@@ -538,7 +547,7 @@ Serializer.addClass(
       serializationProperty: "locMaxErrorText",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
-        return !!obj && obj.isMinMaxType;
+        return isMinMaxType(obj);
       },
     },
     {

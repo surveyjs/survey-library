@@ -7,7 +7,6 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
-- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 
@@ -17,32 +16,23 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-vue" target="_blank">Get Started with SurveyJS - Vue</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue" target="_blank">Get Started with SurveyJS - Vue</a>.
 
 ## Install the `survey-vue` npm Package
 
-The SurveyJS Library for Vue is distributed as a <a href="https://www.npmjs.com/package/survey-vue" target="_blank">survey-vue</a> npm package. Run the following command to install it:
+The SurveyJS Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-vue-ui` dependencies.
 
 ```cmd
-npm install survey-vue --save
+npm install survey-vue-ui --save
 ```
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Import one of the style sheets in the Vue component in which your survey will be.
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
+![Themes in SurveyJS Library](images/survey-library-themes.png)
 
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+Open the Vue component in which your survey will be and import a style sheet that implements the required theme.
 
 ```js
 <template>
@@ -51,10 +41,22 @@ For instance, the following code applies the Modern theme:
 
 <script>
 // Modern theme
-import 'survey-vue/modern.min.css';
-// Default theme
-// import 'survey-vue/survey.min.css';
-import { StylesManager } from 'survey-vue';
+import 'survey-core/modern.min.css';
+// Default V2 theme
+// import 'survey-core/defaultV2.min.css';
+</script>
+```
+
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+
+```js
+<template>
+  <!-- ... -->
+</template>
+
+<script>
+// ...
+import { StylesManager } from 'survey-core';
 
 StylesManager.applyTheme("modern");
 </script>
@@ -89,7 +91,7 @@ To instantiate a model, pass the model definition to the [Model](https://surveyj
 
 <script>
 // ...
-import { ..., Model } from 'survey-vue';
+import { ..., Model } from 'survey-core';
 
 export default {
   data() {
@@ -112,9 +114,9 @@ export default {
 </template>
 
 <script>
-import 'survey-vue/modern.min.css';
-// import 'survey-vue/survey.min.css';
-import { StylesManager, Model } from 'survey-vue';
+import 'survey-core/modern.min.css';
+// import 'survey-core/defaultV2.min.css';
+import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
 
@@ -155,7 +157,7 @@ To render a survey, import the `Survey` component, add it to the template, and p
 
 <script>
 // ...
-import { ..., Survey } from 'survey-vue';
+import { Survey } from 'survey-vue-ui';
 // ...
 const surveyJson = { ... };
 
@@ -186,9 +188,10 @@ If you replicate the code correctly, you should see the following survey:
 </template>
 
 <script>
-import 'survey-vue/modern.min.css';
-// import 'survey-vue/survey.min.css';
-import { Survey, StylesManager, Model } from 'survey-vue';
+import 'survey-core/modern.min.css';
+// import 'survey-core/defaultV2.min.css';
+import { StylesManager, Model } from 'survey-core';
+import { Survey } from 'survey-vue-ui';
 
 StylesManager.applyTheme("modern");
 
@@ -255,6 +258,8 @@ export default {
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
 
+To view the application, run `npm run serve` in a command line and open [http://localhost:8080/](http://localhost:8080/) in your browser.
+
 <details>
     <summary>View full code</summary>  
 
@@ -264,9 +269,10 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 </template>
 
 <script>
-import 'survey-vue/modern.min.css';
-// import 'survey-vue/survey.min.css';
-import { Survey, StylesManager, Model } from 'survey-vue';
+import 'survey-core/modern.min.css';
+// import 'survey-core/defaultV2.min.css';
+import { StylesManager, Model } from 'survey-core';
+import { Survey } from 'survey-vue-ui';
 
 StylesManager.applyTheme("modern");
 
@@ -306,7 +312,7 @@ export default {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-vue" target="_blank">View full code on GutHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

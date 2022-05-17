@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -40,7 +40,6 @@ export class Question extends SurveyElement
   private static getQuestionId(): string {
     return "sq_" + Question.questionCounter++;
   }
-  private conditionRunner: ConditionRunner = null;
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
@@ -48,13 +47,12 @@ export class Question extends SurveyElement
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
 
-  private conditionEnabelRunner: ConditionRunner;
-  private conditionRequiredRunner: ConditionRunner;
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
+  localeChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
@@ -86,7 +84,15 @@ export class Question extends SurveyElement
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;
     });
+
+    this.addExpressionProperty("visibleIf",
+      (obj: Base, res: any) => { this.visible = res === true; },
+      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+
     this.createLocalizableString("commentText", this, true, "otherItemText");
+    this.createLocalizableString("comment,Text", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -114,6 +120,9 @@ export class Question extends SurveyElement
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
+      this.onMobileChanged();
+    });
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -264,7 +273,6 @@ export class Question extends SurveyElement
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
-    this.runConditions();
   }
   /**
    * Returns true if the question is visible or survey is in design mode right now.
@@ -346,14 +354,6 @@ export class Question extends SurveyElement
     if (isLight !== true) {
       this.runConditions();
     }
-  }
-  public getDataFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : null;
-  }
-  public getDataFilteredProperties(): any {
-    var props = !!this.data ? this.data.getFilteredProperties() : {};
-    props.question = this;
-    return props;
   }
   /**
    * A parent element. It can be panel or page.
@@ -499,18 +499,16 @@ export class Question extends SurveyElement
       ? this.survey.questionDescriptionLocation
       : "underTitle";
   }
-  public get clickTitleFunction(): any {
-    if (this.hasInput) {
-      var self = this;
-      return function () {
-        if (self.isCollapsed) return;
-        setTimeout(() => {
-          self.focus();
-        }, 1);
-        return true;
-      };
-    }
-    return undefined;
+  protected needClickTitleFunction(): boolean {
+    return super.needClickTitleFunction() || this.hasInput;
+  }
+  protected processTitleClick() {
+    super.processTitleClick();
+    if(this.isCollapsed) return;
+    setTimeout(() => {
+      this.focus();
+    }, 1);
+    return true;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -569,6 +567,12 @@ export class Question extends SurveyElement
   }
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
+  }
+  public localeChanged() {
+    super.localeChanged();
+    if(!!this.localeChangedCallback) {
+      this.localeChangedCallback();
+    }
   }
   public get isCompositeQuestion(): boolean {
     return false;
@@ -723,6 +727,19 @@ export class Question extends SurveyElement
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
+  public get cssDescription(): string {
+    this.ensureElementCss();
+    return this.cssClasses.description;
+  }
+  protected setCssDescription(val: string): void {
+    this.setPropertyValue("cssDescription", "");
+  }
+  protected getCssDescription(cssClasses: any): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
+      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .toString();
+  }
   public get cssError(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssError", "");
@@ -771,6 +788,7 @@ export class Question extends SurveyElement
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
     this.setCssTitle(this.getCssTitle(cssClasses));
+    this.setCssDescription(this.getCssDescription(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
   }
   protected updateCssClasses(res: any, css: any): void {
@@ -880,7 +898,6 @@ export class Question extends SurveyElement
   }
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
-    this.runConditions();
   }
   /**
    * Set it to true, to add a comment for the question.
@@ -928,9 +945,10 @@ export class Question extends SurveyElement
    * @see readOnly
    */
   public get isReadOnly(): boolean {
-    var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
-    var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
+    const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
+    const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
+    const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
@@ -957,7 +975,6 @@ export class Question extends SurveyElement
   }
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
-    this.runConditions();
   }
   public surveyChoiceItemVisibilityChange(): void { }
   /**
@@ -972,54 +989,11 @@ export class Question extends SurveyElement
     if (this.isDesignMode) return;
     if (!properties) properties = {};
     properties["question"] = this;
-    if (!this.areInvisibleElementsShowing) {
-      this.runVisibleIfCondition(values, properties);
-    }
-    this.runEnableIfCondition(values, properties);
-    this.runRequiredIfCondition(values, properties);
+    this.runConditionCore(values, properties);
     if (!this.isValueChangedDirectly) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
       this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
-  }
-  private runVisibleIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.visibleIf) return;
-    if (!this.conditionRunner)
-      this.conditionRunner = new ConditionRunner(this.visibleIf);
-    this.conditionRunner.expression = this.visibleIf;
-    this.conditionRunner.onRunComplete = (res: boolean) => {
-      this.visible = res;
-    };
-    this.conditionRunner.run(values, properties);
-  }
-  private runEnableIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.enableIf) return;
-    if (!this.conditionEnabelRunner)
-      this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
-    this.conditionEnabelRunner.expression = this.enableIf;
-    this.conditionEnabelRunner.onRunComplete = (res: boolean) => {
-      this.readOnly = !res;
-    };
-    this.conditionEnabelRunner.run(values, properties);
-  }
-  private runRequiredIfCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.requiredIf) return;
-    if (!this.conditionRequiredRunner)
-      this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
-    this.conditionRequiredRunner.expression = this.requiredIf;
-    this.conditionRequiredRunner.onRunComplete = (res: boolean) => {
-      this.isRequired = res;
-    };
-    this.conditionRequiredRunner.run(values, properties);
   }
   /**
    * The property returns the question number. If question is invisible then it returns empty string.
@@ -1726,6 +1700,7 @@ export class Question extends SurveyElement
   }
   protected onValueChanged(): void { }
   protected setNewComment(newValue: string): void {
+    if(this.questionComment === newValue) return;
     this.questionComment = newValue;
     if (this.data != null) {
       this.data.setComment(
@@ -1846,8 +1821,13 @@ export class Question extends SurveyElement
   protected supportResponsiveness() {
     return false;
   }
-  private checkForResponsiveness(el: HTMLElement): void {
-    if(this.supportResponsiveness()) {
+
+  protected needResponsiveness() {
+    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+  }
+
+  protected checkForResponsiveness(el: HTMLElement): void {
+    if(this.needResponsiveness()) {
       if(this.isCollapsed) {
         const onStateChanged = () => {
           if(this.isExpanded) {
@@ -1862,19 +1842,42 @@ export class Question extends SurveyElement
     }
   }
   private resizeObserver: ResizeObserver;
+
+  protected getObservedElementSelector(): string {
+    return ".sd-scrollable-container";
+  }
+
+  private onMobileChanged() {
+    this.onMobileChangedCallback && this.onMobileChangedCallback();
+  }
+
+  private onMobileChangedCallback: () => void;
+
   private initResponsiveness(el: HTMLElement) {
-    if(!!el && this.isDefaultRendering() && this.isDefaultV2Theme && !this.isDesignMode) {
-      const scrollableSelector = ".sd-scrollable-container";
+    this.destroyResizeObserver();
+    if(!!el && this.isDefaultRendering()) {
+      const scrollableSelector = this.getObservedElementSelector();
       const defaultRootEl = el.querySelector(scrollableSelector);
       if(!!defaultRootEl) {
-        const requiredWidth = defaultRootEl.scrollWidth;
-        this.resizeObserver = new ResizeObserver(()=>{
-          if(!el.isConnected) { this.destroyResizeObserver(); }
-          else {
-            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, rootEl.offsetWidth);
+        let isProcessed = false;
+        let requiredWidth: number = undefined;
+        this.resizeObserver = new ResizeObserver(() => {
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          if(!requiredWidth && this.isDefaultRendering()) {
+            requiredWidth = rootEl.scrollWidth;
+          }
+          if(isProcessed || !isContainerVisible(rootEl)) {
+            isProcessed = false;
+          } else {
+            isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
           }
         });
+        this.onMobileChangedCallback = () => {
+          setTimeout(() => {
+            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }, 0);
+        };
         this.resizeObserver.observe(el);
       }
     }
@@ -1885,17 +1888,22 @@ export class Question extends SurveyElement
   protected getDesktopRenderAs(): string {
     return "default";
   }
-  protected processResponsiveness(requiredWidth: number, availableWidth: number) {
+  protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
+    availableWidth = Math.round(availableWidth);
+    const oldRenderAs = this.renderAs;
     if(requiredWidth > availableWidth) {
       this.renderAs = this.getCompactRenderAs();
     } else {
       this.renderAs = this.getDesktopRenderAs();
     }
+    return oldRenderAs !== this.renderAs;
   }
   private destroyResizeObserver() {
     if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
+      this.onMobileChangedCallback = undefined;
+      this.renderAs = this.getDesktopRenderAs();
     }
   }
   public dispose() {

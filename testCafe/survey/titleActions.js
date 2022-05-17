@@ -218,4 +218,57 @@ frameworks.forEach((framework) => {
     await setQuestionVisibility(true);
     await t.expect(getToolbarResponsivityManager()).ok();
   });
+
+  test("check description click toggle question's state", async (t) => {
+    const json = {
+      elements: [
+        {
+          type: "text",
+          title: "q1_title",
+          description: "q1_description",
+          name: "q1",
+          state: "expanded",
+        },
+      ],
+    };
+
+    await initSurvey(framework, json);
+    const getQuestionState = ClientFunction(() => {
+      return window.survey.getAllQuestions()[0].state;
+    });
+    const descriptionSelector = Selector("span").withText("q1_description");
+    await t.click(descriptionSelector)
+      .expect(getQuestionState()).eql("collapsed")
+      .click(descriptionSelector)
+      .expect(getQuestionState()).eql("expanded");
+  });
+
+  test("check description click toggle panel's state", async (t) => {
+    var json = {
+      elements: [
+        {
+          type: "panel",
+          name: "p1",
+          title: "p1_title",
+          description: "p1_description",
+          state: "expanded",
+          elements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    const getQuestionState = ClientFunction(() => {
+      return window.survey.getAllPanels()[0].state;
+    });
+    const descriptionSelector = Selector("span").withText("p1_description");
+    await t.click(descriptionSelector)
+      .expect(getQuestionState()).eql("collapsed")
+      .click(descriptionSelector)
+      .expect(getQuestionState()).eql("expanded");
+  });
 });

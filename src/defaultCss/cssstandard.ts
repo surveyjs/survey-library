@@ -173,6 +173,7 @@ export var defaultStandardCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",
@@ -279,6 +280,7 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
+    column: "sv_q_select_column"
   },
   rating: {
     root: "sv_q_rating",

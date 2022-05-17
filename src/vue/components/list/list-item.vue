@@ -1,7 +1,7 @@
 <template>
   <li
     tabindex="0"
-    v-show="item.visible"
+    v-show="model.isItemVisible(item)"
     :style="{ paddingLeft: model.getItemIndent(item) }"
     :key="item.id"
     v-bind:class="model.getItemClass(item)"

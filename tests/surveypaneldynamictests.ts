@@ -2435,6 +2435,45 @@ QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
     "defaultValueFromLastRow is merging with defaultPanelValue"
   );
 });
+QUnit.test("defaultValueFromLastPanel property && hasOther", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "root",
+        panelCount: 1,
+        templateElements: [
+          { type: "paneldynamic", name: "question",
+            defaultValueFromLastPanel: true,
+            panelCount: 0,
+            templateElements: [
+              { type: "dropdown", name: "q1", choices: [1, 2, 3], hasOther: true },
+              { type: "dropdown", name: "q2", choices: [1, 2, 3], hasOther: true }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("root");
+  const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
+  const panel1 = question.addPanel();
+  panel1.getQuestionByName("q1").value = "other";
+  panel1.getQuestionByName("q1").comment = "comment1";
+  panel1.getQuestionByName("q2").value = "other";
+  panel1.getQuestionByName("q2").comment = "comment2";
+  let counter = 0;
+  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  question.addPanel();
+  question.addPanel();
+  question.addPanel();
+  question.addPanel();
+  const panel6 = question.addPanel();
+  assert.equal(panel6.getQuestionByName("q1").value, "other", "Value set");
+  assert.equal(panel6.getQuestionByName("q1").comment, "comment1", "Comment set");
+  assert.equal(counter, 5 * 2, "Call updates 10 times");
+});
+
 QUnit.test("Generates error on clearIncorrectValue()", function(assert) {
   var survey = new SurveyModel({
     elements: [
@@ -2843,7 +2882,7 @@ QUnit.test("goToNextPanel method", function(assert) {
   };
 
   var survey = new SurveyModel(json);
-  var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
 
   panelDynamic.goToNextPanel();
@@ -2859,6 +2898,50 @@ QUnit.test("goToNextPanel method", function(assert) {
 
   panelDynamic.goToNextPanel();
   assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+});
+
+QUnit.test("do not add new panel for list", function(assert) {
+  const json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "pd",
+        renderMode: "progressTop",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            isRequired: true,
+            choices: ["a", "b"],
+          },
+        ],
+      },
+    ],
+  };
+
+  let survey = new SurveyModel(json);
+  let panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
+  assert.equal(panelDynamic.panelCount, 1, "There is one panel");
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
+  assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
+  assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
+  assert.equal(panelDynamic.currentPanel.hasErrors(), true);
+
+  survey.data = { pd: [{ q1: "a" }] };
+  assert.equal(panelDynamic.currentPanel.hasErrors(), false);
+
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+  assert.equal(panelDynamic.panelCount, 2, "There are two panels");
+
+  survey = new SurveyModel(json);
+  panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  panelDynamic.renderMode = "list";
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
 });
 
 QUnit.test("goToPrevPanel method", function(assert) {
@@ -4230,6 +4313,35 @@ QUnit.test("Bindings to panelCount performance issue", function(assert) {
   assert.equal(counter, 1 + 4 * 2, "4 questions has been created");
   FunctionFactory.Instance.unregister("calcCount");
 });
+QUnit.test("Bindings to panelCount performance issue", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1" },
+          {
+            type: "matrixdynamic",
+            name: "q2",
+            bindings: {
+              "rowCount": "q1"
+            },
+            columns: [
+              { name: "col1" }
+            ]
+          }
+        ],
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.panels[0].questions[0].value = 3;
+  panel.panels[1].questions[0].value = 5;
+  assert.equal(panel.panels[0].questions[1].rowCount, 3, "matrix in first panel binds correctly");
+  assert.equal(panel.panels[1].questions[1].rowCount, 5, "matrix in second panel binds correctly");
+});
 QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleIndex/no", function(assert) {
   const survey = new SurveyModel({
     elements: [
@@ -4370,4 +4482,25 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   panel.renderMode = "progressTop";
   panel.isMobile = true;
   assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
+});
+QUnit.test("call locationChangedCallback for cell question", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+      }
+    ] });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  let counter = 0;
+  panel.panels[1].questions[0].localeChangedCallback = () => { counter ++; };
+  survey.locale = "de";
+  survey.locale = "";
+  assert.equal(counter, 2, "locationChangedCallback called");
 });

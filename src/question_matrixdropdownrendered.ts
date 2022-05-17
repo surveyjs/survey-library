@@ -12,6 +12,7 @@ import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { settings } from "./settings";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -490,7 +491,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private get showRemoveButtonAsIcon() {
     return (
-      this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
+      settings.matrixRenderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
     );
   }
   protected setDefaultRowActions(

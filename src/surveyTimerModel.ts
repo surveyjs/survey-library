@@ -54,7 +54,4 @@ export class SurveyTimerModel extends Base {
   private updateText(): void {
     this.text = (<ISurveyTimerText><any>this.survey).timerInfoText;
   }
-  private get isDesignMode(): boolean {
-    return this.survey && this.survey.isDesignMode;
-  }
 }

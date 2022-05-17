@@ -7,7 +7,6 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
-- [Further Reading](#further-reading)
 
 As a result, you will create a survey displayed below:
 
@@ -17,7 +16,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">Get Started with SurveyJS - Angular</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">Get Started with SurveyJS - Angular</a>.
 
 ## Install the `survey-angular` npm Package
 
@@ -29,7 +28,11 @@ npm install survey-angular --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Open the `angular.json` file and reference one of these style sheets in it:
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+
+![Themes in SurveyJS Library](images/survey-library-themes.png)
+
+Open the `angular.json` file and reference a style sheet that implements the required theme:
 
 ```js
 {
@@ -48,8 +51,8 @@ SurveyJS is shipped with several style sheets that implement different themes. O
               "src/styles.css",
               // Modern theme
               "node_modules/survey-angular/modern.min.css",
-              // Default theme
-              // "node_modules/survey-angular/survey.min.css"
+              // Default V2 theme
+              // "node_modules/survey-angular/defaultV2.min.css"
             ],
             // ...
           }
@@ -60,18 +63,7 @@ SurveyJS is shipped with several style sheets that implement different themes. O
 }
 ```
 
-To apply the referenced theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
-
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
 
 ```js
 import { Component } from '@angular/core';
@@ -255,6 +247,8 @@ export class AppComponent implements OnInit {
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
 
+To view the application, run `ng serve` in a command line and open [http://localhost:4200/](http://localhost:4200/) in your browser.
+
 <details>
     <summary>View full code</summary>  
 
@@ -300,7 +294,7 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.root">
+  <div :class="question.cssClasses.root" v-on:keydown="question.onKeyDownCore($event)">
     <label :class="question.getItemCss()">
       <input
         type="checkbox"

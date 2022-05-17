@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isMobile, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -998,10 +998,11 @@ export class SurveyModel extends SurveyElementCore
     if (typeof document !== "undefined") {
       SurveyModel.stylesManager = new StylesManager();
     }
+    const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
+    this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
+    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
+    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
     this.createLocalizableString("logo", this, false);
-    this.createLocalizableString("completedHtml", this);
-    this.createLocalizableString("completedBeforeHtml", this);
-    this.createLocalizableString("loadingHtml", this);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -1069,6 +1070,9 @@ export class SurveyModel extends SurveyElementCore
     this.onTextMarkdown.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
+    this.onProcessHtml.onCallbacksChanged = () => {
+      this.locStrsChanged();
+    };
     this.onGetQuestionTitle.onCallbacksChanged = () => {
       this.locStrsChanged();
     };
@@ -1104,7 +1108,9 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
   }
-
+  private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
+    this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
+  }
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
    * @see JsonError
@@ -1184,13 +1190,13 @@ export class SurveyModel extends SurveyElementCore
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.complete
     );
   }
   public get cssNavigationPreview() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.preview
     );
   }
@@ -1202,21 +1208,24 @@ export class SurveyModel extends SurveyElementCore
   }
   public get cssNavigationPrev() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.prev
     );
   }
   public get cssNavigationStart() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.start
     );
   }
   public get cssNavigationNext() {
     return this.getNavigationCss(
-      this.css.navigationButton,
+      this.cssSurveyNavigationButton,
       this.css.navigation.next
     );
+  }
+  private get cssSurveyNavigationButton(): string {
+    return new CssClassBuilder().append(this.css.navigationButton).append(this.css.bodyNavigationButton).toString();
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
@@ -1700,7 +1709,6 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson) return;
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
-    this.updateNavigationItemTitles();
     this.onLocaleChangedEvent.fire(this, value);
   }
   /**
@@ -1920,14 +1928,14 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private get isMobile() {
-    return isMobile() || this._isMobile;
+    return this._isMobile;
   }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
   public get titleMaxWidth(): string {
     if (
-      !this.isMobile &&
+      !(isMobile() || this.isMobile) &&
       !this.isValueEmpty(this.isLogoImageChoosen()) &&
       !settings.supportCreatorV2
     ) {
@@ -2038,6 +2046,13 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
+  /**
+   * Default value for loadingHtml property
+   * @see loadingHtml
+   */
+  public get defaultLoadingHtml(): string {
+    return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
+  }
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
   }
@@ -2050,7 +2065,7 @@ export class SurveyModel extends SurveyElementCore
       val.component = "sv-nav-btn";
     }
     if (!val.innerCss) {
-      val.innerCss = this.css.navigationButton;
+      val.innerCss = this.cssSurveyNavigationButton;
     }
     return this.navigationBar.addAction(val);
   }
@@ -2065,7 +2080,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set startSurveyText(newValue: string) {
     this.setLocalizableStringText("startSurveyText", newValue);
-    this.updateNavigationItemTitles("startSurveyText");
   }
   get locStartSurveyText(): LocalizableString {
     return this.getLocalizableString("startSurveyText");
@@ -2079,7 +2093,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pagePrevText(newValue: string) {
     this.setLocalizableStringText("pagePrevText", newValue);
-    this.updateNavigationItemTitles("pagePrevText");
   }
   get locPagePrevText(): LocalizableString {
     return this.getLocalizableString("pagePrevText");
@@ -2093,7 +2106,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set pageNextText(newValue: string) {
     this.setLocalizableStringText("pageNextText", newValue);
-    this.updateNavigationItemTitles("pageNextText");
   }
   get locPageNextText(): LocalizableString {
     return this.getLocalizableString("pageNextText");
@@ -2107,7 +2119,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set completeText(newValue: string) {
     this.setLocalizableStringText("completeText", newValue);
-    this.updateNavigationItemTitles("completeText");
   }
   get locCompleteText(): LocalizableString {
     return this.getLocalizableString("completeText");
@@ -2124,7 +2135,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set previewText(newValue: string) {
     this.setLocalizableStringText("previewText", newValue);
-    this.updateNavigationItemTitles("previewText");
   }
   get locPreviewText(): LocalizableString {
     return this.getLocalizableString("previewText");
@@ -2501,6 +2511,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
+    this.updateAllQuestionsValue();
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
@@ -3032,14 +3043,14 @@ export class SurveyModel extends SurveyElementCore
     if (this.progressBarType !== "pages") {
       var info = this.getProgressInfo();
       if (this.progressBarType === "requiredQuestions") {
-        return info.requiredQuestionCount > 1
+        return info.requiredQuestionCount >= 1
           ? Math.ceil(
             (info.requiredAnsweredQuestionCount * 100) /
             info.requiredQuestionCount
           )
           : 100;
       }
-      return info.questionCount > 1
+      return info.questionCount >= 1
         ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
         : 100;
     }
@@ -3537,10 +3548,13 @@ export class SurveyModel extends SurveyElementCore
     this.resetNavigationButton();
     if (this.hasErrorsOnNavigate(true)) return false;
     if (this.doServerValidation(true, true)) return false;
+    this.showPreviewCore();
+    return true;
+  }
+  private showPreviewCore(): void {
     var options = { allowShowPreview: true };
     this.onShowingPreview.fire(this, options);
     this.isShowingPreview = options.allowShowPreview;
-    return true;
   }
   /**
    * Cancels preview and switches back to the "running" state.
@@ -3747,7 +3761,7 @@ export class SurveyModel extends SurveyElementCore
 
         var page = <PageModel>Serializer.createClass(originalPage.getType());
         page.fromJSON(pageJson);
-        page.name = "page" + (res.length + 1);
+        page.name = originalElement.name;
         page.setSurveyImpl(this);
         res.push(page);
         var json = new JsonObject().toJsonObject(originalElement);
@@ -4002,7 +4016,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!hasErrors) {
       if (isPreview) {
-        this.isShowingPreview = true;
+        this.showPreviewCore();
       } else {
         if (self.isLastPage) self.doComplete();
         else self.doNextPage();
@@ -4034,10 +4048,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
-    if (html) {
-      return this.processHtml(html);
-    }
-    return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
+    return !!html ? this.processHtml(html) : "";
   }
   /**
    * Returns the HTML content, that is shown to a user that had completed the survey before.
@@ -4045,19 +4056,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    if (this.completedBeforeHtml) {
-      return this.processHtml(this.completedBeforeHtml);
-    }
-    return "<h3>" + this.getLocString("completingSurveyBefore") + "</h3>";
+    return this.processHtml(this.completedBeforeHtml);
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    if (this.loadingHtml) {
-      return this.processHtml(this.loadingHtml);
-    }
-    return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
+    return this.processHtml(this.loadingHtml);
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
@@ -4146,8 +4151,12 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
   }
   private resizeObserver: ResizeObserver;
+<<<<<<< HEAD
 
   afterRenderSurvey(htmlElement: HTMLElement|Array<HTMLElement>) {
+=======
+  afterRenderSurvey(htmlElement: any) {
+>>>>>>> origin/master
     this.destroyResizeObserver();
     let observedElement:HTMLElement;
 
@@ -4160,9 +4169,13 @@ export class SurveyModel extends SurveyElementCore
     if (!!cssVariables) {
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
+        let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
-          if (!observedElement.isConnected) { this.destroyResizeObserver(); }
-          else { this.processResponsiveness(observedElement.offsetWidth, mobileWidth); }
+          if(isProcessed || !isContainerVisible(observedElement)) {
+            isProcessed = false;
+          } else {
+            isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
+          }
         });
         this.resizeObserver.observe(observedElement);
       }
@@ -4172,9 +4185,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
-  private processResponsiveness(width: number, mobileWidth: number) {
+  private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
-    this.setIsMobile(isMobile);
+    if(this.isMobile === isMobile) {
+      return false;
+    } else {
+      this.setIsMobile(isMobile);
+      return true;
+    }
   }
   private destroyResizeObserver() {
     if (!!this.resizeObserver) {
@@ -4343,6 +4361,9 @@ export class SurveyModel extends SurveyElementCore
   }
   get isValidateOnValueChanging(): boolean {
     return this.checkErrorsMode === "onValueChanging";
+  }
+  get isValidateOnValueChanged(): boolean {
+    return this.checkErrorsMode === "onValueChanged";
   }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
@@ -5280,6 +5301,7 @@ export class SurveyModel extends SurveyElementCore
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
+    this.onStateAndCurrentPageChanged();
   }
   public setJsonObject(jsonObj: any) {
     this.fromJSON(jsonObj);
@@ -5302,12 +5324,6 @@ export class SurveyModel extends SurveyElementCore
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
   }
-
-  private updateNavigationItemTitles(strName?: string) {
-    !!this.updateNavigationItemTitlesCallback && this.updateNavigationItemTitlesCallback(strName);
-  }
-
-  private updateNavigationItemTitlesCallback: (strName?: string) => void;
 
   private updateNavigationCss() {
     if(!!this.navigationBar) {
@@ -5333,15 +5349,14 @@ export class SurveyModel extends SurveyElementCore
   }
   protected createNavigationActions(): Array<IAction> {
     const defaultComponent = "sv-nav-btn";
-    const strToTitleMap: { [strName: string]: IAction } = {};
     const navStart = new Action({
       id: "sv-nav-start",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowStartingPage),
       visibleIndex: 10,
+      locTitle: this.locStartSurveyText,
       action: () => this.start(),
       component: defaultComponent
     });
-    strToTitleMap["startSurveyText"] = navStart;
     const navPrev = new Action({
       id: "sv-nav-prev",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
@@ -5349,10 +5364,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locPagePrevText,
       action: () => this.prevPage(),
       component: defaultComponent
     });
-    strToTitleMap["pagePrevText"] = navPrev;
     const navNext = new Action({
       id: "sv-nav-next",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
@@ -5360,10 +5375,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.nextPageMouseDown(),
       },
+      locTitle: this.locPageNextText,
       action: () => this.nextPageUIClick(),
       component: defaultComponent
     });
-    strToTitleMap["pageNextText"] = navNext;
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
@@ -5371,10 +5386,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locPreviewText,
       action: () => this.showPreview(),
       component: defaultComponent
     });
-    strToTitleMap["previewText"] = navPreview;
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
@@ -5382,18 +5397,10 @@ export class SurveyModel extends SurveyElementCore
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
+      locTitle: this.locCompleteText,
       action: () => this.completeLastPage(),
       component: defaultComponent
     });
-    strToTitleMap["completeText"] = navComplete;
-    this.updateNavigationItemTitlesCallback = (strName?: string) => {
-      if (!strName) {
-        Object.keys(strToTitleMap).forEach((key) => strToTitleMap[key].title = this[key]);
-      } else {
-        strToTitleMap[strName].title = this[strName];
-      }
-    };
-    this.updateNavigationItemTitlesCallback();
     this.updateNavigationItemCssCallback = () => {
       navStart.innerCss = this.cssNavigationStart;
       navPrev.innerCss = this.cssNavigationPrev;
@@ -6396,6 +6403,8 @@ export class SurveyModel extends SurveyElementCore
   public stopMovingQuestion(): void {
     this.isMovingQuestion = false;
   }
+  private needRenderIcons = true;
+
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.

@@ -5,7 +5,6 @@ import {
   SurveyError,
   Question,
   QuestionMatrixDropdownRenderedCell,
-  doKey2ClickUp,
   TooltipManager,
   SurveyModel
 } from "survey-core";
@@ -14,7 +13,7 @@ import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
-import { TitleElement } from "./components/title/title-element";
+import { SurveyElementHeader } from "./element-header";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -122,7 +121,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         ? this.renderErrors(cssClasses, "tooltip")
         : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
-      ? this.renderDescription(cssClasses, true)
+      ? this.renderDescription()
       : null;
     return (
       <div
@@ -196,17 +195,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderQuestion(): JSX.Element {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
-  protected renderDescription(
-    cssClasses: any,
-    isUnderInput: boolean = false
-  ): JSX.Element {
+  protected renderDescription(): JSX.Element {
     var descriptionText = SurveyElementBase.renderLocString(
       this.question.locDescription
     );
-    var className = isUnderInput
-      ? cssClasses.descriptionUnderInput
-      : cssClasses.description;
-    return <div className={className}>{descriptionText}</div>;
+    return <div className={this.question.cssDescription}>{descriptionText}</div>;
   }
   protected renderComment(cssClasses: any): JSX.Element {
     var commentText = SurveyElementBase.renderLocString(
@@ -225,19 +218,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     );
   }
   protected renderHeader(question: Question): JSX.Element {
-    var cssClasses = question.cssClasses;
-    var title = question.hasTitle ? (
-      <TitleElement element={question}></TitleElement>
-    ) : null;
-    var description = question.hasDescriptionUnderTitle
-      ? this.renderDescription(cssClasses)
-      : null;
-    return (
-      <div className={question.cssHeader} onClick={question.clickTitleFunction}>
-        {title}
-        {description}
-      </div>
-    );
+    return <SurveyElementHeader element={question}></SurveyElementHeader>;
   }
   protected renderErrors(cssClasses: any, location: string): JSX.Element {
     return (

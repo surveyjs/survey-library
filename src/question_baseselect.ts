@@ -1171,11 +1171,14 @@ export class QuestionSelectBase extends Question {
     }
     return options.css;
   }
+  protected getCurrentColCount(): number {
+    return this.colCount;
+  }
   protected getItemClassCore(item: any, options: any): string {
     const builder = new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
-      .append("sv-q-col-" + this.colCount, !this.hasColumns && this.colCount !== 0)
+      .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
       .append(this.cssClasses.itemOnError, this.errors.length > 0);
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
@@ -1222,7 +1225,7 @@ export class QuestionSelectBase extends Question {
   }
   get columns() {
     var columns = [];
-    var colCount = this.colCount;
+    var colCount = this.getCurrentColCount();
     if (this.hasColumns && this.visibleChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isDesignMode) ?
         this.visibleChoices :
@@ -1260,7 +1263,7 @@ export class QuestionSelectBase extends Question {
     return columns;
   }
   get hasColumns() {
-    return !this.isMobile && this.colCount > 1;
+    return !this.isMobile && this.getCurrentColCount() > 1;
   }
   public choicesLoaded(): void {
     this.isChoicesLoaded = true;
@@ -1318,7 +1321,7 @@ export class QuestionSelectBase extends Question {
   public getItemEnabled(item: ItemValue) {
     return !this.isInputReadOnly && item.isEnabled;
   }
-  private rootElement: HTMLElement;
+  protected rootElement: HTMLElement;
   public afterRender(el: HTMLElement) {
     super.afterRender(el);
     this.rootElement = el;

@@ -18,9 +18,9 @@ const targetRect = {
 
 //TODO: disable setTimeout when testing
 const toggleVisibility = PopupModel.prototype.toggleVisibility;
-PopupModel.prototype.toggleVisibility = function() {
+PopupModel.prototype.toggleVisibility = function () {
   var prevSetTimeout = window.setTimeout;
-  (<any>window).setTimeout = function(callback: any) {
+  (<any>window).setTimeout = function (callback: any) {
     callback();
   };
   toggleVisibility.apply(this, arguments);
@@ -112,28 +112,19 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.cssClass = "my-css-class";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--left"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
 
   viewModel.popupDirection = "down";
-  assert.equal(
-    viewModel.styleClass,
-    "my-css-class sv-popup--show-pointer sv-popup--down"
-  );
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown sv-popup--show-pointer sv-popup--down");
 
   model.showPointer = false;
-  assert.equal(viewModel.styleClass, "my-css-class");
+  assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -418,7 +409,6 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   const container: HTMLElement = viewModel.container;
 
   viewModel.dispose();
-  viewModel.destroyPopupContainer();
 
   let trace: String = "";
   model.onHide = () => {
@@ -436,6 +426,27 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   assert.equal(container.tagName, "DIV");
   assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement, undefined);
+});
+
+QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data);
+
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+
+  assert.equal(!!viewModel.container, false);
+  viewModel.initializePopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.unmountPopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.dispose();
+  assert.equal(!!viewModel.container, false);
 });
 
 QUnit.test("Check calculatePosition method", (assert) => {
@@ -665,9 +676,33 @@ QUnit.test("Check calculatePointer target method", (assert) => {
       10,
       10,
       "bottom",
+      "left",
+      10,
+      15
+    ),
+    { left: -15, top: 35 }, "pointer target takes into account margin"
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
       "center"
     ),
     { left: 35, top: 60 }
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
+      "center",
+      10,
+      15
+    ),
+    { left: 25, top: 60 }, "pointer target takes into account margin"
   );
   assert.deepEqual(
     PopupUtils.calculatePointerTarget(
@@ -840,13 +875,12 @@ QUnit.test(
     assert.equal(newVerticalDimensions.top, 0);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
 
     newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
-    assert.equal(newVerticalDimensions.height, 150);
+    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
     assert.equal(newVerticalDimensions.top, 150);
-
   }
 );
 
@@ -890,7 +924,7 @@ QUnit.test("PopupModel displayMode", (assert) => {
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
-  assert.equal(viewModel.styleClass, "sv-popup--show-pointer sv-popup--left");
+  assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
   model.isModal = true;
   assert.equal(viewModel.showFooter, true);
   assert.equal(viewModel.styleClass, "sv-popup--modal");

@@ -27,9 +27,10 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     if (!this.item) {
       return null;
     }
+    const isVisible = this.model.isItemVisible(this.item);
     const style = {
       paddingLeft: this.model.getItemIndent(this.item),
-      display: this.item.visible === undefined || this.item.visible ? null : "none",
+      display: isVisible ? null : "none",
     };
     const className = this.model.getItemClass(this.item);
     const content = [];

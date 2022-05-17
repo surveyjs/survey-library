@@ -105,7 +105,9 @@ export class Survey extends BaseVue {
 
   constructor() {
     super();
-    SvgRegistry.renderIcons();
+    if(this.vueSurvey["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    } 
   }
   protected getModel(): Base {
     return this.vueSurvey;

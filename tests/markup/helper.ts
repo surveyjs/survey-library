@@ -112,12 +112,11 @@ export function testQuestionMarkup(assert, test, platform) {
     }
     sortAttributes(all);
     var str = options.htmlElement.children[0].innerHTML;
-
+    str = clearVueDiv(str);
     var re = /(<!--.*?-->)/g;
     var newstr = str.replace(re, "");
     newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
     newstr = newstr.replace(/(> +<)/g, "><").trim();
-
     var oldStr = test.etalon || !test.etalon && require("./snapshots/"+test.snapshot+".snap.html");
     oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
     oldStr = oldStr.replace(/(> +<)/g, "><").trim();
@@ -189,4 +188,24 @@ export function testQuestionMarkup(assert, test, platform) {
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
+}
+
+function clearVueDiv(innerHtml: string): string {
+  const container = document.createElement("div");
+  container.innerHTML = innerHtml;
+  container.querySelectorAll(".sv-vue-title-additional-div").forEach(el => {
+    removeVueAdditionalDiv(<HTMLElement>el);
+  });
+  return container.innerHTML;
+}
+
+function removeVueAdditionalDiv(el: HTMLElement) {
+  const parentEl = el.parentElement;
+  let nextSibling:any = el.nextSibling;
+  el.remove();
+  while (el.children.length > 0) {
+    const childEl = el.children[el.children.length - 1];
+    parentEl.insertBefore(el.children[el.children.length - 1], nextSibling);
+    nextSibling = childEl;
+  }
 }

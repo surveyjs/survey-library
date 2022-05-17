@@ -431,6 +431,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       ? this.contentQuestion.value
       : newValue;
   }
+  protected canSetValueToSurvey(): boolean {
+    return false;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (

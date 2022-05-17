@@ -139,8 +139,9 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
   public updateVisible() {
-    this.visible = this.calcVisible();
+    const isVisible = this.calcVisible();
     this.setWidth();
+    this.visible = isVisible;
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -276,6 +277,13 @@ export class PanelModelBase extends SurveyElement
       this.onRemoveElement.bind(this)
     );
     this.id = PanelModelBase.getPanelId();
+
+    this.addExpressionProperty("visibleIf",
+      (obj: Base, res: any) => { this.visible = res === true; },
+      (obj: Base) => { return !this.areInvisibleElementsShowing; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
       this.onVisibleChanged.bind(this);
@@ -1364,44 +1372,7 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < elements.length; i++) {
       elements[i].runCondition(values, properties);
     }
-    if (!this.areInvisibleElementsShowing) {
-      this.runVisibleCondition(values, properties);
-    }
-    this.runEnableCondition(values, properties);
-    this.runRequiredCondition(values, properties);
-  }
-  private runVisibleCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.visibleIf) return;
-    var conditionRunner = new ConditionRunner(this.visibleIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.visible = res;
-    };
-    conditionRunner.run(values, properties);
-  }
-  private runEnableCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.enableIf) return;
-    var conditionRunner = new ConditionRunner(this.enableIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.readOnly = !res;
-    };
-    conditionRunner.run(values, properties);
-  }
-  private runRequiredCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
-    if (!this.requiredIf) return;
-    var conditionRunner = new ConditionRunner(this.requiredIf);
-    conditionRunner.onRunComplete = (res: boolean) => {
-      this.isRequired = res;
-    };
-    conditionRunner.run(values, properties);
+    this.runConditionCore(values, properties);
   }
   onAnyValueChanged(name: string) {
     var els = this.elements;
@@ -1604,6 +1575,16 @@ export class PanelModelBase extends SurveyElement
     });
 
     return result;
+  }
+
+  public get hasDescriptionUnderTitle(): boolean {
+    return this.hasDescription;
+  }
+  public get cssHeader(): string {
+    return this.cssClasses.panel.header;
+  }
+  public get cssDescription(): string {
+    return this.cssClasses.panel.description;
   }
 
   //ITitleOwner
@@ -1862,7 +1843,7 @@ export class PanelModel extends PanelModelBase implements IElement {
           action: () => { this.cancelPreview(); }
         });
       }
-      this.footerToolbarValue = this.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
       if (!!this.cssClasses.panel) {
         this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
       }

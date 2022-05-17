@@ -1,7 +1,7 @@
 <div data-bind="css: question.koCss().selectWrapper">
   <!-- ko ifnot: question.isReadOnly -->
   <select
-  data-bind="options: question.visibleChoices, optionsValue: 'value', optionsText: 'text', optionsCaption: question.showOptionsCaption ? question.locOptionsCaption.koRenderedHtml : undefined, optionsAfterRender: question.koDisableOption, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
+  data-bind="options: question.visibleChoices, optionsValue: 'value', optionsText: 'koText', optionsCaption: question.showOptionsCaption ? question.locOptionsCaption.koRenderedHtml : undefined, optionsAfterRender: question.koDisableOption, attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, disable: question.isInputReadOnly, value: question.renderedValue, valueAllowUnset: true, css: question.getControlClass()">
   </select>
 <!-- /ko -->
   <!-- ko if: question.isReadOnly -->

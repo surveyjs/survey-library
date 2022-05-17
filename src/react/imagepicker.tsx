@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImagePickerModel } from "survey-core";
-import { ItemValue, SurveyModel } from "survey-core";
+import { ImageItemValue, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
@@ -15,20 +15,38 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
-      <fieldset className={cssClasses.root}>
+      <fieldset className={this.question.getSelectBaseRootCss()}>
         <legend
           role="radio"
           aria-label={this.question.locTitle.renderedHtml} />
-        {this.getItems(cssClasses)}
+        {this.question.hasColumns ? this.getColumns(cssClasses) : this.getItems(cssClasses)}
       </fieldset>
     );
   }
+
+  protected getColumns(cssClasses: any) {
+    return this.question.columns.map((column: any, ci: number) => {
+      var items = column.map((item: any, ii: number) =>
+        this.renderItem(
+          "item" + ii,
+          item,
+          cssClasses
+        )
+      );
+      return (
+        <div key={"column" + ci} className={this.question.getColumnClass()} role="presentation">
+          {items}
+        </div>
+      );
+    });
+  }
+
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = this.question.name + "-" + item.value;
-      items.push(this.renderItem(key, item, cssClasses));
+      items.push(this.renderItem(key, item as ImageItemValue, cssClasses));
     }
     return items;
   }
@@ -37,7 +55,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
   protected renderItem(
     key: string,
-    item: ItemValue,
+    item: ImageItemValue,
     cssClasses: any
   ): JSX.Element {
     const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
@@ -130,6 +148,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           height={ this.question.renderedImageHeight }
           alt={item.locText.renderedHtml}
           style={style}
+          onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         />
       );
     }
@@ -141,6 +160,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           style={style}
+          onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
         ></video>
       );
     }

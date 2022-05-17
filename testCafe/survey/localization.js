@@ -1,30 +1,25 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction, fixture, test } from "testcafe";
+import { ClientFunction, fixture, test, Selector } from "testcafe";
 const title = "localization";
 
 const setRu = ClientFunction(() => {
   window["survey"].locale = "ru";
-  window["survey"].render();
 });
 
 const setEn = ClientFunction(() => {
   window["survey"].locale = "en";
-  window["survey"].render();
 });
 
 const setDe = ClientFunction(() => {
   window["survey"].locale = "de";
-  window["survey"].render();
 });
 
 const setFi = ClientFunction(() => {
   window["survey"].locale = "fi";
-  window["survey"].render();
 });
 
 const setFr = ClientFunction(() => {
   window["survey"].locale = "fr";
-  window["survey"].render();
 });
 
 const json = {
@@ -40,6 +35,14 @@ const json = {
           hasOther: true,
           isRequired: true,
           choices: ["Windows", "Linux", "Macintosh OSX"]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: [
+            { value: 1, text: { default: "en1", de: "de1", fr: "fr1" } },
+            { value: 2, text: { default: "en2", de: "de2", fr: "fr2" } }
+          ]
         }
       ]
     },
@@ -119,5 +122,24 @@ frameworks.forEach(framework => {
 
     await setFr();
     await t.hover("input[value=Suivant]");
+  });
+  test("check dropdown localizaition", async t => {
+    const elSelect = Selector("select");
+    const elOption = elSelect.find("option");
+    await t
+      .click(elSelect)
+      .click(elOption.withText("en1"));
+    await setDe();
+    await t
+      .click(elSelect)
+      .click(elOption.withText("de1"));
+    await setFr();
+    await t
+      .click(elSelect)
+      .click(elOption.withText("fr2"));
+    await setEn();
+    await t
+      .click(elSelect)
+      .click(elOption.withText("en2"));
   });
 });

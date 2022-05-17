@@ -13,7 +13,6 @@ Follow the steps below:
 - [Set Up a Start Page](#set-up-a-start-page)
 - [Display Quiz Results](#display-quiz-results)
 - [Render the Quiz](#render-the-quiz)
-- [Further Reading](#further-reading)
 
 You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">Quiz</a>.
 

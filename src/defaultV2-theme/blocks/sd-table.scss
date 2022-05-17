@@ -93,7 +93,7 @@
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
   .sd-action-bar {
     margin-right: calcSize(-3);
-    justify-content: end;
+    justify-content: flex-end;
     background: $background;
   }
 }
@@ -158,12 +158,9 @@
   .sd-table__cell.sd-matrix__cell {
     display: flex;
     align-items: flex-start;
-    &:after {
-      content: attr(data-responsive-title);
-      display: block;
+    .sd-matrix__responsive-title {
       margin-left: calcSize(1);
-      padding: calcSize(1.5) 0;
-      text-align: left;
+      text-align: left;  
     }
     &:first-child {
       padding-top: calcSize(2);
@@ -226,7 +223,7 @@
     width: auto;
     .sd-action-bar {
       margin-right: calcSize(-3);
-      justify-content: end;
+      justify-content: flex-end;
       background: $background;
     }
   }

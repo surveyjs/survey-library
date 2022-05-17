@@ -1,5 +1,5 @@
-import React from "react";
 import ReactDOM from "react-dom";
+import React from "react";
 import { PopupModel, PopupBaseViewModel, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -15,7 +15,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super(props);
     this.containerRef = React.createRef();
     this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.createPopupContainer();
+    this.popup.initializePopupContainer();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -25,17 +25,23 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   componentDidMount() {
     super.componentDidMount();
-    this.popup.mountPopupContainer();
+    this.popup.initializePopupContainer();
     if(!!this.containerRef.current) {
       this.popup.targetElement = this.containerRef.current.parentElement;
     }
   }
   componentWillUnmount() {
-    this.popup.destroyPopupContainer();
+    this.popup.unmountPopupContainer();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    return nextProps.model !== this.popup.model;
+    const isNeedUpdate = nextProps.model !== this.popup.model;
+    if(isNeedUpdate) {
+      this.popup?.dispose();
+      this.popup = new PopupBaseViewModel(this.props.model);
+      this.popup.initializePopupContainer();
+    }
+    return isNeedUpdate;
   }
   render() {
     this.popup.model = this.model;
@@ -90,18 +96,21 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           left: this.model.left,
           top: this.model.top,
           height: this.model.height,
+          width: this.model.width,
         }}
         onClick={(ev: any) => {
           this.clickInside(ev);
         }}
       >
-        <div className="sv-popup_shadow">
+        <div className="sv-popup__shadow">
           {pointer}
-          {header}
-          <div className="sv-popup__scrolling-content">
-            {content}
+          <div className="sv-popup__body-content">
+            {header}
+            <div className="sv-popup__scrolling-content">
+              {content}
+            </div>
+            {footer}
           </div>
-          {footer}
         </div>
       </div>
     );
@@ -118,7 +127,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
   }
   renderHeader() {
-    return <div className="sv-popup__header">{this.model.title}</div>;
+    return <div className="sv-popup__body-header">{this.model.title}</div>;
   }
   renderContent() {
     const contentComponent = ReactElementFactory.Instance.createElement(
@@ -131,7 +140,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <button
         type="button"
-        className="sv-popup__footer-item sv-popup__button sv-popup__button--cancel"
+        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
         onClick={() => {
           this.model.cancel();
         }}
@@ -144,7 +153,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     return (
       <button
         type="button"
-        className="sv-popup__footer-item sv-popup__button sv-popup__button--apply"
+        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
         onClick={() => {
           this.model.apply();
         }}
@@ -155,7 +164,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   renderFooter() {
     return (
-      <div className="sv-popup__footer">
+      <div className="sv-popup__body-footer">
         {this.renderCancelButton()}
         {this.model.isModal ? this.renderApplyButton() : null}
       </div>
@@ -163,11 +172,8 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   render() {
     const container = this.renderContainer();
-    const className = new CssClassBuilder()
-      .append("sv-popup").append(this.model.styleClass).toString();
-    const style = {
-      display: this.model.isVisible ? "" : "none",
-    };
+    const className = new CssClassBuilder().append("sv-popup").append(this.model.styleClass).toString();
+    const style = { display: this.model.isVisible ? "" : "none", };
     return (
       <div
         tabIndex={-1}
@@ -201,7 +207,7 @@ export function showModal(
     onCancel,
     () => {
       ReactDOM.unmountComponentAtNode(popupViewModel.container);
-      popupViewModel.destroyPopupContainer();
+      popupViewModel.unmountPopupContainer();
     },
     undefined,
     cssClass,

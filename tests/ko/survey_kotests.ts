@@ -2429,9 +2429,10 @@ QUnit.test("pageNext/pagePrev... Text and koRenderedHtml", function (assert) {
       },
     ],
   });
-  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Complete");
-  survey.completeText = "Finish";
-  assert.equal((<any>survey.locCompleteText).koRenderedHtml(), "Finish");
+  const completeAction = (<any>survey).navigationBar.getActionById("sv-nav-complete");
+  assert.equal(completeAction.title, "Complete");
+  (<any>survey).completeText = "Finish";
+  assert.equal(completeAction.title, "Finish");
 });
 QUnit.test("Initial Text Processing in panel title and ko", function (assert) {
   var survey = new Survey({
@@ -2501,4 +2502,27 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (
   assert.equal(page1.locNavigationTitle["koRenderedHtml"](), "title1 de", "de - title1");
   assert.equal(page2.locNavigationTitle["koRenderedHtml"](), "title2 de", "de - title2");
   survey.locale = "";
+});
+QUnit.test("koRenderedHtml: check onProcessHtml event", function (
+  assert
+) {
+  const json = {
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "html",
+            "name": "question3",
+            "html": "initial_html"
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new Survey(json);
+  survey.onProcessHtml.add((_, options) => {
+    options.html = "processed_html";
+  });
+  const q = survey.getAllQuestions()[0];
+  assert.equal(q.locHtml.koRenderedHtml(), "processed_html", "#onProcessHtml doesn't work with koRenderedHtml");
 });

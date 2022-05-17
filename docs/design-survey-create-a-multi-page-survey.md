@@ -11,7 +11,6 @@ This step-by-step tutorial will help you create a survey with multiple pages.
   - [Start Page](#start-page)
   - [Complete Page](#complete-page)
   - [Preview Page](#preview-page)
-- [Further Reading](#further-reading)
 
 The survey below illustrates the result:
 

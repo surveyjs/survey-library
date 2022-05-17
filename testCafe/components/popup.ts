@@ -61,11 +61,7 @@ function addDropdownTitleAction(_, opt) {
     model: new window["Survey"].ListModel([
       new window["Survey"].Action({ title: "Item 1" }),
     ]),
-  },
-  "bottom",
-  "left",
-  true
-  );
+  }, "bottom", "left", true);
   const item = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
     title: "Click",
@@ -320,11 +316,11 @@ frameworks.forEach(async framework => {
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(362)
+      .expect(popupContainerSelector.offsetHeight).eql(346)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(362);
+      .expect(popupContainerSelector.offsetHeight).eql(346);
   });
 });

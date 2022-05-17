@@ -603,9 +603,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     );
   }
   public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
-    var questions = this.questions;
+    const questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].readOnly = parentIsReadOnly;
+      const q = questions[i];
+      q.setPropertyValue("isReadOnly", q.isReadOnly);
     }
     if (!!this.detailPanel) {
       this.detailPanel.readOnly = parentIsReadOnly;
@@ -1249,16 +1250,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public clearErrors() {
     super.clearErrors();
+    this.runFuncForCellQuestions((q: Question) => { q.clearErrors(); });
+  }
+  public localeChanged() {
+    super.localeChanged();
+    this.runFuncForCellQuestions((q: Question) => { q.localeChanged(); });
+  }
+  private runFuncForCellQuestions(func: (question: Question) => void): void {
     if (!!this.generatedVisibleRows) {
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
         for (var j = 0; j < row.cells.length; j++) {
-          row.cells[j].question.clearErrors();
+          func(row.cells[j].question);
         }
       }
     }
   }
-
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     var counter = 0;
@@ -1687,16 +1694,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   private getCellQuestions(): Array<Question> {
-    const rows = this.visibleRows;
-    if (!rows) return [];
-    const questions = [];
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      for (let j = 0; j < row.cells.length; j++) {
-        questions.push(row.cells[j].question);
-      }
-    }
-    return questions;
+    const res: Array<Question> = [];
+    this.runFuncForCellQuestions((q: Question) => { res.push(q); });
+    return res;
   }
 
   protected onBeforeValueChanged(val: any) { }
@@ -1919,9 +1919,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     column: MatrixDropdownColumn
   ): Question {
     var question = column.createCellQuestion(row);
-    if (this.isReadOnly) {
-      question.readOnly = true;
-    }
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
     return question;

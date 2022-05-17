@@ -6,9 +6,10 @@
         <div>
             <canvas tabindex='0'></canvas>
         </div>
-        <div data-bind="css: question.koCss().controls, visible: !question.isInputReadOnly">
+        <!-- ko if: question.canShowClearButton -->
+        <div data-bind="css: question.koCss().controls">
             <button type='button'
-                data-bind="css: question.koCss().clearButton, attr: { title: question.clearButtonCaption }">
+                data-bind="click: question.clearValue, css: question.koCss().clearButton, attr: { title: question.clearButtonCaption }">
                     <!-- ko ifnot: question.koCss().clearButtonIconId -->
                         <span>✖</span>
                     <!-- /ko -->
@@ -17,5 +18,6 @@
                     <!-- /ko -->
             </button>
         </div>
+        <!-- /ko -->
     </div>
 </script>

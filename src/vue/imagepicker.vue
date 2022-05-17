@@ -1,78 +1,24 @@
 <template>
-  <fieldset :class="question.cssClasses.root">
+  <fieldset :class="question.getSelectBaseRootCss()">
     <legend
       role="radio"
       v-bind:aria-label="question.locTitle.renderedHtml"
-    ></legend><div
-      v-for="(item, index) in question.visibleChoices"
-      :key="item.value"
-      :class="getItemClass(item)"
     >
-      <label :class="question.cssClasses.label">
-        <input
-          v-if="question.multiSelect"
-          type="checkbox"
-          :name="question.questionName"
-          :value="item.value"
-          :id="question.getItemId(item)"
-          v-model="question.value"
-          :disabled="!question.getItemEnabled(item)"
-          v-bind:aria-required="question.ariaRequired"
-          :aria-label="question.ariaLabel"
-          :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
-          :class="question.cssClasses.itemControl"
-        />
-        <input
-          v-else
-          type="radio"
-          :name="question.questionName"
-          :value="item.value"
-          :id="question.getItemId(item)"
-          v-model="question.value"
-          :disabled="!question.getItemEnabled(item)"
-          v-bind:aria-required="question.ariaRequired"
-          :aria-label="question.ariaLabel"
-          :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
-          :class="question.cssClasses.itemControl"
-        /><div :class="question.cssClasses.itemDecorator">
-          <div :class="question.cssClasses.imageContainer">
-            <img
-              v-if="item.imageLink && question.contentMode === 'image'"
-              :class="question.cssClasses.image"
-              :src="item.imageLink"
-              :width="question.renderedImageWidth"
-              :height="question.renderedImageHeight"
-              v-bind:style="{ objectFit: question.imageFit }"
-              :alt="item.locText.renderedHtml"
-            /><video controls
-              v-if="item.imageLink && question.contentMode === 'video'"
-              :class="question.cssClasses.image"
-              :src="item.imageLink"
-              :width="question.renderedImageWidth"
-              :height="question.renderedImageHeight"
-              v-bind:style="{ objectFit: question.imageFit }"
-            ></video>
-            <div
-              v-if="!item.imageLink"
-              :class="question.cssClasses.itemNoImage"
-              v-bind:style="{ width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit }"
-            >
-              <svg v-if="question.cssClasses.itemNoImageSvgIconId"
-                :class="question.cssClasses.itemNoImageSvgIcon"
-              >
-                <use :xlink:href="question.cssClasses.itemNoImageSvgIconId"></use>
-              </svg>
-            </div>
-          </div><span
-            v-if="question.showLabel"
-            :class="question.cssClasses.itemText"
-            >
-              <survey-string :locString="item.locText" />
-            </span
-          ></div>
-      </label>
+    </legend>
+    <survey-imagepicker-item v-if="!question.hasColumns" v-for="(item) in question.visibleChoices" :key="item.value" :question="question" :item="item"></survey-imagepicker-item>  
+    <div
+      v-if="question.hasColumns"
+      v-for="(column, colIndex) in question.columns"
+      :class="question.getColumnClass()"
+      :key="colIndex"
+      role="presentation"
+    >
+      <survey-imagepicker-item
+        v-for="(item) in column"
+        :key="item.value"
+        :question="question"
+        :item="item"
+      ></survey-imagepicker-item>
     </div>
   </fieldset>
 </template>
@@ -92,3 +38,4 @@ export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
 Vue.component("survey-imagepicker", ImagePicker);
 export default ImagePicker;
 </script>
+

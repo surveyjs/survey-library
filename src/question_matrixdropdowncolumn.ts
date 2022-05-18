@@ -128,7 +128,7 @@ export class MatrixDropdownColumn extends Base
     super();
     var self = this;
     this.createLocalizableString("totalFormat", this);
-    this.createLocalizableString("hint", this);
+    this.createLocalizableString("cellHint", this);
     this.registerFunctionOnPropertyValueChanged(
       "showInMultipleColumns",
       function () {

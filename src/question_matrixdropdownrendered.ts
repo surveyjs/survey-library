@@ -100,17 +100,21 @@ export class QuestionMatrixDropdownRenderedCell {
     return builder.toString();
   }
   public get headers(): string {
-    if (
-      this.cell &&
-      this.cell.column &&
-      this.cell.column.isShowInMultipleColumns
-    ) {
-      return this.item.locText.renderedHtml;
+    if(this.cell && this.cell.column) {
+      if(this.cell.column.cellHint === " ") {
+        return "";
+      }
+      if(!!this.cell.column.cellHint) {
+        return this.cell.column.locCellHint.renderedHtml;
+      }
+      if(this.cell.column.isShowInMultipleColumns) {
+        return this.item.locText.renderedHtml;
+      }
     }
-    if (this.question && this.question.isVisible) {
+    if(this.question && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;
     }
-    if (this.hasTitle) {
+    if(this.hasTitle) {
       return this.locTitle.renderedHtml || "";
     }
     return "";

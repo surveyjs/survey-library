@@ -7403,3 +7403,27 @@ QUnit.test("Restore read-only on setting mode display/edit", function (assert) {
   assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #3");
   assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #3");
 });
+QUnit.test("getTitle", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrixdynamic", name: "q1",
+            rowCount: 1,
+            columns: [
+              { name: "col1", cellType: "text", cellHint: "true hint" },
+              { name: "col2", cellType: "text" },
+              { name: "col3", cellType: "text", cellHint: " " }
+            ]
+          }]
+      }
+    ]
+  });
+  const question = survey.getAllQuestions()[0];
+  var renderedTable = question.renderedTable;
+  const row = renderedTable.rows[0];
+  assert.equal(row.cells[0].getTitle(), "true hint");
+  assert.equal(row.cells[1].getTitle(), "col2");
+  assert.equal(row.cells[2].getTitle(), "");
+});

@@ -334,14 +334,14 @@ export class MatrixDropdownColumn extends Base
   get locTotalFormat(): LocalizableString {
     return this.getLocalizableString("totalFormat");
   }
-  public get hint(): string {
-    return this.getLocalizableStringText("hint", "");
+  public get cellHint(): string {
+    return this.getLocalizableStringText("cellHint", "");
   }
-  public set hint(val: string) {
-    this.setLocalizableStringText("hint", val);
+  public set cellHint(val: string) {
+    this.setLocalizableStringText("cellHint", val);
   }
-  get locHint(): LocalizableString {
-    return this.getLocalizableString("hint");
+  get locCellHint(): LocalizableString {
+    return this.getLocalizableString("cellHint");
   }
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");
@@ -602,7 +602,7 @@ Serializer.addClass(
   [
     { name: "!name", isUnique: true },
     { name: "title", serializationProperty: "locTitle" },
-    { name: "hint", serializationProperty: "locHint", visible: false },
+    { name: "cellHint", serializationProperty: "locCellHint", visible: false },
     {
       name: "cellType",
       default: "default",

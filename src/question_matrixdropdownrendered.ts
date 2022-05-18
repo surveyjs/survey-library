@@ -101,11 +101,11 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get headers(): string {
     if(this.cell && this.cell.column) {
-      if(this.cell.column.hint === " ") {
+      if(this.cell.column.cellHint === " ") {
         return "";
       }
-      if(!!this.cell.column.hint) {
-        return this.cell.column.locHint.renderedHtml;
+      if(!!this.cell.column.cellHint) {
+        return this.cell.column.locCellHint.renderedHtml;
       }
       if(this.cell.column.isShowInMultipleColumns) {
         return this.item.locText.renderedHtml;

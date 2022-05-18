@@ -7412,9 +7412,9 @@ QUnit.test("getTitle", function (assert) {
             type: "matrixdynamic", name: "q1",
             rowCount: 1,
             columns: [
-              { name: "col1", cellType: "text", hint: "true hint" },
+              { name: "col1", cellType: "text", cellHint: "true hint" },
               { name: "col2", cellType: "text" },
-              { name: "col3", cellType: "text", hint: " " }
+              { name: "col3", cellType: "text", cellHint: " " }
             ]
           }]
       }

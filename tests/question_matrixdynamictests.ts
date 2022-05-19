@@ -7427,3 +7427,21 @@ QUnit.test("getTitle", function (assert) {
   assert.equal(row.cells[1].getTitle(), "col2");
   assert.equal(row.cells[2].getTitle(), "");
 });
+QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrixdynamic", name: "q1",
+            columns: [
+              { name: "col1", cellType: "dropdown" },
+            ]
+          }]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.columns[0].renderAs = "myRender";
+  assert.equal(matrix.columns[0].templateQuestion.renderAs, "myRender", "Apply render as to template question");
+});

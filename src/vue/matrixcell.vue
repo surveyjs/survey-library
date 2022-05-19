@@ -18,7 +18,7 @@
       :css="question.survey.css"
     ></component>
     <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
-      <survey-errors v-if="hasErrorsOnTop" :element="cell.question" :location="'top'" />
+      <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -50,7 +50,7 @@
         :hideLabel="true"
       ></survey-checkbox-item>
       <survey-errors
-        v-if="hasErrorsOnBottom"
+        v-if="cell.showErrorOnBottom"
         :element="cell.question"
         :location="'bottom'"
       />
@@ -85,12 +85,6 @@ export class MatrixCell extends Vue {
       return "survey-customwidget";
     }
     return "survey-" + element.getType();
-  }
-  get hasErrorsOnTop() {
-    return this.cell.showErrorOnTop && !this.question.isErrorsModeTooltip;
-  }
-  get hasErrorsOnBottom() {
-    return this.cell.showErrorOnBottom && !this.question.isErrorsModeTooltip;
   }
   getHeaders(): string {
     return this.cell.headers;

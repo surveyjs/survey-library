@@ -18,7 +18,7 @@
     </span>
     <div :key="item.editor.id" :class="question.getItemCss()">
       <survey-errors
-        v-if="hasErrorsOnTop"
+        v-if="item.editor.showErrorOnTop"
         :element="item.editor"
         :location="'top'"
       />
@@ -27,13 +27,13 @@
         :question="item.editor"
       />
       <survey-errors
-        v-if="hasErrorsOnBottom"
+        v-if="item.editor.showErrorOnBottom"
         :element="item.editor"
         :location="'bottom'"
       />
     </div>
     <survey-errors
-      v-if="question.isErrorsModeTooltip"
+      v-if="item.editor.isErrorsModeTooltip"
       :element="item.editor"
       :location="'tooltip'"
     />
@@ -64,12 +64,6 @@ export class MultipleTextItem extends BaseVue {
       return "survey-customwidget";
     }
     return "survey-text";
-  }
-  get hasErrorsOnTop() {
-    return this.question.survey.questionErrorLocation === "top" && !this.question.isErrorsModeTooltip
-  }
-  get hasErrorsOnBottom() {
-    return this.question.survey.questionErrorLocation === "bottom" && !this.question.isErrorsModeTooltip
   }
 }
 Vue.component("survey-multipletext-item", MultipleTextItem);

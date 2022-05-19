@@ -81,17 +81,55 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
   assert.equal(page2.questions[0].name, "q1", "page1 has q1 question");
 });
 
-QUnit.test("Check isErrorsModeTooltip", function (assert) {
+QUnit.test("Check errors location", function (assert) {
   const survey = new SurveyModel({
     elements: [{
       type: "text",
       name: "q1"
-    }]
+    },
+    {
+      type: "matrixdynamic",
+      name: "q2",
+      "columns": [
+        {
+          "name": "subjects",
+          "cellType": "radigroup",
+          "isRequired": true,
+          "choices": [1, 2, 3]
+        }
+      ]
+    }
+    ]
   });
   const q1 = survey.getQuestionByName("q1");
+  const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
   assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.ok(q1.showErrorOnTop);
+
+  assert.notOk(questionInMatrix.isErrorsModeTooltip);
+  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
+  assert.notOk(questionInMatrix.showErrorOnBottom);
+  assert.ok(questionInMatrix.showErrorOnTop);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.showErrorOnTop);
+  assert.ok(q1.showErrorOnBottom);
+
+  assert.notOk(questionInMatrix.showErrorOnTop);
+  assert.ok(questionInMatrix.showErrorOnBottom);
+
   survey.css = defaultV2Css;
-  assert.ok(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.ok(q1.showErrorsAboveQuestion);
+
+  assert.notOk(questionInMatrix.showErrorOnTop);
+  assert.notOk(questionInMatrix.showErrorOnBottom);
+  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
+  assert.ok(questionInMatrix.isErrorsModeTooltip);
 });
 
 QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
@@ -127,13 +165,35 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
       }
     ]
   });
-  const question = survey.getQuestionByName("q1");
+  const q1 = survey.getQuestionByName("q1");
   const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
-  assert.notOk(question.isErrorsModeTooltip);
-  assert.notOk(questionInMatrix.isErrorsModeTooltip)
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.ok(q1.showErrorOnTop);
+
+  assert.notOk(questionInMatrix.isErrorsModeTooltip);
+  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
+  assert.notOk(questionInMatrix.showErrorOnBottom);
+  assert.ok(questionInMatrix.showErrorOnTop);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.showErrorOnTop);
+  assert.ok(q1.showErrorOnBottom);
+
+  assert.notOk(questionInMatrix.showErrorOnTop);
+  assert.ok(questionInMatrix.showErrorOnBottom);
+
   survey.css = defaultV2Css;
-  assert.ok(question.isErrorsModeTooltip);
-  assert.notOk(questionInMatrix.isErrorsModeTooltip)
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.ok(q1.showErrorsAboveQuestion);
+
+  assert.notOk(questionInMatrix.showErrorOnTop);
+  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
+  assert.notOk(questionInMatrix.isErrorsModeTooltip);
+  assert.ok(questionInMatrix.showErrorOnBottom);
   CustomWidgetCollection.Instance.clear();
 });
 

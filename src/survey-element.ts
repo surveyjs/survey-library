@@ -675,9 +675,17 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
 
-  public get isErrorsModeTooltip(): boolean {
-    return this.isDefaultV2Theme;
+  public get showErrorsAboveQuestion() {
+    return this.isDefaultV2Theme && !this.hasParent;
   }
+
+  public get isErrorsModeTooltip(): boolean {
+    return this.getIsErrorsModeTooltip();
+  }
+  protected getIsErrorsModeTooltip() {
+    return this.isDefaultV2Theme && this.hasParent;
+  }
+
   public get hasParent() {
     return (this.parent && !this.parent.isPage) || (this.parent === undefined);
   }

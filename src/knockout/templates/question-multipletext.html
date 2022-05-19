@@ -8,13 +8,13 @@
                 <!-- ko component: { name: 'survey-element-title-content', params: {element: item.editor} } --><!-- /ko -->
               </span>
               <div data-bind="css: question.koItemCss">
-                <!-- ko if: item.editor.errorLocation === 'top'  && !question.isErrorsModeTooltip -->
+                <!-- ko if: item.editor.showErrorOnTop -->
                   <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                   <!-- /ko -->
                 <!-- /ko -->
                 <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question', afterRender: item.editor.koQuestionAfterRender } -->
                 <!-- /ko -->
-                <!-- ko if: item.editor.errorLocation === 'bottom' && !question.isErrorsModeTooltip -->
+                <!-- ko if: item.editor.showErrorOnBottom -->
                   <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                   <!-- /ko -->
                 <!-- /ko -->

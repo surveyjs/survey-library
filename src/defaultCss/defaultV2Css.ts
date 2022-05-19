@@ -325,7 +325,7 @@ export var defaultV2Css = {
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
-    cellRequiredText: "sd-question__required-text", 
+    cellRequiredText: "sd-question__required-text",
     button: "sd-action sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",

@@ -740,9 +740,19 @@ export class Question extends SurveyElement
       .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
       .toString();
   }
+  protected getIsErrorsModeTooltip() {
+    return super.getIsErrorsModeTooltip() && !this.customWidget;
+  }
 
-  public get isErrorsModeTooltip(): boolean {
-    return this.isDefaultV2Theme && (!this.hasParent || !this.customWidget);
+  public showErrorOnCore(location: string) :boolean {
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && this.errorLocation === location;
+  }
+
+  public get showErrorOnTop(): boolean {
+    return this.showErrorOnCore("top");
+  }
+  public get showErrorOnBottom() {
+    return this.showErrorOnCore("bottom");
   }
 
   public get cssError(): string {
@@ -755,10 +765,10 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.aboveQuestion, this.isErrorsModeTooltip && !this.hasParent)
-      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip && this.hasParent)
-      .append(cssClasses.error.locationTop, !this.isErrorsModeTooltip && this.errorLocation === "top")
-      .append(cssClasses.error.locationBottom, !this.isErrorsModeTooltip && this.errorLocation === "bottom")
+      .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
+      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
+      .append(cssClasses.error.locationTop, this.showErrorOnTop)
+      .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
   }
   public getRootCss(): string {

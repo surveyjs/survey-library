@@ -59,12 +59,12 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   private showErrorOnCore(location: string): boolean {
     return (
-      this.getShowErrorLocation() == location &&
+      this.getShowErrorLocation(location) &&
       (!this.isChoice || this.isFirstChoice)
     );
   }
-  private getShowErrorLocation(): string {
-    return this.hasQuestion ? this.question.survey.questionErrorLocation : "";
+  private getShowErrorLocation(location: string): boolean {
+    return this.hasQuestion && this.question.showErrorOnCore(location);
   }
   public get item(): ItemValue {
     return this.itemValue;

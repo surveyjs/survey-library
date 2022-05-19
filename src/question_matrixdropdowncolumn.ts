@@ -348,6 +348,9 @@ export class MatrixDropdownColumn extends Base
   }
   public set renderAs(val: string) {
     this.setPropertyValue("renderAs", val);
+    if(!!this.templateQuestion) {
+      this.templateQuestion.renderAs = val;
+    }
   }
   public get totalMaximumFractionDigits(): number {
     return this.getPropertyValue("totalMaximumFractionDigits");

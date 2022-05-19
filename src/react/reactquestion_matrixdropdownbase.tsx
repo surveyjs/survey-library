@@ -203,7 +203,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       cellContent = this.renderLocString(cell.locTitle);
       if (cell.requiredText) {
         requiredSpace = <span>&nbsp;</span>;
-        requiredText = <span>{cell.requiredText}</span>;
+        requiredText = <span className={this.question.cellRequiredText}>{cell.requiredText}</span>;
       }
     }
     if (cell.isDragHandlerCell) {

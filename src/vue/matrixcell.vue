@@ -55,13 +55,13 @@
         :location="'bottom'"
       />
       <survey-errors
-        v-if="question.isErrorsModeTooltip"
+        v-if="cell.question.isErrorsModeTooltip"
         :element="cell.question"
         :location="'tooltip'"
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
+    <span v-if="!!cell.requiredText" :class="question.cssClasses.cellRequiredText"></span>>{{ cell.requiredText }}</span>
   </td>
 </template>
 

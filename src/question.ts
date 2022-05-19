@@ -740,6 +740,11 @@ export class Question extends SurveyElement
       .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
       .toString();
   }
+
+  public get isErrorsModeTooltip(): boolean {
+    return this.isDefaultV2Theme && (!this.hasParent || !this.customWidget);
+  }
+
   public get cssError(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssError", "");

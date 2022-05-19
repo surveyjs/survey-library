@@ -1,6 +1,8 @@
 import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("SurveyElement");
 
@@ -71,7 +73,7 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
   var page2 = survey.pages[1];
   var q = survey.getQuestionByName("q1");
 
-  var val:any = "page2";
+  var val: any = "page2";
   q["setPage"](page1, val);
 
   assert.equal(page1.questions.length, 0, "page1 has no questions");
@@ -90,6 +92,49 @@ QUnit.test("Check isErrorsModeTooltip", function (assert) {
   assert.notOk(q1.isErrorsModeTooltip);
   survey.css = defaultV2Css;
   assert.ok(q1.isErrorsModeTooltip);
+});
+
+QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget(
+    {
+      name: "tagbox",
+      isFit: (question) => {
+        return question.getType() === "tagbox"
+      },
+    }
+  );
+  if (!Serializer.findClass("tagbox")) {
+    Serializer.addClass("tagbox", [], null, "text");
+  }
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "tagbox",
+        name: "q1"
+      },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        "columns": [
+          {
+            "name": "subjects",
+            "cellType": "tagbox",
+            "isRequired": true,
+            "choices": [1, 2, 3]
+          }
+        ]
+      }
+    ]
+  });
+  const question = survey.getQuestionByName("q1");
+  const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
+  assert.notOk(question.isErrorsModeTooltip);
+  assert.notOk(questionInMatrix.isErrorsModeTooltip)
+  survey.css = defaultV2Css;
+  assert.ok(question.isErrorsModeTooltip);
+  assert.notOk(questionInMatrix.isErrorsModeTooltip)
+  CustomWidgetCollection.Instance.clear();
 });
 
 QUnit.test("allowRootStyle", function (assert) {

@@ -1648,9 +1648,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get progressText(): string {
     var rangeMax = this.panelCount;
-    return surveyLocalization
-      .getString("panelDynamicProgressText")
-      ["format"](this.currentIndex + 1, rangeMax);
+    return this.getLocalizationFormatString("panelDynamicProgressText", this.currentIndex + 1, rangeMax);
   }
   public get progress(): string {
     return ((this.currentIndex + 1) / this.panelCount) * 100 + "%";

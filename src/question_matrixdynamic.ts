@@ -586,7 +586,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("addRowText");
   }
   private get defaultAddRowText(): string {
-    return surveyLocalization.getString(
+    return this.getLocalizationString(
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }

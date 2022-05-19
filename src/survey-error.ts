@@ -1,5 +1,6 @@
 import { ISurveyErrorOwner } from "./base-interfaces";
 import { LocalizableString } from "./localizablestring";
+import { surveyLocalization } from "./surveyStrings";
 
 export class SurveyError {
   private locTextValue: LocalizableString;
@@ -33,5 +34,11 @@ export class SurveyError {
   }
   protected getDefaultText(): string {
     return "";
+  }
+  protected getLocale(): string {
+    return !!this.errorOwner ? this.errorOwner.getLocale(): "";
+  }
+  protected getLocalizationString(locStrName: string): string {
+    return surveyLocalization.getString(locStrName, this.getLocale());
   }
 }

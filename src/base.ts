@@ -10,6 +10,7 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
+import { surveyLocalization } from "./surveyStrings";
 
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
@@ -719,8 +720,20 @@ export class Base {
   }
   public createCustomLocalizableObj(name: string) {
     var locStr = this.getLocalizableString(name);
-    if (locStr || !(<any>this).getLocale) return;
+    if (locStr) return;
     this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
+  }
+  public getLocale(): string {
+    const locOwner = this.getSurvey();
+    return !!locOwner ? locOwner.getLocale(): "";
+  }
+  public getLocalizationString(strName: string): string {
+    return surveyLocalization.getString(strName, this.getLocale());
+  }
+  public getLocalizationFormatString(strName: string, ...args: any[]): string {
+    const str: any = this.getLocalizationString(strName);
+    if(!str || !str.format) return "";
+    return str.format(...args);
   }
   protected createLocalizableString(
     name: string,

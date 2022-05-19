@@ -88,8 +88,6 @@ export class SurveyModel extends SurveyElementCore
   private variablesHash: HashTable<any> = {};
   private editingObjValue: Base;
 
-  private localeValue: string = "";
-
   private textPreProcessor: TextPreProcessor;
   private timerModelValue: SurveyTimerModel;
 
@@ -1040,6 +1038,9 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray("navigateToUrlOnCondition", (value: any) => {
       value.locOwner = this;
     });
+    this.registerFunctionOnPropertyValueChanged("locale", () => {
+      this.onSurveyLocaleChanged();
+    });
     this.registerFunctionOnPropertyValueChanged("firstPageIsStarted", () => {
       this.onFirstPageIsStartedChanged();
     });
@@ -1700,16 +1701,18 @@ export class SurveyModel extends SurveyElementCore
    * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
    */
   public get locale(): string {
-    return this.localeValue;
+    return this.getPropertyValue("locale", surveyLocalization.currentLocale);
   }
   public set locale(value: string) {
-    surveyLocalization.currentLocale = value;
-    this.localeValue = surveyLocalization.currentLocale;
-    this.setPropertyValue("locale", this.localeValue);
-    if (this.isLoadingFromJson) return;
+    if(value === surveyLocalization.defaultLocale && !surveyLocalization.currentLocale) {
+      value = "";
+    }
+    this.setPropertyValue("locale", value);
+  }
+  private onSurveyLocaleChanged(): void {
     this.notifyElementsOnAnyValueOrVariableChanged("locale");
     this.localeChanged();
-    this.onLocaleChangedEvent.fire(this, value);
+    this.onLocaleChangedEvent.fire(this, this.locale);
   }
   /**
    * Returns an array of locales that are used in the survey's translation.
@@ -1793,7 +1796,7 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(text, true);
   }
   getLocString(str: string) {
-    return surveyLocalization.getString(str);
+    return this.getLocalizationString(str);
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
@@ -1813,7 +1816,7 @@ export class SurveyModel extends SurveyElementCore
    * Returns the text that is displayed when there are no any visible pages and questiona.
    */
   public get emptySurveyText(): string {
-    return this.getLocString("emptySurvey");
+    return this.getLocalizationString("emptySurvey");
   }
 
   //#region Title/Header options
@@ -2051,7 +2054,7 @@ export class SurveyModel extends SurveyElementCore
    * @see loadingHtml
    */
   public get defaultLoadingHtml(): string {
-    return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
+    return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
     return this.navigationBarValue;
@@ -2183,7 +2186,7 @@ export class SurveyModel extends SurveyElementCore
   }
   getQuestionTitlePatternOptions(): Array<any> {
     const res = new Array<any>();
-    const title = this.getLocString("questionTitlePatternText");
+    const title = this.getLocalizationString("questionTitlePatternText");
     const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
     res.push({
       value: "numTitleRequire",
@@ -2935,9 +2938,9 @@ export class SurveyModel extends SurveyElementCore
   protected setCompletedState(value: string, text: string) {
     this.setPropertyValue("completedState", value);
     if (!text) {
-      if (value == "saving") text = this.getLocString("savingData");
-      if (value == "error") text = this.getLocString("savingDataError");
-      if (value == "success") text = this.getLocString("savingDataSuccess");
+      if (value == "saving") text = this.getLocalizationString("savingData");
+      if (value == "error") text = this.getLocalizationString("savingDataError");
+      if (value == "success") text = this.getLocalizationString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
     this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
@@ -4124,27 +4127,27 @@ export class SurveyModel extends SurveyElementCore
   private getProgressTextCore(info: IProgressInfo): string {
     var type = this.progressBarType.toLowerCase();
     if (type === "questions") {
-      return this.getLocString("questionsProgressText")["format"](
+      return this.getLocalizationFormatString("questionsProgressText",
         info.answeredQuestionCount,
         info.questionCount
       );
     }
     if (type === "requiredquestions") {
-      return this.getLocString("questionsProgressText")["format"](
+      return this.getLocalizationFormatString("questionsProgressText",
         info.requiredAnsweredQuestionCount,
         info.requiredQuestionCount
       );
     }
     if (type === "correctquestions") {
       var correctAnswersCount = this.getCorrectedAnswerCount();
-      return this.getLocString("questionsProgressText")["format"](
+      return this.getLocalizationFormatString("questionsProgressText",
         correctAnswersCount,
         info.questionCount
       );
     }
     var vPages = this.isDesignMode ? this.pages : this.visiblePages;
     var index = vPages.indexOf(this.currentPage) + 1;
-    return this.getLocString("progressText")["format"](index, vPages.length);
+    return this.getLocalizationFormatString("progressText", index, vPages.length);
   }
   @property() rootCss: string;
   public getRootCss(): string {
@@ -6210,13 +6213,13 @@ export class SurveyModel extends SurveyElementCore
       return this.getTimerInfoSurveyText(surveySpent, surveyLimit);
     if (this.showTimerPanelMode == "all") {
       if (pageLimitSec <= 0 && this.maxTimeToFinish <= 0) {
-        return this.getLocString("timerSpentAll")["format"](
+        return this.getLocalizationFormatString("timerSpentAll",
           pageSpent,
           surveySpent
         );
       }
       if (pageLimitSec > 0 && this.maxTimeToFinish > 0) {
-        return this.getLocString("timerLimitAll")["format"](
+        return this.getLocalizationFormatString("timerLimitAll",
           pageSpent,
           pageLimit,
           surveySpent,
@@ -6235,33 +6238,26 @@ export class SurveyModel extends SurveyElementCore
     pageLimit: string
   ): string {
     return this.getPageMaxTimeToFinish(page) > 0
-      ? this.getLocString("timerLimitPage")["format"](pageSpent, pageLimit)
-      : this.getLocString("timerSpentPage")["format"](pageSpent, pageLimit);
+      ? this.getLocalizationFormatString("timerLimitPage", pageSpent, pageLimit)
+      : this.getLocalizationFormatString("timerSpentPage", pageSpent, pageLimit);
   }
   private getTimerInfoSurveyText(
     surveySpent: string,
     surveyLimit: string
   ): string {
-    return this.maxTimeToFinish > 0
-      ? this.getLocString("timerLimitSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      )
-      : this.getLocString("timerSpentSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      );
+    const strName = this.maxTimeToFinish > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
+    return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayTime(val: number): string {
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
     let res: string = "";
     if (min > 0) {
-      res += min + " " + this.getLocString("timerMin");
+      res += min + " " + this.getLocalizationString("timerMin");
     }
     if (res && sec == 0) return res;
     if (res) res += " ";
-    return res + sec + " " + this.getLocString("timerSec");
+    return res + sec + " " + this.getLocalizationString("timerSec");
   }
   public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
   /**

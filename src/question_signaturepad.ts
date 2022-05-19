@@ -187,7 +187,7 @@ export class QuestionSignaturePadModel extends Question {
    * The clear signature button caption.
    */
   get clearButtonCaption(): string {
-    return surveyLocalization.getString("clearCaption");
+    return this.getLocalizationString("clearCaption");
   }
 
   public needShowPlaceholder(): boolean {
@@ -195,7 +195,7 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   get placeHolderText(): string {
-    return surveyLocalization.getString("signaturePlaceHolder");
+    return this.getLocalizationString("signaturePlaceHolder");
   }
 }
 

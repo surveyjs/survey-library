@@ -326,10 +326,10 @@ export class PopupBaseViewModel extends Base {
     this.hidePopup();
   }
   public get cancelButtonText() {
-    return surveyLocalization.getString("modalCancelButtonText");
+    return this.getLocalizationString("modalCancelButtonText");
   }
   public get applyButtonText() {
-    return surveyLocalization.getString("modalApplyButtonText");
+    return this.getLocalizationString("modalApplyButtonText");
   }
   public dispose() {
     super.dispose();

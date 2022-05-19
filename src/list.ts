@@ -84,7 +84,7 @@ export class ListModel extends ActionContainer {
   };
 
   public get filteredTextPlaceholder() {
-    return surveyLocalization.getString("filteredTextPlaceholder");
+    return this.getLocalizationString("filteredTextPlaceholder");
   }
 
   public onKeyDown(event: KeyboardEvent) {

@@ -36,8 +36,10 @@ function getLocStringValue(
   ensureLocString(target, options, key);
   let res = target.getLocalizableStringText(key);
   if (!!res) return res;
-  if (typeof options.localizable === "object" && options.localizable.defaultStr)
-    return surveyLocalization.getString(options.localizable.defaultStr);
+  if (typeof options.localizable === "object" && options.localizable.defaultStr) {
+    const loc = !!target.getLocale ? target.getLocale() : "";
+    return surveyLocalization.getString(options.localizable.defaultStr, loc);
+  }
   return "";
 }
 

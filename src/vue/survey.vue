@@ -59,7 +59,7 @@
               <input
                 type="button"
                 v-if="vueSurvey.completedState == 'error'"
-                :value="vueSurvey.getLocString('saveAgainButton')"
+                :value="vueSurvey.getLocalizationString('saveAgainButton')"
                 @click="doTrySaveAgain"
                 :class="css.saveData.saveAgainButton"
               />

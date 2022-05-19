@@ -33,7 +33,6 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   get locHtml(): LocalizableString {
     return this.getLocalizableString("html");
   }
-
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }

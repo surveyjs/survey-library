@@ -7,19 +7,19 @@ import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
-import { IAction } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   private getVisibleListItems() {
-    return this.visibleChoices.map((choice: ItemValue) => <IAction>{
+    return this.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
       title: choice.text,
-      visible: choice.isVisible,
-      enabled: choice.isEnabled,
-    });
+      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
+    }));
   }
   constructor(name: string) {
     super(name);

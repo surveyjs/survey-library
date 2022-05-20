@@ -2,7 +2,7 @@
 
 This step-by-step tutorial will help you get started with the SurveyJS Library in a Vue application. To add a survey to your Vue application, follow the steps below:
 
-- [Install the `survey-vue` npm Package](#install-the-survey-vue-npm-package)
+- [Install the `survey-vue-ui` npm Package](#install-the-survey-vue-ui-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
@@ -18,7 +18,7 @@ As a result, you will create a survey displayed below:
 
 You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue" target="_blank">Get Started with SurveyJS - Vue</a>.
 
-## Install the `survey-vue` npm Package
+## Install the `survey-vue-ui` npm Package
 
 The SurveyJS Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-vue-ui` dependencies.
 
@@ -225,7 +225,53 @@ export default {
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. In this tutorial, the results are simply output in an alert dialog:
+After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+
+```js
+<template>
+  <!-- ... -->
+</template>
+
+<script>
+// ...
+const SURVEY_ID = 1;
+
+export default {
+  // ...
+  data() {
+    const survey = new Model(surveyJson);
+    survey.onComplete.add(this.surveyComplete);
+
+    return {
+      survey
+    }
+  },
+  methods: {
+    surveyComplete (sender) {
+      saveSurveyResults(
+        "https://your-web-service.com/" + SURVEY_ID,
+        sender.data
+      )
+    }
+  },
+}
+
+function saveSurveyResults(url, json) {
+  const request = new XMLHttpRequest();
+  request.open('POST', url);
+  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+  request.addEventListener('load', () => {
+    // Handle "load"
+  });
+  request.addEventListener('error', () => {
+    // Handle "error"
+  });
+  request.send(JSON.stringify(json));
+}
+</script>
+```
+
+In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 <template>

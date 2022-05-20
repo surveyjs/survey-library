@@ -76,7 +76,11 @@
 }
 .sd-question__erbox--location--top,
 .sd-question__erbox--location--bottom {
-  display: none;
+  display: block;
+  color: $red;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: left;
 }
 .sd-question--complex {
   .sd-question__erbox--above-question {

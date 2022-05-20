@@ -104,20 +104,16 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var errorsTop =
-    this.creator.questionErrorLocation() === "top" &&
-    !this.question.isErrorsModeTooltip
+    var errorsTop = this.question.showErrorOnTop
       ? this.renderErrors(cssClasses, "top")
       : null;
-    var errorsBottom =
-    this.creator.questionErrorLocation() === "bottom" &&
-    !this.question.isErrorsModeTooltip
+    var errorsBottom = this.question.showErrorOnBottom
       ? this.renderErrors(cssClasses, "bottom")
       : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
     const errorsTooltip =
-      this.question.isErrorsModeTooltip && this.question.hasParent
+      this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "tooltip")
         : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
@@ -145,10 +141,9 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     var headerTop = question.hasTitleOnLeftTop ? header : null;
     var headerBottom = question.hasTitleOnBottom ? header : null;
 
-    const errorsAboveQuestion =
-      this.question.isErrorsModeTooltip && !this.question.hasParent
-        ? this.renderErrors(cssClasses, "")
-        : null;
+    const errorsAboveQuestion = this.question.showErrorsAboveQuestion
+      ? this.renderErrors(cssClasses, "")
+      : null;
 
     let rootStyle: { [index: string]: any } = {};
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
@@ -334,7 +329,7 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
     super.componentDidUpdate(prevProps, prevState);
     this.doAfterRender();
   }
-  protected doAfterRender() {}
+  protected doAfterRender() { }
   protected canRender(): boolean {
     return !!this.question;
   }
@@ -351,14 +346,12 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected renderContent(): JSX.Element {
     var errorsLocation = this.creator.questionErrorLocation();
     var errors = this.renderErrors(errorsLocation);
-    var errorsTop =
-      errorsLocation === "top" && !this.question.isErrorsModeTooltip
-        ? errors
-        : null;
-    var errorsBottom =
-      errorsLocation === "bottom" && !this.question.isErrorsModeTooltip
-        ? errors
-        : null;
+    var errorsTop = this.question.showErrorOnTop
+      ? errors
+      : null;
+    var errorsBottom = this.question.showErrorOnBottom
+      ? errors
+      : null;
     var renderedQuestion = this.renderQuestion();
     return (
       <>

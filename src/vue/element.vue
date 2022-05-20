@@ -8,7 +8,7 @@
         :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
         :data-name="element.name">
     <survey-errors
-      v-if="!element.isPanel && element.isErrorsModeTooltip && !element.hasParent"
+      v-if="!element.isPanel && element.showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
@@ -22,7 +22,7 @@
       v-show="element.isPanel || !element.isCollapsed"  role="presentation"
     >
       <survey-errors
-        v-if="!element.isPanel && hasErrorsOnTop && !element.isErrorsModeTooltip"
+        v-if="hasErrorsOnTop"
         :element="element"
         :location="'top'"
       />
@@ -37,12 +37,12 @@
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors
-        v-if="!element.isPanel && hasErrorsOnBottom && !element.isErrorsModeTooltip"
+        v-if="hasErrorsOnBottom"
         :element="element"
         :location="'bottom'"
       />
       <survey-errors
-        v-if="!element.isPanel && element.isErrorsModeTooltip && element.hasParent"
+        v-if="!element.isPanel && element.isErrorsModeTooltip"
         :element="element"
         :location="'tooltip'"
       />
@@ -94,12 +94,10 @@ export class SurveyElementVue extends BaseVue {
     return element.cssContent;
   }
   get hasErrorsOnTop() {
-    return !this.element.isPanel && this.survey.questionErrorLocation === "top";
+    return !this.element.isPanel && (<Question>this.element).showErrorOnTop;
   }
   get hasErrorsOnBottom() {
-    return (
-      !this.element.isPanel && this.survey.questionErrorLocation === "bottom"
-    );
+    return !this.element.isPanel && (<Question>this.element).showErrorOnBottom;
   }
   mounted() {
     if (!this.element.isPanel) {

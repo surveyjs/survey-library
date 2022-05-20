@@ -82,7 +82,7 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
   }
 
   protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element {
-    return this.question.isErrorsModeTooltip ? (
+    return this.item.editor.isErrorsModeTooltip ? (
       <SurveyElementErrors
         element={item.editor}
         cssClasses={cssClasses}

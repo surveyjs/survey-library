@@ -514,7 +514,48 @@ QUnit.test("Get first focused question correctly, Bug#1417", function (assert) {
     "The first question for focusing with errors is q7"
   );
 });
-
+QUnit.test("Get first focused error question for matrix cell", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            cellType: "text",
+            name: "col1",
+            isRequired: true
+          },
+        ],
+      }
+    ],
+  });
+  const page = survey.pages[0];
+  page.hasErrors(true);
+  assert.equal(page.getFirstQuestionToFocus(true).name, "col1", "The first question for focusing is matrix cell question");
+});
+QUnit.test("Get first focused error question for panel dynamic question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+            isRequired: true
+          },
+        ],
+      }
+    ],
+  });
+  const page = survey.pages[0];
+  page.hasErrors(true);
+  assert.equal(page.getFirstQuestionToFocus(true).name, "question1", "The first question for focusing is in matrix dynamic");
+});
 QUnit.test("Flow Panel, add new element/remove element", function (assert) {
   const panel = new FlowPanelModel("p");
   panel.addNewQuestion("text", "q1");

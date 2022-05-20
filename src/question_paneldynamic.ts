@@ -249,6 +249,13 @@ export class QuestionPanelDynamicModel extends Question
   public get hasSingleInput(): boolean {
     return false;
   }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    for(var i = 0; i < this.panels.length; i ++) {
+      const res = this.panels[i].getFirstQuestionToFocus(withError);
+      if(!!res) return res;
+    }
+    return null;
+  }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();

@@ -8,6 +8,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
 import { Action, IAction } from "./actions/action";
+import { Base, ComputedUpdater, EventBase } from "./base";
 
 /**
  * A Model for a dropdown question
@@ -21,6 +22,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
     }));
   }
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("optionsCaption", this, false, true);
@@ -188,6 +191,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         model: listModel,
       }, "bottom", "center", false);
       this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
+      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+        if (option.isVisible) {
+          this.onOpened.fire(this, { question: this, choices: this.choices });
+        }
+      });
     }
     return this._popupModel;
   }

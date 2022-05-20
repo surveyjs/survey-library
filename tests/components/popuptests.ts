@@ -43,7 +43,7 @@ QUnit.test("PopupModel defaults", (assert) => {
   assert.equal(typeof model.onHide, "function");
   assert.equal(typeof model.onShow, "function");
   assert.equal(model.cssClass, "");
-  assert.equal(typeof model.onVisibilityChanged, "undefined");
+  assert.ok(model.onVisibilityChanged.isEmpty);
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -55,9 +55,9 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   model.toggleVisibility();
   assert.equal(trace, "");
 
-  model.onVisibilityChanged = () => {
+  model.onVisibilityChanged.add(() => {
     trace += "->onToggleVisibility";
-  };
+  });
 
   model.toggleVisibility();
   assert.equal(trace, "->onToggleVisibility");

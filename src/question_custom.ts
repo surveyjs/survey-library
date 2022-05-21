@@ -178,7 +178,7 @@ export abstract class QuestionCustomModelBase extends Question
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.getElement()) {
       this.getElement().locStrsChanged();
@@ -518,9 +518,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.panelWrapper = this.createPanel();
   }
   public getTemplate(): string {
-    return "composite";
-  }
-  protected getCssType(): string {
     return "composite";
   }
   protected getElement(): SurveyElement {

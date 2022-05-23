@@ -266,9 +266,8 @@ frameworks.forEach((framework) => {
     await t
       .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).notOk()
       .click("select")
-      .click("option[value=Vauxhall]")
-      .click("option[value=Volkswagen]")
       .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
+      .click("option[value=Volkswagen]")
 
       .click("select")
       .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok();

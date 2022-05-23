@@ -148,6 +148,7 @@ frameworks.forEach(framework => {
           renderAs: "select",
           name: "DropdownRenderAsSelect",
           hasOther: "true",
+          denySearch: true,
           choices: [
             "item1",
             "item2",
@@ -194,7 +195,7 @@ frameworks.forEach(framework => {
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     await t
       .pressKey("esc")
-      .click(questionDropdownSelect.nth(1));
+      .click(questionDropdownSelect);
     await checkElementScreenshot("dropdown-select-disabled-popup-items.png", popupContainer, t);
   });
 });

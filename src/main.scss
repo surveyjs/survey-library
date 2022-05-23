@@ -345,6 +345,10 @@ body {
           color: $label-disabled-color;
         }
 
+        .sv_q--disabled .sv_q_file .sv_q_file_choose_button {
+          display: none;
+        }
+
         .sv_q_description {
           margin-top: -0.6em;
           min-height: 0.6em;

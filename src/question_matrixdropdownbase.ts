@@ -1879,6 +1879,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private addDuplicationError(question: Question) {
     question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
   }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.getFirstCellQuestion(withError);
+  }
   protected getFirstInputElementId(): string {
     var question = this.getFirstCellQuestion(false);
     return question ? question.inputId : super.getFirstInputElementId();

@@ -769,8 +769,8 @@ export class PanelModelBase extends SurveyElement
         );
         if (!!res) return res;
       } else {
-        var q = <Question>el;
-        if (q.hasInput && (!withError || q.currentErrorCount > 0)) return q;
+        const q = (<Question>el).getFirstQuestionToFocus(withError);
+        if(!!q) return q;
       }
     }
     return null;

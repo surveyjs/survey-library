@@ -870,6 +870,9 @@ export class Question extends SurveyElement
     return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
   }
   protected onCreating(): void { }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.hasInput && (!withError || this.currentErrorCount > 0) ? this : null;
+  }
   protected getFirstInputElementId(): string {
     return this.inputId;
   }

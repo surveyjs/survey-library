@@ -477,6 +477,7 @@ QUnit.test("Composite, update panel css", function (assert) {
   survey.css.question.small = "small";
   survey.css.question.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
+  survey.css.customerinfo = { mainRoot: "customercss" };
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -494,6 +495,7 @@ QUnit.test("Composite, update panel css", function (assert) {
     elements: [{ type: "customerinfo", name: "q1" }],
   });
   var q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.cssRoot, "customercss small", "apply style from customer info");
   var lastName = q1.contentPanel.getQuestionByName("lastName");
   var defaultQuestionRoot = survey.css.question.mainRoot;
   assert.equal(

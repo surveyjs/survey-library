@@ -303,9 +303,9 @@ export class Base {
     return "base";
   }
   /**
-   * Use it to find out if the current instance has getType() equals to 'typeName' or inherited from this typeName
-   * @param typeName the string in lowercase, a SurveyJS type name
-   * @returns true if the current instance has getType() equals to 'typeName' or inherited from this typeName
+   * Use this method to find out if the current instance is of the given `typeName` or inherited from it.
+   * @param `typeName` One of the values listed in the [getType()](https://surveyjs.io/Documentation/Library?id=surveymodel#getType) description.
+   * @returns true if the current instance is of the given `typeName` or inherited from it
    * @see getType
    */
   public isDescendantOf(typeName: string): boolean {

@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
 
 const json = {
@@ -182,5 +182,106 @@ frameworks.forEach((framework) => {
 
     json = JSON.parse(await getQuestionJson());
     await t.expect(json.title).eql(newTitle);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      const jsonWithDropDown = {
+        questions: [
+          {
+            type: "dropdown",
+            name: "cars",
+            title: "Dropdown",
+            isRequired: true,
+            hasNone: true,
+            colCount: 4,
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          },
+          {
+            type: "dropdown",
+            renderAs: "select",
+            name: "DropdownRenderAsSelect",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item13",
+              "item14",
+              "item15",
+              "item16",
+              "item17",
+              "item18",
+              "item19",
+              "item20",
+              "item21",
+              "item22",
+              "item23",
+              "item24",
+              "item25",
+              "item26",
+              "item27"
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, jsonWithDropDown);
+    }
+  );
+  test("Check dropdown disabled items", async (t) => {
+    await ClientFunction(() => {
+      const updateChoiceEnabled = (_, opt) => {
+        opt.choices.forEach((ch, index) => { ch.setIsEnabled(index % 2 === 0); });
+      };
+
+      const oldDropdown = window["survey"].getQuestionByName("cars");
+      oldDropdown.onOpened.add(updateChoiceEnabled);
+
+      const selectQuestion = window["survey"].getQuestionByName("DropdownRenderAsSelect");
+      selectQuestion.onOpened.add(updateChoiceEnabled);
+    })();
+
+    await t
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).notOk()
+      .click("select")
+      .click("option[value=Vauxhall]")
+      .click("option[value=Volkswagen]")
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
+
+      .click("select")
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok();
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control").nth(1);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+      .click(questionDropdownSelect)
+      .expect(Selector(".sv-list__item").count).eql(28)
+      .expect(Selector(".sv-list__item.sv-list__item--disabled").count).eql(13)
+      .click(Selector(".sv-list__item span").withText("item2").filterVisible())
+      .expect(popupContainer.visible).ok()
+      .click(Selector(".sv-list__item span").withText("item3").filterVisible())
+      .expect(popupContainer.visible).notOk();
   });
 });

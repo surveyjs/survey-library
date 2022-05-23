@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "dropdownRestful";
 
 const json = {
@@ -49,7 +47,7 @@ frameworks.forEach(framework => {
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.country, "Cuba");
+    await t.expect(surveyResult.country).eql("Cuba");
   });
 
   test("change \"value\" in the returned json", async t => {

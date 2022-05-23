@@ -137,4 +137,64 @@ frameworks.forEach(framework => {
       .click(questionDropdownSelect.nth(1));
     await checkElementScreenshot("dropdown-select-question-popup.png", popupContainer, t);
   });
+
+  test("Check dropdown disabled items", async (t) => {
+    await t.resizeWindow(1280, 1100);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "DropdownRenderAsSelect",
+          hasOther: "true",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    });
+
+    await ClientFunction(() => {
+      const updateChoiceEnabled = (_, opt) => {
+        opt.choices.forEach((ch, index) => { ch.setIsEnabled(index % 2 === 0); });
+      };
+
+      const selectQuestion = window["survey"].getQuestionByName("DropdownRenderAsSelect");
+      selectQuestion.onOpened.add(updateChoiceEnabled);
+    })();
+
+    const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+      .pressKey("esc")
+      .click(questionDropdownSelect.nth(1));
+    await checkElementScreenshot("dropdown-select-disabled-popup-items.png", popupContainer, t);
+  });
 });

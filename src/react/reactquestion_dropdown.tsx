@@ -10,6 +10,10 @@ import { Base } from "../base";
 import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
+  onClick = (event: any) => {
+    this.question.onOpenedCallBack();
+  }
+
   protected setValueCore(newValue: any) {
     this.questionBase.renderedValue = newValue;
   }
@@ -28,6 +32,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         autoComplete={this.question.autoComplete}
         onChange={this.updateValueOnEvent}
         onInput={this.updateValueOnEvent}
+        onClick={this.onClick}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}

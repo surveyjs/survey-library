@@ -10,12 +10,12 @@ export class PopupViewModel {
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
-    popupViewModel.model.onVisibilityChanged = (isVisible: boolean) => {
-      if (isVisible) {
+    popupViewModel.model.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+      if (option.isVisible) {
         ko.tasks.runEarly();
         popupViewModel.updateOnShowing();
       }
-    };
+    });
     ko.applyBindings(popupViewModel, popupViewModel.container);
   }
   dispose() {
@@ -31,7 +31,7 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string,
   title?: string,
-  displayMode: "popup"|"overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup"
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
     () => {

@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition } from "./utils/popup";
@@ -21,6 +21,9 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "contentWidth" }) widthMode: "contentWidth" | "fixedWidth";
+
+  public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
+
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -57,7 +60,7 @@ export class PopupModel<T = any> extends Base {
       return;
     }
     this.setPropertyValue("isVisible", value);
-    this.onVisibilityChanged && this.onVisibilityChanged(value);
+    this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
     if (this.isVisible) {
       const innerModel = (this.contentComponentData as any)["model"];
       innerModel && innerModel.refresh && innerModel.refresh();
@@ -69,7 +72,6 @@ export class PopupModel<T = any> extends Base {
   public toggleVisibility() {
     this.isVisible = !this.isVisible;
   }
-  public onVisibilityChanged: (isVisible: boolean) => void;
 }
 
 export function createPopupModalViewModel(
@@ -335,7 +337,6 @@ export class PopupBaseViewModel extends Base {
     super.dispose();
     this.unmountPopupContainer();
     this.container = undefined;
-    this.model.onVisibilityChanged = undefined;
   }
   public initializePopupContainer() {
     if (!this.container) {

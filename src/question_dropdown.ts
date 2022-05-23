@@ -7,20 +7,26 @@ import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
-import { IAction } from "./actions/action";
+import { Action, IAction } from "./actions/action";
+import { Base, ComputedUpdater, EventBase } from "./base";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   private getVisibleListItems() {
-    return this.visibleChoices.map((choice: ItemValue) => <IAction>{
+    return this.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
       title: choice.text,
-      visible: choice.isVisible,
-      enabled: choice.isEnabled,
-    });
+      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
+    }));
   }
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("optionsCaption", this, false, true);
@@ -188,6 +194,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         model: listModel,
       }, "bottom", "center", false);
       this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
+      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+        if (option.isVisible) {
+          this.onOpenedCallBack();
+        }
+      });
     }
     return this._popupModel;
   }

@@ -23,6 +23,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }));
   }
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
 
   constructor(name: string) {
     super(name);
@@ -193,7 +196,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
       this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
         if (option.isVisible) {
-          this.onOpened.fire(this, { question: this, choices: this.choices });
+          this.onOpenedCallBack();
         }
       });
     }

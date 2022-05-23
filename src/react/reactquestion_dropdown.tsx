@@ -11,8 +11,7 @@ import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
   onClick = (event: any) => {
-    // debugger;
-    //this.onOpened.fire(this, { question: this, choices: this.choices });
+    this.question.onOpenedCallBack();
   }
 
   protected setValueCore(newValue: any) {

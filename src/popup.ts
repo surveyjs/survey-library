@@ -60,7 +60,7 @@ export class PopupModel<T = any> extends Base {
       return;
     }
     this.setPropertyValue("isVisible", value);
-    this.onVisibilityChanged.fire(this, { model: this, newValue: value });
+    this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
     if (this.isVisible) {
       const innerModel = (this.contentComponentData as any)["model"];
       innerModel && innerModel.refresh && innerModel.refresh();
@@ -337,7 +337,6 @@ export class PopupBaseViewModel extends Base {
     super.dispose();
     this.unmountPopupContainer();
     this.container = undefined;
-    this.model.onVisibilityChanged = undefined;
   }
   public initializePopupContainer() {
     if (!this.container) {

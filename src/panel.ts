@@ -1075,19 +1075,26 @@ export class PanelModelBase extends SurveyElement
   protected canRenderFirstRows(): boolean {
     return this.isPage;
   }
+  protected getDragDropInfo(): any {
+    const page: PanelModelBase = <any>this.getPage(this.parent);
+    return !!page ? page.getDragDropInfo() : undefined;
+  }
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
-    var dragDropInfo = new DragDropInfo(null, element);
-    dragDropInfo.target = element;
-    dragDropInfo.isEdge = this.elements.length > 1;
-    if (this.elements.length < 2) {
-      dragDropInfo.destination = this;
-    } else {
-      dragDropInfo.isBottom = index > 0;
-      if (index == 0) {
-        dragDropInfo.destination = this.elements[1];
+    let dragDropInfo = this.getDragDropInfo();
+    if(!dragDropInfo) {
+      dragDropInfo = new DragDropInfo(null, element);
+      dragDropInfo.target = element;
+      dragDropInfo.isEdge = this.elements.length > 1;
+      if (this.elements.length < 2) {
+        dragDropInfo.destination = this;
       } else {
-        dragDropInfo.destination = this.elements[index - 1];
+        dragDropInfo.isBottom = index > 0;
+        if (index == 0) {
+          dragDropInfo.destination = this.elements[1];
+        } else {
+          dragDropInfo.destination = this.elements[index - 1];
+        }
       }
     }
     this.dragDropAddTargetToRow(dragDropInfo, null);

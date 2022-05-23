@@ -302,6 +302,15 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  /**
+   * Use it to find out if the current instance has getType() equals to 'typeName' or inherited from this typeName
+   * @param typeName the string in lowercase, a SurveyJS type name
+   * @returns true if the current instance has getType() equals to 'typeName' or inherited from this typeName
+   * @see getType
+   */
+  public isDescendantOf(typeName: string): boolean {
+    return Serializer.isDescendantOf(this.getType(), typeName);
+  }
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
   }

@@ -11,21 +11,15 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :required="question.isRequired"
-    >
-      <option v-if="question.showOptionsCaption" :value="undefined">
-        {{ question.optionsCaption }}
-      </option>
+      :required="question.isRequired">
+      <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option>
       <sv-dropdown-option-item
         v-for="item in question.visibleChoices"
         :item="item"
         :key="item.id"
-      >
-      </sv-dropdown-option-item>
+      ></sv-dropdown-option-item>
     </select>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
-      {{ question.readOnlyText }}
-    </div>
+    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
   </div>
 </template>
 

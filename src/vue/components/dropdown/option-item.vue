@@ -1,7 +1,5 @@
 <template>
-  <option :value="item.value" :disabled="!item.isEnabled">
-    {{ item.text }}
-  </option>
+  <option :value="item.value" :disabled="!item.isEnabled">{{item.text}}</option>
 </template>
 
 <script lang="ts">

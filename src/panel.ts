@@ -1081,7 +1081,7 @@ export class PanelModelBase extends SurveyElement
   }
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
-    let dragDropInfo = this.getDragDropInfo();
+    let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
     if(!dragDropInfo) {
       dragDropInfo = new DragDropInfo(null, element);
       dragDropInfo.target = element;

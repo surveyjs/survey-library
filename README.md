@@ -114,55 +114,12 @@ You may create a very complex forms with a lot of pages, like [this one](https:/
 
 ## Getting started
 
-Install the library using npm.
+* [Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular)
+* [React](https://surveyjs.io/Documentation/Library?id=get-started-react)
+* [Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue)
+* [Knockout](https://surveyjs.io/Documentation/Library?id=get-started-knockout)
+* [jQuery](https://surveyjs.io/Documentation/Library?id=get-started-jquery)
 
-Angular version:
-
-```
-npm install survey-angular
-```
-
-jQuery version:
-
-```
-npm install survey-jquery
-```
-
-Knockout version:
-
-```
-npm install survey-knockout
-```
-
-React version:
-
-```
-npm install survey-react
-```
-
-Vue version:
-
-```
-npm install survey-vue
-```
-
-Or use unpkg CDN:
-
-* https://unpkg.com/survey-angular@{version-number}/survey.angular.min.js
-* https://unpkg.com/survey-knockout@{version-number}/survey.ko.min.js
-* https://unpkg.com/survey-react@{version-number}/survey.react.min.js
-* https://unpkg.com/survey-jquery@{version-number}/survey.jquery.min.js
-* https://unpkg.com/survey-vue@{version-number}/survey.vue.min.js
-
-You find all versions/builds in the [surveyjs/build repo](https://github.com/surveyjs/builds).
-
-Or dowload a version as zip file from [Releases](https://github.com/surveyjs/survey-library/releases)
-
-If you want to import it in another script:
-
-```javascript
-import * as Survey from "survey-jquery";
-```
 
 ## Building survey.js from sources
 
@@ -205,9 +162,6 @@ To build library yourself:
     ```
     This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
-### WordPress integration
-
-[SurveyJS WordPress plugin](https://wordpress.org/plugins/surveyjs/)
 
 ## License
 

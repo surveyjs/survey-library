@@ -1875,29 +1875,29 @@ export class Question extends SurveyElement
     this.destroyResizeObserver();
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
+      if(!scrollableSelector) return;
       const defaultRootEl = el.querySelector(scrollableSelector);
-      if(!!defaultRootEl) {
-        let isProcessed = false;
-        let requiredWidth: number = undefined;
-        this.resizeObserver = new ResizeObserver(() => {
+      if(!defaultRootEl) return;
+      let isProcessed = false;
+      let requiredWidth: number = undefined;
+      this.resizeObserver = new ResizeObserver(() => {
+        const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+        if(!requiredWidth && this.isDefaultRendering()) {
+          requiredWidth = rootEl.scrollWidth;
+        }
+        if(isProcessed || !isContainerVisible(rootEl)) {
+          isProcessed = false;
+        } else {
+          isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+        }
+      });
+      this.onMobileChangedCallback = () => {
+        setTimeout(() => {
           const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-          if(!requiredWidth && this.isDefaultRendering()) {
-            requiredWidth = rootEl.scrollWidth;
-          }
-          if(isProcessed || !isContainerVisible(rootEl)) {
-            isProcessed = false;
-          } else {
-            isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
-          }
-        });
-        this.onMobileChangedCallback = () => {
-          setTimeout(() => {
-            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
-          }, 0);
-        };
-        this.resizeObserver.observe(el);
-      }
+          this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+        }, 0);
+      };
+      this.resizeObserver.observe(el);
     }
   }
   protected getCompactRenderAs(): string {

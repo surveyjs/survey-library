@@ -302,6 +302,15 @@ export class Base {
   public getType(): string {
     return "base";
   }
+  /**
+   * Use this method to find out if the current instance is of the given `typeName` or inherited from it.
+   * @param `typeName` One of the values listed in the [getType()](https://surveyjs.io/Documentation/Library?id=surveymodel#getType) description.
+   * @returns true if the current instance is of the given `typeName` or inherited from it
+   * @see getType
+   */
+  public isDescendantOf(typeName: string): boolean {
+    return Serializer.isDescendantOf(this.getType(), typeName);
+  }
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
   }

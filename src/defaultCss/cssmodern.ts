@@ -235,6 +235,10 @@ export var modernCss = {
     selectWrapper: "",
     other: "sv-comment sv-question__other",
     onError: "sv-dropdown--error",
+    cleanButton: "sv-dropdown_clean-button",
+    cleanButtonSvg: "sv-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear_16x16",
+    controlValue: "sv-dropdown__value",
   },
   imagepicker: {
     root: "sv-selectbase sv-imagepicker",

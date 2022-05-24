@@ -5,6 +5,7 @@ import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { Popup } from "./components/popup/popup";
 import { PopupUtils } from "../utils/popup";
 import { attachKey2click } from "./reactSurvey";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {
@@ -20,7 +21,9 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
     if(this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{ this.question.readOnlyText }</div>;
+      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
+        <div>{ this.question.readOnlyText }</div>
+      </div>;
     } else {
       const inputElement = attachKey2click(
         <div
@@ -38,7 +41,9 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}
           aria-describedby={this.question.ariaDescribedBy}
-        >{ this.question.readOnlyText }
+        >
+          <div className={this.question.controlValue}>{ this.question.readOnlyText }</div>
+          {this.createClearButton()}
         </div>, null, { processEsc: false });
 
       selectElement = <>
@@ -50,6 +55,26 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
     return (
       <div className={cssClasses.selectWrapper}>
         {selectElement}
+      </div>
+    );
+  }
+
+  createClearButton(): JSX.Element {
+    if(!this.question.showClearButton && !this.question.cssClasses.cleanButtonIconId) return null;
+
+    const className = this.question.cssClasses.cleanButton;
+    const style = { display: this.question.isEmpty() ? "none": "" };
+    return (
+      <div
+        className={className}
+        style={style}
+        onClick={(e: any) => { this.question.onClear(e); }}
+      >
+        <SvgIcon
+          className={this.question.cssClasses.cleanButtonSvg}
+          iconName={this.question.cssClasses.cleanButtonIconId}
+          size={"auto"}
+        ></SvgIcon>
       </div>
     );
   }

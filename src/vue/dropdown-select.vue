@@ -13,9 +13,26 @@
         :aria-invalid="question.ariaInvalid"
         :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
-      >{{ question.readOnlyText }}</div>
+      >
+        <div :class="question.controlValue">{{ question.readOnlyText }}</div>
+        <div
+          :class="question.cssClasses.cleanButton"
+          v-if="question.showClearButton && question.cssClasses.cleanButtonIconId"
+          v-show="!question.isEmpty()"
+          v-on:click="clear"
+        >
+          <sv-svg-icon
+            :class="question.cssClasses.cleanButtonSvg"
+            :iconName="question.cssClasses.cleanButtonIconId"
+            size="auto"
+          >
+          </sv-svg-icon>
+        </div>
+      </div>
       <sv-popup v-if="!question.isReadOnly" :model="question.popupModel"></sv-popup>
-      <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+      <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+        {{ question.readOnlyText }}
+      </div>
     </div>
     <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
@@ -32,6 +49,9 @@ import { PopupUtils } from "src/utils/popup";
 export class DropdownSelect extends Dropdown {
   public click(event: any) {
     PopupUtils.updatePopupWidthBeforeShow(this.question.popupModel, event);
+  }
+  public clear(event: any) {
+    this.question.onClear(event);
   }
 }
 

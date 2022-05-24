@@ -221,7 +221,46 @@ export class AppComponent implements OnInit {
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. In this tutorial, the results are simply output in an alert dialog:
+After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+
+```js
+import { Component, OnInit } from '@angular/core';
+import { ..., Model } from "survey-angular";
+
+const SURVEY_ID = 1;
+
+@Component({
+  // ...
+})
+export class AppComponent implements OnInit {
+  surveyComplete (sender) {
+    saveSurveyResults(
+      "https://your-web-service.com/" + SURVEY_ID,
+      sender.data
+    )
+  }
+  ngOnInit() {    
+    const survey = new Model(surveyJson);
+    survey.onComplete.add(this.surveyComplete);
+    // ...
+  }
+}
+
+function saveSurveyResults(url, json) {
+    const request = new XMLHttpRequest();
+    request.open('POST', url);
+    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    request.addEventListener('load', () => {
+        // Handle "load"
+    });
+    request.addEventListener('error', () => {
+        // Handle "error"
+    });
+    request.send(JSON.stringify(json));
+}
+```
+
+In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 import { Component, OnInit } from '@angular/core';

@@ -273,6 +273,7 @@ export class StylesManager {
     ".sv_main .sv-boolean__label": "vertical-align: middle; cursor: pointer;",
     ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
       "margin-left: calc(50% - 10px);",
+    ".sv_main .sv-boolean input:focus ~ .sv-boolean__switch": "outline-width: 1px; outline-style: solid; outline-offset: 1px;",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
       "margin-left: calc(100% - 20px);",
     "[dir='rtl'] .sv-boolean__label ": "float: right;",
@@ -911,7 +912,7 @@ export class StylesManager {
       "fill: $text-color",
 
     //boolean
-    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__switch": "background-color: $main-color; outline-color: $main-color",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
     ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":

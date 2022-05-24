@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Observable, Subject, BehaviorSubject } from "rxjs";
 import { SurveyModel } from "survey-core";
 import { ImplementorBase } from "./implementor-base";
@@ -9,10 +9,16 @@ import { ImplementorBase } from "./implementor-base";
   styleUrls: ["./survey.component.scss"]
 })
 export class SurveyComponent {
-  @Input() model: any;
+  @Input() model!: SurveyModel;
+  @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
+  private called: boolean = false;
   constructor() {
   }
   ngOnChanges(changes: any): void {
     new ImplementorBase(changes.model.currentValue);
+  }
+  ngAfterViewInit() {
+    this.model.afterRenderSurvey(this.rootEl.nativeElement);
+    this.called = true;
   }
 }

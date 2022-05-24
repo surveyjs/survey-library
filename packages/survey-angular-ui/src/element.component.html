@@ -1,4 +1,4 @@
-<div [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" data-bind="attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null}">
+<div [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" data-bind="attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null} " #elementContainer>
   <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->

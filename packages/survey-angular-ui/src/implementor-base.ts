@@ -58,9 +58,9 @@ export class ImplementorBase {
     this.element.iteratePropertiesHash((hash: any, key: string) => {
       hash[key] = hash[key].value || hash[key];
     });
-    this.element.createArrayCoreHandler = undefined;
-    this.element.getPropertyValueCoreHandler = undefined;
-    this.element.setPropertyValueCoreHandler = undefined;
+    this.element.createArrayCoreHandler = <any>undefined;
+    this.element.getPropertyValueCoreHandler = <any>undefined;
+    this.element.setPropertyValueCoreHandler = <any>undefined;
     delete (<any>this.element)[this.implementedMark];
   }
 }

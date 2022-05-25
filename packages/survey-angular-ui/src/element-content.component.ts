@@ -6,7 +6,7 @@ import { TextQuestionComponent } from "./questions/text.component";
 import { AngularComponentFactory } from "./component-factory";
 
 @Component({
-  selector: "element-content",
+  selector: "sv-ng-element-content",
   templateUrl: "./element-content.component.html",
   styleUrls: ["./element-content.component.scss"]
 })

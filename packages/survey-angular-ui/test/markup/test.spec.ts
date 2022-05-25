@@ -38,9 +38,11 @@ describe("etalon tests", () => {
     const module = TestBed.inject(SurveyAngularModule);
   });
   markupTests.forEach(markupTest => {
-    it(markupTest.name, (done: any) => {
-      testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
-    });
+    if(markupTest.snapshot == "text") {
+      it(markupTest.name, (done: any) => {
+        testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
+      });
+    }
   });
   it("Check that that surveyAfterRender isCalled", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);

@@ -4,7 +4,7 @@ import { SurveyModel, PageModel } from "survey-core";
 import { ImplementorBase } from "../implementor-base";
 
 @Component({
-  selector: "text-question",
+  selector: "sv-ng-text-question",
   templateUrl: "./text.component.html",
   styleUrls: ["./text.component.scss"]
 })

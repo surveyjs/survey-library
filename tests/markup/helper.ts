@@ -89,36 +89,21 @@ export function testQuestionMarkup(assert, test, platform) {
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
-    var all = options.htmlElement.getElementsByTagName("*");
+    let str = crearExtraElements(options.htmlElement.innerHTML);
+    const htmlElement = document.createElement("div");
+    htmlElement.innerHTML = str;
+    var all = htmlElement.getElementsByTagName("*");
     for (var i = 0, max = all.length; i < max; i++) {
-      all[i].removeAttribute("aria-labelledby");
-      all[i].removeAttribute("data-bind");
-      all[i].removeAttribute("data-key");
-      all[i].removeAttribute("data-rendered");
-      all[i].removeAttribute("id");
-      all[i].removeAttribute("for");
-      all[i].removeAttribute("list");
-      all[i].removeAttribute("fragment");
-      if(all[i].getAttribute("name") !== "name")
-        all[i].removeAttribute("name");
-      if(all[i].checked) {
-        all[i].setAttribute("checked", "");
-      }
-      if(all[i].multiple) {
-        all[i].setAttribute("multiple", "");
-      }
-      if(all[i].hasAttribute("readonly"))
-        all[i].setAttribute("readonly", "");
+      clearAttributes(all[i]);
     }
     sortAttributes(all);
-    var str = options.htmlElement.children[0].innerHTML;
+    str = htmlElement.children[0].innerHTML;
 
     var re = /(<!--.*?-->)/g;
     var newstr = str.replace(re, "");
-    newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
     newstr = newstr.replace(/(> +<)/g, "><").trim();
-
-    var oldStr = test.etalon || !test.etalon && require("./snapshots/"+test.snapshot+".snap.html");
+    var etalonFileName = "./snapshots/"+test.snapshot+".snap.html";
+    var oldStr = test.etalon || !test.etalon && (!!platform.getStrFromHtml ? platform.getStrFromHtml(etalonFileName) : require(etalonFileName));
     oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
     oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
@@ -189,4 +174,58 @@ export function testQuestionMarkup(assert, test, platform) {
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
+}
+
+const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
+  (htmlElement: HTMLElement) => htmlElement.classList.contains(".sv-vue-title-addional-div"),
+  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-ng/) > -1
+];
+
+function crearExtraElements(innerHTML: string): string {
+  const container = document.createElement("div");
+  container.innerHTML = innerHTML;
+  container.querySelectorAll("*").forEach((el)=>{
+    if(removeExtraElementsConditions.some(condition => condition(<HTMLElement>el))) {
+      removeExtraElement(<HTMLElement>el);
+    }
+  });
+  return container.innerHTML;
+}
+
+function removeExtraElement(el: HTMLElement) {
+  const parentEl = el.parentElement || el;
+  let nextSibling:any = el.nextSibling;
+  el.remove();
+  while (el.children.length > 0) {
+    const childEl = el.children[el.children.length - 1];
+    parentEl.insertBefore(el.children[el.children.length - 1], nextSibling);
+    nextSibling = childEl;
+  }
+}
+
+function clearAttributes(el: Element) {
+  el.removeAttribute("aria-labelledby");
+  el.removeAttribute("data-bind");
+  el.removeAttribute("data-key");
+  el.removeAttribute("data-rendered");
+  el.removeAttribute("id");
+  el.removeAttribute("for");
+  el.removeAttribute("list");
+  el.removeAttribute("fragment");
+  if(el.getAttribute("name") !== "name")
+    el.removeAttribute("name");
+  if((<any>el).checked) {
+    el.setAttribute("checked", "");
+  }
+  if((<any>el).multiple) {
+    el.setAttribute("multiple", "");
+  }
+  if(el.hasAttribute("readonly"))
+    el.setAttribute("readonly", "");
+  for (let i = 0; i < el.attributes.length; i ++) {
+    const attr = el.attributes[i];
+    if (attr.name.search(/^(_ng|ng-)/) > -1) {
+      el.removeAttribute(el.attributes[i].name);
+    }
+  }
 }

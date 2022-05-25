@@ -60,13 +60,12 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   }
 
   createClearButton(): JSX.Element {
-    if(!this.question.showClearButton && !this.question.cssClasses.cleanButtonIconId) return null;
+    if(!this.question.showClearButton || !this.question.cssClasses.cleanButtonIconId) return null;
 
-    const className = this.question.cssClasses.cleanButton;
     const style = { display: this.question.isEmpty() ? "none": "" };
     return (
       <div
-        className={className}
+        className={this.question.cssClasses.cleanButton}
         style={style}
         onClick={(e: any) => { this.question.onClear(e); }}
       >

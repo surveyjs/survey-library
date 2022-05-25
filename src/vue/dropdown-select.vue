@@ -14,7 +14,7 @@
         :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
       >
-        <div :class="question.controlValue">{{ question.readOnlyText }}</div>
+        <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
         <div
           :class="question.cssClasses.cleanButton"
           v-if="question.showClearButton && question.cssClasses.cleanButtonIconId"

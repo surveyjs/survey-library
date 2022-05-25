@@ -42,7 +42,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
           aria-invalid={this.question.ariaInvalid}
           aria-describedby={this.question.ariaDescribedBy}
         >
-          <div className={this.question.controlValue}>{ this.question.readOnlyText }</div>
+          <div className={this.question.cssClasses.controlValue}>{ this.question.readOnlyText }</div>
           {this.createClearButton()}
         </div>, null, { processEsc: false });
 

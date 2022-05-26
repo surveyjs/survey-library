@@ -124,5 +124,27 @@ registerMarkupTests(
       },
       snapshot: "dropdown-select",
     },
+    {
+      name: "Test Dropdown Select question with clear button markup",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden",
+            defaultValue: "item1",
+            showClearButton: true,
+            renderAs: "select"
+          }
+        ]
+      },
+      snapshot: "dropdown-select-clear-button",
+    },
   ]
 );

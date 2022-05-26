@@ -139,6 +139,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
 
+  @property({ defaultValue: false }) showClearButton: boolean;
   @property({
     defaultValue: false,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
@@ -158,7 +159,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }) dropdownWidthMode: "contentWidth" | "editorWidth";
 
   public getControlClass(): string {
-    this.isEmpty();
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
@@ -168,6 +168,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public get readOnlyText() {
     return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
+
+  public onClear(event: any): void {
+    this.clearValue();
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   protected onVisibleChoicesChanged(): void {
@@ -270,6 +276,7 @@ Serializer.addClass(
       ],
     },
     { name: "renderAs", default: "default", visible: false },
+    { name: "showClearButton:boolean", default: false, visible: false },
     { name: "denySearch:boolean", default: false, visible: false },
     { name: "dropdownWidthMode", default: "editorWidth", visible: false },
   ],

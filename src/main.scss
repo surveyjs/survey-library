@@ -82,6 +82,19 @@ body {
     }
   }
 
+  .sv_q_dropdown_control {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .sv_q_dropdown_clean-button {
+    margin: 0.15em 3em;
+  }
+  .sv_q_dropdown_clean-button-svg {
+    width: 1em;
+    height: 1em;
+  }
+
   .sv_select_wrapper {
     background-color: $body-background-color;
     &:before {

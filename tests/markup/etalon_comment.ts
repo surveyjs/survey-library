@@ -1,5 +1,3 @@
-import { settings } from "../../src/settings";
-import { StylesManager } from "../../src/stylesmanager";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -49,8 +47,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => settings.readOnlyCommentRenderMode = "div",
-    after: () => settings.readOnlyCommentRenderMode = "textarea",
+    before: (settings: any) => settings.readOnlyCommentRenderMode = "div",
+    after: (settings: any) => settings.readOnlyCommentRenderMode = "textarea",
     snapshot: "comment-div",
   },
   ]

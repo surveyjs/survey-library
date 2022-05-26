@@ -1,4 +1,3 @@
-import { settings } from "../../src/settings";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -62,8 +61,8 @@ registerMarkupTest({
     ],
     mode: "display",
   },
-  before: () => settings.readOnlyTextRenderMode = "div",
-  after: () => settings.readOnlyTextRenderMode = "input",
+  before: (settings: any) => settings.readOnlyTextRenderMode = "div",
+  after: (settings: any) => settings.readOnlyTextRenderMode = "input",
   snapshot: "text-div",
 });
 registerMarkupTest({

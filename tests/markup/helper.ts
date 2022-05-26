@@ -1,3 +1,5 @@
+import { settings } from "../../src/settings";
+
 export var markupTests = [];
 
 export function registerMarkupTest(t) {
@@ -85,7 +87,7 @@ export function testQuestionMarkup(assert, test, platform) {
   }
   var done = assert.async();
   if (test.before)
-    test.before();
+    test.before(platform.getSettings ? platform.getSettings() : settings);
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
@@ -112,7 +114,7 @@ export function testQuestionMarkup(assert, test, platform) {
         platform.name + " " + test.name + " rendered correctly" :
         platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
     if (test.after)
-      test.after();
+      setTimeout(() => { test.after(platform.getSettings ? platform.getSettings() : settings); });
     if(platform.finish)
       platform.finish(surveyElement);
     if(newstr != oldStr) {

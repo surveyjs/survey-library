@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { SurveyComponent } from "src/survey.component";
-import { SurveyModel } from "survey-core";
+import { settings, SurveyModel } from "survey-core";
 import { testQuestionMarkup } from "../../../../tests/markup/helper";
 import { markupTests } from "../../../../tests/markup/etalon";
 import { SurveyAngularModule } from "src/angular-ui.module";
@@ -15,6 +15,9 @@ const platformDescriptor = {
     const component = fixture.componentInstance;
     component.model = survey;
     fixture.detectChanges();
+  },
+  getSettings: () => {
+    return settings;
   }
 };
 

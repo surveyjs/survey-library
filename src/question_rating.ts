@@ -170,6 +170,9 @@ export class QuestionRatingModel extends Question {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
+  public getInputId(index: number): string {
+    return this.inputId + "_" + index;
+  }
   supportGoNextPageAutomatic() {
     return true;
   }

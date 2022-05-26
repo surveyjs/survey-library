@@ -129,7 +129,6 @@ export var defaultV2Css = {
     footer: "sd-question__footer",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
-    disabled: "sd-question--disabled",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
     invisible: "sd-element--invisible"

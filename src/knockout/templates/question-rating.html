@@ -13,7 +13,7 @@
                 <input
                 type="radio"
                 class="sv-visuallyhidden"
-                data-bind="attr: { name: question.name, id: question.inputId + '_' + $index(), value: $data.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, enable: !question.isInputReadOnly, event: { click: function(data, event) { question.setValueFromClick(event.target.value); return true; } }"
+                data-bind="attr: { name: question.name, id: question.getInputId($index()), value: $data.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, enable: !question.isInputReadOnly, event: { click: function(data, event) { question.setValueFromClick(event.target.value); return true; } }"
                 />
                 <span data-bind="css: question.koCss().itemText">
                 <!-- ko template: { name: 'survey-string', data: $data.locText } -->

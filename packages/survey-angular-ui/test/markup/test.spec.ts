@@ -22,7 +22,7 @@ class ExpectAssertAdapter {
   constructor(private expect: any, private done: any) {
 
   }
-  public equal(expected: any, actual: any, msg: string) {
+  public equal(actual: any, expected: any, msg: string) {
     this.expect(actual, msg).toBe(expected);
   }
   public async () {

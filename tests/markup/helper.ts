@@ -99,7 +99,7 @@ export function testQuestionMarkup(assert, test, platform) {
     sortAttributes(all);
     str = htmlElement.children[0].innerHTML;
 
-    var re = /(<!--.*?-->)/g;
+    var re = /(<!--[\s\S]*?-->)/g;
     var newstr = str.replace(re, "");
     newstr = newstr.replace(/(> +<)/g, "><").trim();
     var etalonFileName = "./snapshots/"+test.snapshot+".snap.html";

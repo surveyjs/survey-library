@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
 
@@ -384,5 +384,47 @@ frameworks.forEach((framework) => {
       .click(clearButton)
       .expect(clearButton.exists).ok()
       .expect(clearButton.visible).notOk();
+  });
+
+  test("Check dropdown item template", async (t) => {
+    await registerCustomItemComponent(framework);
+
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "cars",
+          title: "Dropdown",
+          itemComponent: "new-item",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const myListItems = Selector(".my-list-item");
+    await t
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Choose...")
+
+      .click(questionDropdownSelect)
+      .expect(myListItems.count).eql(10)
+      .expect(myListItems.find(".sv-svg-icon").count).eql(10)
+
+      .click(myListItems.nth(3))
+
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan");
   });
 });

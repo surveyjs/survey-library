@@ -207,6 +207,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Check dropdown popup width", async (t) => {
+    await t.resizeWindow(1280, 1100);
     const jsonWithDropDown = {
       questions: [
         {

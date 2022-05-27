@@ -1,23 +1,16 @@
-  <input *ngIf="!model.dataListId && !model.isInputTextUpdate && !model.isReadOnlyRenderDiv()"
-    [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-    [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
-    data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
-  />
-  <input *ngIf="!model.dataListId && model.isInputTextUpdate && !model.isReadOnlyRenderDiv()"
-    [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-    [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
-    data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
+  <input *ngIf="!model.dataListId && !model.isReadOnlyRenderDiv()" [style]="model.inputStyle" [class]="model.getControlClass()"
+  [(ngModel)]="model.value" [attr.disabled]="model.isInputReadOnly ? '' : null" name="user"  [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
+  (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
+    [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
+    [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autoComplete"
   />
   <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()">
-    <input *ngIf="!model.isInputTextUpdate"
-      [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-      [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
-      data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
-    />
-    <input *ngIf="model.isInputTextUpdate"
-      [disabled]="model.isInputReadOnly" [style]="model.inputStyle" [class]="model.getControlClass()"
-      [value]="model.value" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder"
-      data-bind="attr: {size: question.renderedInputSize, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}"
+    <input
+      [style]="model.inputStyle" [class]="model.getControlClass()"
+      [(ngModel)]="model.value"  [attr.disabled]="model.isInputReadOnly ? '' : null" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
+      (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
+      [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
+      [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autoComplete"
     />
     <datalist [id]="model.dataListId">
       <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>

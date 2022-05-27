@@ -97,6 +97,7 @@ export function testQuestionMarkup(assert, test, platform) {
     var all = htmlElement.getElementsByTagName("*");
     for (var i = 0, max = all.length; i < max; i++) {
       clearAttributes(all[i]);
+      clearClasses(all[i]);
     }
     sortAttributes(all);
     str = htmlElement.children[0].innerHTML;
@@ -203,6 +204,16 @@ function removeExtraElement(el: HTMLElement) {
     parentEl.insertBefore(el.children[el.children.length - 1], nextSibling);
     nextSibling = childEl;
   }
+}
+
+function clearClasses(el: Element) {
+  let classesToRemove: Array<string> = [];
+  el.classList.forEach((className: string) => {
+    if(className.search(/^ng-/) > -1) {
+      classesToRemove.push(className);
+    }
+  });
+  el.classList.remove(...classesToRemove);
 }
 
 function clearAttributes(el: Element) {

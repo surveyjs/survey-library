@@ -15,6 +15,10 @@ export class TextQuestionComponent {
   ngOnChanges(changes: any): void {
     new ImplementorBase(changes.model.currentValue);
   }
+  keyup(event: any) {
+    if (!this.model.isInputTextUpdate) return;
+    this.model.value = event.target.value;
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("text-question", TextQuestionComponent);

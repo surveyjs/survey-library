@@ -110,6 +110,10 @@ export function testQuestionMarkup(assert, test, platform) {
     oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
     oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
+    //temp
+    newstr = sortClasses(newstr);
+    oldStr = sortClasses(oldStr);
+
     assert.equal(newstr, oldStr,
       newstr == oldStr ?
         platform.name + " " + test.name + " rendered correctly" :
@@ -245,4 +249,14 @@ function clearAttributes(el: Element) {
   attributesToRemove.forEach((attr) => {
     el.removeAttribute(attr);
   });
+}
+
+function sortClasses(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    const classList = el.className.replace(/\s+/, " ").split(" ");
+    el.className = classList.sort((a: string, b: string) => a.localeCompare(b)).join(" ");
+  });
+  return div.innerHTML;
 }

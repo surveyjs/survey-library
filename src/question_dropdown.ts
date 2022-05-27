@@ -18,6 +18,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
       title: choice.text,
+      component: this.itemComponent,
       visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
       enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
     }));
@@ -140,6 +141,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   @property({ defaultValue: false }) showClearButton: boolean;
+  @property() itemComponent: string;
   @property({
     defaultValue: false,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
@@ -279,6 +281,7 @@ Serializer.addClass(
     { name: "showClearButton:boolean", default: false, visible: false },
     { name: "denySearch:boolean", default: false, visible: false },
     { name: "dropdownWidthMode", default: "editorWidth", visible: false },
+    { name: "itemComponent", visible: false },
   ],
   function () {
     return new QuestionDropdownModel("");

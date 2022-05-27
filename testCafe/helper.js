@@ -114,6 +114,52 @@ export const registerCustomToolboxComponent = ClientFunction(
   }
 );
 
+export const registerCustomItemComponent = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
+    if (framework === "knockout") {
+      window["ko"].components.register("new-item", {
+        viewModel: {
+          createViewModel: function (params, componentInfo) {
+            const item = params.item;
+            item.iconName = "icon-defaultfile";
+            item.hint = item.title + " - Description";
+            return item;
+          }
+        },
+        template: "<div class=\"my-list-item\" style=\"display:flex;\" data-bind=\"attr: { title: hint } \"><span><sv-svg-icon params='iconName: iconName, size: iconSize'></sv-svg-icon></span><span data-bind=\"text: title, css: getActionBarItemTitleCss()\"></span></span></div>"
+      });
+    } else if (framework === "react") {
+      class ItemTemplateComponent extends window["React"].Component {
+        render() {
+          const item = this.props.item;
+          var Survey = window["Survey"];
+          item.iconName = "icon-defaultfile";
+          item.hint = item.title + " - Description";
+
+          // eslint-disable-next-line react/react-in-jsx-scope
+          return (<div className="my-list-item" style={{ display: "flex" }} title={item.hint}> <span> <Survey.SvgIcon iconName={item.iconName} size={item.iconSize} ></Survey.SvgIcon> </span> <span>{item.title}</span> </div>);
+        }
+      }
+      window["Survey"].ReactElementFactory.Instance.registerElement("new-item", (props) => {
+        return window["React"].createElement(ItemTemplateComponent, props);
+      });
+
+    } else if (framework === "vue") {
+      window["Vue"].component("new-item", {
+        props: {
+          item: {}
+        },
+        created: function () {
+          const item = this.item;
+          item.iconName = "icon-defaultfile";
+          item.hint = item.title + " - Description";
+        },
+        template: "<div class=\"my-list-item\" style=\"display:flex;\" v-bind:title=\"item.hint\" ><span><sv-svg-icon :iconName=\"item.iconName\" :size = \"item.iconSize\"></sv-svg-icon></span><span v-bind:class=\"item.getActionBarItemTitleCss()\">{{ item.title }}</span></span></div>"
+      });
+    }
+  }
+);
+
 export const getSurveyResult = ClientFunction(() => {
   var result = window["SurveyResult"];
   if (typeof result === "undefined") {

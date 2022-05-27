@@ -46,7 +46,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       content.push(icon);
       content.push(<span key={2}>{this.item.title}</span>);
     } else {
-      content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item }));
+      content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id }));
     }
 
     return attachKey2click(

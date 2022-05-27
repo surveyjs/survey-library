@@ -6,6 +6,7 @@ export * from "./string-viewer.component";
 
 export * from "./components/skeleton.component";
 export * from "./questions/text.component";
+export * from "./questions/html.component";
 export * from "./questions/radiogroup.component";
 export * from "./questions/radiogroup-item.component";
 export * from "./questions/checkbox.component";

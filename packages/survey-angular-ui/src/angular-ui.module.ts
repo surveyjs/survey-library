@@ -8,6 +8,7 @@ import { ElementContentComponent } from "./element-content.component";
 import { StringViewerComponent } from "./string-viewer.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { TextQuestionComponent } from "./questions/text.component";
+import { HtmlQuestionComponent } from "./questions/html.component";
 import { RadiogroupComponent } from "./questions/radiogroup.component";
 import { RadiogroupItemComponent } from "./questions/radiogroup-item.component";
 import { CheckboxComponent } from "./questions/checkbox.component";
@@ -21,7 +22,7 @@ import { ActionBarItemComponent } from "./components/action-bar-item.component";
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, ElementContentComponent, StringViewerComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent
+    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

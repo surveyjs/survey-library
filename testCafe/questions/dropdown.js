@@ -239,14 +239,14 @@ frameworks.forEach((framework) => {
 
       .click(questionDropdownSelect)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetWidth).eql(964)
+      .expect(popupContainer.offsetWidth).gte(900)
 
       .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
       .expect(popupContainer.visible).notOk()
 
       .click(questionText)
       .expect(popupContainer.visible).ok()
-      .expect(popupContainer.offsetWidth).eql(964);
+      .expect(popupContainer.offsetWidth).gte(900);
   });
 
   test("Check dropdown disabled items", async (t) => {

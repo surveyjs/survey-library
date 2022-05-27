@@ -235,10 +235,14 @@ function clearAttributes(el: Element) {
   }
   if(el.hasAttribute("readonly"))
     el.setAttribute("readonly", "");
+  const attributesToRemove = [];
   for (let i = 0; i < el.attributes.length; i ++) {
     const attr = el.attributes[i];
-    if (attr.name.search(/^(_ng|ng-)/) > -1) {
-      el.removeAttribute(el.attributes[i].name);
+    if (attr.name.search(/^(_ng|ng-|sv-ng)/) > -1) {
+      attributesToRemove.push(el.attributes[i].name);
     }
   }
+  attributesToRemove.forEach((attr) => {
+    el.removeAttribute(attr);
+  });
 }

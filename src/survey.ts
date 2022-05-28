@@ -17,7 +17,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/cssstandard";
-import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
+import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
@@ -94,6 +94,13 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
 
   //#region Event declarations
+  /**
+   * The event is fired after a trigger has been executed
+   * <br/> `sender` - the survey object that fires the event.
+   * <br/> `options.trigger` - An instance of a trigger that has been just perform it's action.
+   * @see onComplete
+   */
+   public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
@@ -6381,6 +6388,9 @@ export class SurveyModel extends SurveyElementCore
     var processor = new ProcessValue();
     var value = processor.getValue(fromName, this.getFilteredValues());
     this.setTriggerValue(name, value, false);
+  }
+  triggerExecuted(trigger: Trigger): void {
+    this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
   private isFocusingQuestion: boolean;
 

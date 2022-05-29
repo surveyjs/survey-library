@@ -225,6 +225,7 @@ export class PopupBaseViewModel extends Base {
     }
   }
   private updatePosition() {
+    if(!this.targetElement) return;
     if (this.model.displayMode !== "overlay") {
       const rect = this.targetElement.getBoundingClientRect();
       const background = <HTMLElement>this.container.children[0];

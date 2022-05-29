@@ -25,14 +25,22 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     }
     this.reactOnStrChanged();
   }
+  private isRendering: boolean;
   private reactOnStrChanged() {
     if (!this.locStr) return;
     this.locStr.onChanged = () => {
+      if(this.isRendering) return;
       this.setState({ changed: !!this.state && this.state.changed ? this.state.changed + 1 : 1 });
     };
   }
   render(): JSX.Element {
     if (!this.locStr) return null;
+    this.isRendering = true;
+    const strEl = this.renderString();
+    this.isRendering = false;
+    return strEl;
+  }
+  protected renderString(): JSX.Element {
     if (this.locStr.hasHtml) {
       let htmlValue = { __html: this.locStr.renderedHtml };
       return <span className="sv-string-viewer" style={this.style} dangerouslySetInnerHTML={htmlValue} />;

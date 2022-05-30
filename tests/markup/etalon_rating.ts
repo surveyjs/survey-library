@@ -66,8 +66,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown",
   },
   {
@@ -85,8 +85,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown-readonly",
   },
   {
@@ -105,8 +105,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown-readonly-with-value",
   },
   {
@@ -123,8 +123,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     snapshot: "rating-as-wrappable",
   }
   ]

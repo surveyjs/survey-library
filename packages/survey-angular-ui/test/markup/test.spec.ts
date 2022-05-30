@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { SurveyComponent } from "src/survey.component";
-import { settings, SurveyModel } from "survey-core";
+import { settings, StylesManager, SurveyModel } from "survey-core";
 import { testQuestionMarkup } from "../../../../tests/markup/helper";
 import { markupTests } from "../../../../tests/markup/etalon";
 import { SurveyAngularModule } from "src/angular-ui.module";
@@ -14,10 +14,13 @@ const platformDescriptor = {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = survey;
-    fixture.detectChanges();
+    fixture.detectChanges(true);
   },
   getSettings: () => {
     return settings;
+  },
+  getStylesManager: () => {
+    return StylesManager;
   }
 };
 
@@ -38,10 +41,10 @@ describe("etalon tests", () => {
     await TestBed.configureTestingModule({
       imports: [SurveyAngularModule],
     }).compileComponents();
-    const module = TestBed.inject(SurveyAngularModule);
+    TestBed.inject(SurveyAngularModule);
   });
   markupTests.forEach(markupTest => {
-    if(markupTest.snapshot == "text") {
+    if(markupTest.snapshot?.search(/^radiogroup/) > -1) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });

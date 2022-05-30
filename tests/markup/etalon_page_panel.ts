@@ -80,8 +80,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPanel",
     snapshot: "panel-swnl-v2",
   });
@@ -115,8 +115,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-v2",
   });
@@ -143,8 +143,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-swnl-v2",
   });
@@ -176,8 +176,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-title-v2",
   });
@@ -194,8 +194,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-title-v2",
   });
@@ -218,8 +218,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });

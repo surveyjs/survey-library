@@ -61,8 +61,8 @@ registerMarkupTest({
     ],
     mode: "display",
   },
-  before: (settings: any) => settings.readOnlyTextRenderMode = "div",
-  after: (settings: any) => settings.readOnlyTextRenderMode = "input",
+  before: (opt: any) => opt.settings.readOnlyTextRenderMode = "div",
+  after: (opt: any) => opt.settings.readOnlyTextRenderMode = "input",
   snapshot: "text-div",
 });
 registerMarkupTest({

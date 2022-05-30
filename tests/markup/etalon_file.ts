@@ -129,8 +129,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test file question ZIP (defaultV2)",
@@ -152,8 +152,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test file question PNG (defaultV2)",
@@ -175,8 +175,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-png",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test multiply file question (defaultV2)",
@@ -204,8 +204,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test multiply file question readOnly (defaultV2)",
@@ -234,8 +234,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png-ro",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   // defaultV2 mobile
   {
@@ -251,8 +251,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-mob2",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.setIsMobile(true),
   },
   {
@@ -275,8 +275,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-mob2-zip",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.setIsMobile(true),
   },
   {
@@ -299,8 +299,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-mob2-png",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.setIsMobile(true),
   },
   {
@@ -329,8 +329,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-mob2-zip-png",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.setIsMobile(true),
   },
   {
@@ -360,8 +360,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-mob2-zip-png-ro",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.setIsMobile(true),
   },
   // modern
@@ -378,8 +378,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-modern",
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test file question ZIP (modern)",
@@ -401,8 +401,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-modern-zip",
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test file question PNG (modern)",
@@ -424,8 +424,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-modern-png",
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test multiply file question (modern)",
@@ -453,8 +453,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-modern-zip-png",
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test multiply file question readOnly (modern)",
@@ -483,8 +483,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-modern-zip-png-ro",
-    before: () => StylesManager.applyTheme("modern"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   ]
 );

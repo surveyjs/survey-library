@@ -31,8 +31,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-top",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test paneldynamic with old navigation (progressBottom) markup",
@@ -63,8 +63,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-bottom",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   {
     name: "Test paneldynamic with old navigation (list) markup",
@@ -95,8 +95,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-list",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt: any) => opt.StylesManager.applyTheme("default"),
   },
   ]
 );

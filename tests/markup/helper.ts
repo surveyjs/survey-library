@@ -91,92 +91,93 @@ export function testQuestionMarkup(assert, test, platform) {
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
-    let str = crearExtraElements(options.htmlElement.innerHTML);
-    const htmlElement = document.createElement("div");
-    htmlElement.innerHTML = str;
-    var all = htmlElement.getElementsByTagName("*");
-    for (var i = 0, max = all.length; i < max; i++) {
-      clearAttributes(all[i]);
-      clearClasses(all[i]);
-    }
-    sortAttributes(all);
-    str = htmlElement.children[0].innerHTML;
+    setTimeout(()=>{
+      const htmlElement = options.htmlElement;
+      var all = htmlElement.getElementsByTagName("*");
+      for (var i = 0, max = all.length; i < max; i++) {
+        clearAttributes(all[i]);
+        clearClasses(all[i]);
+      }
+      sortAttributes(all);
+      const newEl = document.createElement("div");
+      newEl.innerHTML = crearExtraElements(htmlElement.innerHTML);
+      let str = newEl.children[0].innerHTML;
 
-    var re = /(<!--[\s\S]*?-->)/g;
-    var newstr = str.replace(re, "");
-    newstr = newstr.replace(/(> +<)/g, "><").trim();
-    var etalonFileName = "./snapshots/"+test.snapshot+".snap.html";
-    var oldStr = test.etalon || !test.etalon && (!!platform.getStrFromHtml ? platform.getStrFromHtml(etalonFileName) : require(etalonFileName));
-    oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
-    oldStr = oldStr.replace(/(> +<)/g, "><").trim();
+      var re = /(<!--[\s\S]*?-->)/g;
+      var newstr = str.replace(re, "");
+      newstr = newstr.replace(/(> +<)/g, "><").trim();
+      var etalonFileName = "./snapshots/"+test.snapshot+".snap.html";
+      var oldStr = test.etalon || !test.etalon && (!!platform.getStrFromHtml ? platform.getStrFromHtml(etalonFileName) : require(etalonFileName));
+      oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
+      oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
-    //temp
-    newstr = sortClasses(newstr);
-    oldStr = sortClasses(oldStr);
+      //temp
+      newstr = sortClasses(newstr);
+      oldStr = sortClasses(oldStr);
 
-    assert.equal(newstr, oldStr,
-      newstr == oldStr ?
-        platform.name + " " + test.name + " rendered correctly" :
-        platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
-    if (test.after)
-      setTimeout(() => { test.after(platform.getSettings ? platform.getSettings() : settings); });
-    if(platform.finish)
-      platform.finish(surveyElement);
-    if(newstr != oldStr) {
-      var form =document.createElement("form");
-      form.action = "https://text-compare.com/";
-      form.target = "_blank";
-      form.method = "post";
-      form.id = test.snapshot;
-      reportElement.appendChild(form);
+      assert.equal(newstr, oldStr,
+        newstr == oldStr ?
+          platform.name + " " + test.name + " rendered correctly" :
+          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
+      if (test.after)
+        setTimeout(() => { test.after(platform.getSettings ? platform.getSettings() : settings); });
+      if(platform.finish)
+        platform.finish(surveyElement);
+      if(newstr != oldStr) {
+        var form =document.createElement("form");
+        form.action = "https://text-compare.com/";
+        form.target = "_blank";
+        form.method = "post";
+        form.id = test.snapshot;
+        reportElement.appendChild(form);
 
-      var testTitle = document.createElement("h1");
-      testTitle.innerText = test.name+" ("+test.snapshot+")";
-      form.appendChild(testTitle);
+        var testTitle = document.createElement("h1");
+        testTitle.innerText = test.name+" ("+test.snapshot+")";
+        form.appendChild(testTitle);
 
-      var table = document.createElement("table");
-      form.appendChild(table);
-      var tableRow = document.createElement("tr");
-      table.appendChild(tableRow);
-      var tableCell1 = document.createElement("td");
-      var tableCell2 = document.createElement("td");
-      var tableCell3 = document.createElement("td");
-      tableRow.appendChild(tableCell1);
-      tableRow.appendChild(tableCell2);
-      tableRow.appendChild(tableCell3);
+        var table = document.createElement("table");
+        form.appendChild(table);
+        var tableRow = document.createElement("tr");
+        table.appendChild(tableRow);
+        var tableCell1 = document.createElement("td");
+        var tableCell2 = document.createElement("td");
+        var tableCell3 = document.createElement("td");
+        tableRow.appendChild(tableCell1);
+        tableRow.appendChild(tableCell2);
+        tableRow.appendChild(tableCell3);
 
-      var caption = document.createElement("h2");
-      caption.innerText = "Expected:";
-      tableCell1.appendChild(caption);
-      var preEl = document.createElement("textarea");
-      preEl.value = format(oldStr);
-      preEl.name = "text1";
-      tableCell1.appendChild(preEl);
+        var caption = document.createElement("h2");
+        caption.innerText = "Expected:";
+        tableCell1.appendChild(caption);
+        var preEl = document.createElement("textarea");
+        preEl.value = format(oldStr);
+        preEl.name = "text1";
+        tableCell1.appendChild(preEl);
 
-      var caption2 = document.createElement("h2");
-      caption2.innerText = "Actual:";
-      tableCell2.appendChild(caption2);
-      var preEl2 = document.createElement("textarea");
-      preEl2.value = format(newstr);
-      preEl2.name = "text2";
-      tableCell2.appendChild(preEl2);
+        var caption2 = document.createElement("h2");
+        caption2.innerText = "Actual:";
+        tableCell2.appendChild(caption2);
+        var preEl2 = document.createElement("textarea");
+        preEl2.value = format(newstr);
+        preEl2.name = "text2";
+        tableCell2.appendChild(preEl2);
 
-      var caption3 = document.createElement("h2");
-      caption3.innerText = "Do:";
-      tableCell3.appendChild(caption3);
-      var submit = document.createElement("button");
-      submit.innerText = "Compare on https://text-compare.com/";
-      tableCell3.appendChild(submit);
-      tableCell3.appendChild(document.createElement("br"));
+        var caption3 = document.createElement("h2");
+        caption3.innerText = "Do:";
+        tableCell3.appendChild(caption3);
+        var submit = document.createElement("button");
+        submit.innerText = "Compare on https://text-compare.com/";
+        tableCell3.appendChild(submit);
+        tableCell3.appendChild(document.createElement("br"));
 
-      var download = document.createElement("a");
-      download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
-      download.setAttribute("download", test.snapshot+".snap.html");
-      download.innerText = "Download snapshot";
-      tableCell3.appendChild(download);
-    }
-
-    done();
+        var download = document.createElement("a");
+        download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
+        download.setAttribute("download", test.snapshot+".snap.html");
+        download.innerText = "Download snapshot";
+        tableCell3.appendChild(download);
+      }
+      done();
+    }, 10);
   });
   if (test.initSurvey)
     test.initSurvey(platform.survey);

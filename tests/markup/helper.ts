@@ -240,6 +240,9 @@ function clearAttributes(el: Element) {
   }
   if(el.hasAttribute("readonly"))
     el.setAttribute("readonly", "");
+  if(el.hasAttribute("ng-reflect-value")) {
+    el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
+  }
   const attributesToRemove = [];
   for (let i = 0; i < el.attributes.length; i ++) {
     const attr = el.attributes[i];

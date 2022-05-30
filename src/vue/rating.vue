@@ -1,5 +1,5 @@
 <template>
-  <div :class="getRootClass(question)">
+  <div :class="question.ratingRootCss">
       <fieldset role="radiogroup">
         <legend role="presentation" class="sv-hidden"></legend>
         <span v-if="question.hasMinLabel"
@@ -15,7 +15,7 @@
             type="radio"
             class="sv-visuallyhidden"
             :name="question.name"
-            :id="question.inputId + '_' + index"
+            :id="question.getInputId(index)"
             :value="item.value"
             :disabled="question.isInputReadOnly"
             @click="(e) => question.setValueFromClick(e.target.value)"
@@ -45,11 +45,6 @@ import { QuestionRatingModel } from "survey-core";
 
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {
-  getRootClass(question: QuestionRatingModel) {
-    const classes = question.cssClasses;
-    if (question.isReadOnly) return question.ratingRootCss + " " + classes.disabled;
-    return question.ratingRootCss;
-  }
 }
 Vue.component("survey-rating", Rating);
 export default Rating;

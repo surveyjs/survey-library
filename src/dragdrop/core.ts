@@ -56,7 +56,7 @@ export abstract class DragDropCore<T> extends Base {
   private scrollIntervalId: number = null;
   protected allowDropHere = false;
 
-  constructor(private surveyValue?: ISurvey, private creator?: any) {
+  constructor(private surveyValue?: ISurvey, private creator?: any, private longTap?: boolean) {
     super();
   }
 
@@ -124,7 +124,7 @@ export abstract class DragDropCore<T> extends Base {
       }
 
       this.stopLongTap();
-    }, 500);
+    }, this.longTap? 500: 0);
 
     document.addEventListener("pointerup", this.stopLongTap);
     document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);

@@ -1,15 +1,4 @@
-<div role="presentation" [class]="question.getItemClass(model)">
-  <label [class]="question.getLabelClass(model)" [attr.aria-label]="question.getAriaItemLabel(model)">
-    <input type="radio" [name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
-      [disabled]="!question.getItemEnabled(model)" [checked]="question.renderedValue" [(ngModel)]="question.value" [value]="model.value"
-    />
-    <span *ngIf="question.cssClasses.materialDecorator" [class]="question.cssClasses.materialDecorator">
-      <svg *ngIf="question.itemSvgIcon" [class]="question.cssClasses.itemDecorator">
-        <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
-      </svg>
-    </span>
-    <span [class]="question.getControlLabelClass(model)" [style.visibility]="!model.hideCaption ? 'visible' : 'hidden'">
-      <string-viewer [model]="model.locText"></string-viewer>
-    </span>
-  </label>
-</div>
+<input type="radio" [name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
+  [disabled]="!question.getItemEnabled(model)"[(ngModel)]="question.renderedValue" [value]="model.value"
+/>
+<ng-content></ng-content>

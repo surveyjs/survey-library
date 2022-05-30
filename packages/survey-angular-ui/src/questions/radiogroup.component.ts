@@ -1,10 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "../component-factory";
-import { SurveyModel, PageModel } from "survey-core";
 import { ImplementorBase } from "../implementor-base";
 
 @Component({
-  selector: "radiogroup-question",
+  selector: "sv-ng-radiogroup-question",
   templateUrl: "./radiogroup.component.html",
   styleUrls: ["./radiogroup.component.scss"]
 })

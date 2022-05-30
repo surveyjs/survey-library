@@ -17,12 +17,15 @@ import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
 import { ActionBarItemComponent } from "./components/action-bar-item.component";
+import { SelectBaseItemComponent } from "./questions/selectbase-item";
+import { SelectBaseComponent } from "./questions/selectbase.component";
+import { SurveyCommentComponent } from "./comment.component";
 
 @NgModule({
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, ElementContentComponent, StringViewerComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent
+    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent, SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent
   ],
   imports: [
     CommonModule, FormsModule

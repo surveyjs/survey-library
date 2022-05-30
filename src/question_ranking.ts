@@ -304,6 +304,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
+  /**
+   * For mobile devices. Set this property to false, to disable the "long tap" before drag start. Default is true.
+  */
   public get longTap(): boolean {
     return this.getPropertyValue("longTap");
   }

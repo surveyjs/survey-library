@@ -21,6 +21,8 @@ import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-act
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
+    //Create rendered table in contructor and not on rendering
+    const table = this.question.renderedTable;
     this.state = this.getState();
   }
   protected get question(): QuestionMatrixDropdownModelBase {

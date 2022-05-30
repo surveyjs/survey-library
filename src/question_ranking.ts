@@ -163,7 +163,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    this.dragDropRankingChoices = new DragDropRankingChoices(this.survey);
+    this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
   public handlePointerDown = (
@@ -303,6 +303,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.itemIconFocusMod)
       .toString();
   }
+
+  public get longTap(): boolean {
+    return this.getPropertyValue("longTap");
+  }
+  public set longTap(val: boolean) {
+    this.setPropertyValue("longTap", val);
+  }
 }
 
 Serializer.addClass(
@@ -318,6 +325,12 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
+    {
+      name: "longTap",
+      default: true,
+      visible: false,
+      isSerializable: false,
+    },
   ],
   function () {
     return new QuestionRankingModel("");

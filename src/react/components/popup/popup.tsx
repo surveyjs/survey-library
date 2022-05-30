@@ -14,8 +14,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   constructor(props: IPopupProps) {
     super(props);
     this.containerRef = React.createRef();
-    this.popup = new PopupBaseViewModel(this.props.model);
-    this.popup.initializePopupContainer();
+    this.createModel();
   }
   get model(): PopupModel {
     return this.props.model;
@@ -23,12 +22,23 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   protected getStateElement() {
     return this.model;
   }
-  componentDidMount() {
-    super.componentDidMount();
+  private createModel(): void {
+    this.popup = new PopupBaseViewModel(this.props.model);
     this.popup.initializePopupContainer();
+  }
+  private setTargetElement(): void {
     if(!!this.containerRef.current) {
       this.popup.targetElement = this.containerRef.current.parentElement;
     }
+  }
+  componentDidMount() {
+    super.componentDidMount();
+    this.popup.initializePopupContainer();
+    this.setTargetElement();
+  }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+    this.setTargetElement();
   }
   componentWillUnmount() {
     this.popup.unmountPopupContainer();
@@ -38,8 +48,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     const isNeedUpdate = nextProps.model !== this.popup.model;
     if(isNeedUpdate) {
       this.popup?.dispose();
-      this.popup = new PopupBaseViewModel(this.props.model);
-      this.popup.initializePopupContainer();
+      this.createModel();
     }
     return isNeedUpdate;
   }

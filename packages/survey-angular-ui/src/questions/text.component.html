@@ -1,5 +1,5 @@
   <input *ngIf="!model.dataListId && !model.isReadOnlyRenderDiv()" [style]="model.inputStyle" [class]="model.getControlClass()"
-  [(ngModel)]="model.value" [attr.disabled]="model.isInputReadOnly ? '' : null" name="user"  [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
+  [(ngModel)]="model.value" [disabled]="model.isInputReadOnly" name="user"  [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
   (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
     [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autoComplete"
@@ -7,7 +7,7 @@
   <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()">
     <input
       [style]="model.inputStyle" [class]="model.getControlClass()"
-      [(ngModel)]="model.value"  [attr.disabled]="model.isInputReadOnly ? '' : null" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
+      [(ngModel)]="model.value"  [disabled]="model.isInputReadOnly" [type]="model.inputType" [id]="model.inputId" [placeholder]="model.renderedPlaceHolder || ''"
       (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
       [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
       [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autoComplete"

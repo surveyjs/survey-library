@@ -12,6 +12,11 @@ export var settings = {
     caseSensitive: false
   },
   /**
+   * Set this value to false, if you want to have UTC fuctions, for example setUTCHours inside our functions, like today.
+   * By default it uses setHours function, with local date
+   */
+  useLocalTimeZone: true,
+  /**
    * The prefix that uses to store the question comment, as {questionName} + {commentPrefix}.
    * The default
    */

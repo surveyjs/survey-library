@@ -20,7 +20,7 @@
           <!-- /ko -->
         </div>
       </div>
-      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButton} } --><!-- /ko -->
+      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
       <!-- ko if: question.showPreview -->
       <!-- ko if: question.koHasValue -->
       <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
@@ -30,7 +30,7 @@
               <!-- ko if: question.canPreviewImage($data) -->
               <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
               <!-- /ko -->
-              <!-- ko if: !question.canPreviewImage($data) && question.cssClasses.defaultImageIconId -->
+              <!-- ko if: question.defaultImage($data) -->
               <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: $data.name -->
@@ -49,7 +49,7 @@
       </div>
       <!-- /ko -->
       <!-- /ko -->
-      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, removeButtonCss: question.cssClasses.removeButtonBottom} } --><!-- /ko -->
+      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButtonBottom} } --><!-- /ko -->
       <!-- ko if: question.mobileFileNavigatorVisible -->
       <!-- ko component: { name: 'sv-action-bar', params: { model: question.mobileFileNavigator } } -->
       <!-- /ko -->
@@ -57,8 +57,8 @@
   </div>
 </script>
 <script type="text/html" id="survey-question-file-clean-button">
-  <!-- ko if: question.koHasValue() && !question.isReadOnly && $data.removeButtonCss-->
-  <button type="button" data-bind="css: removeButtonCss, disabled: question.isInputReadOnly, click: question.doclean">
+  <!-- ko if: $data.showRemoveButton-->
+  <button type="button" data-bind="css: showRemoveButton, disabled: question.isInputReadOnly, click: question.doclean">
       <span data-bind="text: question.cleanButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->
         <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto' } } --><!-- /ko -->
@@ -70,7 +70,7 @@
 <script type="text/html" id="survey-question-file-sign">
   <!-- ko if: item.name && fileSignCss -->
   <div data-bind="css: fileSignCss">
-    <a data-bind="style: { width: question.imageWidth + 'px' }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
+    <a data-bind="style: { width: question.imageWidthRendered }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
   </div>
   <!-- /ko -->
 </script>

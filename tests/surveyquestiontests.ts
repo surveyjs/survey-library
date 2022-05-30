@@ -3976,7 +3976,9 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
     questions: [{ type: "text", name: "q", max: "=today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
 QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
@@ -3984,7 +3986,9 @@ QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
     questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(
     question.renderedMax,
     todayStr,
@@ -3996,9 +4000,11 @@ QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", functi
     questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
   });
   const question = <QuestionTextModel>survey.getQuestionByName("q");
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   var maxDate = new Date();
-  maxDate.setUTCHours(0, 0, 0, 0);
+  maxDate.setHours(0, 0, 0, 0);
   maxDate.setDate(maxDate.getDate() + 10);
   var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
   assert.equal(
@@ -4023,7 +4029,9 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
     "convert the min into minValueExpression"
   );
   assert.notOk(question.min, "min value becomes empty");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(
     question.renderedMin,
     todayStr,

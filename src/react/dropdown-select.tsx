@@ -3,10 +3,8 @@ import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { Popup } from "./components/popup/popup";
-import { PopupUtils } from "../utils/popup";
 import { attachKey2click } from "./reactSurvey";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
-import { findParentByClass } from "../utils/utils";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {
@@ -15,12 +13,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
 
   protected renderSelect(cssClasses: any): JSX.Element {
     const click = (_: any, e: any) => {
-      if (!!e && !!e.target) {
-        const target = findParentByClass(e.target, this.question.cssClasses.control);
-        if(!!target) {
-          PopupUtils.updatePopupWidthBeforeShow(this.question.popupModel, target, e);
-        }
-      }
+      this.question.onClick(e);
     };
 
     let selectElement = null;

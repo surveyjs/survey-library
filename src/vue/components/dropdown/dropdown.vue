@@ -4,7 +4,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-model="question.renderedValue"
-      v-on:click="question.onOpenedCallBack()"
+      v-on:click="onClick()"
       :autocomplete="question.autoComplete"
       :class="question.getControlClass()"
       :aria-required="question.ariaRequired"
@@ -32,6 +32,10 @@ import BaseVue from "src/vue/base";
 @Component
 export class DropdownComponent extends BaseVue {
   @Prop() question: Question;
+
+  public onClick() {
+    !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
+  }
 }
 Vue.component("sv-dropdown", DropdownComponent);
 export default DropdownComponent;

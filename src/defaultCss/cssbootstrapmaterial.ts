@@ -98,6 +98,7 @@ export var defaultBootstrapMaterialCss = {
     rootRadio: "sv_qbln form-inline checkbox",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-boolean--disabled",

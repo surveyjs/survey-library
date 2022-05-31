@@ -176,6 +176,9 @@ export class QuestionBooleanModel extends Question {
   }
 
   public get svgIcon(): string {
+    if(this.checkedValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
+    if(this.checkedValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if(!this.checkedValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
 

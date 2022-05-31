@@ -206,6 +206,7 @@ export var defaultV2Css = {
     radioFieldset: "sd-selectbase",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
+    controlCheckbox: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",

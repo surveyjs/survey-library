@@ -6,6 +6,9 @@
     "@angular/forms": "^13.0.0",
     "@angular/core": "^13.0.0"
   },
+  "devDependencies": {
+    "@types/node": "^16.11.10"
+  },
   "dependencies": {
     "survey-core": "latest",
     "tslib": "^2.3.0"

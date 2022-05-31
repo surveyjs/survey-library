@@ -1,18 +1,31 @@
 import { Component, Input } from "@angular/core";
-import { QuestionCheckboxModel } from "survey-core";
-import { ImplementorBase } from "../implementor-base";
+import { ItemValue, QuestionCheckboxModel } from "survey-core";
 
 @Component({
-  selector: "sv-checkbox-item",
+  selector: "sv-ng-checkbox-item, '[sv-ng-checkbox-item]'",
   templateUrl: "./checkbox-item.component.html",
   styleUrls: ["./checkbox-item.component.scss"]
 })
 export class CheckboxItemComponent {
-  @Input() question: any;
-  @Input() model: any;
+  @Input() question!: QuestionCheckboxModel;
+  @Input() model!: ItemValue;
   constructor() {
   }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
+  onChange(event: any) {
+    var newValue = (<Array<string>>[]).concat(this.question.renderedValue || []);
+    var index = newValue.indexOf(this.model.value);
+    if (event.target.checked) {
+      if (index < 0) {
+        newValue.push(this.model.value);
+      }
+    } else {
+      if (index > -1) {
+        newValue.splice(index, 1);
+      }
+    }
+    this.question.renderedValue = newValue;
+  }
+  onSelectAllChange(event: any) {
+    this.question.toggleSelectAll();
   }
 }

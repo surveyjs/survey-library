@@ -19,12 +19,17 @@ import { DropdownQuestionComponent } from "./questions/dropdown.component";
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
 import { ActionBarItemComponent } from "./components/action-bar-item.component";
+import { SelectBaseItemComponent } from "./questions/selectbase-item";
+import { SelectBaseComponent } from "./questions/selectbase.component";
+import { SurveyCommentComponent } from "./comment.component";
 
 @NgModule({
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, ElementContentComponent, StringViewerComponent,
-    QuestionSkeletonComponent, DropdownComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent, DropdownQuestionComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent
+    QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
+    DropdownComponent, DropdownQuestionComponent,
+    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
+    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent
   ],
   imports: [
     CommonModule, FormsModule

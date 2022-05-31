@@ -4,7 +4,7 @@ import { SurveyModel, PageModel } from "survey-core";
 import { ImplementorBase } from "../implementor-base";
 
 @Component({
-  selector: "checkbox-question",
+  selector: "sv-ng-checkbox-question",
   templateUrl: "./checkbox.component.html",
   styleUrls: ["./checkbox.component.scss"]
 })

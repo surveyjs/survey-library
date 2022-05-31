@@ -214,9 +214,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public onClick(event: any): void {
     if (!!event && !!event.target) {
-      const target = findParentByClass(event.target, this.question.cssClasses.control);
+      const target = findParentByClass(event.target, this.cssClasses.control);
       if (!!target) {
-        PopupUtils.updatePopupWidthBeforeShow(this.question.popupModel, target, event);
+        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
       }
     }
   }

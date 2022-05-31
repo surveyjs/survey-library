@@ -1,0 +1,4 @@
+<div [class]="model.renderCssRoot">
+  <sv-ng-dropdown [model]="model"></sv-ng-dropdown>
+  <div *ngIf="model.hasOther && model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
+</div>

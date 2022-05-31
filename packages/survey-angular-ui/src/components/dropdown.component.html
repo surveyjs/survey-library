@@ -1,0 +1,10 @@
+<div [class]="model.cssClasses.selectWrapper">
+  <select *ngIf="!model.isReadOnly" [id]="model.inputId" [(ngModel)]="model.renderedValue" [disabled]="model.isInputReadOnly"
+    [class]="model.getControlClass()" [autocomplete]="model.autoComplete" [required]="model.isRequired"
+    [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
+    [attr.aria-describedby]="model.ariaDescribedBy">
+    <option *ngIf="model.showOptionsCaption" [value]="''">{{ model.optionsCaption }}</option>
+    <option *ngFor="let item of model.visibleChoices" [value]="item.value" [disabled]="!item.isEnabled">{{ item.text }}</option>
+  </select>
+  <div *ngIf="model.isReadOnly" disabled [class]="model.getControlClass()" [id]="model.inputId">{{ model.readOnlyText }}</div>
+</div>

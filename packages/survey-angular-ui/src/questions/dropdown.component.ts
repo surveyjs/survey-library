@@ -3,7 +3,7 @@ import { AngularComponentFactory } from "../component-factory";
 import { ImplementorBase } from "../implementor-base";
 
 @Component({
-  selector: "dropdown-question",
+  selector: "sv-ng-dropdown-question",
   templateUrl: "./dropdown.component.html",
   styleUrls: ["./dropdown.component.scss"]
 })

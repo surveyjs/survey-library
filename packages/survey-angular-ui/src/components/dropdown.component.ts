@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ImplementorBase } from "../implementor-base";
 
 @Component({
-  selector: "sv-dropdown",
+  selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
 })
 export class DropdownComponent {

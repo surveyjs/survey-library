@@ -43,12 +43,11 @@ import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import Dropdown from "./dropdown.vue";
 import { RendererFactory } from "survey-core";
-import { PopupUtils } from "src/utils/popup";
 
 @Component
 export class DropdownSelect extends Dropdown {
   public click(event: any) {
-    PopupUtils.updatePopupWidthBeforeShow(this.question.popupModel, event);
+    this.question.onClick(event);
   }
   public clear(event: any) {
     this.question.onClear(event);

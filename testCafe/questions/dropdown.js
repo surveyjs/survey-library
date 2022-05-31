@@ -206,6 +206,50 @@ frameworks.forEach((framework) => {
     await t.expect(questionJson.title).eql(newTitle);
   });
 
+  test("Check dropdown popup width", async (t) => {
+    await t.resizeWindow(1280, 1100);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          renderAs: "select",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const questionText = Selector(".sv_q_dropdown__value");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetWidth).gte(900)
+
+      .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionText)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetWidth).gte(900);
+  });
+
   test("Check dropdown disabled items", async (t) => {
     const jsonWithDropDown = {
       questions: [

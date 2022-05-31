@@ -9,6 +9,8 @@ import { PopupModel } from "./popup";
 import { ListModel } from "./list";
 import { Action, IAction } from "./actions/action";
 import { Base, ComputedUpdater, EventBase } from "./base";
+import { findParentByClass } from "./utils/utils";
+import { PopupUtils } from "./utils/popup";
 
 /**
  * A Model for a dropdown question
@@ -22,10 +24,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
       enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
     }));
-  }
-  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
   constructor(name: string) {
@@ -209,6 +207,18 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       });
     }
     return this._popupModel;
+  }
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+  public onClick(event: any): void {
+    if (!!event && !!event.target) {
+      const target = findParentByClass(event.target, this.cssClasses.control);
+      if (!!target) {
+        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
+      }
+    }
   }
 }
 Serializer.addClass(

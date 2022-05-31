@@ -162,15 +162,15 @@ export class PopupUtils {
     if (horizontalPosition == "left") {
       targetPos.left -= marginLeft + marginRight;
     }
-    if(horizontalPosition === "center") {
+    if (horizontalPosition === "center") {
       targetPos.left -= marginLeft;
     }
     return targetPos;
   }
 
-  public static updatePopupWidthBeforeShow(popupModel: any, e: any) {
-    if (!!e && !!e.target) {
-      popupModel.width = e.target.getBoundingClientRect().width;
+  public static updatePopupWidthBeforeShow(popupModel: any, target: Element, e: any) {
+    if (!!target) {
+      popupModel.width = target.getBoundingClientRect().width;
     }
     popupModel.toggleVisibility();
   }

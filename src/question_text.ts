@@ -342,7 +342,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.locDataListValue;
   }
   public get dataListId(): string {
-    return this.locDataList.hasValue() ? this.id + "_datalist" : "";
+    return this.locDataList.hasValue() ? this.id + "_datalist" : undefined;
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return (

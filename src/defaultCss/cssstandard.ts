@@ -109,6 +109,7 @@ export var defaultStandardCss = {
     rootRadio: "sv_qcbc sv_qbln",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyvisible",
     itemChecked: "sv-boolean--checked checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-boolean--disabled",

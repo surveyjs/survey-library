@@ -202,6 +202,7 @@ export var modernCss = {
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-item--disabled sv-boolean--disabled",
@@ -214,6 +215,9 @@ export var modernCss = {
     checkedPath: "sv-boolean__checked-path",
     uncheckedPath: "sv-boolean__unchecked-path",
     indeterminatePath: "sv-boolean__indeterminate-path",
+    svgIconCheckedId: "#icon-modernbooleancheckchecked",
+    svgIconUncheckedId: "#icon-modernbooleancheckunchecked",
+    svgIconIndId: "#icon-modernbooleancheckind",
   },
   text: {
     root: "sv-text",

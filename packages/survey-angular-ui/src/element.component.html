@@ -7,16 +7,7 @@
     <!--ko template: { name: 'survey-question-title', data: question  } -->
     <!-- /ko -->
   <!-- /ko -->
-  <div *ngIf="model.hasTitleOnLeftTop" [class]="model.cssHeader" data-bind="click: question.clickTitleFunction">
-    <!-- ko component: { name: 'survey-element-title', params: {element: question } } --><!-- /ko -->
-    <h5 [class]="model.cssTitle">
-      <string-viewer [model]="model.locTitle"></string-viewer>
-    </h5>  
-    <div [hidden]="!model.hasDescriptionUnderTitle" [class]="" data-bind="css: koCss().description">
-      <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
-      <string-viewer [model]="model.locDescription"></string-viewer>
-    </div>
-  </div>
+  <sv-ng-element-header *ngIf="model.hasTitleOnLeftTop" [element]="model"></sv-ng-element-header>
   <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
   <!-- /ko -->
   <div [class]="model.cssClasses.content"><sv-ng-element-content [model]="model"></sv-ng-element-content></div>

@@ -4,7 +4,7 @@ import { SurveyModel, PageModel, LocalizableString } from "survey-core";
 import { ImplementorBase } from "./implementor-base";
 
 @Component({
-  selector: "sv-ng-string-viewer, string-viewer",
+  selector: "sv-ng-string-viewer, string-viewer, '[sv-ng-string-viewer]'",
   templateUrl: "./string-viewer.component.html",
   styleUrls: ["./string-viewer.component.scss"]
 })

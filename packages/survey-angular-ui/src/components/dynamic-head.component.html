@@ -1,0 +1,11 @@
+<ng-container [ngSwitch]="tagName">
+  <h1 *ngSwitchCase="'h1'" [class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h1>
+  <h2 *ngSwitchCase="'h2'"[class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h2>
+  <h3 *ngSwitchCase="'h3'"[class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h3>
+  <h4 *ngSwitchCase="'h4'"[class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h4>
+  <h5 *ngSwitchCase="'h5'"[class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h5>
+  <h6 *ngSwitchCase="'h6'"[class]="className"><ng-container *ngTemplateOutlet="titleContent"></ng-container></h6>
+</ng-container>
+<ng-template #titleContent>
+  <ng-content></ng-content>
+</ng-template>

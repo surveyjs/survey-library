@@ -1,0 +1,4 @@
+<div  [class]="element.cssHeader" (click)="element.clickTitleFunction()">
+  <sv-ng-element-title [element]="element"></sv-ng-element-title>
+  <div *ngIf="element.hasDescriptionUnderTitle" [class]="element.cssDescription" [model]="element.locDescription" sv-ng-string-viewer></div>
+</div>

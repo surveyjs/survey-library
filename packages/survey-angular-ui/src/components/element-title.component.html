@@ -1,0 +1,31 @@
+<sv-ng-dynamic-head [tagName]="element.titleTagName" [className]="element.cssTitle">
+  <span
+    v-if="element.isTitleOwner && element.isRequireTextOnStart"
+    :class="element.cssClasses.requiredText"
+    :aria-hidden="true"
+    >{{ element.requiredText }}</span
+  >
+  <span
+    *ngIf="element.isTitleOwner && element.no"
+    style="position: static"
+    [class]="element.cssClasses.number"
+    :aria-hidden="true"
+    >{{ element.no }}</span
+  >
+  <span *ngIf="element.isTitleOwner && element.no">&nbsp;</span>
+  <span
+    v-if="element.isTitleOwner && element.isRequireTextBeforeTitle"
+    :class="element.cssClasses.requiredText"
+    :aria-hidden="true"
+    >{{ element.requiredText }}</span
+  >
+  <span *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
+  <sv-ng-string-viewer *ngIf="element.isTitleOwner" [model]="element.locTitle"></sv-ng-string-viewer>
+  <span v-if="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
+  <span
+    v-if="element.isTitleOwner && element.isRequireTextAfterTitle"
+    :class="element.cssClasses.requiredText"
+    :aria-hidden="true"
+    >{{ element.requiredText }}</span
+  >
+</sv-ng-dynamic-head>

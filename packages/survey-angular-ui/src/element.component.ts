@@ -3,7 +3,7 @@ import { Question } from "survey-core";
 import { ImplementorBase } from "./implementor-base";
 
 @Component({
-  selector: "element",
+  selector: "element, sv-ng-element, '[sv-ng-element]'",
   templateUrl: "./element.component.html",
   styleUrls: ["./element.component.scss"]
 })

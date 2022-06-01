@@ -15,6 +15,7 @@ import { RadiogroupItemComponent } from "./questions/radiogroup-item.component";
 import { CheckboxComponent } from "./questions/checkbox.component";
 import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 import { DropdownQuestionComponent } from "./questions/dropdown.component";
+import { RatingQuestionComponent } from "./questions/rating.component";
 
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
@@ -33,7 +34,8 @@ import { RowComponent } from "./row.component";
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
-    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent
+    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
+    RatingQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewContainerRef } from "@angular/core";
+import { Component, DoCheck, Input, OnInit, ViewContainerRef } from "@angular/core";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { AngularComponentFactory } from "./component-factory";
 
@@ -7,8 +7,9 @@ import { AngularComponentFactory } from "./component-factory";
   templateUrl: "./element-content.component.html",
   styleUrls: ["./element-content.component.scss"]
 })
-export class ElementContentComponent implements OnInit {
+export class ElementContentComponent implements DoCheck {
   @Input() model: any;
+  prevComponentName: string = "";
   constructor(public viewContainerRef: ViewContainerRef) {}
   public getComponentName(): string {
     if (
@@ -21,12 +22,16 @@ export class ElementContentComponent implements OnInit {
     }
     return this.model.getComponentName();
   }
-  ngOnInit() {
-    this.viewContainerRef.clear();
-    let componentRef = AngularComponentFactory.Instance.create(this.viewContainerRef, this.getComponentName());
-    if(!componentRef) {
-      componentRef = this.viewContainerRef.createComponent(QuestionSkeletonComponent) as any;
+
+  ngDoCheck() {
+    if(this.prevComponentName!== this.getComponentName()) {
+      this.viewContainerRef.clear();
+      let componentRef = AngularComponentFactory.Instance.create(this.viewContainerRef, this.getComponentName());
+      if(!componentRef) {
+        componentRef = this.viewContainerRef.createComponent(QuestionSkeletonComponent) as any;
+      }
+      (componentRef.instance as any).model = this.model;
+      this.prevComponentName = this.getComponentName();
     }
-    (componentRef.instance as any).model = this.model;
   }
 }

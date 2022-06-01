@@ -16,7 +16,10 @@ export class ElementContentComponent implements OnInit {
       !this.model.customWidget.widgetJson.isDefaultRender
     )
       return "survey-widget-" + this.model.customWidget.name;
-    return this.model.getType() + "-question";
+    if (this.model.getType() === "panel" || this.model.isDefaultRendering()) {
+      return this.model.getType() + "-question";
+    }
+    return this.model.getComponentName();
   }
   ngOnInit() {
     this.viewContainerRef.clear();

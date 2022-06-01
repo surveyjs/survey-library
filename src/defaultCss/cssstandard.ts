@@ -109,6 +109,7 @@ export var defaultStandardCss = {
     rootRadio: "sv_qcbc sv_qbln",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyvisible",
     itemChecked: "sv-boolean--checked checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-boolean--disabled",
@@ -161,6 +162,10 @@ export var defaultStandardCss = {
     control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
     other: "sv_q_dd_other",
+    cleanButton: "sv_q_dropdown_clean-button",
+    cleanButtonSvg: "sv_q_dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear_16x16",
+    controlValue: "sv_q_dropdown__value",
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },
@@ -173,6 +178,7 @@ export var defaultStandardCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",

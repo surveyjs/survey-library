@@ -12,6 +12,11 @@ export var settings = {
     caseSensitive: false
   },
   /**
+   * Set this value to false, if you want to have UTC fuctions, for example setUTCHours inside our functions, like today.
+   * By default it uses setHours function, with local date
+   */
+  useLocalTimeZone: true,
+  /**
    * The prefix that uses to store the question comment, as {questionName} + {commentPrefix}.
    * The default
    */
@@ -74,6 +79,11 @@ export var settings = {
    * Maximum rowCount that returns in addConditionObjectsByContext function
    */
   matrixMaxRowCountInCondition: 1,
+  /**
+   * Set this property to false, to render matrix dynamic remove action as button.
+   * It is rendered as icon in new themes ("defaultV2") by default.
+   */
+  matrixRenderRemoveAsIcon: true,
   /**
    * Maximum panel count in dynamic panel
    */

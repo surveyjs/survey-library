@@ -30,7 +30,6 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
-
 body {
   --sv-default-mark: true;
 }
@@ -81,6 +80,19 @@ body {
     &:focus {
       border: 1px solid $main-color;
     }
+  }
+
+  .sv_q_dropdown_control {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .sv_q_dropdown_clean-button {
+    margin: 0.15em 3em;
+  }
+  .sv_q_dropdown_clean-button-svg {
+    width: 1em;
+    height: 1em;
   }
 
   .sv_select_wrapper {
@@ -211,6 +223,7 @@ body {
   }
   .sv-boolean__switch {
     background-color: $main-color;
+    outline-color: $main-color;
   }
   .sv-boolean__slider {
     background-color: $slider-color;
@@ -346,6 +359,10 @@ body {
           color: $label-disabled-color;
         }
 
+        .sv_q--disabled .sv_q_file .sv_q_file_choose_button {
+          display: none;
+        }
+
         .sv_q_description {
           margin-top: -0.6em;
           min-height: 0.6em;
@@ -426,7 +443,7 @@ body {
 
           div.sv_q_text_root,
           div.sv_q_dropdown_control {
-            min-height: 2.43em;
+            min-height: 2em;
             min-width: 7em;
           }
 

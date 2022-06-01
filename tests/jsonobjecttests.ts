@@ -2709,3 +2709,13 @@ QUnit.test("Add condition custom property", function (assert) {
   assert.equal(matrix.showHeader, false, "Header is invisible #4");
   Serializer.removeProperty("matrix", "showHeaderIf");
 });
+QUnit.test("base.isDescendantOf", function (assert) {
+  const big = new BigCar();
+  const dealer = <Dealer>Serializer.createClass("customdealer");
+  assert.equal(big.isDescendantOf("car"), true, "big->car");
+  assert.equal(big.isDescendantOf("big"), true, "big->big");
+  assert.equal(big.isDescendantOf("dealer"), false, "big->dealer");
+  assert.equal(dealer.isDescendantOf("customdealer"), true, "customdealer->customdealer");
+  assert.equal(dealer.isDescendantOf("dealer"), true, "customdealer->dealer");
+  assert.equal(dealer.isDescendantOf("car"), false, "customdealer->car");
+});

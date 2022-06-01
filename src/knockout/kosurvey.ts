@@ -91,7 +91,9 @@ export class SurveyImplementor extends ImplementorBase {
     );
   }
   public koEventAfterRender(element: any, survey: any) {
-    SvgRegistry.renderIcons();
+    if(survey["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    }
     survey.afterRenderSurvey(element);
   }
   public dispose(): void {
@@ -143,6 +145,7 @@ LocalizableString.prototype["onCreating"] = function () {
 
 ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
+  this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 
 LocalizableString.prototype["onChanged"] = function () {

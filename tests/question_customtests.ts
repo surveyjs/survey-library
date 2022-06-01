@@ -477,6 +477,7 @@ QUnit.test("Composite, update panel css", function (assert) {
   survey.css.question.small = "small";
   survey.css.question.title = "title";
   survey.css.question.titleOnAnswer = "onAnswer";
+  survey.css.customerinfo = { mainRoot: "customercss" };
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -494,6 +495,7 @@ QUnit.test("Composite, update panel css", function (assert) {
     elements: [{ type: "customerinfo", name: "q1" }],
   });
   var q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.cssRoot, "customercss small", "apply style from customer info");
   var lastName = q1.contentPanel.getQuestionByName("lastName");
   var defaultQuestionRoot = survey.css.question.mainRoot;
   assert.equal(
@@ -1661,4 +1663,33 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
   question.updateElementCss();
   assert.equal(question.cssClassesValue, undefined);
   assert.equal(question.contentQuestion.cssClassesValue, undefined);
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("onvalueChanging/Changed events", function (assert) {
+  const json = {
+    name: "newquestion",
+    questionJSON: { type: "text" },
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  let counterChanging = 0;
+  let counterChanged = 0;
+  survey.onValueChanging.add((sender, options) => {
+    counterChanging ++;
+  });
+  survey.onValueChanged.add((sender, options) => {
+    counterChanged ++;
+  });
+  const question = <QuestionCustomModel>survey.getAllQuestions()[0];
+  question.contentQuestion.value = "a";
+  assert.equal(question.value, "a", "component value is changed");
+  assert.equal(counterChanging, 1, "counterChanging = 1");
+  assert.equal(counterChanged, 1, "counterChanged = 1");
+  question.value = "b";
+  assert.equal(question.contentQuestion.value, "b", "contentQuestion value is changed");
+  assert.equal(counterChanging, 2, "counterChanging = 2");
+  assert.equal(counterChanged, 2, "counterChanged = 2");
+  ComponentCollection.Instance.clear();
 });

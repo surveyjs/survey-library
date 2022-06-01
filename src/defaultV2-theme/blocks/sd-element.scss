@@ -21,6 +21,7 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   & > .sd-question__erbox--above-question {
     border-radius: calcSize(0.5) calcSize(0.5) 0 0;
     margin-left: calc(-1 * var(--sd-base-padding));
+    margin-right: calc(-1 * var(--sd-base-padding));
     width: calc(100% + 2 * var(--sd-base-padding));
   }
   &.sd-question--paneldynamic {
@@ -50,9 +51,13 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
     box-shadow: 0px 1px 2px $shadow-inner;
     border-radius: calcSize(0.5);
   }
+  & > .sd-element__header:focus-within,
   & > .sd-element__header:hover {
     background-color: $background-dim-light;
   }
+}
+.sd-element__title {
+  outline: none;
 }
 .sd-element--collapsed:not(.sd-element--with-frame) > .sd-element__header {
   margin-left: calc(-1 * var(--sd-base-padding));

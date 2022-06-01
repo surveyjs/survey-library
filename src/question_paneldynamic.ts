@@ -127,7 +127,15 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     return values[name];
   }
   public setValue(name: string, newValue: any) {
+    const oldItemData = this.data.getPanelItemData(this);
+    const oldValue = !!oldItemData ? oldItemData[name] : undefined;
+    if(typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
     this.data.setPanelItemData(this, name, newValue);
+    const questions = this.panel.questions;
+    for(var i = 0; i < questions.length; i ++) {
+      if(questions[i].getValueName() === name) continue;
+      questions[i].checkBindings(name, newValue);
+    }
   }
   getVariable(name: string): any {
     return undefined;
@@ -240,6 +248,13 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get hasSingleInput(): boolean {
     return false;
+  }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    for(var i = 0; i < this.panels.length; i ++) {
+      const res = this.panels[i].getFirstQuestionToFocus(withError);
+      if(!!res) return res;
+    }
+    return null;
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
@@ -815,9 +830,11 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * Returns true when an end user may add a new panel. The question is not read only and panelCount less than maxPanelCount
+   * and renderMode is "list" or the current panel doesn't have any errors
    * @see isReadOnly
    * @see panelCount
    * @see maxPanelCount
+   * @see renderMode
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
@@ -929,6 +946,7 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
+   * If a renderMode is different from "list" and the current panel has erros, then
    * @see template
    * @see panelCount
    * @see panels
@@ -936,6 +954,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
+    if(!this.canLeaveCurrentPanel()) return null;
     const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
@@ -947,6 +966,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see template
    * @see panelCount
    * @see panels
+   * @see renderMode
    */
   public addPanel(): PanelModel {
     this.panelCount++;
@@ -984,6 +1004,9 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.panels[this.panelCount - 1];
   }
+  private canLeaveCurrentPanel(): boolean {
+    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors());
+  }
   private copyValue(src: any, dest: any) {
     for (var key in dest) {
       src[key] = dest[key];
@@ -1006,12 +1029,14 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Goes to the next panel in the PanelDynamic
-   *
+   * Returns true, if it can move to the next panel. It can return false if the renderMode is "list" or the current panel has errors.
+   * @see renderMode
    */
-  public goToNextPanel() {
-    if (this.currentIndex < 0) return;
-    if (this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors()) return;
+  public goToNextPanel(): boolean {
+    if (this.currentIndex < 0) return false;
+    if (!this.canLeaveCurrentPanel()) return false;
     this.currentIndex++;
+    return true;
   }
   /**
    * Goes to the previous panel in the PanelDynamic
@@ -1202,6 +1227,12 @@ export class QuestionPanelDynamicModel extends Question
       this.panels[i].onFirstRendering();
     }
     super.onFirstRendering();
+  }
+  public localeChanged() {
+    super.localeChanged();
+    for (var i = 0; i < this.panels.length; i++) {
+      this.panels[i].localeChanged();
+    }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
@@ -1624,9 +1655,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get progressText(): string {
     var rangeMax = this.panelCount;
-    return surveyLocalization
-      .getString("panelDynamicProgressText")
-      ["format"](this.currentIndex + 1, rangeMax);
+    return this.getLocalizationFormatString("panelDynamicProgressText", this.currentIndex + 1, rangeMax);
   }
   public get progress(): string {
     return ((this.currentIndex + 1) / this.panelCount) * 100 + "%";
@@ -1702,10 +1731,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private initFooterToolbar() {
-    this.footerToolbarValue = new ActionContainer();
-    if(!!this.survey && !!this.survey.getCss().actionBar) {
-      this.footerToolbarValue.cssClasses = this.survey.getCss().actionBar;
-    }
+    this.footerToolbarValue = this.createActionContainer();
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
@@ -1781,7 +1807,7 @@ Serializer.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
     },
-    { name: "noEntriesText:text", visible: false, serializationProperty: "locNoEntriesText" },
+    { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
     {

@@ -10,7 +10,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :multiple="question.allowMultiple ? 'multiple' : undefined"
+      :multiple="question.multipleRendered"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
     />
@@ -19,7 +19,7 @@
       type="file"
       disabled
       :class="question.getReadOnlyFileCss()"
-      :multiple="question.allowMultiple ? 'multiple' : undefined"
+      :multiple="question.multipleRendered"
       :placeholder="question.title"
       style="color: transparent"
     />
@@ -49,7 +49,7 @@
     </div>
     <button
       type="button"
-      v-if="!question.isReadOnly && !question.isEmpty() && question.cssClasses.removeButton"
+      v-if="question.showRemoveButton"
       :class="question.cssClasses.removeButton"
       @click="question.doClean"
     >
@@ -81,7 +81,7 @@
             :width="question.imageWidth"
             alt="File preview"
           />
-          <sv-svg-icon v-if="!question.canPreviewImage(val) && !!question.cssClasses.defaultImage" 
+          <sv-svg-icon v-if="question.defaultImage(val)" 
             :iconName="question.cssClasses.defaultImageIconId" :class="question.cssClasses.defaultImage" :size="'auto'"></sv-svg-icon>
           <div v-if="val.name && !question.isReadOnly" :class="question.cssClasses.removeFileButton" @click="question.doRemoveFile(val)">
             <span
@@ -105,8 +105,8 @@
     </div>
     <button
       type="button"
-      v-if="!question.isReadOnly && !question.isEmpty() && question.cssClasses.removeButtonBottom"
-      :class="question.cssClasses.removeButtonBottom"
+      v-if="question.showRemoveButtonBottom"
+      :class="question.showRemoveButtonBottom"
       @click="question.doClean"
     >
       <span>{{ question.cleanButtonCaption }}</span>

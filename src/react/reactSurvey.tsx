@@ -65,7 +65,9 @@ export class Survey extends SurveyElementBase<any, any>
     }
   }
   doRender(): JSX.Element {
-    SvgRegistry.renderIcons();
+    if(this.survey["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    }
     let renderResult: JSX.Element;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
@@ -117,7 +119,7 @@ export class Survey extends SurveyElementBase<any, any>
     if (this.survey.completedState) {
       var tryAgainButton = null;
       if (this.survey.completedState == "error") {
-        var btnText = this.survey.getLocString("saveAgainButton");
+        var btnText = this.survey.getLocalizationString("saveAgainButton");
         tryAgainButton = (
           <input
             type={"button"}

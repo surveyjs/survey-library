@@ -186,20 +186,15 @@ export class NumericValidator extends SurveyValidator {
     return typeof value === "number" ? null : result;
   }
   protected getDefaultErrorText(name: string) {
-    var vName = name ? name : surveyLocalization.getString("value");
+    var vName = name ? name : this.getLocalizationString("value");
     if (this.minValue !== null && this.maxValue !== null) {
-      return surveyLocalization
-        .getString("numericMinMax")
-        ["format"](vName, this.minValue, this.maxValue);
+      return this.getLocalizationFormatString("numericMinMax",
+        vName, this.minValue, this.maxValue);
     } else {
       if (this.minValue !== null) {
-        return surveyLocalization
-          .getString("numericMin")
-          ["format"](vName, this.minValue);
+        return this.getLocalizationFormatString("numericMin", vName, this.minValue);
       }
-      return surveyLocalization
-        .getString("numericMax")
-        ["format"](vName, this.maxValue);
+      return this.getLocalizationFormatString("numericMax", vName, this.maxValue);
     }
   }
   /**
@@ -253,18 +248,12 @@ export class TextValidator extends SurveyValidator {
     }
     return null;
   }
-  protected getDefaultErrorText(name: string) {
+  protected getDefaultErrorText(name: string): string {
     if (this.minLength > 0 && this.maxLength > 0)
-      return surveyLocalization
-        .getString("textMinMaxLength")
-        ["format"](this.minLength, this.maxLength);
+      return this.getLocalizationFormatString("textMinMaxLength", this.minLength, this.maxLength);
     if (this.minLength > 0)
-      return surveyLocalization
-        .getString("textMinLength")
-        ["format"](this.minLength);
-    return surveyLocalization
-      .getString("textMaxLength")
-      ["format"](this.maxLength);
+      return this.getLocalizationFormatString("textMinLength", this.minLength);
+    return this.getLocalizationFormatString("textMaxLength", this.maxLength);
   }
   /**
    * The minLength property.
@@ -317,19 +306,13 @@ export class AnswerCountValidator extends SurveyValidator {
       return new ValidatorResult(
         null,
         this.createCustomError(
-          surveyLocalization
-            .getString("minSelectError")
-            ["format"](this.minCount)
-        )
-      );
+          this.getLocalizationFormatString("minSelectError", this.minCount)));
     }
     if (this.maxCount && count > this.maxCount) {
       return new ValidatorResult(
         null,
         this.createCustomError(
-          surveyLocalization
-            .getString("maxSelectError")
-            ["format"](this.maxCount)
+          this.getLocalizationFormatString("maxSelectError", this.maxCount)
         )
       );
     }
@@ -419,8 +402,8 @@ export class EmailValidator extends SurveyValidator {
     if (this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
   }
-  protected getDefaultErrorText(name: string) {
-    return surveyLocalization.getString("invalidEmail");
+  protected getDefaultErrorText(name: string): string {
+    return this.getLocalizationString("invalidEmail");
   }
 }
 
@@ -473,9 +456,7 @@ export class ExpressionValidator extends SurveyValidator {
     return null;
   }
   protected getDefaultErrorText(name: string) {
-    return surveyLocalization
-      .getString("invalidExpression")
-      ["format"](this.expression);
+    return this.getLocalizationFormatString("invalidExpression", this.expression);
   }
   protected ensureConditionRunner(): boolean {
     if (!!this.conditionRunner) {

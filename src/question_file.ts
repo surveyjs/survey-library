@@ -72,7 +72,7 @@ export class QuestionFileModel extends Question {
     //this.mobileFileNavigator.cssClasses = this.survey.getCss().actionBar;
   }
   private getFileIndexCaption(): string {
-    return surveyLocalization.getString("indexText")["format"]((this.indexToShow + 1), this.previewValue.length);
+    return this.getLocalizationFormatString("indexText", this.indexToShow + 1, this.previewValue.length);
   }
 
   public isPreviewVisible(index: number) {
@@ -246,6 +246,23 @@ export class QuestionFileModel extends Question {
       }
     );
   }
+
+  get multipleRendered() {
+    return this.allowMultiple ? "multiple" : undefined;
+  }
+  get showRemoveButton() {
+    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButton;
+  }
+  get showRemoveButtonBottom() {
+    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButtonBottom;
+  }
+  defaultImage(data: any) {
+    return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;
+  }
+  get imageWidthRendered() {
+    return this.imageWidth + "px";
+  }
+
   /**
    * Remove file item programmatically.
    */
@@ -392,7 +409,7 @@ export class QuestionFileModel extends Question {
     if (this.isUploading && this.waitForUpload) {
       errors.push(
         new UploadingFileError(
-          surveyLocalization.getString("uploadingFile"),
+          this.getLocalizationString("uploadingFile"),
           this
         )
       );

@@ -202,6 +202,7 @@ export var modernCss = {
     small: "sv-row__question--small",
     item: "sv-boolean sv-item",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-item--disabled sv-boolean--disabled",
@@ -214,6 +215,9 @@ export var modernCss = {
     checkedPath: "sv-boolean__checked-path",
     uncheckedPath: "sv-boolean__unchecked-path",
     indeterminatePath: "sv-boolean__indeterminate-path",
+    svgIconCheckedId: "#icon-modernbooleancheckchecked",
+    svgIconUncheckedId: "#icon-modernbooleancheckunchecked",
+    svgIconIndId: "#icon-modernbooleancheckind",
   },
   text: {
     root: "sv-text",
@@ -235,6 +239,10 @@ export var modernCss = {
     selectWrapper: "",
     other: "sv-comment sv-question__other",
     onError: "sv-dropdown--error",
+    cleanButton: "sv-dropdown_clean-button",
+    cleanButtonSvg: "sv-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear_16x16",
+    controlValue: "sv-dropdown__value",
   },
   imagepicker: {
     root: "sv-selectbase sv-imagepicker",
@@ -267,6 +275,8 @@ export var modernCss = {
     cellText: "sv-matrix__text",
     cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",
+    cellResponsiveTitle: "sv-hidden",
+    itemSvgIconId: "#icon-modernradio",
   },
   matrixdropdown: {
     root: "sv-table sv-matrixdropdown",

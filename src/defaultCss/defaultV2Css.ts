@@ -13,7 +13,8 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
-  navigationButton: "sd-btn",
+  navigationButton: "",
+  bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
   timerRoot: "sd-body__timer",
   navigation: {
@@ -22,7 +23,7 @@ export var defaultV2Css = {
     next: "sd-navigation__next-btn",
     start: "sd-navigation__start-btn",
     preview: "sd-navigation__preview-btn",
-    edit: "sd-navigation__edit-btn"
+    edit: "",
   },
   panel: {
     title: "sd-title sd-element__title sd-panel__title",
@@ -42,7 +43,8 @@ export var defaultV2Css = {
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
-    invisible: "sd-element--invisible"
+    invisible: "sd-element--invisible",
+    navigationButton: "",
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -127,7 +129,6 @@ export var defaultV2Css = {
     footer: "sd-question__footer",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
-    disabled: "sd-question--disabled",
     collapsed: "sd-element--collapsed",
     nested: "sd-element--nested",
     invisible: "sd-element--invisible"
@@ -205,6 +206,7 @@ export var defaultV2Css = {
     radioFieldset: "sd-selectbase",
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
+    controlCheckbox: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",
@@ -247,7 +249,11 @@ export var defaultV2Css = {
     itemHover: "sd-item--allowhover sd-radio--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
     itemDecorator: "sd-item__svg sd-radio__svg",
+    cleanButton: "sd-dropdown_clean-button",
+    cleanButtonSvg: "sd-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear",
     control: "sd-input sd-dropdown",
+    controlValue: "sd-dropdown__value",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",
     controlLabel: "sd-item__control-label",
@@ -293,7 +299,8 @@ export var defaultV2Css = {
     itemDecorator: "sd-item__svg sd-radio__svg",
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
-    cellTextDisabled: "sd-matrix__text--disabled"
+    cellTextDisabled: "sd-matrix__text--disabled",
+    cellResponsiveTitle: "sd-matrix__responsive-title"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -302,6 +309,7 @@ export var defaultV2Css = {
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
+    cellRequiredText: "sd-question__required-text",
     detailButton: "sd-table__cell--detail-button",
     detailButtonExpanded: "sd-table__cell--detail-button--expanded",
     detailIcon: "sd-detail-panel__icon",
@@ -321,6 +329,7 @@ export var defaultV2Css = {
     cell: "sd-table__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
+    cellRequiredText: "sd-question__required-text",
     button: "sd-action sd-matrixdynamic__btn",
     detailRow: "sd-table__row sd-table__row--detail",
     detailButton: "sd-table__cell--detail-button",
@@ -388,8 +397,8 @@ export var defaultV2Css = {
     chooseFileAsIcon: "sd-context-btn sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
-    removeButton: "",
-    removeButtonBottom: "sd-context-btn sd-context-btn--negative sd-file__btn sd-file__clean-btn",
+    removeButton: "sd-context-btn sd-context-btn--negative sd-file__btn sd-file__clean-btn",
+    removeButtonBottom: "",
     removeButtonIconId: "icon-clear",
     removeFile: "sd-hidden",
     removeFileSvg: "",

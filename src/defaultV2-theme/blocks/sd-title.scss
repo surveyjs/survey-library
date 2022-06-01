@@ -17,7 +17,7 @@
   overflow: auto;
   font-family: $font-family;
   gap: calcSize(4);
-  box-shadow: 0px 2px 0px #19b394;
+  box-shadow: 0px 2px 0px $primary;
   .sd-logo__image {
     margin-top: calcSize(1);
   }

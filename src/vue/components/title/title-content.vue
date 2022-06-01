@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="sv-vue-title-additional-div">
     <survey-string v-if="!element.isTitleOwner" :locString="element.locTitle" />
     <span
       v-if="element.isTitleOwner && element.isRequireTextOnStart"
@@ -42,6 +42,7 @@ import { SurveyElementCore } from "survey-core";
 export class TitleContent extends Vue {
   @Prop() element: SurveyElementCore;
   @Prop() css: any;
+
 }
 Vue.component("survey-element-title-content", TitleContent);
 export default TitleContent;

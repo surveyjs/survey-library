@@ -111,7 +111,7 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   private getLocalizationStr(): string {
-    return !!this.localizationName ? surveyLocalization.getString(this.localizationName): "";
+    return !!this.localizationName ? surveyLocalization.getString(this.localizationName, this.locale): "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();

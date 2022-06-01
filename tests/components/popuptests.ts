@@ -43,7 +43,7 @@ QUnit.test("PopupModel defaults", (assert) => {
   assert.equal(typeof model.onHide, "function");
   assert.equal(typeof model.onShow, "function");
   assert.equal(model.cssClass, "");
-  assert.equal(typeof model.onVisibilityChanged, "undefined");
+  assert.ok(model.onVisibilityChanged.isEmpty);
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -55,9 +55,9 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   model.toggleVisibility();
   assert.equal(trace, "");
 
-  model.onVisibilityChanged = () => {
+  model.onVisibilityChanged.add(() => {
     trace += "->onToggleVisibility";
-  };
+  });
 
   model.toggleVisibility();
   assert.equal(trace, "->onToggleVisibility");
@@ -409,7 +409,6 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   const container: HTMLElement = viewModel.container;
 
   viewModel.dispose();
-  viewModel.destroyPopupContainer();
 
   let trace: String = "";
   model.onHide = () => {
@@ -427,6 +426,27 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   assert.equal(container.tagName, "DIV");
   assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement, undefined);
+});
+
+QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data);
+
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+    model,
+    targetElement
+  );
+
+  assert.equal(!!viewModel.container, false);
+  viewModel.initializePopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.unmountPopupContainer();
+  assert.equal(!!viewModel.container, true);
+
+  viewModel.dispose();
+  assert.equal(!!viewModel.container, false);
 });
 
 QUnit.test("Check calculatePosition method", (assert) => {
@@ -656,9 +676,33 @@ QUnit.test("Check calculatePointer target method", (assert) => {
       10,
       10,
       "bottom",
+      "left",
+      10,
+      15
+    ),
+    { left: -15, top: 35 }, "pointer target takes into account margin"
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
       "center"
     ),
     { left: 35, top: 60 }
+  );
+  assert.deepEqual(
+    PopupUtils.calculatePointerTarget(
+      <any>targetRect,
+      10,
+      10,
+      "bottom",
+      "center",
+      10,
+      15
+    ),
+    { left: 25, top: 60 }, "pointer target takes into account margin"
   );
   assert.deepEqual(
     PopupUtils.calculatePointerTarget(

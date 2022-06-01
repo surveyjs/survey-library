@@ -17,7 +17,7 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { getElementWidth, increaseHeightByContent } from "./utils/utils";
+import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 
 export interface IConditionObject {
   name: string;
@@ -52,6 +52,7 @@ export class Question extends SurveyElement
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
+  localeChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
@@ -91,7 +92,6 @@ export class Question extends SurveyElement
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
-    this.createLocalizableString("comment,Text", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
@@ -498,18 +498,16 @@ export class Question extends SurveyElement
       ? this.survey.questionDescriptionLocation
       : "underTitle";
   }
-  public get clickTitleFunction(): any {
-    if (this.hasInput) {
-      var self = this;
-      return function () {
-        if (self.isCollapsed) return;
-        setTimeout(() => {
-          self.focus();
-        }, 1);
-        return true;
-      };
-    }
-    return undefined;
+  protected needClickTitleFunction(): boolean {
+    return super.needClickTitleFunction() || this.hasInput;
+  }
+  protected processTitleClick() {
+    super.processTitleClick();
+    if(this.isCollapsed) return;
+    setTimeout(() => {
+      this.focus();
+    }, 1);
+    return true;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -568,6 +566,12 @@ export class Question extends SurveyElement
   }
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
+  }
+  public localeChanged() {
+    super.localeChanged();
+    if(!!this.localeChangedCallback) {
+      this.localeChangedCallback();
+    }
   }
   public get isCompositeQuestion(): boolean {
     return false;
@@ -722,6 +726,34 @@ export class Question extends SurveyElement
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
+  public get cssDescription(): string {
+    this.ensureElementCss();
+    return this.cssClasses.description;
+  }
+  protected setCssDescription(val: string): void {
+    this.setPropertyValue("cssDescription", "");
+  }
+  protected getCssDescription(cssClasses: any): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
+      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .toString();
+  }
+  protected getIsErrorsModeTooltip() {
+    return super.getIsErrorsModeTooltip() && !this.customWidget;
+  }
+
+  public showErrorOnCore(location: string) :boolean {
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && this.errorLocation === location;
+  }
+
+  public get showErrorOnTop(): boolean {
+    return this.showErrorOnCore("top");
+  }
+  public get showErrorOnBottom() {
+    return this.showErrorOnCore("bottom");
+  }
+
   public get cssError(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssError", "");
@@ -732,10 +764,10 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.aboveQuestion, this.isErrorsModeTooltip && !this.hasParent)
-      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip && this.hasParent)
-      .append(cssClasses.error.locationTop, !this.isErrorsModeTooltip && this.errorLocation === "top")
-      .append(cssClasses.error.locationBottom, !this.isErrorsModeTooltip && this.errorLocation === "bottom")
+      .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
+      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
+      .append(cssClasses.error.locationTop, this.showErrorOnTop)
+      .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
   }
   public getRootCss(): string {
@@ -770,6 +802,7 @@ export class Question extends SurveyElement
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
     this.setCssTitle(this.getCssTitle(cssClasses));
+    this.setCssDescription(this.getCssDescription(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
   }
   protected updateCssClasses(res: any, css: any): void {
@@ -836,6 +869,9 @@ export class Question extends SurveyElement
     return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
   }
   protected onCreating(): void { }
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.hasInput && (!withError || this.currentErrorCount > 0) ? this : null;
+  }
   protected getFirstInputElementId(): string {
     return this.inputId;
   }
@@ -926,9 +962,10 @@ export class Question extends SurveyElement
    * @see readOnly
    */
   public get isReadOnly(): boolean {
-    var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
-    var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
-    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
+    const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
+    const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
+    const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
@@ -1680,6 +1717,7 @@ export class Question extends SurveyElement
   }
   protected onValueChanged(): void { }
   protected setNewComment(newValue: string): void {
+    if(this.questionComment === newValue) return;
     this.questionComment = newValue;
     if (this.data != null) {
       this.data.setComment(
@@ -1836,29 +1874,29 @@ export class Question extends SurveyElement
     this.destroyResizeObserver();
     if(!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
+      if(!scrollableSelector) return;
       const defaultRootEl = el.querySelector(scrollableSelector);
-      if(!!defaultRootEl) {
-        const requiredWidth = defaultRootEl.scrollWidth;
-        let isProcessed = false;
-        this.resizeObserver = new ResizeObserver(() => {
-          if(!el.isConnected) { this.destroyResizeObserver(); }
-          else {
-            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            if(isProcessed) {
-              isProcessed = false;
-            } else {
-              isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
-            }
-          }
-        });
-        this.onMobileChangedCallback = () => {
-          setTimeout(() => {
-            const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-            this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
-          }, 0);
-        };
-        this.resizeObserver.observe(el);
-      }
+      if(!defaultRootEl) return;
+      let isProcessed = false;
+      let requiredWidth: number = undefined;
+      this.resizeObserver = new ResizeObserver(() => {
+        const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+        if(!requiredWidth && this.isDefaultRendering()) {
+          requiredWidth = rootEl.scrollWidth;
+        }
+        if(isProcessed || !isContainerVisible(rootEl)) {
+          isProcessed = false;
+        } else {
+          isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+        }
+      });
+      this.onMobileChangedCallback = () => {
+        setTimeout(() => {
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+        }, 0);
+      };
+      this.resizeObserver.observe(el);
     }
   }
   protected getCompactRenderAs(): string {
@@ -1882,6 +1920,7 @@ export class Question extends SurveyElement
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
       this.onMobileChangedCallback = undefined;
+      this.renderAs = this.getDesktopRenderAs();
     }
   }
   public dispose() {

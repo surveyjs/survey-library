@@ -750,20 +750,20 @@ Here are some examples of Boolean expressions.
 
 | Expression | Description |
 | --- | --- |
-| _"{age} >= 21"_ | Returns `true` if the _age_ question has value 21 or higher |
-| _"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} == ‘yes’"_   | Use `or` and `and` operators, squares and arithmetic operations |
-| _"!({isLoyal} == ‘yes’ and ({rank1} + {rank2} + {rank3}) > 21)"_ | Use "!" or "not" to change the result on opposite |
-| _"{name} notempty"_ | Returns `true` if _name_ has a value |
-| _{name} empty_ | Returns `true` if _name_ has no value |
-| _"{speakinglanguages} = [‘English’, ‘Spanish’]"_ | Returns `true`, if a user selects these two valus in _speakinglanguages_ question. It is typically a checkbox. |
-| _"{speakinglanguages} contains ‘Spanish’"_ | Returns `true`, if a user select 'Spanish' in checkbox. They may or may not select other values. |
-| _age({birthdate}) >= 21_ | Returns `true`, if function _age_ returns 21 and greater. The function _age_ calculates the age based on the birth date and the current date. |
+| `"{age} >= 21"` | Returns `true` if the _age_ question has value 21 or higher |
+| `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} == 'yes'"`   | Use `or` and `and` operators, squares and arithmetic operations |
+| `"!({isLoyal} == 'yes' and ({rank1} + {rank2} + {rank3}) > 21)"` | Use "!" or "not" to change the result on opposite |
+| `"{name} notempty"` | Returns `true` if _name_ has a value |
+| `"{name} empty"` | Returns `true` if _name_ has no value |
+| `"{speakinglanguages} = ['English', 'Spanish']"` | Returns `true`, if a user selects these two valus in _speakinglanguages_ question. It is typically a checkbox. |
+| `"{speakinglanguages} contains 'Spanish'"` | Returns `true`, if a user select 'Spanish' in checkbox. They may or may not select other values. |
+| `"age({birthdate}) >= 21"` | Returns `true`, if function _age_ returns 21 and greater. The function _age_ calculates the age based on the birth date and the current date. |
 
 If your question has complex values, then you may use dot "." to access the child value.
 
-- multiple text - _{questionname.itemname}_
-- matrix - _{questionname.rowname}_
-- matrix dropdown - _{questionname.rowname.columnname}_
+- multiple text - `{questionname.itemname}`
+- matrix - `{questionname.rowname}`
+- matrix dropdown - `{questionname.rowname.columnname}`
 
 To access the question value inside the panel dynamic, use the following syntax: `{dynamicpanelname[index].questionname}`, where _index_ is zero-based.
 
@@ -1242,7 +1242,7 @@ Here's the logic breakdown.
   choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]
   ```
 
-  SurveyJS iterates all _"choices"_ and substitutes each as an _"{item}"_ into `choicesVisibleIf`. Only choices that make the expression `true` appear in the list.
+  SurveyJS iterates all `"choices"` and substitutes each as an `"{item}"` into `choicesVisibleIf`. Only choices that make the expression `true` appear in the list.
 - Display browsers checked in #1, exclude browser that matches #2.
 
   ```js

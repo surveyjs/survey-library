@@ -13,7 +13,7 @@ export class AnswerRequiredError extends SurveyError {
     return "required";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("requiredError");
+    return this.getLocalizationString("requiredError");
   }
 }
 export class OneAnswerRequiredError extends SurveyError {
@@ -27,7 +27,7 @@ export class OneAnswerRequiredError extends SurveyError {
     return "requireoneanswer";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("requiredErrorInPanel");
+    return this.getLocalizationString("requiredErrorInPanel");
   }
 }
 export class RequreNumericError extends SurveyError {
@@ -41,7 +41,7 @@ export class RequreNumericError extends SurveyError {
     return "requirenumeric";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("numericError");
+    return this.getLocalizationString("numericError");
   }
 }
 export class ExceedSizeError extends SurveyError {
@@ -80,9 +80,8 @@ export class WebRequestError extends SurveyError {
     return "webrequest";
   }
   protected getDefaultText(): string {
-    return surveyLocalization
-      .getString("urlRequestError")
-      ["format"](this.status, this.response);
+    const str: any = this.getLocalizationString("urlRequestError");
+    return !!str ? str["format"](this.status, this.response) : "";
   }
 }
 export class WebRequestEmptyError extends SurveyError {
@@ -93,7 +92,7 @@ export class WebRequestEmptyError extends SurveyError {
     return "webrequestempty";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("urlGetChoicesError");
+    return this.getLocalizationString("urlGetChoicesError");
   }
 }
 export class OtherEmptyError extends SurveyError {
@@ -104,7 +103,7 @@ export class OtherEmptyError extends SurveyError {
     return "otherempty";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("otherRequiredError");
+    return this.getLocalizationString("otherRequiredError");
   }
 }
 export class UploadingFileError extends SurveyError {
@@ -115,7 +114,7 @@ export class UploadingFileError extends SurveyError {
     return "uploadingfile";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("uploadingFile");
+    return this.getLocalizationString("uploadingFile");
   }
 }
 export class RequiredInAllRowsError extends SurveyError {
@@ -126,7 +125,7 @@ export class RequiredInAllRowsError extends SurveyError {
     return "requiredinallrowserror";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("requiredInAllRowsError");
+    return this.getLocalizationString("requiredInAllRowsError");
   }
 }
 export class MinRowCountError extends SurveyError {
@@ -153,7 +152,7 @@ export class KeyDuplicationError extends SurveyError {
     return "keyduplicationerror";
   }
   protected getDefaultText(): string {
-    return surveyLocalization.getString("keyDuplicationError");
+    return this.getLocalizationString("keyDuplicationError");
   }
 }
 export class CustomError extends SurveyError {

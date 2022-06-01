@@ -8,6 +8,7 @@ import "../src/localization/finnish";
 import "../src/localization/german";
 import "../src/localization/swedish";
 import "../src/localization/czech";
+import { QuestionCheckboxBase } from "../src/question_baseselect";
 
 export default QUnit.module("LocalizationsTests");
 
@@ -57,7 +58,7 @@ QUnit.test("set german localization", function(assert) {
   assert.equal(survey.completeText, "Complete");
   survey.locale = "de";
   assert.equal(survey.completeText, "Abschließen");
-  surveyLocalization.currentLocale = "";
+  survey.locale = "";
   assert.equal(survey.completeText, "Complete");
 });
 QUnit.test("set finnish localization", function(assert) {
@@ -202,5 +203,32 @@ QUnit.test(
     );
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
+  }
+);
+QUnit.test(
+  "Do not change currentLocale on changing survey.locale",
+  function(assert) {
+    const survey1 = new SurveyModel({});
+    const survey2 = new SurveyModel({});
+    assert.equal(survey1.locale, "", "Use the default locale, survey1");
+    assert.equal(survey2.locale, "", "Use the default locale, survey2");
+    survey1.locale = "de";
+    assert.equal(survey1.locale, "de", "de locale, survey1");
+    assert.equal(survey2.locale, "", "Use the default locale, survey2");
+    survey2.locale = "fr";
+    assert.equal(survey1.locale, "de", "de locale, survey1");
+    assert.equal(survey2.locale, "fr", "fr locale, survey2");
+    assert.equal(surveyLocalization.currentLocale, "", "Do not change the current locale");
+  }
+);
+QUnit.test(
+  "Check object locale on changing survey locale",
+  function(assert) {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] });
+    const question = <QuestionCheckboxBase>survey.getQuestionByName("q1");
+    assert.equal(question.getLocale(), "", "question has English locale right now");
+    survey.locale = "de";
+    assert.equal(question.survey.getLocale(), "de", "question survey has Deutsch locale");
+    assert.equal(question.getLocale(), "de", "question has Deutsch locale right now");
   }
 );

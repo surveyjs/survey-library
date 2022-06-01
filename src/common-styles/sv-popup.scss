@@ -26,6 +26,7 @@ sv-popup {
   width: 100vw;
   height: 100vh;
   outline: none;
+  z-index: 2;
 }
 
 .sv-popup__container {

@@ -17,7 +17,12 @@
   >
     <div
       class="sv-popup__container"
-      v-bind:style="{ left: model.left, top: model.top, height: model.height }"
+      v-bind:style="{
+        left: model.left,
+        top: model.top,
+        height: model.height,
+        width: model.width,
+      }"
       v-on:click="clickInside"
     >
       <div class="sv-popup__shadow">
@@ -108,7 +113,7 @@ export function showModal(
     onCancel,
     () => {
       popup.$destroy();
-      popupViewModel.destroyPopupContainer();
+      popupViewModel.dispose();
     },
     undefined,
     cssClass,

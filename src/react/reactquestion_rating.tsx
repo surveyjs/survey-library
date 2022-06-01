@@ -49,7 +49,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           type="radio"
           className="sv-visuallyhidden"
           name={this.question.name}
-          id={this.question.inputId + "_" + index}
+          id={this.question.getInputId(index)}
           value={item.value}
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}

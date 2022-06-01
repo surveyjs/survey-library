@@ -27,9 +27,10 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     if (!this.item) {
       return null;
     }
+    const isVisible = this.model.isItemVisible(this.item);
     const style = {
       paddingLeft: this.model.getItemIndent(this.item),
-      display: this.item.visible === undefined || this.item.visible ? null : "none",
+      display: isVisible ? null : "none",
     };
     const className = this.model.getItemClass(this.item);
     const content = [];
@@ -45,7 +46,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       content.push(icon);
       content.push(<span key={2}>{this.item.title}</span>);
     } else {
-      content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item }));
+      content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id }));
     }
 
     return attachKey2click(

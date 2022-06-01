@@ -72,7 +72,7 @@ export class PopupUtils {
   ) {
     let newWidth = width, newLeft = left;
 
-    if(horizontalPosition === "center") {
+    if (horizontalPosition === "center") {
       if (left < 0) {
         newLeft = 0;
         newWidth = Math.min(width, windowWidth);
@@ -83,13 +83,13 @@ export class PopupUtils {
       }
     }
 
-    if(horizontalPosition === "left") {
+    if (horizontalPosition === "left") {
       if (left < 0) {
         newLeft = 0;
         newWidth = Math.min(width, windowWidth);
       }
     }
-    if(horizontalPosition === "right") {
+    if (horizontalPosition === "right") {
       if (width + left > windowWidth) {
         newWidth = windowWidth - left;
       }
@@ -146,8 +146,8 @@ export class PopupUtils {
     left: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    width: number = undefined,
-    margins: number = 0
+    marginLeft: number = 0,
+    marginRight: number = 0
   ) {
     var targetPos: INumberPosition = {};
     if (horizontalPosition != "center") {
@@ -155,13 +155,23 @@ export class PopupUtils {
       targetPos.left = targetRect[horizontalPosition];
     } else if (verticalPosition != "middle") {
       targetPos.top = targetRect[verticalPosition];
-      targetPos.left = width ? left + width / 2 : targetRect.left + targetRect.width / 2;
+      targetPos.left = targetRect.left + targetRect.width / 2;
     }
     targetPos.left = Math.round(targetPos.left - left);
     targetPos.top = Math.round(targetPos.top - top);
     if (horizontalPosition == "left") {
-      targetPos.left -= margins;
+      targetPos.left -= marginLeft + marginRight;
+    }
+    if (horizontalPosition === "center") {
+      targetPos.left -= marginLeft;
     }
     return targetPos;
+  }
+
+  public static updatePopupWidthBeforeShow(popupModel: any, target: Element, e: any) {
+    if (!!target) {
+      popupModel.width = target.getBoundingClientRect().width;
+    }
+    popupModel.toggleVisibility();
   }
 }

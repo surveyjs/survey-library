@@ -18,7 +18,7 @@
       :css="question.survey.css"
     ></component>
     <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
-      <survey-errors v-if="hasErrorsOnTop" :element="cell.question" :location="'top'" />
+      <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -34,7 +34,7 @@
       <survey-radiogroup-item
         v-if="cell.isChoice && !cell.isCheckbox"
         :key="cell.item.value"
-        :class="getItemClass(cell.item)"
+        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
         :index="'' + cell.index"
@@ -43,25 +43,25 @@
       <survey-checkbox-item
         v-if="cell.isChoice && cell.isCheckbox"
         :key="cell.item.value"
-        :class="getItemClass(cell.item)"
+        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
         :index="'' + cell.index"
         :hideLabel="true"
       ></survey-checkbox-item>
       <survey-errors
-        v-if="hasErrorsOnBottom"
+        v-if="cell.showErrorOnBottom"
         :element="cell.question"
         :location="'bottom'"
       />
       <survey-errors
-        v-if="question.isErrorsModeTooltip"
+        v-if="cell.question.isErrorsModeTooltip"
         :element="cell.question"
         :location="'tooltip'"
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span v-if="!!cell.requiredText">{{ cell.requiredText }}</span>
+    <span v-if="!!cell.requiredText" :class="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
   </td>
 </template>
 
@@ -86,12 +86,6 @@ export class MatrixCell extends Vue {
     }
     return "survey-" + element.getType();
   }
-  get hasErrorsOnTop() {
-    return this.cell.showErrorOnTop && !this.question.isErrorsModeTooltip;
-  }
-  get hasErrorsOnBottom() {
-    return this.cell.showErrorOnBottom && !this.question.isErrorsModeTooltip;
-  }
   getHeaders(): string {
     return this.cell.headers;
   }
@@ -99,19 +93,6 @@ export class MatrixCell extends Vue {
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;
-  }
-  getItemClass(item: any) {
-    const cssClasses = this.cell.question.cssClasses;
-    const isDisabled = this.cell.question.isReadOnly || !item.isEnabled;
-    const isChecked = item.value === this.cell.question.renderedValue;
-    const allowHover = !isDisabled && !isChecked;
-
-    return new CssClassBuilder()
-      .append(this.cell.question.cssClasses.item)
-      .append(cssClasses.itemDisabled, isDisabled)
-      .append(cssClasses.itemChecked, isChecked)
-      .append(cssClasses.itemHover, allowHover)
-      .toString();
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;

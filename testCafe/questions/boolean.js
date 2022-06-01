@@ -96,6 +96,15 @@ frameworks.forEach((framework) => {
 
     assert.equal(await getQuestionValue(), false);
   });
+
+  test("check arrow keydowns", async (t) => {
+    await ClientFunction(() => { document.querySelector(".sv-boolean input").focus(); })();
+    await t.expect(getQuestionValue()).eql(undefined)
+      .pressKey("right")
+      .expect(getQuestionValue()).ok()
+      .pressKey("left")
+      .expect(getQuestionValue()).eql(false);
+  });
 });
 
 frameworks.forEach((framework) => {

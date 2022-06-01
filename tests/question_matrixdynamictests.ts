@@ -3167,6 +3167,11 @@ QUnit.test(
       true,
       "It is readOnly by default"
     );
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.readOnly,
+      false,
+      "Property is not read-only"
+    );
     survey.setValue("q", "a");
     assert.equal(
       matrix.visibleRows[0].cells[0].question.isReadOnly,
@@ -3857,6 +3862,35 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
     true,
     "The third row can be removed (in actions cell)"
   );
+});
+
+QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [{ name: "1" }, { name: "2" }],
+      },
+    ],
+  });
+  survey.css.root = "sd-root-modern";
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  var table = matrix.renderedTable;
+  assert.equal(
+    table.rows[0].cells[2].isActionsCell,
+    true,
+    "The first row can be removed (in actions cell)"
+  );
+  assert.equal(survey.css.root, "sd-root-modern", "Survey css root set correctly");
+  assert.equal(table.rows[0].cells[2].item.value.actions[0].component, "sv-action-bar-item", "Render as icon");
+  settings.matrixRenderRemoveAsIcon = false;
+  //Reset table
+  matrix.showHeader = false;
+  table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[2].item.value.actions[0].component, "sv-matrix-remove-button", "Render as button");
+  settings.matrixRenderRemoveAsIcon = true;
 });
 
 QUnit.test("column is requriedText, Bug #2297", function (assert) {
@@ -7305,4 +7339,109 @@ QUnit.test("Question defaultValueExpression in matrix dynamic", function(
   assert.equal(q2.value, 4, "changed dirrectly");
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
+});
+QUnit.test("call locationChangedCallback for cell question", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [
+          { name: "q1" }
+        ],
+      }
+    ] });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[1];
+  let counter = 0;
+  row.cells[0].question.localeChangedCallback = () => { counter ++; };
+  survey.locale = "de";
+  survey.locale = "";
+  assert.equal(counter, 2, "locationChangedCallback called");
+});
+QUnit.test("Restore read-only on setting mode display/edit", function (assert) {
+  const json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "question1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "Column1",
+          },
+          {
+            name: "Column2",
+            readOnly: true
+          },
+        ],
+        cellType: "text",
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const question = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  const row = question.visibleRows[0];
+  assert.equal(row.cells[0].question.readOnly, false, "It is not read-only cell1 #1");
+  assert.equal(row.cells[0].question.isReadOnly, false, "isReadOnly-false cell1 #1");
+  assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #1");
+  assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #1");
+  survey.mode = "display";
+  assert.equal(row.cells[0].question.readOnly, false, "It is not read-only cell1 #2");
+  assert.equal(row.cells[0].question.isReadOnly, true, "isReadOnly-true cell1 #2");
+  assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #2");
+  assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #2");
+  survey.mode = "edit";
+  assert.equal(row.cells[0].question.readOnly, false, "It is not read-only cell1 #3");
+  assert.equal(row.cells[0].question.isReadOnly, false, "isReadOnly-false cell1 #3");
+  assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #3");
+  assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #3");
+});
+QUnit.test("getTitle", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrixdynamic", name: "q1",
+            rowCount: 1,
+            columns: [
+              { name: "col1", cellType: "text", cellHint: "true hint" },
+              { name: "col2", cellType: "text" },
+              { name: "col3", cellType: "text", cellHint: " " }
+            ]
+          }]
+      }
+    ]
+  });
+  const question = survey.getAllQuestions()[0];
+  var renderedTable = question.renderedTable;
+  const row = renderedTable.rows[0];
+  assert.equal(row.cells[0].getTitle(), "true hint");
+  assert.equal(row.cells[1].getTitle(), "col2");
+  assert.equal(row.cells[2].getTitle(), "");
+});
+QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrixdynamic", name: "q1",
+            columns: [
+              { name: "col1", cellType: "dropdown" },
+            ]
+          }]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.columns[0].renderAs = "myRender";
+  assert.equal(matrix.columns[0].templateQuestion.renderAs, "myRender", "Apply render as to template question");
 });

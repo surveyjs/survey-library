@@ -12,6 +12,7 @@ import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { settings } from "./settings";
 
 export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
@@ -58,12 +59,12 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   private showErrorOnCore(location: string): boolean {
     return (
-      this.getShowErrorLocation() == location &&
+      this.getShowErrorLocation(location) &&
       (!this.isChoice || this.isFirstChoice)
     );
   }
-  private getShowErrorLocation(): string {
-    return this.hasQuestion ? this.question.survey.questionErrorLocation : "";
+  private getShowErrorLocation(location: string): boolean {
+    return this.hasQuestion && this.question.showErrorOnCore(location);
   }
   public get item(): ItemValue {
     return this.itemValue;
@@ -99,17 +100,21 @@ export class QuestionMatrixDropdownRenderedCell {
     return builder.toString();
   }
   public get headers(): string {
-    if (
-      this.cell &&
-      this.cell.column &&
-      this.cell.column.isShowInMultipleColumns
-    ) {
-      return this.item.locText.renderedHtml;
+    if(this.cell && this.cell.column) {
+      if(this.cell.column.cellHint === " ") {
+        return "";
+      }
+      if(!!this.cell.column.cellHint) {
+        return this.cell.column.locCellHint.renderedHtml;
+      }
+      if(this.cell.column.isShowInMultipleColumns) {
+        return this.item.locText.renderedHtml;
+      }
     }
-    if (this.question && this.question.isVisible) {
+    if(this.question && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;
     }
-    if (this.hasTitle) {
+    if(this.hasTitle) {
       return this.locTitle.renderedHtml || "";
     }
     return "";
@@ -490,7 +495,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private get showRemoveButtonAsIcon() {
     return (
-      this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
+      settings.matrixRenderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
     );
   }
   protected setDefaultRowActions(
@@ -533,7 +538,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       actions.push(
         new Action({
           id: "show-detail",
-          title: surveyLocalization.getString("editText"),
+          title: this.matrix.getLocalizationString("editText"),
           showTitle: false,
           location: "start",
           component: "sv-matrix-detail-button",

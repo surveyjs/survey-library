@@ -21,9 +21,6 @@ export class TitleElement extends React.Component<any, any> {
     let onClick = null;
     let onKeyUp = null;
     if (element.hasTitleEvents) {
-      onClick = () => {
-        return element.toggleState();
-      };
       onKeyUp = (evt: any) => {
         doKey2ClickUp(evt.nativeEvent);
       };

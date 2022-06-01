@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -51,6 +51,41 @@ frameworks.forEach(framework => {
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
+  });
+  test("Check panel with elements in one line", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "panel",
+          name: "delivery_details",
+          title: "Contact",
+          width: "780px",
+          elements: [
+            {
+              type: "text",
+              name: "question_with_num",
+              title: "Personal information"
+            },
+            {
+              type: "text",
+              name: "question_with_num",
+              startWithNewLine: false,
+              title: "Contact information"
+            },
+            {
+              type: "text",
+              name: "question_with_num",
+              startWithNewLine: false,
+              title: "Other information"
+            },
+          ]
+        },
+      ]
+    });
+    await ClientFunction(()=> document.body.focus())();
+    const panelRoot = Selector(".sd-panel");
+    await checkElementScreenshot("panel-elements-one-row.png", panelRoot, t);
   });
   test("Check panel expand/collapse", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -164,4 +199,23 @@ frameworks.forEach(framework => {
       .ok(compareResults.errorMessages());
   });
 
+  test("Check panel with actions", async(t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          type: "text",
+          name: "question1",
+          title: "Question title",
+        }
+      ]
+    });
+    await t.typeText(Selector(".sd-input"), "This is my answer");
+    await ClientFunction(()=>{
+      document.body.focus();
+      (<any>window).survey.showPreview();
+    })();
+    const panelRoot = Selector(".sd-panel");
+    await checkElementScreenshot("panel-with-actions.png", panelRoot, t);
+  });
 });

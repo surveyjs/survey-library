@@ -17,9 +17,9 @@
   text-align: center;
   flex-grow: 1;
   text-decoration: none;
-  border-top: 2px solid #E5E5E5;
-  padding-top: 16px;
-  padding-bottom: 32px;
+  border-top: 2px solid $border-light;
+  padding-top: calcSize(2);
+  padding-bottom: calcSize(4);
   cursor: pointer;
   &:hover {
     .sd-progress-buttons__page-title {
@@ -46,14 +46,14 @@
 }
 .sd-progress-buttons__page-title {
   width: 100%;
-  font-size: 16px;
+  font-size: calcSize(2);
   font-weight: 600;
-  line-height: 24px;
+  line-height: calcSize(3);
 }
 .sd-progress-buttons__page-description {
   width: 100%;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calcSize(1.5);
+  line-height: calcSize(2);
   font-weight: 600;
   color: $foreground-light;
 }

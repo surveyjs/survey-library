@@ -238,8 +238,27 @@ function getElementWidth(el: HTMLElement) {
   return !!getComputedStyle ? Number.parseFloat(getComputedStyle(el).width) : el.offsetWidth;
 }
 
+function isContainerVisible(el: HTMLElement) {
+  return !!(
+    el.offsetWidth ||
+    el.offsetHeight ||
+    el.getClientRects().length
+  );
+}
+
+function findParentByClass(element: HTMLElement, className: string): Element {
+  if (!!element) {
+    if (element.classList.contains(className) || element.className.indexOf(className) !== -1) {
+      return element;
+    } else {
+      return findParentByClass(element.parentElement, className);
+    }
+  }
+}
+
 export {
   getElementWidth,
+  isContainerVisible,
   classesToSelector,
   compareVersions,
   confirmAction,
@@ -257,5 +276,6 @@ export {
   getIconNameFromProxy,
   increaseHeightByContent,
   getOriginalEvent,
-  preventDefaults
+  preventDefaults,
+  findParentByClass
 };

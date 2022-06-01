@@ -139,12 +139,14 @@ export class Trigger extends Base {
   ) {
     if (res) {
       this.onSuccess(values, properties);
+      this.onSuccessExecuted();
     } else {
       this.onFailure();
     }
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {}
-  protected onFailure() {}
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {}
+  protected onFailure(): void {}
+  protected onSuccessExecuted(): void {}
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.oldPropertiesChanged();
@@ -215,6 +217,7 @@ export class Trigger extends Base {
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
   setCompleted(): any;
+  triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string): any;
   focusQuestion(name: string): boolean;
@@ -241,6 +244,11 @@ export class SurveyTrigger extends Trigger {
   }
   public get isOnNextPage() {
     return false;
+  }
+  protected onSuccessExecuted(): void {
+    if(!!this.owner) {
+      this.owner.triggerExecuted(this);
+    }
   }
 }
 /**

@@ -6,22 +6,21 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    if (!popupViewModel.container)
-      popupViewModel.initializePopupContainer();
+    popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
-    popupViewModel.model.onVisibilityChanged = (isVisible: boolean) => {
-      if (isVisible) {
+    popupViewModel.model.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+      if (option.isVisible) {
         ko.tasks.runEarly();
         popupViewModel.updateOnShowing();
       }
-    };
+    });
     ko.applyBindings(popupViewModel, popupViewModel.container);
   }
   dispose() {
     ko.cleanNode(this.popupViewModel.container);
-    this.popupViewModel.destroyPopupContainer();
+    this.popupViewModel.dispose();
   }
 }
 
@@ -32,7 +31,7 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string,
   title?: string,
-  displayMode: "popup"|"overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup"
 ) {
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
     () => {

@@ -14,6 +14,7 @@ export * from "./etalon_multipletext";
 export * from "./etalon_file";
 export * from "./etalon_paneldynamic";
 export * from "./etalon_page_panel";
+export * from "./etalon_matrix";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

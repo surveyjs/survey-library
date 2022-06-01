@@ -26,7 +26,7 @@
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel {
         & > .sd-panel__header ~ .sd-panel__content {
-            margin-top: 8px;
+            margin-top: calcSize(1);
         }
     }
 }
@@ -42,8 +42,8 @@
     left: 0;
     right: 0;
     margin: 0;
-    border-color: #eaeaea;
-    background: #eaeaea;
+    border-color: $border-light;
+    background: $border-light;
     height: 1px;
     border: none;
 }
@@ -113,8 +113,8 @@
 }
 .sd-paneldynamic__prev-btn,
 .sd-paneldynamic__next-btn {
-    width: 16px;
-    height: 16px;
+    width: calcSize(2);
+    height: calcSize(2);
     .sv-svg-icon {
         display: block;
     }

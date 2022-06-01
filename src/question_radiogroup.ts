@@ -42,7 +42,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.showClearButton && !this.isReadOnly;
   }
   public get clearButtonCaption() {
-    return surveyLocalization.getString("clearCaption");
+    return this.getLocalizationString("clearCaption");
   }
   supportGoNextPageAutomatic() {
     return true;

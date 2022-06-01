@@ -139,8 +139,9 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
   public updateVisible() {
-    this.visible = this.calcVisible();
+    const isVisible = this.calcVisible();
     this.setWidth();
+    this.visible = isVisible;
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -768,8 +769,8 @@ export class PanelModelBase extends SurveyElement
         );
         if (!!res) return res;
       } else {
-        var q = <Question>el;
-        if (q.hasInput && (!withError || q.currentErrorCount > 0)) return q;
+        const q = (<Question>el).getFirstQuestionToFocus(withError);
+        if(!!q) return q;
       }
     }
     return null;
@@ -1074,19 +1075,26 @@ export class PanelModelBase extends SurveyElement
   protected canRenderFirstRows(): boolean {
     return this.isPage;
   }
+  protected getDragDropInfo(): any {
+    const page: PanelModelBase = <any>this.getPage(this.parent);
+    return !!page ? page.getDragDropInfo() : undefined;
+  }
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
-    var dragDropInfo = new DragDropInfo(null, element);
-    dragDropInfo.target = element;
-    dragDropInfo.isEdge = this.elements.length > 1;
-    if (this.elements.length < 2) {
-      dragDropInfo.destination = this;
-    } else {
-      dragDropInfo.isBottom = index > 0;
-      if (index == 0) {
-        dragDropInfo.destination = this.elements[1];
+    let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
+    if(!dragDropInfo) {
+      dragDropInfo = new DragDropInfo(null, element);
+      dragDropInfo.target = element;
+      dragDropInfo.isEdge = this.elements.length > 1;
+      if (this.elements.length < 2) {
+        dragDropInfo.destination = this;
       } else {
-        dragDropInfo.destination = this.elements[index - 1];
+        dragDropInfo.isBottom = index > 0;
+        if (index == 0) {
+          dragDropInfo.destination = this.elements[1];
+        } else {
+          dragDropInfo.destination = this.elements[index - 1];
+        }
       }
     }
     this.dragDropAddTargetToRow(dragDropInfo, null);
@@ -1576,6 +1584,16 @@ export class PanelModelBase extends SurveyElement
     return result;
   }
 
+  public get hasDescriptionUnderTitle(): boolean {
+    return this.hasDescription;
+  }
+  public get cssHeader(): string {
+    return this.cssClasses.panel.header;
+  }
+  public get cssDescription(): string {
+    return this.cssClasses.panel.description;
+  }
+
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {
@@ -1832,7 +1850,7 @@ export class PanelModel extends PanelModelBase implements IElement {
           action: () => { this.cancelPreview(); }
         });
       }
-      this.footerToolbarValue = this.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
       if (!!this.cssClasses.panel) {
         this.footerToolbarValue.containerCss = this.cssClasses.panel.footer;
       }

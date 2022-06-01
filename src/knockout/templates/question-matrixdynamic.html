@@ -28,7 +28,7 @@
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                 <!-- ko if: $data.requiredText -->
-                <span data-bind="text: $data.requiredText"></span>
+                <span data-bind="css: question.koCss().cellRequiredText, text: $data.requiredText"></span>
                 <!-- /ko -->
               <!-- /ko -->
               <!-- /ko -->
@@ -76,7 +76,7 @@
               <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
               <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
               <!-- ko if: $data.requiredText -->
-              <span data-bind="text: $data.requiredText"></span>
+              <span data-bind="css: question.koCss().cellRequiredText, text: $data.requiredText"></span>
               <!-- /ko -->
               <!-- /ko -->
             </td>
@@ -139,7 +139,7 @@
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle() }"
   >
     <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
-      <!-- ko if: $data.showErrorOnTop && !$data.question.isErrorsModeTooltip-->
+      <!-- ko if: $data.showErrorOnTop-->
       <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
       <!-- /ko -->
       <!-- /ko -->
@@ -163,7 +163,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: $data.showErrorOnBottom && !$data.question.isErrorsModeTooltip-->
+      <!-- ko if: $data.showErrorOnBottom-->
       <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
       <!-- /ko -->
       <!-- /ko -->

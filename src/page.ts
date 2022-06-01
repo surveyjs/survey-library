@@ -222,11 +222,12 @@ export class PageModel extends PanelModelBase implements IPage {
     }
   }
   private dragDropInfo: DragDropInfo;
+  protected getDragDropInfo(): any { return this.dragDropInfo; }
   public dragDropStart(
     src: IElement,
     target: IElement,
     nestedPanelDepth: number = -1
-  ) {
+  ): void {
     this.dragDropInfo = new DragDropInfo(src, target, nestedPanelDepth);
   }
   public dragDropMoveTo(
@@ -301,6 +302,7 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
     var src = this.dragDropInfo.source;
+    var dest = this.dragDropInfo.destination;
     var row = this.dragDropFindRow(target);
     var targetIndex = this.dragDropGetElementIndex(target, row);
     this.updateRowsRemoveElementFromRow(target, row);
@@ -310,19 +312,24 @@ export class PageModel extends PanelModelBase implements IPage {
       var isSamePanel = false;
 
       if(this.isDesignMode && settings.supportCreatorV2) {
-        var srcRow = src && src.parent &&(src.parent as PanelModelBase).dragDropFindRow(src);
-        if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
-          elementsToSetSWNL.push(target);
-          elementsToResetSWNL.push(row.panel.elements[targetIndex]);
-        }
-        if(target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
+        const rowEls = row.elements.length;
+        if(!!dest && target === src && rowEls > 1 && row.elements[rowEls - 1] === dest) {
           elementsToResetSWNL.push(target);
-        }
-        if(srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
-          elementsToSetSWNL.push(srcRow.elements[1]);
-        }
-        if (row.elements.length <= 1) {
-          elementsToSetSWNL.push(target);
+        } else {
+          var srcRow = src && src.parent &&(src.parent as PanelModelBase).dragDropFindRow(src);
+          if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
+            elementsToSetSWNL.push(target);
+            elementsToResetSWNL.push(row.panel.elements[targetIndex]);
+          }
+          if(target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
+            elementsToResetSWNL.push(target);
+          }
+          if(srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
+            elementsToSetSWNL.push(srcRow.elements[1]);
+          }
+          if (row.elements.length <= 1) {
+            elementsToSetSWNL.push(target);
+          }
         }
       }
 

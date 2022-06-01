@@ -1,4 +1,4 @@
-import { fixture, test } from "testcafe";
+import { ClientFunction, Selector, fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -110,5 +110,13 @@ frameworks.forEach((framework) => {
     assert.equal(questionValue, undefined);
     json =JSON.parse(await getQuestionJson());
     assert.equal(json.items[0].title, newTitle);
+  });
+  test("Check item reactiveness, for example required title", async (t) => {
+    const requiredTitleSelector = Selector(".sv_q_mt_title .sv_q_required_text");
+    await t.expect(requiredTitleSelector.exists).notOk();
+    await ClientFunction(() => {
+      window.survey.getAllQuestions()[0].items[0].isRequired = true;
+    })();
+    await t.expect(requiredTitleSelector.exists).ok();
   });
 });

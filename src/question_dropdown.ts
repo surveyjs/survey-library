@@ -1,22 +1,38 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { PopupModel } from "./popup";
+import { ListModel } from "./list";
+import { Action, IAction } from "./actions/action";
+import { Base, ComputedUpdater, EventBase } from "./base";
+import { findParentByClass } from "./utils/utils";
+import { PopupUtils } from "./utils/popup";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
+  private getVisibleListItems() {
+    return this.visibleChoices.map((choice: ItemValue) => new Action({
+      id: choice.value,
+      title: choice.text,
+      component: this.itemComponent,
+      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
+    }));
+  }
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("optionsCaption", this, false, true);
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
-      function() {
+      function () {
         self.onVisibleChoicesChanged();
       }
     );
@@ -63,7 +79,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (
       this.minMaxChoices.length === 0 ||
       this.minMaxChoices.length !==
-        (this.choicesMax - this.choicesMin) / this.choicesStep + 1
+      (this.choicesMax - this.choicesMin) / this.choicesStep + 1
     ) {
       this.minMaxChoices = [];
       for (
@@ -121,8 +137,28 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public set autoComplete(val: string) {
     this.setPropertyValue("autoComplete", val);
   }
+
+  @property({ defaultValue: false }) showClearButton: boolean;
+  @property() itemComponent: string;
+  @property({
+    defaultValue: false,
+    onSet: (newValue: boolean, target: QuestionDropdownModel) => {
+      if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
+        const listModel = target.popupModel.contentComponentData.model as ListModel;
+        listModel.denySearch = newValue;
+      }
+    }
+  }) denySearch: boolean;
+  @property({
+    defaultValue: "editorWidth",
+    onSet: (newValue: "contentWidth" | "editorWidth", target: QuestionDropdownModel) => {
+      if (!!target.popupModel) {
+        target.popupModel.widthMode = (newValue === "editorWidth") ? "fixedWidth" : "contentWidth";
+      }
+    }
+  }) dropdownWidthMode: "contentWidth" | "editorWidth";
+
   public getControlClass(): string {
-    this.isEmpty();
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
@@ -132,6 +168,57 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public get readOnlyText() {
     return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+  }
+
+  public onClear(event: any): void {
+    this.clearValue();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  protected onVisibleChoicesChanged(): void {
+    super.onVisibleChoicesChanged();
+
+    if (this.popupModel) {
+      this.popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+    }
+  }
+
+  private _popupModel: PopupModel;
+  public get popupModel(): PopupModel {
+    if (this.renderAs === "select" && !this._popupModel) {
+      const listModel = new ListModel(
+        this.getVisibleListItems(),
+        (item: IAction) => {
+          this.value = item.id;
+          this.popupModel.toggleVisibility();
+        },
+        true);
+      listModel.denySearch = this.denySearch;
+
+      this._popupModel = new PopupModel("sv-list", {
+        model: listModel,
+      }, "bottom", "center", false);
+      this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
+      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+        if (option.isVisible) {
+          this.onOpenedCallBack();
+        }
+      });
+    }
+    return this._popupModel;
+  }
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+  public onClick(event: any): void {
+    if (!!event && !!event.target) {
+      const target = findParentByClass(event.target, this.cssClasses.control);
+      if (!!target) {
+        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
+      }
+    }
   }
 }
 Serializer.addClass(
@@ -200,8 +287,13 @@ Serializer.addClass(
         "impp",
       ],
     },
+    { name: "renderAs", default: "default", visible: false },
+    { name: "showClearButton:boolean", default: false, visible: false },
+    { name: "denySearch:boolean", default: false, visible: false },
+    { name: "dropdownWidthMode", default: "editorWidth", visible: false },
+    { name: "itemComponent", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionDropdownModel("");
   },
   "selectbase"

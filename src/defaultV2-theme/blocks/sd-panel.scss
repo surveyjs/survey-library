@@ -1,6 +1,3 @@
-.sd-panel__title {
-  outline: none;
-}
 .sd-panel {
   position: relative;
   .sd-row {
@@ -12,4 +9,14 @@
 }
 .sd-panel__required-text {
   color: $red;
+}
+.sd-panel__footer {
+  box-sizing: border-box;
+  padding-left: calc(var(--sd-base-padding) - 3 * #{$base-unit});
+  margin-left: calc(-1 * var(--sd-base-padding));
+  width: calc(100% + 2 * var(--sd-base-padding));
+  margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));
+  margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+  border-top: 1px solid $border-light;
+  padding-top: calc(0.5 * var(--sd-base-vertical-padding));
 }

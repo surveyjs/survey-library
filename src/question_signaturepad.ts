@@ -72,23 +72,16 @@ export class QuestionSignaturePadModel extends Question {
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
-    var buttonEl = el.getElementsByTagName("button")[0];
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     if (this.isInputReadOnly) {
       signaturePad.off();
     }
 
-    buttonEl.onclick = () => {
-      this.value = undefined;
-    };
-
     this.readOnlyChangedCallback = () => {
-      if (!this.allowClear || this.isInputReadOnly) {
+      if (this.isInputReadOnly) {
         signaturePad.off();
-        buttonEl.style.display = "none";
       } else {
         signaturePad.on();
-        buttonEl.style.display = "block";
       }
     };
 
@@ -120,7 +113,7 @@ export class QuestionSignaturePadModel extends Question {
       if (options.name === "width" || options.name === "height") {
         updateValueHandler();
       }
-      if(options.name === "value") {
+      if (options.name === "value") {
         updateValueHandler();
       }
     };
@@ -169,6 +162,9 @@ export class QuestionSignaturePadModel extends Question {
   public set allowClear(val: boolean) {
     this.setPropertyValue("allowClear", val);
   }
+  public get canShowClearButton(): boolean {
+    return !this.isInputReadOnly && this.allowClear;
+  }
   /**
    * Use it to set pen color for the signature pad.
    */
@@ -191,7 +187,7 @@ export class QuestionSignaturePadModel extends Question {
    * The clear signature button caption.
    */
   get clearButtonCaption(): string {
-    return surveyLocalization.getString("clearCaption");
+    return this.getLocalizationString("clearCaption");
   }
 
   public needShowPlaceholder(): boolean {
@@ -199,7 +195,7 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   get placeHolderText(): string {
-    return surveyLocalization.getString("signaturePlaceHolder");
+    return this.getLocalizationString("signaturePlaceHolder");
   }
 }
 
@@ -244,7 +240,7 @@ Serializer.addClass(
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
   ],
-  function() {
+  function () {
     return new QuestionSignaturePadModel("");
   },
   "question"

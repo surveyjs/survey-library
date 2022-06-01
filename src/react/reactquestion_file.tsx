@@ -17,10 +17,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();
     var clearButton = this.renderClearButton(
-      this.question.cssClasses.removeButton
+      this.question.showRemoveButton
     );
     var clearButtonBottom = this.renderClearButton(
-      this.question.cssClasses.removeButtonBottom
+      this.question.showRemoveButtonBottom
     );
 
     let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
@@ -105,7 +105,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderClearButton(className: string): JSX.Element {
-    return !this.question.isEmpty() && !this.isDisplayMode && !!className? (
+    return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.cleanButtonCaption}</span>
         {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"}></SvgIcon>: null }
@@ -123,7 +123,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           }}
           title={val.name}
           download={val.name}
-          style={{ width: this.question.imageWidth + "px" }}
+          style={{ width: this.question.imageWidthRendered }}
         >
           {val.name}
         </a>

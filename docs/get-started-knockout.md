@@ -16,11 +16,15 @@ As a result, you will create a survey displayed below:
 </p>
 <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes style sheets and scripts. Insert links to these resources within the `<head>` tag on your HTML page _after_ the Knockout link:
+The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
+
+![Themes in SurveyJS Library](images/survey-library-themes.png)
+
+Insert links to the scripts and style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
 
 ```html
 <head>
@@ -30,29 +34,16 @@ The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <!-- ... -->
 </head>
 ```
 
-To apply the linked theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
-
-- Modern theme      
-*"modern"*
-
-- Bootstrap theme       
-*"bootstrap"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-For instance, the following code applies the Modern theme:
+To apply the linked theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
 
 ```js
 Survey.StylesManager.applyTheme("modern");
@@ -98,11 +89,9 @@ const survey = new Survey.Model(surveyJson);
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -169,11 +158,9 @@ If you replicate the code correctly, you should see the following survey:
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
 
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -211,7 +198,37 @@ document.addEventListener("DOMContentLoaded", function() {
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. In this tutorial, the results are simply output in an alert dialog:
+After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+
+```js
+const SURVEY_ID = 1;
+
+function surveyComplete (sender) {
+    saveSurveyResults(
+        "https://your-web-service.com/" + SURVEY_ID,
+        sender.data
+    )
+}
+
+function saveSurveyResults(url, json) {
+    const request = new XMLHttpRequest();
+    request.open('POST', url);
+    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    request.addEventListener('load', () => {
+        // Handle "load"
+    });
+    request.addEventListener('error', () => {
+        // Handle "error"
+    });
+    request.send(JSON.stringify(json));
+}
+
+const survey = new Survey.Model(surveyJson);
+
+survey.onComplete.add(surveyComplete);
+```
+
+In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 function alertResults (sender) {
@@ -242,11 +259,9 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <!-- Modern theme -->
     <link href="https://unpkg.com/survey-core/modern.min.css" type="text/css" rel="stylesheet">
 
-    <!-- Default theme -->
-    <!-- <link href="https://unpkg.com/survey-core/survey.min.css" type="text/css" rel="stylesheet"> -->
-
-    <!-- Bootstrap theme -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <!-- Default V2 theme -->
+    <!-- <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
+    
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -289,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function() {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-knockout" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

@@ -16,7 +16,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-react" target="_blank">Get Started with SurveyJS - React</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">Get Started with SurveyJS - React</a>.
 
 ## Install the `survey-react-ui` npm Package
 
@@ -28,26 +28,22 @@ npm install survey-react-ui --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Import one of the style sheets in the React component in which your survey will be.
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
+![Themes in SurveyJS Library](images/survey-library-themes.png)
 
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+Open the React component in which your survey will be and import a style sheet that implements the required theme.
 
 ```js
 // Modern theme
 import 'survey-core/modern.min.css';
-// Default theme
-// import 'survey-core/survey.min.css';
+// Default V2 theme
+// import 'survey-core/defaultV2.min.css';
+```
+
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+
+```js
 import { StylesManager } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -90,7 +86,7 @@ function App() {
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
 StylesManager.applyTheme("modern");
@@ -141,7 +137,7 @@ If you replicate the code correctly, you should see the following survey:
 
 ```js
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -171,7 +167,42 @@ export default App;
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. In this tutorial, the results are simply output in an alert dialog:
+After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+
+```js
+import { useCallback } from 'react';
+// ...
+const SURVEY_ID = 1;
+
+function App() {
+  const survey = new Model(surveyJson);
+  const surveyComplete = useCallback((sender) => {
+    saveSurveyResults(
+      "https://your-web-service.com/" + SURVEY_ID,
+      sender.data
+    )
+  }, []);
+
+  survey.onComplete.add(surveyComplete);
+
+  return <Survey model={survey} />;
+}
+
+function saveSurveyResults(url, json) {
+  const request = new XMLHttpRequest();
+  request.open('POST', url);
+  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+  request.addEventListener('load', () => {
+    // Handle "load"
+  });
+  request.addEventListener('error', () => {
+    // Handle "error"
+  });
+  request.send(JSON.stringify(json));
+}
+```
+
+In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 import { useCallback } from 'react';
@@ -187,13 +218,13 @@ function App() {
 
   return <Survey model={survey} />;
 }
-
 ```
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
 
+To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 <details>
     <summary>View full code</summary>  
@@ -202,7 +233,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 import { useCallback } from 'react';
 
 import 'survey-core/modern.min.css';
-// import 'survey-core/survey.min.css';
+// import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -236,7 +267,7 @@ export default App;
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-react" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

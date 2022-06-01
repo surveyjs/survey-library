@@ -97,6 +97,7 @@ export var defaultBootstrapCss = {
     rootRadio: "sv_qbln form-inline checkbox",
     item: "sv-boolean",
     control: "sv-visuallyhidden",
+    controlCheckbox: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-boolean--disabled",
@@ -160,6 +161,7 @@ export var defaultBootstrapCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
+    cellResponsiveTitle: "sv-hidden"
   },
   matrixdropdown: {
     root: "table",

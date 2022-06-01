@@ -16,7 +16,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">Get Started with SurveyJS - Angular</a>.
+You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">Get Started with SurveyJS - Angular</a>.
 
 ## Install the `survey-angular` npm Package
 
@@ -28,7 +28,11 @@ npm install survey-angular --save
 
 ## Configure Styles
 
-SurveyJS is shipped with several style sheets that implement different themes. Open the `angular.json` file and reference one of these style sheets in it:
+SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+
+![Themes in SurveyJS Library](images/survey-library-themes.png)
+
+Open the `angular.json` file and reference a style sheet that implements the required theme:
 
 ```js
 {
@@ -47,8 +51,8 @@ SurveyJS is shipped with several style sheets that implement different themes. O
               "src/styles.css",
               // Modern theme
               "node_modules/survey-angular/modern.min.css",
-              // Default theme
-              // "node_modules/survey-angular/survey.min.css"
+              // Default V2 theme
+              // "node_modules/survey-angular/defaultV2.min.css"
             ],
             // ...
           }
@@ -59,18 +63,7 @@ SurveyJS is shipped with several style sheets that implement different themes. O
 }
 ```
 
-To apply the referenced theme, call the `applyTheme(themeName)` method. Its argument accepts different values depending on the chosen theme:
-
-- Modern theme      
-*"modern"*
-
-- Default theme (in various color schemes)     
-*"default"*, *"orange"*, *"darkblue"*, *"darkrose"*, *"stone"*, *"winter"*, *"winterstone"*
-
-- Bootstrap theme (if your application uses Bootstrap)       
-*"bootstrap"*
-
-For instance, the following code applies the Modern theme:
+To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
 
 ```js
 import { Component } from '@angular/core';
@@ -228,7 +221,46 @@ export class AppComponent implements OnInit {
 
 ## Handle Survey Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed. In this tutorial, the results are simply output in an alert dialog:
+After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+
+```js
+import { Component, OnInit } from '@angular/core';
+import { ..., Model } from "survey-angular";
+
+const SURVEY_ID = 1;
+
+@Component({
+  // ...
+})
+export class AppComponent implements OnInit {
+  surveyComplete (sender) {
+    saveSurveyResults(
+      "https://your-web-service.com/" + SURVEY_ID,
+      sender.data
+    )
+  }
+  ngOnInit() {    
+    const survey = new Model(surveyJson);
+    survey.onComplete.add(this.surveyComplete);
+    // ...
+  }
+}
+
+function saveSurveyResults(url, json) {
+    const request = new XMLHttpRequest();
+    request.open('POST', url);
+    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    request.addEventListener('load', () => {
+        // Handle "load"
+    });
+    request.addEventListener('error', () => {
+        // Handle "error"
+    });
+    request.send(JSON.stringify(json));
+}
+```
+
+In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 import { Component, OnInit } from '@angular/core';
@@ -253,6 +285,8 @@ export class AppComponent implements OnInit {
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
+
+To view the application, run `ng serve` in a command line and open [http://localhost:4200/](http://localhost:4200/) in your browser.
 
 <details>
     <summary>View full code</summary>  
@@ -299,7 +333,7 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-angular" target="_blank">View full code on GitHub</a>
+<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">View full code on GitHub</a>
 
 ## Further Reading
 

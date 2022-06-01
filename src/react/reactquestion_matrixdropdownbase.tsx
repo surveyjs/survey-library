@@ -21,6 +21,8 @@ import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-act
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
+    //Create rendered table in contructor and not on rendering
+    const table = this.question.renderedTable;
     this.state = this.getState();
   }
   protected get question(): QuestionMatrixDropdownModelBase {
@@ -203,7 +205,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       cellContent = this.renderLocString(cell.locTitle);
       if (cell.requiredText) {
         requiredSpace = <span>&nbsp;</span>;
-        requiredText = <span>{cell.requiredText}</span>;
+        requiredText = <span className={this.question.cellRequiredText}>{cell.requiredText}</span>;
       }
     }
     if (cell.isDragHandlerCell) {

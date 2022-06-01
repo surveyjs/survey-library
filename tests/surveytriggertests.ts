@@ -31,6 +31,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
     return this.items;
   }
   setCompleted() {}
+  triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
   copyTriggerValue(name: string, fromName: string) {}
   focusQuestion(name: string): boolean {
@@ -170,4 +171,47 @@ QUnit.test("Clear seValue on setToName property in design mode", function(
   trigger.setToName = "q1";
   assert.equal(trigger.setToName, "q1");
   assert.notOk(trigger.setValue);
+});
+QUnit.test("On trigger executed", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+          }
+        ]
+      },
+      {
+        elements: [{ type: "text", name: "q3" }]
+      }
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        setToName: "q2",
+        expression: "{q1} = 2",
+        setValue: 1,
+      },
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  const triggers = [];
+  survey.onTriggerExecuted.add((sender, options) => {
+    triggers.push(options.trigger.getType());
+  });
+  survey.setValue("q1", 2);
+  survey.setValue("q1", 3);
+  survey.nextPage();
+  assert.deepEqual(triggers, ["setvaluetrigger", "completetrigger"]);
 });

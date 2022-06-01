@@ -273,6 +273,7 @@ export class StylesManager {
     ".sv_main .sv-boolean__label": "vertical-align: middle; cursor: pointer;",
     ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
       "margin-left: calc(50% - 10px);",
+    ".sv_main .sv-boolean input:focus ~ .sv-boolean__switch": "outline-width: 1px; outline-style: solid; outline-offset: 1px;",
     ".sv_main .sv-boolean--checked  .sv-boolean__slider":
       "margin-left: calc(100% - 20px);",
     "[dir='rtl'] .sv-boolean__label ": "float: right;",
@@ -355,7 +356,7 @@ export class StylesManager {
     //eo button-group
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
-    ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none;",
+    ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none; z-index: 2;",
     ".sv-popup__container": "filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); position: absolute; padding: 0;",
     ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
     ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
@@ -499,11 +500,6 @@ export class StylesManager {
 
     ".sv_row": {
       style: " display: flex; flex-wrap: wrap;",
-      media: "@supports (display: flex)",
-    },
-
-    ".sv-vue-row-additional-div": {
-      style: " display: flex; flex-wrap: wrap; flex-basis: 100%; width: 100%;",
       media: "@supports (display: flex)",
     },
 
@@ -916,7 +912,7 @@ export class StylesManager {
       "fill: $text-color",
 
     //boolean
-    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__switch": "background-color: $main-color; outline-color: $main-color",
     ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
     ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
     ".sv_main .sv-boolean--disabled .sv-boolean__switch":

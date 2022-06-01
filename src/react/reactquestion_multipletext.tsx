@@ -1,9 +1,10 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactquestion";
 import { QuestionMultipleTextModel } from "survey-core";
 import { MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { ReactSurveyElement } from "./reactquestion_element";
 import { TitleContent } from "./components/title/title-content";
 
 export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
@@ -26,17 +27,6 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       </table>
     );
   }
-  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element {
-    return this.question.isErrorsModeTooltip ? (
-      <SurveyElementErrors
-        element={item.editor}
-        cssClasses={cssClasses}
-        creator={this.creator}
-        location={"tooltip"}
-        id={item.editor.id + "_errors"}
-      />
-    ): null;
-  }
   protected renderRow(
     rowIndex: number,
     items: Array<MultipleTextItemModel>,
@@ -46,21 +36,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     var tds = [];
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      var spans = [];
       tds.push(
         <td key={"item" + i} className={this.question.cssClasses.cell}>
-          <label className={this.question.getItemLabelCss(item)}>
-            <span className={cssClasses.itemTitle}>
-              <TitleContent element={item.editor} cssClasses={item.editor.cssClasses}></TitleContent>
-            </span>
-            <SurveyMultipleTextItemEditor
-              cssClasses={cssClasses}
-              itemCss={this.question.getItemCss()}
-              question={item.editor}
-              creator={this.creator}
-            />
-            {this.renderItemTooltipError(item, cssClasses)}
-          </label>
+          <SurveyMultipleTextItem question={this.question} item={item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>
         </td>
       );
     }
@@ -69,6 +47,50 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         {tds}
       </tr>
     );
+  }
+}
+
+export class SurveyMultipleTextItem extends ReactSurveyElement {
+  private get question(): QuestionMultipleTextModel {
+    return this.props.question;
+  }
+  private get item(): MultipleTextItemModel {
+    return this.props.item;
+  }
+  protected getStateElements() {
+    return [this.item, this.item.editor];
+  }
+  private get creator(): ISurveyCreator {
+    return this.props.creator;
+  }
+
+  protected renderElement() {
+    const item = this.item;
+    const cssClasses = this.cssClasses;
+    return (<label className={this.question.getItemLabelCss(item)}>
+      <span className={cssClasses.itemTitle}>
+        <TitleContent element={item.editor} cssClasses={item.editor.cssClasses}></TitleContent>
+      </span>
+      <SurveyMultipleTextItemEditor
+        cssClasses={cssClasses}
+        itemCss={this.question.getItemCss()}
+        question={item.editor}
+        creator={this.creator}
+      />
+      {this.renderItemTooltipError(item, cssClasses)}
+    </label>);
+  }
+
+  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element {
+    return this.item.editor.isErrorsModeTooltip ? (
+      <SurveyElementErrors
+        element={item.editor}
+        cssClasses={cssClasses}
+        creator={this.creator}
+        location={"tooltip"}
+        id={item.editor.id + "_errors"}
+      />
+    ): null;
   }
 }
 

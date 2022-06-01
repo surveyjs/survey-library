@@ -68,9 +68,12 @@ $base-unit: var(--base-unit, 8px);
   }
 }
 .sv-list__item--disabled {
-  color: $foreground-disabled;
   cursor: default;
   pointer-events: none;
+}
+
+.sv-list__item--disabled span {
+  color: $foreground-disabled;
 }
 
 .sv-list__item span {
@@ -117,7 +120,7 @@ $base-unit: var(--base-unit, 8px);
   padding: calcSize(2);
   padding-left: calcSize(8);
   padding-right: calcSize(3);
-  line-height: calcSize(3);  
+  line-height: calcSize(3);
 }
 
 .sv-list__input::placeholder {

@@ -21,6 +21,7 @@ frameworks.forEach(framework => {
   });
   test("Check rating question", async (t) => {
     await t.resizeWindow(1920, 1080);
+    const focusBody = ClientFunction(()=>{ document.body.focus(); });
     await initSurvey(framework, {
       showQuestionNumbers: "off",
       questions: [
@@ -37,8 +38,14 @@ frameworks.forEach(framework => {
     });
 
     const questionRoot = Selector(".sd-question");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await focusBody();
     await checkElementScreenshot("question-rating.png", questionRoot, t);
+    await ClientFunction(()=> { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
+    await checkElementScreenshot("question-rating-focus.png", questionRoot, t);
+    await t.click(".sd-rating__item");
+    await checkElementScreenshot("question-rating-focus-selected.png", questionRoot, t);
+    await focusBody();
+    await checkElementScreenshot("question-rating-selected", questionRoot, t);
   });
   test("Check rating question with many items", async (t) => {
     await t.resizeWindow(1920, 1080);

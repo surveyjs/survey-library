@@ -31,7 +31,6 @@ import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
 import { ArrayChanges } from "../src/base";
 import { RequreNumericError } from "../src/error";
-import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { PanelModel } from "../src/panel";
 
@@ -48,7 +47,7 @@ class QuestionMatrixRandomModel extends QuestionMatrixModel {
   }
 }
 
-QUnit.test("Only some questions support comment", function(assert) {
+QUnit.test("Only some questions support comment", function (assert) {
   var questionText = <Question>(
     QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
@@ -90,7 +89,7 @@ QUnit.test("Only some questions support comment", function(assert) {
     "You can set comment for drop down question."
   );
 });
-QUnit.test("Only some questions support other", function(assert) {
+QUnit.test("Only some questions support other", function (assert) {
   var questionText = <Question>(
     QuestionFactory.Instance.createQuestion("text", "textQuestion")
   );
@@ -132,7 +131,7 @@ QUnit.test("Only some questions support other", function(assert) {
     "You can set other for drop down question."
   );
 });
-QUnit.test("Comment and other could not be set together", function(assert) {
+QUnit.test("Comment and other could not be set together", function (assert) {
   var questionDropDown = <Question>(
     QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
@@ -154,7 +153,7 @@ QUnit.test("Comment and other could not be set together", function(assert) {
   assert.equal(questionDropDown.hasComment, false, "After set other to true");
   assert.equal(questionDropDown.hasOther, true, "After set other to true");
 });
-QUnit.test("Keep comment if question value is null", function(assert) {
+QUnit.test("Keep comment if question value is null", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
@@ -169,7 +168,7 @@ QUnit.test("Keep comment if question value is null", function(assert) {
     "Comment is still here after complete"
   );
 });
-QUnit.test("set choices from another question", function(assert) {
+QUnit.test("set choices from another question", function (assert) {
   Serializer.addProperty("itemvalue", "price");
   var q1 = new QuestionSelectBase("q1");
   q1.choices = [{ value: 1, text: "One", price: 4 }, "Two", "Three"];
@@ -179,7 +178,7 @@ QUnit.test("set choices from another question", function(assert) {
   assert.equal(q2.choices[0]["price"], 4, "additional data is copied");
   Serializer.removeProperty("itemvalue", "price");
 });
-QUnit.test("visibleChoices changes on setting others to true/false", function(
+QUnit.test("visibleChoices changes on setting others to true/false", function (
   assert
 ) {
   var question = new QuestionSelectBase("dropdownQuestion");
@@ -200,7 +199,7 @@ QUnit.test("visibleChoices changes on setting others to true/false", function(
 });
 QUnit.test(
   "displayValue function for selecteBase questions, issue #483",
-  function(assert) {
+  function (assert) {
     var question = new QuestionSelectBase("dropdownQuestion");
     question.choices = [
       { value: 1, text: "Value 1" },
@@ -238,7 +237,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("displayValue changed simultaniously with value", function(assert) {
+QUnit.test("displayValue changed simultaniously with value", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var question = new QuestionSelectBase("dropdownQuestion");
@@ -253,7 +252,7 @@ QUnit.test("displayValue changed simultaniously with value", function(assert) {
   survey.setValue("dropdownQuestion", 2);
   assert.equal(question.displayValue, "Value 2", "value is 2");
 });
-QUnit.test("displayValue function for rating question, issue #1094", function(
+QUnit.test("displayValue function for rating question, issue #1094", function (
   assert
 ) {
   var question = new QuestionRatingModel("q1");
@@ -281,7 +280,7 @@ QUnit.test("displayValue function for rating question, issue #1094", function(
     "there is no value in the list, so show the value"
   );
 });
-QUnit.test("matrix.displayValue, bug #1087", function(assert) {
+QUnit.test("matrix.displayValue, bug #1087", function (assert) {
   var question = new QuestionMatrixModel("q1");
   question.rows = [
     { value: 1, text: "Row 1" },
@@ -298,13 +297,13 @@ QUnit.test("matrix.displayValue, bug #1087", function(assert) {
     "matrix question displayValue works correctly"
   );
 });
-QUnit.test("Question Title property", function(assert) {
+QUnit.test("Question Title property", function (assert) {
   var question = new QuestionTextModel("q1");
   assert.equal(question.title, "q1", "get the question name by default");
   question.title = "My title";
   assert.equal(question.title, "My title", "get the question name by default");
 });
-QUnit.test("Question titleLocation", function(assert) {
+QUnit.test("Question titleLocation", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question1 = new QuestionTextModel("q1");
@@ -327,7 +326,7 @@ QUnit.test("Question titleLocation", function(assert) {
     "the second question has visible index 0 now"
   );
 });
-QUnit.test("Question titleDescription", function(assert) {
+QUnit.test("Question titleDescription", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question1 = new QuestionTextModel("q1");
@@ -364,7 +363,7 @@ QUnit.test("Question titleDescription", function(assert) {
     "survey.questionDescriptionLocation = 'underInput'"
   );
 });
-QUnit.test("Use value of checkbox question as an array", function(assert) {
+QUnit.test("Use value of checkbox question as an array", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question = new QuestionCheckboxModel("checkboxQuestion");
@@ -374,12 +373,12 @@ QUnit.test("Use value of checkbox question as an array", function(assert) {
   question.value.push("One");
   assert.deepEqual(question.value, ["One"], "convert value to array");
 });
-QUnit.test("Assign the same empty value", function(assert) {
+QUnit.test("Assign the same empty value", function (assert) {
   var count = 0;
   var question = new QuestionCheckboxModel("checkboxQuestion");
   assert.deepEqual(question.value, [], "convert value to array");
 
-  question.valueChangedCallback = function() {
+  question.valueChangedCallback = function () {
     count++;
   };
 
@@ -402,7 +401,7 @@ QUnit.test("Assign the same empty value", function(assert) {
   question.value = [1, 2];
   assert.equal(count, 2, "valueChangedCallback triggers");
 });
-QUnit.test("Pre-proccess value for Checkbox", function(assert) {
+QUnit.test("Pre-proccess value for Checkbox", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var question = new QuestionCheckboxModel("checkboxQuestion");
@@ -412,7 +411,7 @@ QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   survey.setValue("checkboxQuestion", "One");
   assert.deepEqual(question.value, ["One"], "convert value to array");
 });
-QUnit.test("Empty value for Checkbox", function(assert) {
+QUnit.test("Empty value for Checkbox", function (assert) {
   var question = new QuestionCheckboxModel("checkboxQuestion");
   question.choices = ["One", "Two", "Three"];
   assert.deepEqual(question.value, [], "empty array");
@@ -421,7 +420,7 @@ QUnit.test("Empty value for Checkbox", function(assert) {
   question.value = [];
   assert.deepEqual(question.value, [], "empty array");
 });
-QUnit.test("Matrix Question: visible rows", function(assert) {
+QUnit.test("Matrix Question: visible rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   assert.equal(matrix.hasRows, false, "There is now rows by default.");
   assert.equal(
@@ -449,7 +448,7 @@ QUnit.test("Matrix Question: visible rows", function(assert) {
     "The default row fullName is the question name"
   );
 });
-QUnit.test("Matrix Question: get/set values for empty rows", function(assert) {
+QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = ["col1", "col2"];
   matrix.value = "col1";
@@ -459,7 +458,7 @@ QUnit.test("Matrix Question: get/set values for empty rows", function(assert) {
   assert.equal(rows[0].value, "col2", "the row value changed");
   assert.equal(matrix.value, "col2", "the matrix value changed correctly");
 });
-QUnit.test("Matrix Question: get/set values for two rows", function(assert) {
+QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -480,7 +479,7 @@ QUnit.test("Matrix Question: get/set values for two rows", function(assert) {
     "the matrix value changed correctly, #2"
   );
 });
-QUnit.test("Matrix Question set values after visible row generated", function(
+QUnit.test("Matrix Question set values after visible row generated", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
@@ -490,7 +489,7 @@ QUnit.test("Matrix Question set values after visible row generated", function(
   matrix.value = { row1: "col1" };
   assert.equal(rows[0].value, "col1", "set the row value correctly");
 });
-QUnit.test("Matrix Question sortVisibleRows", function(assert) {
+QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var matrix = new QuestionMatrixRandomModel("q1");
   matrix.rowsOrder = "random";
   matrix.rows = ["row1", "row2"];
@@ -498,7 +497,7 @@ QUnit.test("Matrix Question sortVisibleRows", function(assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question isAllRowRequired property", function(assert) {
+QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -508,7 +507,7 @@ QUnit.test("Matrix Question isAllRowRequired property", function(assert) {
 });
 QUnit.test(
   "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
-  function(assert) {
+  function (assert) {
     var matrix = new QuestionMatrixModel("q1");
     matrix.fromJSON({
       type: "matrix",
@@ -546,7 +545,7 @@ QUnit.test(
     assert.equal(matrix.hasErrors(), false, "There is no errors");
   }
 );
-QUnit.test("Matrix Question supportGoNextPageAutomatic property", function(
+QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
@@ -563,7 +562,7 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function(
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
-QUnit.test("Matrix Question clearIncorrectValues", function(assert) {
+QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -579,7 +578,7 @@ QUnit.test("Matrix Question clearIncorrectValues", function(assert) {
 
 QUnit.test(
   "Matrix Question getFirstInputElementId - https://surveyjs.answerdesk.io/ticket/details/T2048",
-  function(assert) {
+  function (assert) {
     var matrix = new QuestionMatrixModel("q1");
     matrix.rows = ["row1", "row2"];
     matrix.columns = ["col1", "col2"];
@@ -593,7 +592,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
+QUnit.test("Rubric Matrix Question cells load from JSON", function (assert) {
   let survey = new SurveyModel({
     elements: [{
       type: "matrix",
@@ -617,11 +616,11 @@ QUnit.test("Rubric Matrix Question cells load from JSON", function(assert) {
   assert.equal(matrix.hasCellText, true, "There is cell text");
 });
 
-QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
+QUnit.test("Rubric Matrix Question cells get/set cell text", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   let counter = 0;
   matrix.registerFunctionOnPropertyValueChanged("cells", () => {
-    counter ++;
+    counter++;
   });
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -639,7 +638,7 @@ QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   assert.equal(counter, 2, "second cells change");
   assert.equal(matrix.hasCellText, false, "There is no cell text again");
 });
-QUnit.test("Rubric Matrix Question cells get cell displayText", function(
+QUnit.test("Rubric Matrix Question cells get cell displayText", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
@@ -668,7 +667,7 @@ QUnit.test("Rubric Matrix Question cells get cell displayText", function(
   );
 });
 
-QUnit.test("Rubric Matrix Question cells serialize/deserialize", function(
+QUnit.test("Rubric Matrix Question cells serialize/deserialize", function (
   assert
 ) {
   var matrix = new QuestionMatrixModel("q1");
@@ -710,7 +709,7 @@ QUnit.test("Rubric Matrix Question cells serialize/deserialize", function(
   );
 });
 
-QUnit.test("Rubric Matrix Question cells default row", function(assert) {
+QUnit.test("Rubric Matrix Question cells default row", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -752,13 +751,13 @@ QUnit.test("Rubric Matrix Question cells default row", function(assert) {
   );
 });
 
-QUnit.test("Multiple Text Item: text property", function(assert) {
+QUnit.test("Multiple Text Item: text property", function (assert) {
   var mItem = new MultipleTextItemModel("text1");
   assert.equal(mItem.title, "text1", "get value from name");
   mItem.title = "display1";
   assert.equal(mItem.title, "display1", "get value from textValue");
 });
-QUnit.test("Multiple Text Question: get/set values for two texts", function(
+QUnit.test("Multiple Text Question: get/set values for two texts", function (
   assert
 ) {
   var mText = new QuestionMultipleTextModel("q1");
@@ -775,7 +774,7 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function(
 });
 QUnit.test(
   "Multiple Text Question: get/set values and properties via question text",
-  function(assert) {
+  function (assert) {
     var mText = new QuestionMultipleTextModel("q1");
     mText.items.push(new MultipleTextItemModel("text1"));
     mText.items.push(new MultipleTextItemModel("text2"));
@@ -800,7 +799,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Multiple Text Question: support goNextPageAutomatic", function(
+QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
   assert
 ) {
   var mText = new QuestionMultipleTextModel("q1");
@@ -824,7 +823,7 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function(
 
 QUnit.test(
   "Radiogroup Question: support goNextPageAutomatic + hasOther",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -859,7 +858,7 @@ QUnit.test(
 
 QUnit.test(
   "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -893,7 +892,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Validators for text question + getAllErrors", function(assert) {
+QUnit.test("Validators for text question + getAllErrors", function (assert) {
   var mText = new QuestionTextModel("");
   assert.equal(mText.hasErrors(), false, "There is no error by default");
   mText.validators.push(new NumericValidator(10, 20));
@@ -916,13 +915,13 @@ QUnit.test("Validators for text question + getAllErrors", function(assert) {
   assert.equal(mText.hasErrors(), false, "The value is fine now.");
   assert.equal(mText.value, 15, "Convert to numeric");
 });
-QUnit.test("Numeric validation and with 0, Bug #462", function(assert) {
+QUnit.test("Numeric validation and with 0, Bug #462", function (assert) {
   var mText = new QuestionTextModel("");
   mText.validators.push(new NumericValidator(1, 100));
   mText.value = 0;
   assert.equal(mText.hasErrors(), true, "0 is less than 1");
 });
-QUnit.test("Use Email validator for inputType = email", function(assert) {
+QUnit.test("Use Email validator for inputType = email", function (assert) {
   var mText = new QuestionTextModel("");
   assert.equal(mText.validators.length, 0);
   mText.inputType = "email";
@@ -931,7 +930,7 @@ QUnit.test("Use Email validator for inputType = email", function(assert) {
   assert.equal(mText.hasErrors(), true, "Email is wrong");
 });
 
-QUnit.test("Validators for multiple text question", function(assert) {
+QUnit.test("Validators for multiple text question", function (assert) {
   var mText = new QuestionMultipleTextModel("q1");
   mText.items.push(new MultipleTextItemModel("t1"));
   assert.equal(mText.hasErrors(), false, "There is no error by default");
@@ -950,7 +949,7 @@ QUnit.test("Validators for multiple text question", function(assert) {
   assert.equal(mText.hasErrors(), false, "The value is fine now.");
   assert.equal(mText.items[0].value, 15, "Convert to numeric");
 });
-QUnit.test("Validators for array value question", function(assert) {
+QUnit.test("Validators for array value question", function (assert) {
   var question = new QuestionCheckboxModel("q1");
   question.choices = ["item1", "item2", "item3", "item4", "item5"];
   question.value = ["item1"];
@@ -969,7 +968,7 @@ QUnit.test("Validators for array value question", function(assert) {
   question.value = ["item1", "item3"];
   assert.equal(question.hasErrors(), false, "There is two items in value");
 });
-QUnit.test("validator.toString()", function(assert) {
+QUnit.test("validator.toString()", function (assert) {
   var validator = new RegexValidator("[0-9]+");
   assert.equal(validator.toString(), "regex", "validator type");
   validator.text = "incorrect number";
@@ -980,7 +979,7 @@ QUnit.test("validator.toString()", function(assert) {
   );
 });
 
-QUnit.test("Validators for other values - dropdown, Bug #722", function(
+QUnit.test("Validators for other values - dropdown, Bug #722", function (
   assert
 ) {
   var question = new QuestionDropdownModel("q1");
@@ -1000,7 +999,7 @@ QUnit.test("Validators for other values - dropdown, Bug #722", function(
   question.comment = "222";
   assert.equal(question.hasErrors(), false, "The comment math the regex");
 });
-QUnit.test("Validators for other values - checkbox, Bug #722", function(
+QUnit.test("Validators for other values - checkbox, Bug #722", function (
   assert
 ) {
   var question = new QuestionCheckboxModel("q1");
@@ -1029,7 +1028,7 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function(
 });
 QUnit.test(
   "other values in choices, hasOther=false, Bug(Editor) #242",
-  function(assert) {
+  function (assert) {
     var question = new QuestionRadiogroupModel("q1");
     question.choices = ["1", "2", "3", "other"];
     question.isRequired = true;
@@ -1045,7 +1044,7 @@ QUnit.test(
 );
 QUnit.test(
   "Boolean value set as string in item.value, Bug #T3118 (private)",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         { type: "radiogroup", name: "q1", choices: ["true", "false"] },
@@ -1069,7 +1068,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("checkbox selectedItems property", function(assert) {
+QUnit.test("checkbox selectedItems property", function (assert) {
   var json = {
     elements: [
       {
@@ -1085,7 +1084,7 @@ QUnit.test("checkbox selectedItems property", function(assert) {
   survey.setValue("q1", ["item1", "item2", "other"]);
   assert.equal(question.selectedItems.length, 3);
 });
-QUnit.test("Show errors if others value is selected, but not entered", function(
+QUnit.test("Show errors if others value is selected, but not entered", function (
   assert
 ) {
   var radio = new QuestionRadiogroupModel("q1");
@@ -1099,7 +1098,7 @@ QUnit.test("Show errors if others value is selected, but not entered", function(
   assert.equal(radio.hasErrors(), false, "We have entered the comment");
 });
 
-QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function(
+QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function (
   assert
 ) {
   var q = new QuestionDropdownModel("q1");
@@ -1125,7 +1124,7 @@ QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function(
 
 QUnit.test(
   "Clear comment on unset the other value, Bug: https://surveyjs.answerdesk.io/ticket/details/T1916",
-  function(assert) {
+  function (assert) {
     var singleSelection = new QuestionDropdownModel("q1");
     var multipleSelection = new QuestionCheckboxModel("q2");
     var survey = new SurveyModel();
@@ -1163,7 +1162,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("SelectBase visibleChoices order", function(assert) {
+QUnit.test("SelectBase visibleChoices order", function (assert) {
   var question = new QuestionSelectBase("dropdownQuestion");
   question.choices = ["B", "A", "D", "C"];
   assert.equal(question.choicesOrder, "none", "The default value is 'none'");
@@ -1185,22 +1184,22 @@ QUnit.test("SelectBase visibleChoices order", function(assert) {
     "Sorted order is 'desc'"
   );
 });
-QUnit.test("Question callbacks test", function(assert) {
+QUnit.test("Question callbacks test", function (assert) {
   var question = new QuestionTextModel("textQuestion");
   var valueChanged = 0;
   var commentChanged = 0;
   var visibleChanged = 0;
   var visibleIndexChanged = 0;
-  question.valueChangedCallback = function() {
+  question.valueChangedCallback = function () {
     valueChanged++;
   };
-  question.commentChangedCallback = function() {
+  question.commentChangedCallback = function () {
     commentChanged++;
   };
-  question.registerFunctionOnPropertyValueChanged("visible", function() {
+  question.registerFunctionOnPropertyValueChanged("visible", function () {
     visibleChanged++;
   });
-  question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
+  question.registerFunctionOnPropertyValueChanged("visibleIndex", function () {
     visibleIndexChanged++;
   });
   question.value = "test";
@@ -1214,12 +1213,12 @@ QUnit.test("Question callbacks test", function(assert) {
 });
 QUnit.test(
   "Call valueChangedCallback on survey.setValue(), Bug# 1599",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage();
     var question = page.addNewQuestion("text", "q1");
     var valueChanged = 0;
-    question.valueChangedCallback = function() {
+    question.valueChangedCallback = function () {
       valueChanged++;
     };
     assert.equal(valueChanged, 0, "value changed is not called");
@@ -1229,7 +1228,7 @@ QUnit.test(
     assert.equal(valueChanged, 2, "value changed is called the second time");
   }
 );
-QUnit.test("Init SelectBase with comment comment", function(assert) {
+QUnit.test("Init SelectBase with comment comment", function (assert) {
   var survey = new SurveyModel();
   survey.data = { q: "other", "q-Comment": "aaaa" };
   survey.addNewPage("page1");
@@ -1239,7 +1238,7 @@ QUnit.test("Init SelectBase with comment comment", function(assert) {
   survey.pages[0].addQuestion(question);
   assert.equal(question.comment, "aaaa", "Set the initial comment");
 });
-QUnit.test("SelectBase store others value not in comment", function(assert) {
+QUnit.test("SelectBase store others value not in comment", function (assert) {
   var survey = new SurveyModel();
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
@@ -1296,7 +1295,7 @@ QUnit.test("SelectBase store others value not in comment", function(assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: "B" }, "'B' is set");
 });
-QUnit.test("Checkbox store others value not in comment", function(assert) {
+QUnit.test("Checkbox store others value not in comment", function (assert) {
   var survey = new SurveyModel();
   survey.addNewPage("page1");
   var question = new QuestionCheckboxModel("q");
@@ -1360,7 +1359,7 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
-QUnit.test("Checkbox store others value not in comment", function(assert) {
+QUnit.test("Checkbox store others value not in comment", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -1388,7 +1387,7 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
 
 QUnit.test(
   "Checkbox store others value not in comment after select another items - https://github.com/surveyjs/survey-library/issues/2221",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.addNewPage("page1");
     var question = new QuestionCheckboxModel("q");
@@ -1440,7 +1439,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("radiogroup.renderedValue - simple synhronization", function(
+QUnit.test("radiogroup.renderedValue - simple synhronization", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -1484,7 +1483,7 @@ QUnit.test("radiogroup.renderedValue - simple synhronization", function(
     "survey has correct value, question.rendredValue"
   );
 });
-QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function(
+QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -1562,7 +1561,7 @@ QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function(
   assert.equal(question.renderedValue, "other", "renderedValue is other");
   assert.equal(question.comment, "X", "set comment");
 });
-QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function(
+QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -1653,7 +1652,7 @@ QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function(
   );
   assert.equal(question.comment, "X", "set comment");
 });
-QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function(
+QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -1679,7 +1678,7 @@ QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function(
 });
 QUnit.test(
   "checkbox.renderedValue - hasNone = true and survey.storeOthersAsComment = false, Bug #1609",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.storeOthersAsComment = false;
     survey.addNewPage("page1");
@@ -1705,7 +1704,7 @@ QUnit.test(
 );
 QUnit.test(
   "radiogroup.hasOthers = true and survey.storeOthersAsComment = false, Bug https://surveyjs.answerdesk.io/ticket/details/T1789",
-  function(assert) {
+  function (assert) {
     var json = {
       storeOthersAsComment: false,
       questions: [
@@ -1731,7 +1730,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Text inputType=number", function(assert) {
+QUnit.test("Text inputType=number", function (assert) {
   var question = new QuestionTextModel("text");
   question.inputType = "number";
   question.value = "2";
@@ -1743,13 +1742,13 @@ QUnit.test("Text inputType=number", function(assert) {
   question.value = "0";
   assert.strictEqual(question.value, 0, "zero value");
 });
-QUnit.test("Text inputType=range", function(assert) {
+QUnit.test("Text inputType=range", function (assert) {
   var question = new QuestionTextModel("text");
   question.inputType = "range";
   question.value = "25";
   assert.strictEqual(question.value, 25, "make it numeric");
 });
-QUnit.test("Text questions spaces is not a valid answer for required", function(
+QUnit.test("Text questions spaces is not a valid answer for required", function (
   assert
 ) {
   var question = new QuestionTextModel("text");
@@ -1765,7 +1764,7 @@ QUnit.test("Text questions spaces is not a valid answer for required", function(
   question.value = " 1 ";
   assert.equal(question.hasErrors(), false, "got the answer");
 });
-QUnit.test("Custom text in required error", function(assert) {
+QUnit.test("Custom text in required error", function (assert) {
   var question = new QuestionTextModel("text");
   question.requiredErrorText = "Custom required error";
   question.isRequired = true;
@@ -1777,7 +1776,7 @@ QUnit.test("Custom text in required error", function(assert) {
     "there is a custom errror text"
   );
 });
-QUnit.test("Boolean question checkedValue", function(assert) {
+QUnit.test("Boolean question checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   assert.equal(question.checkedValue, null, "Indertemenated by default");
   question.value = true;
@@ -1805,7 +1804,7 @@ QUnit.test("Boolean question checkedValue", function(assert) {
     "value == 'a', checkedvalue == false"
   );
 });
-QUnit.test("Boolean question valueTrue, valueFalse", function(assert) {
+QUnit.test("Boolean question valueTrue, valueFalse", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.valueTrue = "yes";
   question.valueFalse = "no";
@@ -1827,7 +1826,7 @@ QUnit.test("Boolean question valueTrue, valueFalse", function(assert) {
   question.checkedValue = false;
   assert.equal(question.value, "no", "checkedvalue == false, value = 'no'");
 });
-QUnit.test("Boolean question defaultValue", function(assert) {
+QUnit.test("Boolean question defaultValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   assert.equal(question.checkedValue, null, "Indertemenated by default");
   question.defaultValue = "true";
@@ -1849,7 +1848,7 @@ QUnit.test("Boolean question defaultValue", function(assert) {
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
-QUnit.test("Boolean question defaultValue as a boolean values", function(
+QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert
 ) {
   var question = new QuestionBooleanModel("bool");
@@ -1875,7 +1874,7 @@ QUnit.test("Boolean question defaultValue as a boolean values", function(
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
-QUnit.test("Boolean question read only checkedValue", function(assert) {
+QUnit.test("Boolean question read only checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.readOnly = true;
   assert.equal(question.checkedValue, null, "Indertemenated by default");
@@ -1893,7 +1892,7 @@ QUnit.test("Boolean question read only checkedValue", function(assert) {
   );
 });
 
-QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function(
+QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function (
   assert
 ) {
   var json = {
@@ -1913,7 +1912,7 @@ QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function(
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 
-QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function(
+QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
   assert
 ) {
   var json = {
@@ -1941,7 +1940,7 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function(
 
 QUnit.test(
   "defaultValue for checkbox where value is object, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -2025,7 +2024,7 @@ QUnit.test(
 
 QUnit.test(
   "defaultValue for radiogroup where value is object, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -2084,7 +2083,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Rating question, visibleRateValues property", function(assert) {
+QUnit.test("Rating question, visibleRateValues property", function (assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(
     rate.visibleRateValues.length,
@@ -2111,7 +2110,7 @@ QUnit.test("Rating question, visibleRateValues property", function(assert) {
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
 
-QUnit.test("Rating question, renderedRateItems", function(assert) {
+QUnit.test("Rating question, renderedRateItems", function (assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(
     rate.visibleRateValues.length,
@@ -2125,7 +2124,7 @@ QUnit.test("Rating question, renderedRateItems", function(assert) {
   rate.minRateDescription = "Worst";
   rate.maxRateDescription = "Best";
 
-  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
     ["1", "2", "3", "4", "5"],
     "List of numeric values"
   );
@@ -2133,7 +2132,7 @@ QUnit.test("Rating question, renderedRateItems", function(assert) {
   assert.ok(rate.hasMaxLabel, "Rating has max label");
 
   rate.displayRateDescriptionsAsExtremeItems = true;
-  assert.deepEqual(rate.renderedRateItems.map(r=> r.locText.renderedHtml),
+  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
     ["Worst", "2", "3", "4", "Best"],
     "List of numeric values and min/max"
   );
@@ -2143,7 +2142,7 @@ QUnit.test("Rating question, renderedRateItems", function(assert) {
 
 QUnit.test(
   "Rating question, visibleRateValues property load from JSON",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -2170,7 +2169,7 @@ QUnit.test(
     assert.equal(values[5].value, 90, "The last is 90");
   }
 );
-QUnit.test("defaultValue propeprty as array", function(assert) {
+QUnit.test("defaultValue propeprty as array", function (assert) {
   var question = new QuestionCheckboxModel("q1");
   assert.notOk(question.defaultValue, "It is empty by default");
   question.defaultValue = [1];
@@ -2178,7 +2177,7 @@ QUnit.test("defaultValue propeprty as array", function(assert) {
   question.defaultValue = null;
   assert.deepEqual(question.defaultValue, [], "It is empty by default");
 });
-QUnit.test("Restore/Store item value in checkbox on hiding/showing", function(
+QUnit.test("Restore/Store item value in checkbox on hiding/showing", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -2235,7 +2234,7 @@ QUnit.test("Restore/Store item value in checkbox on hiding/showing", function(
   );
 });
 
-QUnit.test("Clear errors on making question invisible, bug#846", function(
+QUnit.test("Clear errors on making question invisible, bug#846", function (
   assert
 ) {
   var question = new QuestionTextModel("q1");
@@ -2246,7 +2245,7 @@ QUnit.test("Clear errors on making question invisible, bug#846", function(
   question.visible = true;
   assert.equal(question.errors.length, 0, "There is no error now");
 });
-QUnit.test("Clear errors on making question readOnly, bug#950", function(
+QUnit.test("Clear errors on making question readOnly, bug#950", function (
   assert
 ) {
   var question = new QuestionTextModel("q1");
@@ -2260,7 +2259,7 @@ QUnit.test("Clear errors on making question readOnly, bug#950", function(
   question.hasErrors(true);
   assert.equal(question.errors.length, 1, "There is an error again");
 });
-QUnit.test("displayValue and choice value as object, bug#952", function(
+QUnit.test("displayValue and choice value as object, bug#952", function (
   assert
 ) {
   var question = new QuestionRadiogroupModel("q1");
@@ -2270,7 +2269,7 @@ QUnit.test("displayValue and choice value as object, bug#952", function(
   assert.deepEqual(question.value, { id: 2, val: "v2" }, "value set correctly");
   assert.equal(question.displayValue, "item 2", "display value get correctly");
 });
-QUnit.test("question.addConditionObjectsByContext", function(assert) {
+QUnit.test("question.addConditionObjectsByContext", function (assert) {
   var objs = [];
   var html = new QuestionHtmlModel("q_html");
   html.addConditionObjectsByContext(objs, null);
@@ -2306,7 +2305,7 @@ QUnit.test("question.addConditionObjectsByContext", function(assert) {
   );
 });
 
-QUnit.test("question.getConditionJson", function(assert) {
+QUnit.test("question.getConditionJson", function (assert) {
   var json = new QuestionHtmlModel("q_html").getConditionJson("equals");
   assert.equal(json, null, "Html has not input value - so it is null");
   var qRadio = new QuestionRadiogroupModel("qRadio");
@@ -2350,7 +2349,7 @@ QUnit.test("question.getConditionJson", function(assert) {
   assert.equal(json.type, "dropdown", "matrix row: type set correctly");
 });
 
-QUnit.test("question.clearIncorrectValues", function(assert) {
+QUnit.test("question.clearIncorrectValues", function (assert) {
   var qText = new QuestionTextModel("q1");
   qText.value = "1";
   qText.clearIncorrectValues();
@@ -2388,7 +2387,7 @@ QUnit.test("question.clearIncorrectValues", function(assert) {
   assert.deepEqual(qcheck.value, [], "clear values, clear empty values");
 });
 
-QUnit.test("question.clearIncorrectValues and choicesByUrl", function(assert) {
+QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
   var question = new QuestionRadiogroupModel("q1");
   question.choicesByUrl.url = "some url";
   question.value = "item1";
@@ -2400,7 +2399,7 @@ QUnit.test("question.clearIncorrectValues and choicesByUrl", function(assert) {
   );
 });
 
-QUnit.test("questiontext.maxLength", function(assert) {
+QUnit.test("questiontext.maxLength", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qText = new QuestionTextModel("q1");
@@ -2414,7 +2413,7 @@ QUnit.test("questiontext.maxLength", function(assert) {
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
 
-QUnit.test("readOnlyCommentRenderMode", function(assert) {
+QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
@@ -2435,7 +2434,7 @@ QUnit.test("readOnlyCommentRenderMode", function(assert) {
     "isReadOnlyRenderDiv false"
   );
 });
-QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) {
+QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
@@ -2508,7 +2507,7 @@ QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function(assert) 
   );
 });
 
-QUnit.test("runCondition on adding element into survey", function(assert) {
+QUnit.test("runCondition on adding element into survey", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q = new QuestionCheckboxModel("cars");
@@ -2517,7 +2516,7 @@ QUnit.test("runCondition on adding element into survey", function(assert) {
   assert.equal(q.isVisible, false, "It should be invisible");
 });
 
-QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
+QUnit.test("questionselectbase.choicesVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2536,7 +2535,7 @@ QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleChoices.length, 4, "there is no filter");
 });
 
-QUnit.test("questionselectbase.choicesEnableIf", function(assert) {
+QUnit.test("questionselectbase.choicesEnableIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2555,7 +2554,7 @@ QUnit.test("questionselectbase.choicesEnableIf", function(assert) {
   assert.equal(qBestCar.enabledChoices.length, 4, "there is no filter");
 });
 
-QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function(
+QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -2574,7 +2573,7 @@ QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function(
   assert.equal(qBestCar.visibleChoices.length, 3, "3 cars are selected");
 });
 
-QUnit.test("matrix.rowsVisibleIf", function(assert) {
+QUnit.test("matrix.rowsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2594,7 +2593,7 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
-QUnit.test("matrix.columnsVisibleIf", function(assert) {
+QUnit.test("matrix.columnsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2616,7 +2615,7 @@ QUnit.test("matrix.columnsVisibleIf", function(assert) {
 
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
@@ -2641,7 +2640,7 @@ QUnit.test(
 
 QUnit.test(
   "matrix.columnsVisibleIf, clear value on making the value invisible",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p1");
@@ -2664,7 +2663,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("matrixdropdown.rowsVisibleIf", function(assert) {
+QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2684,7 +2683,7 @@ QUnit.test("matrixdropdown.rowsVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
-QUnit.test("matrixdropdown.columnsVisibleIf", function(assert) {
+QUnit.test("matrixdropdown.columnsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -2709,7 +2708,7 @@ QUnit.test("matrixdropdown.columnsVisibleIf", function(assert) {
 
 QUnit.test(
   "radiogroup.choicesVisibleIf, clear value on making the value invisible, bug #1093",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionRadiogroupModel("bestCar");
@@ -2725,7 +2724,7 @@ QUnit.test(
 );
 QUnit.test(
   "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.clearValueOnDisableItems = true;
     var page = survey.addNewPage("p1");
@@ -2742,7 +2741,7 @@ QUnit.test(
 );
 QUnit.test(
   "checkbox.choicesVisibleIf, clear value on making the value invisible, bug #1093",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionCheckboxModel("bestCar");
@@ -2760,7 +2759,7 @@ QUnit.test(
 );
 QUnit.test(
   "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     survey.clearValueOnDisableItems = true;
     var page = survey.addNewPage("p1");
@@ -2778,7 +2777,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("itemValue.visibleIf", function(assert) {
+QUnit.test("itemValue.visibleIf", function (assert) {
   var json = {
     elements: [
       {
@@ -2805,7 +2804,7 @@ QUnit.test("itemValue.visibleIf", function(assert) {
   assert.equal(q.visibleChoices.length, 2, "phone and e-mail are set");
 });
 
-QUnit.test("itemValue.enableIf", function(assert) {
+QUnit.test("itemValue.enableIf", function (assert) {
   var json = {
     elements: [
       {
@@ -2834,7 +2833,7 @@ QUnit.test("itemValue.enableIf", function(assert) {
 
 QUnit.test(
   "multipletext item title renders incorrectly if survey.questionTitleTemplate is set, bug #1170",
-  function(assert) {
+  function (assert) {
     var json = {
       questionTitleTemplate: "{no}. {title} {require}",
       elements: [
@@ -2856,7 +2855,7 @@ QUnit.test(
 );
 QUnit.test(
   "Question.locCommentText.renderedHtml should return the default text correctly",
-  function(assert) {
+  function (assert) {
     var question = new Question("q1");
     assert.equal(
       question.locCommentText.renderedHtml,
@@ -2874,7 +2873,7 @@ QUnit.test(
 
 QUnit.test(
   "multipletext item is not readonly when survey is readonly, bug #1177",
-  function(assert) {
+  function (assert) {
     var json = {
       mode: "display",
       elements: [
@@ -2895,7 +2894,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("space in others does not work correctly , bug #1214", function(
+QUnit.test("space in others does not work correctly , bug #1214", function (
   assert
 ) {
   var json = {
@@ -2923,7 +2922,7 @@ QUnit.test("space in others does not work correctly , bug #1214", function(
   );
 });
 
-QUnit.test("Checkbox hasNone", function(assert) {
+QUnit.test("Checkbox hasNone", function (assert) {
   var json = {
     elements: [
       {
@@ -2946,7 +2945,7 @@ QUnit.test("Checkbox hasNone", function(assert) {
   q.value = [1, "none"];
   assert.deepEqual(q.value, [1], "none should gone");
 });
-QUnit.test("Dropdown hasNone", function(assert) {
+QUnit.test("Dropdown hasNone", function (assert) {
   var json = {
     elements: [
       {
@@ -2966,7 +2965,7 @@ QUnit.test("Dropdown hasNone", function(assert) {
   assert.equal(q.visibleChoices.length, 6, "none is added");
 });
 
-QUnit.test("Checkbox hasSelectAll", function(assert) {
+QUnit.test("Checkbox hasSelectAll", function (assert) {
   var json = {
     elements: [
       {
@@ -3021,7 +3020,7 @@ QUnit.test("Checkbox hasSelectAll", function(assert) {
 
 QUnit.test(
   "Do not replace period '.' with space ' ' on setting a string with '.' into valueName",
-  function(assert) {
+  function (assert) {
     var question = new Question("q1");
     question.valueName = "q.1.";
     assert.equal(question.valueName, "q.1.", "Correct the value name");
@@ -3030,7 +3029,7 @@ QUnit.test(
 
 QUnit.test(
   "readOnly property doesn't work for multipletext question, #1217",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
@@ -3054,7 +3053,7 @@ QUnit.test(
 
 QUnit.test(
   "Multipletext, item isRequired, 0 is a valid value, bug #1225",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMultipleTextModel("q1");
     var item = question.addItem("text1");
     item.isRequired = true;
@@ -3070,7 +3069,7 @@ QUnit.test(
 
 QUnit.test(
   "Multipletext, item isRequired, make item question isRequired, bug #1983",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       questions: [
         {
@@ -3100,7 +3099,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test property hideIfChoicesEmpty", function(assert) {
+QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = new QuestionCheckboxModel("q1");
@@ -3120,7 +3119,7 @@ QUnit.test("Test property hideIfChoicesEmpty", function(assert) {
   assert.equal(question.isVisible, true, "There is one visible item");
 });
 
-QUnit.test("Test property hideIfRowsEmpty", function(assert) {
+QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = new QuestionMatrixModel("q1");
@@ -3136,7 +3135,7 @@ QUnit.test("Test property hideIfRowsEmpty", function(assert) {
   assert.equal(question.isVisible, true, "There is one visible item");
 });
 
-QUnit.test("Test property hideIfRowsEmpty - load from json", function(assert) {
+QUnit.test("Test property hideIfRowsEmpty - load from json", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "matrix", name: "q1", hideIfRowsEmpty: true }],
   });
@@ -3147,7 +3146,7 @@ QUnit.test("Test property hideIfRowsEmpty - load from json", function(assert) {
 
 QUnit.test(
   "Do not change value for readOnly dropdown even if value is not in choices",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -3163,23 +3162,23 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
+QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function (
   assert
 ) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
-  survey.onProcessHtml.add(function(survey, options) {
+  survey.onProcessHtml.add(function (survey, options) {
     options.html = options.html + "-add-";
   });
   question.html = "text";
   assert.equal(question.locHtml.renderedHtml, "text-add-", "process html");
 });
 
-QUnit.test("Question Html ignore Html processing = true", function(assert) {
+QUnit.test("Question Html ignore Html processing = true", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
-  survey.onProcessHtml.add(function(survey, options) {
+  survey.onProcessHtml.add(function (survey, options) {
     options.html = options.html + "-add-";
   });
   var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
@@ -3190,7 +3189,7 @@ QUnit.test("Question Html ignore Html processing = true", function(assert) {
   assert.equal(question.locHtml.renderedHtml, "text2", "do not proccess html");
 });
 
-QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
+QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "dropdown", name: "q1" }],
   });
@@ -3212,7 +3211,7 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
 
 QUnit.test(
   "selectbase question item.visibleIf and survey.data on set, bug#1394, https://surveyjs.answerdesk.io/ticket/details/T1228",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -3265,7 +3264,7 @@ QUnit.test(
 );
 QUnit.test(
   "matrix single choice. Restore new visible values from defaultValue if they are exists, Issue# T3038, https://surveyjs.answerdesk.io/ticket/details/T3038",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       clearInvisibleValues: "onHidden",
       elements: [
@@ -3304,7 +3303,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Load survey with requiredIf expression", function(assert) {
+QUnit.test("Load survey with requiredIf expression", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -3340,7 +3339,7 @@ QUnit.test("Load survey with requiredIf expression", function(assert) {
 });
 QUnit.test(
   "dropdown showOptionsCaption, https://surveyjs.answerdesk.io/ticket/details/T1499",
-  function(assert) {
+  function (assert) {
     var question = new QuestionDropdownModel("q1");
     assert.equal(
       question.showOptionsCaption,
@@ -3359,7 +3358,7 @@ QUnit.test(
 );
 QUnit.test(
   "multipletext could not load default value correctly, https://surveyjs.answerdesk.io/ticket/details/T1659",
-  function(assert) {
+  function (assert) {
     var json = {
       pages: [
         {
@@ -3419,7 +3418,7 @@ QUnit.test(
 
 QUnit.test(
   "Options do not work correctly together: survey.storeOthersAsComment and question.storeOthersAsComment, Bug#1635",
-  function(assert) {
+  function (assert) {
     var json = {
       storeOthersAsComment: false,
       questions: [
@@ -3476,7 +3475,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Could not assign validators", function(assert) {
+QUnit.test("Could not assign validators", function (assert) {
   var question = new QuestionTextModel("q1");
   question.validators.push(new NumericValidator(1, 10));
   question.validators = [new NumericValidator(1, 10)];
@@ -3487,7 +3486,7 @@ QUnit.test("Could not assign validators", function(assert) {
   );
 });
 
-QUnit.test("Restore comment on uncheck/check others", function(assert) {
+QUnit.test("Restore comment on uncheck/check others", function (assert) {
   var qCheck = new QuestionCheckboxModel("q1");
   qCheck.choices = ["1", "2", "3"];
   qCheck.hasOther = true;
@@ -3508,7 +3507,7 @@ QUnit.test("Restore comment on uncheck/check others", function(assert) {
   assert.equal(qRadio.comment, "comment-radio", "radiobox comment is restored");
 });
 
-QUnit.test("Radio group comment without hasOther, Bug #1747", function(assert) {
+QUnit.test("Radio group comment without hasOther, Bug #1747", function (assert) {
   var json = {
     questions: [
       {
@@ -3533,7 +3532,7 @@ QUnit.test("Radio group comment without hasOther, Bug #1747", function(assert) {
   );
 });
 
-QUnit.test("other's comment value is properly set from data", function(assert) {
+QUnit.test("other's comment value is properly set from data", function (assert) {
   var json = {
     questions: [
       {
@@ -3551,7 +3550,7 @@ QUnit.test("other's comment value is properly set from data", function(assert) {
   assert.equal(question.comment, "comment1");
 });
 
-QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
+QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
   var question = new QuestionImagePickerModel("q1");
   new JsonObject().toObject(
     {
@@ -3608,7 +3607,7 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
   );
 });
 
-QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
+QUnit.test("QuestionImagePicker 0 item value test", function (assert) {
   var question = new QuestionImagePickerModel("q1");
   new JsonObject().toObject(
     {
@@ -3625,7 +3624,7 @@ QUnit.test("QuestionImagePicker 0 item value test", function(assert) {
 
 QUnit.test(
   "QuestionImagePicker create item value for choices restful test",
-  function(assert) {
+  function (assert) {
     var question = new QuestionImagePickerModel("q1");
     const itemValue = question.choicesByUrl.createItemValue("val");
     assert.equal(
@@ -3636,7 +3635,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionImagePicker.isAnswerCorrect function", function(assert) {
+QUnit.test("QuestionImagePicker.isAnswerCorrect function", function (assert) {
   var question = new QuestionImagePickerModel("q1");
   new JsonObject().toObject(
     {
@@ -3671,7 +3670,7 @@ QUnit.test("QuestionImagePicker.isAnswerCorrect function", function(assert) {
 
 QUnit.test(
   "question visibleIf, enableIf and requiredIf with async functions in expression",
-  function(assert) {
+  function (assert) {
     var returnResult1: (res: any) => void;
     var returnResult2: (res: any) => void;
     var returnResult3: (res: any) => void;
@@ -3687,7 +3686,7 @@ QUnit.test(
       returnResult3 = this.returnResult;
       return false;
     }
-    var returnResult = function(res) {
+    var returnResult = function (res) {
       if (!!returnResult1) returnResult1(res);
       if (!!returnResult2) returnResult2(res);
       if (!!returnResult3) returnResult3(res);
@@ -3738,7 +3737,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
+QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -3818,7 +3817,7 @@ QUnit.test("test question.getDisplayValue(key, value)", function(assert) {
 
 QUnit.test(
   "Multiple text question validation and async functions in expression",
-  function(assert) {
+  function (assert) {
     var returnResult1: (res: any) => void;
     var returnResult2: (res: any) => void;
     function asyncFunc1(params: any): any {
@@ -3875,7 +3874,7 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc2");
   }
 );
-QUnit.test("question.getSupportedValidators", function(assert) {
+QUnit.test("question.getSupportedValidators", function (assert) {
   assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), [
     "expression",
   ]);
@@ -3900,7 +3899,7 @@ QUnit.test("question.getSupportedValidators", function(assert) {
     "answercount",
   ]);
 });
-QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function(assert) {
+QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (assert) {
   const q = new QuestionImagePickerModel("q");
   assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
   q.multiSelect = true;
@@ -3909,7 +3908,7 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function(asser
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
 
-QUnit.test("Question<=Base propertyValueChanged", function(assert) {
+QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
   var question = survey.getQuestionByName("q");
@@ -3932,7 +3931,7 @@ QUnit.test("Question<=Base propertyValueChanged", function(assert) {
   assert.equal(counter, 1, "callback called");
 });
 
-QUnit.test("Question.addError(SurveyError|string)", function(assert) {
+QUnit.test("Question.addError(SurveyError|string)", function (assert) {
   var question = new QuestionTextModel("q");
   question.addError(new RequreNumericError("Error 1"));
   question.addError("Error 2");
@@ -3943,7 +3942,7 @@ QUnit.test("Question.addError(SurveyError|string)", function(assert) {
   assert.equal(question.errors[1].text, "Error 2", "custom error text");
 });
 
-QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function(
+QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
   assert
 ) {
   var survey = new SurveyModel({ questions: [{ type: "text", name: "q" }] });
@@ -3972,34 +3971,40 @@ QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function(
   assert.equal(question.renderedMin, 1, "min is set to 1");
   assert.equal(question.renderedMax, 3, "max is set to 3");
 });
-QUnit.test("QuestionText renderedMin/renderedMax, today()", function(assert) {
+QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", max: "=today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
-QUnit.test("QuestionText max/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(
     question.renderedMax,
     todayStr,
     "renderedMax: today in format yyyy-mm-dd"
   );
 });
-QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function (assert) {
   const survey = new SurveyModel({
     questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
   });
   const question = <QuestionTextModel>survey.getQuestionByName("q");
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   var maxDate = new Date();
-  maxDate.setUTCHours(0, 0, 0, 0);
+  maxDate.setHours(0, 0, 0, 0);
   maxDate.setDate(maxDate.getDate() + 10);
   var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
   assert.equal(
@@ -4013,7 +4018,7 @@ QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", functi
     "renderedMax: today + 10 days in format yyyy-mm-dd"
   );
 });
-QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", min: "=today()" }],
   });
@@ -4024,14 +4029,16 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
     "convert the min into minValueExpression"
   );
   assert.notOk(question.min, "min value becomes empty");
-  var todayStr = new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  var todayStr = date.toISOString().slice(0, 10);
   assert.equal(
     question.renderedMin,
     todayStr,
     "renderedMin: today in format yyyy-mm-dd"
   );
 });
-QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
+QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
     questions: [
       { type: "text", inputType: "date", name: "q1" },
@@ -4050,7 +4057,7 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function(assert) {
 });
 QUnit.test(
   "QuestionText min/max do not allow to set value to survey if values are not in the range",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       questions: [
         { type: "text", name: "q1", inputType: "number", min: 3, max: 10 },
@@ -4161,7 +4168,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionText min/max properties and global setting", function(
+QUnit.test("QuestionText min/max properties and global setting", function (
   assert
 ) {
   settings.minDate = "1900-01-01";
@@ -4183,7 +4190,7 @@ QUnit.test("QuestionText min/max properties and global setting", function(
   settings.maxDate = "";
 });
 
-QUnit.test("Question defaultValue as expression", function(assert) {
+QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
   });
@@ -4196,14 +4203,14 @@ QUnit.test("Question defaultValue as expression", function(assert) {
   );
   assert.equal(question.value, 3, "run expression");
 });
-QUnit.test("Question defaultValueExpression", function(assert) {
+QUnit.test("Question defaultValueExpression", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");
 });
-QUnit.test("Question defaultValueExpression with async function", function(
+QUnit.test("Question defaultValueExpression with async function", function (
   assert
 ) {
   var returnResultFunc: (res: any) => void;
@@ -4226,7 +4233,7 @@ QUnit.test("Question defaultValueExpression with async function", function(
   FunctionFactory.Instance.unregister("asyncFunc");
 });
 
-QUnit.test("Question defaultValueExpression change value until it is not modified directly", function(
+QUnit.test("Question defaultValueExpression change value until it is not modified directly", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -4245,8 +4252,19 @@ QUnit.test("Question defaultValueExpression change value until it is not modifie
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
+QUnit.test("defaultValueExpression for boolean question", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1", defaultValueExpression: "true" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.strictEqual(q1.value, true, "initial value set correctly");
+});
 
-QUnit.test("QuestionRating rateStep less than 1", function(assert) {
+QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");
   assert.equal(question.visibleRateValues.length, 5, "There are 5 values");
   assert.equal(
@@ -4266,7 +4284,7 @@ QUnit.test("QuestionRating rateStep less than 1", function(assert) {
 });
 QUnit.test(
   "QuestionRating convert value to number when needed, Bug#2421",
-  function(assert) {
+  function (assert) {
     var question = new QuestionRatingModel("q");
     question.value = "2";
     assert.strictEqual(question.value, 2, "Convert to 2");
@@ -4284,7 +4302,7 @@ QUnit.test(
 
 QUnit.test(
   "QuestionRating value is reset when clicked again, Issue#2886",
-  function(assert) {
+  function (assert) {
     var question = new QuestionRatingModel("q");
     question.setValueFromClick("1");
     assert.strictEqual(question.value, 1, "Set to 1");
@@ -4298,7 +4316,7 @@ QUnit.test(
 
 QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
-  function(assert) {
+  function (assert) {
     var question = new QuestionBooleanModel("q");
     assert.equal(
       question.locLabelTrue.textOrHtml,
@@ -4317,7 +4335,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", function(assert) {
+QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4353,7 +4371,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
     "None"
   );
   survey.onUpdateChoiceItemCss.add((sender, options) => {
-    if(options.item.value == 2) {
+    if (options.item.value == 2) {
       options.css = options.css + " custom";
     }
   });
@@ -4365,7 +4383,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
 });
 QUnit.test(
   "Convert correctValue/defaultValue correctly on JSON loading",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -4442,37 +4460,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionSignaturePadModel dataFormat default value", function(
-  assert
-) {
-  var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, "", "default value");
-});
-
-QUnit.test("QuestionSignaturePadModel dataFormat values", function(assert) {
-  var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, "", "defaultValue");
-
-  var el = document.createElement("div");
-  el.appendChild(document.createElement("canvas"));
-  el.appendChild(document.createElement("button"));
-  question.initSignaturePad(el);
-
-  question["updateValue"]();
-  assert.equal(question.value.substring(0, 15), "data:image/png;", "png");
-
-  question.dataFormat = "image/jpeg";
-  assert.equal(question.dataFormat, "image/jpeg", "jpeg format");
-  question["updateValue"]();
-  assert.equal(question.value.substring(0, 15), "data:image/jpeg", "jpeg");
-
-  question.dataFormat = "image/svg+xml";
-  assert.equal(question.dataFormat, "image/svg+xml", "svg format");
-  question["updateValue"]();
-  assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
-});
-
-QUnit.test("Question.getProgressInfo()", function(assert) {
+QUnit.test("Question.getProgressInfo()", function (assert) {
   var question = new QuestionTextModel("q1");
   assert.deepEqual(question.getProgressInfo(), {
     questionCount: 1,
@@ -4495,7 +4483,7 @@ QUnit.test("Question.getProgressInfo()", function(assert) {
     requiredAnsweredQuestionCount: 1,
   });
 });
-QUnit.test("QuestionMultipleText.getProgressInfo()", function(assert) {
+QUnit.test("QuestionMultipleText.getProgressInfo()", function (assert) {
   var question = new QuestionMultipleTextModel("q1");
   question.addItem("item1");
   question.addItem("item2");
@@ -4578,7 +4566,7 @@ QUnit.test("QuestionMultipleText.getProgressInfo()", function(assert) {
     "root is required and two items are required and has one value and one required item is invisible"
   );
 });
-QUnit.test("Set value with hasOther that is not in the list", function(assert) {
+QUnit.test("Set value with hasOther that is not in the list", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "dropdown", name: "q1", choices: [1, 2], hasOther: true },
@@ -4623,7 +4611,7 @@ QUnit.test("Set value with hasOther that is not in the list", function(assert) {
     "checkbox: comment is set second time"
   );
 });
-QUnit.test("question.isInputTextUpdate", function(assert) {
+QUnit.test("question.isInputTextUpdate", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }],
   });
@@ -4644,7 +4632,7 @@ QUnit.test("question.isInputTextUpdate", function(assert) {
   question.inputType = "number";
   assert.equal(question.isInputTextUpdate, true, "inputType = number");
 });
-QUnit.test("matirix row, rowClasses property", function(assert) {
+QUnit.test("matirix row, rowClasses property", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4678,7 +4666,7 @@ QUnit.test("matirix row, rowClasses property", function(assert) {
     "Error for the second row"
   );
 });
-QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function(
+QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -4692,7 +4680,7 @@ QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function(
     ],
   });
   var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-  survey.onValueChanging.add(function(sender, options) {
+  survey.onValueChanging.add(function (sender, options) {
     var keys = [];
     for (var key in options.value) {
       keys.push(key);
@@ -4717,7 +4705,7 @@ QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function(
 });
 QUnit.test(
   "min/max properties do not load if they are upper inputType, Bug#",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -4736,7 +4724,7 @@ QUnit.test(
 );
 QUnit.test(
   "min/max properties and checkErrorsMode equals to 'onValueChanging', Bug#2647",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       checkErrorsMode: "onValueChanging",
       elements: [
@@ -4756,14 +4744,25 @@ QUnit.test(
     assert.equal(survey.getValue("q1"), 10, "Could not set -5 to survey");
     question.value = 500;
     assert.equal(survey.getValue("q1"), 10, "Could not set 500 to survey");
+    assert.equal(question.errors.length, 1, "There is an error");
     question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors");
     assert.equal(survey.getValue("q1"), 50, "Set 50 to survey");
+
+    question.value = 500;
+    assert.equal(question.errors.length, 1, "There is an error, #2");
+    question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors, #2");
+    question.value = 500;
+    assert.equal(question.errors.length, 1, "There is an error, #3");
+    question.value = 50;
+    assert.equal(question.errors.length, 0, "There is no errors, #3");
   }
 );
 
 QUnit.test(
   "setvalue trigger dosen't work for question name with '.', Bug#2420",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -4790,7 +4789,7 @@ QUnit.test(
 );
 QUnit.test(
   "setvalue trigger dosen't work for question name with '.', Bug#2597",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -4832,7 +4831,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("maxSelectedChoices in checkbox", function(assert) {
+QUnit.test("maxSelectedChoices in checkbox", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4893,7 +4892,7 @@ QUnit.test("maxSelectedChoices in checkbox", function(assert) {
   );
 });
 
-QUnit.test("Matrix Question: columns with true/false values", function(assert) {
+QUnit.test("Matrix Question: columns with true/false values", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = [true, false, 0, "0", 1];
   matrix.rows = ["row1", "row2", "row3", "row4"];
@@ -4912,7 +4911,7 @@ QUnit.test("Matrix Question: columns with true/false values", function(assert) {
   matrix.visibleRows[0].value = "0";
   assert.strictEqual(matrix.visibleRows[0].value, "0", "Set '0' and not 0");
 });
-QUnit.test("Base Select Question: choicesFromQuestion", function(assert) {
+QUnit.test("Base Select Question: choicesFromQuestion", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
@@ -4935,7 +4934,7 @@ QUnit.test("Base Select Question: choicesFromQuestion", function(assert) {
   q1.choices.push(new ItemValue(6));
   assert.equal(q2.visibleChoices.length, 6, "q1.choices updated");
 });
-QUnit.test("Base Select Question: choicesFromQuestionMode", function(assert) {
+QUnit.test("Base Select Question: choicesFromQuestionMode", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
@@ -4966,7 +4965,7 @@ QUnit.test("Base Select Question: choicesFromQuestionMode", function(assert) {
     "Appy choicesFromQuestionMode and choicesVisibleIf"
   );
 });
-QUnit.test("Base Select Question: choicesFromQuestion double tunnel", function(
+QUnit.test("Base Select Question: choicesFromQuestion double tunnel", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -5009,7 +5008,7 @@ QUnit.test("Base Select Question: choicesFromQuestion double tunnel", function(
     "There are two selected items in q3 now"
   );
 });
-QUnit.test("Reset choicesFromQuestion on deleting main question", function(
+QUnit.test("Reset choicesFromQuestion on deleting main question", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -5033,7 +5032,7 @@ QUnit.test("Reset choicesFromQuestion on deleting main question", function(
   assert.notOk(q2.choicesFromQuestion, "choicesFromQuestion is reset");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q2");
 });
-QUnit.test("choicesFromQuestion predefined data, Bug#2648", function(assert) {
+QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
@@ -5052,7 +5051,7 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function(assert) {
 });
 QUnit.test(
   "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -5082,7 +5081,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("text question dataList", function(assert) {
+QUnit.test("text question dataList", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", dataList: ["abc", "def", "ghk"] },
@@ -5094,7 +5093,7 @@ QUnit.test("text question dataList", function(assert) {
   assert.deepEqual(q1.dataList, ["abc", "def", "ghk"]);
   assert.equal(q1.dataListId, q1.id + "_datalist");
   assert.deepEqual(q2.dataList, []);
-  assert.equal(q2.dataListId, "");
+  assert.equal(q2.dataListId, undefined);
   q2.dataList = ["item1", "item2"];
   assert.deepEqual(
     q2.dataList,
@@ -5102,7 +5101,7 @@ QUnit.test("text question dataList", function(assert) {
     "Set from the code correctly"
   );
 });
-QUnit.test("text question renderedStep", function(assert) {
+QUnit.test("text question renderedStep", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", inputType: "number", name: "q1" },
@@ -5114,7 +5113,7 @@ QUnit.test("text question renderedStep", function(assert) {
   assert.equal(q1.renderedStep, "any", "Default value is 'any'");
   assert.equal(q2.renderedStep, 0.2, "get value from step");
 });
-QUnit.test("text question inputSize and inputWidth", function(assert) {
+QUnit.test("text question inputSize and inputWidth", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", inputType: "text", name: "q1", size: 10 },
@@ -5139,7 +5138,7 @@ QUnit.test("text question inputSize and inputWidth", function(assert) {
   assert.equal(q2.inputStyle.width, undefined, "q2 inputStyle width is undefined");
   assert.equal(q3.inputStyle.width, undefined, "q3 inputStyle width is undefined");
 });
-QUnit.test("Multiple Text Question: itemSize", function(assert) {
+QUnit.test("Multiple Text Question: itemSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
   mText.items.push(new MultipleTextItemModel("q1"));
   mText.items.push(new MultipleTextItemModel("q2"));
@@ -5159,7 +5158,7 @@ QUnit.test("Multiple Text Question: itemSize", function(assert) {
 });
 QUnit.test(
   "multipletext question: empty string should return isEmpty(), bug #2803",
-  function(assert) {
+  function (assert) {
     var json = {
       questionTitleTemplate: "{no}. {title} {require}",
       elements: [
@@ -5188,7 +5187,7 @@ QUnit.test(
 );
 QUnit.test(
   "Expression question: should not calculate value when survey in display mode, bug #2808",
-  function(assert) {
+  function (assert) {
     var json = {
       questionTitleTemplate: "{no}. {title} {require}",
       elements: [
@@ -5219,7 +5218,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2: add into visibleChoices others/hasOther items in design mode",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5301,7 +5300,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2: add into visibleChoices others/hasOther items in design mode and canShowOptionItemCallback",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5352,7 +5351,7 @@ QUnit.test(
 
 QUnit.test(
   "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5383,7 +5382,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5412,7 +5411,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2 + showDefaultItemsInCreatorV2: add into visibleChoices others/hasOther items in design mode, add new question",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5443,7 +5442,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2: add into visibleChoices None item for ranking question and don't add Select All",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5465,7 +5464,7 @@ QUnit.test(
 );
 QUnit.test(
   "Creator V2: do not add into visibleChoices items for inner matrix questions",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5497,7 +5496,7 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
-QUnit.test("Update choices order on changing locale, bug #2832", function(
+QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {
   var json = {
@@ -5541,7 +5540,7 @@ QUnit.test("Update choices order on changing locale, bug #2832", function(
 });
 QUnit.test(
   "boolean question default value is not assign into readOnly question, bug #",
-  function(assert) {
+  function (assert) {
     var json = {
       elements: [
         {
@@ -5565,7 +5564,7 @@ QUnit.test(
     assert.equal(q2.value, "abc", "default value is set, text");
   }
 );
-QUnit.test("Use empty string as a valid value", function(assert) {
+QUnit.test("Use empty string as a valid value", function (assert) {
   var json = {
     elements: [
       {
@@ -5583,7 +5582,7 @@ QUnit.test("Use empty string as a valid value", function(assert) {
     "We get display Value for empty string"
   );
 });
-QUnit.test("Use question onDisplayValueCallback", function(assert) {
+QUnit.test("Use question onDisplayValueCallback", function (assert) {
   var json = {
     elements: [
       {
@@ -5602,7 +5601,7 @@ QUnit.test("Use question onDisplayValueCallback", function(assert) {
   };
   assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
 });
-QUnit.test("QuestionExpression expression validator", function(assert) {
+QUnit.test("QuestionExpression expression validator", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -5623,7 +5622,7 @@ QUnit.test("QuestionExpression expression validator", function(assert) {
   assert.equal(question.value, 10);
   assert.notOk(question.hasErrors(), "There is no errors");
 });
-QUnit.test("Check isAnswered property", function(assert) {
+QUnit.test("Check isAnswered property", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -5678,7 +5677,7 @@ QUnit.test("Check isAnswered property", function(assert) {
 
   survey.css.question.titleOnAnswer = prevStyle;
 });
-QUnit.test("question.startWithNewLine", function(assert) {
+QUnit.test("question.startWithNewLine", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -5716,15 +5715,15 @@ QUnit.test("checkbox question item methods", function (assert) {
   assert.equal(question.getItemEnabled(question.choices[1]), false, "Second item is disabled");
 
 });
-QUnit.test("Check that we do not set valueChangedCallback internally", function(assert) {
+QUnit.test("Check that we do not set valueChangedCallback internally", function (assert) {
   const questionClasses = Serializer.getChildrenClasses("question", true);
-  for(let i = 0; i < questionClasses.length; i ++) {
+  for (let i = 0; i < questionClasses.length; i++) {
     const className = questionClasses[i].name;
     const question = Serializer.createClass(className);
     assert.notOk(question.valueChangedCallback, "We should no set valueChangedCallback, class: " + className);
   }
 });
-QUnit.test("Multiple Text Question: editor.renderedPlaceHolder is undefined, Bug#3374", function(assert) {
+QUnit.test("Multiple Text Question: editor.renderedPlaceHolder is undefined, Bug#3374", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5745,11 +5744,11 @@ QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (asse
   let counter = 0;
   (<any>question.visibleChoices).testId = 1;
   (<any>question.visibleChoices).onArrayChanged = () => {
-    counter ++;
+    counter++;
   };
   let hasVisibleChoicesInHash = false;
   question.iteratePropertiesHash((hash, key) => {
-    if(key === "visibleChoices") {
+    if (key === "visibleChoices") {
       hasVisibleChoicesInHash = true;
     }
   });
@@ -5824,7 +5823,7 @@ QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
   assert.equal(question.isOtherSelected, false, "Other is not selected");
   assert.equal(question.isItemSelected(question.choices[1]), true, "second item is selected");
 });
-QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
+QUnit.test("SelectBase otherPlaceHolder localized", function (assert) {
   var survey = new SurveyModel({
     questions: [
       {
@@ -5849,7 +5848,7 @@ QUnit.test("SelectBase otherPlaceHolder localized", function(assert) {
   assert.equal(question.otherPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
   survey.locale = "";
 });
-QUnit.test("Ranking commentPlaceHolder localized", function(assert) {
+QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
   var survey = new SurveyModel({
     questions: [
       {
@@ -5873,7 +5872,7 @@ QUnit.test("Ranking commentPlaceHolder localized", function(assert) {
   assert.equal(question.commentPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
   survey.locale = "";
 });
-QUnit.test("Dropdown optionsCaption localization", function(assert) {
+QUnit.test("Dropdown optionsCaption localization", function (assert) {
   var survey = new SurveyModel({
     questions: [
       {
@@ -5890,7 +5889,7 @@ QUnit.test("Dropdown optionsCaption localization", function(assert) {
   survey.locale = "";
   assert.equal(question.optionsCaption, "Choose...", "default locale, #2");
 });
-QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function(assert) {
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [
       { type: "text", name: "q1" },
@@ -5901,7 +5900,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onCom
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for(var key in q) {
+  for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -5917,7 +5916,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onCom
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
 });
-QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'", function(assert) {
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "none",
     questions: [
@@ -5929,7 +5928,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for(var key in q) {
+  for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -5945,7 +5944,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'
   survey.doComplete();
   assert.deepEqual(survey.data, { q1: "q1", q2: "q2" }, "q1 is default, q2 is none");
 });
-QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHidden'", function(assert) {
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHidden'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "onHidden",
     questions: [
@@ -5957,7 +5956,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for(var key in q) {
+  for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -5973,22 +5972,24 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
 });
-QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHiddenContainer'", function(assert) {
+QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHiddenContainer'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "onHiddenContainer",
     questions: [
-      { type: "panel", name: "panel",
+      {
+        type: "panel", name: "panel",
         elements: [
           { type: "text", name: "q1" },
           { type: "text", name: "q2", clearIfInvisible: "none" },
           { type: "text", name: "q3", clearIfInvisible: "onHidden" },
           { type: "text", name: "q4", clearIfInvisible: "onHidden", defaultValue: "default4" },
           { type: "text", name: "q5", clearIfInvisible: "onComplete" }
-        ] }
+        ]
+      }
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for(var key in q) {
+  for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
   }
@@ -6001,7 +6002,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
 });
-QUnit.test("QuestionTextModel isMinMaxType", function(assert) {
+QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");
   assert.equal(q1.isMinMaxType, false);

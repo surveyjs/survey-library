@@ -291,6 +291,9 @@ export class QuestionMatrixModel
       .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
       .toString();
   }
+  public get itemSvgIcon(): string {
+    return this.cssClasses.itemSvgIconId;
+  }
 
   protected getQuizQuestionCount() {
     var res = 0;

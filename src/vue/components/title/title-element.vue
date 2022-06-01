@@ -9,11 +9,6 @@
     v-bind:id="element.ariaTitleId"
     v-bind:tabindex="element.titleTabIndex"
     v-bind:aria-expanded="element.titleAriaExpanded"
-    v-on:click="
-      () => {
-        return element.toggleState();
-      }
-    "
     v-on:keyup="
       ($event) => {
         keyup($event);

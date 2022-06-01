@@ -17,9 +17,15 @@ $foreground: var(--foreground, #161616);
   align-items: center;
   flex-direction: row;
   font-size: calcSize(2);
-  height: calcSize(6);
   overflow: auto;
+  border: 1px solid $border;
 }
+
+.sv-button-group:focus-within {
+  box-shadow: 0 0 0 1px $primary;
+  border-color: $primary;
+}
+
 .sv-button-group__item {
   display: flex;
   box-sizing: border-box;
@@ -30,7 +36,6 @@ $foreground: var(--foreground, #161616);
   width: 100%;
   padding: 11px calcSize(2);
   line-height: calcSize(3);
-  border: 1px solid $border;
   outline: none;
   font-size: calcSize(2);
   font-weight: 400;
@@ -39,8 +44,9 @@ $foreground: var(--foreground, #161616);
   overflow: hidden;
   color: $foreground;
   position: relative;
-  &:not(:first-of-type) {
-    margin-left: -1px;
+
+  &:not(:last-of-type) {
+    border-right: 1px solid $border;
   }
 }
 
@@ -51,6 +57,7 @@ $foreground: var(--foreground, #161616);
 .sv-button-group__item-icon {
   display: block;
   height: calcSize(3);
+
   use {
     fill: $foreground-light;
   }
@@ -59,34 +66,47 @@ $foreground: var(--foreground, #161616);
 .sv-button-group__item--selected {
   font-weight: 600;
   color: $primary;
+
   .sv-button-group__item-icon use {
     fill: $primary;
   }
+
   &:hover {
     background-color: $background;
   }
 }
+
 .sv-button-group__item-decorator {
   display: flex;
   align-items: center;
   max-width: 100%;
 }
+
 .sv-button-group__item-caption {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sv-button-group__item-icon + .sv-button-group__item-caption {
+
+.sv-button-group__item-icon+.sv-button-group__item-caption {
   margin-left: calcSize(1);
 }
+
 .sv-button-group__item--disabled {
   color: $foreground-disabled;
   cursor: default;
+
   .sv-button-group__item-icon use {
     fill: $foreground-disabled;
   }
+
   &:hover {
     background-color: $background;
   }
+}
+
+.sv-button-group:focus-within {
+  box-shadow: 0 0 0 1px $primary;
+  border-color: $primary;
 }

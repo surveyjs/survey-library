@@ -6802,7 +6802,18 @@ QUnit.test(
     }
   }
 );
-
+QUnit.test("survey.questionsOnPageMode=questionOnPage, name pages better", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" }
+    ]
+  });
+  survey.questionsOnPageMode = "questionOnPage";
+  assert.equal(survey.pages.length, 2, "Two pages");
+  assert.equal(survey.pages[0].name, "firstName", "first page name");
+  assert.equal(survey.pages[1].name, "lastName", "last page name");
+});
 QUnit.test(
   "survey.questionsOnPageMode=singlePage, defualt value and visibleIf",
   function (assert) {
@@ -12221,7 +12232,7 @@ QUnit.test(
     assert.equal(survey.pages.length, 1, "One page");
     assert.equal(survey.pages[0].elements.length, 1, "One element");
     survey.dispose();
-    if(!!survey.pages) {
+    if (!!survey.pages) {
       assert.equal(survey.pages.length, 0, "No pages");
     }
   }
@@ -14220,6 +14231,25 @@ QUnit.test("Do panel click without actions, but if it has state", assert => {
   panel.state = "default";
   assert.equal(panel.hasTitleEvents, false, "It has defult state");
 });
+
+QUnit.test("Do not panel click with actions, but width 'default' state", assert => {
+  const survey = new SurveyModel({
+    showPageTitles: false,
+    title: "title page",
+    elements: [{
+      type: "panel",
+      name: "panel",
+      title: "title panel",
+      elements: [{ type: "text", name: "q1" }]
+    }]
+  });
+  survey.onGetPanelTitleActions.add((sender, options) => {
+    options.titleActions = [{ id: "action" }, ];
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");
+});
+
 QUnit.test("Set values with trimming and caseSensitive", assert => {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1", title: "Hello" }]
@@ -14529,16 +14559,16 @@ QUnit.test("Assign survey data callback", function (assert) {
   let getCounter = 0;
   let setCounter = 0;
   let deleteCounter = 0;
-  survey.valueHashGetDataCallback = (valuesHash: any, key: string) : any => {
-    getCounter ++;
+  survey.valueHashGetDataCallback = (valuesHash: any, key: string): any => {
+    getCounter++;
     return valuesHash[key];
   };
-  survey.valueHashSetDataCallback = (valuesHash: any, key: string, value : any): void => {
-    setCounter ++;
+  survey.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => {
+    setCounter++;
     valuesHash[key] = value;
   };
-  survey.valueHashDeleteDataCallback = (valuesHash: any, key: string) : void => {
-    deleteCounter ++;
+  survey.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
+    deleteCounter++;
     delete valuesHash[key];
   };
   survey.setValue("a", "abc");
@@ -14614,7 +14644,7 @@ QUnit.test("Check survey resize observer", function (assert) {
 });
 
 class CustomResizeObserver {
-  constructor(private callback: () => void) {}
+  constructor(private callback: () => void) { }
   observe() {
     this.call();
   }
@@ -14653,6 +14683,40 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   assert.equal(trace, "->processed", "prevent double process");
   (<any>survey["resizeObserver"]).call();
   assert.equal(trace, "->processed->processed");
+  window.ResizeObserver = ResizeObserver;
+  window.getComputedStyle = getComputedStyle;
+});
+
+QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
+  const getComputedStyle = window.getComputedStyle;
+  window.getComputedStyle = <any>((el: HTMLElement) => {
+    return el.style;
+  });
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const rootEl = document.createElement("div");
+  window.document.body.appendChild(rootEl);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.getCss().variables = { mobileWidth: "--test-mobile-width" };
+  window.getComputedStyle(rootEl).setProperty("--test-mobile-width", "600px");
+  let trace: string = "";
+  survey["processResponsiveness"] = () => {
+    trace += "->processed";
+    return true;
+  };
+  rootEl.style.display = "none";
+  survey.afterRenderSurvey(rootEl);
+  assert.equal(trace, "", "do not process responsivness on invisible container");
+  rootEl.style.display = "block";
+  (<any>survey["resizeObserver"]).call();
+  assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
 });

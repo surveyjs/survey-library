@@ -13,10 +13,6 @@
     .sd-element__num {
       @include num_inline();
     }
-    .sd-row--multiple,
-    .sv-vue-row-additional-div {
-      flex-wrap: wrap;
-    }
     .sd-element__title--expandable:before {
       left: calcSize(-2.5);
     }

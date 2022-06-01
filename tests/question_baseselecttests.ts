@@ -353,3 +353,34 @@ QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
   assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });
+QUnit.test("check focus comment of other select", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+      },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: [
+          "item1",
+          {
+            value: "item2",
+            visibleIf: "{q1} = ['apple']",
+          },
+          "item3",
+        ],
+        hasOther: true,
+      },
+    ],
+  });
+  survey.data = {
+    q2: "item2",
+    q1: ["apple"],
+  };
+  const q = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  assert.notEqual(q.value, q.otherItem.value, "Other is not selected");
+  assert.equal(q.value, "item2", "item2 is selected");
+});

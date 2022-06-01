@@ -48,7 +48,7 @@
               <div data-bind="visible: completedState != '', css: css.saveData.root">
                   <div data-bind="css: completedStateCss">
                       <span data-bind="text:completedStateText"></span>
-                      <input type="button" data-bind="visible: completedState == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
+                      <input type="button" data-bind="visible: completedState == 'error', value: getLocalizationString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton"/>
                   </div>
               </div>
               <!-- /ko -->

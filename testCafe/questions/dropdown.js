@@ -1,37 +1,35 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-import { Selector, ClientFunction, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
-
-const json = {
-  questions: [
-    {
-      type: "dropdown",
-      name: "car",
-      title: "What car are you driving?",
-      isRequired: true,
-      colCount: 0,
-      choices: [
-        "None",
-        "Ford",
-        "Vauxhall",
-        "Volkswagen",
-        "Nissan",
-        "Audi",
-        "Mercedes-Benz",
-        "BMW",
-        "Peugeot",
-        "Toyota",
-        "Citroen",
-      ],
-    },
-  ],
-};
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
+      const json = {
+        questions: [
+          {
+            type: "dropdown",
+            name: "car",
+            title: "What car are you driving?",
+            isRequired: true,
+            colCount: 0,
+            choices: [
+              "None",
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen",
+            ],
+          },
+        ],
+      };
+
       await initSurvey(framework, json);
     }
   );
@@ -49,39 +47,31 @@ frameworks.forEach((framework) => {
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.car, "Nissan");
+    await t.expect(surveyResult.car).eql("Nissan");
   });
 
   test("change choices order", async (t) => {
-    const getChoicesCount = ClientFunction(
-      () => document.querySelectorAll("select option").length
-    );
-    const getFirst = Selector("select option", { index: 1 });
-    const getSecond = Selector("select option", { index: 2 });
+    const getFirst = Selector("select option").nth(1);
+    const getSecond = Selector("select option").nth(2);
     let rnd_count = 0;
-    let first, second, first_2;
-    let choicesCount = await getChoicesCount();
+    let first, first_2;
 
     // asc
     await setOptions("car", { choicesOrder: "asc" });
-    first = await getFirst();
-    second = await getSecond();
-
-    assert.equal(first.textContent.trim(), "Audi");
-    assert.equal(second.textContent.trim(), "BMW");
+    await t
+      .expect(getFirst.textContent).eql("Audi")
+      .expect(getSecond.textContent).eql("BMW");
 
     // desc
     await setOptions("car", { choicesOrder: "desc" });
-    first = await getFirst();
-    second = await getSecond();
-    assert.equal(first.textContent.trim(), "Volkswagen");
-    assert.equal(second.textContent.trim(), "Vauxhall");
+    await t
+      .expect(getFirst.textContent).eql("Volkswagen")
+      .expect(getSecond.textContent).eql("Vauxhall");
 
     // rnd
-    if (choicesCount === 1) {
-      assert(false, "need to more than one choices");
-    }
+    await t.expect(Selector("select option").count).notEql(1); // "need to more than one choices"
 
+    first = await getFirst();
     for (let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
@@ -98,7 +88,7 @@ frameworks.forEach((framework) => {
       }
     }
 
-    assert(rnd_count >= 4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
+    await t.expect(rnd_count).gte(4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
   });
 
   test("check integrity", async (t) => {
@@ -115,27 +105,21 @@ frameworks.forEach((framework) => {
       "Toyota",
       "Citroen",
     ];
-    let i;
-    const getChoicesCount = ClientFunction(
-      () => document.querySelectorAll("option").length
-    );
-    let choicesCount;
-    let checkIntegrity = async () => {
-      choicesCount = await getChoicesCount();
-      assert.equal(choicesCount, choices.length + 1); // +1 because of default "Choose..." option
-      for (i = 0; i < choices.length; i++) {
+    let checkIntegrity = async (t) => {
+      await t.expect(Selector("option").count).eql(choices.length + 1); // +1 because of default "Choose..." option
+      for (let i = 0; i < choices.length; i++) {
         await t.click("select").click(`option[value=${choices[i]}]`);
       }
     };
 
     await setOptions("car", { choicesOrder: "asc" });
-    await checkIntegrity();
+    await checkIntegrity(t);
 
     await setOptions("car", { choicesOrder: "desc" });
-    await checkIntegrity();
+    await checkIntegrity(t);
 
     await setOptions("car", { choicesOrder: "random" });
-    await checkIntegrity();
+    await checkIntegrity(t);
   });
 
   test("show \"other\" choice", async (t) => {
@@ -151,59 +135,297 @@ frameworks.forEach((framework) => {
   });
 
   test("check \"other\" choice doesn't change order", async (t) => {
-    const getOtherChoice = Selector(
-      () => document.querySelectorAll("select option")[12]
-    );
-    let otherChoice;
-
     await setOptions("car", { hasOther: true, otherText: "Other" });
-    await setOptions("car", { choicesOrder: "desc" });
+    await t.expect(Selector("select option").nth(12).textContent).eql("Other");
 
-    otherChoice = await getOtherChoice();
-    assert.equal(otherChoice.textContent.trim(), "Other");
+    await setOptions("car", { choicesOrder: "desc" });
+    await t.expect(Selector("select option").nth(12).textContent).eql("Other");
   });
 
   test("choose other", async (t) => {
-    const getOtherInput = Selector(
-      () => document.querySelectorAll("textarea")[0]
-    );
-
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
       .click("select")
       .click("option[value=other]")
-      .typeText(getOtherInput, "Zaporozec")
+      .typeText(Selector("textarea"), "Zaporozec")
       .click("input[value=Complete]");
 
     let surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.car, "other");
-    assert.equal(surveyResult["car-Comment"], "Zaporozec");
+    await t
+      .expect(surveyResult.car).eql("other")
+      .expect(surveyResult["car-Comment"]).eql("Zaporozec");
   });
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
   test("click on question title state editable", async (t) => {
-    var newTitle = "MyText";
-    var json = JSON.parse(await getQuestionJson());
-    var questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          isRequired: true,
+          colCount: 0,
+          choices: [
+            "None",
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json, undefined, true);
 
-    var outerSelector = ".sv_q_title";
-    var innerSelector = ".sv-string-editor";
+    const newTitle = "MyText";
+    let questionJson = JSON.parse(await getQuestionJson());
+    let questionValue = await getQuestionValue();
+    await t.expect(questionValue).eql(undefined);
+
+    const outerSelector = ".sv_q_title";
+    const innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
       .typeText(outerSelector + " " + innerSelector, newTitle, { replace: true })
       .click("body", { offsetX: 0, offsetY: 0 });
 
     questionValue = await getQuestionValue();
-    assert.equal(questionValue, undefined);
-    json = JSON.parse(await getQuestionJson());
-    assert.equal(json.title, newTitle);
+    await t.expect(questionValue).eql(undefined);
+
+    questionJson = JSON.parse(await getQuestionJson());
+    await t.expect(questionJson.title).eql(newTitle);
+  });
+
+  test("Check dropdown popup width", async (t) => {
+    await t.resizeWindow(1280, 1100);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          renderAs: "select",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const questionText = Selector(".sv_q_dropdown__value");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetWidth).gte(900)
+
+      .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionText)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetWidth).gte(900);
+  });
+
+  test("Check dropdown disabled items", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          isRequired: true,
+          hasNone: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "DropdownRenderAsSelect",
+          hasOther: "true",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await ClientFunction(() => {
+      const updateChoiceEnabled = (_, opt) => {
+        opt.choices.forEach((ch, index) => { ch.setIsEnabled(index % 2 === 0); });
+      };
+
+      const oldDropdown = window["survey"].getQuestionByName("cars");
+      oldDropdown.onOpened.add(updateChoiceEnabled);
+
+      const selectQuestion = window["survey"].getQuestionByName("DropdownRenderAsSelect");
+      selectQuestion.onOpened.add(updateChoiceEnabled);
+    })();
+
+    await t
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).notOk()
+      .click("select")
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
+      .click("option[value=Volkswagen]")
+
+      .click("select")
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok();
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control").nth(1);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+      .click(questionDropdownSelect)
+      .expect(Selector(".sv-list__item").count).eql(28)
+      .expect(Selector(".sv-list__item.sv-list__item--disabled").count).eql(13)
+      .click(Selector(".sv-list__item span").withText("item2").filterVisible())
+      .expect(popupContainer.visible).ok()
+      .click(Selector(".sv-list__item span").withText("item3").filterVisible())
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test("Check dropdown clear button", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          renderAs: "select",
+          showClearButton: true,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const clearButton = Selector(".sv_q_dropdown_clean-button");
+    await t
+      .expect(clearButton.exists).ok()
+      .expect(clearButton.visible).notOk()
+
+      .click(questionDropdownSelect)
+      .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
+
+      .expect(clearButton.visible).ok()
+
+      .click(clearButton)
+      .expect(clearButton.exists).ok()
+      .expect(clearButton.visible).notOk();
+  });
+
+  test("Check dropdown item template", async (t) => {
+    await registerCustomItemComponent(framework);
+
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "cars",
+          title: "Dropdown",
+          itemComponent: "new-item",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const myListItems = Selector(".my-list-item");
+    await t
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Choose...")
+
+      .click(questionDropdownSelect)
+      .expect(myListItems.count).eql(10)
+      .expect(myListItems.find(".sv-svg-icon").count).eql(10)
+
+      .click(myListItems.nth(3))
+
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan");
   });
 });

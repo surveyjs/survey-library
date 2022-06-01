@@ -54,8 +54,8 @@ export class SvgIconRegistry {
     if(!document.getElementById(containerId)) {
       let iconsDiv = document.createElement("div");
       iconsDiv.id = containerId;
+      iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
       iconsDiv.style.display = "none";
-      iconsDiv.innerHTML = "<svg style=\"display:none;\">" + this.iconsRenderedHtml() + "</svg>";
       document.head.insertBefore(iconsDiv, document.head.firstChild);
     }
   }

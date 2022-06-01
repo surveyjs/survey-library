@@ -1,7 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
-// eslint-disable-next-line no-undef
-const assert = require("assert");
 const title = "matrixdynamic";
 
 const json = {
@@ -227,12 +225,12 @@ frameworks.forEach((framework) => {
       );
 
     const newCount = await getRowCount();
-    assert(newCount === oldCount - 1);
+    await t.expect(newCount).eql(oldCount - 1);
 
     await t.click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.teachersRate.length, 1);
+    await t.expect(surveyResult.teachersRate.length).eql(1);
   });
 
   test("add row", async (t) => {
@@ -260,11 +258,11 @@ frameworks.forEach((framework) => {
       );
 
     const newCount = await getRowCount();
-    assert(newCount === oldCount + 1);
+    await t.expect(newCount).eql(oldCount + 1);
 
     await t.click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
-    assert.equal(surveyResult.teachersRate.length, 3);
+    await t.expect(surveyResult.teachersRate.length).eql(3);
   });
 });

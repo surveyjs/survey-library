@@ -228,7 +228,7 @@ function clearAttributes(el: Element) {
   el.removeAttribute("data-rendered");
   el.removeAttribute("id");
   el.removeAttribute("for");
-  el.removeAttribute("list");
+  if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("name") !== "name")
     el.removeAttribute("name");

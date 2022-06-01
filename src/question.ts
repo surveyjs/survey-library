@@ -92,7 +92,6 @@ export class Question extends SurveyElement
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
-    this.createLocalizableString("comment,Text", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };

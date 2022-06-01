@@ -5317,14 +5317,18 @@ QUnit.test(
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var isReadOnly = false;
     q1.setCanShowOptionItemCallback((item: ItemValue): boolean => {
-      return !isReadOnly && (item.value !== "newitem" || q1.choices.length < 3);
+      return !isReadOnly && (item !== q1.newItem || q1.choices.length < 3);
     });
     assert.equal(
       q1.visibleChoices.length,
       6,
       "Show SelectAll+None+hasOther+new: 2+4"
     );
+    assert.equal(q1.visibleChoices[3].value, "newitem");
     q1.choices.push(new ItemValue("item3"));
+    assert.equal(q1.visibleChoices[3].value, "item3");
+    assert.notOk(q1.visibleChoices[3] === q1.newItem, "it is not a new item");
+    assert.equal(q1.visibleChoices[4].value, "none");
     assert.equal(
       q1.visibleChoices.length,
       6,

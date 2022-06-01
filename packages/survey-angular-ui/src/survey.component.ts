@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { SurveyModel } from "survey-core";
+import { SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
 @Component({
   selector: "survey",
@@ -11,6 +11,11 @@ export class SurveyComponent extends BaseAngular {
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
   protected getModel(): SurveyModel {
     return this.model;
+  }
+  ngOnInit() {
+    if(this.model["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    }
   }
 
   ngAfterViewInit() {

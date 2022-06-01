@@ -1,6 +1,5 @@
 import { Component, Input } from "@angular/core";
 import { ItemValue, QuestionSelectBase } from "survey-core";
-import { ImplementorBase } from "../implementor-base";
 
 @Component({
   selector: "['sv-ng-selectbase-item'], sv-ng-selebase-item",
@@ -12,8 +11,5 @@ export class SelectBaseItemComponent {
   @Input() model!: ItemValue | any;
   @Input() inputType!: string;
   constructor() {
-  }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
   }
 }

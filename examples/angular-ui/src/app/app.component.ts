@@ -12,5 +12,9 @@ StylesManager.applyTheme("defaultV2");
 })
 export class AppComponent {
   title = "angular-ui";
-  model = new SurveyModel(json);
+  model: SurveyModel;
+  constructor() {
+    this.model = new SurveyModel(json);
+    (<any>window).survey = this.model;
+  }
 }

@@ -1,17 +1,14 @@
 import { Component, Input } from "@angular/core";
-import { SurveyModel, PageModel } from "survey-core";
-import { ImplementorBase } from "./implementor-base";
-
+import { PageModel } from "survey-core";
+import { BaseAngular } from "./base-angular";
 @Component({
   selector: "page",
   templateUrl: "./page.component.html",
   styleUrls: ["./page.component.scss"]
 })
-export class PageComponent {
-  @Input() model: any;
-  constructor() {
-  }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
+export class PageComponent extends BaseAngular {
+  @Input() model!: PageModel;
+  protected getModel(): PageModel {
+    return this.model;
   }
 }

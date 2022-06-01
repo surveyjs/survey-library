@@ -1,17 +1,14 @@
 import { Component, Input } from "@angular/core";
-import { SurveyModel, PageModel } from "survey-core";
-import { ImplementorBase } from "../implementor-base";
+import { BaseAngular } from "../base-angular";
 
 @Component({
   selector: "sv-action-bar-item",
   templateUrl: "./action-bar-item.component.html",
   styleUrls: ["./action-bar-item.component.scss"]
 })
-export class ActionBarItemComponent {
+export class ActionBarItemComponent extends BaseAngular {
   @Input() model: any;
-  constructor() {
-  }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
+  getModel() {
+    return this.model;
   }
 }

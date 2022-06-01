@@ -1,8 +1,5 @@
 import { Component, Input, OnInit, ViewContainerRef } from "@angular/core";
-import { SurveyModel, PageModel } from "survey-core";
-import { ImplementorBase } from "./implementor-base";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
-import { TextQuestionComponent } from "./questions/text.component";
 import { AngularComponentFactory } from "./component-factory";
 
 @Component({
@@ -12,12 +9,7 @@ import { AngularComponentFactory } from "./component-factory";
 })
 export class ElementContentComponent implements OnInit {
   @Input() model: any;
-  constructor(public viewContainerRef: ViewContainerRef) {
-
-  }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
-  }
+  constructor(public viewContainerRef: ViewContainerRef) {}
   public getComponentName(): string {
     if (
       this.model.customWidget &&

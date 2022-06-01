@@ -1,24 +1,19 @@
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { Observable, Subject, BehaviorSubject } from "rxjs";
 import { SurveyModel } from "survey-core";
-import { ImplementorBase } from "./implementor-base";
-
+import { BaseAngular } from "./base-angular";
 @Component({
   selector: "survey",
   templateUrl: "./survey.component.html",
-  styleUrls: ["./survey.component.scss"]
+  styleUrls: ["./survey.component.scss"],
 })
-export class SurveyComponent {
+export class SurveyComponent extends BaseAngular {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
-  private called: boolean = false;
-  constructor() {
+  protected getModel(): SurveyModel {
+    return this.model;
   }
-  ngOnChanges(changes: any): void {
-    new ImplementorBase(changes.model.currentValue);
-  }
+
   ngAfterViewInit() {
     this.model.afterRenderSurvey(this.rootEl.nativeElement);
-    this.called = true;
   }
 }

@@ -1,0 +1,3 @@
+<div [class]="row.getRowCss()">
+  <div *ngFor="let element of row.visibleElements" [class]="element.cssClasses.questionWrapper" [style]="element.rootStyle" [model]="element" sv-ng-element></div>
+</div>

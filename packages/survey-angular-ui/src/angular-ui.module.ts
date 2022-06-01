@@ -25,6 +25,7 @@ import { SurveyCommentComponent } from "./comment.component";
 import { ElementHeaderComponent } from "./components/element-header.component";
 import { ElementTitleComponent } from "./components/element-title.component";
 import { DynamicHeadComponent } from "./components/dynamic-head.component";
+import { RowComponent } from "./row.component";
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { DynamicHeadComponent } from "./components/dynamic-head.component";
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
-    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent
+    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent
   ],
   imports: [
     CommonModule, FormsModule

@@ -24,6 +24,6 @@ export class StringViewerComponent implements OnChanges, OnDestroy {
     _locString.onChanged = () => { this.content = _locString.renderedHtml; this.changeDetectorRef.detectChanges(); };
   }
   ngOnDestroy(): void {
-    this.model.onChanged = undefined;
+    this.model.onChanged = () => {};
   }
 }

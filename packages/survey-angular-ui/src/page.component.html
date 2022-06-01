@@ -9,5 +9,5 @@
   <div *ngIf="model._showDescription" [class]="model.cssClasses.page.description">
     <string-viewer [model]="model.locDescription"></string-viewer>
   </div>
-  <sv-ng-row style="display: contents;" *ngFor="let row of model.rows" [row]="row" ></sv-ng-row>
+  <div [class]="row.getRowCss()" *ngFor="let row of model.rows" [row]="row" sv-ng-row></div>
 </div>

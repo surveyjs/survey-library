@@ -8,9 +8,6 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class RatingQuestionComponent {
   @Input() model!: QuestionRatingModel;
-  constructor() {
-
-  }
   trackByFn(index: number): number {
     return index;
   }

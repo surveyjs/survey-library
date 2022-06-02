@@ -17,6 +17,8 @@ import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 import { DropdownQuestionComponent } from "./questions/dropdown.component";
 import { RatingQuestionComponent } from "./questions/rating.component";
 import { BooleanQuestionComponent } from "./questions/boolean.component";
+import { ImagePickerItemComponent } from "./questions/imagepicker-item.component";
+import { ImagePickerQuestionComponent } from "./questions/imagepicker.component";
 
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
@@ -40,7 +42,7 @@ import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/b
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent
+    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

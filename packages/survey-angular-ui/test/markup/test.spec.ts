@@ -42,6 +42,13 @@ describe("etalon tests", () => {
       imports: [SurveyAngularModule],
     }).compileComponents();
     TestBed.inject(SurveyAngularModule);
+    (<any>window).ResizeObserver = function () {
+      return {
+        observe: () => {},
+        disconnect: () => {},
+        unobserve: () => {},
+      };
+    };
   });
   markupTests.forEach(markupTest => {
     if(markupTest.snapshot?.search(/^radiogroup/) > -1) {

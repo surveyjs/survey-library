@@ -16,6 +16,7 @@ import { CheckboxComponent } from "./questions/checkbox.component";
 import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 import { DropdownQuestionComponent } from "./questions/dropdown.component";
 import { RatingQuestionComponent } from "./questions/rating.component";
+import { BooleanQuestionComponent } from "./questions/boolean.component";
 
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
@@ -29,8 +30,8 @@ import { DynamicHeadComponent } from "./components/dynamic-head.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
-
-import { BooleanQuestionComponent } from "./questions/boolean.component";
+import { BooleanRadioComponent } from "./components/renderAs/boolean-radio/boolean-radio.component";
+import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/boolean-radio-item.component";
 
 @NgModule({
   declarations: [
@@ -39,7 +40,7 @@ import { BooleanQuestionComponent } from "./questions/boolean.component";
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent
+    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent
   ],
   imports: [
     CommonModule, FormsModule

@@ -28,6 +28,7 @@ import { ElementTitleComponent } from "./components/element-title.component";
 import { DynamicHeadComponent } from "./components/dynamic-head.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/rating-dropdown.component";
+import { BooleanQuestionComponent } from "./questions/boolean.component";
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { RatingDropdownComponent } from "./components/rating-dropdown.component"
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent
+    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

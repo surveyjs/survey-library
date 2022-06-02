@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { LocalizableString } from "survey-core";
 
@@ -10,20 +10,16 @@ import { LocalizableString } from "survey-core";
 export class StringViewerComponent implements OnChanges, OnDestroy {
   @Input() model: any;
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
-  _content = new BehaviorSubject<string>("");
-  get content(): string {
-    return this._content.value;
+  ngOnChanges(changes: SimpleChanges): void {
+    const currentValue = changes["model"].currentValue;
+    const previousValue = changes["model"].previousValue;
+    currentValue.onChanged = () => { this.changeDetectorRef.detectChanges(); };
+    !!previousValue && this.clearOnChanged(previousValue);
   }
-  set content(text: string) {
-    this._content.next(text);
-  }
-
-  ngOnChanges(changes: any): void {
-    const _locString = changes.model.currentValue as LocalizableString;
-    this.content = _locString.renderedHtml;
-    _locString.onChanged = () => { this.content = _locString.renderedHtml; this.changeDetectorRef.detectChanges(); };
+  clearOnChanged(model: LocalizableString) {
+    model.onChanged = () => {};
   }
   ngOnDestroy(): void {
-    this.model.onChanged = () => {};
+    !!this.model && this.clearOnChanged(this.model);
   }
 }

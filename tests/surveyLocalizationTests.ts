@@ -232,3 +232,24 @@ QUnit.test(
     assert.equal(question.getLocale(), "de", "question has Deutsch locale right now");
   }
 );
+QUnit.test(
+  "Clear localization locale value if it equals to default and it is not empty and default is empty",
+  function(assert) {
+    let survey = new SurveyModel({ title: { de: "Hallo" } });
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(survey.title, "Hallo", "Get the correct value");
+    let counter = 0;
+    survey.locTitle.onChanged = () => { counter++; };
+    survey.title = "";
+    assert.equal(survey.title, "", "Value is cleared");
+    assert.equal(counter, 1, "str changed is fired");
+
+    survey = new SurveyModel({ title: { de: "Hallo" } });
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(survey.title, "Hallo", "Get the correct value, #2");
+    survey.title = "Hello";
+    assert.equal(survey.title, "Hello", "Value set correctly, #3");
+
+    surveyLocalization.defaultLocale = "en";
+  }
+);

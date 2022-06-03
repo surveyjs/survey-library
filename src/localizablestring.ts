@@ -143,9 +143,10 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string) {
     if (value == this.getLocaleTextWithDefault(loc)) {
+      if(!!value || !!loc && loc !== settings.defaultLocaleName) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);
-      if(!value && !!dl && !!oldValue) {
+      if(!!dl && !!oldValue) {
         this.setValue(dl, value);
         this.fireStrChanged(oldValue, value);
       }

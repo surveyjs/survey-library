@@ -1,5 +1,5 @@
 import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactoryResolver, Injector, Input, ViewContainerRef } from "@angular/core";
-import { BaseAngular } from "../base-angular";
+import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel } from "survey-core";
 import { PopupContainerComponent } from "./popup-container.component";
 import { ComponentPortal, DomPortalOutlet } from "@angular/cdk/portal";

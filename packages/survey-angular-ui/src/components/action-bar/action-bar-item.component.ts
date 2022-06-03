@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
-import { BaseAngular } from "../base-angular";
-import { AngularComponentFactory } from "../component-factory";
+import { BaseAngular } from "../../base-angular";
+import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   selector: "sv-action-bar-item",

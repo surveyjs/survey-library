@@ -4,8 +4,8 @@ export * from "./element.component";
 export * from "./element-content.component";
 export * from "./string-viewer.component";
 
-export * from "./components/popup.component";
-export * from "./components/popup-container.component";
+export * from "./components/popup/popup.component";
+export * from "./components/popup/popup-container.component";
 export * from "./components/skeleton.component";
 export * from "./components/dropdown.component";
 export * from "./questions/text.component";
@@ -20,7 +20,7 @@ export * from "./angular-ui.module";
 
 export * from "./component-factory";
 
-export * from "./components/action-bar.component";
-export * from "./components/action.component";
-export * from "./components/action-bar-item.component";
-export * from "./components/action-bar-item-dropdown.component";
+export * from "./components/action-bar/action-bar.component";
+export * from "./components/action-bar/action.component";
+export * from "./components/action-bar/action-bar-item.component";
+export * from "./components/action-bar/action-bar-item-dropdown.component";

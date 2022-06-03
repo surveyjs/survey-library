@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
-import { BaseAngular } from "../base-angular";
-import { AngularComponentFactory } from "../component-factory";
+import { BaseAngular } from "../../base-angular";
+import { AngularComponentFactory } from "../../component-factory";
 import { ActionBarItemComponent } from "./action-bar-item.component";
 
 @Component({

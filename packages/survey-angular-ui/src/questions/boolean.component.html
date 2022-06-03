@@ -1,4 +1,4 @@
-<div [class]="model.cssClasses.root" (keydown)="model.onKeyDownCore($event)">
+<div [class]="model.cssClasses.root" (keydown)="model.onKeyDownCore($event)" #contentElement>
     <label [class]="model.getItemCss()">
       <input
         type="checkbox"

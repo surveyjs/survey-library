@@ -87,4 +87,14 @@ describe("etalon tests", () => {
     });
     fixture.detectChanges();
   });
+  it("Check that that question after question content isCalled correctly", (done: any) => {
+    const fixture = TestBed.createComponent(SurveyComponent);
+    const component = fixture.componentInstance;
+    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    component.model.onAfterRenderQuestionInput.add((sender: SurveyModel, opt: any) => {
+      expect(opt.htmlElement.className.search(/sv_q_text_root/) > -1).toBe(true);
+      done();
+    });
+    fixture.detectChanges();
+  });
 });

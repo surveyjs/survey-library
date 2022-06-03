@@ -1,4 +1,4 @@
-  <div [class]="model.ratingRootCss">
+  <div [class]="model.ratingRootCss" #contentElement>
       <fieldset role="radiogroup">
           <legend role="presentation" class="sv-hidden"></legend>
           <span *ngIf="model.hasMinLabel" [class]="model.cssClasses.minText" [model]="model.locMinRateDescription" sv-ng-string-viewer>

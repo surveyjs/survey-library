@@ -1,4 +1,4 @@
-  <fieldset [class]="model.getSelectBaseRootCss()">
+  <fieldset [class]="model.getSelectBaseRootCss()" #contentElement>
       <legend [attr.aria-label]="model.locTitle.renderedHtml" role="radio"></legend>
       <ng-container *ngIf="!model.hasColumns">
         <sv-ng-imagepicker-item *ngFor="let item of model.visibleChoices" [model]="item" [question]="model"></sv-ng-imagepicker-item>

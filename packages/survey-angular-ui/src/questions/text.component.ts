@@ -1,4 +1,6 @@
 import { Component, Input } from "@angular/core";
+import { QuestionAngular } from "../question.component";
+import { QuestionTextModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -6,8 +8,7 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./text.component.html",
   styleUrls: ["./text.component.scss"]
 })
-export class TextQuestionComponent {
-  @Input() model: any;
+export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   keyup(event: any) {
     if (!this.model.isInputTextUpdate) return;
     this.model.value = event.target.value;

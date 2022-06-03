@@ -1,4 +1,5 @@
 import { Component, Input } from "@angular/core";
+import { QuestionAngular } from "../question.component";
 import { QuestionBooleanModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
@@ -6,9 +7,7 @@ import { AngularComponentFactory } from "../component-factory";
   selector: "sv-ng-boolean-question",
   templateUrl: "./boolean.component.html"
 })
-export class BooleanQuestionComponent {
-  @Input() model!: QuestionBooleanModel;
-  constructor() {}
+export class BooleanQuestionComponent extends QuestionAngular<QuestionBooleanModel> {
   onChange(event: any) {
     this.model.checkedValue = event.target.value;
   }

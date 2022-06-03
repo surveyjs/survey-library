@@ -245,6 +245,7 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage)
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 

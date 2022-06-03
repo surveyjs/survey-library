@@ -10,6 +10,6 @@
     <string-viewer [model]="model.locDescription"></string-viewer>
   </div>
   <ng-container *ngFor="let row of model.rows">
-    <div [class]="row.getRowCss()" *ngIf="row.visible" [row]="row" sv-ng-row></div>
+    <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
   </ng-container>
 </div>

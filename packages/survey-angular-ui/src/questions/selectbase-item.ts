@@ -7,11 +7,11 @@ import { Base, ItemValue } from "survey-core";
   templateUrl: "./selectbase-item.html",
   styleUrls: ["./radiogroup-item.component.scss"]
 })
-export class SelectBaseItemComponent extends BaseAngular {
+export class SelectBaseItemComponent extends BaseAngular<ItemValue> {
   @Input() question!: any;
   @Input() model!: ItemValue | any;
   @Input() inputType!: string;
-  protected getModel(): Base {
+  protected getModel(): ItemValue {
     return this.model;
   }
 }

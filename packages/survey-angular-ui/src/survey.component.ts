@@ -7,7 +7,7 @@ import { AngularComponentFactory } from "./component-factory";
   templateUrl: "./survey.component.html",
   styleUrls: ["./survey.component.scss"],
 })
-export class SurveyComponent extends BaseAngular {
+export class SurveyComponent extends BaseAngular<SurveyModel> {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
   protected getModel(): SurveyModel {

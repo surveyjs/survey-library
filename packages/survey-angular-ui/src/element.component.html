@@ -1,14 +1,12 @@
 <div [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" data-bind="attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null} " #elementContainer>
-  <!-- ko if: question.isErrorsModeTooltip && !question.hasParent -->
+  <!-- ko if: !model.isPanel -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
-    <!-- /ko -->
-  <!-- /ko -->
-  <!-- ko if: question.hasTitleOnLeftTop -->
-    <!--ko template: { name: 'survey-question-title', data: question  } -->
     <!-- /ko -->
   <!-- /ko -->
   <sv-ng-element-header *ngIf="model.hasTitleOnLeftTop" [element]="model"></sv-ng-element-header>
   <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
   <!-- /ko -->
-  <div [class]="model.cssClasses.content"><sv-ng-element-content [model]="model"></sv-ng-element-content></div>
+  <div [class]="model.cssClasses.content">
+    <sv-ng-element-content [model]="model"></sv-ng-element-content>
+  </div>
 </div>

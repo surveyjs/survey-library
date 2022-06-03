@@ -5,10 +5,10 @@ import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
   selector: "sv-ng-imagepicker-item",
   templateUrl: "./imagepicker-item.component.html",
 })
-export class ImagePickerItemComponent extends BaseAngular {
+export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> {
   @Input() question!: QuestionImagePickerModel;
   @Input() model!: ImageItemValue;
-  protected getModel() {
+  protected getModel(): ImageItemValue {
     return this.model;
   }
   onChange(event: any) {

@@ -128,6 +128,12 @@ export class PageModel extends PanelModelBase implements IPage {
       .append(this.cssClasses.page.title)
       .toString();
   }
+  public getcssRoot(survey: any): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.page.root)
+      .append(this.cssClasses.page.withHeaderRoot, survey.renderedHasHeader)
+      .toString();
+  }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**
    * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
@@ -153,8 +159,8 @@ export class PageModel extends PanelModelBase implements IPage {
     this.hasShownValue = val;
     if (this.isDesignMode || val !== true) return;
     var els = this.elements;
-    for(var i = 0; i < els.length; i ++) {
-      if(els[i].isPanel) {
+    for (var i = 0; i < els.length; i++) {
+      if (els[i].isPanel) {
         (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
       }
     }
@@ -213,7 +219,7 @@ export class PageModel extends PanelModelBase implements IPage {
   public set maxTimeToFinish(val: number) {
     this.setPropertyValue("maxTimeToFinish", val);
   }
-  protected onNumChanged(value: number) {}
+  protected onNumChanged(value: number) { }
   protected onVisibleChanged() {
     if (this.isRandomizing) return;
     super.onVisibleChanged();
@@ -311,20 +317,20 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!isCancel && !!row) {
       var isSamePanel = false;
 
-      if(this.isDesignMode && settings.supportCreatorV2) {
+      if (this.isDesignMode && settings.supportCreatorV2) {
         const rowEls = row.elements.length;
-        if(!!dest && target === src && rowEls > 1 && row.elements[rowEls - 1] === dest) {
+        if (!!dest && target === src && rowEls > 1 && row.elements[rowEls - 1] === dest) {
           elementsToResetSWNL.push(target);
         } else {
-          var srcRow = src && src.parent &&(src.parent as PanelModelBase).dragDropFindRow(src);
-          if(row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
+          var srcRow = src && src.parent && (src.parent as PanelModelBase).dragDropFindRow(src);
+          if (row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
             elementsToSetSWNL.push(target);
             elementsToResetSWNL.push(row.panel.elements[targetIndex]);
           }
-          if(target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
+          if (target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
             elementsToResetSWNL.push(target);
           }
-          if(srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
+          if (srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
             elementsToSetSWNL.push(srcRow.elements[1]);
           }
           if (row.elements.length <= 1) {
@@ -446,14 +452,14 @@ Serializer.addClass(
     { name: "maxTimeToFinish:number", default: 0, minValue: 0 },
     {
       name: "navigationTitle",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationTitle",
     },
     {
       name: "navigationDescription",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return !!obj.survey && obj.survey.progressBarType === "buttons";
       },
       serializationProperty: "locNavigationDescription",
@@ -461,7 +467,7 @@ Serializer.addClass(
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
   ],
-  function() {
+  function () {
     return new PageModel();
   },
   "panelbase"

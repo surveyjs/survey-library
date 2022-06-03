@@ -22,7 +22,7 @@ export class SurveyProgress extends SurveyNavigationBase {
       width: this.progress + "%",
     };
     return (
-      <div className={this.css.progress} style={style}>
+      <div className={SurveyProgressModel.getProgressRootCss(this.css, this.survey)} style={style}>
         <div
           style={progressStyle}
           className={this.css.progressBar}

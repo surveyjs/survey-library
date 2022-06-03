@@ -20,7 +20,7 @@ export class SurveyPage extends SurveyPanelBase {
     var description = this.renderDescription();
     var rows = this.renderRows(this.panelBase.cssClasses);
     return (
-      <div ref={this.rootRef} className={this.panelBase.cssClasses.page.root}>
+      <div ref={this.rootRef} className={this.page.getcssRoot(this.survey)}>
         {title}
         {description}
         {rows}

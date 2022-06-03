@@ -6,6 +6,8 @@ import { PageComponent } from "./page.component";
 import { ElementComponent } from "./element.component";
 import { ElementContentComponent } from "./element-content.component";
 import { StringViewerComponent } from "./string-viewer.component";
+import { PopupComponent } from "./components/popup.component";
+import { PopupContainerComponent } from "./components/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown.component";
 import { TextQuestionComponent } from "./questions/text.component";
@@ -20,6 +22,7 @@ import { RatingQuestionComponent } from "./questions/rating.component";
 import { ActionBarComponent } from "./components/action-bar.component";
 import { ActionComponent } from "./components/action.component";
 import { ActionBarItemComponent } from "./components/action-bar-item.component";
+import { ActionBarItemDropdownComponent } from "./components/action-bar-item-dropdown.component";
 import { SelectBaseItemComponent } from "./questions/selectbase-item";
 import { SelectBaseComponent } from "./questions/selectbase.component";
 import { SurveyCommentComponent } from "./comment.component";
@@ -34,7 +37,8 @@ import { RatingDropdownComponent } from "./components/rating-dropdown.component"
     SurveyComponent, PageComponent, ElementComponent, ElementContentComponent, StringViewerComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
+    PopupComponent, PopupContainerComponent,
+    ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent
   ],
@@ -43,6 +47,7 @@ import { RatingDropdownComponent } from "./components/rating-dropdown.component"
   ],
   exports: [
     SurveyComponent
+    // SurveyComponent, ActionBarComponent
   ]
 })
 export class SurveyAngularModule { }

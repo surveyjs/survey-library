@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Question, SurveyElement } from "survey-core";
 import { BaseAngular } from "./base-angular";
 

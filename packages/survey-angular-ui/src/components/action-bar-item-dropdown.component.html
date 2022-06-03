@@ -1,0 +1,7 @@
+<button class="sv-action-bar-item-dropdown" type="button" (click)="model.action()" [class]="model.getActionBarItemCss()" [title]="model.tooltip || model.title" [disabled]="model.disabled">
+    <!-- ko if: $data.iconName -->
+    <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize } } --><!-- /ko -->
+    <!-- /ko -->
+    <span *ngIf="model.hasTitle" [class]="model.getActionBarItemTitleCss()">{{ model.title }}</span>
+    <sv-ng-popup [popupModel]="model.popupModel"></sv-ng-popup>
+</button>

@@ -1,4 +1,5 @@
 import { Component, Input } from "@angular/core";
+import { AngularComponentFactory } from "../component-factory";
 import { BaseAngular } from "../base-angular";
 
 @Component({
@@ -16,3 +17,5 @@ export class ActionBarComponent extends BaseAngular {
     return this.handleClick ? true : undefined;
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-action-bar", ActionBarComponent);

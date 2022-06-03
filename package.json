@@ -85,6 +85,7 @@
     "@angular/forms": "~13.0.0",
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
+    "@angular/cdk": "~13.0.0",
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",
     "@types/jest": "23.3.3",

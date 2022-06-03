@@ -36,6 +36,9 @@ import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/r
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
 import { BooleanRadioComponent } from "./components/renderAs/boolean-radio/boolean-radio.component";
 import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/boolean-radio-item.component";
+import { ProgressDefaultComponent } from "./components/progress/default/progress.component";
+import { ProgressButtonsComponent } from "./components/progress/buttons/progress.component";
+import { ProgressComponent } from "./components/progress/progress.component";
 
 @NgModule({
   declarations: [
@@ -45,7 +48,7 @@ import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/b
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent
   ],
   imports: [
     CommonModule, FormsModule

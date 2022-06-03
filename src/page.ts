@@ -128,10 +128,11 @@ export class PageModel extends PanelModelBase implements IPage {
       .append(this.cssClasses.page.title)
       .toString();
   }
-  public getcssRoot(survey: any): string {
+  public get cssRoot(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
-      .append(this.cssClasses.page.withHeaderRoot, survey.renderedHasHeader)
+      .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
+        !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring))
       .toString();
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;

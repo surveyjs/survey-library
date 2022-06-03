@@ -1,6 +1,7 @@
 {
   "showProgressBar": "top",
   "title": "Survey New Design Test",
+  "description": "This is the survey shown via survey-angular-ui module.",
   "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
   "logoPosition": "left",
   "widthMode": "static",

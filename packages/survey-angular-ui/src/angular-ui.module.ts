@@ -27,8 +27,10 @@ import { SelectBaseItemComponent } from "./questions/selectbase-item";
 import { SelectBaseComponent } from "./questions/selectbase.component";
 import { SurveyCommentComponent } from "./comment.component";
 import { ElementHeaderComponent } from "./components/element-header/element-header.component";
-import { ElementTitleComponent } from "./components/element-header/element-title.component";
-import { DynamicHeadComponent } from "./components/element-header/dynamic-head.component";
+import { ElementTitleComponent } from "./components/element-title/element-title.component";
+import { SurveyHeaderComponent } from "./components/survey-header/survey-header.component";
+
+import { DynamicHeadComponent } from "./components/element-title/dynamic-head.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
@@ -42,7 +44,8 @@ import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/b
     DropdownComponent, DropdownQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent
+    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
+    SurveyHeaderComponent
   ],
   imports: [
     CommonModule, FormsModule

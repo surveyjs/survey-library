@@ -6,7 +6,7 @@ import { BaseAngular } from "./base-angular";
   templateUrl: "./page.component.html",
   styleUrls: ["./page.component.scss"]
 })
-export class PageComponent extends BaseAngular {
+export class PageComponent extends BaseAngular<PageModel> {
   @Input() model!: PageModel;
   protected getModel(): PageModel {
     return this.model;

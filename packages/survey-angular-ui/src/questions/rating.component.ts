@@ -1,4 +1,5 @@
 import { Component, Input } from "@angular/core";
+import { QuestionAngular } from "../question.component";
 import { QuestionRatingModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
@@ -6,11 +7,7 @@ import { AngularComponentFactory } from "../component-factory";
   selector: "sv-ng-rating-question",
   templateUrl: "./rating.component.html"
 })
-export class RatingQuestionComponent {
-  @Input() model!: QuestionRatingModel;
-  constructor() {
-
-  }
+export class RatingQuestionComponent extends QuestionAngular<QuestionRatingModel> {
   trackByFn(index: number): number {
     return index;
   }

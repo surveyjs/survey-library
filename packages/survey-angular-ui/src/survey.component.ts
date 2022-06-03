@@ -1,12 +1,13 @@
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { SurveyModel, SvgRegistry } from "survey-core";
+import { Component, DoCheck, ElementRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { surveyBuiltInVarible, SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey",
   templateUrl: "./survey.component.html",
   styleUrls: ["./survey.component.scss"],
 })
-export class SurveyComponent extends BaseAngular {
+export class SurveyComponent extends BaseAngular<SurveyModel> {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
   protected getModel(): SurveyModel {
@@ -17,7 +18,6 @@ export class SurveyComponent extends BaseAngular {
       SvgRegistry.renderIcons();
     }
   }
-
   ngAfterViewInit() {
     this.model.afterRenderSurvey(this.rootEl.nativeElement);
   }

@@ -5,7 +5,7 @@ import { BaseAngular } from "./base-angular";
   selector: "sv-ng-row, '[sv-ng-row]'",
   templateUrl: "./row.component.html",
 })
-export class RowComponent extends BaseAngular {
+export class RowComponent extends BaseAngular<QuestionRowModel> {
   @Input() row!: QuestionRowModel;
   protected getModel(): QuestionRowModel {
     return this.row;

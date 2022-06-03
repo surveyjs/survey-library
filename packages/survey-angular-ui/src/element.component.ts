@@ -7,7 +7,7 @@ import { BaseAngular } from "./base-angular";
   templateUrl: "./element.component.html",
   styleUrls: ["./element.component.scss"]
 })
-export class ElementComponent extends BaseAngular {
+export class ElementComponent extends BaseAngular<SurveyElement> {
   @Input() model!: SurveyElement | any;
   @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
   protected getModel(): SurveyElement {

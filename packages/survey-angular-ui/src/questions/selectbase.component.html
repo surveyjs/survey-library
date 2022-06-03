@@ -1,4 +1,4 @@
-<fieldset [class]="model.getSelectBaseRootCss()" role="presentation">
+<fieldset [class]="model.getSelectBaseRootCss()" role="presentation" #contentElement>
   <legend *ngIf="showLegend" role="presentation" class="sv-hidden"></legend>
   <ng-container *ngIf="!model.hasColumns">
     <sv-ng-selectbase-item *ngFor="let item of model.visibleChoices" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>

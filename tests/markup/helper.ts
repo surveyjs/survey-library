@@ -213,12 +213,17 @@ function removeExtraElement(el: HTMLElement) {
 
 function clearClasses(el: Element) {
   let classesToRemove: Array<string> = [];
-  el.classList.forEach((className: string) => {
-    if(className.search(/^ng-/) > -1) {
-      classesToRemove.push(className);
+  if(el.className !== "") {
+    el.classList.forEach((className: string) => {
+      if(className.search(/^ng-/) > -1) {
+        classesToRemove.push(className);
+      }
+    });
+    el.classList.remove(...classesToRemove);
+    if(el.className === "") {
+      el.removeAttribute("class");
     }
-  });
-  el.classList.remove(...classesToRemove);
+  }
 }
 
 function clearAttributes(el: Element) {
@@ -259,8 +264,10 @@ function sortClasses(str: string) {
   const div = document.createElement("div");
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
-    const classList = el.classList.value.replace(/\s+/, " ").split(" ");
-    el.classList.value = classList.sort((a: string, b: string) => a.localeCompare(b)).join(" ");
+    if(el.className !== "") {
+      const classList = el.classList.value.replace(/\s+/, " ").split(" ");
+      el.classList.value = classList.sort((a: string, b: string) => a.localeCompare(b)).join(" ");
+    }
   });
   return div.innerHTML;
 }

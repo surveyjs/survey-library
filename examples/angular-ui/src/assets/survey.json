@@ -1,14 +1,52 @@
 {
   "showProgressBar": "top",
   "title": "Survey New Design Test",
+  "description": "This is the survey shown via survey-angular-ui module.",
   "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
   "logoPosition": "left",
+  "widthMode": "static",
   "pages": [
     {
       "name": "page1",
       "title": "Page 1 Title",
       "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
+        {
+          "type": "imagepicker",
+          "name": "choosepicture",
+          "title": "What animal would you like to see first ?",
+          "choices": [
+            {
+              "value": "lion"
+            }, {
+              "value": "giraffe",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            }, {
+              "value": "panda",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+            }, {
+              "value": "camel",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "boolean",
+
+          "labelTrue": "fewfewfwefwfqfewqfwqefwe",
+          "labelFalse": "fewfewfwefwfqfewqfwqefwe"
+        },
+        {
+          "type": "rating",
+          "name": "nps_score",
+          "title": "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+          "isRequired": true,
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "(Most unlikely)",
+          "maxRateDescription": "(Most likely)"
+        },
         {
           "name": "dropdown",
           "type": "dropdown",

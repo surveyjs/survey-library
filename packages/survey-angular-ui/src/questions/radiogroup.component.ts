@@ -1,14 +1,17 @@
 import { Component, Input } from "@angular/core";
+import { QuestionRadiogroupModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SelectBaseComponent } from "./selectbase.component";
 
 @Component({
   selector: "sv-ng-radiogroup-question",
-  templateUrl: "./radiogroup.component.html",
-  styleUrls: ["./radiogroup.component.scss"]
+  templateUrl: "./selectbase.component.html"
 })
-export class RadiogroupComponent {
-  @Input() model: any;
+export class RadiogroupComponent extends SelectBaseComponent<QuestionRadiogroupModel> {
   constructor() {
+    super();
+    this.inputType = "radio";
+    this.showLegend = false;
   }
 }
 

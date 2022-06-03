@@ -1,7 +1,10 @@
 <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" >
+  <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header>
+  </div>
   <form onsubmit="return false;">
     <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
     <div [class]="model.css.container">
+      
       <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
       <!-- /ko -->
       <div *ngIf="model.isShowingPage" [class]="model.bodyCss">
@@ -9,10 +12,7 @@
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
-        <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
-        <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-        <!-- /ko -->
-        <!-- /ko -->
+        <sv-ng-progress *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage" [model]="model"></sv-ng-progress>
         <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
         <!-- ko if: activePage -->
           <div *ngIf="model.activePage" data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }">

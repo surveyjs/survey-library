@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { QuestionAngular } from "../question.component";
+import { QuestionAngular } from "../question";
 import { QuestionTextModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 

@@ -1,22 +1,18 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { Question } from "survey-core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Question, SurveyElement } from "survey-core";
+import { BaseAngular } from "./base-angular";
+import { AngularComponentFactory } from "./component-factory";
 
 @Component({
-  template: ""
+  selector: "sv-ng-question",
+  templateUrl: "./question.component.html"
 })
-export class QuestionAngular<T extends Question = Question> implements AfterViewInit, OnDestroy {
-  @Input() public model!: T;
-
-  @ViewChild("contentElement") elementContentRef!: ElementRef<HTMLElement>;
-
-  ngAfterViewInit() {
-    if (!!this.model) {
-      this.model.afterRenderQuestionElement(this.elementContentRef.nativeElement);
-    }
-  }
-  ngOnDestroy() {
-    if (!!this.model) {
-      this.model.beforeDestroyQuestionElement(this.elementContentRef.nativeElement);
-    }
+export class QuestionComponent {
+  @Input() model!: Question;
+  @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
+  ngAfterViewInit(): void {
+    this.model.afterRender(this.rootEl?.nativeElement);
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("question", QuestionComponent);

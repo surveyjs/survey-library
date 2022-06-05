@@ -1,19 +1,20 @@
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { Question, SurveyElement } from "survey-core";
+import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { SurveyElement } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { AngularComponentFactory } from "./component-factory";
 
 @Component({
-  selector: "element, sv-ng-element, '[sv-ng-element]'",
-  templateUrl: "./element.component.html",
-  styleUrls: ["./element.component.scss"]
+  selector: "'[sv-ng-element]'",
+  template: "<ng-template #elementContainer></ng-template>"
 })
 export class ElementComponent extends BaseAngular<SurveyElement> {
-  @Input() model!: SurveyElement | any;
-  @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
+  @Input() model!: SurveyElement;
+  @ViewChild("elementContainer", { static: true, read: ViewContainerRef }) elementContainerRef!: ViewContainerRef;
   protected getModel(): SurveyElement {
     return this.model;
   }
-  ngAfterViewInit(): void {
-    this.model?.isQuestion && (<Question>this.model).afterRender(this.rootEl?.nativeElement);
+  ngOnInit() {
+    const component = AngularComponentFactory.Instance.create(this.elementContainerRef, this.model.isPanel ? "panel" : "question");
+    (<any>component.instance).model = this.model;
   }
 }

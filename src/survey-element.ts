@@ -205,6 +205,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       }
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
+    if (name === "isSingleInRow") {
+      this.updateElementCss(false);
+    }
   }
   protected getSkeletonComponentNameCore(): string {
     if (this.survey) {
@@ -689,8 +692,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get hasParent() {
     return (this.parent && !this.parent.isPage) || (this.parent === undefined);
   }
+  @property({ defaultValue: true }) isSingleInRow: boolean;
   protected get hasFrameV2() {
-    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode;
+    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
   }
 
   /**

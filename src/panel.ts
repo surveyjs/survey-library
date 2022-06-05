@@ -153,6 +153,7 @@ export class QuestionRowModel extends Base {
   private setWidth() {
     var visCount = this.visibleElements.length;
     if (visCount == 0) return;
+    const isSingleInRow = this.visibleElements.length === 1;
     var counter = 0;
     var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
@@ -160,6 +161,7 @@ export class QuestionRowModel extends Base {
       this.setElementMaxMinWidth(el);
 
       if (el.isVisible) {
+        (<any>el).isSingleInRow = isSingleInRow;
         var width = this.getElementWidth(el);
         if (!!width) {
           el.renderWidth = this.getRenderedWidthFromWidth(width);

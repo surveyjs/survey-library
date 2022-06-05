@@ -9,8 +9,7 @@
     width: auto;
   }
 }
-.svc-logic-question-value,
-div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
+.svc-logic-question-value, .sd-element--with-frame:not(.sd-element--collapsed) {
   border-radius: calcSize(0.5);
   box-sizing: border-box;
   padding-left: var(--sd-base-padding);

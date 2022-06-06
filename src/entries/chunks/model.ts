@@ -165,7 +165,7 @@ export {
 
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
-export { PopupModel, PopupBaseViewModel, createPopupModalViewModel } from "../../popup";
+export { PopupModel, PopupBaseViewModel, createPopupModalViewModel, createDialogOptions, IDialogOptions } from "../../popup";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,

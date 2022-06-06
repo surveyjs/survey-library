@@ -1,6 +1,6 @@
 
 <div *ngIf="model.isVisible" [attr.id]="model.id" [class]="model.getContainerCss()" (focusin)="model.focusIn($event)">
-  <sv-ng-element-header *ngIf= "model.hasDescription || model.hasTitle" [element]="model"></sv-ng-element-header>
+  <div *ngIf= "model.hasDescription || model.hasTitle" [element]="model" sv-ng-element-header></div>
   <!-- ko template: { name: 'survey-question-errors', data: $data } -->
   <!-- /ko -->
   <div *ngIf="!model.isCollapsed" [style.paddingLeft]="model.innerPaddingLeft" [class]="model.cssClasses.panel.content" [attr.id]="model.contentId">

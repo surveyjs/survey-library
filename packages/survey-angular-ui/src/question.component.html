@@ -3,7 +3,7 @@
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->
   <!-- /ko -->
-  <sv-ng-element-header *ngIf="model.hasTitleOnLeftTop" [element]="model"></sv-ng-element-header>
+  <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
   <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
   <!-- /ko -->
   <div [class]="model.cssClasses.content">

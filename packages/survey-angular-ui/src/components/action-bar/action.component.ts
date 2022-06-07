@@ -1,10 +1,10 @@
-import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, HostBinding, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 import { ActionBarItemComponent } from "./action-bar-item.component";
 
 @Component({
-  selector: "sv-action",
+  selector: "'[sv-ng-action]'",
   templateUrl: "./action.component.html",
   styleUrls: ["./action.component.scss"],
 })
@@ -21,6 +21,12 @@ export class ActionComponent extends BaseAngular {
       componentRef = this.actionContent.createComponent(ActionBarItemComponent) as any;
     }
     (componentRef.instance as any).model = this.model;
+  }
+  @HostBinding("class") get class(): string {
+    return this.model.getActionRootCss();
+  }
+  @HostBinding("id") get id(): string {
+    return this.model.id;
   }
 }
 

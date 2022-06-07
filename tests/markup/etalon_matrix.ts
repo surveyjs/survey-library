@@ -1,5 +1,4 @@
 import { registerMarkupTests } from "./helper";
-import { StylesManager } from "../../src/stylesmanager";
 
 registerMarkupTests(
   [
@@ -28,8 +27,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("modern"),
-      after: () => StylesManager.applyTheme("default"),
+      before: (opt: any) => opt.StylesManager.applyTheme("modern"),
+      after: (opt: any) => opt.StylesManager.applyTheme("default"),
       snapshot: "matrix-modern",
       excludePlatform: "Vue"
     },
@@ -58,8 +57,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+      before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+      after: (opt: any) => opt.StylesManager.applyTheme("default"),
       snapshot: "matrix-v2",
       excludePlatform: "Vue"
     },
@@ -88,8 +87,8 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => StylesManager.applyTheme("defaultV2"),
-      after: () => StylesManager.applyTheme("default"),
+      before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
+      after: (opt: any) => opt.StylesManager.applyTheme("default"),
       initSurvey: survey => survey.setIsMobile(true),
       snapshot: "matrix-mobile-v2",
       excludePlatform: "Vue"

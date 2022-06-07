@@ -96,6 +96,7 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("survey-title-descr.png", Selector(".sd-title"), t);
     await checkElementScreenshot("survey-body.png", Selector(".sd-body"), t);
+    await checkElementScreenshot("survey-with-title.png", Selector(".sd-container-modern"), t); // title
   });
   test("Check survey with progress top", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -104,7 +105,7 @@ frameworks.forEach(framework => {
       (<any>window).survey.progressBarType = "pages";
       (<any>window).survey.currentPageNo = 1;
     })();
-    await checkElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t);
+    await checkElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t); // title + progress
   });
   test("Check survey with progress top buttons", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -120,9 +121,40 @@ frameworks.forEach(framework => {
       (<any>window).survey.currentPageNo = 1;
       (<any>window).survey.addNavigationItem({
         title: "Save",
-        action: () => {}
+        action: () => { }
       });
     })();
     await checkElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t);
+  });
+  test("Check survey without title and with progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      pages: [{
+        name: "page1",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }],
+      showProgressBar: "top"
+    });
+    await checkElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t); // progress
+  });
+  test("Check survey without title and progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      pages: [{
+        name: "page1",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }]
+    });
+    await checkElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t); // without title and progress
   });
 });

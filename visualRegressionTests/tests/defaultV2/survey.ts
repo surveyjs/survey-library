@@ -96,7 +96,6 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("survey-title-descr.png", Selector(".sd-title"), t);
     await checkElementScreenshot("survey-body.png", Selector(".sd-body"), t);
-    await checkElementScreenshot("survey-with-title.png", Selector(".sd-container-modern"), t); // title
   });
   test("Check survey with progress top", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -126,18 +125,22 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t);
   });
+
+  const testedPages = [{
+    name: "page1",
+    title: "Test",
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  }];
+
   test("Check survey without title and with progress", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      pages: [{
-        name: "page1",
-        elements: [
-          {
-            name: "q1",
-            type: "text"
-          }
-        ]
-      }],
+      pages: testedPages,
       showProgressBar: "top"
     });
     await checkElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t); // progress
@@ -145,16 +148,16 @@ frameworks.forEach(framework => {
   test("Check survey without title and progress", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      pages: [{
-        name: "page1",
-        elements: [
-          {
-            name: "q1",
-            type: "text"
-          }
-        ]
-      }]
+      pages: testedPages
     });
     await checkElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t); // without title and progress
+  });
+  test("Check survey with title and without progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      title: "Test",
+      pages: testedPages
+    });
+    await checkElementScreenshot("survey-with-tilte-and-without-progress.png", Selector(".sd-container-modern"), t); // title
   });
 });

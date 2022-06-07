@@ -1,6 +1,10 @@
 .sd-body--responsive {
   .sd-page {
     padding: calcSize(5) var(--sd-page-vertical-padding) calcSize(2);
+
+    &.sd-page__empty-header {
+      padding-top: calcSize(3);
+    }
   }
 }
 .sd-page {

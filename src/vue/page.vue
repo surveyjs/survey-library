@@ -1,5 +1,5 @@
 <template>
-  <div :class="cssRoot">
+  <div :class="page.cssRoot">
     <survey-element-title :element="page" :css="css"/>
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />

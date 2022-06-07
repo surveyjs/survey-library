@@ -45,6 +45,7 @@ import { ProgressComponent } from "./components/progress/progress.component";
 import { PanelComponent } from "./panel.component";
 import { ElementComponent } from "./element.component";
 import { SurveyNavigationButton } from "./components/survey-actions/survey-nav-btn.component";
+import { MatrixQuestionComponent } from "./questions/matrix.component";
 
 @NgModule({
   declarations: [
@@ -55,7 +56,7 @@ import { SurveyNavigationButton } from "./components/survey-actions/survey-nav-b
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

@@ -44,6 +44,7 @@ import { ProgressButtonsComponent } from "./components/progress/buttons/progress
 import { ProgressComponent } from "./components/progress/progress.component";
 import { PanelComponent } from "./panel.component";
 import { ElementComponent } from "./element.component";
+import { PopupService } from "./components/popup/popup.service";
 
 @NgModule({
   declarations: [
@@ -61,7 +62,7 @@ import { ElementComponent } from "./element.component";
   ],
   exports: [
     SurveyComponent
-    // SurveyComponent, ActionBarComponent
-  ]
+  ],
+  providers: [PopupService],
 })
 export class SurveyAngularModule { }

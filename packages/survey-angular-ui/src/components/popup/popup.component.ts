@@ -1,8 +1,8 @@
-import { ApplicationRef, ChangeDetectorRef, Component, ComponentFactoryResolver, Injector, Input, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel } from "survey-core";
-import { PopupContainerComponent } from "./popup-container.component";
-import { ComponentPortal, DomPortalOutlet } from "@angular/cdk/portal";
+import { DomPortalOutlet } from "@angular/cdk/portal";
+import { PopupService } from "./popup.service";
 
 @Component({
   selector: "sv-ng-popup, '[sv-ng-popup]'",
@@ -13,14 +13,13 @@ export class PopupComponent extends BaseAngular {
   @Input() popupModel: any;
 
   public model: any;
-  private portal!: ComponentPortal<PopupContainerComponent>;
   private portalHost!: DomPortalOutlet;
 
   protected getModel() {
     return this.popupModel;
   }
 
-  constructor(public viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private applicationRef: ApplicationRef, private componentFactoryResolver: ComponentFactoryResolver, private injector: Injector) {
+  constructor(public viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private popupService: PopupService) {
     super(changeDetectorRef);
   }
 
@@ -32,12 +31,7 @@ export class PopupComponent extends BaseAngular {
         this.model.updateOnShowing();
       }
     });
-
-    this.portalHost = new DomPortalOutlet(this.model.container, this.componentFactoryResolver, this.applicationRef, this.injector);
-    this.portal = new ComponentPortal(PopupContainerComponent);
-    const componentRef = this.portalHost.attach(this.portal);
-    componentRef.instance.model = this.model;
-    componentRef.instance.createAndBindPopupContent();
+    this.portalHost = this.popupService.createComponent(this.model);
   }
 
   override ngOnDestroy() {

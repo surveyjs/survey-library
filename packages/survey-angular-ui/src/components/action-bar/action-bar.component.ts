@@ -3,7 +3,7 @@ import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 
 @Component({
-  selector: "sv-action-bar",
+  selector: "sv-action-bar, sv-ng-action-bar",
   templateUrl: "./action-bar.component.html",
   styleUrls: ["./action-bar.component.scss"]
 })

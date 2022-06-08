@@ -12,6 +12,13 @@
       "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
         {
+          "type": "file",
+          "title": "Please upload your photo",
+          "name": "image",
+          "showPreview": true,
+          "imageWidth": 150
+        },
+        {
           "type": "matrix",
           "name": "Quality",
           "title": "Please indicate if you agree or disagree with the following statements",

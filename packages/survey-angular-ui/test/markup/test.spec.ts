@@ -51,7 +51,7 @@ describe("etalon tests", () => {
     };
   });
   markupTests.forEach(markupTest => {
-    if(markupTest.snapshot?.search(/^matrix-?/) > -1) {
+    if(markupTest.snapshot?.search(/^file-?/) > -1) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });

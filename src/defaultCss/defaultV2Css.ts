@@ -290,6 +290,7 @@ export var defaultV2Css = {
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
+    rowTextCell: "sd-table__cell sd-matrix__cell sd-table__cell--row-text",
     label: "sd-item sd-radio sd-matrix__label",
     itemOnError: "sd-item--error",
     itemValue: "sd-visuallyhidden sd-item__control sd-radio__control",

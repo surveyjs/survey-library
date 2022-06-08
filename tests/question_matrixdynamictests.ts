@@ -3222,6 +3222,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
   matrix.rowTitleWidth = "400px";
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells[0].width, "400px", "col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "400px", "col1 min-width get from rowTitleWidth");
 
   matrix.showHeader = false;
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");

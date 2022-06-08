@@ -122,7 +122,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
-      rowsTD = <td className={this.question.cssClasses.cell}>
+      rowsTD = <td className={this.question.cssClasses.rowHeaderCell}>
         {this.wrapCell({ row: this.row }, rowText, "row-header")}
       </td>;
     }

@@ -43,8 +43,8 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("question-matrix-detail.png", questionRoot, t);
   });
 
-  test("Matrix manu columns", async (t) => {
-    await t.resizeWindow(1920, 1080);
+  test("Matrix many columns", async (t) => {
+    await t.resizeWindow(800, 600);
     await initSurvey(framework, {
       "logoPosition": "right",
       "focusFirstQuestionAutomatic": false,
@@ -55,9 +55,6 @@ frameworks.forEach(framework => {
             {
               "type": "matrixdropdown",
               "name": "matrix",
-              "width": "800px",
-              "minWidth": "800px",
-              "maxWidth": "800px",
               "columns": [
                 {
                   "name": "col1"
@@ -106,8 +103,7 @@ frameworks.forEach(framework => {
       ]
     });
     //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
-
-    const questionRoot = Selector(".sd-question");
+    const questionRoot = Selector(".sd-row");
     await checkElementScreenshot("question-matrix-dropdown-columns.png", questionRoot, t);
   });
 

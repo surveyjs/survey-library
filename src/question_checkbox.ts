@@ -142,6 +142,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public set maxSelectedChoices(val: number) {
     if (val < 0) val = 0;
     this.setPropertyValue("maxSelectedChoices", val);
+    this.filterItems();
   }
   /**
    * Return the selected items in the checkbox. Returns empty array if the value is empty

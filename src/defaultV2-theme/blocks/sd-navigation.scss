@@ -5,3 +5,12 @@
     padding: calcSize(2) calcSize(8);
   }
 }
+.sd-root-modern--mobile .sd-body__navigation {
+  .sv-action:not(.sv-action--hidden),
+  .sd-btn {
+    flex-grow: 1;
+  }
+  .sd-btn {
+    padding: calcSize(2) calcSize(4);
+  }
+}

@@ -7,6 +7,10 @@
     }
   }
 }
+.sd-root-modern--mobile .sd-page {
+  padding-top: calcSize(2);
+}
+
 .sd-page {
   position: relative;
   display: flex;

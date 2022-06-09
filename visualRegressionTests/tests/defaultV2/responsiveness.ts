@@ -287,4 +287,57 @@ frameworks.forEach(framework => {
     await t.hover(".sv-ranking-item");
     await checkElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t);
   });
+  test("check survey layout in mobile mode", async(t) => {
+    await t.resizeWindow(600, 1080);
+    await initSurvey(framework,
+      {
+        description: "Survey Description",
+        title: "Title",
+        widthMode: "static",
+        pages: [{
+          name: "page1",
+          title: "Page1",
+          description: "description",
+          elements: [{
+            type: "text",
+            name: "q1",
+            title: "Question 1",
+          },
+          {
+            type: "text",
+            name: "q2",
+            title: "Question 2",
+          },
+
+          ]
+
+        },
+        {
+          name: "page2",
+          title: "Page2",
+          description: "description",
+          elements: [{
+            type: "text",
+            name: "q3",
+            title: "Question 3",
+          },
+          {
+            type: "text",
+            name: "q2",
+            title: "Question 4",
+          },
+          ]
+        }
+        ]
+      }
+    );
+    //in mobile mode static = responsive
+    await checkElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t);
+    await ClientFunction(() => { (window as any).survey.widthMode = "responsive"; })();
+    await checkElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t);
+    await ClientFunction(() => { (window as any).survey.nextPage(); })();
+    await checkElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t);
+    await ClientFunction(() => { (window as any).survey.widthMode = "static"; })();
+    await checkElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t);
+  });
 });

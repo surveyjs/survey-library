@@ -246,7 +246,7 @@
     padding-top: calcSize(1);
     margin-bottom: calcSize(-2);
   }
-  .sd-table__cell--row-text {
+  .sd-table__cell--row-text:not(.sd-matrix__cell) {
     color: $foreground-light;
     padding-top: calcSize(2);
   }

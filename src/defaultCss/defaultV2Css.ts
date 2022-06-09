@@ -13,6 +13,7 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
+  headerClose: "sd-hidden",
   navigationButton: "",
   bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",

@@ -4,4 +4,4 @@
   [disabled]="question.isInputReadOnly"
   [class]="question.cssClasses.other">
 </textarea>
-<div *ngIf="question.isReadOnlyRenderDiv()" data-bind="text: question.comment"></div>
+<div *ngIf="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>

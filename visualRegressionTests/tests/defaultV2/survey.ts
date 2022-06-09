@@ -112,7 +112,7 @@ frameworks.forEach(framework => {
     await t.click(Selector("li").nth(1));
     await checkElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t);
   });
-  test("Check survey with progress top buttons", async (t) => {
+  test("Check survey with custom navigation", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, json);
     await ClientFunction(() => {

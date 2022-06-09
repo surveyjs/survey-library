@@ -5,7 +5,8 @@ import { Component, Input } from "@angular/core";
 
 @Component({
   templateUrl: "./survey-nav-btn.component.html",
-  selector: "sv-ng-nav-btn"
+  selector: "sv-ng-nav-btn",
+  styles: [":host { display: contents; }"]
 })
 export class SurveyNavigationButton {
   @Input() public model!: Action;

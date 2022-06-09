@@ -306,6 +306,7 @@ frameworks.forEach(framework => {
       .expect(Selector(".sv-string-viewer").withText(oldOtherText).count).eql(2)
       .expect(Selector(".sv-string-viewer").withText(newOtherText).count).eql(0);
     await ClientFunction(() => {
+      const newOtherText = "New Other";
       window["survey"].getQuestionByName("car").otherText = newOtherText;
       window["survey"].getQuestionByName("carss").otherText = newOtherText;
     })();

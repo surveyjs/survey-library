@@ -7,7 +7,7 @@
   width: calcSize(1);
   height: calcSize(1);
   border-radius: 50%;
-  background-color: $background;
+  background-color: $primary-foreground;
 }
 .sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
   background-color: $border;

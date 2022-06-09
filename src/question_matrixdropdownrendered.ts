@@ -817,7 +817,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     column: MatrixDropdownColumn,
     cell: QuestionMatrixDropdownRenderedCell
   ) {
-    cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
+    cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : this.matrix.getRowTitleWidth();
     cell.width = column != null ? column.width : this.matrix.getRowTitleWidth();
   }
   private setRequriedToHeaderCell(

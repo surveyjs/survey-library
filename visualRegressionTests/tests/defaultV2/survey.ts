@@ -104,7 +104,7 @@ frameworks.forEach(framework => {
       (<any>window).survey.progressBarType = "pages";
       (<any>window).survey.currentPageNo = 1;
     })();
-    await checkElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t);
+    await checkElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t); // title + progress
   });
   test("Check survey with progress top buttons", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -112,7 +112,7 @@ frameworks.forEach(framework => {
     await t.click(Selector("li").nth(1));
     await checkElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t);
   });
-  test("Check survey with progress top buttons", async (t) => {
+  test("Check survey with custom navigation", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, json);
     await ClientFunction(() => {
@@ -120,9 +120,44 @@ frameworks.forEach(framework => {
       (<any>window).survey.currentPageNo = 1;
       (<any>window).survey.addNavigationItem({
         title: "Save",
-        action: () => {}
+        action: () => { }
       });
     })();
     await checkElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t);
+  });
+
+  const testedPages = [{
+    name: "page1",
+    title: "Test",
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  }];
+
+  test("Check survey without title and with progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      pages: testedPages,
+      showProgressBar: "top"
+    });
+    await checkElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t); // progress
+  });
+  test("Check survey without title and progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      pages: testedPages
+    });
+    await checkElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t); // without title and progress
+  });
+  test("Check survey with title and without progress", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      title: "Test",
+      pages: testedPages
+    });
+    await checkElementScreenshot("survey-with-tilte-and-without-progress.png", Selector(".sd-container-modern"), t); // title
   });
 });

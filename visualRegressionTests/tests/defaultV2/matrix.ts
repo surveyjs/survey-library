@@ -42,4 +42,69 @@ frameworks.forEach(framework => {
     const questionRoot = Selector(".sd-question");
     await checkElementScreenshot("question-matrix-detail.png", questionRoot, t);
   });
+
+  test("Matrix many columns", async (t) => {
+    await t.resizeWindow(800, 600);
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "matrix",
+              "columns": [
+                {
+                  "name": "col1"
+                },
+                {
+                  "name": "col2"
+                },
+                {
+                  "name": "col3"
+                },
+                {
+                  "name": "col5"
+                },
+                {
+                  "name": "col6"
+                },
+                {
+                  "name": "col6"
+                },
+                {
+                  "name": "col7"
+                },
+                {
+                  "name": "col8"
+                },
+                {
+                  "name": "col9"
+                },
+                {
+                  "name": "col10"
+                },
+                {
+                  "name": "col11"
+                },
+                {
+                  "name": "col12"
+                }
+              ],
+              "rows": [
+                "item1",
+                "item2"
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+    const questionRoot = Selector(".sd-row");
+    await checkElementScreenshot("question-matrix-dropdown-columns.png", questionRoot, t);
+  });
+
 });

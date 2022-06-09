@@ -647,6 +647,7 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
+  public get newItem(): ItemValue { return this.newItemValue; }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {
       if (!this.newItemValue) {

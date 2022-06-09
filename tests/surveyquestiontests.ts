@@ -4845,51 +4845,45 @@ QUnit.test("maxSelectedChoices in checkbox", function (assert) {
     ],
   });
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  assert.equal(
-    question.choices[0].isEnabled,
-    true,
-    "the first item is enabled"
-  );
+  assert.equal(question.choices[0].isEnabled, true, "the first item is enabled");
   assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled");
-  assert.equal(
-    question.selectAllItem.isEnabled,
-    false,
-    "select all is disabled"
-  );
+  assert.equal(question.selectAllItem.isEnabled, false, "select all is disabled");
   question.value = [2, 3];
-  assert.equal(
-    question.choices[0].isEnabled,
-    false,
-    "the first item is disabled now"
-  );
-  assert.equal(
-    question.choices[1].isEnabled,
-    true,
-    "the second item is selected"
-  );
+  assert.equal(question.choices[0].isEnabled, false, "the first item is disabled now");
+  assert.equal(question.choices[1].isEnabled, true, "the second item is selected");
   assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
   question.value = [2];
-  assert.equal(
-    question.choices[0].isEnabled,
-    true,
-    "the first item is enabled again"
-  );
-  assert.equal(
-    question.otherItem.isEnabled,
-    true,
-    "otherItem is enabled again"
-  );
+  assert.equal(question.choices[0].isEnabled, true, "the first item is enabled again");
+  assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled again");
   question.value = [2, "other"];
-  assert.equal(
-    question.choices[0].isEnabled,
-    false,
-    "the first item is disabled again"
-  );
-  assert.equal(
-    question.otherItem.isEnabled,
-    true,
-    "otherItem is enabled, it is selected"
-  );
+  assert.equal(question.choices[0].isEnabled, false, "the first item is disabled again");
+  assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled, it is selected");
+});
+
+QUnit.test("select items and then set maxSelectedChoices in checkbox", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3, 4, 5],
+        hasSelectAll: true,
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(question.choices[0].isEnabled, true, "the first item is enabled");
+  assert.equal(question.choices[4].isEnabled, true, "the first item is enabled");
+  assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled");
+  question.value = [2, 3];
+  assert.equal(question.choices[0].isEnabled, true, "the first item is enabled");
+  assert.equal(question.choices[1].isEnabled, true, "the second item is selected");
+  assert.equal(question.otherItem.isEnabled, true, "otherItem is enabled");
+  question.maxSelectedChoices = 2;
+  assert.equal(question.choices[0].isEnabled, false, "the first item is disabled now");
+  assert.equal(question.choices[1].isEnabled, true, "the second item is selected");
+  assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
 });
 
 QUnit.test("Matrix Question: columns with true/false values", function (assert) {
@@ -5317,14 +5311,18 @@ QUnit.test(
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var isReadOnly = false;
     q1.setCanShowOptionItemCallback((item: ItemValue): boolean => {
-      return !isReadOnly && (item.value !== "newitem" || q1.choices.length < 3);
+      return !isReadOnly && (item !== q1.newItem || q1.choices.length < 3);
     });
     assert.equal(
       q1.visibleChoices.length,
       6,
       "Show SelectAll+None+hasOther+new: 2+4"
     );
+    assert.equal(q1.visibleChoices[3].value, "newitem");
     q1.choices.push(new ItemValue("item3"));
+    assert.equal(q1.visibleChoices[3].value, "item3");
+    assert.notOk(q1.visibleChoices[3] === q1.newItem, "it is not a new item");
+    assert.equal(q1.visibleChoices[4].value, "none");
     assert.equal(
       q1.visibleChoices.length,
       6,

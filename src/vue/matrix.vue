@@ -21,7 +21,7 @@
             :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses || undefined"
           >
-            <td :class="question.cssClasses.cell" v-show="question.hasRows">
+            <td :class="question.cssClasses.rowTextCell" v-show="question.hasRows">
               <survey-string :locString="row.locText" />
             </td>
             <td

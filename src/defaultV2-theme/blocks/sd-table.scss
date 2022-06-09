@@ -19,6 +19,9 @@
   vertical-align: top;
   padding-top: calcSize(1.5);
   padding-bottom: calcSize(3.5);
+  &:not(.sd-table__cell--empty) {
+    min-width: calcSize(14);
+  }
 }
 .sd-table__cell--detail-panel {
   padding: 0 calcSize(1) calcSize(2);
@@ -68,6 +71,7 @@
 .sd-table__cell--row-text {
   font-weight: 600;
   text-align: left;
+  min-width: calcSize(12);
 }
 .sd-table__question-wrapper:not(:focus-within):hover {
   position: relative;
@@ -242,7 +246,7 @@
     padding-top: calcSize(1);
     margin-bottom: calcSize(-2);
   }
-  .sd-table__cell--row-text {
+  .sd-table__cell--row-text:not(.sd-matrix__cell) {
     color: $foreground-light;
     padding-top: calcSize(2);
   }

@@ -5,11 +5,15 @@
   --sd-page-vertical-padding: calc(3 * #{$base-unit});
 }
 
+.svc-creator--mobile .sd-root-modern,
+.sd-root-modern.sd-root-modern--mobile {
+  --sd-base-padding: calc(3 * #{$base-unit});
+  --sd-base-vertical-padding: calc(2 * #{$base-unit});
+  --sd-page-vertical-padding: calc(2 * #{$base-unit});
+}
+
 .sd-root-modern {
   &.sd-root-modern--mobile {
-    --sd-base-padding: calc(3 * #{$base-unit});
-    --sd-base-vertical-padding: calc(2 * #{$base-unit});
-    --sd-page-vertical-padding: calc(2 * #{$base-unit});
     .sd-element__num {
       @include num_inline();
     }

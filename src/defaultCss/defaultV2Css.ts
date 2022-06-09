@@ -13,6 +13,7 @@ export var defaultV2Css = {
   logo: "sd-logo",
   logoImage: "sd-logo__image",
   headerText: "sd-header__text",
+  headerClose: "sd-hidden",
   navigationButton: "",
   bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
@@ -91,6 +92,7 @@ export var defaultV2Css = {
   progressTextInBar: "sd-hidden",
   page: {
     root: "sd-page sd-body__page",
+    emptyHeaderRoot: "sd-page__empty-header",
     title: "sd-title sd-page__title",
     description: "sd-description sd-page__description"
   },
@@ -290,6 +292,7 @@ export var defaultV2Css = {
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     headerCell: "sd-table__cell sd-table__cell--header",
+    rowTextCell: "sd-table__cell sd-matrix__cell sd-table__cell--row-text",
     label: "sd-item sd-radio sd-matrix__label",
     itemOnError: "sd-item--error",
     itemValue: "sd-visuallyhidden sd-item__control sd-radio__control",

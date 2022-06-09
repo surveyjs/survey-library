@@ -142,7 +142,16 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string) {
-    if (value == this.getLocaleTextWithDefault(loc)) return;
+    if (value == this.getLocaleTextWithDefault(loc)) {
+      if(!!value || !!loc && loc !== settings.defaultLocaleName) return;
+      let dl = surveyLocalization.defaultLocale;
+      let oldValue = this.getValue(dl);
+      if(!!dl && !!oldValue) {
+        this.setValue(dl, value);
+        this.fireStrChanged(oldValue, value);
+      }
+      return;
+    }
     if (
       value &&
       loc &&
@@ -174,6 +183,9 @@ export class LocalizableString implements ILocalizableString {
         }
       }
     }
+    this.fireStrChanged(oldValue, value);
+  }
+  private fireStrChanged(oldValue: string, value: string) {
     this.strChanged();
     if (!!this.onStrChanged && oldValue !== value) {
       this.onStrChanged(oldValue, value);

@@ -58,7 +58,7 @@
   <div [class]="model.cssClasses.fileList || undefined" *ngIf="!model.isEmpty()">
     <span
       *ngFor="let val of model.previewValue; index as index; trackBy: trackFilesFn"
-      [style.display]="val && model.isPreviewVisible(index) ? null : 'none'"
+      [visible]="val && model.isPreviewVisible(index)"
       [class]="model.cssClasses.preview"
     >
       <div *ngIf="val.name && model.cssClasses.fileSign" [class]="model.cssClasses.fileSign">

@@ -48,8 +48,9 @@ import { PopupService } from "./components/popup/popup.service";
 import { SurveyNavigationButton } from "./components/survey-actions/survey-nav-btn.component";
 import { MatrixQuestionComponent } from "./questions/matrix.component";
 import { SvgIconComponent } from "./components/svg-icon/svg-icon.component";
-import { FileQuestionComponent, SafeUrlPipe } from "./questions/file.component";
-
+import { FileQuestionComponent, } from "./questions/file.component";
+import { VisibleDirective } from "./utils/ng-show.directive";
+import { SafeUrlPipe } from "./utils/safe-url.pipe";
 @NgModule({
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, PanelComponent, QuestionComponent, QuestionContentComponent, StringViewerComponent,
@@ -59,7 +60,7 @@ import { FileQuestionComponent, SafeUrlPipe } from "./questions/file.component";
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, VisibleDirective
   ],
   imports: [
     CommonModule, FormsModule

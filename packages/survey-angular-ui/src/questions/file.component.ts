@@ -14,13 +14,5 @@ export class FileQuestionComponent extends QuestionAngular<QuestionFileModel> {
     return this.model.inputId + "_" + index;
   }
 }
-//temp: disables angular sanitizer, which breaks a links
-@Pipe({ name: "safeUrl" })
-export class SafeUrlPipe implements PipeTransform {
-  constructor(private domSanitizer: DomSanitizer) {}
-  transform(url: string): SafeUrl {
-    return this.domSanitizer.bypassSecurityTrustUrl(url);
-  }
-}
 
 AngularComponentFactory.Instance.registerComponent("file-question", FileQuestionComponent);

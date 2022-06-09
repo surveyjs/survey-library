@@ -4,7 +4,7 @@
     <table [class]="model.cssClasses.root">
       <thead *ngIf="model.showHeader">
         <tr>
-          <td [style.display]="!model.hasRows ? 'none': null"></td>
+          <td [visible]="model.hasRows"></td>
           <th
             *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell" 
             [model]="column.locText" sv-ng-string-viewer>
@@ -45,7 +45,7 @@
                     <use [attr.xlink:href]="model.itemSvgIcon"></use>
                   </svg> 
                 </span>
-                <span [style.display]="!model.isMobile ? 'none' : null" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string-viewer></span>
+                <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string-viewer></span>
               </label>
             </td>
           </ng-container>

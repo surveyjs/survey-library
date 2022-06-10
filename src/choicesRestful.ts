@@ -88,6 +88,9 @@ export class ChoicesRestful extends Base {
       }
     }
   }
+  public static onBeforeCreateRequest: (
+    sender: ChoicesRestful
+  ) => void;
   public static onBeforeSendRequest: (
     sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
@@ -220,6 +223,9 @@ export class ChoicesRestful extends Base {
     return parsedResponse;
   }
   protected sendRequest() {
+    if (!!ChoicesRestful.onBeforeCreateRequest) {
+      ChoicesRestful.onBeforeCreateRequest(this);
+    }
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

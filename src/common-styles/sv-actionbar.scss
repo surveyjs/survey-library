@@ -95,13 +95,14 @@ button.sv-action-bar-item {
 .sv-action-bar-item:disabled {
   opacity: 0.25;
   cursor: default;
-  color: $foreground;
+
   .sv-action-bar-item__icon use {
     fill: $foreground;
   }
 }
 
 .sv-action-bar-item__title {
+  color: $foreground;
   vertical-align: middle;
   white-space: nowrap;
 }

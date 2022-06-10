@@ -37,6 +37,11 @@
 .sv-dropdown option {
   color: $text-color;
 }
+.sv-dropdown__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .sv-dropdown_clean-button {
   padding: 3px 12px;
 }

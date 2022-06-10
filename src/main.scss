@@ -86,7 +86,11 @@ body {
     display: flex;
     justify-content: space-between;
   }
-
+  .sv_q_dropdown__value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .sv_q_dropdown_clean-button {
     margin: 0.15em 3em;
   }

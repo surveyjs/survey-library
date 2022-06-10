@@ -195,16 +195,24 @@ frameworks.forEach(framework => {
           name: "q_error",
           title: "What is your name?",
           isRequired: true,
-          colCount: 1,
         }
       ]
-    },);
+    }, {
+      onValidateQuestion: (s, options) => {
+        options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
+      }
+    });
     const qRoot = Selector(".sd-question");
     await t.click(".sd-navigation__complete-btn");
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("question-with-error.png", qRoot, t);
     await t.resizeWindow(600, 1080);
     await checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
+    await t.resizeWindow(1920, 1080);
+    await t.typeText(".sd-input", "some-text");
+    await t.click(".sd-navigation__complete-btn");
+    await checkElementScreenshot("question-with-long-error.png", qRoot, t);
+
   });
   test("Check title location Left", async(t)=> {
     await t.resizeWindow(1920, 1080);

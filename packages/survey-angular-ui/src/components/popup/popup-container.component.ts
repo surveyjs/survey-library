@@ -1,5 +1,6 @@
 import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
+import { PopupBaseViewModel } from "survey-core";
 import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
@@ -7,12 +8,27 @@ import { AngularComponentFactory } from "../../component-factory";
   templateUrl: "./popup-container.component.html"
 })
 
-export class PopupContainerComponent extends BaseAngular {
-  @Input() model: any;
+export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
+  private prevIsVisible: boolean = false;
+  isShow: boolean = false;
+
+  @Input() model!: PopupBaseViewModel;
   @ViewChild("popupContent", { read: ViewContainerRef, static: true }) popupContent!: ViewContainerRef;
 
-  protected getModel() {
+  protected getModel(): PopupBaseViewModel {
     return this.model;
+  }
+
+  ngAfterViewChecked() {
+    setTimeout(() => {
+      if (!this.prevIsVisible && this.model.isVisible) {
+        this.model.updateOnShowing();
+        this.isShow = true;
+      } else {
+        this.isShow = false;
+      }
+      this.prevIsVisible = this.model.isVisible;
+    }, 0);
   }
 
   public createAndBindPopupContent() {

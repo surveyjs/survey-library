@@ -41,7 +41,7 @@ export class QuestionSignaturePadModel extends Question {
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.small, this.width.toString() === "300")
+      .append(cssClasses.small, this.signatureWidth.toString() === "300")
       .toString();
   }
 
@@ -97,8 +97,8 @@ export class QuestionSignaturePadModel extends Question {
     };
     var updateValueHandler = () => {
       var data = this.value;
-      canvas.width = this.width || defaultWidth;
-      canvas.height = this.height || defaultHeight;
+      canvas.width = this.signatureWidth || defaultWidth;
+      canvas.height = this.signatureHeight || defaultHeight;
       resizeCanvas(canvas);
       if (!data) {
         signaturePad.clear();
@@ -110,10 +110,7 @@ export class QuestionSignaturePadModel extends Question {
     this.readOnlyChangedCallback();
     this.signaturePad = signaturePad;
     var propertyChangedHandler = (sender: any, options: any) => {
-      if (options.name === "width" || options.name === "height") {
-        updateValueHandler();
-      }
-      if (options.name === "value") {
+      if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
         updateValueHandler();
       }
     };
@@ -138,21 +135,30 @@ export class QuestionSignaturePadModel extends Question {
   /**
    * Use it to set the specific width for the signature pad.
    */
-  public get width(): string {
-    return this.getPropertyValue("width");
+  public get signatureWidth(): number {
+    return this.getPropertyValue("signatureWidth");
   }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
+  public set signatureWidth(val: number) {
+    this.setPropertyValue("signatureWidth", val);
   }
   /**
    * Use it to set the specific height for the signature pad.
    */
-  public get height(): string {
+  public get signatureHeight(): number {
+    return this.getPropertyValue("signatureHeight");
+  }
+  public set signatureHeight(val: number) {
+    this.setPropertyValue("signatureHeight", val);
+  }
+
+  //todo: need to remove this property
+  public get height(): number {
     return this.getPropertyValue("height");
   }
-  public set height(val: string) {
+  public set height(val: number) {
     this.setPropertyValue("height", val);
   }
+
   /**
    * Use it to clear content of the signature pad.
    */
@@ -197,20 +203,42 @@ export class QuestionSignaturePadModel extends Question {
   get placeHolderText(): string {
     return this.getLocalizationString("signaturePlaceHolder");
   }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    //todo: need to remove this code
+    if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number") {
+      // eslint-disable-next-line no-console
+      console.warn("Use signatureWidth property to set width for the signature pad");
+      this.signatureWidth = this.width;
+      this.width = undefined;
+    }
+    if(this.signatureHeight === 200 && !!this.height) {
+      // eslint-disable-next-line no-console
+      console.warn("Use signatureHeight property to set width for the signature pad");
+      this.signatureHeight = this.height;
+      this.height = undefined;
+    }
+  }
 }
 
 Serializer.addClass(
   "signaturepad",
   [
     {
-      name: "width:number",
+      name: "signatureWidth:number",
       category: "general",
       default: 300,
     },
     {
-      name: "height:number",
+      name: "signatureHeight:number",
       category: "general",
       default: 200,
+    },
+    //need to remove this property
+    {
+      name: "height:number",
+      category: "general",
+      visible: false
     },
     {
       name: "allowClear:boolean",

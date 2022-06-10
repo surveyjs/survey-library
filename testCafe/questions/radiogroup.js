@@ -249,3 +249,69 @@ frameworks.forEach((framework) => {
     assert.equal(json.choices[0].text, newTitle);
   });
 });
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+
+  test("otherText changed", async t => {
+    const currentJson = {
+      title: "Survey New Design Test",
+      description: "Survey Description",
+      logoPosition: "left",
+      questions: [
+        {
+          type: "checkbox",
+          name: "car",
+          title: "Checkbox",
+          hasOther: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "radiogroup",
+          name: "carss",
+          title: "Radiogroup",
+          hasOther: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+      ]
+    };
+    const oldOtherText = "Other (describe)";
+    const newOtherText = "New Other";
+    await initSurvey(framework, currentJson);
+    await t
+      .expect(Selector(".sv-string-viewer").withText(oldOtherText).count).eql(2)
+      .expect(Selector(".sv-string-viewer").withText(newOtherText).count).eql(0);
+    await ClientFunction(() => {
+      const newOtherText = "New Other";
+      window["survey"].getQuestionByName("car").otherText = newOtherText;
+      window["survey"].getQuestionByName("carss").otherText = newOtherText;
+    })();
+    await t
+      .expect(Selector(".sv-string-viewer").withText(oldOtherText).count).eql(0)
+      .expect(Selector(".sv-string-viewer").withText(newOtherText).count).eql(2);
+  });
+});

@@ -17,6 +17,7 @@ import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
 import { englishStrings } from "../src/localization/english";
 import { SurveyModel } from "../src/survey";
+import { CalculatedValue } from "../src/calculatedValue";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2718,4 +2719,29 @@ QUnit.test("base.isDescendantOf", function (assert) {
   assert.equal(dealer.isDescendantOf("customdealer"), true, "customdealer->customdealer");
   assert.equal(dealer.isDescendantOf("dealer"), true, "customdealer->dealer");
   assert.equal(dealer.isDescendantOf("car"), false, "customdealer->car");
+});
+QUnit.test("Add custom calculatedValues property into survey, isArray attribute", function (assert) {
+  const prop = Serializer.addProperty("survey", {
+    name: "customFunctions:calculatedvalues",
+    className: "calculatedvalue",
+    isArray: true
+  });
+  assert.equal(prop.isArray, true, "Custom property is array");
+  const survey = new SurveyModel();
+  let funcs = <Array<CalculatedValue>>survey.customFunctions;
+  assert.equal(funcs.length, 0, "It is false by default");
+  const func = new CalculatedValue("func1", "testFunc");
+  funcs.push(func);
+  assert.equal(funcs.length, 1, "It is false by default");
+  const json = survey.toJSON();
+  const expectedJson = { customFunctions: [{ name: "func1", expression: "testFunc" }] };
+  assert.deepEqual(json, expectedJson, "Serialized successful");
+  const survey2 = new SurveyModel();
+  survey2.fromJSON(json);
+  funcs = <Array<CalculatedValue>>survey2.customFunctions;
+  assert.equal(funcs.length, 1, "Deserialized one item");
+  assert.equal(funcs[0].name, "func1", "Deserialized item name");
+  assert.equal(funcs[0].expression, "testFunc", "Deserialized item expression");
+  assert.equal(funcs[0].getType(), "calculatedvalue", "Deserialized item has correct type");
+  Serializer.removeProperty("survey", "customFunctions");
 });

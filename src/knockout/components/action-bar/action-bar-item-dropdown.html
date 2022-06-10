@@ -1,5 +1,5 @@
 <!-- ko with: $data.item -->
-<button class="sv-action-bar-item-dropdown" type="button"
+<button type="button"
   data-bind="click: action, key2click: { processEsc: false }, css: getActionBarItemCss(), attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title }">
   <!-- ko if: $data.iconName -->
   <sv-svg-icon data-bind="css: $data.cssClasses.itemIcon" params="iconName: iconName, size: iconSize"></sv-svg-icon>

@@ -541,7 +541,7 @@ export class CustomPropertiesCollection {
       Object.defineProperty(obj, prop.name, desc);
     } else {
       var defaultValue = prop.defaultValue;
-      var isArrayProp = false;
+      var isArrayProp = prop.isArray || prop.type === "multiplevalues";
       if (typeof obj.createNewArray === "function") {
         if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
           obj.createNewArray(prop.name, function (item: any) {
@@ -549,11 +549,11 @@ export class CustomPropertiesCollection {
             item.ownerPropertyName = prop.name;
           });
           isArrayProp = true;
-        }
-        //It is a simple array property
-        if (prop.type === "multiplevalues") {
-          obj.createNewArray(prop.name);
-          isArrayProp = true;
+        } else {
+          //It is a simple array property
+          if (isArrayProp) {
+            obj.createNewArray(prop.name);
+          }
         }
         if (isArrayProp) {
           if (Array.isArray(defaultValue)) {
@@ -685,6 +685,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isUnique)) {
         prop.isUnique = propInfo.isUnique;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isArray)) {
+        prop.isArray = propInfo.isArray;
       }
       if (propInfo.visible === true || propInfo.visible === false) {
         prop.visible = propInfo.visible;

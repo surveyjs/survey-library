@@ -78,7 +78,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       >
         <fieldset>
           <legend aria-label={this.question.locTitle.renderedHtml} />
-          <table className={cssClasses.root}>
+          <table className={this.question.getTableCss()}>
             {header}
             <tbody>{rows}</tbody>
           </table>

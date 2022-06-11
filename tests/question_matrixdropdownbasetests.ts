@@ -66,3 +66,26 @@ QUnit.test("visible attribute for min property  should return true for text ques
   (<any>column).inputType = "text";
   assert.equal(property.visibleIf(column), false, "inputType is text");
 });
+QUnit.test("table vertical align and alternate rows", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+      },
+    ],
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+
+  matrix.cssClasses.root = "rootClass";
+  matrix.cssClasses.rootAlternateRows = "rootAlternateRowsClass";
+  matrix.cssClasses.rootVerticalAlignTop = "rootVerticalAlignTopClass";
+  matrix.cssClasses.rootVerticalAlignMiddle = "rootVerticalAlignMiddleClass";
+
+  assert.equal(matrix.getTableCss(), "rootClass rootVerticalAlignMiddleClass", "table css is rootVerticalAlignMiddleClass");
+  matrix.verticalAlign = "top";
+  assert.equal(matrix.getTableCss(), "rootClass rootVerticalAlignTopClass", "default table css is rootVerticalAlignTopClass");
+  matrix.alternateRows = true;
+  assert.equal(matrix.getTableCss(), "rootClass rootAlternateRowsClass rootVerticalAlignTopClass", "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass");
+});

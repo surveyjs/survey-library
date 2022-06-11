@@ -1,9 +1,10 @@
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A Model for a matrix base question.
@@ -265,6 +266,17 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     //TODO: make it mor intelligent
     return true;
   }
+
+  public getTableCss() :string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootAlternateRows, this.alternateRows)
+      .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
+      .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
+  }
+
+  @property({ defaultValue: "middle" }) verticalAlign: "top"|"middle";
+  @property({ defaultValue: false }) alternateRows: boolean;
 }
 
 Serializer.addClass(
@@ -272,7 +284,13 @@ Serializer.addClass(
   [
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
-    { name: "showHeader:boolean", default: true }
+    { name: "showHeader:boolean", default: true },
+    {
+      name: "verticalAlign",
+      choices: ["top", "middle"],
+      default: "middle",
+    },
+    "alternateRows:boolean",
   ],
   undefined,
   "question"

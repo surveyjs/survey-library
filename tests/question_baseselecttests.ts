@@ -3,9 +3,9 @@ import { SurveyModel } from "../src/survey";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { QuestionButtonGroupModel } from "../src/question_buttongroup";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("baseselect");
 
@@ -383,4 +383,136 @@ QUnit.test("check focus comment of other select", (assert) => {
   const q = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
   assert.notEqual(q.value, q.otherItem.value, "Other is not selected");
   assert.equal(q.value, "item2", "item2 is selected");
+});
+QUnit.test("checkbox and valuePropertyName", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.valuePropertyName = "fruit";
+  q.renderedValue = ["apple"];
+  assert.deepEqual(q.value, [{ fruit: "apple" }], "#1");
+  assert.deepEqual(q.renderedValue, ["apple"], "#2");
+  assert.equal(q.isItemSelected(q.choices[0]), true, "#2.1");
+  assert.equal(q.isItemSelected(q.choices[1]), false, "#2.2");
+  assert.equal(q.isItemSelected(q.choices[2]), false, "#2.3");
+  q.value = [{ fruit: "apple" }, { fruit: "orange" }];
+  assert.deepEqual(q.renderedValue, ["apple", "orange"], "#3");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple" }, { fruit: "orange" }] }, "convert to data correctly, #4");
+  assert.equal(q.isItemSelected(q.choices[0]), true, "#3.1");
+  assert.equal(q.isItemSelected(q.choices[1]), false, "#3.2");
+  assert.equal(q.isItemSelected(q.choices[2]), true, "#3.3");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple" }, { fruit: "orange" }] }, "survey.data is correct on complete, #5");
+});
+QUnit.test("checkbox valuePropertyName and shared data vs panel dynamic ", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        valueName: "data",
+        valuePropertyName: "fruit",
+        choices: ["apple", "banana", "orange"],
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        panelCount: 0,
+        valueName: "data",
+        templateElements: [
+          {
+            type: "text",
+            name: "name"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  q1.renderedValue = ["apple", "orange"];
+  assert.equal(q2.panelCount, 2, "#1, Panel count is changed");
+  q2.panels[0].getQuestionByName("name").value = "text1";
+  q2.panels[1].getQuestionByName("name").value = "text2";
+  assert.deepEqual(survey.data, { data: [
+    { fruit: "apple", name: "text1" },
+    { fruit: "orange", name: "text2" }] }, "#2, combine results");
+  q1.renderedValue = ["apple"];
+  assert.deepEqual(survey.data, { data: [
+    { fruit: "apple", name: "text1" }] }, "#3, keep results");
+  q1.renderedValue = ["apple", "orange"];
+  assert.deepEqual(survey.data, { data: [
+    { fruit: "apple", name: "text1" },
+    { fruit: "orange" }] }, "#4, add new value");
+  q2.removePanel(0);
+  assert.deepEqual(survey.data, { data: [
+    { fruit: "orange" }] }, "#5, remove panel, data");
+  assert.deepEqual(q1.renderedValue, ["orange"], "#6, remove panel, renderedValue");
+});
+QUnit.test("checkbox vs valuePropertyName, check selectAll and none", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        hasNone: true,
+        hasSelectAll: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.toggleSelectAll();
+  assert.deepEqual(q.renderedValue, ["apple", "banana", "orange"], "#1");
+  assert.deepEqual(q.value, [{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }], "#2");
+  assert.equal(q.isAllSelected, true, "#3, all is selected");
+  q.renderedValue = ["none"];
+  assert.deepEqual(q.value, [{ fruit: "none" }], "#4");
+  assert.equal(q.isAllSelected, false, "#5, all is not selected");
+});
+QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        hasOther: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.renderedValue = ["other"];
+  assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
+  q.comment = "text1";
+  assert.deepEqual(survey.data, { q1: [{ fruit: "other" }], "q1-Comment": "text1" }, "2");
+});
+QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        hasOther: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.renderedValue = ["other"];
+  assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
+  q.comment = "text1";
+  assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
 });

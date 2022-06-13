@@ -2494,7 +2494,7 @@ export class SurveyModel extends SurveyElementCore
         result[key] = dataValue;
       }
     }
-    this.setCalcuatedValuesIntoResult(result);
+    this.setCalculatedValuesIntoResult(result);
     return result;
   }
   public set data(data: any) {
@@ -2555,7 +2555,7 @@ export class SurveyModel extends SurveyElementCore
   public get isEditingSurveyElement(): boolean {
     return !!this.editingObj;
   }
-  private setCalcuatedValuesIntoResult(result: any) {
+  private setCalculatedValuesIntoResult(result: any) {
     for (var i = 0; i < this.calculatedValues.length; i++) {
       var calValue = this.calculatedValues[i];
       if (
@@ -5469,7 +5469,7 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getFirstName(name);
     if (question) {
       textValue.isExists = true;
-      var firstName = question.getValueName().toLowerCase();
+      const firstName = question.getValueName().toLowerCase();
       name = firstName + name.substr(firstName.length);
       name = name.toLocaleLowerCase();
       var values: { [index: string]: any } = {};
@@ -5479,11 +5479,27 @@ export class SurveyModel extends SurveyElementCore
       textValue.value = new ProcessValue().getValue(name, values);
       return;
     }
+    this.getProcessedValuesWithoutQuestion(textValue);
+  }
+  private getProcessedValuesWithoutQuestion(textValue: TextPreProcessorValue): void {
     var value = this.getValue(textValue.name);
     if (value !== undefined) {
       textValue.isExists = true;
       textValue.value = value;
+      return;
     }
+    const processor = new ProcessValue();
+    const firstName = processor.getFirstName(textValue.name);
+    if(firstName === textValue.name) return;
+    const data: any = {};
+    let val = this.getValue(firstName);
+    if(Helpers.isValueEmpty(val)) {
+      val = this.getVariable(firstName);
+    }
+    if(Helpers.isValueEmpty(val)) return;
+    data[firstName] = val;
+    textValue.value = processor.getValue(textValue.name, data);
+    textValue.isExists = processor.hasValue(textValue.name, data);
   }
   private getFirstName(name: string): IQuestion {
     name = name.toLowerCase();

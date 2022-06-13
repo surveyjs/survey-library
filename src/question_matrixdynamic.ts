@@ -591,7 +591,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   /**
-   * By default the 'Add Row' button is shown on bottom if columnLayout is horizontal and on top if columnLayout is vertical. <br/>
+   * By default the 'Add Row' button is shown on bottom if columnLayout is horizontal and on top if columnLayout is vertical.
    * You may set it to "top", "bottom" or "topBottom" (to show on top and bottom).
    * @see columnLayout
    */

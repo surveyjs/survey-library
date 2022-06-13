@@ -65,9 +65,9 @@ export class Question extends SurveyElement
 
   /**
    * The event is fired when isReady property of question is changed.
-   * <br/> options.question - the question
-   * <br/> options.isReady - current value of isReady
-   * <br/> options.oldIsReady - old value of isReady
+   * options.question - the question
+   * options.isReady - current value of isReady
+   * options.oldIsReady - old value of isReady
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 

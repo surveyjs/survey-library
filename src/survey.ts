@@ -96,28 +96,28 @@ export class SurveyModel extends SurveyElementCore
   //#region Event declarations
   /**
    * The event is fired after a trigger has been executed
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.trigger` - An instance of a trigger that has been just perform it's action.
+   * `sender` - the survey object that fires the event.
+   * `options.trigger` - An instance of a trigger that has been just perform it's action.
    * @see onComplete
    */
    public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
-   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
+   * `sender` - the survey object that fires the event.
+   * `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
+   * `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
    * @see onComplete
    */
   public onCompleting: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired after a user clicks the 'Complete' button and finishes a survey. Use this event to send the survey data to your web server.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.showDataSaving(text)` - call this method to show that the survey is saving survey data on your server. The `text` is an optional parameter to show a custom message instead of default.
-   * <br/> `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
-   * <br/> `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
-   * <br/> `options.showDataSavingClear` - call this method to hide the text about the saving progress.
-   * <br/> `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
+   * `sender` - the survey object that fires the event.
+   * `options.showDataSaving(text)` - call this method to show that the survey is saving survey data on your server. The `text` is an optional parameter to show a custom message instead of default.
+   * `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
+   * `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
+   * `options.showDataSavingClear` - call this method to hide the text about the saving progress.
+   * `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
    *  @see data
    * @see clearInvisibleValues
    * @see completeLastPage
@@ -127,8 +127,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired before the survey is going to preview mode, state equals to `preview`. It happens when a user click on "Preview" button. It shows when "showPreviewBeforeComplete" proeprty equals to "showAllQuestions" or "showAnsweredQuestions".
    * You can prevent showing it by setting allowShowPreview to `false`.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.allowShowPreview` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
+   * `sender` - the survey object that fires the event.
+   * `options.allowShowPreview` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
    * @see showPreviewBeforeComplete
    */
   public onShowingPreview: EventBase<SurveyModel> = this.addEvent<
@@ -137,8 +137,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired after a user clicks the 'Complete' button. The event allows you to specify the URL opened after completing a survey.
    * Specify the `navigateToUrl` property to make survey navigate to another url.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.url` - Specifies a URL opened after completing a survey. Set this property to an empty string to cancel the navigation and show the completed survey page.
+   * `sender` - the survey object that fires the event.
+   * `options.url` - Specifies a URL opened after completing a survey. Set this property to an empty string to cancel the navigation and show the completed survey page.
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
@@ -151,18 +151,18 @@ export class SurveyModel extends SurveyElementCore
   public onStarted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on clicking the 'Next' button if the `sendResultOnPageNext` is set to `true`. You can use it to save the intermediate results, for example, if your survey is large enough.
-   * <br/> `sender` - the survey object that fires the event.
+   * `sender` - the survey object that fires the event.
    * @see sendResultOnPageNext
    */
   public onPartialSend: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired before the current page changes to another page. Typically it happens when a user click the 'Next' or 'Prev' buttons.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `option.oldCurrentPage` - the previous current/active page.
-   * <br/> `option.newCurrentPage` - a new current/active page.
-   * <br/> `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
-   * <br/> `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
-   * <br/> `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
+   * `sender` - the survey object that fires the event.
+   * `option.oldCurrentPage` - the previous current/active page.
+   * `option.newCurrentPage` - a new current/active page.
+   * `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
+   * `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
+   * `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -175,11 +175,11 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired when the current page has been changed to another page. Typically it happens when a user click on 'Next' or 'Prev' buttons.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `option.oldCurrentPage` - a previous current/active page.
-   * <br/> `option.newCurrentPage` - a new current/active page.
-   * <br/> `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
-   * <br/> `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
+   * `sender` - the survey object that fires the event.
+   * `option.oldCurrentPage` - a previous current/active page.
+   * `option.newCurrentPage` - a new current/active page.
+   * `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
+   * `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -192,11 +192,11 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before the question value (answer) is changed. It can be done via UI by a user or programmatically on calling the `setValue` method.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the value name that has being changed.
-   * <br/> `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is null.
-   * <br/> `options.oldValue` - an old, previous value.
-   * <br/> `options.value` - a new value. You can change it.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - the value name that has being changed.
+   * `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is null.
+   * `options.oldValue` - an old, previous value.
+   * `options.value` - a new value. You can change it.
    * @see setValue
    * @see onValueChanged
    */
@@ -204,10 +204,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired when the question value (i.e., answer) has been changed. The question value can be changed in UI (by a user) or programmatically (on calling `setValue` method).
    * Use the `onDynamicPanelItemValueChanged` and `onMatrixCellValueChanged` events to handle changes in a question in the Panel Dynamic and a cell question in matrices.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the value name that has been changed.
-   * <br/> `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is `null`.
-   * <br/> `options.value` - a new value.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - the value name that has been changed.
+   * `options.question` - a question which `question.name` equals to the value name. If there are several questions with the same name, the first question is used. If there is no such questions, the `options.question` is `null`.
+   * `options.value` - a new value.
    * @see setValue
    * @see onValueChanging
    * @see onDynamicPanelItemValueChanged
@@ -216,9 +216,9 @@ export class SurveyModel extends SurveyElementCore
   public onValueChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired when setVariable function is called. It can be called on changing a calculated value.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the variable name that has been changed.
-   * <br/> `options.value` - a new value.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - the variable name that has been changed.
+   * `options.value` - a new value.
    * @see setVariable
    * @see onValueChanged
    * @see calculatedValues
@@ -226,10 +226,10 @@ export class SurveyModel extends SurveyElementCore
   public onVariableChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired when a question visibility has been changed.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question which visibility has been changed.
-   * <br/> `options.name` - a question name.
-   * <br/> `options.visible` - a question `visible` boolean value.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question which visibility has been changed.
+   * `options.name` - a question name.
+   * `options.visible` - a question `visible` boolean value.
    * @see Question.visibile
    * @see Question.visibileIf
    */
@@ -238,9 +238,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on changing a page visibility.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.page` - a page which visibility has been changed.
-   * <br/> `options.visible` - a page `visible` boolean value.
+   * `sender` - the survey object that fires the event.
+   * `options.page` - a page which visibility has been changed.
+   * `options.visible` - a page `visible` boolean value.
    * @see PageModel.visibile
    * @see PageModel.visibileIf
    */
@@ -249,9 +249,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on changing a panel visibility.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.panel` - a panel which visibility has been changed.
-   * <br/> `options.visible` - a panel `visible` boolean value.
+   * `sender` - the survey object that fires the event.
+   * `options.panel` - a panel which visibility has been changed.
+   * `options.visible` - a panel `visible` boolean value.
    * @see PanelModel.visibile
    * @see PanelModel.visibileIf
    */
@@ -264,8 +264,8 @@ export class SurveyModel extends SurveyElementCore
    * or inside a matrix cell or it can be a text question in multiple text items or inside a panel of a panel dynamic.
    * You can use this event to set up properties to a question based on it's type for all questions, regardless where they are located, on the page or inside a matrix cell.
    * Please note: If you want to use this event for questions loaded from JSON then you have to create survey with empty/null JSON parameter, assign the event and call survey.fromJSON(yourJSON) function.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a newly created question object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a newly created question object.
    * @see Question
    * @see onQuestionAdded
    */
@@ -274,21 +274,21 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on adding a new question into survey.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a newly added question object.
-   * <br/> `options.name` - a question name.
-   * <br/> `options.index` - an index of the question in the container (page or panel).
-   * <br/> `options.parentPanel` - a container where a new question is located. It can be a page or panel.
-   * <br/> `options.rootPanel` - typically, it is a page.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a newly added question object.
+   * `options.name` - a question name.
+   * `options.index` - an index of the question in the container (page or panel).
+   * `options.parentPanel` - a container where a new question is located. It can be a page or panel.
+   * `options.rootPanel` - typically, it is a page.
    * @see Question
    * @see onQuestionCreated
    */
   public onQuestionAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on removing a question from survey.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a removed question object.
-   * <br/> `options.name` - a question name.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a removed question object.
+   * `options.name` - a question name.
    * @see Question
    */
   public onQuestionRemoved: EventBase<SurveyModel> = this.addEvent<
@@ -296,37 +296,37 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on adding a panel into survey.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.panel` - a newly added panel object.
-   * <br/> `options.name` - a panel name.
-   * <br/> `options.index` - an index of the panel in the container (a page or panel).
-   * <br/> `options.parentPanel` - a container (a page or panel) where a new panel is located.
-   * <br/> `options.rootPanel` - a root container, typically it is a page.
+   * `sender` - the survey object that fires the event.
+   * `options.panel` - a newly added panel object.
+   * `options.name` - a panel name.
+   * `options.index` - an index of the panel in the container (a page or panel).
+   * `options.parentPanel` - a container (a page or panel) where a new panel is located.
+   * `options.rootPanel` - a root container, typically it is a page.
    * @see PanelModel
    */
   public onPanelAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on removing a panel from survey.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.panel` - a removed panel object.
-   * <br/> `options.name` - a panel name.
+   * `sender` - the survey object that fires the event.
+   * `options.panel` - a removed panel object.
+   * `options.name` - a panel name.
    * @see PanelModel
    */
   public onPanelRemoved: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on adding a page into survey.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.page` - a newly added `panel` object.
+   * `sender` - the survey object that fires the event.
+   * `options.page` - a newly added `panel` object.
    * @see PanelModel
    */
   public onPageAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on validating value in a question. You can specify a custom error message using `options.error`. The survey blocks completing the survey or going to the next page when the error messages are displayed.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a validated question.
-   * <br/> `options.name` - a question name.
-   * <br/> `options.value` - the current question value (answer).
-   * <br/> `options.error` - an error string. It is empty by default.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a validated question.
+   * `options.name` - a question name.
+   * `options.value` - the current question value (answer).
+   * `options.error` - an error string. It is empty by default.
    * @see onServerValidateQuestions
    * @see onSettingQuestionErrors
    */
@@ -335,9 +335,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before errors are assigned to a question. You may add/remove/modify errors for a question.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a validated question.
-   * <br/> `options.errors` - the list of errors. The list is empty by default and remains empty if a validated question has no errors.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a validated question.
+   * `options.errors` - the list of errors. The list is empty by default and remains empty if a validated question has no errors.
    * @see onValidateQuestion
    */
   public onSettingQuestionErrors: EventBase<SurveyModel> = this.addEvent<
@@ -345,37 +345,37 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to validate data on your server.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.data` - the values of all non-empty questions on the current page. You can get a question value as `options.data["myQuestionName"]`.
-   * <br/> `options.errors` - set your errors to this object as: `options.errors["myQuestionName"] = "Error text";`. It will be shown as a question error.
-   * <br/> `options.complete()` - call this function to tell survey that your server callback has been processed.
+   * `sender` - the survey object that fires the event.
+   * `options.data` - the values of all non-empty questions on the current page. You can get a question value as `options.data["myQuestionName"]`.
+   * `options.errors` - set your errors to this object as: `options.errors["myQuestionName"] = "Error text";`. It will be shown as a question error.
+   * `options.complete()` - call this function to tell survey that your server callback has been processed.
    * @see onValidateQuestion
    * @see onValidatePanel
    */
   public onServerValidateQuestions: any = this.addEvent<SurveyModel>();
   /**
    * Use this event to modify the HTML before rendering, for example HTML on a completed page.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.html` - an HTML that you may change before text processing and then rendering.
+   * `sender` - the survey object that fires the event.
+   * `options.html` - an HTML that you may change before text processing and then rendering.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html
    */
   /**
    * The event is fired on validating a panel. Set your error to `options.error` and survey will show the error for the panel and block completing the survey or going to the next page.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - a panel name.
-   * <br/> `options.error` - an error string. It is empty by default.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - a panel name.
+   * `options.error` - an error string. It is empty by default.
    * @see onValidateQuestion
    */
   public onValidatePanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use the event to change the default error text.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.text` - an error text.
-   * <br/> `options.error` - an instance of the `SurveyError` object.
-   * <br/> `options.obj` - an instance of Question, Panel or Survey object to where error is located.
-   * <br/> `options.name` - the error name. The following error names are available:
+   * `sender` - the survey object that fires the event.
+   * `options.text` - an error text.
+   * `options.error` - an instance of the `SurveyError` object.
+   * `options.obj` - an instance of Question, Panel or Survey object to where error is located.
+   * `options.name` - the error name. The following error names are available:
    * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
    * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
    */
@@ -400,9 +400,9 @@ export class SurveyModel extends SurveyElementCore
   public onProcessHtml: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.title` - a calculated question title, based on question `title`, `name`.
-   * <br/> `options.question` - a question object.
+   * `sender` - the survey object that fires the event.
+   * `options.title` - a calculated question title, based on question `title`, `name`.
+   * `options.question` - a question object.
    * @see showQuestionNumbers
    * @see requiredText
    */
@@ -411,9 +411,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to change the element title tag name that renders by default.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.element` - an element (question, panel, page and survey) that SurveyJS is going to render.
-   * <br/> `options.tagName` - an element title tagName that are used to render a title. You can change it from the default value.
+   * `sender` - the survey object that fires the event.
+   * `options.element` - an element (question, panel, page and survey) that SurveyJS is going to render.
+   * `options.tagName` - an element title tagName that are used to render a title. You can change it from the default value.
    * @see showQuestionNumbers
    * @see requiredText
    */
@@ -422,65 +422,65 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.no` - a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it.
-   * <br/> `options.question` - a question object.
+   * `sender` - the survey object that fires the event.
+   * `options.no` - a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it.
+   * `options.question` - a question object.
    * @see showQuestionNumbers
    * @see questionStartIndex
    */
   public onGetQuestionNo: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to change the progress text in code.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.text` - a progress text, that SurveyJS will render in progress bar.
-   * <br/> `options.questionCount` - a number of questions that have input(s). We do not count html or expression questions
-   * <br/> `options.answeredQuestionCount` - a number of questions that have input(s) and an user has answered.
-   * <br/> `options.requiredQuestionCount` - a number of required questions that have input(s). We do not count html or expression questions
-   * <br/> `options.requiredAnsweredQuestionCount` - a number of required questions that have input(s) and an user has answered.
+   * `sender` - the survey object that fires the event.
+   * `options.text` - a progress text, that SurveyJS will render in progress bar.
+   * `options.questionCount` - a number of questions that have input(s). We do not count html or expression questions
+   * `options.answeredQuestionCount` - a number of questions that have input(s) and an user has answered.
+   * `options.requiredQuestionCount` - a number of required questions that have input(s). We do not count html or expression questions
+   * `options.requiredAnsweredQuestionCount` - a number of required questions that have input(s) and an user has answered.
    *  @see progressBarType
    */
   public onProgressText: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to process the markdown text.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
-   * <br/> `options.name` - a property name is going to be rendered.
-   * <br/> `options.text` - a text that is going to be rendered.
-   * <br/> `options.html` - an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`.
+   * `sender` - the survey object that fires the event.
+   * `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * `options.name` - a property name is going to be rendered.
+   * `options.text` - a text that is going to be rendered.
+   * `options.html` - an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`.
    */
   public onTextMarkdown: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to specity render component name used for text rendering.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
-   * <br/> `options.name` - a property name is going to be rendered.
-   * <br/> `options.renderAs` - a component name used for text rendering.
+   * `sender` - the survey object that fires the event.
+   * `options.element` - SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered.
+   * `options.name` - a property name is going to be rendered.
+   * `options.renderAs` - a component name used for text rendering.
    */
   public onTextRenderAs: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.success` - it is `true` if the results has been sent to the service successfully.
-   * <br/> `options.response` - a response from the service.
+   * `sender` - the survey object that fires the event.
+   * `options.success` - it is `true` if the results has been sent to the service successfully.
+   * `options.response` - a response from the service.
    */
   public onSendResult: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use it to get results after calling the `getResult` method. It returns a simple analytics from [api.surveyjs.io](https://api.surveyjs.io) service.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.success` - it is `true` if the results were got from the service successfully.
-   * <br/> `options.data` - the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers.
-   * <br/> `options.dataList` - an array of objects `{name, value}`, where `name` is a unique value/answer to the question and `value` is a number/count of such answers.
-   * <br/> `options.response` - the server response.
+   * `sender` - the survey object that fires the event.
+   * `options.success` - it is `true` if the results were got from the service successfully.
+   * `options.data` - the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers.
+   * `options.dataList` - an array of objects `{name, value}`, where `name` is a unique value/answer to the question and `value` is a number/count of such answers.
+   * `options.response` - the server response.
    * @see getResult
    */
   public onGetResult: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the file question instance.
-   * <br/> `options.name` - the question name.
-   * <br/> `options.files` - the Javascript File objects array to upload.
-   * <br/> `options.callback` - a callback function to get the file upload status and the updloaded file content.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the file question instance.
+   * `options.name` - the question name.
+   * `options.files` - the Javascript File objects array to upload.
+   * `options.callback` - a callback function to get the file upload status and the updloaded file content.
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
@@ -490,11 +490,11 @@ export class SurveyModel extends SurveyElementCore
   public onUploadFiles: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired on downloading a file in QuestionFile. Use this event to pass the file to a preview.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the question name.
-   * <br/> `options.content` - the file content.
-   * <br/> `options.fileValue` - single file question value.
-   * <br/> `options.callback` - a callback function to get the file downloading status and the downloaded file content.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - the question name.
+   * `options.content` - the file content.
+   * `options.fileValue` - single file question value.
+   * `options.callback` - a callback function to get the file downloading status and the downloaded file content.
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
@@ -503,12 +503,12 @@ export class SurveyModel extends SurveyElementCore
   public onDownloadFile: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `question` - the question instance.
-   * <br/> `options.name` - the question name.
-   * <br/> `options.value` - the question value.
-   * <br/> `options.fileName` - a removed file's name, set it to `null` to clear all files.
-   * <br/> `options.callback` - a callback function to get the operation status.
+   * `sender` - the survey object that fires the event.
+   * `question` - the question instance.
+   * `options.name` - the question name.
+   * `options.value` - the question value.
+   * `options.fileName` - a removed file's name, set it to `null` to clear all files.
+   * `options.callback` - a callback function to get the operation status.
    * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
@@ -518,10 +518,10 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired after choices for radiogroup, checkbox, and dropdown has been loaded from a RESTful service and before they are assigned to a question.
    * You may change the choices, before they are assigned or disable/enabled make visible/invisible question, based on loaded results.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `question` - the question where loaded choices are going to be assigned.
-   * <br/> `choices` - the loaded choices. You can change the loaded choices to before they are assigned to question.
-   * <br/> `serverResult` - a result that comes from the server as it is.
+   * `sender` - the survey object that fires the event.
+   * `question` - the question where loaded choices are going to be assigned.
+   * `choices` - the loaded choices. You can change the loaded choices to before they are assigned to question.
+   * `serverResult` - a result that comes from the server as it is.
    */
   public onLoadChoicesFromServer: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -529,7 +529,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired after survey is loaded from api.surveyjs.io service.
    * You can use this event to perform manipulation with the survey model after it was loaded from the web service.
-   * <br/> `sender` - the survey object that fires the event.
+   * `sender` - the survey object that fires the event.
    * @see surveyId
    * @see loadSurveyFromService
    */
@@ -540,81 +540,81 @@ export class SurveyModel extends SurveyElementCore
    * The event is fired on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
    * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
    * you may set on this event `options.value` to "all" or empty string when the "state" value/question is non selected by a user.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.name` - the name of the processing value, for example, "state" in our example.
-   * <br/> `options.value` - the value of the processing text.
-   * <br/> `options.isExists` - a boolean value. Set it to `true` if you want to use the value and set it to `false` if you don't.
+   * `sender` - the survey object that fires the event.
+   * `options.name` - the name of the processing value, for example, "state" in our example.
+   * `options.value` - the value of the processing text.
+   * `options.isExists` - a boolean value. Set it to `true` if you want to use the value and set it to `false` if you don't.
    */
   public onProcessTextValue: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired before rendering a question. Use it to override the default question CSS classes.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question for which you can change the CSS classes.
-   * <br/> `options.cssClasses` - an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question for which you can change the CSS classes.
+   * `options.cssClasses` - an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes.
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired before rendering a panel. Use it to override the default panel CSS classes.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.panel` - a panel for which you can change the CSS classes.
-   * <br/> `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
+   * `sender` - the survey object that fires the event.
+   * `options.panel` - a panel for which you can change the CSS classes.
+   * `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired before rendering a page. Use it to override the default page CSS classes.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.page` - a page for which you can change the CSS classes.
-   * <br/> `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
+   * `sender` - the survey object that fires the event.
+   * `options.page` - a page for which you can change the CSS classes.
+   * `options.cssClasses` - an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes.
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question where choice item is rendered.
-   * <br/> `options.item` - a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
-   * <br/> `options.css` - a string with css classes divided by space. You can change it.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question where choice item is rendered.
+   * `options.item` - a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
+   * `options.css` - a string with css classes divided by space. You can change it.
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired right after survey is rendered in DOM.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.htmlElement` - a root HTML element bound to the survey object.
+   * `sender` - the survey object that fires the event.
+   * `options.htmlElement` - a root HTML element bound to the survey object.
    */
   public onAfterRenderSurvey: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.htmlElement` - an HTML element bound to the survey header object.
+   * `sender` - the survey object that fires the event.
+   * `options.htmlElement` - an HTML element bound to the survey header object.
    */
   public onAfterRenderHeader: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired right after a page is rendered in DOM. Use it to modify HTML elements.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.page` - a page object for which the event is fired. Typically the current/active page.
-   * <br/> `options.htmlElement` - an HTML element bound to the page object.
+   * `sender` - the survey object that fires the event.
+   * `options.page` - a page object for which the event is fired. Typically the current/active page.
+   * `options.htmlElement` - an HTML element bound to the page object.
    */
   public onAfterRenderPage: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired right after a question is rendered in DOM. Use it to modify HTML elements.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question object for which the event is fired.
-   * <br/> `options.htmlElement` - an HTML element bound to the question object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question object for which the event is fired.
+   * `options.htmlElement` - an HTML element bound to the question object.
    */
   public onAfterRenderQuestion: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -622,33 +622,33 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
    * This event is not fired for matrices, panels, multiple text and image picker.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question object for which the event is fired.
-   * <br/> `options.htmlElement` - an HTML element bound to the question object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question object for which the event is fired.
+   * `options.htmlElement` - an HTML element bound to the question object.
    */
   public onAfterRenderQuestionInput: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired right after a panel is rendered in DOM. Use it to modify HTML elements.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.panel` - a panel object for which the event is fired
-   * <br/> `options.htmlElement` - an HTML element bound to the panel object
+   * `sender` - the survey object that fires the event
+   * `options.panel` - a panel object for which the event is fired
+   * `options.htmlElement` - an HTML element bound to the panel object
    */
   public onAfterRenderPanel: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event occurs when an element within a question gets focus.
-   * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
-   * <br/> `options.question` - A [question](https://surveyjs.io/Documentation/Library?id=Question) whose child element gets focus.
+   * `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
+   * `options.question` - A [question](https://surveyjs.io/Documentation/Library?id=Question) whose child element gets focus.
    * @see onFocusInPanel
    */
   public onFocusInQuestion: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event occurs when an element within a panel gets focus.
-   * <br/> `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
-   * <br/> `options.panel` - A [panel](https://surveyjs.io/Documentation/Library?id=PanelModelBase) whose child element gets focus.
+   * `sender` - A [survey](https://surveyjs.io/Documentation/Library?id=surveymodel) object that fires the event.
+   * `options.panel` - A [panel](https://surveyjs.io/Documentation/Library?id=PanelModelBase) whose child element gets focus.
    * @see onFocusInQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
@@ -669,9 +669,9 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a matrix question.
-   * <br/> `options.row` - a new added row.
+   * `sender` - the survey object that fires the event
+   * `options.question` - a matrix question.
+   * `options.row` - a new added row.
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -680,9 +680,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before adding a new row in Matrix Dynamic question.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a matrix question.
-   * <br/> `options.canAddRow` - specifies whether a new row can be added
+   * `sender` - the survey object that fires the event
+   * `options.question` - a matrix question.
+   * `options.canAddRow` - specifies whether a new row can be added
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
@@ -691,11 +691,11 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a matrix question.
-   * <br/> `options.rowIndex` - a row index.
-   * <br/> `options.row` - a row object.
-   * <br/> `options.allow` - a boolean property. Set it to `false` to disable the row removing.
+   * `sender` - the survey object that fires the event
+   * `options.question` - a matrix question.
+   * `options.rowIndex` - a row index.
+   * `options.row` - a row object.
+   * `options.allow` - a boolean property. Set it to `false` to disable the row removing.
    * @see QuestionMatrixDynamicModel
    * @see onMatrixRowRemoved
    * @see onMatrixAllowRemoveRow
@@ -705,10 +705,10 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on removing a row from Matrix Dynamic question.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a matrix question
-   * <br/> `options.rowIndex` - a removed row index
-   * <br/> `options.row` - a removed row object
+   * `sender` - the survey object that fires the event
+   * `options.question` - a matrix question
+   * `options.rowIndex` - a removed row index
+   * `options.row` - a removed row object
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    * @see onMatrixRowRemoving
@@ -719,11 +719,11 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before rendering "Remove" button for removing a row from Matrix Dynamic question.
-   * <br/> `sender` - the survey object that fires the event
-   * <br/> `options.question` - a matrix question.
-   * <br/> `options.rowIndex` - a row index.
-   * <br/> `options.row` - a row object.
-   * <br/> `options.allow` - a boolean property. Set it to `false` to disable the row removing.
+   * `sender` - the survey object that fires the event
+   * `options.question` - a matrix question.
+   * `options.rowIndex` - a row index.
+   * `options.row` - a row object.
+   * `options.allow` - a boolean property. Set it to `false` to disable the row removing.
    * @see QuestionMatrixDynamicModel
    * @see onMatrixRowRemoving
    * @see onMatrixRowRemoved
@@ -733,13 +733,13 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the matrix question.
-   * <br/> `options.cellType` - the cell question type. You can change it.
-   * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
-   * <br/> `options.column` - the matrix column object.
-   * <br/> `options.columnName` - the matrix column name.
-   * <br/> `options.row` - the matrix row object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the matrix question.
+   * `options.cellType` - the cell question type. You can change it.
+   * `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
+   * `options.column` - the matrix column object.
+   * `options.columnName` - the matrix column name.
+   * `options.row` - the matrix row object.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixCellCreated
    * @see QuestionMatrixDynamicModel
@@ -750,14 +750,14 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
     * The event is fired for every cell created in Matrix Dynamic and Matrix Dropdown questions.
-    * <br/> `sender` - the survey object that fires the event.
-    * <br/> `options.question` - the matrix question.
-    * <br/> `options.cell` - the matrix cell.
-    * <br/> `options.cellQuestion` - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
-    * <br/> `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
-    * <br/> `options.column` - the matrix column object.
-    * <br/> `options.columnName` - the matrix column name.
-    * <br/> `options.row` - the matrix row object.
+    * `sender` - the survey object that fires the event.
+    * `options.question` - the matrix question.
+    * `options.cell` - the matrix cell.
+    * `options.cellQuestion` - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
+    * `options.rowValue` - the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`.
+    * `options.column` - the matrix column object.
+    * `options.columnName` - the matrix column name.
+    * `options.row` - the matrix row object.
     * @see onMatrixBeforeRowAdded
     * @see onMatrixCellCreating
     * @see onMatrixRowAdded
@@ -769,13 +769,13 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired for every cell after is has been rendered in DOM.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the matrix question.
-   * <br/> `options.cell` - the matrix cell.
-   * <br/> `options.cellQuestion` - the question/editor in the cell.
-   * <br/> `options.htmlElement` - an HTML element bound to the `cellQuestion` object.
-   * <br/> `options.column` - the matrix column object.
-   * <br/> `options.row` - the matrix row object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the matrix question.
+   * `options.cell` - the matrix cell.
+   * `options.cellQuestion` - the question/editor in the cell.
+   * `options.htmlElement` - an HTML element bound to the `cellQuestion` object.
+   * `options.column` - the matrix column object.
+   * `options.row` - the matrix row object.
    * @see onMatrixCellCreated
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -785,12 +785,12 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the matrix question.
-   * <br/> `options.columnName` - the matrix column name.
-   * <br/> `options.value` - a new value.
-   * <br/> `options.row` - the matrix row object.
-   * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the matrix question.
+   * `options.columnName` - the matrix column name.
+   * `options.value` - a new value.
+   * `options.row` - the matrix row object.
+   * `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
    * @see onMatrixCellValueChanging
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -802,13 +802,13 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the matrix question.
-   * <br/> `options.columnName` - the matrix column name.
-   * <br/> `options.value` - a new value.
-   * <br/> `options.oldValue` - the old value.
-   * <br/> `options.row` - the matrix row object.
-   * <br/> `options.getCellQuestion(columnName)` - the function that returns a cell question by column name.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the matrix question.
+   * `options.columnName` - the matrix column name.
+   * `options.value` - a new value.
+   * `options.oldValue` - the old value.
+   * `options.row` - the matrix row object.
+   * `options.getCellQuestion(columnName)` - the function that returns a cell question by column name.
    * @see onMatrixCellValueChanged
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
@@ -820,13 +820,13 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.error` - an error string. It is empty by default.
-   * <br/> `options.question` - the matrix question.
-   * <br/> `options.columnName` - the matrix column name.
-   * <br/> `options.value` - a cell value.
-   * <br/> `options.row` - the matrix row object.
-   * <br/> `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
+   * `sender` - the survey object that fires the event.
+   * `options.error` - an error string. It is empty by default.
+   * `options.question` - the matrix question.
+   * `options.columnName` - the matrix column name.
+   * `options.value` - a cell value.
+   * `options.row` - the matrix row object.
+   * `options.getCellQuestion(columnName)` - the function that returns the cell question by column name.
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
@@ -837,9 +837,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on adding a new panel in Panel Dynamic question.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a panel question.
-   * <br/> `options.panel` - an added panel.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a panel question.
+   * `options.panel` - an added panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -848,10 +848,10 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired on removing a panel from Panel Dynamic question.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a panel question.
-   * <br/> `options.panelIndex` - a removed panel index.
-   * <br/> `options.panel` - a removed panel.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a panel question.
+   * `options.panelIndex` - a removed panel index.
+   * `options.panel` - a removed panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    */
@@ -867,21 +867,21 @@ export class SurveyModel extends SurveyElementCore
   public onTimer: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired before displaying a new information in the Timer Panel. Use it to change the default text.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.text` - the timer panel info text.
+   * `sender` - the survey object that fires the event.
+   * `options.text` - the timer panel info text.
    */
   public onTimerPanelInfoText: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
   /**
    * The event is fired when item value is changed in Panel Dynamic question.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - the panel question.
-   * <br/> `options.panel` - the dynamic panel item.
-   * <br/> `options.name` - the item name.
-   * <br/> `options.value` - a new value.
-   * <br/> `options.itemIndex` - the panel item index.
-   * <br/> `options.itemValue` - the panel item object.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - the panel question.
+   * `options.panel` - the dynamic panel item.
+   * `options.name` - the item name.
+   * `options.value` - a new value.
+   * `options.itemIndex` - the panel item index.
+   * `options.itemValue` - the panel item object.
    * @see onDynamicPanelAdded
    * @see QuestionPanelDynamicModel
    */
@@ -890,10 +890,10 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to define, whether an answer to a question is correct or not.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - a question on which you have to decide if the answer is correct or not.
-   * <br/> `options.result` - returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value.
-   * <br/> `options.correctAnswers` - you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - a question on which you have to decide if the answer is correct or not.
+   * `options.result` - returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value.
+   * `options.correctAnswers` - you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question.
    * @see Question.value
    * @see Question.correctAnswer
    */
@@ -902,25 +902,25 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to control drag&drop operations during design mode.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.allow` - set it to `false` to disable dragging.
-   * <br/> `options.target` - a target element that is dragged.
-   * <br/> `options.source` - a source element. It can be `null`, if it is a new element, dragging from toolbox.
-   * <br/> `options.parent` - a page or panel where target element is dragging.
-   * <br/> `options.insertBefore` - an element before the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging an element after the last element in a container.
-   * <br/> `options.insertAfter` - an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container.
+   * `sender` - the survey object that fires the event.
+   * `options.allow` - set it to `false` to disable dragging.
+   * `options.target` - a target element that is dragged.
+   * `options.source` - a source element. It can be `null`, if it is a new element, dragging from toolbox.
+   * `options.parent` - a page or panel where target element is dragging.
+   * `options.insertBefore` - an element before the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging an element after the last element in a container.
+   * `options.insertAfter` - an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container.
    * @see setDesignMode
    * @see isDesignMode
    */
   public onDragDropAllow: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to control scrolling element to top. You can cancel the default behavior by setting options.cancel property to true.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.element` - an element that is going to be scrolled on top.
-   * <br/> `options.question` - a question that is going to be scrolled on top. It can be null if options.page is not null.
-   * <br/> `options.page` - a page that is going to be scrolled on top. It can be null if options.question is not null.
-   * <br/> `options.elementId` - the unique element DOM Id.
-   * <br/> `options.cancel` - set this property to true to cancel the default scrolling.
+   * `sender` - the survey object that fires the event.
+   * `options.element` - an element that is going to be scrolled on top.
+   * `options.question` - a question that is going to be scrolled on top. It can be null if options.page is not null.
+   * `options.page` - a page that is going to be scrolled on top. It can be null if options.question is not null.
+   * `options.elementId` - the unique element DOM Id.
+   * `options.cancel` - set this property to true to cancel the default scrolling.
    */
   public onScrollingElementToTop: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -932,9 +932,9 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * Use this event to create/customize actions to be displayed in a question's title.
-   * <br/> `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
-   * <br/> `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
+   * `sender` - A [Survey](https://surveyjs.io/Documentation/Library?id=SurveyModel) object that fires the event.
+   * `options.question` - A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired.
+   * `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
    * @see IAction
    * @see Question
    */
@@ -943,9 +943,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to create/customize actions to be displayed in a panel's title.
-   * <br/> `sender` - A survey object that fires the event.
-   * <br/> `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel.
+   * `sender` - A survey object that fires the event.
+   * `options.panel` - A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired.
+   * `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel.
    * @see IAction
    * @see PanelModel
    */
@@ -954,9 +954,9 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to create/customize actions to be displayed in a page's title.
-   * <br/> `sender` - A survey object that fires the event.
-   * <br/> `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
-   * <br/> `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page.
+   * `sender` - A survey object that fires the event.
+   * `options.page` - A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired.
+   * `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page.
    * @see IAction
    * @see PageModel
    */
@@ -965,10 +965,10 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
-   * <br/> `sender` - A survey object that fires the event.
-   * <br/> `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
-   * <br/> `options.row` - A matrix row for which the event is fired.
-   * <br/> `options.actions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row.
+   * `sender` - A survey object that fires the event.
+   * `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
+   * `options.row` - A matrix row for which the event is fired.
+   * `options.actions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row.
    * @see IAction
    * @see QuestionMatrixDropdownModelBase
    */
@@ -977,8 +977,8 @@ export class SurveyModel extends SurveyElementCore
   >();
   /**
    * The event is fired after the survey element content was collapsed or expanded.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.element` - Specifies which survey element content was collapsed or expanded.
+   * `sender` - the survey object that fires the event.
+   * `options.element` - Specifies which survey element content was collapsed or expanded.
    * @see onElementContentVisibilityChanged
    */
   public onElementContentVisibilityChanged: EventBase<
@@ -987,10 +987,10 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * The event is fired before expression question convert it's value into display value for rendering.
-   * <br/> `sender` - the survey object that fires the event.
-   * <br/> `options.question` - The expression question.
-   * <br/> `options.value` - The question value.
-   * <br/> `options.displayValue` - the display value that you can change before rendering.
+   * `sender` - the survey object that fires the event.
+   * `options.question` - The expression question.
+   * `options.value` - The question value.
+   * `options.displayValue` - the display value that you can change before rendering.
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel> = this.addEvent<
     SurveyModel

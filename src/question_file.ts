@@ -18,8 +18,8 @@ export class QuestionFileModel extends Question {
   @property() isDragging: boolean = false;
   /**
    * The event is fired after question state has been changed.
-   * <br/> sender the question object that fires the event
-   * <br/> options.state new question state value.
+   * sender the question object that fires the event
+   * options.state new question state value.
    */
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel

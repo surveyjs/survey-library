@@ -59,7 +59,7 @@ export class CalculatedValue extends Base {
   }
   /**
    * The Expression that used to calculate the value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
-   * <br/>Example: "({quantity} * {price}) * (100 - {discount}) / 100"
+   * Example: "({quantity} * {price}) * (100 - {discount}) / 100"
    */
   public get expression(): string {
     return this.getPropertyValue("expression", "");

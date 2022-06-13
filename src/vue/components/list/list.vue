@@ -59,6 +59,7 @@ export class List extends BaseVue {
   }
   keyup(event: any) {
     this.model.filteredText = event.target.value;
+    this.model.goToItems(event);
   }
 }
 

@@ -167,6 +167,50 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("dropdown-select-question-with-clear-button.png", questionDropdownSelect, t);
   });
 
+  test("Check dropdown select question with long text", async (t) => {
+    await t.resizeWindow(1280, 1100);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "question1",
+          showClearButton: true,
+          defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+          choices: [
+            "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7"
+          ]
+        }, {
+          type: "dropdown",
+          renderAs: "select",
+          name: "question2",
+          defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+          choices: [
+            "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7"
+          ]
+        }
+      ]
+    });
+
+    const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+    await checkElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t);
+
+    await checkElementScreenshot("dropdown-select-question-and-long-text.png", questionDropdownSelect.nth(1), t);
+  });
+
   test("Check dropdown disabled items", async (t) => {
     await t.resizeWindow(1280, 1100);
     await initSurvey(framework, {

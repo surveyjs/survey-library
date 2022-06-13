@@ -5,7 +5,7 @@
       <sv-svg-icon params="iconName: 'icon-search', size: 24"></sv-svg-icon>
     </div>
     <input type="text" class="sv-list__input"
-      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }"></input>
+      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
   </div>
   <!-- /ko -->
   <ul class="sv-list"

@@ -428,4 +428,74 @@ frameworks.forEach((framework) => {
 
       .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan");
   });
+
+  test("Check dropdown key press", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "cars",
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "DropdownRenderAsSelect",
+          colCount: 0,
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("enter down down down enter")
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan")
+
+      .pressKey("tab enter")
+      .pressKey("2 down down down enter")
+      .expect(Selector(".sv_q_dropdown__value").nth(1).textContent).eql("item20");
+  });
 });

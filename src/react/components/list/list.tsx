@@ -63,6 +63,7 @@ export class List extends SurveyElementBase<IListProps, any> {
       const onChange = (e: any) => {
         if (e.target === document.activeElement) {
           this.model.filteredText = e.target.value;
+          this.model.goToItems(e.target);
         }
       };
       return (

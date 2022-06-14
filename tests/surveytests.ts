@@ -5224,6 +5224,22 @@ QUnit.test("Survey text preprocessing with camella case, issue #913", function (
     "The value is preprocessed correctly"
   );
 });
+QUnit.test("Survey text preprocessing complex data without question, issue #4434", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "{complex.value1}",
+      }
+    ]
+  });
+  survey.data = { complex: { value1: "complexText" } };
+  const question = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(question.fullTitle, "complexText", "The complex value is preprocessed correctly");
+});
 
 QUnit.test("Survey Markdown - dropdown.choices", function (assert) {
   var survey = new SurveyModel();
@@ -14244,7 +14260,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" }, ];
+    options.titleActions = [{ id: "action" },];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");

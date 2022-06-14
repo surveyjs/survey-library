@@ -58,6 +58,7 @@ $base-unit: var(--base-unit, 8px);
   border: none;
   border-radius: 2px;
   background-color: transparent;
+  color: $foreground;
   cursor: pointer;
   line-height: calcSize(3);
   font-size: calcSize(2);
@@ -95,13 +96,14 @@ button.sv-action-bar-item {
 .sv-action-bar-item:disabled {
   opacity: 0.25;
   cursor: default;
-  color: $foreground;
+
   .sv-action-bar-item__icon use {
     fill: $foreground;
   }
 }
 
 .sv-action-bar-item__title {
+  color: inherit;
   vertical-align: middle;
   white-space: nowrap;
 }

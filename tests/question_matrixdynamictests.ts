@@ -7446,3 +7446,46 @@ QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
   matrix.columns[0].renderAs = "myRender";
   assert.equal(matrix.columns[0].templateQuestion.renderAs, "myRender", "Apply render as to template question");
 });
+QUnit.test("Summary doesn't work correctly if there is invisible column and clearInvisibleValues: 'onHiddenContainer'", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum",
+            inputType: "number",
+          },
+          {
+            name: "col2",
+            cellType: "text",
+            totalType: "sum",
+            inputType: "number",
+          },
+          {
+            name: "col_sum",
+            cellType: "expression",
+            totalType: "sum",
+            expression: "{row.col1}+{row.col2}",
+          },
+          {
+            name: "col3",
+            cellType: "boolean",
+            visibleIf: "false",
+          },
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+    clearInvisibleValues: "onHiddenContainer"
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.visibleRows[0].cells[0].question.value = 1;
+  matrix.visibleRows[0].cells[1].question.value = 2;
+  matrix.visibleRows[1].cells[0].question.value = 3;
+  matrix.visibleRows[1].cells[1].question.value = 4;
+  assert.equal(matrix.visibleTotalRow.cells[2].value, 1 + 2 + 3 + 4, "summary calculated correctly");
+});

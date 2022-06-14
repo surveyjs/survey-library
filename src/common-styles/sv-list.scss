@@ -6,7 +6,6 @@ $background-dim: var(--background-dim, #f3f3f3);
 $foreground-light: var(--foreground-light, #909090);
 //todo: discuss this variable
 $foreground: var(--foreground, #161616);
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 $border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
 $font-family: "Open Sans";
 
@@ -61,7 +60,7 @@ $base-unit: var(--base-unit, 8px);
   &:hover,
   &:focus {
     background-color: $primary;
-    color: $background;
+    color: $primary-foreground;
   }
   .sv-list__item-icon use {
     fill: $background;
@@ -73,7 +72,7 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-list__item--disabled span {
-  color: $foreground-disabled;
+  color: $foreground-light;
 }
 
 .sv-list__item span {
@@ -133,5 +132,5 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__input:disabled,
 .sv-list__input:disabled::placeholder {
-  color: $foreground-disabled;
+  color: $foreground-light;
 }

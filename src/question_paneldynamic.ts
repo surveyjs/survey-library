@@ -633,10 +633,10 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Use this property to allow the end-user to collapse/expand the panels. It works only if the renderMode property equals to "list" and templateTitle property is not empty. The following values are available:
-   * <br/> default - the default value. User can't collapse/expand panels
-   * <br/> expanded - User can collapse/expand panels and all panels are expanded by default
-   * <br/> collapsed - User can collapse/expand panels and all panels are collapsed by default
-   * <br/> firstExpanded - User can collapse/expand panels. The first panel is expanded and others are collapsed
+   * default - the default value. User can't collapse/expand panels
+   * expanded - User can collapse/expand panels and all panels are expanded by default
+   * collapsed - User can collapse/expand panels and all panels are collapsed by default
+   * firstExpanded - User can collapse/expand panels. The first panel is expanded and others are collapsed
    * @see renderMode
    * @see templateTitle
    */

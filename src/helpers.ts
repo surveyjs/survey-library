@@ -256,6 +256,37 @@ export class Helpers {
     }
     return res;
   }
+  public static convertArrayValueToObject(src: Array<any>, propName: string, dest: Array<any> = undefined): Array<any> {
+    const res = new Array<any>();
+    if(!src || !Array.isArray(src)) return res;
+    for(var i = 0; i < src.length; i ++) {
+      let item: any;
+      if(Array.isArray(dest)) {
+        item = Helpers.findObjByPropValue(dest, propName, src[i]);
+      }
+      if(!item) {
+        item = {};
+        item[propName] = src[i];
+      }
+      res.push(item);
+    }
+    return res;
+  }
+  private static findObjByPropValue(arr: Array<any>, propName: string, val: any): any {
+    for(var i = 0; i < arr.length; i ++) {
+      if(Helpers.isTwoValueEquals(arr[i][propName], val)) return arr[i];
+    }
+    return undefined;
+  }
+  public static convertArrayObjectToValue(src: Array<any>, propName: string): Array<any> {
+    const res = new Array<any>();
+    if(!src || !Array.isArray(src)) return res;
+    for(var i = 0; i < src.length; i ++) {
+      const itemVal = !!src[i] ? src[i][propName] : undefined;
+      if(!Helpers.isValueEmpty(itemVal)) res.push(itemVal);
+    }
+    return res;
+  }
 }
 if (!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {

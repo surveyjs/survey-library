@@ -45,6 +45,16 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.inputId + "_0";
   }
   /**
+   * Set this property if you want to store the checkbox value as array of objects instead of array of values
+   * For example: if "valuePropertyName" equals car, then instead of having ["Ford", "Tesla"], you will have [{car: "Ford"}, {car: "Tesla"}]
+   */
+  public get valuePropertyName(): string {
+    return this.getPropertyValue("valuePropertyName");
+  }
+  public set valuePropertyName(val: string) {
+    this.setPropertyValue("valuePropertyName", val);
+  }
+  /**
    * Returns the select all item. By using this property, you may change programmatically it's value and text.
    * @see hasSelectAll
    */
@@ -106,8 +116,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   /**
    * Select all items, except other and none.
    */
-  public selectAll() {
-    var val = [];
+  public selectAll(): void {
+    var val: Array<any> = [];
     for (var i = 0; i < this.visibleChoices.length; i++) {
       var item = this.visibleChoices[i];
       if (
@@ -118,7 +128,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         continue;
       val.push(item.value);
     }
-    this.value = val;
+    this.renderedValue = val;
   }
   /**
    * Returns true if item is checked
@@ -132,6 +142,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if (this.isTwoValueEquals(val[i], item.value)) return true;
     }
     return false;
+  }
+  private getRealValue(val: any): any {
+    if(!val) return val;
+    return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
   /**
    * Set this property different to 0 to limit the number of selected choices in the checkbox.
@@ -149,7 +163,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    */
   public get selectedItems(): Array<ItemValue> {
     if (this.isEmpty()) return [];
-    var val = this.value;
+    var val = this.renderedValue;
     var res = [];
     for (var i = 0; i < val.length; i++) {
       res.push(ItemValue.getItemByValue(this.visibleChoices, val[i]));
@@ -196,8 +210,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const val = this.defaultValue;
     if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
-        if (this.canClearValueAnUnknow(val[i])) {
-          this.addIntoInvisibleOldValues(val[i]);
+        const rVal = this.getRealValue(val[i]);
+        if (this.canClearValueAnUnknow(rVal)) {
+          this.addIntoInvisibleOldValues(rVal);
         }
       }
     }
@@ -231,7 +246,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         }
       }
     }
-    super.setNewValue(this.rendredValueToData(newValue));
+    super.setNewValue(newValue);
   }
   protected getIsMultipleValue(): boolean {
     return true;
@@ -332,10 +347,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
-      var isUnkown = this.canClearValueAnUnknow(val[i]);
+      const rItemVal = this.getRealValue(val[i]);
+      var isUnkown = this.canClearValueAnUnknow(rItemVal);
       if (
         (!clearDisabled && !isUnkown) ||
-        (clearDisabled && !this.isValueDisabled(val[i]))
+        (clearDisabled && !this.isValueDisabled(rItemVal))
       ) {
         newValue.push(val[i]);
       } else {
@@ -403,6 +419,26 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return value;
   }
+  protected rendredValueFromData(val: any): any {
+    val = this.convertValueFromObject(val);
+    return super.rendredValueFromData(val);
+  }
+  protected rendredValueToData(val: any): any {
+    val = super.rendredValueToData(val);
+    return this.convertValueToObject(val);
+  }
+  protected convertValueFromObject(val: any): any {
+    if(!this.valuePropertyName) return val;
+    return Helpers.convertArrayObjectToValue(val, this.valuePropertyName);
+  }
+  protected convertValueToObject(val: any): any {
+    if(!this.valuePropertyName) return val;
+    let dest = undefined;
+    if(!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) {
+      dest = this.data.getValue(this.getValueName());
+    }
+    return Helpers.convertArrayValueToObject(val, this.valuePropertyName, dest);
+  }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
     if (!this.hasActiveChoices) return val;
@@ -447,6 +483,10 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.hasSelectAll;
       }
+    },
+    {
+      name: "valuePropertyName",
+      category: "data"
     }
   ],
   function () {

@@ -1,21 +1,28 @@
 <template>
-  <option :value="item.value" :disabled="!item.isEnabled">{{item.text}}</option>
+  <option :value="item.value" :disabled="!item.isEnabled">{{ item.text }}</option>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base } from "survey-core";
+import { ItemValue } from "survey-core";
 import { BaseVue } from "../../base";
 
 export * from "./dropdown.vue";
 
 @Component
 export class DropdownOptionItem extends BaseVue {
-  @Prop() item: Base;
+  @Prop() item: ItemValue;
 
   constructor() {
     super();
+
+    if (!this.item.locText) return;
+    const self = this;
+    this.item.locText.onChanged = () => {
+      self.$forceUpdate();
+    };
+    this.item.locText.onChanged();
   }
   getModel() {
     return this.item;

@@ -491,11 +491,19 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .pressKey("enter down down down enter")
+      .pressKey("enter")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("enter")
       .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan")
 
       .pressKey("tab enter")
-      .pressKey("2 down down down enter")
+      .pressKey("2")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("enter")
       .expect(Selector(".sv_q_dropdown__value").nth(1).textContent).eql("item20");
   });
 });

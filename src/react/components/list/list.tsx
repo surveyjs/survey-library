@@ -63,8 +63,10 @@ export class List extends SurveyElementBase<IListProps, any> {
       const onChange = (e: any) => {
         if (e.target === document.activeElement) {
           this.model.filteredText = e.target.value;
-          this.model.goToItems(e.target);
         }
+      };
+      const onKeyUp = (e: any) => {
+        this.model.goToItems(e);
       };
       return (
         <div className="sv-list__filter">
@@ -80,6 +82,7 @@ export class List extends SurveyElementBase<IListProps, any> {
             className="sv-list__input"
             placeholder={this.model.filteredTextPlaceholder}
             value={this.state.filteredText}
+            onKeyUp={onKeyUp}
             onChange={onChange}
           ></input>
         </div>

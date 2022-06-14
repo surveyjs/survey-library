@@ -1425,7 +1425,7 @@ QUnit.test(
       "Other text is set"
     );
 
-    question.value = ["A", question.otherItem.value, "B"];
+    question.renderedValue = ["A", question.otherItem.value, "B"];
     assert.deepEqual(
       question.value,
       ["A", "commentTest", "B"],

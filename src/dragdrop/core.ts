@@ -89,6 +89,8 @@ export abstract class DragDropCore<T> extends Base {
   // save event.target node from the frameworks update. See  https://stackoverflow.com/questions/33298828/touch-move-event-dont-fire-after-touch-start-target-is-removed
   private savedTargetNode: any;
 
+  private startedLongTap = false;
+
   private startLongTapProcessing(
     event: PointerEvent,
     draggedElement: any,
@@ -96,6 +98,10 @@ export abstract class DragDropCore<T> extends Base {
     draggedElementNode?: HTMLElement,
     preventSaveTargetNode: boolean = false
   ): void {
+    if (this.startedLongTap) return;
+    this.startedLongTap = true;
+    console.log("disable start");
+
     this.startX = event.pageX;
     this.startY = event.pageY;
     document.body.style.setProperty("touch-action", "none", "important");
@@ -151,6 +157,10 @@ export abstract class DragDropCore<T> extends Base {
     this.timeoutID = null;
     document.removeEventListener("pointerup", this.stopLongTap);
     document.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    setTimeout(() => {
+      this.startedLongTap = false;
+      console.log("allow start");
+    }, 500);
   };
   // EO long tap
 
@@ -511,6 +521,11 @@ export abstract class DragDropCore<T> extends Base {
     document.body.style.setProperty("touch-action", "");
     document.body.style.setProperty("user-select", "");
     document.body.style.setProperty("-webkit-user-select", "");
+
+    setTimeout(()=>{
+      this.startedLongTap = false;
+      console.log("allow start");
+    }, 500);
   };
 
   protected doClear(): void { }

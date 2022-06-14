@@ -12,6 +12,11 @@
       "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
         {
+          "type": "signaturepad",
+          "name": "signature",
+          "title": "Please sign your answers here"
+        },
+        {
           "type": "file",
           "title": "Please upload your photo",
           "name": "image",

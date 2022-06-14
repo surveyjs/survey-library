@@ -206,7 +206,7 @@ export class QuestionSignaturePadModel extends Question {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code
-    if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number") {
+    if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
       // eslint-disable-next-line no-console
       console.warn("Use signatureWidth property to set width for the signature pad");
       this.signatureWidth = this.width;

@@ -1110,7 +1110,9 @@ export class Question extends SurveyElement
     if (this.value !== undefined) {
       this.value = undefined;
     }
-    this.comment = undefined;
+    if(!!this.comment) {
+      this.comment = undefined;
+    }
   }
   public unbindValue(): void {
     this.clearValue();

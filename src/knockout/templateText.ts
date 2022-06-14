@@ -31,7 +31,7 @@ export class SurveyTemplateText {
     pos = this.text.indexOf(endString, startPos);
     if (pos < 0) return;
     this.text =
-      this.text.substr(0, startPos) + replaceText + this.text.substr(pos);
+      this.text.substring(0, startPos) + replaceText + this.text.substring(pos);
   }
   protected getId(id: string, questionType: string) {
     var result = 'id="survey-' + id;

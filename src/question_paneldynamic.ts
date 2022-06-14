@@ -1133,7 +1133,7 @@ export class QuestionPanelDynamicModel extends Question
   ): boolean {
     if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
       return false;
-    return !!panel.getQuestionByName(key.substr(0, key.indexOf(postPrefix)));
+    return !!panel.getQuestionByName(key.substring(0, key.indexOf(postPrefix)));
   }
   public getSharedQuestionFromArray(
     name: string,
@@ -1192,8 +1192,8 @@ export class QuestionPanelDynamicModel extends Question
     var questionName = path;
     var pos = path.indexOf(".");
     if (pos > -1) {
-      questionName = path.substr(0, pos);
-      path = path.substr(pos + 1);
+      questionName = path.substring(0, pos);
+      path = path.substring(pos + 1);
     }
     var question = this.template.getQuestionByName(questionName);
     if (!question) return null;

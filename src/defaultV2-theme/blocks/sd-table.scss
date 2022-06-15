@@ -4,27 +4,40 @@
   border-collapse: collapse;
   white-space: normal;
 }
+.sd-table--align-top {
+  .sd-table__cell {
+    vertical-align: top;
+  }
+}
+.sd-table--alternate-rows {
+  .sd-table__row:nth-child(odd) {
+    &> td, td:first-child {
+      background-color: $background-dim-light;
+      .sd-input, .sd-item__decorator {
+        background-color: $primary-foreground;
+      }
+    }
+  }
+}
+
 .sd-table__cell {
   font-weight: normal;
   font-size: calcSize(2);
   line-height: calcSize(3);
-  padding-bottom: calcSize(2);
+  padding: calcSize(1);
   color: $foreground;
   text-align: center;
-  padding-right: calcSize(1);
-  padding-left: calcSize(1);
 }
 .sd-table__cell--header {
   font-weight: 600;
   vertical-align: top;
-  padding-top: calcSize(1.5);
-  padding-bottom: calcSize(3.5);
+  padding: calcSize(1.5) calcSize(1) calcSize(2.5);
   &:not(.sd-table__cell--empty) {
     min-width: calcSize(14);
   }
 }
 .sd-table__cell--detail-panel {
-  padding: 0 calcSize(1) calcSize(2);
+  padding: 0 calcSize(1) calcSize(1);
 }
 .sd-table__cell--actions,
 .sd-matrixdynamic__add-btn {
@@ -72,6 +85,7 @@
   font-weight: 600;
   text-align: left;
   min-width: calcSize(12);
+  padding: calcSize(2.5) calcSize(1);
 }
 .sd-table__question-wrapper:not(:focus-within):hover {
   position: relative;

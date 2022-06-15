@@ -34,7 +34,7 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
 }
 .sd-table__cell--detail-panel {
   .sd-element:not(.sd-element--collapsed) {
-    padding-top: 0;
+    padding-top: calcSize(0.5);
   }
 }
 .sd-element.sd-element--complex {

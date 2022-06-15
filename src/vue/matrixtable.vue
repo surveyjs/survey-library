@@ -1,5 +1,5 @@
 <template>
-  <table :class="question.cssClasses.root">
+  <table :class="question.getTableCss()">
     <thead v-if="table.showHeader">
       <tr>
         <th

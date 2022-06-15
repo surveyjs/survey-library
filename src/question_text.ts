@@ -136,7 +136,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set min(val: string) {
     if (this.isValueExpression(val)) {
-      this.minValueExpression = val.substr(1);
+      this.minValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("min", val);
@@ -149,7 +149,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set max(val: string) {
     if (this.isValueExpression(val)) {
-      this.maxValueExpression = val.substr(1);
+      this.maxValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("max", val);

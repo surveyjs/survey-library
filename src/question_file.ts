@@ -444,7 +444,7 @@ export class QuestionFileModel extends Question {
   }): boolean {
     if (!file) return false;
     const imagePrefix = "data:image";
-    var subStr = file.content && file.content.substr(0, imagePrefix.length);
+    var subStr = file.content && file.content.substring(0, imagePrefix.length);
     subStr = subStr && subStr.toLowerCase();
     var result =
       subStr === imagePrefix ||

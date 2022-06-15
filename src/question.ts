@@ -1220,7 +1220,7 @@ export class Question extends SurveyElement
   }
   public set defaultValue(val: any) {
     if (this.isValueExpression(val)) {
-      this.defaultValueExpression = val.substr(1);
+      this.defaultValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));

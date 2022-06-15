@@ -1699,7 +1699,7 @@ export class SurveyModel extends SurveyElementCore
     if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
       return false;
     return !!this.getQuestionByValueName(
-      key.substr(0, key.indexOf(postPrefix))
+      key.substring(0, key.indexOf(postPrefix))
     );
   }
 
@@ -2241,11 +2241,11 @@ export class SurveyModel extends SurveyElementCore
     if (!!template) {
       var strs = [];
       while (template.indexOf("{") > -1) {
-        template = template.substr(template.indexOf("{") + 1);
+        template = template.substring(template.indexOf("{") + 1);
         var ind = template.indexOf("}");
         if (ind < 0) break;
-        strs.push(template.substr(0, ind));
-        template = template.substr(ind + 1);
+        strs.push(template.substring(0, ind));
+        template = template.substring(ind + 1);
       }
       if (strs.length > 1) {
         if (strs[0] == "require") return "requireNumTitle";
@@ -2274,7 +2274,7 @@ export class SurveyModel extends SurveyElementCore
       if (template[i] == "}") break;
     }
     if (i < ind - 1) {
-      prefix = template.substr(i + 1, ind - i - 1);
+      prefix = template.substring(i + 1, ind);
     }
     ind += name.length;
     i = ind;
@@ -2282,14 +2282,14 @@ export class SurveyModel extends SurveyElementCore
       if (template[i] == "{") break;
     }
     if (i > ind) {
-      postfix = template.substr(ind, i - ind);
+      postfix = template.substring(ind, i);
     }
     i = 0;
     while (i < prefix.length && prefix.charCodeAt(i) < 33) i++;
-    prefix = prefix.substr(i);
+    prefix = prefix.substring(i);
     i = postfix.length - 1;
     while (i >= 0 && postfix.charCodeAt(i) < 33) i--;
-    postfix = postfix.substr(0, i + 1);
+    postfix = postfix.substring(0, i + 1);
     if (!prefix && !postfix) return currentValue;
     var value = !!currentValue ? currentValue : defaultValue;
     return prefix + value + postfix;
@@ -3455,10 +3455,10 @@ export class SurveyModel extends SurveyElementCore
     while (pos > 0 && name[pos - 1] >= "0" && name[pos - 1] <= "9") {
       pos--;
     }
-    var base = name.substr(0, pos);
+    var base = name.substring(0, pos);
     var num = 0;
     if (pos < name.length) {
-      num = parseInt(name.substr(pos));
+      num = parseInt(name.substring(pos));
     }
     num++;
     return base + num;
@@ -5470,7 +5470,7 @@ export class SurveyModel extends SurveyElementCore
     if (question) {
       textValue.isExists = true;
       const firstName = question.getValueName().toLowerCase();
-      name = firstName + name.substr(firstName.length);
+      name = firstName + name.substring(firstName.length);
       name = name.toLocaleLowerCase();
       var values: { [index: string]: any } = {};
       values[firstName] = textValue.returnDisplayValue
@@ -5515,7 +5515,7 @@ export class SurveyModel extends SurveyElementCore
     var pos2 = name.lastIndexOf("[");
     if (pos1 < 0 && pos2 < 0) return "";
     var pos = Math.max(pos1, pos2);
-    return name.substr(0, pos);
+    return name.substring(0, pos);
   }
   private clearUnusedValues() {
     var questions = this.getAllQuestions();

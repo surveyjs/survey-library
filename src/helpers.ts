@@ -205,8 +205,8 @@ export class Helpers {
       while (ind >= 0 && checkLetter()) ind--;
       var newPostfix = "";
       if (ind < str.length - 1) {
-        newPostfix = str.substr(ind + 1);
-        str = str.substr(0, ind + 1);
+        newPostfix = str.substring(ind + 1);
+        str = str.substring(0, ind + 1);
       }
       ind = str.length - 1;
       while (ind >= 0) {
@@ -214,8 +214,8 @@ export class Helpers {
         ind--;
         if (!hasDigit) break;
       }
-      strIndex = str.substr(ind + 1);
-      prefix = str.substr(0, ind + 1);
+      strIndex = str.substring(ind + 1);
+      prefix = str.substring(0, ind + 1);
       if (parseInt(strIndex)) startIndex = parseInt(strIndex);
       else if (strIndex.length == 1) isNumeric = false;
       if (!!newPostfix || !!prefix) {

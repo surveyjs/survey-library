@@ -1,12 +1,10 @@
 <div #elementContainer [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" data-bind="attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null} ">
-  <!-- ko if: !model.isPanel -->
-    <!-- ko template: { name: 'survey-question-errors', data: question } -->
-    <!-- /ko -->
-  <!-- /ko -->
+  <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" location="above" sv-ng-errors></div>
   <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
-  <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
-  <!-- /ko -->
   <div [class]="model.cssClasses.content">
+    <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" location="top" sv-ng-errors></div>
     <sv-ng-element-content [model]="model"></sv-ng-element-content>
+    <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" location="bottom" sv-ng-errors></div>
+    <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" location="tooltip" sv-ng-errors></div>
   </div>
 </div>

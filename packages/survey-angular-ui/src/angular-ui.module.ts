@@ -53,6 +53,7 @@ import { VisibleDirective } from "./utils/ng-show.directive";
 import { SafeUrlPipe } from "./utils/safe-url.pipe";
 import { CommentQuestionComponent } from "./questions/comment.component";
 import { SignaturePadQuestionComponent } from "./questions/signature.component";
+import { ErrorsComponent } from "./errors.component";
 @NgModule({
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, PanelComponent, QuestionComponent, QuestionContentComponent, StringViewerComponent,
@@ -62,7 +63,7 @@ import { SignaturePadQuestionComponent } from "./questions/signature.component";
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, VisibleDirective, CommentQuestionComponent, SignaturePadQuestionComponent
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, VisibleDirective, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent
   ],
   imports: [
     CommonModule, FormsModule

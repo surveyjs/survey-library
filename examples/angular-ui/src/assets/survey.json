@@ -14,6 +14,7 @@
         {
           "type": "signaturepad",
           "name": "signature",
+          "isRequired": true,
           "title": "Please sign your answers here"
         },
         {
@@ -80,6 +81,7 @@
           "elements": [
             {
               "type": "checkbox",
+              "isRequired": true,
               "choices": [
                 {
                   "value": "1",

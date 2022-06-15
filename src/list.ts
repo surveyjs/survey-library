@@ -2,7 +2,7 @@ import { property } from "./jsonobject";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { surveyLocalization } from "./surveyStrings";
+import { ElementHelper } from "./element-helper";
 
 export class ListModel extends ActionContainer {
   @property({
@@ -87,21 +87,20 @@ export class ListModel extends ActionContainer {
     return this.getLocalizationString("filteredTextPlaceholder");
   }
 
-  public onKeyDown(event: KeyboardEvent) {
+  public goToItems(event: KeyboardEvent): void {
+    if (event.key === "ArrowDown" || event.keyCode === 40) {
+      const currentElement = (<HTMLElement>event.target).parentElement;
+      ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement.nextElementSibling.firstElementChild));
+      event.preventDefault();
+    }
+  }
+  public onKeyDown(event: KeyboardEvent): void {
     const currentElement = <Element>event.target;
     if (event.key === "ArrowDown" || event.keyCode === 40) {
-      if (!!currentElement.nextElementSibling) {
-        (<HTMLElement>currentElement.nextElementSibling).focus();
-      } else {
-        currentElement.parentElement.firstElementChild && (<HTMLElement>currentElement.parentElement.firstElementChild).focus();
-      }
+      ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement));
       event.preventDefault();
     } else if (event.key === "ArrowUp" || event.keyCode === 38) {
-      if (!!currentElement.previousElementSibling) {
-        (<HTMLElement>currentElement.previousElementSibling).focus();
-      } else {
-        currentElement.parentElement.lastElementChild && (<HTMLElement>currentElement.parentElement.lastElementChild).focus();
-      }
+      ElementHelper.focusElement(ElementHelper.getNextElementPostorder(currentElement));
       event.preventDefault();
     }
   }

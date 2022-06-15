@@ -7,6 +7,7 @@
         :id="question.inputId"
         v-model="question.renderedValue"
         v-on:click="click"
+        v-on:keyup="keyUp"
         :class="question.getControlClass()"
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
@@ -43,6 +44,7 @@ import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import Dropdown from "./dropdown.vue";
 import { RendererFactory } from "survey-core";
+import { attachKey2click } from "./survey.vue";
 
 @Component
 export class DropdownSelect extends Dropdown {
@@ -51,6 +53,9 @@ export class DropdownSelect extends Dropdown {
   }
   public clear(event: any) {
     this.question.onClear(event);
+  }
+  public keyUp(event: any) {
+    attachKey2click(event, { processEsc: false });
   }
 }
 

@@ -87,7 +87,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel } from "survey-core";
+import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -188,6 +188,12 @@ Object.defineProperty(Survey, "cssType", {
   enumerable: true,
   configurable: false,
 });
+
+export function attachKey2click( evt: KeyboardEvent, options = { processEsc: true }) {
+  evt.preventDefault();
+  evt.stopPropagation();
+  doKey2ClickUp(evt, options);     
+}
 
 Vue.component("survey", Survey);
 export default Survey;

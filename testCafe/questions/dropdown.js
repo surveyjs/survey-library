@@ -206,6 +206,72 @@ frameworks.forEach((framework) => {
     await t.expect(questionJson.title).eql(newTitle);
   });
 
+  test("otherText changed", async t => {
+    const currentJson = {
+      title: "Survey New Design Test",
+      description: "Survey Description",
+      logoPosition: "left",
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "Dropdown",
+          hasOther: true,
+          showOptionsCaption: false,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "carss",
+          title: "Dropdown render as",
+          hasOther: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+      ]
+    };
+    const oldOtherText = "Other (describe)";
+    const newOtherText = "New Other";
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    await initSurvey(framework, currentJson);
+
+    await t.expect(Selector("select option").nth(10).textContent).eql(oldOtherText);
+    await setOptions("car", { otherText: newOtherText });
+    await t.expect(Selector("select option").nth(10).textContent).eql(newOtherText);
+
+    await t
+      .click(questionDropdownSelect.nth(1))
+      .expect(Selector(".sv-list__item span").nth(10).textContent).eql(oldOtherText);
+    await setOptions("carss", { otherText: newOtherText });
+    await t
+      .click(questionDropdownSelect.nth(1))
+      .expect(Selector(".sv-list__item span").nth(10).textContent).eql(newOtherText);
+  });
+
   test("Check dropdown popup width", async (t) => {
     await t.resizeWindow(1280, 1100);
     const jsonWithDropDown = {

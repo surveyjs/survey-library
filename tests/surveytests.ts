@@ -14260,7 +14260,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" },];
+    options.titleActions = [{ id: "action" }, ];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");
@@ -14823,8 +14823,8 @@ QUnit.test("Check navigation bar css update", function (assert) {
       }
     ]
   });
-  survey.css = { actionBar: { root: "custom-navigation" }, footer: "custom-footer" };
-  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
+  survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "custom--default-size-mode" }, footer: "custom-footer" };
+  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom--default-size-mode custom-footer");
 });
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({

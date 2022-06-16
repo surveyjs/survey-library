@@ -53,9 +53,9 @@ QUnit.test(
 QUnit.test("AdaptiveActionContainer.css",
   (assert) => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-    assert.equal(model.getRootCss(), "sv-action-bar");
+    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode");
     model.containerCss = "footer";
-    assert.equal(model.getRootCss(), "sv-action-bar footer");
+    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode footer");
   }
 );
 

@@ -319,8 +319,8 @@ export class Survey extends SurveyElementBase<any, any>
   ): JSX.Element {
     return (
       <div key={key}>
-        <span className={cssClasses.error.icon} aria-hidden="true" />
-        <span className={cssClasses.error.item}>
+        <span className={cssClasses.error.icon || undefined} aria-hidden="true" />
+        <span className={cssClasses.error.item || undefined}>
           <SurveyLocStringViewer locStr={error.locText} />
         </span>
       </div>

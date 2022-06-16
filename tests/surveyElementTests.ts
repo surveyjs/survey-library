@@ -121,6 +121,7 @@ QUnit.test("Check errors location", function (assert) {
   assert.ok(questionInMatrix.showErrorOnBottom);
 
   survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.isErrorsModeTooltip);
@@ -138,7 +139,7 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
     {
       name: "tagbox",
       isFit: (question) => {
-        return question.getType() === "tagbox"
+        return question.getType() === "tagbox";
       },
     }
   );
@@ -185,11 +186,13 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
   assert.ok(questionInMatrix.showErrorOnBottom);
 
   survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.isErrorsModeTooltip);
   assert.ok(q1.showErrorsAboveQuestion);
 
+  survey.questionErrorLocation = "bottom";
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.notOk(questionInMatrix.showErrorsAboveQuestion);
   assert.notOk(questionInMatrix.isErrorsModeTooltip);

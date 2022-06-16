@@ -18,14 +18,16 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   padding-bottom: var(--sd-base-padding);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
-  & > .sd-question__erbox--above-question {
-    border-radius: calcSize(0.5) calcSize(0.5) 0 0;
+  & > .sd-question__erbox--outside-question {
     margin-left: calc(-1 * var(--sd-base-padding));
     margin-right: calc(-1 * var(--sd-base-padding));
     width: calc(100% + 2 * var(--sd-base-padding));
   }
   &.sd-question--paneldynamic {
     padding-bottom: 0;
+    & > .sd-question__erbox--outside-question {
+      bottom: 0;
+    }
   }
 }
 .svc-logic-question-value,

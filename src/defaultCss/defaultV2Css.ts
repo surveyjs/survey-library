@@ -152,7 +152,9 @@ export var defaultV2Css = {
     icon: "",
     item: "",
     tooltip: "sd-question__erbox--tooltip",
+    outsideQuestion: "sd-question__erbox--outside-question",
     aboveQuestion: "sd-question__erbox--above-question",
+    belowQuestion: "sd-question__erbox--below-question",
     locationTop: "sd-question__erbox--location--top",
     locationBottom: "sd-question__erbox--location--bottom"
   },

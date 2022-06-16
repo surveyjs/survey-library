@@ -597,6 +597,7 @@ export class Base {
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
+    if(this.isLoadingFromJson) return;
     this.doPropertyValueChangedCallback("bindings", oldValue, newValue);
   }
   protected get isInternal(): boolean {

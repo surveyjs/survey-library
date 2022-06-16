@@ -4,6 +4,8 @@ import { IAction, Action } from "./action";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",
+  defaultSizeMode: "sv-action-bar--default-size-mode",
+  smallSizeMode: "sv-action-bar--small-size-mode",
   item: "sv-action-bar-item",
   itemActive: "sv-action-bar-item--active",
   itemPressed: "sv-action-bar-item--pressed",
@@ -33,6 +35,7 @@ export class ActionContainer<T extends Action = Action> extends Base {
 
     public updateCallback: (isResetInitialized: boolean) => void;
     public containerCss: string;
+    public sizeMode: "default" | "small" = "default";
 
     protected raiseUpdate(isResetInitialized: boolean) {
       this.updateCallback && this.updateCallback(isResetInitialized);
@@ -67,7 +70,8 @@ export class ActionContainer<T extends Action = Action> extends Base {
       return this.actions.filter((action) => action.visible !== false);
     }
     public getRootCss(): string {
-      return this.cssClasses.root + (!!this.containerCss ? " " + this.containerCss : "");
+      const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;
+      return this.cssClasses.root + " " + sizeModeClass + (!!this.containerCss ? " " + this.containerCss : "");
     }
     public set cssClasses(val: any) {
       this.cssClassesValue = val;

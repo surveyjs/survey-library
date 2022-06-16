@@ -167,7 +167,7 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   font-size: calcSize(1.5);
   line-height: calcSize(2);
   color: $foreground-light;
-  margin-left: calcSize(-4);
+  margin-inline-start: calcSize(-4); // margin-left
   text-align: right;
   box-sizing: border-box;
   white-space: nowrap;

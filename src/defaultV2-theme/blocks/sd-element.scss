@@ -25,8 +25,9 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   }
   &.sd-question--paneldynamic {
     padding-bottom: 0;
-    & > .sd-question__erbox--outside-question {
+    & > .sd-question__erbox--below-question {
       bottom: 0;
+      margin-top: 0;
     }
   }
 }

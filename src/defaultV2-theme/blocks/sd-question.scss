@@ -23,10 +23,12 @@
 }
 .sd-question__erbox--below-question {
   position: relative;
-  bottom: -40px;
+  bottom: calc(-1 * var(--sd-base-padding));
   border-radius: 0 0 calcSize(0.5) calcSize(0.5);
 }
-
+.sd-root-modern--mobile .sd-question__erbox--below-question {
+  margin-top: calcSize(1);
+}
 .sd-question__header {
   width: 100%;
 }

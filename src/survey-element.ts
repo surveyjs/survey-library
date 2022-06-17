@@ -173,8 +173,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
+    if(!document) return false;
     const el = document.getElementById(elementId);
-    if (el) {
+    if (el && !(<any>el)["disabled"]) {
       el.focus();
       return true;
     }

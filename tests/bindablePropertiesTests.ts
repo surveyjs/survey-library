@@ -1,5 +1,5 @@
 import { SurveyModel } from "../src/survey";
-import { Bindings, Base } from "../src/base";
+import { Bindings, Base, ArrayChanges } from "../src/base";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -216,4 +216,53 @@ QUnit.test("Dynamic Panel, getNames()", function (assert) {
     ["panelCount"],
     "One bindable property"
   );
+});
+QUnit.test("onPropertyValueChangedCallback is not changed on changing bindings", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { name: "q1", type: "text", defaultValue: 3 },
+      {
+        name: "matrix1",
+        type: "matrixdynamic",
+        columns: [{ name: "col1" }]
+      },
+    ],
+  });
+  let e_name, e_oldValue, e_newValue, e_sender;
+  let counter = 0;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: ArrayChanges
+  ) => {
+    e_name = name;
+    e_oldValue = oldValue;
+    e_newValue = newValue;
+    e_sender = sender;
+    counter++;
+  };
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const bindingJSON = {
+    rowCount: "q1"
+  };
+  matrix.bindings.setBinding("rowCount", "q1");
+  assert.equal(counter, 1, "#1, Binding is changed");
+  assert.equal(e_name, "bindings", "#1, name");
+  assert.notOk(e_oldValue, "#1, oldValue");
+  assert.deepEqual(e_newValue, bindingJSON, "#1, newValue");
+  assert.equal(e_sender.name, "matrix1", "#1, sender");
+  matrix.bindings.clearBinding("rowCount");
+  assert.equal(counter, 2, "#2, Binding is changed");
+  assert.equal(e_name, "bindings", "#2, name");
+  assert.deepEqual(e_oldValue, bindingJSON, "#2, oldValue");
+  assert.deepEqual(e_newValue, undefined, "#2, newValue");
+  assert.equal(e_sender.name, "matrix1", "#2, sender");
+  matrix.bindings.setJson(bindingJSON);
+  assert.equal(counter, 3, "#3, Binding is changed");
+  assert.equal(e_name, "bindings", "#3, name");
+  assert.deepEqual(e_oldValue, undefined, "#3, oldValue");
+  assert.deepEqual(e_newValue, bindingJSON, "#3, newValue");
+  assert.equal(e_sender.name, "matrix1", "#3, sender");
 });

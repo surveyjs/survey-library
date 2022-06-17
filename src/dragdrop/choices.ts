@@ -77,7 +77,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
     const controlsNode: HTMLElement = itemValueNode.querySelector(".svc-image-item-value-controls");
     const imageContainerNode:any = itemValueNode.querySelector(".sd-imagepicker__image-container");
-    const imageNode:any = itemValueNode.querySelector("img");
+    const imageNode:any = itemValueNode.querySelector("img").cloneNode(true);
 
     controlsNode.style.display = "none";
     imageContainerNode.style.width = imageNode.width + "px";

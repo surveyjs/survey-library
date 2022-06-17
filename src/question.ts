@@ -744,14 +744,20 @@ export class Question extends SurveyElement
   }
 
   public showErrorOnCore(location: string) :boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && this.errorLocation === location;
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
   }
 
   public get showErrorOnTop(): boolean {
     return this.showErrorOnCore("top");
   }
-  public get showErrorOnBottom() {
+  public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
+  }
+  public get showErrorsAboveQuestion(): boolean {
+    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "top";
+  }
+  public get showErrorsBelowQuestion(): boolean {
+    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "bottom";
   }
 
   public get cssError(): string {
@@ -764,6 +770,8 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
+      .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
       .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
       .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)

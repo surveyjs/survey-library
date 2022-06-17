@@ -58,6 +58,11 @@
       :element="element"
       :css="css"
     />
+    <survey-errors
+      v-if="!element.isPanel && element.showErrorsBelowQuestion"
+      :element="element"
+      :location="'bottom'"
+    />
   </div>
   
   <component

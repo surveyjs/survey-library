@@ -230,6 +230,8 @@ frameworks.forEach(framework => {
     await t.click(".sd-navigation__complete-btn");
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("question-with-error-below.png", qRoot, t);
+    await t.resizeWindow(600, 1080);
+    await checkElementScreenshot("responsiveness-question-with-error-below.png", qRoot, t);
   });
   test("Check title location Left", async(t)=> {
     await t.resizeWindow(1920, 1080);

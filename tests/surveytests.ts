@@ -14823,8 +14823,8 @@ QUnit.test("Check navigation bar css update", function (assert) {
       }
     ]
   });
-  survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "custom--default-size-mode" }, footer: "custom-footer" };
-  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom--default-size-mode custom-footer");
+  survey.css = { actionBar: { root: "custom-navigation" }, footer: "custom-footer" };
+  assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({

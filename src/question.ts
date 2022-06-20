@@ -719,7 +719,7 @@ export class Question extends SurveyElement
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleExpandable, this.state !== "default")
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
       .append(cssClasses.titleOnError, this.containsErrors)

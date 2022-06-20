@@ -198,11 +198,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "state") {
-      if (oldValue === "default" || newValue === "default") {
-        this.updateTitleActions();
-      } else {
-        this.updateElementCss(false);
-      }
+      this.updateElementCss(false);
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
   }

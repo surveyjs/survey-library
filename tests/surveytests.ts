@@ -13896,6 +13896,60 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Two skip triggers test", function (assert) {
+  var focusedQuestions: Array<string> = [];
+  var oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestions.push(elId);
+    return true;
+  };
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "text",
+        name: "q2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        enableIf: "{q1} = 'item3'"
+      }
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'item2'",
+        gotoName: "q2",
+      },
+      {
+        type: "skip",
+        expression: "{q1} = 'item3'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "item2";
+  assert.equal(focusedQuestions.length, 1, "First skip");
+  assert.equal(
+    focusedQuestions[0],
+    survey.getQuestionByName("q2").inputId,
+    "The second question is focused"
+  );
+  survey.getQuestionByName("q1").value = "item3";
+  assert.equal(focusedQuestions.length, 2, "Second skip");
+  assert.equal(
+    focusedQuestions[1],
+    survey.getQuestionByName("q3").inputId,
+    "The third question is focused"
+  );
+  SurveyElement.FocusElement = oldFunc;
+}
+);
 QUnit.test(
   "Test SurveyElement isPage, isPanel and isQuestion properties",
   function (assert) {

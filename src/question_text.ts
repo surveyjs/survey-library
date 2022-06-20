@@ -255,7 +255,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
-    if (!value) return errorText;
+    if (Helpers.isValueEmpty(value)) return errorText;
     return errorText.replace("{0}", value.toString());
   }
   private get isValueLessMin(): boolean {

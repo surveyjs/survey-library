@@ -12,6 +12,7 @@
 .sd-selectbase__label {
   display: flex;
   position: relative;
+  gap: calcSize(1);
 }
 .sd-selectbase__column {
   vertical-align: top;

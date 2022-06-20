@@ -4741,6 +4741,8 @@ QUnit.test(
     question.value = 10;
     assert.equal(survey.getValue("q1"), 10, "Set 10 to survey");
     question.value = -5;
+    assert.equal(question.errors.length, 1, "There is an error");
+    assert.equal(question.errors[0].text, "The value should not be less than 0", "The error text is correct");
     assert.equal(survey.getValue("q1"), 10, "Could not set -5 to survey");
     question.value = 500;
     assert.equal(survey.getValue("q1"), 10, "Could not set 500 to survey");

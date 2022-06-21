@@ -2736,7 +2736,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get startedPage(): PageModel {
     var page =
-      this.firstPageIsStarted && this.pages.length > 0 ? this.pages[0] : null;
+      this.firstPageIsStarted && this.pages.length > 1 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
       page.setWasShown(true);
@@ -2974,7 +2974,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].setWasShown(false);
       this.pages[i].passed = false;
     }
-    this.isStartedState = this.firstPageIsStarted;
+    this.onFirstPageIsStartedChanged();
     if (gotoFirstPage) {
       this.currentPage = this.firstVisiblePage;
     }
@@ -3639,7 +3639,7 @@ export class SurveyModel extends SurveyElementCore
   }
   isPageStarted(page: IPage): boolean {
     return (
-      this.firstPageIsStarted && this.pages.length > 0 && this.pages[0] === page
+      this.firstPageIsStarted && this.pages.length > 1 && this.pages[0] === page
     );
   }
   /**
@@ -3664,9 +3664,8 @@ export class SurveyModel extends SurveyElementCore
     return preview == "showAllQuestions" || preview == "showAnsweredQuestions";
   }
   protected onFirstPageIsStartedChanged() {
-    if (this.pages.length == 0) return;
-    this.isStartedState = this.firstPageIsStarted;
-    this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
+    this.isStartedState = this.firstPageIsStarted && this.pages.length > 1;
+    this.pageVisibilityChanged(this.pages[0], !this.isStartedState);
   }
   private runningPages: any;
   private onShowingPreviewChanged() {
@@ -3709,9 +3708,12 @@ export class SurveyModel extends SurveyElementCore
       this.pages.push(originalPages[i]);
     }
   }
+  private getPageStartIndex(): number {
+    return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
+  }
   private setupPagesForPageModes(isSinglePage: boolean) {
     this.questionHashesClear();
-    var startIndex = this.firstPageIsStarted ? 1 : 0;
+    var startIndex = this.getPageStartIndex();
     super.startLoadingFromJson();
     var newPages = this.createPagesForQuestionOnPageMode(
       isSinglePage,
@@ -4790,7 +4792,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public getQuizQuestions(): Array<IQuestion> {
     var result = new Array<IQuestion>();
-    var startIndex = this.firstPageIsStarted ? 1 : 0;
+    var startIndex = this.getPageStartIndex();
     for (var i = startIndex; i < this.pages.length; i++) {
       if (!this.pages[i].isVisible) continue;
       var questions = this.pages[i].questions;
@@ -5311,7 +5313,7 @@ export class SurveyModel extends SurveyElementCore
   private isEndLoadingFromJson: string = null;
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
-    this.isStartedState = this.firstPageIsStarted;
+    this.onFirstPageIsStartedChanged();
     this.onQuestionsOnPageModeChanged("standard");
     super.endLoadingFromJson();
     if (this.hasCookie) {

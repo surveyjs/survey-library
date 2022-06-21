@@ -117,6 +117,7 @@ export interface IAction {
    * @see iconName
    */
   disableShrink?: boolean;
+  disableHide?: boolean;
   mode?: actionModeType;
   visibleIndex?: number;
   needSpace?: boolean;
@@ -163,6 +164,7 @@ export class Action extends Base implements IAction {
   @property({ defaultValue: "large" }) mode: actionModeType;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
+  @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
   @property({ onSet: (val, obj) => {
     val.onChanged = () => {

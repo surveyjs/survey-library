@@ -5160,7 +5160,7 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
   ];
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0]["choices"] = [
+  q1.choices = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
@@ -5185,7 +5185,7 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
   q1.rowCount = 2;
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0]["choices"] = [
+  q1.choices = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];

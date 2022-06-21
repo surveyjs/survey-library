@@ -9,7 +9,7 @@ import { PopupModel } from "./popup";
 import { ListModel } from "./list";
 import { Action, IAction } from "./actions/action";
 import { Base, ComputedUpdater, EventBase } from "./base";
-import { findParentByClass } from "./utils/utils";
+import { findParentByClassNames } from "./utils/utils";
 import { PopupUtils } from "./utils/popup";
 
 /**
@@ -214,7 +214,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public onClick(event: any): void {
     if (!!event && !!event.target) {
-      const target = findParentByClass(event.target, this.cssClasses.control);
+      const target = findParentByClassNames(event.target, this.cssClasses.control.split(" "));
       if (!!target) {
         PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
       }

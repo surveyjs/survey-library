@@ -276,7 +276,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
 
   /**
-   * Aligns matrix cell contents in the vertical direction.
+   * Aligns matrix cell content in the vertical direction.
    */
   @property({ defaultValue: "middle" }) verticalAlign: "top" | "middle";
 

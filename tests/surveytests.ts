@@ -14314,7 +14314,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" }, ];
+    options.titleActions = [{ id: "action" },];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");
@@ -14944,4 +14944,15 @@ QUnit.test("Do not execute visibleIf in design mode", function (assert) {
   assert.equal(newQuestion2.visible, true, "It is visible");
   survey.pages[0].addElement(newPanel2);
   assert.equal(newQuestion2.visible, true, "It is visible, #2");
+});
+QUnit.test("Ignore firstStartPage if there is only one page", function (assert) {
+  var survey = new SurveyModel({
+    firstPageIsStarted: true,
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  assert.equal(survey.state, "running", "There is only one page");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
 });

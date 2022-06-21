@@ -3,7 +3,7 @@ import { QuestionAngular } from "../question";
 import { QuestionHtmlModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 @Component({
-  selector: "sv-ng-text-question",
+  selector: "sv-ng-html-question",
   templateUrl: "./html.component.html",
   styleUrls: []
 })

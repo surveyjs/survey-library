@@ -12,6 +12,20 @@
       "description": "This is the first page of test survey shown via survey-angular-ui module.",
       "questions": [
         {
+          "type": "multipletext",
+          "name": "pricelimit",
+          "title": "What is the... ",
+          "items": [
+            {
+              "name": "mostamount",
+              "title": "Most amount you would every pay for a product like ours"
+            }, {
+              "name": "leastamount",
+              "title": "The least amount you would feel comfortable paying"
+            }
+          ]
+        },
+        {
           "type": "signaturepad",
           "name": "signature",
           "isRequired": true,

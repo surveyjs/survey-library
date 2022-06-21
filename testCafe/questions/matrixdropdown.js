@@ -19,6 +19,7 @@ const json = {
         {
           name: "experience",
           title: "How long do you use it?",
+          cellType: "dropdown",
           choices: [
             { value: 5, text: "3-5 years" },
             { value: 2, text: "1-2 years" },

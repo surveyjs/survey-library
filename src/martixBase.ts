@@ -267,7 +267,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
 
-  public getTableCss() :string {
+  public getTableCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootAlternateRows, this.alternateRows)
@@ -275,7 +275,14 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
   }
 
-  @property({ defaultValue: "middle" }) verticalAlign: "top"|"middle";
+  /**
+   * Aligns matrix cell contents in the vertical direction.
+   */
+  @property({ defaultValue: "middle" }) verticalAlign: "top" | "middle";
+
+  /**
+   * Specifies whether to apply shading to alternate matrix rows.
+   */
   @property({ defaultValue: false }) alternateRows: boolean;
 }
 
@@ -290,7 +297,7 @@ Serializer.addClass(
       choices: ["top", "middle"],
       default: "middle",
     },
-    "alternateRows:boolean",
+    { name: "alternateRows:boolean", default: false }
   ],
   undefined,
   "question"

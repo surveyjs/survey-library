@@ -379,14 +379,12 @@ QUnit.test("LongTap", function (assert) {
   dndRanking.parentElement.registerFunctionOnPropertyValueChanged("rankingChoices", () => { count++; });
   dndRanking.doClear();
 
-  //force update works
   assert.equal(count, 2);
   count = 0;
 
-  //without force update
   dndRanking.parentElement.longTap = true;
   dndRanking.doClear();
-  assert.equal(count, 0);
+  assert.equal(count, 2);
 });
 
 QUnit.test("DragDrop shortcutCoordinates", function (assert) {

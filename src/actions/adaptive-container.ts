@@ -26,9 +26,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
-    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount);
+    const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
+    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount) - (this.visibleActions.length - actionsToHide.length);
     const invisibleItems: IAction[] = [];
-    this.visibleActions.forEach((item) => {
+    actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
         invisibleItems.push(item.innerItem);

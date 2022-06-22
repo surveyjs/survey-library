@@ -16,4 +16,4 @@
       <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
     </datalist>
   </div>
-  <div *ngIf="model.isReadOnlyRenderDiv()">{{ model.value }}</div>
+  <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>

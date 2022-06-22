@@ -1,7 +1,7 @@
 <div [class]="model.cssClasses.tableWrapper" #contentElement>
   <fieldset>
     <legend [attr.aria-label]="model.locTitle.renderedHtml"></legend>
-    <table [class]="model.cssClasses.root">
+    <table [class]="model.getTableCss()">
       <thead *ngIf="model.showHeader">
         <tr>
           <td [visible]="model.hasRows"></td>
@@ -13,7 +13,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
-          <td [class]="model.cssClasses.cell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string-viewer></td>
+          <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string-viewer></td>
           <ng-container *ngIf="model.hasCellText">
             <td *ngFor="let column of model.visibleColumns"
               [class]="model.getItemClass(row, column)"

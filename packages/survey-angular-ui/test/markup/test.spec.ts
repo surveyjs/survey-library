@@ -36,6 +36,14 @@ class ExpectAssertAdapter {
   }
 }
 
+const blackList = [
+  new RegExp(/paneldynamic/), //not implemented yet
+  new RegExp(/file-mob2/), // waiting for action bar
+  new RegExp(/image(-video)?/), //not implemented yet
+  new RegExp(/dropdown-select/), //not implemented yet
+  new RegExp(/panel/) //not implemented yet
+];
+
 describe("etalon tests", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -51,7 +59,7 @@ describe("etalon tests", () => {
     };
   });
   markupTests.forEach(markupTest => {
-    if(markupTest.snapshot?.search(/^question-errors/) > -1) {
+    if(!blackList.some(item => markupTest.snapshot?.search(item) > -1)) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });

@@ -20,6 +20,11 @@
   font-family: $font-family;
   font-size: calcSize(2);
 }
+.sd-dropdown__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .sd-dropdown_clean-button {
   padding: 0 calcSize(1);
 }

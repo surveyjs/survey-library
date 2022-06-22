@@ -6,6 +6,7 @@
     :key="item.id"
     v-bind:class="model.getItemClass(item)"
     v-on:click="model.selectItem(item)"
+    v-on:keyup="keyUp"
   >
     <sv-svg-icon
       v-if="item.iconName && !item.component"
@@ -24,6 +25,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Base, ListModel } from "survey-core";
 import { BaseVue } from "../../base";
+import { attachKey2click } from "../../survey.vue";
 
 export * from "./list.vue";
 
@@ -36,6 +38,9 @@ export class ListItem extends BaseVue {
   }
   getModel() {
     return this.item;
+  }
+  public keyUp(event: any) {
+    attachKey2click(event);
   }
 }
 

@@ -254,7 +254,7 @@ export class Const extends Operand {
       this.isQuote(value[0]) &&
       this.isQuote(value[value.length - 1])
     )
-      return value.substr(1, value.length - 2);
+      return value.substring(1, value.length - 1);
     if (OperandMaker.isNumeric(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
       if (value.length > 1 && value[0] == "0") return value;
@@ -288,7 +288,7 @@ export class Variable extends Const {
       this.variableName.length > 1 &&
       this.variableName[0] === Variable.DisableConversionChar
     ) {
-      this.variableName = this.variableName.substr(1);
+      this.variableName = this.variableName.substring(1);
       this.useValueAsItIs = true;
     }
   }

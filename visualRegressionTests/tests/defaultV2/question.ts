@@ -212,7 +212,26 @@ frameworks.forEach(framework => {
     await t.typeText(".sd-input", "some-text");
     await t.click(".sd-navigation__complete-btn");
     await checkElementScreenshot("question-with-long-error.png", qRoot, t);
-
+  });
+  test("Check question errors bottom", async(t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "text",
+          name: "q_error",
+          title: "What is your name?",
+          isRequired: true,
+        }
+      ],
+      questionErrorLocation: "bottom"
+    });
+    const qRoot = Selector(".sd-question");
+    await t.click(".sd-navigation__complete-btn");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("question-with-error-below.png", qRoot, t);
+    await t.resizeWindow(600, 1080);
+    await checkElementScreenshot("responsiveness-question-with-error-below.png", qRoot, t);
   });
   test("Check title location Left", async(t)=> {
     await t.resizeWindow(1920, 1080);

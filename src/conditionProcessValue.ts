@@ -125,7 +125,7 @@ export class ProcessValue {
           return { value: obj, text: text, path: path };
         obj = this.getObjectValue(obj, curName);
         if (Helpers.isValueEmpty(obj) && !createPath) return null;
-        text = text.substr(curName.length);
+        text = text.substring(curName.length);
       } else {
         var objInArray = this.getObjInArray(obj, text);
         if (!objInArray) return null;
@@ -134,7 +134,7 @@ export class ProcessValue {
         path.push(objInArray.index);
       }
       if (!!text && text[0] == ".") {
-        text = text.substr(1);
+        text = text.substring(1);
       }
       curName = this.getFirstPropertyName(text, obj, createPath);
       if (!!curName) {
@@ -151,7 +151,7 @@ export class ProcessValue {
       str += text[index];
       index++;
     }
-    text = index < text.length ? text.substr(index + 1) : "";
+    text = index < text.length ? text.substring(index + 1) : "";
     index = this.getIntValue(str);
     if (index < 0 || index >= curValue.length) return null;
     return { value: curValue[index], text: text, index: index };
@@ -175,13 +175,13 @@ export class ProcessValue {
         if (nameInLow.length <= keyName.length) continue;
         var ch = nameInLow[keyName.length];
         if (ch != "." && ch != "[") continue;
-        if (keyName == nameInLow.substr(0, keyName.length)) return key;
+        if (keyName == nameInLow.substring(0, keyName.length)) return key;
       }
     }
     if (createProp && name[0] !== "[") {
       var ind = name.indexOf(".");
       if (ind > -1) {
-        name = name.substr(0, ind);
+        name = name.substring(0, ind);
         obj[name] = {};
       }
       return name;

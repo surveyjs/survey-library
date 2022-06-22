@@ -107,4 +107,123 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("question-matrix-dropdown-columns.png", questionRoot, t);
   });
 
+  test("Matrix row top align", async (t) => {
+    await t.resizeWindow(800, 600);
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "question1",
+              "verticalAlign": "top",
+              "columns": [
+                "Column 1",
+                "Column 2",
+                "Column 3"
+              ],
+              "rows": [
+                {
+                  "value": "Row 1",
+                  "text": "Row with many words that is long and long and long"
+                },
+                "Row 2"
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+    const questionRoot = Selector(".sd-row");
+    await checkElementScreenshot("question-matrix-top-align.png", questionRoot, t);
+  });
+
+  test("Matrix alternate rows", async (t) => {
+    await t.resizeWindow(800, 600);
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "question1",
+              "alternateRows": true,
+              "columns": [
+                "Column 1",
+                "Column 2",
+                "Column 3"
+              ],
+              "rows": [
+                {
+                  "value": "Row 1",
+                  "text": "Row with many words that is long and long and long"
+                },
+                "Row 2",
+                "Row 3"
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+    const questionRoot = Selector(".sd-row");
+    await checkElementScreenshot("question-matrix-alternate-rows.png", questionRoot, t);
+  });
+
+  test("Matrix dropdown row top align", async (t) => {
+    await t.resizeWindow(800, 600);
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrixdropdown",
+              "name": "question1",
+              "verticalAlign": "top",
+              "columns": [
+                {
+                  "name": "Column 1"
+                },
+                {
+                  "name": "Column 2"
+                },
+                {
+                  "name": "Column 3"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                {
+                  "value": "Row 1",
+                  "text": "Row with many words that is long and long and long"
+                },
+                "Row 2"
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+    const questionRoot = Selector(".sd-row");
+    await checkElementScreenshot("question-matrix-dropdown-top-align.png", questionRoot, t);
+  });
+
 });

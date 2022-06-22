@@ -4,7 +4,7 @@
       <legend
         data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
       ></legend>
-      <table data-bind="css: question.koCss().root">
+      <table data-bind="css: question.getTableCss()">
         <!-- ko if: question.showHeader -->
         <thead>
           <tr>

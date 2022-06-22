@@ -136,7 +136,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set min(val: string) {
     if (this.isValueExpression(val)) {
-      this.minValueExpression = val.substr(1);
+      this.minValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("min", val);
@@ -149,7 +149,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set max(val: string) {
     if (this.isValueExpression(val)) {
-      this.maxValueExpression = val.substr(1);
+      this.maxValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("max", val);
@@ -255,7 +255,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
-    if (!value) return errorText;
+    if (Helpers.isValueEmpty(value)) return errorText;
     return errorText.replace("{0}", value.toString());
   }
   private get isValueLessMin(): boolean {

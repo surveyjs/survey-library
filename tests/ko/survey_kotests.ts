@@ -1878,6 +1878,11 @@ QUnit.test("survey.firstPageIsStarted=true + multiple-language", function (
           },
         ],
       },
+      {
+        elements: [
+          { type: "text", name: "question1" }
+        ]
+      }
     ],
     firstPageIsStarted: true,
   });

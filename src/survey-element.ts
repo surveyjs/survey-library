@@ -173,8 +173,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
+    if(!document) return false;
     const el = document.getElementById(elementId);
-    if (el) {
+    if (el && !(<any>el)["disabled"]) {
       el.focus();
       return true;
     }
@@ -201,11 +202,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "state") {
-      if (oldValue === "default" || newValue === "default") {
-        this.updateTitleActions();
-      } else {
-        this.updateElementCss(false);
-      }
+      this.updateElementCss(false);
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
   }
@@ -676,10 +673,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
 
   protected get isDefaultV2Theme() {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
-  }
-
-  public get showErrorsAboveQuestion() {
-    return this.isDefaultV2Theme && !this.hasParent;
   }
 
   public get isErrorsModeTooltip(): boolean {

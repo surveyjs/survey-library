@@ -232,6 +232,7 @@ function clearAttributes(el: Element) {
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");
   el.removeAttribute("id");
+  el.removeAttribute("aria-describedby");
   el.removeAttribute("for");
   if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");

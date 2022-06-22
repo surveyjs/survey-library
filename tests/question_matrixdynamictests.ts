@@ -28,6 +28,7 @@ QUnit.test("Matrixdropdown cells tests", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
+  question.columns[1].cellType = "dropdown";
   question.columns[1]["choices"] = [4, 5];
   question.value = { row2: { column1: 2 } };
   var visibleRows = question.visibleRows;
@@ -73,6 +74,7 @@ QUnit.test("Matrixdynamic cells tests", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
+  question.columns[1].cellType = "dropdown";
   question.columns[1]["choices"] = [4, 5];
   question.value = [{}, { column1: 2 }, {}];
   var visibleRows = question.visibleRows;
@@ -1373,6 +1375,7 @@ QUnit.test(
     var question = new QuestionMatrixDynamicModel("matrix");
     question.choices = [1, 2, 3];
     var column = question.addColumn("col1");
+    column.cellType = "dropdown";
     column["choices"] = [4, 5];
     question.rowCount = 1;
     var rows = question.visibleRows;
@@ -1405,6 +1408,7 @@ QUnit.test("MatrixDropdownColumn load choices from json", function (assert) {
       {
         name: "experience",
         title: "How long do you use it?",
+        cellType: "dropdown",
         choices: [
           { value: 5, text: "3-5 years" },
           { value: 2, text: "1-2 years" },
@@ -1679,8 +1683,8 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
 QUnit.test("matrixDynamic.getConditionJson", function (assert) {
   var names = [];
   var question = new QuestionMatrixDynamicModel("matrix");
-  question.addColumn("col1");
-  question.addColumn("col2");
+  question.addColumn("col1").cellType = "dropdown";
+  question.addColumn("col2").cellType = "dropdown";
   question.columns[0]["choices"] = [1, 2];
   question.columns[1].cellType = "checkbox";
   question.columns[1]["choices"] = [1, 2, 3];
@@ -1698,8 +1702,8 @@ QUnit.test("matrixDynamic.getConditionJson", function (assert) {
 QUnit.test("matrixDynamic.clearInvisibleValues", function (assert) {
   var names = [];
   var question = new QuestionMatrixDynamicModel("matrix");
-  question.addColumn("col1");
-  question.addColumn("col2");
+  question.addColumn("col1").cellType = "dropdown";
+  question.addColumn("col2").cellType = "dropdown";
   question.columns[0]["choices"] = [1, 2];
   question.columns[1]["choices"] = [1, 2, 3];
   question.rowCount = 2;
@@ -1718,8 +1722,8 @@ QUnit.test("matrixDynamic.clearInvisibleValues", function (assert) {
 QUnit.test("matrixDropdown.clearInvisibleValues", function (assert) {
   var names = [];
   var question = new QuestionMatrixDropdownModel("matrix");
-  question.addColumn("col1");
-  question.addColumn("col2");
+  question.addColumn("col1").cellType = "dropdown";
+  question.addColumn("col2").cellType = "dropdown";
   question.columns[0]["choices"] = [1, 2];
   question.columns[1]["choices"] = [1, 2, 3];
   question.rows = ["row1", "row2"];
@@ -2291,6 +2295,7 @@ QUnit.test(
             },
             {
               name: "phone_model",
+              cellType: "dropdown",
               totalType: "count",
               totalFormat: "Items count: {0}",
               choices: [
@@ -4907,6 +4912,7 @@ QUnit.test(
             },
             {
               name: "column2",
+              cellType: "dropdown",
               choices: [
                 { value: "A", visibleIf: "{row.column1} = 1" },
                 { value: "B", visibleIf: "{row.column1} = 2" },
@@ -6838,6 +6844,7 @@ QUnit.test("getDisplayValue() function in matrix dynamic, Bug#", function (
           {
             name: "col1",
             title: "Column 1",
+            cellType: "dropdown",
             choices: [
               { value: 1, text: "A" },
               { value: 2, text: "B" },
@@ -6876,6 +6883,7 @@ QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function (
           {
             name: "col1",
             title: "Column 1",
+            cellType: "dropdown",
             choices: [
               { value: 1, text: "A" },
               { value: 2, text: "B" },
@@ -6918,6 +6926,7 @@ QUnit.test("getDisplayValue() function in matrix Dropdown with rowsVisibleIf, Bu
         columns: [
           {
             name: "col1",
+            cellType: "dropdown",
             choices: [
               { value: 1, text: "A" },
               { value: 2, text: "B" },
@@ -7105,6 +7114,7 @@ QUnit.test(
           columns: [
             {
               name: "col1",
+              cellType: "dropdown",
               choices: [1, 2, 3, 4, 5],
             },
           ],
@@ -7488,4 +7498,41 @@ QUnit.test("Summary doesn't work correctly if there is invisible column and clea
   matrix.visibleRows[1].cells[0].question.value = 3;
   matrix.visibleRows[1].cells[1].question.value = 4;
   assert.equal(matrix.visibleTotalRow.cells[2].value, 1 + 2 + 3 + 4, "summary calculated correctly");
+});
+QUnit.test("Get choices from matrix for default column type", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            choices: [1, 2]
+          }
+        ],
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix2",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            choices: [1, 2]
+          }
+        ]
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const cellQuestion1 = <QuestionDropdownModel>matrix1.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion1.choices.length, 3, "Take choices from matrix choices");
+  assert.equal(cellQuestion1.choices[0].value, "item1", "First choice is correct");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
+  const cellQuestion2 = <QuestionDropdownModel>matrix2.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion2.choices.length, 2, "Take choices from matrix choices, #2");
+  assert.equal(cellQuestion2.choices[0].value, 1, "First choice is correct, #2");
 });

@@ -115,6 +115,8 @@ export function testQuestionMarkup(assert, test, platform) {
       //temp
       newstr = sortClasses(newstr);
       oldStr = sortClasses(oldStr);
+      newstr = sortInlineStyles(newstr);
+      oldStr = sortInlineStyles(oldStr);
 
       assert.equal(newstr, oldStr,
         newstr == oldStr ?
@@ -268,6 +270,18 @@ function sortClasses(str: string) {
     if(el.className !== "") {
       const classList = el.classList.value.replace(/\s+/, " ").split(" ");
       el.classList.value = classList.sort((a: string, b: string) => a.localeCompare(b)).join(" ");
+    }
+  });
+  return div.innerHTML;
+}
+
+function sortInlineStyles(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    if(!!el.getAttribute("style")) {
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/\s+/, " ").split(" ");
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).join(" "));
     }
   });
   return div.innerHTML;

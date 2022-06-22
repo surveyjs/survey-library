@@ -51,50 +51,10 @@ describe("etalon tests", () => {
     };
   });
   markupTests.forEach(markupTest => {
-    if(markupTest.snapshot?.search(/^multipletext/) > -1) {
+    if(markupTest.snapshot?.search(/^question-errors/) > -1) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });
     }
-  });
-  it("Check that that surveyAfterRender isCalled", (done: any) => {
-    const fixture = TestBed.createComponent(SurveyComponent);
-    const component = fixture.componentInstance;
-    component.model = new SurveyModel({});
-    component.model.onAfterRenderSurvey.add((sender: SurveyModel, opt: any) => {
-      expect(sender).toBe(component.model);
-      done();
-    });
-    fixture.detectChanges();
-  });
-  it("Check that that question afterRender isCalled", (done: any) => {
-    const fixture = TestBed.createComponent(SurveyComponent);
-    const component = fixture.componentInstance;
-    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    component.model.onAfterRenderQuestion.add((sender: SurveyModel, opt: any) => {
-      expect(opt.question.name).toBe("q1");
-      done();
-    });
-    fixture.detectChanges();
-  });
-  it("Check that that survey after render header isCalled correctly", (done: any) => {
-    const fixture = TestBed.createComponent(SurveyComponent);
-    const component = fixture.componentInstance;
-    component.model = new SurveyModel({ title: "Some title", elements: [{ type: "text", name: "q1" }] });
-    component.model.onAfterRenderHeader.add((sender: SurveyModel, opt: any) => {
-      expect(opt.htmlElement.className).toBe("sv_header");
-      done();
-    });
-    fixture.detectChanges();
-  });
-  it("Check that that question after question content isCalled correctly", (done: any) => {
-    const fixture = TestBed.createComponent(SurveyComponent);
-    const component = fixture.componentInstance;
-    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    component.model.onAfterRenderQuestionInput.add((sender: SurveyModel, opt: any) => {
-      expect(opt.htmlElement.className.search(/sv_q_text_root/) > -1).toBe(true);
-      done();
-    });
-    fixture.detectChanges();
   });
 });

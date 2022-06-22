@@ -1,4 +1,4 @@
-<div [class]="model.cssClasses.page.root">
+<div [class]="model.cssClasses.page.root" #pageContainer>
   <!-- ko component: { name: 'survey-element-title', params: {element: $data } } -->
   <!-- /ko -->
   <div [hidden]="!model.hasTitle">

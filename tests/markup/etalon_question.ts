@@ -15,8 +15,8 @@ registerMarkupTest(
       ]
     },
     snapshot: "question-errors-v2-top",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },
@@ -36,8 +36,8 @@ registerMarkupTest(
       questionErrorLocation: "bottom"
     },
     snapshot: "question-errors-v2-bottom",
-    before: () => StylesManager.applyTheme("defaultV2"),
-    after: () => StylesManager.applyTheme("default"),
+    before: (opt) => opt.StylesManager.applyTheme("defaultV2"),
+    after: (opt) => opt.StylesManager.applyTheme("default"),
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },

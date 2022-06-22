@@ -40,3 +40,13 @@
     margin-right: 0;
   }
 }
+
+.sd-ranking--disabled {
+  .sv-ranking-item__text {
+    color: $foreground-disabled;
+  }
+}
+
+.sv-ranking-item__content.sd-ranking-item__content {
+  line-height: calcSize(3);
+}

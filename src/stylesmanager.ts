@@ -210,7 +210,7 @@ export class StylesManager {
       "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
       "visibility:hidden;",
-    ".sv-ranking--disabled .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
+    ".sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
     ".sv-ranking--disabled": "opacity: 0.8;",
     // EO ranking
 

@@ -1,10 +1,11 @@
-<div #elementContainer [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" data-bind="attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.hasTitle ? question.ariaTitleId : null} ">
-  <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" location="above" sv-ng-errors></div>
+<div #elementContainer [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" [id]="model.id" [attr.data-name]="model.name" [attr.role]="model.ariaRole" [attr.aria-required]="model.ariaRequired" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-labelledby]="model.hasTitle ? model.ariaTitleId : null">
+  <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
   <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
-  <div [class]="model.cssClasses.content">
-    <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" location="top" sv-ng-errors></div>
+  <div [class]="model.cssClasses.content" role="presentation">
+    <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <sv-ng-element-content [model]="model"></sv-ng-element-content>
-    <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" location="bottom" sv-ng-errors></div>
-    <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" location="tooltip" sv-ng-errors></div>
+    <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
+    <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
   </div>
+  <div *ngIf="model.showErrorsBelowQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
 </div>

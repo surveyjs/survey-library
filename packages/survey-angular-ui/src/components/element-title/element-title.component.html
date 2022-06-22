@@ -1,4 +1,4 @@
-<sv-ng-dynamic-head [tagName]="element.titleTagName" [className]="element.cssTitle">
+<sv-ng-dynamic-head [tagName]="element.titleTagName" [element]="element" *ngIf="element.hasTitle">
   <sv-ng-string-viewer *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string-viewer>
   <ng-container *ngIf="element.isTitleOwner">
     <span

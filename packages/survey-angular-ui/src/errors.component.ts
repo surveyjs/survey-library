@@ -7,7 +7,7 @@ import { Base, SurveyElement, TooltipManager } from "survey-core";
 })
 export class ErrorsComponent implements OnDestroy, OnInit {
   @Input() element!: SurveyElement | any;
-  @Input() location!: String;
+  @Input() location?: String;
   @ViewChild("errorsContainer", { static: true }) errorsContainerRef!: ElementRef<HTMLDivElement>;
   private tooltipManager!: TooltipManager;
   constructor(private viewContainerRef: ViewContainerRef) {}
@@ -21,13 +21,13 @@ export class ErrorsComponent implements OnDestroy, OnInit {
       this.tooltipManager.dispose();
     }
   }
-  @HostBinding("role") get role (): string {
+  @HostBinding("attr.role") get role (): string {
     return "alert";
   }
   @HostBinding("id") get id(): string {
     return this.element.id + "_errors";
   }
-  @HostBinding("aria-live") get ariaLive(): string {
+  @HostBinding("attr.aria-live") get ariaLive(): string {
     return "polite";
   }
   @HostBinding("class") get class(): string {

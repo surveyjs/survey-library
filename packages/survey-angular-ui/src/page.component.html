@@ -1,11 +1,5 @@
-<div [class]="model.cssClasses.page.root" #pageContainer>
-  <!-- ko component: { name: 'survey-element-title', params: {element: $data } } -->
-  <!-- /ko -->
-  <div [hidden]="!model.hasTitle">
-    <h4 [class]="model.cssTitle">
-      <string-viewer [model]="model.locTitle"></string-viewer>
-    </h4>
-  </div>
+<div [class]="model.cssRoot" #pageContainer>
+  <sv-ng-element-title [element]="model"></sv-ng-element-title>
   <div *ngIf="model._showDescription" [class]="model.cssClasses.page.description">
     <string-viewer [model]="model.locDescription"></string-viewer>
   </div>

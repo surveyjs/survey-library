@@ -10,9 +10,9 @@
     >
   </span>
   <div [class]="question.getItemCss()">
-    <div *ngIf="model.editor.showErrorOnTop && model.editor.hasVisibleErrors" [element]="model" location="top" sv-ng-errors></div>
+    <div *ngIf="model.editor.showErrorOnTop && model.editor.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <sv-ng-text-question [model]="model.editor"></sv-ng-text-question>
-    <div *ngIf="model.editor.showErrorOnBottom && model.editor.hasVisibleErrors" [element]="model" location="bottom" sv-ng-errors></div>
+    <div *ngIf="model.editor.showErrorOnBottom && model.editor.hasVisibleErrors" [element]="model" sv-ng-errors></div>
   </div>
-  <div *ngIf="model.editor.isErrorsModeTooltip" [element]="model" location="bottom" sv-ng-errors></div>
+  <div *ngIf="model.editor.isErrorsModeTooltip" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
 </label>

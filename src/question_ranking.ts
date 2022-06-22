@@ -135,7 +135,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.getPropertyValue("rankingChoices", []);
   }
 
-  private updateRankingChoices(): ItemValue[] {
+  private updateRankingChoices(forceUpdate = false): ItemValue[] {
     const newRankingChoices: ItemValue[] = [];
 
     // ranking question with only one choice doesn't make sense
@@ -143,6 +143,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.setPropertyValue("rankingChoices", newRankingChoices);
       return;
     }
+
+    if (forceUpdate) this.setPropertyValue("rankingChoices", []);
 
     if (this.isEmpty()) {
       this.setPropertyValue("rankingChoices", this.visibleChoices);

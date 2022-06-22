@@ -361,6 +361,34 @@ QUnit.test("DragDropRankingChoices getIsDragOverRootNode", function (assert) {
   assert.equal(result, true);
 });
 
+QUnit.test("LongTap", function (assert) {
+  let count = 0;
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        longTap: false,
+        choices: ["item1", "item2", "item3"],
+      },
+    ],
+  });
+  let dndRanking: any = new DragDropRankingChoices(null);
+  dndRanking.parentElement = survey.getQuestionByName("q");
+
+  dndRanking.parentElement.registerFunctionOnPropertyValueChanged("rankingChoices", () => { count++; });
+  dndRanking.doClear();
+
+  //force update works
+  assert.equal(count, 2);
+  count = 0;
+
+  //without force update
+  dndRanking.parentElement.longTap = true;
+  dndRanking.doClear();
+  assert.equal(count, 0);
+});
+
 QUnit.test("DragDrop shortcutCoordinates", function (assert) {
   let dnd: any = new DragDropChoices(null);
 
@@ -375,5 +403,4 @@ QUnit.test("DragDrop shortcutCoordinates", function (assert) {
   const shortcutYOffset = 5;
   const shortcutBottomCoordinate = dnd["getShortcutBottomCoordinate"](currentYCoordinate, shortcutHeight, shortcutYOffset);
   assert.equal(shortcutBottomCoordinate, 10 + 10 - 5);
-
 });

@@ -579,7 +579,7 @@ export class MatrixDropdownColumn extends Base
     var properties = this.getProperties(curCellType);
     for (var i = 0; i < properties.length; i++) {
       var prop = properties[i];
-      const newProp = this.addProperty(question, prop.name, false);
+      this.addProperty(question, prop.name, false);
       if (prop.serializationProperty) {
         this.addProperty(question, prop.serializationProperty, true);
       }

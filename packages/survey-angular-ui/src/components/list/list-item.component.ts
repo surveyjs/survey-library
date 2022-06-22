@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { ListModel, Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -13,10 +13,6 @@ export class ListItemComponent extends BaseAngular {
   @Input() model!: ListModel;
   @ViewChild("itemComponent", { read: ViewContainerRef, static: true }) itemComponent!: ViewContainerRef;
 
-  constructor(a: ChangeDetectorRef) {
-    super(a);
-    debugger;
-  }
   getModel() {
     return this.item;
   }

@@ -47,6 +47,30 @@ frameworks.forEach(framework => {
     await focusBody();
     await checkElementScreenshot("question-rating-selected", questionRoot, t);
   });
+  test("Check rating disabled question", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    const focusBody = ClientFunction(()=>{ document.body.focus(); });
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "rating",
+          name: "satisfaction",
+          title: "Rating",
+          rateMax: 3,
+          minRateDescription: "Not Satisfied",
+          maxRateDescription: "Completely satisfied",
+          width: "708px",
+          defaultValue: 2,
+          readOnly: true
+        }
+      ]
+    });
+
+    const questionRoot = Selector(".sd-question");
+    await focusBody();
+    await checkElementScreenshot("question-rating-selected-disabled.png", questionRoot, t);
+  });
   test("Check rating question with many items", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

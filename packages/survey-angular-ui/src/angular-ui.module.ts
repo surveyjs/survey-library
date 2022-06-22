@@ -10,6 +10,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown.component";
+import { DropdownSelectComponent } from "./components/dropdown-select.component";
 import { TextQuestionComponent } from "./questions/text.component";
 import { HtmlQuestionComponent } from "./questions/html.component";
 import { RadiogroupComponent } from "./questions/radiogroup.component";
@@ -34,6 +35,8 @@ import { ElementTitleComponent } from "./components/element-title/element-title.
 import { SurveyHeaderComponent } from "./components/survey-header/survey-header.component";
 
 import { DynamicHeadComponent } from "./components/element-title/dynamic-head.component";
+import { ListComponent } from "./components/list/list.component";
+import { ListItemComponent } from "./components/list/list-item.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
@@ -60,8 +63,9 @@ import { MultipleTextItemComponent } from "./questions/multipletextitem.componen
   declarations: [
     SurveyComponent, PageComponent, ElementComponent, PanelComponent, QuestionComponent, QuestionContentComponent, StringViewerComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
-    DropdownComponent, DropdownQuestionComponent,
+    DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent,
     PopupComponent, PopupContainerComponent,
+    ListComponent, ListItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,

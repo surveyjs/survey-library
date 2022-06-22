@@ -25,3 +25,6 @@ export * from "./components/action-bar/action-bar.component";
 export * from "./components/action-bar/action.component";
 export * from "./components/action-bar/action-bar-item.component";
 export * from "./components/action-bar/action-bar-item-dropdown.component";
+
+export * from "./components/list/list-item.component";
+export * from "./components/list/list.component";

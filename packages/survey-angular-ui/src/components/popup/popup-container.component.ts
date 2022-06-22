@@ -40,7 +40,7 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
   public createAndBindPopupContent() {
     let componentRef = AngularComponentFactory.Instance.create(this.popupContent, this.model.contentComponentName);
     if (!!componentRef) {
-      (componentRef.instance as any).model = this.model.contentComponentData;
+      (componentRef.instance as any).model = this.model.contentComponentData.model;
     }
   }
 }

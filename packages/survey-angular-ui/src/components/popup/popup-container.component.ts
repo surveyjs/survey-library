@@ -19,16 +19,22 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     return this.model;
   }
 
+  ngDoCheck() {
+    if (this.prevIsVisible && !this.model.isVisible) {
+      this.isShow = false;
+    }
+  }
+
   ngAfterViewChecked() {
-    setTimeout(() => {
-      if (!this.prevIsVisible && this.model.isVisible) {
+    if (!this.prevIsVisible && this.model.isVisible) {
+      setTimeout(() => {
         this.model.updateOnShowing();
         this.isShow = true;
-      } else {
-        this.isShow = false;
-      }
+      }, 0);
+    }
+    if (this.prevIsVisible !== this.model.isVisible) {
       this.prevIsVisible = this.model.isVisible;
-    }, 0);
+    }
   }
 
   public createAndBindPopupContent() {

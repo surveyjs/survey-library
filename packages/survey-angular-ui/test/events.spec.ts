@@ -2,8 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { SurveyComponent } from "src/survey.component";
 import { SurveyModel } from "survey-core";
 
-describe("etalon tests", () => {
-  it("Check that that surveyAfterRender isCalled", (done: any) => {
+describe("event tests", () => {
+  it("Check that that surveyAfterRender is called", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = new SurveyModel({});
@@ -13,7 +13,7 @@ describe("etalon tests", () => {
     });
     fixture.detectChanges();
   });
-  it("Check that that question afterRender isCalled", (done: any) => {
+  it("Check that that question afterRender is called", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -23,7 +23,7 @@ describe("etalon tests", () => {
     });
     fixture.detectChanges();
   });
-  it("Check that that survey after render header isCalled correctly", (done: any) => {
+  it("Check that that survey after render header is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = new SurveyModel({ title: "Some title", elements: [{ type: "text", name: "q1" }] });
@@ -33,7 +33,7 @@ describe("etalon tests", () => {
     });
     fixture.detectChanges();
   });
-  it("Check that that question after question content isCalled correctly", (done: any) => {
+  it("Check that that question after question content is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -43,14 +43,33 @@ describe("etalon tests", () => {
     });
     fixture.detectChanges();
   });
-});
-it("Check that after page isCalled correctly", (done: any) => {
-  const fixture = TestBed.createComponent(SurveyComponent);
-  const component = fixture.componentInstance;
-  component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-  component.model.onAfterRenderPage.add((sender: SurveyModel, opt: any) => {
-    expect(opt.htmlElement.className).toBe("sv_p_root");
-    done();
+  it("Check that after render page is called correctly", (done: any) => {
+    const fixture = TestBed.createComponent(SurveyComponent);
+    const component = fixture.componentInstance;
+    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    component.model.onAfterRenderPage.add((sender: SurveyModel, opt: any) => {
+      expect(opt.htmlElement.className).toBe("sv_p_root");
+      done();
+    });
+    fixture.detectChanges();
   });
-  fixture.detectChanges();
+  it("Check that after render panel is called correctly", (done: any) => {
+    const fixture = TestBed.createComponent(SurveyComponent);
+    const component = fixture.componentInstance;
+    component.model = new SurveyModel({ elements: [{
+      "type": "panel",
+      "name": "panel1",
+      "elements": [
+        {
+          "type": "text",
+          "name": "question1"
+        }
+      ]
+    }] });
+    component.model.onAfterRenderPanel.add((sender: SurveyModel, opt: any) => {
+      expect(opt.htmlElement.className).toBe("sv_p_container");
+      done();
+    });
+    fixture.detectChanges();
+  });
 });

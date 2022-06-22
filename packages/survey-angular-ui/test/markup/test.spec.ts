@@ -41,7 +41,6 @@ const blackList = [
   new RegExp(/file-mob2/), // waiting for action bar
   new RegExp(/image(-video)?/), //not implemented yet
   new RegExp(/dropdown-select/), //not implemented yet
-  new RegExp(/panel/) //not implemented yet
 ];
 
 describe("etalon tests", () => {

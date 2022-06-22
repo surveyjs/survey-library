@@ -164,6 +164,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
+    if(this.cellType === "default") return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {
@@ -578,7 +579,7 @@ export class MatrixDropdownColumn extends Base
     var properties = this.getProperties(curCellType);
     for (var i = 0; i < properties.length; i++) {
       var prop = properties[i];
-      this.addProperty(question, prop.name, false);
+      const newProp = this.addProperty(question, prop.name, false);
       if (prop.serializationProperty) {
         this.addProperty(question, prop.serializationProperty, true);
       }

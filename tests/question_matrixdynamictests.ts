@@ -7521,6 +7521,7 @@ QUnit.test("Get choices from matrix for default column type", function (assert) 
         columns: [
           {
             name: "col1",
+            cellType: "dropdown",
             choices: [1, 2]
           }
         ]
@@ -7535,4 +7536,49 @@ QUnit.test("Get choices from matrix for default column type", function (assert) 
   const cellQuestion2 = <QuestionDropdownModel>matrix2.visibleRows[0].cells[0].question;
   assert.equal(cellQuestion2.choices.length, 2, "Take choices from matrix choices, #2");
   assert.equal(cellQuestion2.choices[0].value, 1, "First choice is correct, #2");
+});
+QUnit.test("Serialize default column type correctly", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix1",
+        cellType: "rating",
+        columns: [
+          {
+            name: "col1",
+            cellType: "rating",
+            rateMax: 10
+          }
+        ],
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix2",
+        columns: [
+          {
+            name: "col1",
+            cellType: "dropdown",
+            choices: [1, 2]
+          }
+        ]
+      }
+    ]
+  });
+
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(matrix1.columns[0].rateMax, 10, "rateMax loaded correctly");
+  matrix1.columns[0].cellType = "default";
+  assert.deepEqual(matrix1.toJSON(), {
+    name: "matrix1",
+    cellType: "rating",
+    columns: [{ name: "col1" }]
+  }, "There is no rateMax");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
+  assert.equal(matrix2.columns[0].choices.length, 2, "choices loaded correctly");
+  matrix2.columns[0].cellType = "default";
+  assert.deepEqual(matrix2.toJSON(), {
+    name: "matrix2",
+    columns: [{ name: "col1" }]
+  }, "There is no choices");
 });

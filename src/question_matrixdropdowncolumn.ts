@@ -164,6 +164,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
+    if(this.cellType === "default") return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {

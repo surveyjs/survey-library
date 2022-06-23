@@ -34,7 +34,7 @@ frameworks.forEach(framework => {
     });
     await checkElementScreenshot("question-ranking.png", Selector(".sd-question"), t);
 
-    await t.hover(".sv-ranking-item");
+    await t.hover(".sd-ranking-item");
     await checkElementScreenshot("question-ranking-hover-item.png", Selector(".sd-question"), t);
   });
 

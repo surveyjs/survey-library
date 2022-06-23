@@ -22,7 +22,7 @@ export class QuestionRanking extends QuestionRankingModel {
     return true;
   };
   public koHandlePointerDown = (data: ItemValue, event: PointerEvent) => {
-    event.preventDefault();
+    if(!this.survey.isDesignMode) event.preventDefault();
     this.handlePointerDown(event, data, <HTMLElement>event.currentTarget);
     return true;
   };

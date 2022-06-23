@@ -381,6 +381,7 @@ export var defaultV2Css = {
     itemText: "sd-rating__item-text",
     maxText: "sd-rating__item-text sd-rating__max-text",
     itemDisabled: "sd-rating__item--disabled",
+    itemFixedSize: "sd-rating__item--fixed-size",
     control: "sd-input sd-dropdown",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",

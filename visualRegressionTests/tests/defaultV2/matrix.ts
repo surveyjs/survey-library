@@ -41,6 +41,9 @@ frameworks.forEach(framework => {
 
     const questionRoot = Selector(".sd-question");
     await checkElementScreenshot("question-matrix-detail.png", questionRoot, t);
+
+    await t.hover(Selector(".sd-table__cell--detail-button"));
+    await checkElementScreenshot("question-matrix-detail-hover.png", questionRoot, t);
   });
 
   test("Matrix many columns", async (t) => {
@@ -226,4 +229,35 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("question-matrix-dropdown-top-align.png", questionRoot, t);
   });
 
+  test("Matrix fonts", async (t) => {
+    await t.resizeWindow(800, 600);
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "question1",
+              "columns": [
+                "Column 1",
+                "Column 2",
+                "Column 3"
+              ],
+              "rows": [
+                {
+                  "value": "Row 1",
+                  "text": "АБВГД"
+                },
+                "Row 2"
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    await checkElementScreenshot("question-matrix-non-latin.png", Selector(".sv-string-viewer").withText("АБВГД"), t);
+  });
 });

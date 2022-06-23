@@ -21,13 +21,22 @@
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcSize(12.5);
   white-space: nowrap;
-  padding: calcSize(1.25);
+  padding: calcSize(0.5) calcSize(2.5);
+  height: calcSize(6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
   min-width: calcSize(6);
   text-align: center;
   border: 2px solid $background;
   color: $foreground;
 }
+.sd-rating__item--fixed-size {
+  width: calcSize(6);
+  padding: 0;
+}
+
 .sd-rating__item--error {
   background-color: $red-light;
   box-shadow: 0px 1px 2px transparent;

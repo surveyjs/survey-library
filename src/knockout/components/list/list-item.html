@@ -1,5 +1,5 @@
-<li
-  data-bind="style: { paddingLeft: $data.model.getItemIndent($data.item) }, css: $data.model.getItemClass($data.item), click: itemClick, key2click, visible: $data.model.isItemVisible($data.item), event: { pointerdown: function (model, event) { $data.model.onPointerDown(event, $data.item); } }">
+<li role="option"
+  data-bind="style: { paddingLeft: $data.model.getItemIndent($data.item) }, css: $data.model.getItemClass($data.item), attr: { 'aria-selected': $data.model.isItemSelected($data.item) }, click: itemClick, key2click, visible: $data.model.isItemVisible($data.item), event: { pointerdown: function (model, event) { $data.model.onPointerDown(event, $data.item); } }">
   <!-- ko ifnot: $data.item.component -->
   <!-- ko if: $data.item.iconName -->
   <sv-svg-icon class="sv-list__item-icon" params="iconName: $data.item.iconName, size: 24"></sv-svg-icon>

@@ -83,6 +83,13 @@ export class SurveyQuestionDropdown extends SurveyQuestionDropdownBase<Question>
 export class SurveyQuestionOptionItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
+    this.state = { changed: 0 };
+
+    if (!this.item.locText) return;
+    const self = this;
+    this.item.locText.onChanged = () => {
+      self.setState({ changed: self.state.changed + 1 });
+    };
   }
   protected getStateElement(): Base {
     return this.item;

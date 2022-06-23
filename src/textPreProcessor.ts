@@ -59,7 +59,7 @@ export class TextPreProcessor {
         replacedValue = encodeURIComponent(replacedValue);
       }
       text =
-        text.substr(0, item.start) + replacedValue + text.substr(item.end + 1);
+        text.substring(0, item.start) + replacedValue + text.substring(item.end + 1);
     }
     return text;
   }

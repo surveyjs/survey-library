@@ -65,9 +65,9 @@ export class Question extends SurveyElement
 
   /**
    * The event is fired when isReady property of question is changed.
-   * <br/> options.question - the question
-   * <br/> options.isReady - current value of isReady
-   * <br/> options.oldIsReady - old value of isReady
+   * options.question - the question
+   * options.isReady - current value of isReady
+   * options.oldIsReady - old value of isReady
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
@@ -719,7 +719,7 @@ export class Question extends SurveyElement
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.isCollapsed || this.isExpanded)
+      .append(cssClasses.titleExpandable, this.state !== "default")
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
       .append(cssClasses.titleOnError, this.containsErrors)
@@ -744,14 +744,20 @@ export class Question extends SurveyElement
   }
 
   public showErrorOnCore(location: string) :boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && this.errorLocation === location;
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
   }
 
   public get showErrorOnTop(): boolean {
     return this.showErrorOnCore("top");
   }
-  public get showErrorOnBottom() {
+  public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
+  }
+  public get showErrorsAboveQuestion(): boolean {
+    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "top";
+  }
+  public get showErrorsBelowQuestion(): boolean {
+    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "bottom";
   }
 
   public get cssError(): string {
@@ -764,6 +770,8 @@ export class Question extends SurveyElement
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
+      .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
       .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
       .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
@@ -1110,7 +1118,9 @@ export class Question extends SurveyElement
     if (this.value !== undefined) {
       this.value = undefined;
     }
-    this.comment = undefined;
+    if(!!this.comment) {
+      this.comment = undefined;
+    }
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1218,7 +1228,7 @@ export class Question extends SurveyElement
   }
   public set defaultValue(val: any) {
     if (this.isValueExpression(val)) {
-      this.defaultValueExpression = val.substr(1);
+      this.defaultValueExpression = val.substring(1);
       return;
     }
     this.setPropertyValue("defaultValue", this.convertDefaultValue(val));

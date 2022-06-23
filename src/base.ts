@@ -45,6 +45,8 @@ export class Bindings {
   }
   public setBinding(propertyName: string, valueName: string) {
     if (!this.values) this.values = {};
+    const oldValue = this.getJson();
+    if(oldValue === valueName) return;
     if (!!valueName) {
       this.values[propertyName] = valueName;
     } else {
@@ -53,12 +55,15 @@ export class Bindings {
         this.values = null;
       }
     }
+    this.onChangedJSON(oldValue);
   }
   public clearBinding(propertyName: string) {
     this.setBinding(propertyName, "");
   }
   public isEmpty(): boolean {
-    return !this.values;
+    if(!this.values) return true;
+    for(var key in this.values) return false;
+    return true;
   }
   public getValueNameByPropertyName(propertyName: string): string {
     if (!this.values) return undefined;
@@ -75,7 +80,7 @@ export class Bindings {
     return res;
   }
   public getJson(): any {
-    if (this.isEmpty()) return null;
+    if (this.isEmpty()) return undefined;
     var res: any = {};
     for (var key in this.values) {
       res[key] = this.values[key];
@@ -83,12 +88,15 @@ export class Bindings {
     return res;
   }
   public setJson(value: any) {
+    const oldValue = this.getJson();
     this.values = null;
-    if (!value) return;
-    this.values = {};
-    for (var key in value) {
-      this.values[key] = value[key];
+    if (!!value) {
+      this.values = {};
+      for (var key in value) {
+        this.values[key] = value[key];
+      }
     }
+    this.onChangedJSON(oldValue);
   }
   private fillProperties() {
     if (this.properties !== null) return;
@@ -98,6 +106,11 @@ export class Bindings {
       if (objProperties[i].isBindable) {
         this.properties.push(objProperties[i]);
       }
+    }
+  }
+  private onChangedJSON(oldValue: any): void {
+    if(this.obj) {
+      this.obj.onBindingChanged(oldValue, this.getJson());
     }
   }
 }
@@ -582,6 +595,10 @@ export class Base {
       if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue);
     }
+  }
+  public onBindingChanged(oldValue: any, newValue: any): void {
+    if(this.isLoadingFromJson) return;
+    this.doPropertyValueChangedCallback("bindings", oldValue, newValue);
   }
   protected get isInternal(): boolean {
     return false;

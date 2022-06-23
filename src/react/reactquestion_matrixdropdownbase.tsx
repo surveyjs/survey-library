@@ -68,7 +68,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       : ({} as React.CSSProperties);
     return (
       <div style={divStyle} ref={(root) => (this.control = root)}>
-        <table className={this.question.cssClasses.root}>
+        <table className={this.question.getTableCss()}>
           {header}
           {rows}
           {footers}

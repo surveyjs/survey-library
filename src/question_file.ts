@@ -18,8 +18,8 @@ export class QuestionFileModel extends Question {
   @property() isDragging: boolean = false;
   /**
    * The event is fired after question state has been changed.
-   * <br/> sender the question object that fires the event
-   * <br/> options.state new question state value.
+   * sender the question object that fires the event
+   * options.state new question state value.
    */
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
@@ -444,7 +444,7 @@ export class QuestionFileModel extends Question {
   }): boolean {
     if (!file) return false;
     const imagePrefix = "data:image";
-    var subStr = file.content && file.content.substr(0, imagePrefix.length);
+    var subStr = file.content && file.content.substring(0, imagePrefix.length);
     subStr = subStr && subStr.toLowerCase();
     var result =
       subStr === imagePrefix ||

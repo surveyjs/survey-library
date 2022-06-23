@@ -12,6 +12,7 @@ import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./q
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   getRequiredText(): string;
+  hasChoices(): boolean;
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,
     name: string,
@@ -163,6 +164,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
+    if(this.cellType === "default") return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {
@@ -511,6 +513,9 @@ export class MatrixDropdownColumn extends Base
         onUpdateJson(json);
       }
       json.type = question.getType();
+      if(this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
+        delete json["choices"];
+      }
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;

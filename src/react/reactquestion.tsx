@@ -145,6 +145,10 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       ? this.renderErrors(cssClasses, "")
       : null;
 
+    const errorsBelowQuestion = this.question.showErrorsBelowQuestion
+      ? this.renderErrors(cssClasses, "")
+      : null;
+
     let rootStyle: { [index: string]: any } = {};
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
@@ -167,6 +171,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           {headerTop}
           {questionContent}
           {headerBottom}
+          {errorsBelowQuestion}
         </div>
       </>
     );

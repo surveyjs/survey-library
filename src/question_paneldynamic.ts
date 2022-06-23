@@ -633,10 +633,10 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Use this property to allow the end-user to collapse/expand the panels. It works only if the renderMode property equals to "list" and templateTitle property is not empty. The following values are available:
-   * <br/> default - the default value. User can't collapse/expand panels
-   * <br/> expanded - User can collapse/expand panels and all panels are expanded by default
-   * <br/> collapsed - User can collapse/expand panels and all panels are collapsed by default
-   * <br/> firstExpanded - User can collapse/expand panels. The first panel is expanded and others are collapsed
+   * default - the default value. User can't collapse/expand panels
+   * expanded - User can collapse/expand panels and all panels are expanded by default
+   * collapsed - User can collapse/expand panels and all panels are collapsed by default
+   * firstExpanded - User can collapse/expand panels. The first panel is expanded and others are collapsed
    * @see renderMode
    * @see templateTitle
    */
@@ -1133,7 +1133,7 @@ export class QuestionPanelDynamicModel extends Question
   ): boolean {
     if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
       return false;
-    return !!panel.getQuestionByName(key.substr(0, key.indexOf(postPrefix)));
+    return !!panel.getQuestionByName(key.substring(0, key.indexOf(postPrefix)));
   }
   public getSharedQuestionFromArray(
     name: string,
@@ -1192,8 +1192,8 @@ export class QuestionPanelDynamicModel extends Question
     var questionName = path;
     var pos = path.indexOf(".");
     if (pos > -1) {
-      questionName = path.substr(0, pos);
-      path = path.substr(pos + 1);
+      questionName = path.substring(0, pos);
+      path = path.substring(pos + 1);
     }
     var question = this.template.getQuestionByName(questionName);
     if (!question) return null;

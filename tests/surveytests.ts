@@ -5160,7 +5160,7 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
   ];
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0]["choices"] = [
+  q1.choices = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
@@ -5185,7 +5185,7 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
   q1.rowCount = 2;
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0]["choices"] = [
+  q1.choices = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
@@ -5223,6 +5223,22 @@ QUnit.test("Survey text preprocessing with camella case, issue #913", function (
     "john.snow@nightwatch.com",
     "The value is preprocessed correctly"
   );
+});
+QUnit.test("Survey text preprocessing complex data without question, issue #4434", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "{complex.value1}",
+      }
+    ]
+  });
+  survey.data = { complex: { value1: "complexText" } };
+  const question = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(question.fullTitle, "complexText", "The complex value is preprocessed correctly");
 });
 
 QUnit.test("Survey Markdown - dropdown.choices", function (assert) {
@@ -13880,6 +13896,60 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Two skip triggers test", function (assert) {
+  var focusedQuestions: Array<string> = [];
+  var oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestions.push(elId);
+    return true;
+  };
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "text",
+        name: "q2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        enableIf: "{q1} = 'item3'"
+      }
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'item2'",
+        gotoName: "q2",
+      },
+      {
+        type: "skip",
+        expression: "{q1} = 'item3'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "item2";
+  assert.equal(focusedQuestions.length, 1, "First skip");
+  assert.equal(
+    focusedQuestions[0],
+    survey.getQuestionByName("q2").inputId,
+    "The second question is focused"
+  );
+  survey.getQuestionByName("q1").value = "item3";
+  assert.equal(focusedQuestions.length, 2, "Second skip");
+  assert.equal(
+    focusedQuestions[1],
+    survey.getQuestionByName("q3").inputId,
+    "The third question is focused"
+  );
+  SurveyElement.FocusElement = oldFunc;
+}
+);
 QUnit.test(
   "Test SurveyElement isPage, isPanel and isQuestion properties",
   function (assert) {
@@ -14244,7 +14314,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" }, ];
+    options.titleActions = [{ id: "action" },];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");
@@ -14874,4 +14944,15 @@ QUnit.test("Do not execute visibleIf in design mode", function (assert) {
   assert.equal(newQuestion2.visible, true, "It is visible");
   survey.pages[0].addElement(newPanel2);
   assert.equal(newQuestion2.visible, true, "It is visible, #2");
+});
+QUnit.test("Ignore firstStartPage if there is only one page", function (assert) {
+  var survey = new SurveyModel({
+    firstPageIsStarted: true,
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  assert.equal(survey.state, "running", "There is only one page");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
 });

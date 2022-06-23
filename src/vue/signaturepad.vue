@@ -2,8 +2,8 @@
   <div
     :class="question.cssClasses.root"
     v-bind:style="{
-      height: question.height + 'px',
-      width: question.width + 'px',
+      height: question.signatureHeight + 'px',
+      width: question.signatureWidth + 'px',
     }"
   >
     <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">

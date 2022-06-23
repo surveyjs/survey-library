@@ -8,11 +8,11 @@
   >
     <div v-for="(error, index) in element.errors" :key="'error_' + index">
       <span
-        :class="element.cssClasses ? element.cssClasses.error.icon : 'panel-error-icon'"
+        :class="element.cssClasses ? element.cssClasses.error.icon || undefined : 'panel-error-icon'"
         aria-hidden="true"
       ></span>
       <span
-        :class="element.cssClasses ? element.cssClasses.error.item : 'panel-error-item'"
+        :class="element.cssClasses ? element.cssClasses.error.item || undefined: 'panel-error-item'"
       >
         <survey-string :locString="error.locText" />
       </span>

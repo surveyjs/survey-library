@@ -2,7 +2,7 @@
   <div :class="question.cssClasses.tableWrapper">
     <fieldset>
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
-      <table :class="question.cssClasses.root">
+      <table :class="question.getTableCss()">
         <thead v-if="question.showHeader">
           <tr>
             <td v-show="question.hasRows"></td>

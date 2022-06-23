@@ -16,7 +16,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var clearButton = this.renderCleanButton();
     return (
-      <div className={cssClasses.root} ref={(root) => (this.control = root)} style={{ height: this.question.height, width: this.question.width }}>
+      <div className={cssClasses.root} ref={(root) => (this.control = root)} style={{ height: this.question.signatureHeight, width: this.question.signatureWidth }}>
         <div
           className={cssClasses.placeholder}
           style={{ display: this.question.needShowPlaceholder() ? "" : "none" }}

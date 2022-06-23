@@ -219,13 +219,8 @@ export class QuestionRatingModel extends Question {
   }
 
   /**
-  * Specifies whether a Rating question displays the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
-  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) property texts as buttons that correspond to
-  * the extreme (first and last) rate items. If any of these properties is empty, the corresponding rate item's value/text is used for display.<br/>
-  * When the `displayRateDescriptionsAsExtremeItems` property is disabled, the texts defined through
-  * the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription)
-  * and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) properties
-  * are displayed as plain non-clickable texts.
+  * Specifies whether a Rating question displays the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription) and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) property texts as buttons that correspond to the extreme (first and last) rate items. If any of these properties is empty, the corresponding rate item's value/text is used for display.
+  * When the `displayRateDescriptionsAsExtremeItems` property is disabled, the texts defined through the [minRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#minRateDescription) and [maxRateDescription](https://surveyjs.io/Documentation/Library?id=questionratingmodel#maxRateDescription) properties are displayed as plain non-clickable texts.
   * @see minRateDescription
   * @see maxRateDescription
   * @see rateMin

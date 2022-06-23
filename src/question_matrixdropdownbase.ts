@@ -1129,6 +1129,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getRequiredText(): string {
     return this.survey ? this.survey.requiredText : "";
   }
+  public hasChoices(): boolean {
+    return this.choices.length > 0;
+  }
   onColumnPropertyChanged(
     column: MatrixDropdownColumn,
     name: string,

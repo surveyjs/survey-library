@@ -7,6 +7,10 @@
 .sd-matrixdynamic__footer:first-child {
   padding-bottom: calcSize(2);
 }
+.sd-matrixdynamic__footer {
+  padding-top: calcSize(1);
+}
+
 .sd-action.sd-matrixdynamic__remove-btn {
   opacity: 0.5;
 }

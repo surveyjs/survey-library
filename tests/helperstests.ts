@@ -412,3 +412,8 @@ QUnit.test("Check errors", function(assert) {
   error2.text = "Error #2";
   assert.equal(Helpers.isTwoValueEquals(error1, error2), false, "Two errors are not equal");
 });
+QUnit.test("convertArrayValueToObject function", function(assert) {
+  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
+  assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");
+  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name", [{ name: 1, test: 2 }]), [{ name: 1, test: 2 }, { name: 2 }], "#1");
+});

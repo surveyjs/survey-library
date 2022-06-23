@@ -275,7 +275,7 @@ export class JsonObjectProperty implements IObject {
     this.typeValue = value;
     if (this.typeValue.indexOf("[]") === this.typeValue.length - 2) {
       this.isArray = true;
-      this.className = this.typeValue.substr(0, this.typeValue.length - 2);
+      this.className = this.typeValue.substring(0, this.typeValue.length - 2);
     }
   }
   public isArray = false;

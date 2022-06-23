@@ -65,7 +65,7 @@ export class FlowPanelModel extends PanelModel {
     var res = null;
     while ((res = regEx.exec(str)) !== null) {
       if (res.index > startIndex) {
-        html.push(str.substr(startIndex, res.index - startIndex));
+        html.push(str.substring(startIndex, res.index));
         startIndex = res.index;
       }
       var question = this.getQuestionFromText(res[0]);
@@ -73,18 +73,18 @@ export class FlowPanelModel extends PanelModel {
         html.push(this.getHtmlForQuestion(question));
       } else {
         html.push(
-          str.substr(startIndex, res.index + res[0].length - startIndex)
+          str.substring(startIndex, res.index + res[0].length)
         );
       }
       startIndex = res.index + res[0].length;
     }
     if (startIndex < str.length) {
-      html.push(str.substr(startIndex, str.length - startIndex));
+      html.push(str.substring(startIndex, str.length));
     }
     return html.join("").replace(new RegExp("<br>", "g"), "<br/>");
   }
   public getQuestionFromText(str: string): Question {
-    str = str.substr(1, str.length - 2);
+    str = str.substring(1, str.length - 1);
     str = str.replace(FlowPanelModel.contentElementNamePrefix, "").trim();
     return this.getQuestionByName(str);
   }

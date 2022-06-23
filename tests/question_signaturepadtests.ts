@@ -50,5 +50,87 @@ QUnit.test("check allowClear", (assert) => {
   assert.equal(signaturepad.allowClear, false, "allowClear");
   assert.equal(signaturepad.readOnly, false, "readOnly");
   assert.equal(signaturepad.canShowClearButton, false, "canShowClearButton");
+});
 
+QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
+  var json: any = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepad.initSignaturePad(containerEl);
+  assert.equal(signaturepad.signatureWidth, 300);
+  assert.equal(signaturepad.signatureHeight, 200);
+  assert.equal(canvas.width, 300);
+  assert.equal(canvas.height, 200);
+  signaturepad.signatureWidth = 400;
+  signaturepad.signatureHeight = 300;
+  assert.equal(canvas.width, 400);
+  assert.equal(canvas.height, 300);
+});
+//todo: need to remove this test after code modification
+QUnit.test("Check width/height influence on signageWidth/Height properties", (assert) => {
+  let json: any = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+        width: 400,
+        height: 300
+      },
+    ],
+  };
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  let survey = new SurveyModel(json);
+  let signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepad.initSignaturePad(containerEl);
+  assert.equal(signaturepad.signatureWidth, 400);
+  assert.equal(signaturepad.signatureHeight, 300);
+  assert.equal(canvas.width, 400);
+  assert.equal(canvas.height, 300);
+
+  json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+        width: "400",
+      },
+    ],
+  };
+  survey = new SurveyModel(json);
+  signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepad.initSignaturePad(containerEl);
+  assert.equal(signaturepad.signatureWidth, 300);
+  assert.equal(canvas.width, 300);
+
+  json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+        signatureWidth: 400,
+        signatureHeight: 300,
+        width: 600,
+        height: 600
+      },
+    ],
+  };
+  survey = new SurveyModel(json);
+  signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepad.initSignaturePad(containerEl);
+  assert.equal(signaturepad.signatureWidth, 400);
+  assert.equal(canvas.width, 400);
+  assert.equal(signaturepad.signatureHeight, 300);
+  assert.equal(canvas.height, 300);
 });

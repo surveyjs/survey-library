@@ -3,6 +3,9 @@ import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
+import { surveyCss } from "../src/defaultCss/cssstandard";
+import { PanelModel } from "../src/panel";
+import { Question } from "../src/question";
 
 export default QUnit.module("SurveyElement");
 
@@ -48,6 +51,48 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
   q.toggleState();
   assert.equal(q.isExpanded, true, "Panel is expanded");
   assert.equal(stateChangedCounter, 4, "callback is called two time");
+});
+
+QUnit.test("element check that title classes are updated after element state updated", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "panel",
+        name: "p1",
+        title: "panel",
+        elements: [
+          {
+            type: "text",
+            name: "_"
+          }
+        ]
+      },
+      {
+        type: "text",
+        name: "q1"
+      }
+    ]
+  });
+  const panel = <PanelModel>survey.getAllPanels()[0];
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(panel.cssTitle, "sv_p_title");
+  assert.equal(question.cssTitle, "sv_q_title");
+
+  panel.state = "collapsed";
+  question.state = "collapsed";
+  assert.equal(panel.cssTitle, "sv_p_title sv_p_title_expandable sv_p_title_collapsed");
+  assert.equal(question.cssTitle, "sv_q_title sv_q_title_expandable sv_q_title_collapsed");
+
+  panel.state = "expanded";
+  question.state = "expanded";
+  assert.equal(panel.cssTitle, "sv_p_title sv_p_title_expandable sv_p_title_expanded");
+  assert.equal(question.cssTitle, "sv_q_title sv_q_title_expandable sv_q_title_expanded");
+
+  panel.state = "default";
+  question.state = "default";
+  assert.equal(panel.cssTitle, "sv_p_title");
+  assert.equal(question.cssTitle, "sv_q_title");
+
 });
 
 QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744", function (assert) {
@@ -121,6 +166,7 @@ QUnit.test("Check errors location", function (assert) {
   assert.ok(questionInMatrix.showErrorOnBottom);
 
   survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.isErrorsModeTooltip);
@@ -138,7 +184,7 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
     {
       name: "tagbox",
       isFit: (question) => {
-        return question.getType() === "tagbox"
+        return question.getType() === "tagbox";
       },
     }
   );
@@ -185,11 +231,13 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
   assert.ok(questionInMatrix.showErrorOnBottom);
 
   survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.isErrorsModeTooltip);
   assert.ok(q1.showErrorsAboveQuestion);
 
+  survey.questionErrorLocation = "bottom";
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.notOk(questionInMatrix.showErrorsAboveQuestion);
   assert.notOk(questionInMatrix.isErrorsModeTooltip);

@@ -36,6 +36,9 @@
 .sd-rating__item.sd-rating__item--disabled {
   color: $foreground-disabled-for-editors;
 }
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
+  color: $primary-foreground-disabled;
+}
 .sd-rating__item--allowhover:hover,
 .sd-rating__item:focus-within {
   border-color: $primary;

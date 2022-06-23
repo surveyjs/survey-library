@@ -37,4 +37,37 @@ frameworks.forEach(framework => {
     await t.hover(".sv-ranking-item");
     await checkElementScreenshot("question-ranking-hover-item.png", Selector(".sd-question"), t);
   });
+
+  test("Check rating question readonly", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "ranking",
+          name: "ranking_question",
+          choices: ["item1", "item2", "item3", "item4"],
+          readOnly: "true"
+        }
+      ]
+    });
+    await checkElementScreenshot("question-ranking-readonly.png", Selector(".sd-question"), t);
+  });
+  test("Check rating question items size", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "ranking",
+          name: "ranking_question",
+          choices: ["item1", "item2", "item3", "item4"]
+        }
+      ]
+    });
+    await ClientFunction(selector => {
+      document.querySelector(selector).style.backgroundColor = "red";
+    })('div[data-name="ranking_question"] .sv-ranking-item__text .sv-string-viewer');
+    await checkElementScreenshot("question-ranking-size.png", Selector(".sd-question"), t);
+  });
 });

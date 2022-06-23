@@ -41,6 +41,9 @@ frameworks.forEach(framework => {
 
     const questionRoot = Selector(".sd-question");
     await checkElementScreenshot("question-matrix-detail.png", questionRoot, t);
+
+    await t.hover(Selector(".sd-table__cell--detail-button"));
+    await checkElementScreenshot("question-matrix-detail-hover.png", questionRoot, t);
   });
 
   test("Matrix many columns", async (t) => {

@@ -39,11 +39,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   constructor(name: string) {
     super(name);
     this.createLocalizableString("totalText", this, true);
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("rows", function() {
-      self.clearGeneratedRows();
-      self.resetRenderedTable();
-      self.filterItems();
+    this.registerFunctionOnPropertyValueChanged("rows", () => {
+      this.clearGeneratedRows();
+      this.resetRenderedTable();
+      if (!this.filterItems()) {
+        this.onRowsChanged();
+      }
+    });
+    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", () => {
+      this.updateVisibilityBasedOnRows();
     });
   }
   public getType(): string {
@@ -75,6 +79,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public getRowTitleWidth(): string {
     return this.rowTitleWidth;
+  }
+  /**
+   * Set this property to true to hide the question if there is no visible rows in the matrix.
+   */
+  public get hideIfRowsEmpty(): boolean {
+    return this.getPropertyValue("hideIfRowsEmpty", false);
+  }
+  public set hideIfRowsEmpty(val: boolean) {
+    this.setPropertyValue("hideIfRowsEmpty", val);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
@@ -173,6 +186,7 @@ Serializer.addClass(
     "rowsVisibleIf:condition",
     "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
+    "hideIfRowsEmpty:boolean"
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

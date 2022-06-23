@@ -3123,7 +3123,7 @@ QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = new QuestionMatrixModel("q1");
-  page.addElement(question);
+  page.addQuestion(question);
   assert.equal(question.isVisible, true, "By default it is visible");
   question.hideIfRowsEmpty = true;
   assert.equal(question.isVisible, false, "Rows are empty");

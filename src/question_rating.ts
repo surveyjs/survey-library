@@ -271,7 +271,7 @@ export class QuestionRatingModel extends Question {
   }
 
   public getRenderedItemClass(item: RenderedRatingItem) {
-    const hasFixedSize = item.locText.calculatedText.length < 2 && Number.isInteger(Number(item.locText.calculatedText));
+    const hasFixedSize = item.locText.calculatedText.length <= 2 && Number.isInteger(Number(item.locText.calculatedText));
 
     return this.getItemClassBuilder(item.itemValue).append(this.cssClasses.itemFixedSize, hasFixedSize).toString();
   }

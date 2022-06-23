@@ -205,14 +205,15 @@ QUnit.test("check getItemClass in display mode", (assert) => {
   const item = q1.visibleRateValues[0];
   assert.ok(q1.getItemClass(item).indexOf("sv_q_rating_hover") == -1);
 });
-QUnit.test("check getItemClass for integers and strings", (assert) => {
+QUnit.test("check getRenderedItemClass for integers and strings", (assert) => {
   var json = {
     questions: [
       {
         "type": "rating",
         "name": "q1",
         "rateMax": 3,
-        "maxRateDescription": "Yes",
+        "minRateDescription": "No",
+        "maxRateDescription": "10",
         "displayRateDescriptionsAsExtremeItems": true
       },
     ],
@@ -222,7 +223,10 @@ QUnit.test("check getItemClass for integers and strings", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemFixedSize = "sv_q_rating_fixed";
   const item = q1.renderedRateItems[0];
+  const item2 = q1.renderedRateItems[1];
   const itemLast = q1.renderedRateItems[2];
-  assert.ok(q1.getRenderedItemClass(item).indexOf("sv_q_rating_fixed") != -1);
-  assert.ok(q1.getRenderedItemClass(itemLast).indexOf("sv_q_rating_fixed") == -1);
+
+  assert.ok(q1.getRenderedItemClass(item).indexOf("sv_q_rating_fixed") == -1);
+  assert.ok(q1.getRenderedItemClass(item2).indexOf("sv_q_rating_fixed") != -1);
+  assert.ok(q1.getRenderedItemClass(itemLast).indexOf("sv_q_rating_fixed") != -1);
 });

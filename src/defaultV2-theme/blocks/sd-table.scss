@@ -65,6 +65,7 @@
 .sd-table__cell--detail-button {
   border: none;
   background: transparent;
+  border-radius: calcSize(2);
   width: calcSize(4);
   height: calcSize(4);
   padding: calcSize(1);
@@ -72,6 +73,12 @@
     width: calcSize(2);
     height: calcSize(2);
     fill: $foreground-light;
+  }
+  &:hover {
+    background: $green-light;
+    svg {
+      fill: $primary;
+    }
   }
 }
 

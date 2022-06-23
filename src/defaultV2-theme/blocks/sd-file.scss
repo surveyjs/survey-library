@@ -11,12 +11,13 @@
     bottom: 0;
     .sv-action-bar-item {
       height: calcSize(4);
-      line-height: calcSize(2);
       color: $foreground-light;
       border-radius: calcSize(2);
     }
     #fileIndex {
       .sv-action-bar-item {
+        padding: calcSize(0.5) 0;
+
         &:hover {
           background-color: $background;
         }

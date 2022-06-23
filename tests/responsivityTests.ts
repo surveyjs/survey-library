@@ -338,3 +338,39 @@ QUnit.test("isResponsivenessDisabled", function (assert) {
   assert.equal(item2.mode, "large", "dimension 300");
   assert.equal(item3.mode, "large", "dimension 300");
 });
+
+QUnit.test("check disableHide property", function (assert) {
+  const itemSmallWidth = 48;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+
+  const item1 = new Action(<any>{});
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemSmallWidth;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = itemSmallWidth;
+  item2.maxDimension = itemSmallWidth;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = itemSmallWidth;
+  item3.maxDimension = itemSmallWidth;
+  item3.disableHide = true;
+  model.actions.push(item3);
+
+  model.fit(50, 0);
+  assert.notOk(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(120, 0);
+  assert.ok(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(160, 0);
+  assert.ok(item1.isVisible);
+  assert.ok(item2.isVisible);
+  assert.ok(item3.isVisible);
+});

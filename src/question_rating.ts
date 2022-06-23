@@ -253,7 +253,7 @@ export class QuestionRatingModel extends Question {
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
-  public getItemClass(item: ItemValue) {
+  private getItemClassBuilder(item: ItemValue) {
     const isSelected = this.value == item.value;
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && !isSelected && !(!!this.survey && this.survey.isDesignMode);
@@ -263,8 +263,17 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.selected, this.value == item.value)
       .append(this.cssClasses.itemDisabled, this.isReadOnly)
       .append(this.cssClasses.itemHover, allowHover)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0)
-      .toString();
+      .append(this.cssClasses.itemOnError, this.errors.length > 0);
+  }
+
+  public getItemClass(item: ItemValue) {
+    return this.getItemClassBuilder(item).toString();
+  }
+
+  public getRenderedItemClass(item: RenderedRatingItem) {
+    const hasFixedSize = item.locText.calculatedText.length < 2 && Number.isInteger(Number(item.locText.calculatedText));
+
+    return this.getItemClassBuilder(item.itemValue).append(this.cssClasses.itemFixedSize, hasFixedSize).toString();
   }
   //methods for mobile view
   public getControlClass(): string {

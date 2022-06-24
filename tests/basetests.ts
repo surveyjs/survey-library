@@ -4,6 +4,7 @@ import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
+import { findParentByClassNames } from "../src/utils/utils";
 
 export default QUnit.module("Base");
 
@@ -657,4 +658,18 @@ QUnit.test("Update via function - nested dependencies", function (assert) {
   survey.widthMode = "responsive";
   assert.equal(updaterCallCount1, 2, "update called - responsive");
   assert.equal(base1.propS, "responsive");
+});
+QUnit.test("findParentByClassNames function", function (assert) {
+  const parentElement = document.createElement("div");
+  parentElement.classList.add("class1");
+  parentElement.classList.add("class22");
+
+  const element = document.createElement("div");
+  element.classList.add("class1");
+  element.classList.add("class2");
+
+  parentElement.appendChild(element);
+
+  assert.equal(findParentByClassNames(element, ["class1", "class2", ""]), element);
+  assert.equal(findParentByClassNames(element, ["class1", "class22", ""]), parentElement);
 });

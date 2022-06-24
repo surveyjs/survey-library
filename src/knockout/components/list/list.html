@@ -5,10 +5,10 @@
       <sv-svg-icon params="iconName: 'icon-search', size: 24"></sv-svg-icon>
     </div>
     <input type="text" class="sv-list__input"
-      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
+      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder, 'aria-label': model.filteredTextPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
   </div>
   <!-- /ko -->
-  <ul class="sv-list"
+  <ul class="sv-list" role="listbox"
     data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; } }">
     <!--ko foreach: model.renderedActions -->
     <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->

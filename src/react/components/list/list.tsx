@@ -32,6 +32,7 @@ export class List extends SurveyElementBase<IListProps, any> {
         {this.searchElementContent()}
         <ul
           className="sv-list"
+          role="listbox"
           onMouseDown={(e) => {
             e.preventDefault();
           }}
@@ -80,6 +81,7 @@ export class List extends SurveyElementBase<IListProps, any> {
           <input
             type="text"
             className="sv-list__input"
+            aria-label={this.model.filteredTextPlaceholder}
             placeholder={this.model.filteredTextPlaceholder}
             value={this.state.filteredText}
             onKeyUp={onKeyUp}

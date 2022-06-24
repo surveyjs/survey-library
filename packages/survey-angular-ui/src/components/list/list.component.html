@@ -5,10 +5,11 @@
         </div>
         <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
             [attr.aria-label]="model.filteredTextPlaceholder || ''"
-            [attr.placeholder]="model.filteredTextPlaceholder || ''" />
+            [attr.placeholder]="model.filteredTextPlaceholder || ''"
+            (keyup)="onGoToItems($event)" />
     </div>
-    <ul class="sv-list" role="listbox" (mousedown)="mousedown($event)" (keydown)="keydown($event)">
-        <li role="option" *ngFor="let item of model.renderedActions" [model]="model" [item]="item" [visible]="model.isItemVisible(item)" sv-ng-list-item></li>
+    <ul class="sv-list" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
+        <li role="option" *ngFor="let item of model.renderedActions" [model]="model" [item]="item" [key2click] [visible]="model.isItemVisible(item)" sv-ng-list-item></li>
         <!--ko foreach: model.renderedActions -->
         <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
         <!-- /ko -->

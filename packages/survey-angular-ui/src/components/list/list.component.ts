@@ -12,12 +12,16 @@ export class ListComponent extends BaseAngular {
   getModel() {
     return this.model;
   }
-  mousedown(event: Event) {
+  onGoToItems(event: Event): void {
+    this.model.goToItems(event);
+  }
+  onMouseDown(event: Event): void {
     event.preventDefault();
   }
-  keydown(event: Event) {
+  onKeyDown(event: Event): void {
     this.model.onKeyDown(event);
-    return true;
+    event.stopPropagation();
+
   }
 }
 

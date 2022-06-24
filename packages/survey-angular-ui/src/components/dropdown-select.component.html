@@ -1,7 +1,7 @@
 <div [class]="model.renderCssRoot">
     <div [class]="model.cssClasses.selectWrapper">
         <div *ngIf="!model.isReadOnly" tabindex="0" [class]="model.getControlClass()" [attr.disabled]="model.isInputReadOnly ? true : null"
-            (click)="click($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
+            (click)="click($event)" [key2click]="{ processEsc: false }" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
             [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
             [attr.aria-describedby]="model.ariaDescribedBy">
             <div [class]="model.cssClasses.controlValue">{{ model.readOnlyText }}</div>

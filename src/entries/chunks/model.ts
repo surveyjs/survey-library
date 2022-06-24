@@ -177,6 +177,7 @@ export {
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,
+  doKey2ClickBlur,
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg

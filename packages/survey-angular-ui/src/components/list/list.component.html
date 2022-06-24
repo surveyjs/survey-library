@@ -8,7 +8,7 @@
             [attr.placeholder]="model.filteredTextPlaceholder || ''" />
     </div>
     <ul class="sv-list" role="listbox" (mousedown)="mousedown($event)" (keydown)="keydown($event)">
-        <sv-ng-list-item *ngFor="let item of model.renderedActions" [model]="model" [item]="item"></sv-ng-list-item>
+        <li role="option" *ngFor="let item of model.renderedActions" [model]="model" [item]="item" [visible]="model.isItemVisible(item)" sv-ng-list-item></li>
         <!--ko foreach: model.renderedActions -->
         <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
         <!-- /ko -->

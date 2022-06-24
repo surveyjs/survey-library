@@ -4,9 +4,10 @@
             <svg class="sv-list__item-icon" [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
         </div>
         <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
-            [placeholder]="model.filteredTextPlaceholder || ''" />
+            [attr.aria-label]="model.filteredTextPlaceholder || ''"
+            [attr.placeholder]="model.filteredTextPlaceholder || ''" />
     </div>
-    <ul class="sv-list" (mousedown)="mousedown($event)" (keydown)="keydown($event)">
+    <ul class="sv-list" role="listbox" (mousedown)="mousedown($event)" (keydown)="keydown($event)">
         <sv-ng-list-item *ngFor="let item of model.renderedActions" [model]="model" [item]="item"></sv-ng-list-item>
         <!--ko foreach: model.renderedActions -->
         <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->

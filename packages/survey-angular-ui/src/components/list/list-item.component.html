@@ -1,5 +1,6 @@
-<li tabindex="0" [style.paddingLeft]="model.getItemIndent(item)" [class]="model.getItemClass(item)"
-  [visible]="model.isItemVisible(item)" (click)="itemClick()" (pointerdown)="pointerdown($event)">
+<li role="option" [attr.aria-selected]="model.isItemSelected(item)" [style.paddingLeft]="model.getItemIndent(item)"
+  [class]="model.getItemClass(item)" [visible]="model.isItemVisible(item)" (click)="itemClick()"
+  (pointerdown)="pointerdown($event)">
   <svg *ngIf="item.iconName && !item.component" class="sv-list__item-icon" [iconName]="item.iconName" [size]="24"
     sv-ng-svg-icon></svg>
   <span *ngIf="!item.component">{{ item.title }}</span>

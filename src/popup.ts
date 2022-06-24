@@ -330,6 +330,8 @@ export class PopupBaseViewModel extends Base {
   }
   private focusFirstInput() {
     setTimeout(() => {
+      if (!this.container) return;
+
       var el = this.container.querySelector(FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
       else (<HTMLElement>this.container.children[0]).focus();

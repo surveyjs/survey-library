@@ -53,6 +53,8 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       <li
         style={style}
         className={className}
+        role="option"
+        aria-selected={this.model.isItemSelected(this.item)}
         onClick={() => {
           this.model.selectItem(this.item);
         }}

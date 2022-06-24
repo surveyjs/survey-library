@@ -1,6 +1,8 @@
 <template>
   <li
     tabindex="0"
+    role="option"
+    :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
     :style="{ paddingLeft: model.getItemIndent(item) }"
     :key="item.id"

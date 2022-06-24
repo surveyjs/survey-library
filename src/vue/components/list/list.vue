@@ -7,6 +7,7 @@
       <input
         type="text"
         class="sv-list__input"
+        :aria-label="model.filteredTextPlaceholder"
         :placeholder="model.filteredTextPlaceholder"
         :value="model.filteredText"
         @change="change"
@@ -15,6 +16,7 @@
     </div>
     <ul
       class="sv-list"
+      role="listbox"
       @mousedown="
         (event) => {
           event.preventDefault();

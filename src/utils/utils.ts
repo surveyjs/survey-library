@@ -248,7 +248,7 @@ function isContainerVisible(el: HTMLElement) {
 
 function findParentByClassNames(element: HTMLElement, classNames: Array<string>): Element {
   if (!!element) {
-    if (classNames.every(className => element.classList.contains(className))) {
+    if (classNames.every(className => !className || element.classList.contains(className))) {
       return element;
     } else {
       return findParentByClassNames(element.parentElement, classNames);

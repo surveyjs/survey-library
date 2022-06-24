@@ -261,7 +261,7 @@ export class QuestionMatrixModel
    * Set this property to true to hide the question if there is no visible rows in the matrix.
    */
   public get hideIfRowsEmpty(): boolean {
-    return this.getPropertyValue("hideIfRowsEmpty", false);
+    return this.getPropertyValue("hideIfRowsEmpty");
   }
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
@@ -355,7 +355,6 @@ export class QuestionMatrixModel
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
-    this.updateVisibilityBasedOnRows();
   }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
@@ -555,17 +554,6 @@ export class QuestionMatrixModel
       return this.inputId + "_" + rows[0].name + "_" + 0;
     }
     return super.getFirstInputElementId();
-  }
-  protected onRowsChanged() {
-    this.updateVisibilityBasedOnRows();
-    super.onRowsChanged();
-  }
-  private updateVisibilityBasedOnRows() {
-    if (this.hideIfRowsEmpty) {
-      this.visible =
-        this.rows.length > 0 &&
-        (!this.filteredRows || this.filteredRows.length > 0);
-    }
   }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {

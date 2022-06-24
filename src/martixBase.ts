@@ -30,6 +30,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public getType(): string {
     return "matrixbase";
   }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.updateVisibilityBasedOnRows();
+  }
   public get isCompositeQuestion(): boolean {
     return true;
   }
@@ -116,9 +120,17 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.getDataFilteredProperties()
     );
   }
-  protected onColumnsChanged() { }
-  protected onRowsChanged() {
+  protected onColumnsChanged(): void { }
+  protected onRowsChanged(): void {
+    this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
+  }
+  protected updateVisibilityBasedOnRows(): void {
+    if ((<any>this).hideIfRowsEmpty) {
+      this.visible =
+        this.rows.length > 0 &&
+        (!this.filteredRows || this.filteredRows.length > 0);
+    }
   }
   protected shouldRunColumnExpression(): boolean {
     return !this.survey || !this.survey.areInvisibleElementsShowing;

@@ -7582,3 +7582,19 @@ QUnit.test("Serialize default column type correctly", function (assert) {
     columns: [{ name: "col1" }]
   }, "There is no choices");
 });
+QUnit.test("Test property hideIfRowsEmpty for matrix dropdown", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = new QuestionMatrixDropdownModel("q1");
+  page.addQuestion(question);
+  assert.equal(question.isVisible, true, "By default it is visible");
+  question.hideIfRowsEmpty = true;
+  assert.equal(question.isVisible, false, "Rows are empty");
+  question.rows = [1, 2, 3];
+  assert.equal(question.isVisible, true, "Rows are not empty");
+  question.rowsVisibleIf = "{item} = {val1}";
+  assert.equal(question.isVisible, false, "Filtered rows are empty");
+  survey.setValue("val1", 2);
+  assert.equal(question.isVisible, true, "There is one visible item");
+});
+

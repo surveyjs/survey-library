@@ -1511,7 +1511,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var row = this.generatedVisibleRows[i];
       if (checkedRow === row) continue;
-      if (row.getValue(cellQuestion.name) == cellQuestion.value) {
+      if (Helpers.isTwoValueEquals(row.getValue(cellQuestion.name), cellQuestion.value)) {
         res = true;
         break;
       }
@@ -1871,7 +1871,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!question || question.isEmpty()) return false;
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
-      if (value == keyValues[i]) {
+      if (Helpers.isTwoValueEquals(value, keyValues[i])) {
         this.addDuplicationError(question);
         return true;
       }

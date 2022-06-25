@@ -455,6 +455,25 @@ QUnit.test("Matrixdynamic column.isUnique, matrixdropdown", function (assert) {
     "There is no errors, row[0].column1=val1 and row[1].column2=val2"
   );
 });
+QUnit.test("column.isUnique, support settings.comparator.caseSensitive", function (assert) {
+  var question = new QuestionMatrixDropdownModel("q1");
+  question.rows = ["row1", "row2"];
+  question.addColumn("column1").isUnique = true;
+  assert.equal(question.hasErrors(), false, "No errors");
+  question.value = { row1: { column1: "abc" }, row2: { column1: "Abc" } };
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "There is an error, abc=Abc case-in-sensitive"
+  );
+  settings.comparator.caseSensitive = true;
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is ann error, abc!=Abc case-sensitive"
+  );
+  settings.comparator.caseSensitive = false;
+});
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
   question.choices = [1, 2, 3];

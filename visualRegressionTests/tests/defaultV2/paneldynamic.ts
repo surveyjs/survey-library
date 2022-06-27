@@ -55,7 +55,7 @@ frameworks.forEach(framework => {
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
-  test("Paneldynamic progressTop mode", async (t) => {
+  test.only("Paneldynamic progressTop mode", async (t) => {
     await t.resizeWindow(1920, 1080);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
@@ -64,25 +64,23 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, t);
     await ClientFunction(() => {
+      (window as any).survey.getAllQuestions()[0].allowRemovePanel = false;
+    })();
+    await checkElementScreenshot("paneldynamic-without-remove-button.png", paneldynamicRoot, t);
+    await ClientFunction(() => {
+      (window as any).survey.getAllQuestions()[0].allowRemovePanel = true;
       (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
     })();
     await checkElementScreenshot("paneldynamic-progress-top-legacy-navigation.png", paneldynamicRoot, t);
     await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
-    await takeScreenshot("paneldynamic-empty.png", paneldynamicRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await checkElementScreenshot("paneldynamic-empty.png", paneldynamicRoot, t);
   });
   test("Paneldynamic list mode", async (t) => {
     await t.resizeWindow(1920, 1920);
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
     await ClientFunction(() => {
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
-    await takeScreenshot("paneldynamic-list.png", paneldynamicRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await checkElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t);
   });
 });

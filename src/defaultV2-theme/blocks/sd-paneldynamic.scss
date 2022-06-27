@@ -48,7 +48,7 @@
     border: none;
 }
 .sd-paneldynamic__panel-wrapper {
-    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
+    padding-bottom: calc(1 * var(--sd-base-padding));
 }
 .sd-paneldynamic__panel-wrapper:after {
     display: table;
@@ -60,23 +60,11 @@
     flex-direction: row;
     align-items: center;
 }
-.sd-paneldynamic__btn {
-    -webkit-appearance: none;
-    appearance: none;
-    border: none;
-    background: $background;
-    font-family: $font-family;
-    font-weight: 600;
-    font-style: normal;
-    font-size: calcSize(2);
-    line-height: calcSize(3);
-    padding: calcSize(1) calcSize(3);
-    cursor: pointer;
-    border-radius: calcSize(12.5);
-}
 .sd-paneldynamic__remove-btn {
     float: right;
-    margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+    position: relative;
+    top: calc(0.5 * var(--sd-base-vertical-padding));
+    margin-bottom: calcSize(-1);
     margin-right: calcSize(-3);
 }
 .sd-paneldynamic__footer {

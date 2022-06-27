@@ -44,7 +44,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   ): JSX.Element {
     var itemText = this.renderLocString(item.locText);
     return (
-      <label key={key} className={this.question.getRenderedItemClass(item)}>
+      <label key={key} className={this.question.getItemClass(item.itemValue)}>
         <input
           type="radio"
           className="sv-visuallyhidden"

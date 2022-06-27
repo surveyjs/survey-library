@@ -9,7 +9,7 @@
               </span>
             <!-- /ko -->
             <!-- ko foreach: question.renderedRateItems -->
-            <label data-bind="css: question.getRenderedItemClass($data)">
+            <label data-bind="css: question.getItemClass($data.itemValue)">
                 <input
                 type="radio"
                 class="sv-visuallyhidden"

@@ -6,6 +6,8 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("baseselect");
 
@@ -515,4 +517,38 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   q.comment = "text1";
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
+});
+
+QUnit.test("check radiogroup title actions", (assert) => {
+  let survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["Item 1"],
+        showClearButton: true
+      }]
+  });
+  let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
+  assert.deepEqual(question.getTitleActions(), []);
+  assert.ok(question.showClearButtonInContent);
+
+  survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["Item 1"],
+        showClearButton: true
+      }]
+  });
+  survey.css = defaultV2Css;
+  question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
+  const action = <IAction>question.getTitleActions()[0];
+  assert.notOk(question.showClearButtonInContent);
+  assert.equal(action.title, "Clear");
+  assert.ok(action.visible);
+
+  question.showClearButton = false;
+  assert.notOk(action.visible);
 });

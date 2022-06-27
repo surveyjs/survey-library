@@ -26,7 +26,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question } from "survey-core";
+import { Question, RendererFactory } from "survey-core";
 import BaseVue from "src/vue/base";
 
 @Component

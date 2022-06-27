@@ -1,30 +1,19 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
-import { Action, IAction } from "./actions/action";
-import { Base, ComputedUpdater, EventBase } from "./base";
-import { findParentByClassNames } from "./utils/utils";
-import { PopupUtils } from "./utils/popup";
+import { EventBase } from "./base";
+import { DropdownListModel } from "./dropdownListModel";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  private getVisibleListItems() {
-    return this.visibleChoices.map((choice: ItemValue) => new Action({
-      id: choice.value,
-      title: choice.text,
-      component: this.itemComponent,
-      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
-    }));
-  }
+  dropdownListModel: DropdownListModel;
 
   constructor(name: string) {
     super(name);
@@ -170,55 +159,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
   }
 
-  public onClear(event: any): void {
-    this.clearValue();
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  protected onVisibleChoicesChanged(): void {
-    super.onVisibleChoicesChanged();
-
-    if (this.popupModel) {
-      this.popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
-    }
-  }
-
-  private _popupModel: PopupModel;
   public get popupModel(): PopupModel {
-    if (this.renderAs === "select" && !this._popupModel) {
-      const listModel = new ListModel(
-        this.getVisibleListItems(),
-        (item: IAction) => {
-          this.value = item.id;
-          this.popupModel.toggleVisibility();
-        },
-        true);
-      listModel.denySearch = this.denySearch;
-
-      this._popupModel = new PopupModel("sv-list", {
-        model: listModel,
-      }, "bottom", "center", false);
-      this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
-      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-        if (option.isVisible) {
-          this.onOpenedCallBack();
-        }
-      });
+    if (this.renderAs !== "select" && !this.dropdownListModel) {
+      this.dropdownListModel = new DropdownListModel(this);
+      this.dropdownListModel.popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
     }
-    return this._popupModel;
+    return this.dropdownListModel.popupModel;
   }
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
-  public onClick(event: any): void {
-    if (!!event && !!event.target) {
-      const target = findParentByClassNames(event.target, this.cssClasses.control.split(" "));
-      if (!!target) {
-        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
-      }
-    }
   }
 }
 Serializer.addClass(

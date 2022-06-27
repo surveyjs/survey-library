@@ -1,17 +1,24 @@
 import * as ko from "knockout";
-import { RendererFactory } from "survey-core";
+import { DropdownListModel } from "survey-core";
 
 const template = require("./dropdown.html");
 
 export var DropdownViewModel: any;
 
-ko.components.register("sv-dropdown-select", {
+ko.components.register("sv-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return { question: params.question, onClick: () => { !!params.question.onOpenedCallBack && params.question.onOpenedCallBack(); } };
+      const click = (_: any, e: any) => {
+        params.question.dropdownListModel?.onClick(e);
+      };
+      if (!params.question.dropdownListModel) {
+        params.question.dropdownListModel = new DropdownListModel(params.question);
+      }
+      return {
+        question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click,
+        dispose: () => { params.question?.dropdownListModel?.dispose(); }
+      };
     },
   },
   template: template,
 });
-
-RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");

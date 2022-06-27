@@ -1,10 +1,11 @@
 import * as ko from "knockout";
+import { RendererFactory } from "survey-core";
 
 const template = require("./dropdown.html");
 
 export var DropdownViewModel: any;
 
-ko.components.register("sv-dropdown", {
+ko.components.register("sv-dropdown-select", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return { question: params.question, onClick: () => { !!params.question.onOpenedCallBack && params.question.onOpenedCallBack(); } };
@@ -12,3 +13,5 @@ ko.components.register("sv-dropdown", {
   },
   template: template,
 });
+
+RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");

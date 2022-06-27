@@ -37,6 +37,9 @@ export class DropdownComponent extends BaseVue {
     !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
   }
 }
-Vue.component("sv-dropdown", DropdownComponent);
+Vue.component("sv-dropdown-select", DropdownComponent);
+
+RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
+
 export default DropdownComponent;
 </script>

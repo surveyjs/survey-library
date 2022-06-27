@@ -1,4 +1,5 @@
 import * as React from "react";
+import { RendererFactory } from "survey-core";
 import {
   SurveyQuestionUncontrolledElement,
   ReactSurveyElement,
@@ -109,6 +110,8 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("dropdown", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("dropdown-select", (props) => {
   return React.createElement(SurveyQuestionDropdown, props);
 });
+
+RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");

@@ -59,9 +59,7 @@ export class DropdownSelect extends Dropdown {
   }
 }
 
-Vue.component("sv-dropdown-select", DropdownSelect);
-
-RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
+Vue.component("sv-dropdown", DropdownSelect);
 
 export default DropdownSelect;
 </script>

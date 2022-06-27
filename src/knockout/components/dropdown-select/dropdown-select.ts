@@ -5,7 +5,7 @@ const template = require("./dropdown-select.html");
 
 export var DropdownSelectViewModel: any;
 
-ko.components.register("sv-dropdown-select", {
+ko.components.register("sv-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const click = (_: any, e: any) => {
@@ -16,5 +16,3 @@ ko.components.register("sv-dropdown-select", {
   },
   template: template,
 });
-
-RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");

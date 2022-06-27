@@ -55,9 +55,8 @@ frameworks.forEach(framework => {
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
-  test.only("Paneldynamic progressTop mode", async (t) => {
+  test("Paneldynamic progressTop mode", async (t) => {
     await t.resizeWindow(1920, 1080);
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
     await ClientFunction(() => {
       (window as any).survey.getQuestionByName("applications").currentIndex = 2;

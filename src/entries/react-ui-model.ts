@@ -28,6 +28,8 @@ export {
   SurveyQuestionRanking,
   SurveyQuestionRankingItem,
 } from "../react/reactquestion_ranking";
+export { SurveyQuestionOptionItem } from "../react/dropdown-item";
+export { SurveyQuestionDropdownBase } from "../react/dropdown-base";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
 export { SurveyQuestionDropdownSelect } from "../react/dropdown-select";
 export {

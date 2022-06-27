@@ -786,6 +786,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private detailPanelValue: PanelModel;
+  private isUniqueCaseSensitiveValue: boolean;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
@@ -931,6 +932,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get isColumnLayoutHorizontal() {
     if(this.isMobile) return true;
     return this.columnLayout != "vertical";
+  }
+  /**
+   * Set this property to true if you want to differ case sensitive values in unique columns, for example to allow enter "ABC" into the first row and "abc" into the second.
+   * It doesn't allow by default.
+   */
+  public get isUniqueCaseSensitive(): boolean {
+    return this.isUniqueCaseSensitiveValue !== undefined ? this.isUniqueCaseSensitiveValue : settings.comparator.caseSensitive;
+  }
+  public set isUniqueCaseSensitive(val: boolean) {
+    this.isUniqueCaseSensitiveValue = val;
   }
   /**
    * Set the value to "underRow" to show the detailPanel under the row.
@@ -1511,7 +1522,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var row = this.generatedVisibleRows[i];
       if (checkedRow === row) continue;
-      if (Helpers.isTwoValueEquals(row.getValue(cellQuestion.name), cellQuestion.value)) {
+      if (Helpers.isTwoValueEquals(row.getValue(cellQuestion.name), cellQuestion.value, true, this.isUniqueCaseSensitive)) {
         res = true;
         break;
       }
@@ -1871,7 +1882,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!question || question.isEmpty()) return false;
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
-      if (Helpers.isTwoValueEquals(value, keyValues[i])) {
+      if (Helpers.isTwoValueEquals(value, keyValues[i], true, this.isUniqueCaseSensitive)) {
         this.addDuplicationError(question);
         return true;
       }

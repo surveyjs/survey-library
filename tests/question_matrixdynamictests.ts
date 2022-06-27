@@ -473,6 +473,18 @@ QUnit.test("column.isUnique, support settings.comparator.caseSensitive", functio
     "There is ann error, abc!=Abc case-sensitive"
   );
   settings.comparator.caseSensitive = false;
+  question.isUniqueCaseSensitive = false;
+  assert.equal(
+    question.hasErrors(),
+    true,
+    "There is an error, abc=Abc case-in-sensitive, isUniqueCaseSensitive = false"
+  );
+  question.isUniqueCaseSensitive = true;
+  assert.equal(
+    question.hasErrors(),
+    false,
+    "There is ann error, abc!=Abc case-sensitive, isUniqueCaseSensitive = false"
+  );
 });
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");

@@ -66,7 +66,7 @@ export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
 export { DropdownOptionItem } from "../vue/components/dropdown/option-item.vue";
-export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
+export { DropdownSelectComponent } from "../vue/components/dropdown/dropdown-select.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";

@@ -11,15 +11,20 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :required="question.isRequired">
-      <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option>
+      :required="question.isRequired"
+    >
+      <option v-if="question.showOptionsCaption" :value="undefined">
+        {{ question.optionsCaption }}
+      </option>
       <sv-dropdown-option-item
         v-for="item in question.visibleChoices"
         :item="item"
         :key="item.id"
       ></sv-dropdown-option-item>
     </select>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+      {{ question.readOnlyText }}
+    </div>
   </div>
 </template>
 
@@ -30,16 +35,16 @@ import { Question, RendererFactory } from "survey-core";
 import BaseVue from "src/vue/base";
 
 @Component
-export class DropdownComponent extends BaseVue {
+export class DropdownSelectComponent extends BaseVue {
   @Prop() question: Question;
 
   public onClick() {
     !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
   }
 }
-Vue.component("sv-dropdown-select", DropdownComponent);
+Vue.component("sv-dropdown-select", DropdownSelectComponent);
 
 RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
 
-export default DropdownComponent;
+export default DropdownSelectComponent;
 </script>

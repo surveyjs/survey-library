@@ -39,7 +39,7 @@ frameworks.forEach(framework => {
     await ClientFunction(()=> { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
-  test("Check checkbox question", async (t) => {
+  test("Check radiogroup question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",
@@ -67,5 +67,7 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);
+    await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
+    await checkElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t);
   });
 });

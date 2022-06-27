@@ -3,6 +3,8 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
 import { ItemValue } from "./itemvalue";
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 
 /**
  * A Model for a radiogroup question.
@@ -46,6 +48,26 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   supportGoNextPageAutomatic() {
     return true;
+  }
+  public get showClearButtonInContent(): boolean {
+    return !this.isDefaultV2Theme && this.canShowClearButton;
+  }
+
+  protected getDefaultTitleActions(): Array<Action> {
+    const actions = [];
+    if(this.isDefaultV2Theme && !this.isDesignMode) {
+      const clearAction = new Action(
+        {
+          title: this.clearButtonCaption,
+          id: `sv-clr-btn-${this.id}`,
+          action: () => { this.clearValue(); },
+          innerCss: this.cssClasses.clearButton,
+          visible: <any>new ComputedUpdater(() => this.canShowClearButton)
+        }
+      );
+      actions.push(clearAction);
+    }
+    return actions;
   }
 }
 

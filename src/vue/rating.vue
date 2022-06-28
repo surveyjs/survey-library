@@ -9,7 +9,7 @@
         <label
           v-for="(item, index) in question.renderedRateItems"
           :key="item.value"
-          :class="question.getRenderedItemClass(item)"
+          :class="question.getItemClass(item.itemValue)"
         >
           <input
             type="radio"

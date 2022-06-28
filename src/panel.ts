@@ -1905,6 +1905,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
       .append(this.cssClasses.panel.nested, !!(this.parent && this.parent.isPanel && !this.isDesignMode))
       .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
+      .append(this.cssClasses.panel.expanded, !!this.isExpanded)
       .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

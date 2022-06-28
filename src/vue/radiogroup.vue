@@ -43,7 +43,7 @@
         "
         :question="question"
       />
-    <div v-if="question.canShowClearButton">
+    <div v-if="question.showClearButtonInContent">
       <input
         type="button"
         :class="question.cssClasses.clearButton"

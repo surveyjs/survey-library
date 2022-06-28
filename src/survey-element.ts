@@ -311,8 +311,11 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
     return this.titleActions;
   }
+  protected getDefaultTitleActions(): Array<IAction> {
+    return [];
+  }
   private updateTitleActions() {
-    let actions: Array<IAction> = [];
+    let actions: Array<IAction> = this.getDefaultTitleActions();
     if (!!this.survey) {
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }

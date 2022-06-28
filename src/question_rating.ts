@@ -322,6 +322,9 @@ export class QuestionRatingModel extends Question {
   protected getDesktopRenderAs(): string {
     return (this.useDropdown == "always") ? "dropdown" : "default";
   }
+  public get ariaRole(): string {
+    return "radiogroup";
+  }
 }
 Serializer.addClass(
   "rating",

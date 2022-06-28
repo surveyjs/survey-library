@@ -64,6 +64,7 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
     const caption = this.renderCaption();
     return (
       <label
+        role="radio"
         className={this.model.css.label}
         title={this.model.caption.renderedHtml}
       >

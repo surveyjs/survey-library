@@ -220,6 +220,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     }
   }
+  public get ariaRole(): string {
+    return "textbox";
+  }
 }
 Serializer.addClass(
   "dropdown",

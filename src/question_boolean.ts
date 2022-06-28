@@ -251,6 +251,10 @@ export class QuestionBooleanModel extends Question {
   protected getCompactRenderAs(): string {
     return "radio";
   }
+
+  public get ariaRole(): string {
+    return "textbox";
+  }
 }
 
 Serializer.addClass(

@@ -51,6 +51,9 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   public supportOther(): boolean {
     return false;
   }
+  public get ariaRole(): string {
+    return "radiogroup";
+  }
 }
 
 Serializer.addClass(

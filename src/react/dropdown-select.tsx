@@ -39,7 +39,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("dropdown-select", (props) => {
+ReactQuestionFactory.Instance.registerQuestion("sv-dropdown-select", (props) => {
   return React.createElement(SurveyQuestionDropdownSelect, props);
 });
 

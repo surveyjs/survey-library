@@ -5,16 +5,14 @@ import { AngularComponentFactory } from "./component-factory";
 
 @Component({
   selector: "'[sv-ng-element]'",
-  template: "<ng-template #elementContainer></ng-template>"
+  template: "<ng-template [component]='{ name: componentName, data: { model } }'></ng-template>"
 })
 export class ElementComponent extends BaseAngular<SurveyElement> {
   @Input() model!: SurveyElement;
-  @ViewChild("elementContainer", { static: true, read: ViewContainerRef }) elementContainerRef!: ViewContainerRef;
   protected getModel(): SurveyElement {
     return this.model;
   }
-  ngOnInit() {
-    const component = AngularComponentFactory.Instance.create(this.elementContainerRef, this.model.isPanel ? "panel" : "question");
-    (<any>component.instance).model = this.model;
+  get componentName(): string {
+    return this.model.isPanel ? "panel" : "question";
   }
 }

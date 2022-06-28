@@ -60,6 +60,7 @@ import { SignaturePadQuestionComponent } from "./questions/signature.component";
 import { MultipleTextComponent } from "./questions/multipletext.component";
 import { ErrorsComponent } from "./errors.component";
 import { MultipleTextItemComponent } from "./questions/multipletextitem.component";
+import { DynamicComponentDirective } from "./utils/dynamic.directive";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective,
@@ -72,7 +73,7 @@ import { MultipleTextItemComponent } from "./questions/multipletextitem.componen
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective
   ],
   imports: [
     CommonModule, FormsModule

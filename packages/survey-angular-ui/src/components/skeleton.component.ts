@@ -1,4 +1,5 @@
 import { Component, Input } from "@angular/core";
+import { AngularComponentFactory } from "../component-factory";
 
 @Component({
   selector: "question-skeleton",
@@ -8,3 +9,5 @@ import { Component, Input } from "@angular/core";
 export class QuestionSkeletonComponent {
   @Input() model: any;
 }
+
+AngularComponentFactory.Instance.registerComponent("skeleton-question", QuestionSkeletonComponent);

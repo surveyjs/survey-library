@@ -4,12 +4,11 @@ import { AngularComponentFactory } from "./component-factory";
 
 @Component({
   selector: "sv-ng-element-content",
-  template: ""
+  template: "<ng-template [component]='{ name: getComponentName(), data: { model: model }, default: defaultComponentName }'> </ng-template>"
 })
-export class QuestionContentComponent implements DoCheck {
+export class QuestionContentComponent {
   @Input() model: any;
-  prevComponentName: string = "";
-  constructor(public viewContainerRef: ViewContainerRef) {}
+  defaultComponentName = "skeleton-question";
   public getComponentName(): string {
     if (
       this.model.customWidget &&
@@ -20,17 +19,5 @@ export class QuestionContentComponent implements DoCheck {
       return this.model.getType() + "-question";
     }
     return this.model.getComponentName();
-  }
-
-  ngDoCheck() {
-    if(this.prevComponentName!== this.getComponentName()) {
-      this.viewContainerRef.clear();
-      let componentRef = AngularComponentFactory.Instance.create(this.viewContainerRef, this.getComponentName());
-      if(!componentRef) {
-        componentRef = this.viewContainerRef.createComponent(QuestionSkeletonComponent) as any;
-      }
-      (componentRef.instance as any).model = this.model;
-      this.prevComponentName = this.getComponentName();
-    }
   }
 }

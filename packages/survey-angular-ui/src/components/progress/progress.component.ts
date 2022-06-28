@@ -4,19 +4,11 @@ import { SurveyProgressModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-progress",
-  template: ""
+  template: "<ng-template [component]='{ name: componentName, data: { model } }'></ng-template>"
 })
-export class ProgressComponent implements DoCheck {
+export class ProgressComponent {
   @Input() model: any;
-  private prevProgressBarType: string = "";
-  constructor(private containerRef: ViewContainerRef) {
-  }
-  ngDoCheck() {
-    if(this.prevProgressBarType !== this.model.progressBarType) {
-      this.containerRef.clear();
-      let componentRef = AngularComponentFactory.Instance.create(this.containerRef, "sv-progress-" + this.model.progressBarType);
-      (componentRef.instance as any).model = this.model;
-      this.prevProgressBarType = this.model.progressBarType;
-    }
+  get componentName(): string {
+    return "sv-progress-" + this.model.progressBarType;
   }
 }

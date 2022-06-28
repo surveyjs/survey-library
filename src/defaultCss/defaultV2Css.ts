@@ -43,6 +43,7 @@ export var defaultV2Css = {
     requiredText: "sd-panel__required-text",
     header: "sd-panel__header sd-element__header sd-element__header--location-top",
     collapsed: "sd-element--collapsed",
+    expanded: "sd-element--expanded",
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
@@ -132,6 +133,7 @@ export var defaultV2Css = {
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
     collapsed: "sd-element--collapsed",
+    expanded: "sd-element--expanded",
     nested: "sd-element--nested",
     invisible: "sd-element--invisible"
   },

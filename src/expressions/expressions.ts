@@ -230,6 +230,9 @@ export class Const extends Operand {
   public getType(): string {
     return "const";
   }
+  public setValue(val: any): void {
+    this.value = val;
+  }
   public toString(func: (op: Operand) => string = undefined): string {
     if (!!func) {
       var res = func(this);

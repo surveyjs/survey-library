@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
           name: "dropdown_question",
           optionsCaption: "Select country here...",
           choices: ["Greece"],
-          renderAs: "select"
+          // renderAs: "select"
         },
       ]
     });
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "question1",
           hasOther: "true",
           choices: [
@@ -109,7 +109,7 @@ frameworks.forEach(framework => {
         },
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "question12",
           hasOther: "true",
           choices: [
@@ -145,7 +145,7 @@ frameworks.forEach(framework => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "question12",
           hasOther: "true",
           showClearButton: true,
@@ -174,7 +174,7 @@ frameworks.forEach(framework => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "question1",
           showClearButton: true,
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
@@ -189,7 +189,7 @@ frameworks.forEach(framework => {
           ]
         }, {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "question2",
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
           choices: [
@@ -218,7 +218,7 @@ frameworks.forEach(framework => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "DropdownRenderAsSelect",
           hasOther: "true",
           denySearch: true,

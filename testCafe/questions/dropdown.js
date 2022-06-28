@@ -234,7 +234,7 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "carss",
           title: "Dropdown render as",
           hasOther: true,
@@ -280,7 +280,7 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           choices: [
             "Ford",
             "Vauxhall",
@@ -341,7 +341,7 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "DropdownRenderAsSelect",
           hasOther: "true",
           choices: [
@@ -418,7 +418,7 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           showClearButton: true,
           choices: [
             "Ford",
@@ -460,7 +460,7 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "cars",
           title: "Dropdown",
           itemComponent: "new-item",
@@ -500,7 +500,7 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "cars",
           title: "Dropdown",
           colCount: 0,
@@ -519,7 +519,7 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          renderAs: "select",
+          // renderAs: "select",
           name: "DropdownRenderAsSelect",
           colCount: 0,
           choices: [

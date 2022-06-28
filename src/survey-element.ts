@@ -19,7 +19,7 @@ import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 /**
  * Base class of SurveyJS Elements and Survey.
  */
@@ -294,8 +294,8 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer(): new ActionContainer();
     if(this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
-      actionContainer.containerCss = this.survey.getCss().actionBar.titleBar;
     }
+    actionContainer.containerCss = !!this.survey.getCss().actionBar ? this.survey.getCss().actionBar.titleBar : defaultActionBarCss.titleBar;
     return actionContainer;
   }
   public get titleActions(): Array<any> {

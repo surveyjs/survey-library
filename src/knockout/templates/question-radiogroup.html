@@ -30,7 +30,7 @@
     <!-- ko if: question.hasOther && question.isOtherSelected -->
       <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
     <!-- /ko -->
-    <!-- ko if: question.canShowClearButton -->
+    <!-- ko if: question.showClearButtonInContent -->
     <div>
       <input
         type="button"

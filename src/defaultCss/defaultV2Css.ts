@@ -195,7 +195,7 @@ export var defaultV2Css = {
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     other: "sd-input sd-comment sd-selectbase__other",
-    clearButton: "sd-btn sd-selectbase__clear-btn",
+    clearButton: "",
     column: "sd-selectbase__column"
   },
   boolean: {
@@ -279,7 +279,6 @@ export var defaultV2Css = {
     itemControl: "sd-imagepicker__control sd-visuallyhidden",
     image: "sd-imagepicker__image",
     itemText: "sd-imagepicker__text",
-    clearButton: "sd-btn",
     other: "sd-input sd-comment",
     itemNoImage: "sd-imagepicker__no-image",
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",

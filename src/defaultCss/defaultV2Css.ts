@@ -493,6 +493,7 @@ export var defaultV2Css = {
     itemAsIcon: "sd-action--icon",
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
+    titleBar: "sd-action-title-bar"
   },
   variables: {
     mobileWidth: "--sd-mobile-width",

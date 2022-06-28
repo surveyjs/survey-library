@@ -6,11 +6,11 @@
 
 .sv-title-actions__title {
   flex-wrap: wrap;
-  max-width: 90%;
-  min-width: 50%;
   white-space: initial;
+  flex: 0 0 auto;
 }
 
-.sv-title-actions__bar {
-  min-width: 56px;
+.sv-action-title-bar {
+  flex: 1 1 auto;
+  justify-content: flex-end;
 }

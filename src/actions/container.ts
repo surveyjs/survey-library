@@ -12,6 +12,7 @@ export let defaultActionBarCss = {
   itemIcon: "sv-action-bar-item__icon",
   itemTitle: "sv-action-bar-item__title",
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
+  titleBar: "sv-action-title-bar"
 };
 
 export class ActionContainer<T extends Action = Action> extends Base {

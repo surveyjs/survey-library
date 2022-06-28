@@ -90,9 +90,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected getRenderedActions(): Array<T> {
-    if (this.actions.length >= 2)
-      return this.actions.concat([<T>this.dotsItem]);
-    return this.actions;
+    // if (this.actions.length >= 2)
+    return this.actions.concat([<T>this.dotsItem]);
+    // return this.actions;
   }
 
   protected raiseUpdate(isResetInitialized: boolean) {

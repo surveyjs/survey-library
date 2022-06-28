@@ -294,6 +294,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer(): new ActionContainer();
     if(this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
+      actionContainer.containerCss = this.survey.getCss().actionBar.titleBar;
     }
     return actionContainer;
   }

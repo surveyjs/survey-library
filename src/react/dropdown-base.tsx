@@ -25,9 +25,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if(this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
-        <div>{ this.question.readOnlyText }</div>
-      </div>;
+      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{ this.question.readOnlyText }</div>;
     } else {
       if (!(this.question as any).hasOwnProperty("dropdownListModel")) {
         (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);

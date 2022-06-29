@@ -1,6 +1,28 @@
 <template>
   <div :class="question.renderCssRoot">
-    <sv-dropdown :question="question"></sv-dropdown>
+    <div :class="question.cssClasses.selectWrapper">
+      <select
+        v-if="!question.isReadOnly"
+        :id="question.inputId"
+        v-model="question.renderedValue"
+        v-on:click="onClick()"
+        :autocomplete="question.autoComplete"
+        :class="question.getControlClass()"
+        :aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
+        :required="question.isRequired"
+      >
+        <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option>
+        <sv-dropdown-option-item
+          v-for="item in question.visibleChoices"
+          :item="item"
+          :key="item.id"
+        ></sv-dropdown-option-item>
+      </select>
+      <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+    </div>
     <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
@@ -9,10 +31,17 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionDropdownModel } from "survey-core";
+import { QuestionDropdownModel, RendererFactory } from "survey-core";
 
 @Component
-export class DropdownSelect extends QuestionVue<QuestionDropdownModel> {}
-Vue.component("survey-dropdown", DropdownSelect);
+export class DropdownSelect extends QuestionVue<QuestionDropdownModel> {
+  public onClick() {
+    !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
+  }
+}
+
+Vue.component("sv-dropdown-select", DropdownSelect);
+RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
+
 export default DropdownSelect;
 </script>

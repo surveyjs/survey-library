@@ -8,7 +8,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { ItemValue } from "survey-core";
 import { BaseVue } from "../../base";
 
-export * from "./dropdown-select.vue";
+export * from "./dropdown.vue";
 
 @Component
 export class DropdownOptionItem extends BaseVue {

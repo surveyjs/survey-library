@@ -106,9 +106,8 @@ export function testQuestionMarkup(assert, test, platform) {
 
       var re = /(<!--[\s\S]*?-->)/g;
       var newstr = str.replace(re, "");
-      newstr = newstr.replace(/(> +<)/g, "><").trim();
-      var etalonFileName = "./snapshots/"+test.snapshot+".snap.html";
-      var oldStr = test.etalon || !test.etalon && (!!platform.getStrFromHtml ? platform.getStrFromHtml(etalonFileName) : require(etalonFileName));
+      newstr = newstr.replace(/(>\s+<)/g, "><").trim();
+      var oldStr = test.etalon || !test.etalon && platform.getStrFromHtml(test.snapshot);
       oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
       oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
@@ -187,7 +186,7 @@ export function testQuestionMarkup(assert, test, platform) {
 }
 
 const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
-  (htmlElement: HTMLElement) => htmlElement.classList.contains(".sv-vue-title-addional-div"),
+  (htmlElement: HTMLElement) => htmlElement.classList.contains("sv-vue-title-additional-div"),
   (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-ng/) > -1
 ];
 

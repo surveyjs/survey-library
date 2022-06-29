@@ -9,7 +9,7 @@ const platformDescriptor = {
   name: "Angular",
   survey: null,
   surveyFactory: (json: any) => new SurveyModel(json),
-  getStrFromHtml: (fileName: string) => (<any>window).__html__[fileName],
+  getStrFromHtml: (snapshot: string) => (<any>window).__html__["./snapshots/"+snapshot+".snap.html"],
   render: (survey: SurveyModel, element: HTMLElement) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;

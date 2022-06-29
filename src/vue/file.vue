@@ -38,7 +38,7 @@
           v-bind:aria-label="question.chooseButtonCaption"
           >
           <span>{{ question.chooseButtonCaption }}</span>
-          <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
+          <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.removeFileCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
         </label>
         <span
           :class="question.cssClasses.noFileChosen"
@@ -88,7 +88,7 @@
               :class="question.cssClasses.removeFile"
               >{{ question.removeFileCaption }}</span
             >
-            <sv-svg-icon v-if="question.cssClasses.removeFileSvgIconId" :class="question.cssClasses.removeFileSvg" :iconName="question.cssClasses.removeFileSvgIconId" :size="'auto'"></sv-svg-icon>
+            <sv-svg-icon v-if="question.cssClasses.removeFileSvgIconId" :title="question.removeFileCaption" :class="question.cssClasses.removeFileSvg" :iconName="question.cssClasses.removeFileSvgIconId" :size="'auto'"></sv-svg-icon>
           </div>
         </div>
         <div v-if="val.name && question.cssClasses.fileSignBottom" :class="question.cssClasses.fileSignBottom">

@@ -1,5 +1,5 @@
 <template>
-    <svg ref="svgIcon" class="sv-svg-icon" role="img"><use></use></svg>
+    <svg ref="svgIcon" class="sv-svg-icon" role="img" :aria-label="title"><use></use></svg>
 </template>
 
 <script lang="ts">
@@ -18,6 +18,8 @@ export class SvgIcon extends BaseVue {
   height: number;
   @Prop() iconName: string;
   svgIconElement: any;
+  @Prop()
+  title: any;
 
   constructor() {
     super();

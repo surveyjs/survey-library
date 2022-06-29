@@ -4,7 +4,7 @@
   data-bind="click: action, key2click: { processEsc: false }, disable: $data.disabled, css: getActionBarItemCss(), attr: { title: $data.tooltip || $data.title }"
 >
   <!-- ko if: $data.iconName -->
-  <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize } } --><!-- /ko -->
+  <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize, title: $data.tooltip || $data.title } } --><!-- /ko -->
   <!-- /ko -->
   <!-- ko if: $data.hasTitle -->
   <span

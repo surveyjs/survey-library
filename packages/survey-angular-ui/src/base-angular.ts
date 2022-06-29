@@ -1,17 +1,22 @@
-import { ChangeDetectorRef, Component, OnChanges, OnDestroy, SimpleChange } from "@angular/core";
+import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange } from "@angular/core";
 import { ArrayChanges, Base } from "survey-core";
 
 @Component({
   template: ""
 })
-export abstract class BaseAngular<T extends Base = Base> implements OnChanges, OnDestroy {
+export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnDestroy {
   private isRendering: boolean = false; //#todonot implemented yet
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   protected abstract getModel(): T;
-  ngOnChanges(): void {
-    this.makeBaseElementAngular(this.getModel());
+  protected previousModel?: T;
+
+  ngDoCheck(): void {
+    if(this.previousModel !== this.getModel()) {
+      this.makeBaseElementAngular(this.getModel());
+      this.previousModel = this.getModel();
+    }
   }
   ngOnDestroy() {
     this.unMakeBaseElementAngular(this.getModel());

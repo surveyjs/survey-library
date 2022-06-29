@@ -1,7 +1,6 @@
 export * from "./survey.component";
 export * from "./page.component";
 export * from "./question.component";
-export * from "./question-content.component";
 export * from "./string-viewer.component";
 
 export * from "./components/popup/popup.service";

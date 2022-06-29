@@ -4,7 +4,6 @@ import { FormsModule } from "@angular/forms";
 import { SurveyComponent } from "./survey.component";
 import { PageComponent } from "./page.component";
 import { QuestionComponent } from "./question.component";
-import { QuestionContentComponent } from "./question-content.component";
 import { StringViewerComponent } from "./string-viewer.component";
 import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
@@ -46,7 +45,6 @@ import { ProgressDefaultComponent } from "./components/progress/default/progress
 import { ProgressButtonsComponent } from "./components/progress/buttons/progress.component";
 import { ProgressComponent } from "./components/progress/progress.component";
 import { PanelComponent } from "./panel.component";
-import { ElementComponent } from "./element.component";
 import { PopupService } from "./components/popup/popup.service";
 import { SurveyNavigationButton } from "./components/survey-actions/survey-nav-btn.component";
 import { MatrixQuestionComponent } from "./questions/matrix.component";
@@ -64,7 +62,7 @@ import { DynamicComponentDirective } from "./utils/dynamic.directive";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective,
-    SurveyComponent, PageComponent, ElementComponent, PanelComponent, QuestionComponent, QuestionContentComponent, StringViewerComponent,
+    SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent,
     PopupComponent, PopupContainerComponent,

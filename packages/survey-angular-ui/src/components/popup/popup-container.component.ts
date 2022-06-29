@@ -19,7 +19,8 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     return this.model;
   }
 
-  ngDoCheck() {
+  override ngDoCheck() {
+    super.ngDoCheck();
     if (this.prevIsVisible && !this.model.isVisible) {
       this.isShow = false;
     }

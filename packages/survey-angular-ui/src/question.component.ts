@@ -7,11 +7,25 @@ import { AngularComponentFactory } from "./component-factory";
   selector: "sv-ng-question",
   templateUrl: "./question.component.html"
 })
-export class QuestionComponent {
+export class QuestionComponent extends BaseAngular<Question> {
   @Input() model!: Question;
   @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
+  protected getModel(): Question {
+    return this.model;
+  }
   ngAfterViewInit(): void {
     this.model.afterRender(this.rootEl?.nativeElement);
+  }
+  public getComponentName(): string {
+    if (
+      this.model.customWidget &&
+      !this.model.customWidget.widgetJson.isDefaultRender
+    )
+      return "survey-widget-" + this.model.customWidget.name;
+    if (this.model.isDefaultRendering()) {
+      return this.model.getType() + "-question";
+    }
+    return this.model.getComponentName();
   }
 }
 

@@ -3,7 +3,7 @@
   <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
   <div [class]="model.cssClasses.content" role="presentation">
     <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
-    <sv-ng-element-content [model]="model"></sv-ng-element-content>
+    <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'skeleton-question' }" ></ng-template>
     <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
   </div>

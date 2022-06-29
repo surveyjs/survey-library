@@ -1402,3 +1402,9 @@ QUnit.test("Expression decimal + string", function(assert) {
   const expression = new ExpressionRunner("0.1 + 'abc'");
   assert.equal(expression.run({}), "0.1abc");
 });
+
+QUnit.test("Const setValue", function(assert) {
+  const op = <BinaryOperand>new ConditionsParser().parseExpression("{q1} == 1");
+  (<Const>op.rightOperand).setValue(2);
+  assert.equal(op.toString(), "({q1} == 2)");
+});

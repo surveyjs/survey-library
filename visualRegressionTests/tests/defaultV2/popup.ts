@@ -10,7 +10,7 @@ const json = {
     {
       name: "often",
       type: "radiogroup",
-      title: "How often do you use this applications?",
+      title: "How often do you use this?",
       choices: ["Rare", "Sometimes", "Always"]
     }
   ]

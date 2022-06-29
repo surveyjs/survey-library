@@ -1,6 +1,9 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
+import { frameworks, url, setOptions, getListItemByText, completeButton, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
+
+const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+const listItems = Selector(".sv-list__item span");
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -42,9 +45,9 @@ frameworks.forEach((framework) => {
     let surveyResult;
 
     await t
-      .click("select")
-      .click("option[value=Nissan]")
-      .click("input[value=Complete]");
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Nissan"))
+      .click(completeButton);
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql("Nissan");
@@ -106,9 +109,11 @@ frameworks.forEach((framework) => {
       "Citroen",
     ];
     let checkIntegrity = async (t) => {
-      await t.expect(Selector("option").count).eql(choices.length + 1); // +1 because of default "Choose..." option
+      await t.expect(listItems.count).eql(choices.length);
       for (let i = 0; i < choices.length; i++) {
-        await t.click("select").click(`option[value=${choices[i]}]`);
+        await t
+          .click(questionDropdownSelect)
+          .click(listItems.nth(i));
       }
     };
 
@@ -124,31 +129,33 @@ frameworks.forEach((framework) => {
 
   test("show \"other\" choice", async (t) => {
     await t
-      .click(Selector(".sv_row select"))
-      .expect(Selector(".sv_row select option").count).eql(12);
+      .click(questionDropdownSelect)
+      .expect(listItems.count).eql(11);
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
-      .click(Selector(".sv_row select"))
-      .expect(Selector(".sv_row select option").count).eql(13)
-      .expect(Selector(".sv_row select option").nth(12).textContent).contains("Other");
+      .click(questionDropdownSelect)
+      .expect(listItems.count).eql(12)
+      .expect(listItems.nth(11).textContent).contains("Other");
   });
 
   test("check \"other\" choice doesn't change order", async (t) => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
-    await t.expect(Selector("select option").nth(12).textContent).eql("Other");
+    await t
+      .click(questionDropdownSelect)
+      .expect(listItems.nth(11).textContent).eql("Other");
 
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(Selector("select option").nth(12).textContent).eql("Other");
+    await t.expect(listItems.nth(11).textContent).eql("Other");
   });
 
   test("choose other", async (t) => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
-      .click("select")
-      .click("option[value=other]")
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Other (describe)"))
       .typeText(Selector("textarea"), "Zaporozec")
-      .click("input[value=Complete]");
+      .click(completeButton);
 
     let surveyResult = await getSurveyResult();
     await t
@@ -214,6 +221,7 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
+          renderAs: "select",
           name: "car",
           title: "Dropdown",
           hasOther: true,
@@ -234,7 +242,6 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          // renderAs: "select",
           name: "carss",
           title: "Dropdown render as",
           hasOther: true,
@@ -256,12 +263,16 @@ frameworks.forEach((framework) => {
     };
     const oldOtherText = "Other (describe)";
     const newOtherText = "New Other";
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await initSurvey(framework, currentJson);
 
-    await t.expect(Selector("select option").nth(10).textContent).eql(oldOtherText);
+    await t
+      .click(questionDropdownSelect)
+      .expect(listItems.nth(10).textContent).eql(oldOtherText);
+
     await setOptions("car", { otherText: newOtherText });
-    await t.expect(Selector("select option").nth(10).textContent).eql(newOtherText);
+    await t
+      .click(questionDropdownSelect)
+      .expect(listItems.nth(10).textContent).eql(newOtherText);
 
     await t
       .click(questionDropdownSelect.nth(1))
@@ -298,7 +309,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     const questionText = Selector(".sv_q_dropdown__value");
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     await t
@@ -321,6 +331,7 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
+          renderAs: "select",
           name: "cars",
           title: "Dropdown",
           isRequired: true,
@@ -341,7 +352,6 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          // renderAs: "select",
           name: "DropdownRenderAsSelect",
           hasOther: "true",
           choices: [

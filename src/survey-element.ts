@@ -286,6 +286,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
+      this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;
@@ -295,7 +296,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if(this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
-    actionContainer.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
 
     return actionContainer;
   }

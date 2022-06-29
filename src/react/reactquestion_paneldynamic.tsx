@@ -9,6 +9,8 @@ import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-
 import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
 import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
 import { SurveyQuestionPanelDynamicAddButton } from "./components/paneldynamic-actions/paneldynamic-add-btn";
+import { SurveyQuestionPanelDynamicRemoveButton } from "./components/paneldynamic-actions/paneldynamic-remove-btn";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -157,9 +159,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderAddRowButton(): JSX.Element {
-    return (
-      <SurveyQuestionPanelDynamicAddButton data={ { question: this.question }}></SurveyQuestionPanelDynamicAddButton>
-    );
+    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
+      data: { question: this.question }
+    });
   }
   protected renderNavigatorV2(): JSX.Element {
     if (this.question.panelCount === 0 || this.question["showLegacyNavigation"]) return null;
@@ -189,10 +191,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
-  constructor(props: any) {
-    super(props);
-    this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
-  }
   private get question(): QuestionPanelDynamicModel {
     return this.props.question;
   }
@@ -205,9 +203,6 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   protected getCss(): any {
     const survey = this.getSurvey();
     return !!survey ? survey.getCss() : {};
-  }
-  handleOnPanelRemoveClick(event: any) {
-    this.question.removePanelUI(this.index);
   }
   public render() {
     const panel: JSX.Element = super.render();
@@ -228,21 +223,12 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     if (
       !this.question.canRemovePanel ||
       (this.question.isRenderModeList && this.panel.isCollapsed)
-    )
+    ) {
       return null;
-    return (
-      <button
-        className={this.question.getPanelRemoveButtonCss()}
-        onClick={this.handleOnPanelRemoveClick}
-        type="button">
-        <span
-          className={this.question.cssClasses.buttonRemoveText}
-        >{this.question.panelRemoveText}</span>
-        <span
-          className={this.question.cssClasses.iconRemove}
-        ></span>
-      </button>
-    );
+    }
+    return ReactElementFactory.Instance.createElement("sv-paneldynamic-remove-btn", {
+      data: { question: this.question, index: this.index }
+    });
   }
 }
 

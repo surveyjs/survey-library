@@ -66,8 +66,18 @@
     }
   }
 }
-.sd-action-title-bar {
-  max-width: 50%;
-  flex: 1 1 auto;
-  justify-content: flex-end;
+
+.sd-title-actions {
+  .sd-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+    max-width: unset;
+    min-width: unset;
+  }
+
+  .sd-action-title-bar {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: unset;
+  }
 }

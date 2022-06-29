@@ -19,7 +19,7 @@ export class SvgIcon extends BaseVue {
   @Prop() iconName: string;
   svgIconElement: any;
   @Prop()
-  size: title;
+  title: any;
 
   constructor() {
     super();

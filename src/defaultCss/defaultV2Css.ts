@@ -33,6 +33,7 @@ export var defaultV2Css = {
     titleCollapsed: "sd-element__title--collapsed",
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
+    titleBar: "sd-action-title-bar",
     description: "sd-description sd-panel__description",
     container: "sd-element sd-element--complex sd-panel sd-row__panel",
     withFrame: "sd-element--with-frame",
@@ -120,6 +121,7 @@ export var defaultV2Css = {
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
+    titleBar: "sd-action-title-bar",
     requiredText: "sd-question__required-text",
     number: "sd-element__num",
     description: "sd-description sd-question__description",
@@ -495,7 +497,6 @@ export var defaultV2Css = {
     itemAsIcon: "sd-action--icon",
     itemIcon: "sd-action__icon",
     itemTitle: "sd-action__title",
-    titleBar: "sd-action-title-bar"
   },
   variables: {
     mobileWidth: "--sd-mobile-width",

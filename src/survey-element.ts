@@ -295,7 +295,8 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if(this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
-    actionContainer.containerCss = !!this.survey.getCss().actionBar ? this.survey.getCss().actionBar.titleBar : defaultActionBarCss.titleBar;
+    actionContainer.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
+
     return actionContainer;
   }
   public get titleActions(): Array<any> {

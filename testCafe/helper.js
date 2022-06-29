@@ -231,3 +231,8 @@ export async function checkSurveyWithEmptyQuestion(t) {
   let surveyResult = await getSurveyResult();
   await t.expect(typeof surveyResult).eql("undefined");
 }
+
+export function getListItemByText(text) {
+  return Selector(".sv-popup__content .sv-list .sv-list__item").withText(text).filterVisible();
+}
+export var completeButton = Selector(".sv_complete_btn");

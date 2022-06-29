@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton, applyTheme } from "../helper";
-import { Selector, ClientFunction, fixture, test } from "testcafe";
+import { frameworks, url_test, initSurvey, getSurveyResult, getDynamicPanelRemoveButton, applyTheme, getListItemByText } from "../helper";
+import { Selector, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "allTypes";
@@ -183,15 +183,9 @@ var json = {
           .withText("item1")
       );
 
-      const dropdownSelector = Selector(
-        "select[aria-label='dropdown_question']");
-      await t.click(dropdownSelector);
-      await t.click(
-        dropdownSelector
-          .parent("[aria-labelledby]")
-          .find("option")
-          .withText("item1")
-      );
+      await t
+        .click(Selector("div[aria-label='dropdown_question']"))
+        .click(getListItemByText("item1"));
 
       await t.typeText(
         Selector("span").withText("comment_question")
@@ -257,13 +251,12 @@ var json = {
           .parent()
       );
 
-      const matrixDropdownRow = Selector(
-        "span").withText("matrixdropdown_question")
+      const matrixDropdownRow = Selector("span").withText("matrixdropdown_question")
         .parent("[aria-labelledby]")
-        .find("tr")
-        .withText("Row 1");
-      await t.click(matrixDropdownRow.find("select"));
-      await t.click(matrixDropdownRow.find("option").withText("1"));
+        .find("tr").withText("Row 1");
+      await t
+        .click(matrixDropdownRow.find("div[aria-label='Column 1']"))
+        .click(getListItemByText("1"));
 
       await t.click(
         Selector("span").withText("matrixdynamic_question")

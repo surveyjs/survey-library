@@ -59,6 +59,8 @@ import { MultipleTextComponent } from "./questions/multipletext.component";
 import { ErrorsComponent } from "./errors.component";
 import { MultipleTextItemComponent } from "./questions/multipletextitem.component";
 import { DynamicComponentDirective } from "./utils/dynamic.directive";
+import { RankingQuestionComponent } from "./questions/ranking.component";
+import { RankingItemComponent } from "./questions/ranking-item.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective,
@@ -71,7 +73,7 @@ import { DynamicComponentDirective } from "./utils/dynamic.directive";
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent
   ],
   imports: [
     CommonModule, FormsModule

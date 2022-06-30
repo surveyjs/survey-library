@@ -9,7 +9,6 @@ import { findParentByClassNames } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
-  private _onPropertyChanged: (s: any, options: any) => void;
 
   private getVisibleListItems() {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
@@ -24,12 +23,6 @@ export class DropdownListModel extends Base {
   constructor(private question: Question) {
     super();
 
-    this._onPropertyChanged = (s, options) => {
-      if (options.name === "visibleChoices") {
-        this._popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
-      }
-    };
-    this.question.onPropertyChanged.add(this._onPropertyChanged);
     const listModel = new ListModel(this.getVisibleListItems(), (item: IAction) => {
       this.question.value = item.id;
       this._popupModel.toggleVisibility();
@@ -49,6 +42,10 @@ export class DropdownListModel extends Base {
     return this._popupModel;
   }
 
+  public updateItems() {
+    this._popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+  }
+
   public onClick(event: any): void {
     if (!!event && !!event.target) {
       const target = findParentByClassNames(event.target, this.question.cssClasses.control.split(" "));
@@ -62,10 +59,5 @@ export class DropdownListModel extends Base {
     this.question.clearValue();
     event.preventDefault();
     event.stopPropagation();
-  }
-
-  public dispose(): void {
-    super.dispose();
-    this.question.onPropertyChanged.remove(this._onPropertyChanged);
   }
 }

@@ -86,8 +86,4 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       </div>
     );
   }
-
-  componentWillUnmount() {
-    this.question?.dropdownListModel?.dispose();
-  }
 }

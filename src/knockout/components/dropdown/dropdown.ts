@@ -17,10 +17,7 @@ ko.components.register("sv-dropdown", {
       if (!params.question.dropdownListModel) {
         params.question.dropdownListModel = new DropdownListModel(params.question);
       }
-      return {
-        question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click, clear: clear,
-        dispose: () => { params.question?.dropdownListModel?.dispose(); }
-      };
+      return { question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click, clear: clear };
     },
   },
   template: template,

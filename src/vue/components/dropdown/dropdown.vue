@@ -62,9 +62,6 @@ export class DropdownComponent extends BaseVue {
       this.question.dropdownListModel = new DropdownListModel(this.question);
     }
   }
-  protected onDestroyed() {
-    this.question.dropdownListModel.dispose();
-  }
 }
 
 Vue.component("sv-dropdown", DropdownComponent);

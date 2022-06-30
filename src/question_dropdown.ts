@@ -164,11 +164,20 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.dropdownListModel = new DropdownListModel(this);
       this.dropdownListModel.popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
     }
-    return this.dropdownListModel.popupModel;
+    return this.dropdownListModel?.popupModel;
   }
+
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+
+  protected onVisibleChoicesChanged(): void {
+    super.onVisibleChoicesChanged();
+
+    if (this.popupModel) {
+      this.dropdownListModel.updateItems();
+    }
   }
 }
 Serializer.addClass(

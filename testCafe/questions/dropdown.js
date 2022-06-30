@@ -164,17 +164,17 @@ frameworks.forEach((framework) => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
       .click(questionDropdownSelect)
-      .expect(listItems.nth(11).textContent).eql("Other (describe)");
+      .expect(listItems.nth(11).textContent).eql("Other");
 
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(listItems.nth(11).textContent).eql("Other (describe)");
+    await t.expect(listItems.nth(11).textContent).eql("Other");
   });
 
   test("choose other", async (t) => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
       .click(questionDropdownSelect)
-      .click(getListItemByText("Other (describe)"))
+      .click(getListItemByText("Other"))
       .typeText(Selector("textarea"), "Zaporozec")
       .click(completeButton);
 

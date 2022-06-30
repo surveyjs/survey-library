@@ -11,6 +11,21 @@
   white-space: initial;
 }
 
-.sv-title-actions__bar {
+.sv-action-title-bar {
   min-width: 56px;
+}
+
+.sv-title-actions {
+  .sv-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+    max-width: unset;
+    min-width: unset;
+  }
+
+  .sv-action-title-bar {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: unset;
+  }
 }

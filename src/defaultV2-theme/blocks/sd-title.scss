@@ -66,3 +66,9 @@
     }
   }
 }
+
+.sd-action-title-bar {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: unset;
+}

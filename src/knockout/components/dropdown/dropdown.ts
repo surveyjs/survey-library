@@ -11,11 +11,14 @@ ko.components.register("sv-dropdown", {
       const click = (_: any, e: any) => {
         params.question.dropdownListModel?.onClick(e);
       };
+      const clear = (_: any, e: any) => {
+        params.question.dropdownListModel?.onClear(e);
+      };
       if (!params.question.dropdownListModel) {
         params.question.dropdownListModel = new DropdownListModel(params.question);
       }
       return {
-        question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click,
+        question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click, clear: clear,
         dispose: () => { params.question?.dropdownListModel?.dispose(); }
       };
     },

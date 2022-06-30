@@ -67,12 +67,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   createClearButton(): JSX.Element {
     if(!this.question.showClearButton || !this.question.cssClasses.cleanButtonIconId) return null;
 
+    const clear = (_: any, e: any) => {
+      this.question.dropdownListModel?.onClear(e);
+    };
+
     const style = { display: this.question.isEmpty() ? "none": "" };
     return (
       <div
         className={this.question.cssClasses.cleanButton}
         style={style}
-        onClick={(e: any) => { this.question.onClear(e); }}
+        onClick={(event: any) => { clear(null, event); }}
       >
         <SvgIcon
           className={this.question.cssClasses.cleanButtonSvg}

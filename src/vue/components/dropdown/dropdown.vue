@@ -52,7 +52,7 @@ export class DropdownComponent extends BaseVue {
     this.question.dropdownListModel?.onClick(event);
   }
   public clear(event: any) {
-    this.question.onClear(event);
+    this.question.dropdownListModel?.onClear(event);
   }
   public keyUp(event: any) {
     attachKey2click(event, { processEsc: false });

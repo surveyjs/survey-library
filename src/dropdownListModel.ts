@@ -58,6 +58,12 @@ export class DropdownListModel extends Base {
     }
   }
 
+  public onClear(event: any): void {
+    this.question.clearValue();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   public dispose(): void {
     super.dispose();
     this.question.onPropertyChanged.remove(this._onPropertyChanged);

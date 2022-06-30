@@ -30,6 +30,26 @@ frameworks.forEach((framework) => {
               "Citroen",
             ],
           },
+          {
+            type: "dropdown",
+            name: "renderAsSelect",
+            renderAs: "select",
+            title: "What car are you driving?",
+            colCount: 0,
+            choices: [
+              "None",
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen",
+            ],
+          },
         ],
       };
 
@@ -54,19 +74,20 @@ frameworks.forEach((framework) => {
   });
 
   test("change choices order", async (t) => {
+    const questionName = "renderAsSelect";
     const getFirst = Selector("select option").nth(1);
     const getSecond = Selector("select option").nth(2);
     let rnd_count = 0;
     let first, first_2;
 
     // asc
-    await setOptions("car", { choicesOrder: "asc" });
+    await setOptions(questionName, { choicesOrder: "asc" });
     await t
       .expect(getFirst.textContent).eql("Audi")
       .expect(getSecond.textContent).eql("BMW");
 
     // desc
-    await setOptions("car", { choicesOrder: "desc" });
+    await setOptions(questionName, { choicesOrder: "desc" });
     await t
       .expect(getFirst.textContent).eql("Volkswagen")
       .expect(getSecond.textContent).eql("Vauxhall");
@@ -76,8 +97,8 @@ frameworks.forEach((framework) => {
 
     first = await getFirst();
     for (let i = 0; i < 15; i++) {
-      await setOptions("car", { choicesOrder: "asc" });
-      await setOptions("car", { choicesOrder: "random" });
+      await setOptions(questionName, { choicesOrder: "asc" });
+      await setOptions(questionName, { choicesOrder: "random" });
       first_2 = await getFirst();
 
       if (first.textContent.trim() !== first_2.textContent.trim()) {
@@ -143,10 +164,10 @@ frameworks.forEach((framework) => {
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t
       .click(questionDropdownSelect)
-      .expect(listItems.nth(11).textContent).eql("Other");
+      .expect(listItems.nth(11).textContent).eql("Other (describe)");
 
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(listItems.nth(11).textContent).eql("Other");
+    await t.expect(listItems.nth(11).textContent).eql("Other (describe)");
   });
 
   test("choose other", async (t) => {
@@ -263,16 +284,12 @@ frameworks.forEach((framework) => {
     };
     const oldOtherText = "Other (describe)";
     const newOtherText = "New Other";
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await initSurvey(framework, currentJson);
 
-    await t
-      .click(questionDropdownSelect)
-      .expect(listItems.nth(10).textContent).eql(oldOtherText);
-
+    await t.expect(Selector("select option").nth(10).textContent).eql(oldOtherText);
     await setOptions("car", { otherText: newOtherText });
-    await t
-      .click(questionDropdownSelect)
-      .expect(listItems.nth(10).textContent).eql(newOtherText);
+    await t.expect(Selector("select option").nth(10).textContent).eql(newOtherText);
 
     await t
       .click(questionDropdownSelect.nth(1))
@@ -282,7 +299,6 @@ frameworks.forEach((framework) => {
       .click(questionDropdownSelect.nth(1))
       .expect(Selector(".sv-list__item span").nth(10).textContent).eql(newOtherText);
   });
-
   test("Check dropdown popup width", async (t) => {
     await t.resizeWindow(1280, 1100);
     const jsonWithDropDown = {
@@ -447,7 +463,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     const clearButton = Selector(".sv_q_dropdown_clean-button");
     await t
       .expect(clearButton.exists).ok()
@@ -491,7 +506,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     const myListItems = Selector(".my-list-item");
     await t
       .expect(Selector(".sv_q_dropdown__value").textContent).eql("Choose...")

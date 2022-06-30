@@ -73,7 +73,7 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.car).eql("Nissan");
   });
 
-  test("change choices order", async (t) => {
+  test("change choices order render as select", async (t) => {
     const questionName = "renderAsSelect";
     const getFirst = Selector("select option").nth(1);
     const getSecond = Selector("select option").nth(2);
@@ -106,6 +106,48 @@ frameworks.forEach((framework) => {
       }
 
       first = first_2;
+
+      if (rnd_count >= 4) {
+        break;
+      }
+    }
+
+    await t.expect(rnd_count).gte(4); // because of 'none', 'asc', 'desc' and if 4 it is really rnd
+  });
+
+  test("change choices order", async (t) => {
+    const firstItem = listItems.nth(0).textContent;
+    const secondItem = listItems.nth(1).textContent;
+
+    // asc
+    await setOptions("car", { choicesOrder: "asc" });
+    await t
+      .click(questionDropdownSelect)
+      .expect(firstItem).eql("Audi")
+      .expect(secondItem).eql("BMW");
+
+    // desc
+    await setOptions("car", { choicesOrder: "desc" });
+    await t
+      .expect(firstItem).eql("Volkswagen")
+      .expect(secondItem).eql("Vauxhall");
+
+    // rnd
+    await t.expect(listItems.count).notEql(1); // "need to more than one choices"
+
+    let rnd_count = 0;
+    let prevFirstItemValue = await listItems.nth(0).textContent;
+    let firstItemValueCurrent;
+    for (let i = 0; i < 15; i++) {
+      await setOptions("car", { choicesOrder: "asc" });
+      await setOptions("car", { choicesOrder: "random" });
+      firstItemValueCurrent = await listItems.nth(0).textContent;
+
+      if (prevFirstItemValue.trim() !== firstItemValueCurrent.trim()) {
+        rnd_count++;
+      }
+
+      prevFirstItemValue = firstItemValueCurrent;
 
       if (rnd_count >= 4) {
         break;

@@ -225,7 +225,7 @@ export async function checkSurveyWithEmptyQuestion(t) {
 
   await t
     .expect(requiredMessage.exists).notOk()
-    .click("input[value=Complete]")
+    .click(completeButton)
     .expect(requiredMessage.visible).ok();
 
   let surveyResult = await getSurveyResult();

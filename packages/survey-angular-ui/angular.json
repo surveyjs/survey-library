@@ -63,7 +63,9 @@
             ],
             "styles": [
               "../../examples/angular-ui/src/styles.scss",
-              "../../build/survey-core/defaultV2.css"
+              "../../build/survey-core/defaultV2.css", 
+              "../../build/survey-core/modern.css",
+              "../../build/survey-core/survey.css"
             ],
             "scripts": []
           },

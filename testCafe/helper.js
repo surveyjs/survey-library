@@ -159,7 +159,7 @@ export const registerCustomItemComponent = ClientFunction(
           item.iconName = "icon-defaultfile";
           item.hint = item.title + " - Description";
 
-          // eslint-disable-next-line react/react-in-jsx-scope
+          /* eslint-disable */
           return (
             <div
               className="my-list-item"
@@ -177,6 +177,7 @@ export const registerCustomItemComponent = ClientFunction(
               <span>{item.title}</span>{" "}
             </div>
           );
+          /* eslint-enable */
         }
       }
       window["Survey"].ReactElementFactory.Instance.registerElement(

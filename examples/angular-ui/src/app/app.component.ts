@@ -3,7 +3,7 @@ import { SurveyModel, StylesManager, ActionContainer, Action, PopupModel, ListMo
 import * as Survey from "survey-core";
 const json = require("../assets/survey.json");
 
-StylesManager.applyTheme("defaultV2");
+StylesManager.applyTheme("default");
 
 @Component({
   selector: "app-root",
@@ -101,9 +101,14 @@ export class AppComponent {
   }
 
   constructor(private changeDetectorRef: ChangeDetectorRef) {
-    this.model = new SurveyModel(json);
     (<any>window).survey = this.model;
     (<any>window).Survey = Survey;
+    
+    if (!(<any>window)["%hammerhead%"]) {
+      StylesManager.applyTheme("defaultV2");
+    }
+    
+    this.model = new SurveyModel(json);
     
     (<any>window).setSurvey = (survey: SurveyModel) => {
       this.model = survey;

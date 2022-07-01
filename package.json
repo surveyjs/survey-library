@@ -67,11 +67,14 @@
     "visual-regression-tests": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard",
     "visual-regression-tests:ci:knockout": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=knockout",
-    "visual-regression-tests:ci:angular": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular --skip-js-errors",
-    "visual-regression-tests:angular": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular --skip-js-errors",
+    "visual-regression-tests:ci:angular": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
+    "visual-regression-tests:angular": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
     "visual-regression-tests:ci:react": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=react",
     "visual-regression-tests:ci:vue": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "testcafe:angular": "testcafe -c 4 -q chrome testCafe/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
+    "testcafe:ci:angular": "testcafe -c 4 -q chrome:headless testCafe/ --app \"npm run angular_ui_test --prefix ./packages/survey-angular-ui\" --app-init-delay 15000  --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
+    
     "prepare": "husky install"
   },
   "version": "1.9.37",

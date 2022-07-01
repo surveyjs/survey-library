@@ -502,11 +502,26 @@ export class Base {
     keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
+   * set property value and before check if new property value is correct by calling JsonProperty onSettingValue function
+   * If onSettingValue is not set in declaration, then this function works as `setPropertyValue`.
+   * @param name property name
+   * @param val new property value
+   * @see setPropertyValue
+   */
+  public checkAndSetPropertyValue(name: string, val: any): void {
+    const prop = !this.isLoadingFromJson ? this.getPropertyByName(name) : undefined;
+    if(!!prop) {
+      val = prop.settingValue(this, val);
+    }
+    this.setPropertyValue(name, val);
+  }
+  /**
    * set property value
    * @param name property name
    * @param val new property value
+   * @see checkAndSetPropertyValue
    */
-  public setPropertyValue(name: string, val: any) {
+  public setPropertyValue(name: string, val: any): void {
     var oldValue = this.getPropertyValue(name);
     if (
       oldValue &&

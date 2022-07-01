@@ -419,7 +419,6 @@ frameworks.forEach((framework) => {
           name: "cars",
           title: "Dropdown",
           renderAs: "select",
-          showClearButton: true,
           choices: [
             "Ford",
             "Vauxhall",

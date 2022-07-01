@@ -17,9 +17,9 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
+      await explicitErrorHandler();
+      await applyTheme(theme);
+    });
   test("Check checkbox question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("checkbox-col-count-1.png", Selector(".sd-question"), t);
-    await ClientFunction(()=> { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
+    await ClientFunction(() => { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
   test("Check radiogroup question", async (t) => {
@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);
-    await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
+    await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowClear = true; })();
     await checkElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t);
   });
 });

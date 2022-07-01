@@ -3337,24 +3337,18 @@ QUnit.test("Load survey with requiredIf expression", function (assert) {
     "The question becomes required on changing value"
   );
 });
-QUnit.test(
-  "dropdown showOptionsCaption, https://surveyjs.answerdesk.io/ticket/details/T1499",
-  function (assert) {
-    var question = new QuestionDropdownModel("q1");
-    assert.equal(
-      question.showOptionsCaption,
-      true,
-      "showOptionsCaption is true by default"
-    );
+QUnit.test("dropdown showOptionsCaption, https://surveyjs.answerdesk.io/ticket/details/T1499", function (assert) {
+  var question = new QuestionDropdownModel("q1");
+  assert.equal(question.showOptionsCaption, true, "showOptionsCaption is true by default");
 
-    question.showOptionsCaption = false;
-    var json = new JsonObject().toJsonObject(question);
-    var checkedJson = {
-      name: "q1",
-      showOptionsCaption: false,
-    };
-    assert.deepEqual(json, checkedJson, "showOptionsCaption is serialized");
-  }
+  question.showOptionsCaption = false;
+  var json = new JsonObject().toJsonObject(question);
+  var checkedJson = {
+    name: "q1",
+    allowClear: false,
+  };
+  assert.deepEqual(json, checkedJson, "showOptionsCaption is serialized");
+}
 );
 QUnit.test(
   "multipletext could not load default value correctly, https://surveyjs.answerdesk.io/ticket/details/T1659",
@@ -5400,7 +5394,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
@@ -5430,7 +5424,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+      assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
     assert.equal(
       q2.visibleChoices.length,
       3,

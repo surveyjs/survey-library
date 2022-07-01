@@ -148,7 +148,6 @@ frameworks.forEach(framework => {
           renderAs: "select",
           name: "question12",
           hasOther: "true",
-          showClearButton: true,
           defaultValue: "item1",
           choices: [
             "item1",
@@ -176,7 +175,6 @@ frameworks.forEach(framework => {
           type: "dropdown",
           renderAs: "select",
           name: "question1",
-          showClearButton: true,
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
           choices: [
             "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",

@@ -61,9 +61,9 @@ export var matrixDropdownColumnTypes = {
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
       if (
-        !!cellQuestion.locOptionsCaption &&
-        cellQuestion.locOptionsCaption.isEmpty &&
-        !question.locOptionsCaption.isEmpty
+        !!cellQuestion.locPlaceholder &&
+        cellQuestion.locPlaceholder.isEmpty &&
+        !question.locPlaceholder.isEmpty
       ) {
         cellQuestion.optionsCaption = question.optionsCaption;
       }
@@ -164,7 +164,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
-    if(this.cellType === "default") return "question";
+    if (this.cellType === "default") return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {
@@ -351,7 +351,7 @@ export class MatrixDropdownColumn extends Base
   }
   public set renderAs(val: string) {
     this.setPropertyValue("renderAs", val);
-    if(!!this.templateQuestion) {
+    if (!!this.templateQuestion) {
       this.templateQuestion.renderAs = val;
     }
   }
@@ -452,7 +452,7 @@ export class MatrixDropdownColumn extends Base
     return cellType;
   }
   private getDefaultCellQuestionType(cellType?: string): string {
-    if(!cellType) cellType = this.cellType;
+    if (!cellType) cellType = this.cellType;
     if (cellType !== "default") return cellType;
     if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrixDefaultCellType;
@@ -505,7 +505,7 @@ export class MatrixDropdownColumn extends Base
     return question;
   }
   private setParentQuestionToTemplate(question: Question): void {
-    if(!!this.colOwner && (<any>this.colOwner).isQuestion) {
+    if (!!this.colOwner && (<any>this.colOwner).isQuestion) {
       question.setParentQuestion(<any>this.colOwner);
     }
   }
@@ -520,15 +520,15 @@ export class MatrixDropdownColumn extends Base
         onUpdateJson(json);
       }
       json.type = question.getType();
-      if(this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
+      if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
         delete json["choices"];
       }
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;
       question.loadedChoicesFromServerCallback = () => {
-        if(!this.isShowInMultipleColumns) return;
-        if(!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
+        if (!this.isShowInMultipleColumns) return;
+        if (!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
         this.previousChoicesId = question.id;
         const choices = question.visibleChoices;
         this.templateQuestion.choices = choices;

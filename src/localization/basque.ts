@@ -17,7 +17,7 @@ export var basqueSurveyStrings = {
   completingSurvey: "Eskerrik asko galdetegia erantzuteagatik!",
   completingSurveyBefore: "Gure datuek diote dagoeneko galdetegia erantzun duzula.",
   loadingSurvey: "Galdetegia kargatzen...",
-  optionsCaption: "Hautatu...",
+  placeholder: "Hautatu...",
   value: "balioa",
   requiredError: "Mesedez, galdera erantzun.",
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",

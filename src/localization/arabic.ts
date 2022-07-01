@@ -18,7 +18,7 @@ export var arabicSurveyStrings = {
   completingSurveyBefore:
     "تظهر سجلاتنا أنك قد أكملت هذا الاستطلاع بالفعل.",
   loadingSurvey: "...يتم تحميل النموذج",
-  optionsCaption: "...اختر",
+  placeholder: "...اختر",
   value: "القيمة",
   requiredError: ".يرجى الإجابة على السؤال",
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",

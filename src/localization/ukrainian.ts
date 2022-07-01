@@ -18,7 +18,7 @@ export var ukrainianSurveyStrings = {
   completingSurveyBefore:
     "Ви вже проходили це опитування.",
   loadingSurvey: "Завантаження опитування...",
-  optionsCaption: "Вибрати...",
+  placeholder: "Вибрати...",
   value: "значення",
   requiredError: "Будь ласка, дайте відповідь.",
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",

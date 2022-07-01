@@ -18,7 +18,7 @@ export var russianSurveyStrings = {
   completingSurveyBefore:
     "Вы уже проходили этот опрос.",
   loadingSurvey: "Загрузка с сервера...",
-  optionsCaption: "Выбрать...",
+  placeholder: "Выбрать...",
   value: "значение",
   requiredError: "Пожалуйста, ответьте на вопрос.",
   requiredErrorInPanel: "Пожалуйста, ответьте по крайней мере на один вопрос.",

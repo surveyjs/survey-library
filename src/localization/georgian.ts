@@ -9,7 +9,7 @@ export var georgianSurveyStrings = {
   completingSurvey: "გმადლობთ კითხვარის შევსებისთვის!",
   loadingSurvey: "ჩატვირთვა სერვერიდან...",
   otherItemText: "სხვა (გთხოვთ მიუთითეთ)",
-  optionsCaption: "არჩევა...",
+  placeholder: "არჩევა...",
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
   numericError: "პასუხი უნდა იყოს რიცხვი.",
   textMinLength: "გთხოვთ შეიყვანეთ არანაკლებ {0} სიმბოლო.",

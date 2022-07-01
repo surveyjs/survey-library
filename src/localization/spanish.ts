@@ -18,7 +18,7 @@ export var spanishSurveyStrings = {
   completingSurveyBefore:
     "Nuestros registros muestran que ya ha completado esta encuesta.",
   loadingSurvey: "La encuesta está cargando...",
-  optionsCaption: "Seleccione...",
+  placeholder: "Seleccione...",
   value: "valor",
   requiredError: "Por favor conteste la pregunta.",
   requiredErrorInPanel: "Por favor, responda al menos una pregunta.",

@@ -18,9 +18,9 @@ export var dutchSurveyStrings = {
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
   completingSurvey: "Bedankt voor het invullen van de vragenlijst",
   completingSurveyBefore:
-      "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
+        "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
   loadingSurvey: "De vragenlijst is aan het laden...",
-    placeholder: "Kies...",
+  placeholder: "Kies...",
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
@@ -33,18 +33,18 @@ export var dutchSurveyStrings = {
   minSelectError: "Selecteer minimum {0} antwoorden",
   maxSelectError: "Selecteer niet meer dan {0} antwoorden",
   numericMinMax:
-      "Uw antwoord '{0}' moet groter of gelijk zijn aan {1} en kleiner of gelijk aan {2}",
+        "Uw antwoord '{0}' moet groter of gelijk zijn aan {1} en kleiner of gelijk aan {2}",
   numericMin: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1}",
   numericMax: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1}",
   invalidEmail: "Vul een geldig e-mailadres in",
   invalidExpression: "De uitdrukking: {0} moet 'waar' teruggeven.",
   urlRequestError: "De vraag keerde een fout terug '{0}'. {1}",
   urlGetChoicesError:
-      "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
+        "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
   uploadingFile:
-      "Uw bestand wordt opgeladen. Gelieve enkele seconden te wachten en opnieuw te proberen.",
+        "Uw bestand wordt opgeladen. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   loadingFile: "Opladen...",
   chooseFile: "Kies uw bestand(en)...",
   noFileChosen: "Geen bestand gekozen",
@@ -68,7 +68,7 @@ export var dutchSurveyStrings = {
   timerSpentPage: "U heeft {0} op deze pagina gespendeerd.",
   timerSpentSurvey: "U heeft in totaal {0} gespendeerd.",
   timerLimitAll:
-      "U heeft {0} van {1} op deze pagina gespendeerd en {2} van {3} in totaal.",
+        "U heeft {0} van {1} op deze pagina gespendeerd en {2} van {3} in totaal.",
   timerLimitPage: "U heeft {0} van {1} gespendeerd op deze pagina.",
   timerLimitSurvey: "U heeft {0} van {1} in het totaal.",
   cleanCaption: "Kuis op",

@@ -194,7 +194,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
 }
 
 export class MatrixDropdownRowModelBase
-  implements ISurveyData, ISurveyImpl, ILocalizableOwner {
+implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
@@ -1617,8 +1617,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         propertyName: string,
       }>,
     } = {
-        includeEmpty: true,
-      }
+      includeEmpty: true,
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {

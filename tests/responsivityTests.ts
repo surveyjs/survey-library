@@ -54,6 +54,10 @@ QUnit.test("ActionContainer: renderedActions & visibleActions if only one elemen
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
   assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions");
+  assert.equal(adaptiveContainer.renderedActions.length, 2, "adaptiveContainer renderedActions");
+
+  actions[0].iconName = "icon-name";
+  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions");
   assert.equal(adaptiveContainer.renderedActions.length, 1, "adaptiveContainer renderedActions");
 });
 

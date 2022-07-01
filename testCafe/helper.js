@@ -1,4 +1,6 @@
 import { ClientFunction, Selector } from "testcafe";
+import { waitForAngular } from "testcafe-angular-selectors";
+
 // eslint-disable-next-line no-undef
 const minimist = require("minimist");
 
@@ -6,7 +8,9 @@ const minimist = require("minimist");
 const args = minimist(process.argv.slice(2));
 const environment = args.env;
 
-export const frameworks = environment ? [environment] : ["knockout", "react", "vue"];
+export const frameworks = environment
+  ? [environment]
+  : ["knockout", "react", "vue"];
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
@@ -17,14 +21,23 @@ export const applyTheme = ClientFunction((theme) => {
   window["Survey"].StylesManager.applyTheme(theme);
 });
 
-export const initSurvey = ClientFunction(
-  (framework, json, events, isDesignMode, props) => {
+export const initSurvey = async function (
+  framework,
+  json,
+  events,
+  isDesignMode,
+  props
+) {
+  if (framework === "angular") {
+    await waitForAngular();
+  }
+  await ClientFunction((framework, json, events, isDesignMode, props) => {
     // eslint-disable-next-line no-console
-    console.error = msg => {
+    console.error = (msg) => {
       throw new Error(msg);
     };
     // eslint-disable-next-line no-console
-    console.warn = msg => {
+    console.warn = (msg) => {
       throw new Error(msg);
     };
     // eslint-disable-next-line no-console
@@ -70,10 +83,12 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
+    } else if (framework === "angular") {
+      window.setSurvey(model);
     }
     window["survey"] = model;
-  }
-);
+  })(framework, json, events, isDesignMode, props);
+};
 
 export const registerCustomToolboxComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
@@ -84,31 +99,38 @@ export const registerCustomToolboxComponent = ClientFunction(
             return params.item;
           },
         },
-        template: "<div class=\"my-custom-action-class\" data-bind=\"click: function() { $data.action() }, text: $data.title\"></div>"
+        template:
+          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>',
       });
     } else if (framework === "react") {
       class CustomActionButton extends window["React"].Component {
         click = () => {
           this.props.item.action();
-        }
+        };
         render() {
           return (
             // eslint-disable-next-line react/react-in-jsx-scope
-            <div className="my-custom-action-class" onClick={this.click}> {this.props.item.title}</div>
+            <div className="my-custom-action-class" onClick={this.click}>
+              {" "}
+              {this.props.item.title}
+            </div>
           );
         }
       }
 
-      window["Survey"].ReactElementFactory.Instance.registerElement("svc-custom-action", (props) => {
-        return window["React"].createElement(CustomActionButton, props);
-      });
-
+      window["Survey"].ReactElementFactory.Instance.registerElement(
+        "svc-custom-action",
+        (props) => {
+          return window["React"].createElement(CustomActionButton, props);
+        }
+      );
     } else if (framework === "vue") {
       window["Vue"].component("svc-custom-action", {
         props: {
-          item: {}
+          item: {},
         },
-        template: '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>'
+        template:
+          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>',
       });
     }
   }
@@ -124,9 +146,10 @@ export const registerCustomItemComponent = ClientFunction(
             item.iconName = "icon-defaultfile";
             item.hint = item.title + " - Description";
             return item;
-          }
+          },
         },
-        template: "<div class=\"my-list-item\" style=\"display:flex;\" data-bind=\"attr: { title: hint } \"><span><sv-svg-icon params='iconName: iconName, size: iconSize'></sv-svg-icon></span><span data-bind=\"text: title, css: getActionBarItemTitleCss()\"></span></span></div>"
+        template:
+          '<div class="my-list-item" style="display:flex;" data-bind="attr: { title: hint } "><span><sv-svg-icon params=\'iconName: iconName, size: iconSize\'></sv-svg-icon></span><span data-bind="text: title, css: getActionBarItemTitleCss()"></span></span></div>',
       });
     } else if (framework === "react") {
       class ItemTemplateComponent extends window["React"].Component {
@@ -137,24 +160,43 @@ export const registerCustomItemComponent = ClientFunction(
           item.hint = item.title + " - Description";
 
           // eslint-disable-next-line react/react-in-jsx-scope
-          return (<div className="my-list-item" style={{ display: "flex" }} title={item.hint}> <span> <Survey.SvgIcon iconName={item.iconName} size={item.iconSize} ></Survey.SvgIcon> </span> <span>{item.title}</span> </div>);
+          return (
+            <div
+              className="my-list-item"
+              style={{ display: "flex" }}
+              title={item.hint}
+            >
+              {" "}
+              <span>
+                {" "}
+                <Survey.SvgIcon
+                  iconName={item.iconName}
+                  size={item.iconSize}
+                ></Survey.SvgIcon>{" "}
+              </span>{" "}
+              <span>{item.title}</span>{" "}
+            </div>
+          );
         }
       }
-      window["Survey"].ReactElementFactory.Instance.registerElement("new-item", (props) => {
-        return window["React"].createElement(ItemTemplateComponent, props);
-      });
-
+      window["Survey"].ReactElementFactory.Instance.registerElement(
+        "new-item",
+        (props) => {
+          return window["React"].createElement(ItemTemplateComponent, props);
+        }
+      );
     } else if (framework === "vue") {
       window["Vue"].component("new-item", {
         props: {
-          item: {}
+          item: {},
         },
         created: function () {
           const item = this.item;
           item.iconName = "icon-defaultfile";
           item.hint = item.title + " - Description";
         },
-        template: "<div class=\"my-list-item\" style=\"display:flex;\" v-bind:title=\"item.hint\" ><span><sv-svg-icon :iconName=\"item.iconName\" :size = \"item.iconSize\"></sv-svg-icon></span><span v-bind:class=\"item.getActionBarItemTitleCss()\">{{ item.title }}</span></span></div>"
+        template:
+          '<div class="my-list-item" style="display:flex;" v-bind:title="item.hint" ><span><sv-svg-icon :iconName="item.iconName" :size = "item.iconSize"></sv-svg-icon></span><span v-bind:class="item.getActionBarItemTitleCss()">{{ item.title }}</span></span></div>',
       });
     }
   }
@@ -173,7 +215,7 @@ export const getData = ClientFunction(() => {
   return window["survey"].data;
 });
 
-export const setData = ClientFunction(newData => {
+export const setData = ClientFunction((newData) => {
   window["survey"].data = newData;
   window["survey"].render();
 });
@@ -217,16 +259,23 @@ export const getPanelJson = ClientFunction(() => {
 });
 
 export function getDynamicPanelRemoveButton(questionTitle, buttonText) {
-  return Selector("span").withText(`${questionTitle}`).parent("[aria-labelledby]").find("span").withText(buttonText);
+  return Selector("span")
+    .withText(`${questionTitle}`)
+    .parent("[aria-labelledby]")
+    .find("span")
+    .withText(buttonText);
 }
 
 export async function checkSurveyWithEmptyQuestion(t) {
-  const requiredMessage = Selector(".sv-string-viewer").withText("Response required.");
+  const requiredMessage =
+    Selector(".sv-string-viewer").withText("Response required.");
 
   await t
-    .expect(requiredMessage.exists).notOk()
+    .expect(requiredMessage.exists)
+    .notOk()
     .click("input[value=Complete]")
-    .expect(requiredMessage.visible).ok();
+    .expect(requiredMessage.visible)
+    .ok();
 
   let surveyResult = await getSurveyResult();
   await t.expect(typeof surveyResult).eql("undefined");

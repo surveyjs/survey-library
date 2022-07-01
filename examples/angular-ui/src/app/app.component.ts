@@ -1,6 +1,6 @@
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { SurveyModel, StylesManager, ActionContainer, Action, PopupModel, ListModel } from "survey-core";
-
+import * as Survey from "survey-core";
 const json = require("../assets/survey.json");
 
 StylesManager.applyTheme("defaultV2");
@@ -100,9 +100,15 @@ export class AppComponent {
     return actions;
   }
 
-  constructor() {
+  constructor(private changeDetectorRef: ChangeDetectorRef) {
     this.model = new SurveyModel(json);
     (<any>window).survey = this.model;
+    (<any>window).Survey = Survey;
+    
+    (<any>window).setSurvey = (survey: SurveyModel) => {
+      this.model = survey;
+      this.changeDetectorRef.detectChanges();
+    }
 
     this.actionBar = new ActionContainer();
   }

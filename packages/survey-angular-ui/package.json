@@ -64,8 +64,9 @@
   },
   "scripts": {
     "build_angular_ui": "ng build",
+    "angular_ui_test": "ng serve --port 8080",  
     "angular_ui": "ng serve",
     "test": "ng test survey-angular-ui",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development" 
   }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
 import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 
@@ -8,8 +8,7 @@ import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 })
 export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnChanges, OnInit {
   @Input() model!: SurveyModel;
-  @ViewChild("progressContainer") element!: HTMLDivElement;
-  @ViewChild("progressButtonsListContainer") progressButtonsListContainer!: HTMLDivElement;
+  @ViewChild("progressButtonsListContainer") progressButtonsListContainer!: ElementRef<HTMLDivElement>;
   private progressButtonsModel!: SurveyProgressButtonsModel;
   private hasScroller: boolean = false;
   private updateScroller: any = undefined;
@@ -40,20 +39,16 @@ export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnCha
     isLeftScroll: boolean
   ): void {
     if(this.progressButtonsListContainer) {
-      this.progressButtonsListContainer.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+      this.progressButtonsListContainer.nativeElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
   public ngAfterViewInit(): void {
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.model);
     this.updateScroller = setInterval(() => {
-      if(!!this.element) {
-        const listContainerElement: HTMLElement = <HTMLElement>this.element.querySelector(
-          "." + this.model.css.progressButtonsListContainer
-        );
-        if (!!listContainerElement) {
-          this.hasScroller = listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-          this.changeDetectorRef.detectChanges();
-        }
+      if(!!this.progressButtonsListContainer?.nativeElement) {
+        const listContainerElement = this.progressButtonsListContainer.nativeElement;
+        this.hasScroller = listContainerElement.scrollWidth > listContainerElement.offsetWidth;
+        this.changeDetectorRef.detectChanges();
       }
     }, 100);
   }

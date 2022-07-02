@@ -46,12 +46,16 @@ describe("event tests", () => {
   it("Check that after render page is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
-    component.model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    component.model = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { elements: [{ type: "text", name: "q2" }] }] });
+    let callCount = 0;
     component.model.onAfterRenderPage.add((sender: SurveyModel, opt: any) => {
       expect(opt.htmlElement.className).toBe("sv_p_root");
-      done();
+      callCount++;
     });
-    fixture.detectChanges();
+    fixture.autoDetectChanges(true);
+    component.model.nextPage();
+    expect(callCount).toBe(2);
+    done();
   });
   it("Check that after render panel is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);

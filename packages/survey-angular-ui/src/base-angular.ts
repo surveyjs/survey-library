@@ -7,17 +7,21 @@ import { ArrayChanges, Base } from "survey-core";
 export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnDestroy {
   private isRendering: boolean = false; //#todonot implemented yet
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(protected changeDetectorRef: ChangeDetectorRef) {}
 
   protected abstract getModel(): T;
   protected previousModel?: T;
 
-  ngDoCheck(): void {
+  public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
       this.makeBaseElementAngular(this.getModel());
       this.previousModel = this.getModel();
+      this.onModelChanged();
     }
   }
+
+  protected onModelChanged() {}
+
   ngOnDestroy() {
     this.unMakeBaseElementAngular(this.getModel());
   }

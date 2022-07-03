@@ -5,12 +5,11 @@ StylesManager.applyTheme("default");
 
 @Component({
   selector: "test",
-  template: "<survey *ngIf='!!model' [model]='model'></survey>",
+  template: "<survey *ngIf='!!model' [model]='model'></survey><div id='surveyResultElement'></div>",
 })
 export class TestComponent {
   public model?: SurveyModel;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
-    StylesManager.applyTheme("defaultV2");
     (window as any).Survey = Survey;
     (<any>window).setSurvey = (survey: SurveyModel) => {
       this.model = survey;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
 import { surveyBuiltInVarible, SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
@@ -7,7 +7,7 @@ import { AngularComponentFactory } from "./component-factory";
   templateUrl: "./survey.component.html",
   styleUrls: ["./survey.component.scss"]
 })
-export class SurveyComponent extends BaseAngular<SurveyModel> {
+export class SurveyComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
   protected getModel(): SurveyModel {
@@ -19,13 +19,20 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   }
   protected override onModelChanged(): void {
     this.changeDetectorRef.detectChanges();
+    this.model.renderCallback = () => {
+      this.changeDetectorRef.detectChanges();
+    };
   }
-  ngOnInit() {
+  ngOnInit(): void {
     if(this.model["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
   }
-  ngAfterViewInit() {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.renderCallback = undefined;
+  }
+  ngAfterViewInit(): void {
     this.model.afterRenderSurvey(this.rootEl.nativeElement);
   }
 }

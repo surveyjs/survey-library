@@ -862,7 +862,7 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
 });
 
 QUnit.test("Complex: hide content question in designMode", function (assert) {
-  ComponentCollection.Instance.add({
+  ComponentCollection.Instance.add(<any>{
     name: "fullname",
     elementsJSON: [
       {
@@ -1315,7 +1315,7 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
-  ComponentCollection.Instance.add({
+  ComponentCollection.Instance.add(<any>{
     name: "fullname",
     title: "Full Name",
     elementsJSON: [
@@ -1368,7 +1368,7 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
 QUnit.test(
   "Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#2718",
   function (assert) {
-    ComponentCollection.Instance.add({
+    ComponentCollection.Instance.add(<any>{
       name: "fullname",
       title: "Full Name",
       elementsJSON: [
@@ -1605,7 +1605,7 @@ QUnit.test("getDisplayValue from component JSON function", function (assert) {
     ],
     getDisplayValue: (composite: PanelModel) => composite.getValue().firstName + " " + composite.getValue().lastName
   };
-  ComponentCollection.Instance.add(json);
+  ComponentCollection.Instance.add(<any>json);
   var survey = new SurveyModel({
     elements: [{ type: "fullname", name: "q1" }],
   });

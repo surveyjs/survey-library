@@ -20,7 +20,6 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
-  @property({ defaultValue: "contentWidth" }) widthMode: "contentWidth" | "fixedWidth";
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
 
@@ -117,7 +116,7 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
-  @property({ defaultValue: "auto" }) width: string;
+  @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } })
@@ -238,7 +237,7 @@ export class PopupBaseViewModel extends Base {
       let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
       const width = this.model.width || popupContainer.getBoundingClientRect().width;
       const widthMargins = width + margin;
-      this.width = (this.model.widthMode === "fixedWidth" && !!this.model.width) ? (this.model.width + "px") : "auto";
+      this.minWidth = this.model.width + "px";
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
@@ -304,7 +303,7 @@ export class PopupBaseViewModel extends Base {
       this.left = null;
       this.top = null;
       this.height = null;
-      this.width = null;
+      this.minWidth = null;
     }
   }
   private focusFirstInput() {

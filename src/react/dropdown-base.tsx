@@ -22,10 +22,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     };
 
     let selectElement: JSX.Element | null = null;
-    if(this.question.isReadOnly) {
+    if (this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{ this.question.readOnlyText }</div>;
+      selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{this.question.readOnlyText}</div>;
     } else {
       if (!(this.question as any).hasOwnProperty("dropdownListModel")) {
         (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);
@@ -47,7 +47,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           aria-invalid={this.question.ariaInvalid}
           aria-describedby={this.question.ariaDescribedBy}
         >
-          <div className={this.question.cssClasses.controlValue}>{ this.question.readOnlyText }</div>
+          <div className={this.question.cssClasses.controlValue}>{this.question.readOnlyText}</div>
           {this.createClearButton()}
         </div>, null, { processEsc: false });
 
@@ -65,13 +65,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   createClearButton(): JSX.Element {
-    if(!this.question.showClearButton || !this.question.cssClasses.cleanButtonIconId) return null;
+    if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
     const clear = (_: any, e: any) => {
       this.question.dropdownListModel?.onClear(e);
     };
 
-    const style = { display: this.question.isEmpty() ? "none": "" };
+    const style = { display: this.question.isEmpty() ? "none" : "" };
     return (
       <div
         className={this.question.cssClasses.cleanButton}

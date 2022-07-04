@@ -17,7 +17,7 @@ export var koreanStrings = {
   completingSurvey: "설문 조사를 완료해 주셔서 감사합니다!",
   completingSurveyBefore: "기록에 따르면 이미 설문 조사를 마치셨습니다.",
   loadingSurvey: "설문조사가 로드중입니다...",
-  optionsCaption: "선택하십시오...",
+  placeholder: "선택하십시오...",
   value: "값",
   requiredError: "질문에 답하시오.",
   requiredErrorInPanel: "하나 이상의 질문에 답하십시오.",

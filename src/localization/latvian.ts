@@ -18,7 +18,7 @@ export var latvianSurveyStrings = {
   completingSurveyBefore:
     "Mūsu ieraksti liecina, ka Jūs jau esat aizpildījis šo aptauju.",
   loadingSurvey: "Ielāde no servera...",
-  optionsCaption: "Izvēlēties...",
+  placeholder: "Izvēlēties...",
   value: "value",
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
   requiredErrorInPanel: "Lūdzu, atbildiet uz vismaz vienu jautājumu.",

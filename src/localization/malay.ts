@@ -17,7 +17,7 @@ export var malaySurveyStrings = {
   completingSurvey: "Terima kasih kerana melengkapkan tinjauan!",
   completingSurveyBefore: "Rekod kami menunjukkan yang anda telah melengkapkan tinjauan ini.",
   loadingSurvey: "Memuatkan Tinjauan...",
-  optionsCaption: "Pilih...",
+  placeholder: "Pilih...",
   value: "nilai",
   requiredError: "Respons diperlukan.",
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",

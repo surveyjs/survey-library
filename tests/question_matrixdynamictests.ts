@@ -1370,27 +1370,13 @@ QUnit.test("MatrixDropdownColumn properties are in questions", function (
     "title is still in question"
   );
 });
-QUnit.test("MatrixDropdownColumn add/remove serialization properties", function (
-  assert
-) {
+QUnit.test("MatrixDropdownColumn add/remove serialization properties", function (assert) {
   var column = new MatrixDropdownColumn("col1");
-  assert.ok(
-    column["optionsCaption"],
-    "optionsCaption property has been created"
-  );
-  assert.ok(
-    column["locOptionsCaption"],
-    "Serialization property has been created for optionsCaption"
-  );
+  assert.ok(column["placeholder"], "placeholder property has been created");
+  assert.ok(column["locPlaceholder"], "Serialization property has been created for placeholder");
   column.cellType = "text";
-  assert.notOk(
-    column["optionsCaption"],
-    "optionsCaption property has been removed"
-  );
-  assert.notOk(
-    column["locOptionsCaption"],
-    "Serialization property has been removed for optionsCaption"
-  );
+  assert.notOk(column["placeholder"], "placeholder property has been removed");
+  assert.notOk(column["locPlaceholder"], "Serialization property has been removed for placeholder");
 });
 QUnit.test("MatrixDropdownColumn cellType property, choices", function (assert) {
   var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
@@ -1524,7 +1510,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   question.addConditionObjectsByContext(objs, true);
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
+    if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -1677,7 +1663,7 @@ QUnit.test("matrixDropdown.addConditionObjectsByContext", function (assert) {
   question.addConditionObjectsByContext(objs, true);
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
+    if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -3681,44 +3667,26 @@ QUnit.test("matrix dynamic + renderedTable + remove buttons", function (assert) 
   assert.equal(rows[1].cells[3].isActionsCell, true, "there are actions in the last cell delete row");
 });
 
-QUnit.test(
-  "matrix dynamic + renderedTable + optionsCaption and columnColCount",
-  function (assert) {
-    var matrix = new QuestionMatrixDynamicModel("q1");
-    matrix.addColumn("col1");
-    matrix.addColumn("col2");
-    matrix.addColumn("col3");
-    matrix.addColumn("col4");
-    matrix.columns[1].cellType = "radiogroup";
-    matrix.columns[2].optionsCaption = "col2 options";
-    matrix.columns[3].cellType = "radiogroup";
-    matrix.columns[3].colCount = 2;
-    matrix.rowCount = 3;
+QUnit.test("matrix dynamic + renderedTable + optionsCaption and columnColCount", function (assert) {
+  const matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.addColumn("col2");
+  matrix.addColumn("col3");
+  matrix.addColumn("col4");
+  matrix.columns[1].cellType = "radiogroup";
+  matrix.columns[2].placeholder = "col2 options";
+  matrix.columns[3].cellType = "radiogroup";
+  matrix.columns[3].colCount = 2;
+  matrix.rowCount = 3;
 
-    assert.equal(matrix.renderedTable.rows.length, 3, "There are 3 rows");
-    matrix.optionsCaption = "My Caption";
-    assert.equal(
-      matrix.renderedTable.rows[0].cells[0].question["optionsCaption"],
-      "My Caption",
-      "options caption get from matrix"
-    );
-    assert.equal(
-      matrix.renderedTable.rows[0].cells[2].question["optionsCaption"],
-      "col2 options",
-      "options caption get from column"
-    );
-    matrix.columnColCount = 3;
-    assert.equal(
-      matrix.renderedTable.rows[0].cells[1].question["colCount"],
-      3,
-      "question col count get from matrix"
-    );
-    assert.equal(
-      matrix.renderedTable.rows[0].cells[3].question["colCount"],
-      2,
-      "question col count get from column"
-    );
-  }
+  assert.equal(matrix.renderedTable.rows.length, 3, "There are 3 rows");
+  matrix.optionsCaption = "My Caption";
+  assert.equal(matrix.renderedTable.rows[0].cells[0].question["optionsCaption"], "My Caption", "options caption get from matrix");
+  assert.equal(matrix.renderedTable.rows[0].cells[2].question["optionsCaption"], "col2 options", "options caption get from column");
+  matrix.columnColCount = 3;
+  assert.equal(matrix.renderedTable.rows[0].cells[1].question["colCount"], 3, "question col count get from matrix");
+  assert.equal(matrix.renderedTable.rows[0].cells[3].question["colCount"], 2, "question col count get from column");
+}
 );
 
 QUnit.test("matrix.rowsVisibleIf + renderedTable", function (assert) {
@@ -6945,7 +6913,7 @@ QUnit.test("getDisplayValue() function in matrix Dropdown, Bug#", function (
   );
   assert.equal(counter, 0, "We do not change the value during processing");
 });
-QUnit.test("getDisplayValue() function in matrix Dropdown with rowsVisibleIf, Bug#3430", function(
+QUnit.test("getDisplayValue() function in matrix Dropdown with rowsVisibleIf, Bug#3430", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -7327,7 +7295,7 @@ QUnit.test("matrix beginUpdate/endUpdate", function (assert) {
   assert.equal(matrix.visibleRows[0].cells.length, 3, "visibleRows[0]: 3 columns, #3 - unloc Update");
 });
 QUnit.test("TextProcessing matrix in panel dynamic, Bug#3491",
-  function(assert) {
+  function (assert) {
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "root_q1", defaultValue: "root_val1" },
@@ -7355,7 +7323,7 @@ QUnit.test("TextProcessing matrix in panel dynamic, Bug#3491",
     assert.equal(textProc.processText("{row.col1}", false), "col_val1", "row.col1");
     assert.equal(textProc.processText("{panel.q1}", false), "panel_val1", "panel.q1");
   });
-QUnit.test("Question defaultValueExpression in matrix dynamic", function(
+QUnit.test("Question defaultValueExpression in matrix dynamic", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -7369,7 +7337,8 @@ QUnit.test("Question defaultValueExpression in matrix dynamic", function(
           { cellType: "text", name: "q2", defaultValueExpression: "{row.q1} + 2" },
         ],
       }
-    ] });
+    ]
+  });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   const row = matrix.visibleRows[0];
   const q1 = row.getQuestionByName("q1");
@@ -7382,7 +7351,7 @@ QUnit.test("Question defaultValueExpression in matrix dynamic", function(
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
-QUnit.test("call locationChangedCallback for cell question", function(
+QUnit.test("call locationChangedCallback for cell question", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -7395,11 +7364,12 @@ QUnit.test("call locationChangedCallback for cell question", function(
           { name: "q1" }
         ],
       }
-    ] });
+    ]
+  });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   const row = matrix.visibleRows[1];
   let counter = 0;
-  row.cells[0].question.localeChangedCallback = () => { counter ++; };
+  row.cells[0].question.localeChangedCallback = () => { counter++; };
   survey.locale = "de";
   survey.locale = "";
   assert.equal(counter, 2, "locationChangedCallback called");

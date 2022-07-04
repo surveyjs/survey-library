@@ -17,7 +17,7 @@
       <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
       <div
         :class="question.cssClasses.cleanButton"
-        v-if="question.showClearButton && question.cssClasses.cleanButtonIconId"
+        v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="!question.isEmpty()"
         v-on:click="clear"
       >

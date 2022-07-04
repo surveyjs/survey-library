@@ -17,7 +17,7 @@ export var kazakhStrings = {
   completingSurvey: "Сауалнаманы толтырғаныңыз үшін рахмет!",
   completingSurveyBefore: "Сіз бұл сауалнаманы өтіп қойдыңыз.",
   loadingSurvey: "Серверден жүктеу...",
-  optionsCaption: "Таңдау...",
+  placeholder: "Таңдау...",
   value: "мәні",
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",

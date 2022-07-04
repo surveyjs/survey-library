@@ -53,6 +53,7 @@ frameworks.forEach(framework => {
           title: "Where are you living?",
           name: "dropdown_question",
           optionsCaption: "Select country here...",
+          allowClear: false,
           choices: ["Greece"],
           // renderAs: "select"
         },
@@ -148,7 +149,6 @@ frameworks.forEach(framework => {
           // renderAs: "select",
           name: "question12",
           hasOther: "true",
-          showClearButton: true,
           defaultValue: "item1",
           choices: [
             "item1",
@@ -176,7 +176,6 @@ frameworks.forEach(framework => {
           type: "dropdown",
           // renderAs: "select",
           name: "question1",
-          showClearButton: true,
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
           choices: [
             "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
@@ -190,6 +189,7 @@ frameworks.forEach(framework => {
         }, {
           type: "dropdown",
           // renderAs: "select",
+          allowClear: false,
           name: "question2",
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
           choices: [

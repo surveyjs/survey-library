@@ -14,7 +14,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
     const selectElement = this.isDisplayMode ? (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{ this.question.readOnlyText }</div>):
+      <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{this.question.readOnlyText}</div>) :
       (<select
         id={this.question.inputId}
         className={this.question.getControlClass()}
@@ -28,8 +28,8 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
         required={this.question.isRequired}>
-        { this.question.showOptionsCaption ? (<option value="">{this.question.optionsCaption}</option>) : null }
-        { this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
+        {this.question.allowClear ? (<option value="">{this.question.placeholder}</option>) : null}
+        {this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item} />)}
       </select>);
     return (
       <div className={cssClasses.selectWrapper}>

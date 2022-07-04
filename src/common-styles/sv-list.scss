@@ -28,7 +28,7 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   align-items: center;
   box-sizing: border-box;
-  padding: calcSize(1) calcSize(3) calcSize(1) calcSize(2);
+  padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
   color: $foreground;
   cursor: pointer;
   overflow: hidden;

@@ -64,7 +64,7 @@
       <div *ngIf="val.name && model.cssClasses.fileSign" [class]="model.cssClasses.fileSign">
         <a
           (click)="model.doDownloadFile($event, val)"
-          [attr.href]="val.content"
+          [attr.href]="val.content | safeUrl"
           [attr.title]="val.name"
           [attr.download]="val.name"
           [attr.width]="model.imageWidth"
@@ -74,7 +74,7 @@
       <div [class]="model.cssClasses.imageWrapper">
         <img
           *ngIf="model.canPreviewImage(val)"
-          [attr.src]="val.content"
+          [attr.src]="val.content | safeUrl"
           [attr.height]="model.imageHeight"
           [attr.width]="model.imageWidth"
           alt="File preview"

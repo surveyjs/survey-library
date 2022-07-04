@@ -1,9 +1,11 @@
-<div [class]="model.cssRoot" #pageContainer>
-  <sv-ng-element-title [element]="model"></sv-ng-element-title>
-  <div *ngIf="model._showDescription" [class]="model.cssClasses.page.description">
-    <string-viewer [model]="model.locDescription"></string-viewer>
+<ng-container *ngIf="!!this.survey && !!this.model && this.model.isVisible && !!this.model.survey">
+  <div [class]="model.cssRoot" #pageContainer>
+    <sv-ng-element-title [element]="model"></sv-ng-element-title>
+    <div *ngIf="model._showDescription" [class]="model.cssClasses.page.description">
+      <string-viewer [model]="model.locDescription"></string-viewer>
+    </div>
+    <ng-container *ngFor="let row of model.rows">
+      <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
+    </ng-container>
   </div>
-  <ng-container *ngFor="let row of model.rows">
-    <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
-  </ng-container>
-</div>
+</ng-container>

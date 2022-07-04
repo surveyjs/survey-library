@@ -1,11 +1,12 @@
 <div #elementContainer [class]="model.getRootCss()" [style]="{ paddingLeft: model.paddingLeft, paddingRight: model.paddingRight }" [id]="model.id" [attr.data-name]="model.name" [attr.role]="model.ariaRole" [attr.aria-required]="model.ariaRequired" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-labelledby]="model.hasTitle ? model.ariaTitleId : null">
   <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
   <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
-  <div [class]="model.cssClasses.content" role="presentation">
+  <div [class]="model.cssContent" role="presentation">
     <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'skeleton-question' }" ></ng-template>
     <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
   </div>
+  <div [element]="model" *ngIf="model.hasTitleOnBottom" sv-ng-element-header></div>
   <div *ngIf="model.showErrorsBelowQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
 </div>

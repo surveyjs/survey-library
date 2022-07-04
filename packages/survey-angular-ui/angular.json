@@ -59,7 +59,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "../../examples/angular-ui/src/favicon.ico",
-              "../../examples/angular-ui/src/assets"
+              "../../examples/angular-ui/src/assets",
+              "../../examples/angular-ui/src/testCafe"
             ],
             "styles": [
               "../../examples/angular-ui/src/styles.scss",

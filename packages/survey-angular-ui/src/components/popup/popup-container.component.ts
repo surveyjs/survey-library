@@ -26,7 +26,7 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     }
   }
 
-  ngAfterViewChecked() {
+  override ngAfterViewChecked() {
     if (!this.prevIsVisible && this.model.isVisible) {
       setTimeout(() => {
         this.model.updateOnShowing();
@@ -36,6 +36,7 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     if (this.prevIsVisible !== this.model.isVisible) {
       this.prevIsVisible = this.model.isVisible;
     }
+    super.ngAfterViewChecked();
   }
 
   public createAndBindPopupContent() {

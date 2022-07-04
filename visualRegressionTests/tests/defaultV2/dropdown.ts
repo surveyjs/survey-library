@@ -53,6 +53,7 @@ frameworks.forEach(framework => {
           title: "Where are you living?",
           name: "dropdown_question",
           optionsCaption: "Select country here...",
+          allowClear: false,
           choices: ["Greece"],
           renderAs: "select"
         },
@@ -188,6 +189,7 @@ frameworks.forEach(framework => {
         }, {
           type: "dropdown",
           renderAs: "select",
+          allowClear: false,
           name: "question2",
           defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
           choices: [

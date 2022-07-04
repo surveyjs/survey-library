@@ -112,6 +112,7 @@ registerMarkupTests(
             "type": "dropdown",
             "name": "name",
             "title": "Question title",
+            "allowClear": false,
             "choices": [
               "item1",
               "item2",
@@ -139,7 +140,6 @@ registerMarkupTests(
             ],
             titleLocation: "hidden",
             defaultValue: "item1",
-            showClearButton: true,
             renderAs: "select"
           }
         ]

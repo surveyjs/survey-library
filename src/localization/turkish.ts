@@ -18,7 +18,7 @@ export var turkishSurveyStrings = {
   completingSurveyBefore:
     "Kayıtlarımız, bu anketi zaten tamamladığınızı gösteriyor.",
   loadingSurvey: "Anket sunucudan yükleniyor ...",
-  optionsCaption: "Seçiniz ...",
+  placeholder: "Seçiniz ...",
   value: "değer",
   requiredError: "Lütfen soruya cevap veriniz",
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",

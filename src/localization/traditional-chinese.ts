@@ -9,7 +9,7 @@ export var traditionalChineseSurveyStrings = {
   emptySurvey: "問卷中沒有問題或頁面",
   completingSurvey: "感謝您的參與!",
   loadingSurvey: "問卷載入中...",
-  optionsCaption: "請選擇...",
+  placeholder: "請選擇...",
   requiredError: "請填寫此問題",
   requiredInAllRowsError: "請填寫所有行中問題",
   numericError: "答案必須是個數字",

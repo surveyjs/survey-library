@@ -269,16 +269,16 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
-  public get optionsCaption(): string {
+  public get placeholder(): string {
     return this.getLocalizableStringText("ratingOptionsCaption");
   }
-  public set optionsCaption(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("ratingOptionsCaption", val);
   }
-  get locOptionsCaption(): LocalizableString {
+  get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("ratingOptionsCaption");
   }
-  get showOptionsCaption(): boolean {
+  get allowClear(): boolean {
     return true;
   }
   public get renderedValue(): boolean {
@@ -291,7 +291,7 @@ export class QuestionRatingModel extends Question {
     return this.visibleRateValues;
   }
   public get readOnlyText() {
-    return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+    return (this.displayValue || this.placeholder);
   }
 
   public needResponsiveWidth() {

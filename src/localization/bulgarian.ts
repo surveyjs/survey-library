@@ -17,7 +17,7 @@ export var bulgarianStrings = {
   completingSurvey: "Благодарим ви за участието в анкетата!",
   completingSurveyBefore: "Изглежда, че вие вече сте попълнили анкетата.",
   loadingSurvey: "Зареждане на анкетата...",
-  optionsCaption: "Изберете...",
+  placeholder: "Изберете...",
   value: "value",
   requiredError: "Моля, отговорете на следния въпрос.",
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",

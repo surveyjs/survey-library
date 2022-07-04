@@ -18,7 +18,7 @@ export var polishSurveyStrings = {
   completingSurveyBefore:
     "Z naszych zapisów wynika, że wypełniłeś już tę ankietę.",
   loadingSurvey: "Trwa wczytywanie ankiety...",
-  optionsCaption: "Wybierz...",
+  placeholder: "Wybierz...",
   value: "Wartość",
   requiredError: "Proszę odpowiedzieć na to pytanie.",
   requiredErrorInPanel: "Proszę odpowiedzieć na co najmniej jedno pytanie.",

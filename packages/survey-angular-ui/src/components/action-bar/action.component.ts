@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, HostBinding, Input, SkipSelf, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 import { ActionBarItemComponent } from "./action-bar-item.component";
@@ -11,6 +11,12 @@ import { ActionBarItemComponent } from "./action-bar-item.component";
 export class ActionComponent extends BaseAngular {
   @Input() model: any;
   @ViewChild("actionContent", { read: ViewContainerRef, static: true }) actionContent!: ViewContainerRef;
+
+  //todo need to remove skip selfs - runs change detection for whole action bar
+  //but fixies host bindings updates in some cases
+  constructor(@SkipSelf() changeDetectorRef: ChangeDetectorRef) {
+    super(changeDetectorRef);
+  }
 
   getModel() {
     return this.model;

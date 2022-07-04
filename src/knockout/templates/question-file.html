@@ -12,7 +12,7 @@
           <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
             <span data-bind="text: question.chooseButtonCaption"></span>
             <!-- ko if: question.cssClasses.chooseFileIconId -->
-                <!-- ko component: { name: 'sv-svg-icon', params: { title: question.removeFileCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
+                <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
             <!-- /ko -->
           </label>
           <!-- ko if: !question.koHasValue() -->

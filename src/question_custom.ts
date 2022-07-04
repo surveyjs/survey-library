@@ -14,8 +14,78 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 
+export interface ICustomComponentDescription {
+  /*
+   * The name of a custom component
+   */
+  name: string;
+  /*
+   * This function is called is when custom component question has been inited
+   */
+  onInit?(): void;
+  /*
+   * This function is called is when custom component question has been created
+   */
+  onCreated?(question: Question): void;
+  /*
+   * This function is called is when custom component question has been loaded
+   */
+  onLoaded?(question: Question): void;
+  /*
+   * This function is called is when custom component question has been rendered
+   */
+  onAfterRender?(question: Question, htmlElement: any): void;
+  /*
+   * This function is called is when custom component question content element has been inited
+   */
+  onAfterRenderContentElement?(
+    question: Question,
+    element: Question,
+    htmlElement: any
+  ): void;
+  /*
+   * This function is called is then custom component property has been changed
+   */
+  onPropertyChanged?(
+    question: Question,
+    propertyName: string,
+    newValue: any
+  ): void;
+  /*
+   * This function is called is then custom component value has been changed
+   */
+  onValueChanged?(question: Question, name: string, newValue: any): void;
+  /*
+   * This function is called is then custom component item has been changed
+   */
+  onItemValuePropertyChanged?(
+    question: Question,
+    options: { obj: ItemValue, propertyName: string, name: string, newValue: any }
+  ): void;
+  /*
+   * This function returns component display value
+   */
+  getDisplayValue?: ((keyAsText: boolean, value: any) => any) | ((question: Question) => any);
+  /*
+   * Inner elements JSON
+   */
+  elementsJSON?: any;
+  /*
+   * Inner elements creator function
+   */
+  createElements?: any;
+  /*
+   * Inner question JSON
+   */
+  questionJSON?: any;
+  /*
+   * Inner question creator function
+   */
+  createQuestion?: any;
+}
+
 export class ComponentQuestionJSON {
-  public constructor(public name: string, public json: any) {
+  public constructor(public name: string, public json: ICustomComponentDescription) {
     var self = this;
     Serializer.addClass(
       name,
@@ -83,7 +153,7 @@ export class ComponentQuestionJSON {
   }
   public getDisplayValue(keyAsText: boolean, value: any, question: Question) {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
-    return this.json.getDisplayValue(question);
+    return (this.json as any).getDisplayValue(question);
   }
   public get isComposite() {
     return !!this.json.elementsJSON || !!this.json.createElements;
@@ -102,7 +172,7 @@ export class ComponentCollection {
     questionJSON: ComponentQuestionJSON
   ) => QuestionCustomModel;
   public onAddingJson: (name: string, isComposite: boolean) => void;
-  public add(json: any) {
+  public add(json: ICustomComponentDescription): void {
     if (!json) return;
     let name = json.name;
     if (!name) {
@@ -472,7 +542,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   public updateElementCss(reNew?: boolean): void {
-    if(!!this.contentQuestion) {
+    if (!!this.contentQuestion) {
       this.questionWrapper.updateElementCss(reNew);
     }
     super.updateElementCss(reNew);
@@ -582,9 +652,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.setIsContentElement(this.contentPanel);
     }
     super.onSurveyLoad();
-    if(!!this.contentPanel) {
+    if (!!this.contentPanel) {
       const val = this.contentPanel.getValue();
-      if(!Helpers.isValueEmpty(val)) {
+      if (!Helpers.isValueEmpty(val)) {
         this.value = val;
       }
     }

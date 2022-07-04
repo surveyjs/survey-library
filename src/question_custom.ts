@@ -510,8 +510,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
-    if (
-      !!this.contentQuestion &&
+    if (!this.isLoadingFromJson && !!this.contentQuestion &&
       !this.isTwoValueEquals(this.contentQuestion.value, newValue)
     ) {
       this.contentQuestion.value = this.getUnbindValue(newValue);

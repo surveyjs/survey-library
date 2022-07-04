@@ -1693,3 +1693,21 @@ QUnit.test("onvalueChanging/Changed events", function (assert) {
   assert.equal(counterChanged, 2, "counterChanged = 2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: survey.questionsOnPageMode = `singlePage`", function (assert) {
+  const json = {
+    name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  survey.data = { q1: 3 };
+  survey.questionsOnPageMode = "singlePage";
+  const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.getType(), "newquestion", "type is correct");
+  assert.equal(q.name, "q1", "name is correct");
+  assert.equal(q.value, 3, "value is correct");
+  assert.equal(q.contentQuestion.value, 3, "content question value is correct");
+  ComponentCollection.Instance.clear();
+});

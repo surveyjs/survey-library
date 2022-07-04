@@ -59,7 +59,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   }
 
   createClearButton(): JSX.Element {
-    if(!this.question.showClearButton || !this.question.cssClasses.cleanButtonIconId) return null;
+    if(!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
     const style = { display: this.question.isEmpty() ? "none": "" };
     return (

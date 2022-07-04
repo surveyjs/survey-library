@@ -38,7 +38,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
         required={this.question.isRequired}>
-        { this.question.showOptionsCaption ? (<option value="">{this.question.optionsCaption}</option>) : null }
+        { this.question.allowClear ? (<option value="">{this.question.placeholder}</option>) : null }
         { this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item}/>) }
       </select>);
     return (

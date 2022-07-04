@@ -18,7 +18,7 @@ export var italianSurveyStrings = {
   completingSurveyBefore:
     "I nostri records mostrano che hai già completato questo questionario.",
   loadingSurvey: "Caricamento del questionario in corso...",
-  optionsCaption: "Scegli...",
+  placeholder: "Scegli...",
   value: "valore",
   requiredError: "Campo obbligatorio",
   requiredErrorInPanel: "Per Favore, rispondi ad almeno una domanda.",

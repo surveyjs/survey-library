@@ -399,7 +399,7 @@ export class StylesManager {
     ".sv-list":
       "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
-      "width: 100%; box-sizing: border-box; padding: 8px 24px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+      "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

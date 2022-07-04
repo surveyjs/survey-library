@@ -9,7 +9,7 @@ export var catalanSurveyStrings = {
   emptySurvey: "No hi ha cap pàgina visible o pregunta a l'enquesta.",
   completingSurvey: "Gràcies per completar l'enquesta!",
   loadingSurvey: "L'enquesta s'està carregant ...",
-  optionsCaption: "Selecciona ...",
+  placeholder: "Selecciona ...",
   requiredError: "Si us plau contesti la pregunta.",
   requiredInAllRowsError: "Si us plau contesti les preguntes de cada filera.",
   numericError: "L'estimació ha de ser numèrica.",

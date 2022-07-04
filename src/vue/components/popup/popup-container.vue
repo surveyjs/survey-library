@@ -21,7 +21,7 @@
         left: model.left,
         top: model.top,
         height: model.height,
-        width: model.width,
+        minWidth: model.minWidth,
       }"
       v-on:click="clickInside"
     >

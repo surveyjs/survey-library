@@ -18,7 +18,7 @@ export var swahiliStrings = {
   completingSurveyBefore:
     "Recodi zetu zinatuonyesha tayari umekamilisha utafiti.",
   loadingSurvey: "Tunaandaa utafiti...",
-  optionsCaption: "Chagua...",
+  placeholder: "Chagua...",
   value: "thamani",
   requiredError: "Tafadhali jibu hili swali.",
   requiredErrorInPanel: "Tafadhali jibu swali angalau moja.",

@@ -18,7 +18,7 @@ export var romanianSurveyStrings: any = {
   completingSurveyBefore:
     "Din înregistrările noastre reiese că ați completat deja acest chestionar.",
   loadingSurvey: "Chestionarul se încarcă...",
-  optionsCaption: "Alegeţi...",
+  placeholder: "Alegeţi...",
   value: "valoare",
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",

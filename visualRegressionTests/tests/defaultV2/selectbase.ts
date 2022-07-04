@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("checkbox-col-count-1.png", Selector(".sd-question"), t);
-    await ClientFunction(()=> { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
+    await ClientFunction(() => { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
   test("Check radiogroup question", async (t) => {

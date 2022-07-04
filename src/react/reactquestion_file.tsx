@@ -79,7 +79,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         aria-label={this.question.chooseButtonCaption}
       >
         <span>{this.question.chooseButtonCaption}</span>
-        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
+        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonCaption} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
       </label>
     );
     if (this.question.isEmpty()) {

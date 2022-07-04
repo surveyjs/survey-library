@@ -19,7 +19,7 @@ export var urduSurveyStrings = {
   completingSurveyBefore:
     "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
-  optionsCaption: "...منتخب کریں ",
+  placeholder: "...منتخب کریں ",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",

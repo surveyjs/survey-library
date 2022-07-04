@@ -12,7 +12,7 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
       <div data-bind="text: question.readOnlyText, css: question.koCss().controlValue"></div> 
-      <!-- ko if: (question.showClearButton && question.cssClasses.cleanButtonIconId) -->
+      <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
       <div data-bind="css: question.koCss().cleanButton, click: function(s, e) { question.onClear(e); return true; }, visible: !question.isEmpty() ">
         <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto' } } -->
         <!-- /ko -->

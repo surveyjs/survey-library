@@ -38,7 +38,7 @@
           v-bind:aria-label="question.chooseButtonCaption"
           >
           <span>{{ question.chooseButtonCaption }}</span>
-          <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.removeFileCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
+          <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
         </label>
         <span
           :class="question.cssClasses.noFileChosen"

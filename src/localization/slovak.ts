@@ -17,7 +17,7 @@ export var slovakSurveyStrings = {
   completingSurvey: "Ďakujeme vám za dokončenie prieskumu.",
   completingSurveyBefore: "Podľa našich záznamov ste už tento prieskum dokončili.",
   loadingSurvey: "Načítanie prieskumu...",
-  optionsCaption: "Vybrať...",
+  placeholder: "Vybrať...",
   value: "hodnota",
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",

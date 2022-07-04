@@ -18,7 +18,7 @@ export var czechSurveyStrings = {
   completingSurveyBefore:
     "Naše záznamy ukazují, že jste tento průzkum již dokončili.",
   loadingSurvey: "Probíhá načítání průzkumu...",
-  optionsCaption: "Vyber...",
+  placeholder: "Vyber...",
   value: "hodnota",
   requiredError: "Odpovězte prosím na otázku.",
   requiredErrorInPanel: "Please answer at least one question.",

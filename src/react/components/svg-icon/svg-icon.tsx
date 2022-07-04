@@ -29,7 +29,7 @@ export class SvgIcon extends React.Component<any, any> {
     }
     return (
       this.props.iconName ?
-        <svg className={ className } onClick={this.props.onClick} ref={this.svgIconRef} role="img"><use></use></svg>
+        <svg className={ className } onClick={this.props.onClick} ref={this.svgIconRef} role="img" aria-label={this.props.title}><use></use></svg>
         : null
     );
   }

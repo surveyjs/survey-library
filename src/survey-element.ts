@@ -19,7 +19,7 @@ import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 /**
  * Base class of SurveyJS Elements and Survey.
  */
@@ -289,6 +289,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
+      this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
     }
     return this.titleToolbarValue;
@@ -298,6 +299,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     if(this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
+
     return actionContainer;
   }
   public get titleActions(): Array<any> {

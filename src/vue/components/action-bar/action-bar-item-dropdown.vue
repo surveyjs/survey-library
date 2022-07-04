@@ -20,6 +20,7 @@
       :class="item.cssClasses.itemIcon"
       :iconName="item.iconName"
       :size="item.iconSize"
+      :title="item.tooltip || item.title"
     ></sv-svg-icon>
 
     <span

@@ -89,3 +89,20 @@ QUnit.test("table vertical align and alternate rows", function (assert) {
   matrix.alternateRows = true;
   assert.equal(matrix.getTableCss(), "rootClass rootAlternateRowsClass rootVerticalAlignTopClass", "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass");
 });
+QUnit.test("column.templateQuestion has set parentQuestion", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }]
+      },
+    ],
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].templateQuestion.parentQuestion.name, "matrix", "question name is set");
+  const matrix2 = new QuestionMatrixDropdownModelBase("q1");
+  const col = matrix2.addColumn("col1");
+  assert.equal(col.templateQuestion.parentQuestion.name, "q1", "column created from code has parentQuestion");
+});

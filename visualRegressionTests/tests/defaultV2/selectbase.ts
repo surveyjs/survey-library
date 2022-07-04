@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
     });
     await ClientFunction(() => { document.body.focus(); })();
     await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);
-    await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowClear = true; })();
+    await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
     await checkElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t);
   });
 });

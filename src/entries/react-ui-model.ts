@@ -75,6 +75,7 @@ export { SurveyQuestionMatrixDynamicRemoveButton } from "../react/components/mat
 export { SurveyQuestionMatrixDetailButton } from "../react/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../react/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { SurveyQuestionPanelDynamicAddButton } from "../react/components/paneldynamic-actions/paneldynamic-add-btn";
+export { SurveyQuestionPanelDynamicRemoveButton } from "../react/components/paneldynamic-actions/paneldynamic-remove-btn";
 export { SurveyQuestionPanelDynamicPrevButton } from "../react/components/paneldynamic-actions/paneldynamic-prev-btn";
 export { SurveyQuestionPanelDynamicNextButton } from "../react/components/paneldynamic-actions/paneldynamic-next-btn";
 export { SurveyQuestionPanelDynamicProgressText } from "../react/components/paneldynamic-actions/paneldynamic-progress-text";

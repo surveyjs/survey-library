@@ -3,6 +3,7 @@ import { ListModel } from "../list";
 import { PopupModel } from "../popup";
 import { Action, actionModeType, IAction } from "./action";
 import { ActionContainer } from "./container";
+import { surveyLocalization } from "src/surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
@@ -73,6 +74,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       innerCss: "sv-dots__item",
       iconName: "icon-more",
       visible: false,
+      tooltip: surveyLocalization.getString("more"),
       action: (item: any) => {
         this.dotsItemPopupModel.toggleVisibility();
       },
@@ -90,9 +92,9 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected getRenderedActions(): Array<T> {
-    if (this.actions.length >= 2)
-      return this.actions.concat([<T>this.dotsItem]);
-    return this.actions;
+    if (this.actions.length === 1 && !!this.actions[0].iconName)
+      return this.actions;
+    return this.actions.concat([<T>this.dotsItem]);
   }
 
   protected raiseUpdate(isResetInitialized: boolean) {

@@ -271,4 +271,43 @@ frameworks.forEach((framework) => {
       .click(descriptionSelector)
       .expect(getQuestionState()).eql("expanded");
   });
+
+  test("check adaptivity with one action", async (t) => {
+    const json = {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          title: "Text long  long long long long long long long",
+          placeHolder: "Jon Snow",
+          isRequired: true
+        }
+      ]
+    };
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action title with long text",
+            action: () => { },
+          },
+        ];
+      },
+    });
+    const myAction = Selector(".sv-action").nth(0);
+    const dotsItem = Selector(".sv-action.sv-dots");
+
+    await t
+      .resizeWindow(800, 600)
+      .expect(myAction.visible).ok()
+      .expect(dotsItem.visible).notOk()
+
+      .resizeWindow(550, 600)
+      .expect(myAction.visible).notOk()
+      .expect(dotsItem.visible).ok()
+
+      .resizeWindow(800, 600)
+      .expect(myAction.visible).ok()
+      .expect(dotsItem.visible).notOk();
+  });
 });

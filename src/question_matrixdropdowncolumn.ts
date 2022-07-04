@@ -174,6 +174,7 @@ export class MatrixDropdownColumn extends Base
     this.colOwnerValue = value;
     if (!!value) {
       this.updateTemplateQuestion();
+      this.setParentQuestionToTemplate(this.templateQuestion);
     }
   }
   public locStrsChanged() {
@@ -500,7 +501,13 @@ export class MatrixDropdownColumn extends Base
     question.loadingOwner = this;
     question.isEditableTemplateElement = true;
     this.setQuestionProperties(question);
+    this.setParentQuestionToTemplate(question);
     return question;
+  }
+  private setParentQuestionToTemplate(question: Question): void {
+    if(!!this.colOwner && (<any>this.colOwner).isQuestion) {
+      question.setParentQuestion(<any>this.colOwner);
+    }
   }
   private previousChoicesId: string = undefined;
   protected setQuestionProperties(

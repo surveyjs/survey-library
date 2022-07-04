@@ -10,7 +10,7 @@ const json = {
     {
       name: "often",
       type: "radiogroup",
-      title: "How often do you use this applications?",
+      title: "How often do you use this?",
       choices: ["Rare", "Sometimes", "Always"]
     }
   ]
@@ -229,9 +229,12 @@ frameworks.forEach(framework => {
     });
 
   test("Dropdown popup styles", async t => {
-    await t.resizeWindow(1000, 600);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActions });
-    await t.click(clickButton.withText("Long List"));
+    await t
+      .wait(1000)
+      .resizeWindow(1000, 600)
+      .wait(1000)
+      .click(clickButton.withText("Long List"));
     await checkElementScreenshot("popup-dropdown-long-list.png", popupSelector, t);
 
     await t

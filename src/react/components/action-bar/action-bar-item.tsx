@@ -70,6 +70,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         className={this.item.cssClasses.itemIcon}
         size={this.item.iconSize}
         iconName={this.item.iconName}
+        title={this.item.tooltip || this.item.title}
       ></SvgIcon>
     ) : null;
     return (

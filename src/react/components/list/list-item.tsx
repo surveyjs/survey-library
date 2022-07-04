@@ -41,6 +41,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
           className="sv-list__item-icon"
           iconName={this.item.iconName}
           size={24}
+          aria-label={this.item.title}
         ></SvgIcon>
       ) : null;
       content.push(icon);

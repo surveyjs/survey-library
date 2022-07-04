@@ -10,8 +10,14 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   keyup(event: any) {
-    if (!this.model.isInputTextUpdate) return;
-    this.model.value = event.target.value;
+    if (this.model.isInputTextUpdate) {
+      this.model.value = event.target.value;
+    }
+  }
+  onChange(event: any) {
+    if(!this.model.isInputTextUpdate) {
+      this.model.value = event.target.value;
+    }
   }
 }
 

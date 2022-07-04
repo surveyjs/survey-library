@@ -175,6 +175,21 @@ QUnit.test("React on property change", function(assert) {
   question.inputType = "text";
   assert.equal(minQuestion.isVisible, true, "min property is visible again");
 });
+QUnit.test("property value is changed on set", function(assert) {
+  var question = new QuestionRatingModel("q1");
+  question.rateMin = 3;
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "rateMin" },
+      { type: "text", inputType: "number", name: "rateMax" }
+    ]
+  });
+  survey.editingObj = question;
+  const rateMax = survey.getQuestionByName("rateMax");
+  rateMax.value = -1;
+  assert.equal(question.rateMax, 4, "Do not set 1, revert to 4");
+  assert.equal(rateMax.value, 4, "Change editor value as well");
+});
 QUnit.test("Edit question title property", function(assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel({

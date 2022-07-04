@@ -2090,6 +2090,7 @@ QUnit.test("Rating question, visibleRateValues property", function (assert) {
     5,
     "There are 5 items by default"
   );
+  assert.equal(rate.rateMax, 5, "rateMax default is 5");
   rate.rateMin = 6;
   assert.equal(rate.rateMin, 4, "the min is max - step");
   rate.rateMin = 2;

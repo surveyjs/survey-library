@@ -4849,6 +4849,10 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
+    if(!!this.editingObj) {
+      const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
+      if(!!prop) newValue = prop.settingValue(this.editingObj, newValue);
+    }
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,

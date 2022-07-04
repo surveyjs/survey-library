@@ -23,6 +23,10 @@ export interface ICustomComponentDescription {
    * This function is called is when custom component question has been inited
    */
   onInit?(): void;
+  /**
+   * Set this property to false if you don't want to show the component in toolbox in Creator
+   */
+  showInToolbox?: boolean;
   /*
    * This function is called is when custom component question has been created
    */

@@ -37,7 +37,7 @@
         [attr.aria-label]="model.chooseButtonCaption"
         >
         <span>{{ model.chooseButtonCaption }}</span>
-        <svg *ngIf="model.cssClasses.chooseFileIconId" [iconName]="model.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+        <svg *ngIf="model.cssClasses.chooseFileIconId" [title]="model.chooseButtonCaption" [iconName]="model.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
       </label>
       <span
         [class]="model.cssClasses.noFileChosen"
@@ -86,7 +86,7 @@
             [class]="model.cssClasses.removeFile"
             >{{ model.removeFileCaption }}</span
           >
-          <svg *ngIf="model.cssClasses.removeFileSvgIconId" [partCss]="model.cssClasses.removeFileSvg" [iconName]="model.cssClasses.removeFileSvgIconId" [size]="'auto'" sv-ng-svg-icon ></svg>
+          <svg *ngIf="model.cssClasses.removeFileSvgIconId" [title]="model.removeFileCaption" [partCss]="model.cssClasses.removeFileSvg" [iconName]="model.cssClasses.removeFileSvgIconId" [size]="'auto'" sv-ng-svg-icon ></svg>
         </div>
       </div>
       <div *ngIf="val.name && model.cssClasses.fileSignBottom" [class]="model.cssClasses.fileSignBottom">

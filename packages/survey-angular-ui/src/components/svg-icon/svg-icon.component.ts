@@ -12,6 +12,7 @@ export class SvgIconComponent implements OnChanges {
   @Input() iconName!: string;
   @Input() partCss?: string;
   @Input() css?: string;
+  @Input() title?: string;
   constructor(private viewContaierRef: ViewContainerRef) {
   }
   private createSvg() {
@@ -36,6 +37,9 @@ export class SvgIconComponent implements OnChanges {
   }
   @HostBinding("[attr.role]") get rootRole(): string {
     return "img";
+  }
+  @HostBinding("[attr.aria-label]") get ariaLabel(): string {
+    return <string>this.title;
   }
   ngOnChanges(): void {
     const el = this.viewContaierRef.element.nativeElement;

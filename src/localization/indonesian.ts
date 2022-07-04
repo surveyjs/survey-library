@@ -18,7 +18,7 @@ export var indonesianStrings = {
   completingSurveyBefore:
     "Catatan kami menunjukkan bahwa Anda telah menyelesaikan survei ini.",
   loadingSurvey: "Memuat survei...",
-  optionsCaption: "Pilih...",
+  placeholder: "Pilih...",
   value: "nilai",
   requiredError: "Silahkan jawab pertanyaan berikut.",
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",

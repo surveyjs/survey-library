@@ -21,7 +21,7 @@ export var greekSurveyStrings = {
   completingSurveyBefore:
     "Τα αρχεία μας δείχνουν ότι έχετε ήδη ολοκληρώσει αυτήν την έρευνα.",
   loadingSurvey: "Το ερωτηματολόγιο φορτώνεται απο το διακομιστή...",
-  optionsCaption: "Επιλέξτε...",
+  placeholder: "Επιλέξτε...",
   value: "αξία",
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
   requiredErrorInPanel: "Απαντήστε σε τουλάχιστον μία ερώτηση.",

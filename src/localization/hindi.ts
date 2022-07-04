@@ -17,7 +17,7 @@ export var hindiStrings = {
   completingSurvey: "सर्वेक्षण को पूरा करने के लिए धन्यवाद",
   completingSurveyBefore: " हमारे रिकॉर्ड बताते हैं कि आप पहले ही इस सर्वेक्षण को पूरा कर चुके हैं",
   loadingSurvey: "सर्वेक्षण खुल रहा है.…",
-  optionsCaption: "चुनें",
+  placeholder: "चुनें",
   value: "मूल्य",
   requiredError: "कृपया प्रश्न का उत्तर दें",
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",

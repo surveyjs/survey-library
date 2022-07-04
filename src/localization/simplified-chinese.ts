@@ -17,7 +17,7 @@ export var simplifiedChineseSurveyStrings = {
   completingSurvey: "感谢您的参与!",
   completingSurveyBefore: "你已完成问卷.",
   loadingSurvey: "问卷正在加载中...",
-  optionsCaption: "请选择...",
+  placeholder: "请选择...",
   value: "值",
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",

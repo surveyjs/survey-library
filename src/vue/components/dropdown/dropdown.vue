@@ -12,7 +12,7 @@
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired">
-      <option v-if="question.showOptionsCaption" :value="undefined">{{ question.optionsCaption }}</option>
+      <option v-if="question.allowClear" :value="undefined">{{ question.placeholder }}</option>
       <sv-dropdown-option-item
         v-for="item in question.visibleChoices"
         :item="item"

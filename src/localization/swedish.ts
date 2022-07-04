@@ -19,7 +19,7 @@ export var swedishSurveyStrings = {
   completingSurveyBefore:
     "Våra register visar att du redan har slutfört denna undersökning.",
   loadingSurvey: "Enkäten laddas...",
-  optionsCaption: "Välj...",
+  placeholder: "Välj...",
   value: "värde",
   requiredError: "Var vänlig besvara frågan.",
   requiredErrorInPanel: "Vänligen svara på minst en fråga.",

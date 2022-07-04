@@ -17,7 +17,7 @@ export var welshSurveyStrings = {
   completingSurvey: "Diolch am lenwi’r holiadur!",
   completingSurveyBefore: "Rydych chi wedi llenwi’r arolwg hwn yn barod yn ôl ein cofnodion.",
   loadingSurvey: "Wrthi’n Llwytho’r Arolwg...",
-  optionsCaption: "Dewiswch...",
+  placeholder: "Dewiswch...",
   value: "gwerth",
   requiredError: "Atebwch y cwestiwn.",
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",

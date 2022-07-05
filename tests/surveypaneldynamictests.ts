@@ -13,6 +13,7 @@ import { ExpressionValidator } from "../src/validator";
 import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -3902,6 +3903,41 @@ QUnit.test(
     survey.showPreview();
     assert.equal(survey.state, "preview", "We show preview");
     assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 1 }] }] });
+  }
+);
+QUnit.test(
+  "Preview and survey.onDynamicPanelAdded event, Bug#4523",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "dropdown",
+              choices: [{ value: 1, text: "item1" }],
+            },
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAnsweredQuestions",
+    });
+    survey.onDynamicPanelAdded.add(function (survey, options) {
+      options.panel.questions[0].choices.push(new ItemValue(2, "Item2"));
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.addPanel();
+    panel.panels[0].questions[0].value = 2;
+    assert.equal(panel.panels[0].questions[0].displayValue, "Item2");
+    survey.showPreview();
+    panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #1");
+    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
+    survey.cancelPreview();
+    panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #1");
+    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
   }
 );
 

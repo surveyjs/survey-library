@@ -20,7 +20,7 @@ frameworks.forEach(framework => {
       await explicitErrorHandler();
       await applyTheme(theme);
     });
-  test("Check dropdown question", async (t) => {
+  test("Check dropdown select question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",
@@ -29,6 +29,7 @@ frameworks.forEach(framework => {
           type: "dropdown",
           title: "Where are you living?",
           name: "dropdown_question",
+          renderAs: "select",
           optionsCaption: "Select country here...",
           choices: ["Greece"]
         },
@@ -43,7 +44,7 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("dropdown-question-answered.png", questionRoot, t);
   });
 
-  test("Check dropdown select question", async (t) => {
+  test("Check dropdown question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       showQuestionNumbers: "off",

@@ -31,6 +31,7 @@
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
+        <sv-ng-progress *ngIf="model.isShowProgressBarOnBottom && !model.isShowStartingPage" [model]="model"></sv-ng-progress>
         <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>
       </div>
       <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"

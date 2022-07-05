@@ -53,6 +53,7 @@ import { FileQuestionComponent, } from "./questions/file.component";
 import { VisibleDirective } from "./utils/ng-show.directive";
 import { Key2ClickDirective } from "./utils/ng-key2click.directive";
 import { SafeUrlPipe } from "./utils/safe-url.pipe";
+import { SafeHtmlPipe } from "./utils/safe-html.pipe";
 import { CommentQuestionComponent } from "./questions/comment.component";
 import { SignaturePadQuestionComponent } from "./questions/signature.component";
 import { MultipleTextComponent } from "./questions/multipletext.component";
@@ -72,7 +73,7 @@ import { RankingItemComponent } from "./questions/ranking-item.component";
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent
   ],
   imports: [

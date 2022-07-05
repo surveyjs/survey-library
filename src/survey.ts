@@ -4383,11 +4383,14 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: IQuestion) {
+  dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel) {
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
-    var panel = panels[panels.length - 1];
-    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel });
+    if(panelIndex === undefined) {
+      panelIndex = panels.length - 1;
+      panel = panels[panelIndex];
+    }
+    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
   }
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel) {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];

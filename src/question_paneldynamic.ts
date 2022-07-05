@@ -1219,6 +1219,11 @@ export class QuestionPanelDynamicModel extends Question
     this.setPanelsSurveyImpl();
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
+    if(!!this.survey) {
+      for(var i = 0; i < this.panelCount; i ++) {
+        this.survey.dynamicPanelAdded(this);
+      }
+    }
     super.onSurveyLoad();
   }
   public onFirstRendering() {

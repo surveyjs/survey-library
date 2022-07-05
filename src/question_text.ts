@@ -139,7 +139,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.minValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("min", val);
+    this.checkAndSetPropertyValue("min", val);
   }
   /**
    * The maximum value
@@ -152,7 +152,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maxValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("max", val);
+    this.checkAndSetPropertyValue("max", val);
   }
   /**
    * The minimum value that you can setup as expression, for example today(-1) = yesterday;
@@ -392,6 +392,24 @@ function isMinMaxType(obj: any): boolean {
   if(!t) return false;
   return minMaxTypes.indexOf(t) > -1;
 }
+function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: boolean): any {
+  let val = isMax ? max : min;
+  if(!isMinMaxType(obj)) return val;
+  if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
+  if(obj.inputType.indexOf("date") === 0) {
+    const dMin = new Date(min);
+    const dMax = new Date(max);
+    if(!dMin || !dMax) return val;
+    if(dMin > dMax) return isMax ? min : max;
+  }
+  if(obj.inputType === "number") {
+    if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
+    if(parseFloat(min) > parseFloat(max)) return isMax ? min : max;
+  }
+  if(typeof min === "string" || typeof max === "string") return val;
+  if(min > max) return isMax ? min : max;
+  return val;
+}
 
 Serializer.addClass(
   "text",
@@ -504,6 +522,9 @@ Serializer.addClass(
           propertyEditor.inputType = obj.inputType;
         }
       },
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(obj, val, obj.max, false);
+      },
     },
     {
       name: "max",
@@ -511,6 +532,9 @@ Serializer.addClass(
       nextToProperty: "*min",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
+      },
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(obj, obj.min, val, true);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {

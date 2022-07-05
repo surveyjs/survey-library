@@ -7,7 +7,19 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = { changed: 0 };
-
+    this.setupModel();
+  }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.setupModel();
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if (!!this.item) {
+      this.item.locText.onChanged = () => { };
+    }
+  }
+  private setupModel(): void {
     if (!this.item.locText) return;
     const self = this;
     this.item.locText.onChanged = () => {

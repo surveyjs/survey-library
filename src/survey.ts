@@ -3956,24 +3956,15 @@ export class SurveyModel extends SurveyElementCore
   public get isValidatingOnServer(): boolean {
     return this.getPropertyValue("isValidatingOnServer", false);
   }
+  private serverValidationEventCount: number;
   private setIsValidatingOnServer(val: boolean) {
     if (val == this.isValidatingOnServer) return;
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() { }
-  protected doServerValidation(
-    doComplete: boolean,
-    isPreview: boolean = false
-  ): boolean {
-    if (
-      !this.onServerValidateQuestions ||
-      this.onServerValidateQuestions.isEmpty
-    )
-      return false;
-    if (!doComplete && this.checkErrorsMode === "onComplete") return false;
+  private createServerValidationOptions(doComplete: boolean, isPreview: boolean): any {
     var self = this;
-    var options = {
+    const options = {
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
@@ -3993,17 +3984,35 @@ export class SurveyModel extends SurveyElementCore
           options.data[question.getValueName()] = value;
       }
     }
+    return options;
+  }
+  protected onIsValidatingOnServerChanged() { }
+  protected doServerValidation(
+    doComplete: boolean,
+    isPreview: boolean = false
+  ): boolean {
+    if (
+      !this.onServerValidateQuestions ||
+      this.onServerValidateQuestions.isEmpty
+    )
+      return false;
+    if (!doComplete && this.checkErrorsMode === "onComplete") return false;
     this.setIsValidatingOnServer(true);
-
-    if (typeof this.onServerValidateQuestions === "function") {
-      this.onServerValidateQuestions(this, options);
+    const isFunc = typeof this.onServerValidateQuestions === "function";
+    this.serverValidationEventCount = !isFunc ? this.onServerValidateQuestions.length : 1;
+    if (isFunc) {
+      this.onServerValidateQuestions(this, this.createServerValidationOptions(doComplete, isPreview));
     } else {
-      this.onServerValidateQuestions.fire(this, options);
+      this.onServerValidateQuestions.fireByCreatingOptions(this, () => { return this.createServerValidationOptions(doComplete, isPreview); });
     }
-
     return true;
   }
   private completeServerValidation(options: any, isPreview: boolean) {
+    if(this.serverValidationEventCount > 1) {
+      this.serverValidationEventCount --;
+      if(!!options && !!options.errors && Object.keys(options.errors).length === 0) return;
+    }
+    this.serverValidationEventCount = 0;
     this.setIsValidatingOnServer(false);
     if (!options && !options.survey) return;
     var self = options.survey;
@@ -4374,11 +4383,14 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: IQuestion) {
+  dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel) {
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
-    var panel = panels[panels.length - 1];
-    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel });
+    if(panelIndex === undefined) {
+      panelIndex = panels.length - 1;
+      panel = panels[panelIndex];
+    }
+    this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
   }
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel) {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];

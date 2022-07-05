@@ -158,6 +158,11 @@
     "webpack-merge": "^5.7.3",
     "webpack-svgstore-plugin": "4.0.1"
   },
+  "overrides": {
+    "karma-webpack": {
+      "webpack": "^4.43.0"
+    }
+  },
   "husky": {
     "hooks": {
       "pre-push": "npm run pre-push-check"

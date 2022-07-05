@@ -408,6 +408,7 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   }
   if(typeof min === "string" || typeof max === "string") return val;
   if(min > max) return isMax ? min : max;
+  return val;
 }
 
 Serializer.addClass(

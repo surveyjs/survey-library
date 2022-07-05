@@ -126,4 +126,9 @@ QUnit.test("min/max onSettingValue property function", function(assert) {
   assert.equal(q.min, "11", "Correct the min number value");
   q.min = "9";
   assert.equal(q.min, "9", "Set the min number value");
+  q.max = "10";
+  assert.equal(q.max, "10", "Set the max number value, #2");
+  q.min = <any>5;
+  q.max = <any>7;
+  assert.equal(q.max, 7, "Set the max number value as number, #3");
 });

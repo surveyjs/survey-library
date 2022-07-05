@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector, ClientFunction, fixture, test } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
+import { Selector, fixture, test } from "testcafe";
 const title = "matrixdynamic";
 
 const json = {
@@ -105,6 +105,8 @@ frameworks.forEach((framework) => {
     }
   );
 
+  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+
   test("choose empty", async (t) => {
     const matrixRow = Selector(".sv_matrix_row");
     const getRequiredElement = (rowIndex) => {
@@ -115,7 +117,7 @@ frameworks.forEach((framework) => {
       .expect(getRequiredElement(0).exists).notOk()
       .expect(getRequiredElement(1).exists).notOk()
 
-      .click("input[value=Complete]")
+      .click(completeButton)
       .expect(getRequiredElement(0).visible).ok()
       .expect(getRequiredElement(1).visible).ok();
 
@@ -123,10 +125,10 @@ frameworks.forEach((framework) => {
     await t.expect(typeof surveyResult).eql("undefined");
 
     await t
-      .click(matrixRow.nth(0).find("select"))
-      .click(matrixRow.nth(0).find("select option[value=\"Science: Physical Science\"]"))
+      .click(questionDropdownSelect.nth(0))
+      .click(getListItemByText("Science: Physical Science"))
 
-      .click("input[value=Complete]")
+      .click(completeButton)
       .expect(getRequiredElement(0).exists).notOk()
       .expect(getRequiredElement(1).visible).ok();
 
@@ -135,29 +137,26 @@ frameworks.forEach((framework) => {
   });
 
   test("choose several values", async (t) => {
-    const matrixCellSelector = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
     const fillTheRow = async function (rowNumber) {
       await t
-        .click(`${matrixCellSelector`${rowNumber}${1}`} select`)
-        .click(`${matrixCellSelector`${rowNumber}${1}`} select option[value="Science: Physical Science"]`);
+        .click(questionDropdownSelect.nth(rowNumber))
+        .click(getListItemByText("Science: Physical Science"));
 
-      for (let i = 2; i < 13; i++) {
+      for (let i = 0; i < 11; i++) {
         // answer radios
-        await t.click(`${matrixCellSelector`${rowNumber}${i}`} label input`);
+        await t.click(Selector(".sv_matrix_row").nth(rowNumber).find(".sv_matrix_cell .sv_q_radiogroup_control_item[value='1']").nth(i));
       }
 
       await t // answer comments
-        .typeText(`${matrixCellSelector`${rowNumber}${13}`} textarea`, "Wombats")
-        .typeText(`${matrixCellSelector`${rowNumber}${14}`} textarea`, "Wombats")
-        .typeText(`${matrixCellSelector`${rowNumber}${15}`} textarea`, "Wombats");
+        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(0), "Wombats")
+        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(1), "Wombats")
+        .typeText(Selector(".sv_matrix_row").nth(rowNumber).find("textarea").nth(2), "Wombats");
     };
 
+    await fillTheRow(0);
     await fillTheRow(1);
-    await fillTheRow(2);
 
-    await t.click("input[value=Complete]");
+    await t.click(completeButton);
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
@@ -201,66 +200,40 @@ frameworks.forEach((framework) => {
   });
 
   test("remove row", async (t) => {
-    const getRowCount = ClientFunction(
-      () => document.querySelectorAll("tbody > tr").length
-    );
-    const oldCount = await getRowCount();
-    const matrixCellSelector = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
-
     await t
-      .click(`${matrixCellSelector`${1}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${1}${1}`} select option[value="Science: Physical Science"]`
-      )
-      .click(`${matrixCellSelector`${2}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${2}${1}`} select option[value="Science: Chemistry"]`
-      )
-      .click(
-        Selector(`${matrixCellSelector`${2}${17}`} button[type=button]`).withText(
-          "Remove"
-        )
-      );
+      .expect(Selector(".sv_matrix_row").count).eql(2)
 
-    const newCount = await getRowCount();
-    await t.expect(newCount).eql(oldCount - 1);
+      .click(questionDropdownSelect.nth(0))
+      .click(getListItemByText("Science: Physical Science"))
 
-    await t.click("input[value=Complete]");
+      .click(questionDropdownSelect.nth(1))
+      .click(getListItemByText("Science: Chemistry"))
+
+      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Remove"))
+      .expect(Selector(".sv_matrix_row").count).eql(1);
+
+    await t.click(completeButton);
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.teachersRate.length).eql(1);
   });
 
   test("add row", async (t) => {
-    const getRowCount = ClientFunction(
-      () => document.querySelectorAll("tbody > tr").length
-    );
-    const oldCount = await getRowCount();
-    const matrixCellSelector = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
-
     await t
+      .expect(Selector(".sv_matrix_row").count).eql(2)
       .click(Selector("button[type=button]").withText("Add Subject"))
-      .click(`${matrixCellSelector`${1}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${1}${1}`} select option[value="Science: Physical Science"]`
-      )
-      .click(`${matrixCellSelector`${2}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${2}${1}`} select option[value="Science: Chemistry"]`
-      )
-      .click(`${matrixCellSelector`${3}${1}`} select`)
-      .click(
-        `${matrixCellSelector`${3}${1}`} select option[value="Math: Algebra"]`
-      );
+      .expect(Selector(".sv_matrix_row").count).eql(3)
 
-    const newCount = await getRowCount();
-    await t.expect(newCount).eql(oldCount + 1);
+      .click(questionDropdownSelect.nth(0))
+      .click(getListItemByText("Science: Physical Science"))
 
-    await t.click("input[value=Complete]");
+      .click(questionDropdownSelect.nth(1))
+      .click(getListItemByText("Science: Chemistry"))
+
+      .click(questionDropdownSelect.nth(2))
+      .click(getListItemByText("Math: Algebra"))
+
+      .click(completeButton);
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.teachersRate.length).eql(3);

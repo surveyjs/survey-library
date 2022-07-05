@@ -8,7 +8,7 @@ import { SurveyHeader } from "./components/survey-header/survey-header";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
-import { doKey2ClickBlur, doKey2ClickDown } from "../utils/utils";
+import { doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "../utils/utils";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class Survey extends SurveyElementBase<any, any>
@@ -338,8 +338,8 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
   return React.createElement(Survey, props);
 });
 
-export function attachKey2click(element: JSX.Element, viewModel?: any, options = { processEsc: true }): JSX.Element {
-  if (!!viewModel && viewModel.disableTabStop) {
+export function attachKey2click(element: JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): JSX.Element {
+  if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }
   return React.cloneElement(

@@ -1,5 +1,5 @@
-import { fixture, test } from "testcafe";
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
+import { fixture, test, Selector } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
 const title = "matrixdropdown";
 
 const json = {
@@ -60,38 +60,34 @@ frameworks.forEach(framework => {
   );
 
   test("choose several values", async t => {
-    let surveyResult;
-    const baseSelectorFunc = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
+    const questionDropdownClassName = ".sv_q_dropdown_control";
+    const Angular1Row = Selector(".sv_matrix_row").nth(0);
+    const KnockoutRow = Selector(".sv_matrix_row").nth(2);
 
     // answer for row 1
     await t
-      .click(`${baseSelectorFunc`${1}${2}`} input[value=Yes]`)
-      .click(`${baseSelectorFunc`${1}${3}`} select`)
-      .click(`${baseSelectorFunc`${1}${3}`} select option[value="2"]`)
-      .click(`${baseSelectorFunc`${1}${4}`} div:nth-child(4) label input`)
-      .typeText(
-        `${baseSelectorFunc`${1}${5}`} input`,
-        "why hello world so hard"
-      )
-      .click(`${baseSelectorFunc`${1}${6}`} select`)
-      .click(`${baseSelectorFunc`${1}${6}`} select option[value="Excelent"]`);
+      .click(Angular1Row.find(".sv_q_radiogroup_control_item[value=Yes]"))
+      .click(Angular1Row.find(questionDropdownClassName).nth(0))
+      .click(getListItemByText("2"))
+      .click(Angular1Row.find(".sv_q_checkbox_control_item[value=Fast]"))
+      .typeText(Angular1Row.find(".sv_q_text_root"), "why hello world so hard")
+      .click(Angular1Row.find(questionDropdownClassName).nth(1))
+      .click(getListItemByText("Excelent"));
 
     // answer for row 3
     await t
-      .click(`${baseSelectorFunc`${3}${2}`} input[value=No]`)
-      .click(`${baseSelectorFunc`${3}${3}`} select`)
-      .click(`${baseSelectorFunc`${3}${3}`} select option[value="5"]`)
-      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(2) label input`)
-      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(5) label input`)
-      .typeText(`${baseSelectorFunc`${3}${5}`} input`, "it is not 2016")
-      .click(`${baseSelectorFunc`${3}${6}`} select`)
-      .click(`${baseSelectorFunc`${3}${6}`} select option[value="Good"]`);
+      .click(KnockoutRow.find(".sv_q_radiogroup_control_item[value=No]"))
+      .click(KnockoutRow.find(questionDropdownClassName).nth(0))
+      .click(getListItemByText("5"))
+      .click(KnockoutRow.find(".sv_q_checkbox_control_item[value=Easy]"))
+      .click(KnockoutRow.find(".sv_q_checkbox_control_item[value=Powerfull]"))
+      .typeText(KnockoutRow.find(".sv_q_text_root"), "it is not 2016")
+      .click(KnockoutRow.find(questionDropdownClassName).nth(1))
+      .click(getListItemByText("Good"));
 
-    await t.click("input[value=Complete]");
+    await t.click(completeButton);
 
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
 
     await t.expect(surveyResult.frameworksRate.angularv1).eql({
       using: "Yes",

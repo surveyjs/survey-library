@@ -11,6 +11,9 @@
   display: flex;
   justify-content: space-between;
 }
+.sd-dropdown[disabled] {
+  pointer-events: none;
+}
 .sd-dropdown--empty:not(.sd-input--disabled),
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__value {
   color: $foreground-light;

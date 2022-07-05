@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getListItemByText, completeButton } from "../helper";
 import { Selector, fixture, test } from "testcafe";
 const title = "visibleIf";
 
@@ -75,37 +75,33 @@ frameworks.forEach(framework => {
     }
   );
 
+  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+
   test("check visibility", async t => {
-    const getHeader = Selector(() => document.querySelectorAll("h5"), {
-      text: "* How many kids do you have"
-    });
-    const getSecondOption = Selector(
-      index => document.querySelectorAll("option")[8]
-    );
-    // const getSelectByIndex = Selector(
-    //   index => document.querySelectorAll("select")[index],
-    //   { visibilityCheck: true, timeout: 1000 }
-    // );
-    let surveyResult;
-
     await t
+      .expect(questionDropdownSelect.count).eql(0)
+      .expect(questionDropdownSelect.filterVisible().count).eql(0)
+
       .click("input[type=radio]")
-      .click("select")
-      .click("option[value=\"5\"]")
-      .hover(getHeader)
-      .hover(Selector("select").nth(5));
+      .expect(questionDropdownSelect.count).eql(1)
+      .expect(questionDropdownSelect.filterVisible().count).eql(1)
+
+      .click(questionDropdownSelect)
+      .click(getListItemByText("5"))
+      .expect(questionDropdownSelect.count).eql(6)
+      .expect(questionDropdownSelect.filterVisible().count).eql(6)
+
+      .click(questionDropdownSelect)
+      .click(getListItemByText("1"))
+      .expect(questionDropdownSelect.count).eql(2)
+      .expect(questionDropdownSelect.filterVisible().count).eql(2);
 
     await t
-      .click("select")
-      .click("option[value=\"1\"]")
-      .expect(Selector("select").nth(5).visible).eql(false);
+      .click(questionDropdownSelect.nth(1))
+      .click(getListItemByText("2"))
+      .click(completeButton);
 
-    await t
-      .click(Selector("select").nth(1))
-      .click(await getSecondOption())
-      .click("input[value=\"Complete\"]");
-
-    surveyResult = await getSurveyResult();
+    const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       haveKids: "Yes",
       kid1Age: 2,

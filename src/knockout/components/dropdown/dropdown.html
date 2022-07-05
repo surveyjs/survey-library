@@ -1,20 +1,30 @@
-<div data-bind="css: question.koCss().selectWrapper">
-  <!-- ko ifnot: question.isReadOnly -->
-  <select data-bind="options: question.visibleChoices, 
-  optionsValue: 'value', 
-  optionsText: 'koText', 
-  optionsCaption: question.allowClear ? question.locPlaceholder.koRenderedHtml : undefined, 
-  optionsAfterRender: question.koDisableOption, 
-  attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy},
-  click: onClick,
-  disable: question.isInputReadOnly, 
-  value: question.renderedValue, 
-  valueAllowUnset: true, 
-  css: question.getControlClass()">
-  </select>
-  <!-- /ko -->
-  <!-- ko if: question.isReadOnly -->
-  <div disabled data-bind="attr: {id: question.inputId}, text: question.readOnlyText, css: question.getControlClass()">
+  <div data-bind="css: question.koCss().selectWrapper">
+    <!-- ko ifnot: question.isReadOnly -->
+    <div tabindex="0" data-bind="css: question.getControlClass(),
+    click: click, key2click: { processEsc: false, disableTabStop: question.isInputReadOnly },
+    attr: { 
+      id: question.inputId, 
+      required: question.isRequired, 
+      disabled: question.isInputReadOnly,
+      'aria-required': question.ariaRequired, 
+      'aria-label': question.ariaLabel, 
+      'aria-invalid': question.ariaInvalid, 
+      'aria-describedby': question.ariaDescribedBy 
+    },">
+      <div data-bind="text: question.readOnlyText, css: question.koCss().controlValue"></div> 
+      <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
+      <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
+        <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto' } } -->
+        <!-- /ko -->
+      </div>
+      <!-- /ko -->
+    </div>
+    <!-- ko component: { name: "sv-popup", params: { model: popupModel }} -->
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.isReadOnly -->
+    <div disabled
+      data-bind="text: question.readOnlyText, css: question.getControlClass(), attr: { id: question.inputId }, ">
+    </div>
+    <!-- /ko -->
   </div>
-  <!-- /ko -->
-</div>

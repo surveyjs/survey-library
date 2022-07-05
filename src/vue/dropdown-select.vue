@@ -1,13 +1,12 @@
 <template>
   <div :class="question.renderCssRoot">
     <div :class="question.cssClasses.selectWrapper">
-      <div
-        tabindex="0"
+      <select
         v-if="!question.isReadOnly"
         :id="question.inputId"
         v-model="question.renderedValue"
-        v-on:click="click"
-        v-on:keyup="keyUp"
+        v-on:click="onClick()"
+        :autocomplete="question.autoComplete"
         :class="question.getControlClass()"
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
@@ -15,25 +14,14 @@
         :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
       >
-        <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
-        <div
-          :class="question.cssClasses.cleanButton"
-          v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
-          v-show="!question.isEmpty()"
-          v-on:click="clear"
-        >
-          <sv-svg-icon
-            :class="question.cssClasses.cleanButtonSvg"
-            :iconName="question.cssClasses.cleanButtonIconId"
-            size="auto"
-          >
-          </sv-svg-icon>
-        </div>
-      </div>
-      <sv-popup v-if="!question.isReadOnly" :model="question.popupModel"></sv-popup>
-      <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
-        {{ question.readOnlyText }}
-      </div>
+        <option v-if="question.allowClear" :value="undefined">{{ question.placeholder }}</option>
+        <sv-dropdown-option-item
+          v-for="item in question.visibleChoices"
+          :item="item"
+          :key="item.id"
+        ></sv-dropdown-option-item>
+      </select>
+      <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
     </div>
     <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
@@ -41,26 +29,18 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
-import Dropdown from "./dropdown.vue";
-import { RendererFactory } from "survey-core";
-import { attachKey2click } from "./survey.vue";
+import { Component, Prop } from "vue-property-decorator";
+import { default as QuestionVue } from "./question";
+import { QuestionDropdownModel, RendererFactory } from "survey-core";
 
 @Component
-export class DropdownSelect extends Dropdown {
-  public click(event: any) {
-    this.question.onClick(event);
-  }
-  public clear(event: any) {
-    this.question.onClear(event);
-  }
-  public keyUp(event: any) {
-    attachKey2click(event, { processEsc: false });
+export class DropdownSelect extends QuestionVue<QuestionDropdownModel> {
+  public onClick() {
+    !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
   }
 }
 
 Vue.component("sv-dropdown-select", DropdownSelect);
-
 RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
 
 export default DropdownSelect;

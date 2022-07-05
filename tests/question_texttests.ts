@@ -1,6 +1,7 @@
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
+import { Serializer } from "../src/jsonobject";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -98,4 +99,36 @@ QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
   });
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
   assert.equal(q1.renderedPlaceHolder, "Spanish", "text, locale es");
+});
+QUnit.test("min/max onSettingValue property function", function(assert) {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "date";
+  q.min = "2000-10-10";
+  q.max = "2000-09-09";
+  assert.equal(q.max, "2000-10-10", "Correct the max date value");
+  q.max = "2000-11-11";
+  assert.equal(q.max, "2000-11-11", "Set the max date value directly");
+  q.min = "2000-12-12";
+  assert.equal(q.min, "2000-11-11", "Correct the min date value");
+  q.min = "2000-10-10";
+  assert.equal(q.min, "2000-10-10", "Set the min date value directly");
+  q.max = "";
+  q.min = "2020-10-10";
+  assert.equal(q.min, "2020-10-10", "Set the min date value, max value is empty");
+  q.inputType = "number";
+  q.min = "10";
+  assert.equal(q.min, "10", "Set the min number value, max value is empty");
+  q.max = "9";
+  assert.equal(q.max, "10", "Correct the max number value");
+  q.max = "11";
+  assert.equal(q.max, "11", "Set the max number value");
+  q.min = "12";
+  assert.equal(q.min, "11", "Correct the min number value");
+  q.min = "9";
+  assert.equal(q.min, "9", "Set the min number value");
+  q.max = "10";
+  assert.equal(q.max, "10", "Set the max number value, #2");
+  q.min = <any>5;
+  q.max = <any>7;
+  assert.equal(q.max, 7, "Set the max number value as number, #3");
 });

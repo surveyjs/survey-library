@@ -14,7 +14,7 @@ export var spanishSurveyStrings = {
   panelDynamicProgressText: "Registro {0} de {1}",
   questionsProgressText: "Respondió a {0}/{1} preguntas",
   emptySurvey: "No hay página visible o pregunta en la encuesta.",
-  completingSurvey: "Gracias por completar la encuesta!",
+  completingSurvey: "¡Gracias por completar la encuesta!",
   completingSurveyBefore:
     "Nuestros registros muestran que ya ha completado esta encuesta.",
   loadingSurvey: "La encuesta está cargando...",

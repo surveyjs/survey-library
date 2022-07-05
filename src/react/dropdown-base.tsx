@@ -49,7 +49,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         >
           <div className={this.question.cssClasses.controlValue}>{this.question.readOnlyText}</div>
           {this.createClearButton()}
-        </div>, null, { processEsc: false });
+        </div>, null, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
 
       selectElement = <>
         {inputElement}

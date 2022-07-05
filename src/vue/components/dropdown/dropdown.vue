@@ -5,6 +5,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-model="question.renderedValue"
+      v-bind:disabled="question.isInputReadOnly"
       v-on:click="click"
       v-on:keyup="keyUp"
       :class="question.getControlClass()"
@@ -55,7 +56,7 @@ export class DropdownComponent extends BaseVue {
     this.question.dropdownListModel?.onClear(event);
   }
   public keyUp(event: any) {
-    attachKey2click(event, { processEsc: false });
+    attachKey2click(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
   }
   protected onCreated() {
     if (!this.question.dropdownListModel) {

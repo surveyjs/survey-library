@@ -5,7 +5,7 @@ StylesManager.applyTheme("default");
 
 @Component({
   selector: "test",
-  template: "<survey *ngIf='!!model' [model]='model'></survey><div id='surveyResultElement'></div>",
+  template: "<div id='surveyElement'><survey *ngIf='!!model' [model]='model'></survey></div><div id='surveyResultElement'></div>",
 })
 export class TestComponent {
   public model?: SurveyModel;

@@ -6,15 +6,17 @@ import { AppComponent } from "./app.component";
 import { SurveyAngularModule } from "survey-angular-ui";
 import { TestComponent } from "./test.component";
 import { ExampleComponent } from "./example.component";
+import { AppRoutingModule } from "./router.module";
 
 @NgModule({
   declarations: [
     AppComponent, ExampleComponent, TestComponent
   ],
   imports: [
-    BrowserModule, SurveyAngularModule, FormsModule
+    BrowserModule, SurveyAngularModule, FormsModule, AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

@@ -18,6 +18,7 @@ import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -609,22 +610,7 @@ Serializer.addClass(
     {
       name: "inputType",
       default: "text",
-      choices: [
-        "color",
-        "date",
-        "datetime",
-        "datetime-local",
-        "email",
-        "month",
-        "number",
-        "password",
-        "range",
-        "tel",
-        "text",
-        "time",
-        "url",
-        "week",
-      ],
+      choices: settings.questions.inputTypes,
     },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },

@@ -1,7 +1,7 @@
-import { ApplicationRef, ComponentFactoryResolver, Injectable, Injector } from '@angular/core';
+import { ApplicationRef, ComponentFactoryResolver, Injectable, Injector } from "@angular/core";
 import { ComponentPortal, DomPortalOutlet } from "@angular/cdk/portal";
-import { PopupBaseViewModel } from 'survey-core';
-import { PopupContainerComponent } from './popup-container.component';
+import { PopupBaseViewModel } from "survey-core";
+import { PopupContainerComponent } from "./popup-container.component";
 
 @Injectable()
 export class PopupService {
@@ -16,6 +16,7 @@ export class PopupService {
     popupViewModel.container = popupViewModel.container.children[0];
     componentRef.instance.model = popupViewModel;
     componentRef.instance.createAndBindPopupContent();
+    componentRef.changeDetectorRef.detectChanges();
     return portalHost;
   }
 }

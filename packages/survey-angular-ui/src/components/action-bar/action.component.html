@@ -1,6 +1,8 @@
 
 <div class="sv-action__content">
-  <!-- <sv-action-bar-separator *ngIf="model.needSeparator"></sv-action-bar-separator> -->
+  <ng-container *ngIf="model.needSeparator">
+    <div class="sv-action-bar-separator"></div>
+  </ng-container>
   <!-- ko ifnot: $data.template-->
   <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->
   <ng-template #actionContent></ng-template>

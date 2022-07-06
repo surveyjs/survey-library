@@ -17,7 +17,7 @@
     </ng-container>
   </ng-container>
   <div *ngIf="model.hasOther && model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
-  <div *ngIf="model.canShowClearButton">
+  <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"
       (click)="model.clearValue()"

@@ -1,4 +1,17 @@
 <sv-ng-dynamic-head [tagName]="element.titleTagName" [element]="element" *ngIf="element.hasTitle">
+  <ng-container *ngIf="!element.hasTitleActions">
+    <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
+  </ng-container>
+  <ng-container *ngIf="element.hasTitleActions">
+    <div class="sv-title-actions">
+      <span class="sv-title-actions__title">
+        <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
+      </span>
+      <sv-ng-action-bar [model]="element.getTitleToolbar()"></sv-ng-action-bar>
+    </div>
+  </ng-container>
+</sv-ng-dynamic-head>
+<ng-template #elementTitleContent>
   <sv-ng-string-viewer *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string-viewer>
   <ng-container *ngIf="element.isTitleOwner">
     <span
@@ -27,4 +40,4 @@
       [attr.aria-hidden]="true"
       >{{ element.requiredText }}</span> 
 </ng-container>
-</sv-ng-dynamic-head>
+</ng-template>

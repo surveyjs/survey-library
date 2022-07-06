@@ -5,8 +5,6 @@ import { ArrayChanges, Base } from "survey-core";
   template: ""
 })
 export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnDestroy {
-  private isRendering: boolean = false; //#todonot implemented yet
-
   constructor(protected changeDetectorRef: ChangeDetectorRef) {}
 
   protected abstract getModel(): T;
@@ -44,7 +42,7 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
       if (Array.isArray(val)) {
         var val: any = val;
         val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-          if (this.isRendering) return;
+          if (this.getIsRendering()) return;
           this.changeDetectorRef.detectChanges();
         };
       }

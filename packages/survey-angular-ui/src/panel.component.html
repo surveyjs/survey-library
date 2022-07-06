@@ -7,7 +7,6 @@
     <ng-container *ngFor="let row of model.rows">
       <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
     </ng-container>
-    <!-- ko component: { name: 'sv-action-bar', params: { model: getFooterToolbar() } } -->
-    <!-- /ko -->
+    <sv-ng-action-bar [model]="model.getFooterToolbar()"></sv-ng-action-bar>
   </div>
 </div>

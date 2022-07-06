@@ -14,5 +14,5 @@
     <sv-ng-text-question [model]="model.editor"></sv-ng-text-question>
     <div *ngIf="model.editor.showErrorOnBottom && model.editor.hasVisibleErrors" [element]="model.editor" sv-ng-errors></div>
   </div>
-  <div *ngIf="model.editor.isErrorsModeTooltip" [element]="model.editor" [location]="'tooltip'" sv-ng-errors></div>
+  <div *ngIf="model.editor.isErrorsModeTooltip && model.editor.hasVisibleErrors" [element]="model.editor" [location]="'tooltip'" sv-ng-errors></div>
 </label>

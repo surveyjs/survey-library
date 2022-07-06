@@ -2,7 +2,7 @@
     <!-- ko if: $data.iconName -->
     <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize } } --><!-- /ko -->
     <!-- /ko -->
-    <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" sv-ng-svg-icon></svg>
+    <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
     <span *ngIf="model.hasTitle" [class]="model.getActionBarItemTitleCss()">{{ model.title }}</span>
     <sv-ng-popup [popupModel]="model.popupModel"></sv-ng-popup>
 </button>

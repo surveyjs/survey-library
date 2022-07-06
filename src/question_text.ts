@@ -392,15 +392,33 @@ function isMinMaxType(obj: any): boolean {
   if(!t) return false;
   return minMaxTypes.indexOf(t) > -1;
 }
+function getWeekTimeNumber(str: string, delimiter: string): number {
+  const strs = str.split(delimiter);
+  if(strs.length !== 2) return -1;
+  if(!Helpers.isNumber(strs[0]) || !Helpers.isNumber(strs[1])) return -1;
+  return parseFloat(strs[0]) * 60 + parseFloat(strs[1]);
+}
+function isMinBiggerWeekTime(minStr: string, maxStr: string, delimiter: string): boolean {
+  const min = getWeekTimeNumber(minStr, delimiter);
+  const max = getWeekTimeNumber(maxStr, delimiter);
+  if(min < 0 || max < 0) return false;
+  return min > max;
+}
 function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: boolean): any {
   let val = isMax ? max : min;
   if(!isMinMaxType(obj)) return val;
   if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
-  if(obj.inputType.indexOf("date") === 0) {
-    const dMin = new Date(min);
-    const dMax = new Date(max);
+  if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
+    const isMonth = obj.inputType === "month";
+    const dMin = new Date(isMonth ? min + "-1" : min);
+    const dMax = new Date(isMonth ? max + "-1" : max);
     if(!dMin || !dMax) return val;
     if(dMin > dMax) return isMax ? min : max;
+  }
+  if(obj.inputType === "week" || obj.inputType === "time") {
+    const delimiter = obj.inputType === "week" ? "-W": ":";
+    if(isMinBiggerWeekTime(min, max, delimiter)) return isMax ? min : max;
+    return val;
   }
   if(obj.inputType === "number") {
     if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;

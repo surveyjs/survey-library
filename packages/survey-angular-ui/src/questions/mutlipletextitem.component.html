@@ -2,7 +2,7 @@
   <span [class]="question.getItemTitleCss()">
     <span *ngIf=" model.editor.isRequireTextBeforeTitle || model.editor.isRequireTextOnStart"
       [class]="question.cssClasses.requiredText">{{ model.editor.requiredText }}</span>
-    <sv-ng-string-viewer [model]="model.locTitle"></sv-ng-string-viewer>
+    <sv-ng-string [model]="model.locTitle"></sv-ng-string>
     <span
       *ngIf="model.editor.isRequireTextAfterTitle"
       [class]="question.cssClasses.requiredText"

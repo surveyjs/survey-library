@@ -15,7 +15,7 @@
     [style.maxWidth]="survey.titleMaxWidth"
   >
     <sv-ng-element-title [element]="survey"></sv-ng-element-title>
-    <h5 *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string-viewer></h5>
+    <h5 *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></h5>
   </div>
 
   <div *ngIf="survey.isLogoAfter" [class]="survey.logoClassNames">

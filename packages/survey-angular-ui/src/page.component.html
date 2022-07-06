@@ -2,7 +2,7 @@
   <div [class]="model.cssRoot" #pageContainer>
     <sv-ng-element-title [element]="model"></sv-ng-element-title>
     <div *ngIf="model._showDescription" [class]="model.cssClasses.page.description">
-      <string-viewer [model]="model.locDescription"></string-viewer>
+      <sv-ng-string [model]="model.locDescription"></sv-ng-string>
     </div>
     <ng-container *ngFor="let row of model.rows">
       <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>

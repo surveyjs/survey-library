@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { LocalizableString } from "survey-core";
+import { AngularComponentFactory } from "./component-factory";
 
 @Component({
   selector: "sv-ng-string-viewer, string-viewer, '[sv-ng-string-viewer]'",
@@ -23,3 +24,4 @@ export class StringViewerComponent implements OnChanges, OnDestroy {
     !!this.model && this.clearOnChanged(this.model);
   }
 }
+AngularComponentFactory.Instance.registerComponent(LocalizableString.defaultRenderer, StringViewerComponent);

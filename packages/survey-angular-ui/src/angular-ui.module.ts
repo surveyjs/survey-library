@@ -62,10 +62,12 @@ import { MultipleTextItemComponent } from "./questions/multipletextitem.componen
 import { DynamicComponentDirective } from "./utils/dynamic.directive";
 import { RankingQuestionComponent } from "./questions/ranking.component";
 import { RankingItemComponent } from "./questions/ranking-item.component";
+import { SurveyStringComponent } from "./survey-string.component";
+import { StringEditorComponent } from "./string-editor.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective,
-    SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent,
+    SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent,
     PopupComponent, PopupContainerComponent,

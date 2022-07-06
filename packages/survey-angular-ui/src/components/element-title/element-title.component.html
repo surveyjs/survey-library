@@ -12,12 +12,12 @@
   </ng-container>
 </sv-ng-dynamic-head>
 <ng-template #elementTitleContent>
-  <sv-ng-string-viewer *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string-viewer>
+  <sv-ng-string *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
   <ng-container *ngIf="element.isTitleOwner">
     <span
       *ngIf="element.isTitleOwner && element.isRequireTextOnStart"
       [class]="element.cssClasses.requiredText"
-      [attr.aria-hidden="true"
+      [attr.aria-hidden]="true"
       >{{ element.requiredText }}</span>
     <span
       *ngIf="element.isTitleOwner && element.no"
@@ -32,7 +32,7 @@
       [attr.aria-hidden]="true"
       >{{ element.requiredText }}</span>
     <span *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
-    <sv-ng-string-viewer *ngIf="element.isTitleOwner" [model]="element.locTitle"></sv-ng-string-viewer>
+    <sv-ng-string *ngIf="element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
     <span *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
     <span
       *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle"

@@ -7,17 +7,17 @@
           <td [visible]="model.hasRows"></td>
           <th
             *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell" 
-            [model]="column.locText" sv-ng-string-viewer>
+            [model]="column.locText" sv-ng-string>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
-          <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string-viewer></td>
+          <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string></td>
           <ng-container *ngIf="model.hasCellText">
             <td *ngFor="let column of model.visibleColumns"
               [class]="model.getItemClass(row, column)"
-              (click)="onChange(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string-viewer>
+              (click)="onChange(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string>
             </td>
           </ng-container>
           <ng-container *ngIf="!model.hasCellText">
@@ -45,7 +45,7 @@
                     <use [attr.xlink:href]="model.itemSvgIcon"></use>
                   </svg> 
                 </span>
-                <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string-viewer></span>
+                <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
               </label>
             </td>
           </ng-container>

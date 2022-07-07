@@ -906,7 +906,8 @@ QUnit.test("Move new question inside the row with several questions", function (
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.rows[0].elements.length, 2, "There are two elements in the first row");
   var target = new QuestionTextModel("q4");
-  page.dragDropStart(target, target);
+  var newQuestion = new QuestionTextModel("q4");
+  page.dragDropStart(newQuestion, target);
   page.dragDropMoveTo(q2, true, false);
   page.dragDropFinish();
   assert.equal(page.rows.length, 2, "There are 2 rows");

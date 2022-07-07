@@ -77,6 +77,7 @@ export { PanelDynamicPrevBtn } from "../vue/components/paneldynamic-actions/pane
 export { PanelDynamicProgressText } from "../vue/components/paneldynamic-actions/paneldynamic-progress-text.vue";
 export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
+export { BrandInfo } from "../vue/components/brand-info.vue";
 
 import { SurveyModel } from "survey-core";
 

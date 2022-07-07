@@ -10,6 +10,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
 import { doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "../utils/utils";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
+import { BrandInfo } from "./components/brand-info";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -98,6 +99,7 @@ export class Survey extends SurveyElementBase<any, any>
             {renderResult}
           </div>
         </form>
+        { this.survey.showBrandInfo ? <BrandInfo/> : null }
       </div>
     );
   }

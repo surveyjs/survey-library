@@ -7,9 +7,11 @@ import { TestModernComponent } from "./testmodern.component";
 
 const routes = [
   { path: "examples_test/default/angular", component: TestDefaultComponent },
+  { path: "examples_test/default/angular.html", component: TestDefaultComponent },
   { path: "examples_test/defaultV2/angular", component: TestDefaultV2Component },
-  { path: "examples_test/modern/angular", component: TestModernComponent }
-
+  { path: "examples_test/defaultV2/angular.html", component: TestDefaultV2Component },
+  { path: "examples_test/modern/angular", component: TestModernComponent },
+  { path: "examples_test/modern/angular.html", component: TestModernComponent }
 ]
 
 @NgModule({

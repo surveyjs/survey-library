@@ -44,7 +44,7 @@ QUnit.test("Test dropdown renderAs select", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      renderAs: "select",
+      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       choices: [
@@ -92,7 +92,7 @@ QUnit.test("Test dropdown renderAs select denySearch property", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      renderAs: "select",
+      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       denySearch: true,
@@ -138,6 +138,21 @@ QUnit.test("Test dropdown renderAs select denySearch property", assert => {
 
 QUnit.test("add placeholder & allowClear", assert => {
   const json = {
+    // questions: [{
+    //   type: "dropdown",
+    //   // renderAs: "select",
+    //   name: "question1",
+    //   hasOther: "true",
+    //   dropdownWidthMode: "contentWidth",
+    //   choices: [
+    //     "item1",
+    //     "item2",
+    //     "item3",
+    //     "item4",
+    //     "item5"
+    //   ]
+    // }]
+
     questions: [
       {
         "type": "dropdown",

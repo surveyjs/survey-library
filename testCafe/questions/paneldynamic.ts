@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton, getListItemByText, completeButton } from "../helper";
 import { Selector } from "testcafe";
 const title = "paneldynamic";
 
@@ -150,57 +150,51 @@ frameworks.forEach((framework) => {
   );
 
   test("fill panel dynamic and add new panel", async (t) => {
-    const addRowFunc = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
-    };
-    const relativeTypeSelect = Selector("div[data-name='relativeType'] select");
-    const relativeTypeOption = relativeTypeSelect.find("option");
-    const ageSelect = Selector("div[data-name='liveage'] select");
-    const ageOption = ageSelect.find("option");
-    const deceasedAgeSelect = Selector("div[data-name='deceasedage'] select");
-    const deceasedAgeOption = deceasedAgeSelect.find("option");
-    const addRowSelector = Selector("button");
-    const relativeillnessSelect = Selector("div[data-name='relativeillness'] select");
-    const relativeillnessOption = relativeillnessSelect.find("option");
+    const relativeTypeDropdown = Selector("div[data-name='relativeType'] .sv_q_dropdown_control");
+    const ageDropdown = Selector("div[data-name='liveage'] .sv_q_dropdown_control");
+    const deceasedAgeDropdown = Selector("div[data-name='deceasedage'] .sv_q_dropdown_control");
+    const relativeillnessDropdown = Selector("div[data-name='relativeillness'] .sv_q_dropdown_control");
+
+    const addRowSelector = Selector("button").find("span").withText("Add row");
 
     await t.click("input[value=\"Yes\"]")
 
-      .click(ageSelect)
-      .click(ageOption.withText("72"))
-      .expect(ageSelect.value).eql("72")
+      .click(ageDropdown)
+      .click(getListItemByText("72"))
+      .expect(ageDropdown.find(".sv_q_dropdown__value").textContent).eql("72")
 
       .click(".sv-paneldynamic__next-btn")
       .click("input[value=\"Yes\"]")
 
-      .click(ageSelect)
-      .click(ageOption.withText("65"))
-      .expect(ageSelect.value).eql("65")
+      .click(ageDropdown)
+      .click(getListItemByText("65"))
+      .expect(ageDropdown.find(".sv_q_dropdown__value").textContent).eql("65")
 
       .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
 
-      .click(relativeTypeSelect)
-      .click(relativeTypeOption.withText("sister"))
-      .expect(relativeTypeSelect.value).eql("sister")
+      .click(relativeTypeDropdown)
+      .click(getListItemByText("sister"))
+      .expect(relativeTypeDropdown.find(".sv_q_dropdown__value").textContent).eql("sister")
       .click("input[value=\"No\"]")
 
-      .click(deceasedAgeSelect)
-      .click(deceasedAgeOption.withText("42"))
-      .expect(deceasedAgeSelect.value).eql("42")
+      .click(deceasedAgeDropdown)
+      .click(getListItemByText("42"))
+      .expect(deceasedAgeDropdown.find(".sv_q_dropdown__value").textContent).eql("42")
       .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
       .click(".sv-paneldynamic__prev-btn")
       .click(".sv-paneldynamic__prev-btn")
 
-      .click(addRowSelector.find("span").withText("Add row"))
+      .click(addRowSelector)
 
-      .click(relativeillnessSelect)
-      .click(relativeillnessOption.withText("Diabetes"))
-      .expect(relativeillnessSelect.value).eql("Diabetes")
+      .click(relativeillnessDropdown)
+      .click(getListItemByText("Diabetes"))
+      .expect(relativeillnessDropdown.find(".sv_q_dropdown__value").textContent).eql("Diabetes")
       .typeText("div[data-name='relativeillness'] input[type=\"text\"]", "Type 2")
 
       .click(".sv-paneldynamic__next-btn")
       .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))
 
-      .click("input[value=Complete]");
+      .click(completeButton);
 
     await t.expect(await getSurveyResult()).eql({
       relatives: [

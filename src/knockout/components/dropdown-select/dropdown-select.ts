@@ -8,10 +8,7 @@ export var DropdownSelectViewModel: any;
 ko.components.register("sv-dropdown-select", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const click = (_: any, e: any) => {
-        params.question.onClick(e);
-      };
-      return { question: params.question, popupModel: params.question.popupModel, click: click };
+      return { question: params.question, onClick: () => { !!params.question.onOpenedCallBack && params.question.onOpenedCallBack(); } };
     },
   },
   template: template,

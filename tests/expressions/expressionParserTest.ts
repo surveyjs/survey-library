@@ -1402,3 +1402,11 @@ QUnit.test("Expression decimal + string", function(assert) {
   const expression = new ExpressionRunner("0.1 + 'abc'");
   assert.equal(expression.run({}), "0.1abc");
 });
+QUnit.test("string contancts without brackets", function(assert) {
+  let expression = new ExpressionRunner("{a} = abc");
+  assert.equal(expression.run({ a: "abcd" }), false, "#1");
+  assert.equal(expression.run({ a: "abc" }), true, "#2");
+  expression = new ExpressionRunner("{a} = ab_cd");
+  assert.equal(expression.run({ a: "abcd" }), false, "#3");
+  assert.equal(expression.run({ a: "ab_cd" }), true, "#4");
+});

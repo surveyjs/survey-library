@@ -2,7 +2,8 @@
   display: flex;
 }
 .sd-title {
-  display: block;
+  display: flex;
+  align-items: center;
   font-family: $font-family;
   font-style: normal;
   color: $foreground;

@@ -9,7 +9,8 @@ import {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
   AdaptiveActionContainer,
-  Question
+  Question,
+  Base
 } from "survey-core";
 import { SurveyQuestionCheckboxItem } from "./reactquestion_checkbox";
 import { SurveyQuestionRadioItem } from "./reactquestion_radiogroup";
@@ -17,6 +18,7 @@ import { SurveyPanel } from "./panel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
+import { MatrixDropdownColumn } from "../question_matrixdropdowncolumn";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -192,8 +194,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     cssClasses: any
   ): JSX.Element {
     var cellContent = null;
-    var requiredSpace = null;
-    var requiredText = null;
     var cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
@@ -202,11 +202,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     if (cell.hasTitle) {
       reason = "row-header";
-      cellContent = this.renderLocString(cell.locTitle);
-      if (cell.requiredText) {
-        requiredSpace = <span>&nbsp;</span>;
-        requiredText = <span className={this.question.cellRequiredText}>{cell.requiredText}</span>;
-      }
+      const str = this.renderLocString(cell.locTitle);
+      const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question}/> : null;
+      cellContent = (<>{str}{require}</>);
     }
     if (cell.isDragHandlerCell) {
       cellContent = (<>
@@ -237,8 +235,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     const readyCell = (
       <>
         {cellContent}
-        {requiredSpace}
-        {requiredText}
       </>
     );
     return this.wrapCell(cell, readyCell, reason);
@@ -255,6 +251,29 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
   protected renderElement(): JSX.Element {
     return (
       <SurveyActionBar model={this.model} handleClick={false}></SurveyActionBar>
+    );
+  }
+}
+class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+  }
+  get column(): MatrixDropdownColumn {
+    return this.props.column;
+  }
+  get question(): Question {
+    return this.props.question;
+  }
+  protected getStateElement(): Base {
+    return this.column;
+  }
+  protected renderElement(): JSX.Element {
+    if(!this.column.isRenderedRequired) return null;
+    return (
+      <>
+        <span>&nbsp;</span>
+        <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredText}</span>
+      </>
     );
   }
 }

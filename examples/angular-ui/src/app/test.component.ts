@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component } from "@angular/core";
 import { SurveyModel, StylesManager } from "survey-core";
 import * as Survey from "survey-core";
-StylesManager.applyTheme("default");
 
 @Component({
   selector: "test",

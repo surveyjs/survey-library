@@ -1,8 +1,6 @@
-import {  Component, ViewEncapsulation } from "@angular/core";
+import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { StylesManager } from "survey-core";
 import { TestComponent } from "./test.component";
-
-StylesManager.applyTheme("modern");
 @Component({
   selector: "test-modern",
   templateUrl: "./test.component.html",
@@ -10,4 +8,8 @@ StylesManager.applyTheme("modern");
   encapsulation: ViewEncapsulation.None
 })
 export class TestModernComponent extends TestComponent {
+  constructor(changeDetectorRef: ChangeDetectorRef) {
+    super(changeDetectorRef);
+    StylesManager.applyTheme("modern");
+  }
 }

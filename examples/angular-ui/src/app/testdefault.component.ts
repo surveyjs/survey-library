@@ -1,7 +1,6 @@
-import {  Component, ViewEncapsulation } from "@angular/core";
+import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import {  StylesManager } from "survey-core";
 import { TestComponent } from "./test.component";
-StylesManager.applyTheme("default");
 
 @Component({
   selector: "test-default",
@@ -10,4 +9,8 @@ StylesManager.applyTheme("default");
   encapsulation: ViewEncapsulation.None
 })
 export class TestDefaultComponent extends TestComponent {
+  constructor(changeDetectorRef: ChangeDetectorRef) {
+    super(changeDetectorRef);
+    StylesManager.applyTheme("default");
+  }
 }

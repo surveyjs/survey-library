@@ -81,6 +81,7 @@
         </div>
       </div>
     </form>
+    <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
   </div>
 </template>
 

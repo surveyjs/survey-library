@@ -383,19 +383,9 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
     // EO ghost new page
 
-    // fake target element (need only for "startWithNewLine:false" feature)
-    //TODO need for dragDrop helper in library
-    const json = new JsonObject().toJsonObject(this.draggedElement);
-    json["type"] = this.draggedElement.getType();
-    const fakeTargetElement = this.createFakeTargetElement(
-      this.draggedElement.name,
-      json
-    );
-    // EO fake target element
-
     this.parentElement.dragDropStart(
       this.draggedElement,
-      fakeTargetElement,
+      this.draggedElement,
       DragDropSurveyElements.nestedPanelDepth
     );
 

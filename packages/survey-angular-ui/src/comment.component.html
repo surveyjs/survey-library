@@ -1,7 +1,9 @@
 <textarea *ngIf="!question.isReadOnlyRenderDiv()" [attr.max-length]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.placeholder]="question.commentOrOtherPlaceHolder" 
-  [(ngModel)]="question.comment"
+  [value]="question.comment"
   [style.resize]="question.resizeStyle"
   [disabled]="question.isInputReadOnly"
+  (change)="question.onCommentChange($event)"
+  (input)="question.onCommentInput($event)"
   [class]="question.cssClasses.other">
 </textarea>
 <div *ngIf="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>

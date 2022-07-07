@@ -8,5 +8,9 @@ import { QuestionCommentModel } from "survey-core";
   selector: "sv-ng-question-comment"
 })
 
-export class CommentQuestionComponent extends QuestionAngular<QuestionCommentModel> {}
+export class CommentQuestionComponent extends QuestionAngular<QuestionCommentModel> {
+  onChange(event: any) {
+    this.model.value = event.target.value;
+  }
+}
 AngularComponentFactory.Instance.registerComponent("comment-question", CommentQuestionComponent);

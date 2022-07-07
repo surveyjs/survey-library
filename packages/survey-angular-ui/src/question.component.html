@@ -4,6 +4,10 @@
   <div [class]="model.cssContent" role="presentation" [visible]="!model.isCollapsed">
     <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'skeleton-question' }" ></ng-template>
+    <div *ngIf="model.hasComment" [class]="model.cssClasses.formGroup">
+      <div>{{ model.commentText }}</div>
+      <div [question]="model" sv-ng-comment></div>
+    </div>
     <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
   </div>

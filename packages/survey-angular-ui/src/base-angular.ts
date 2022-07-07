@@ -16,7 +16,7 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
       this.previousModel = this.getModel();
       this.onModelChanged();
     }
-    this.setIsRendering(true);
+    this.beforeUpdate();
   }
 
   protected onModelChanged() {}
@@ -43,7 +43,9 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
         var val: any = val;
         val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
           if (this.getIsRendering()) return;
+          this.beforeUpdate();
           this.changeDetectorRef.detectChanges();
+          this.afterUpdate();
         };
       }
     });
@@ -55,7 +57,9 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
       if (hash[key] !== val) {
         hash[key] = val;
         if (this.getIsRendering()) return;
+        this.beforeUpdate();
         this.changeDetectorRef.detectChanges();
+        this.afterUpdate();
       }
     };
   }
@@ -69,7 +73,13 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
       }
     });
   }
-  ngAfterViewChecked() {
+  protected beforeUpdate(): void {
+    this.setIsRendering(true);
+  }
+  protected afterUpdate(): void {
     this.setIsRendering(false);
+  }
+  ngAfterViewChecked(): void {
+    this.afterUpdate();
   }
 }

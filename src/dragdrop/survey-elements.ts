@@ -383,9 +383,18 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
     // EO ghost new page
 
+    //TODO need for dragDrop helper in library
+    const json = new JsonObject().toJsonObject(this.draggedElement);
+    json["type"] = this.draggedElement.getType();
+    const fakeTargetElement = this.createFakeTargetElement(
+      this.draggedElement.name,
+      json
+    );
+    //
+
     this.parentElement.dragDropStart(
       this.draggedElement,
-      this.draggedElement,
+      fakeTargetElement,
       DragDropSurveyElements.nestedPanelDepth
     );
 

@@ -9,7 +9,7 @@
           :style="{ minWidth: cell.minWidth, width: cell.width }"
         >
           <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-          <span v-if="!!cell.requiredText" :class="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+          <survey-matrixheaderrequired v-if="!!cell.column" :column="cell.column" :question="question"></survey-matrixheaderrequired>
         </th>
       </tr>
     </thead>

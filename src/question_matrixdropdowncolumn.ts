@@ -247,8 +247,17 @@ export class MatrixDropdownColumn extends Base
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
+  public get isRenderedRequired(): boolean {
+    return this.getPropertyValue("isRenderedRequired", this.isRequired);
+  }
+  public set isRenderedRequired(val: boolean) {
+    this.setPropertyValue("isRenderedRequired", val);
+  }
+  public updateIsRenderedRequired(val: boolean): void {
+    this.isRenderedRequired = val || this.isRequired;
+  }
   public get requiredText(): string {
-    return this.templateQuestion.requiredText;
+    return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredText : this.templateQuestion.requiredText;
   }
   public get requiredErrorText(): string {
     return this.templateQuestion.requiredErrorText;
@@ -538,6 +547,9 @@ export class MatrixDropdownColumn extends Base
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
+    if(name === "isRequired") {
+      this.updateIsRenderedRequired(newValue);
+    }
     if (!Serializer.hasOriginalProperty(this, name)) return;
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onColumnPropertyChanged(this, name, newValue);

@@ -115,6 +115,7 @@ QUnit.test("min/max onSettingValue property function", function(assert) {
   q.max = "";
   q.min = "2020-10-10";
   assert.equal(q.min, "2020-10-10", "Set the min date value, max value is empty");
+
   q.inputType = "number";
   q.min = "10";
   assert.equal(q.min, "10", "Set the min number value, max value is empty");
@@ -131,4 +132,40 @@ QUnit.test("min/max onSettingValue property function", function(assert) {
   q.min = <any>5;
   q.max = <any>7;
   assert.equal(q.max, 7, "Set the max number value as number, #3");
+
+  q.inputType = "month";
+  q.min = "2020-5";
+  assert.equal(q.min, "2020-5", "Set the min month value");
+  q.max = "2020-4";
+  assert.equal(q.max, "2020-5", "Correct the max month value");
+  q.max = "2020-6";
+  assert.equal(q.max, "2020-6", "Set the max month value");
+  q.min = "2020-7";
+  assert.equal(q.min, "2020-6", "Correct the min month value");
+  q.min = "2020-3";
+  assert.equal(q.min, "2020-3", "Set the min month value, #2");
+
+  q.inputType = "week";
+  q.min = "2020-W5";
+  assert.equal(q.min, "2020-W5", "Set the min week value");
+  q.max = "2020-W4";
+  assert.equal(q.max, "2020-W5", "Correct the max week value");
+  q.max = "2020-W6";
+  assert.equal(q.max, "2020-W6", "Set the max week value");
+  q.min = "2020-W7";
+  assert.equal(q.min, "2020-W6", "Correct the min week value");
+  q.min = "2020-W3";
+  assert.equal(q.min, "2020-W3", "Set the min week value, #2");
+
+  q.inputType = "time";
+  q.min = "10:10";
+  assert.equal(q.min, "10:10", "Set the min time value");
+  q.max = "09:10";
+  assert.equal(q.max, "10:10", "Correct the max time value");
+  q.max = "11:10";
+  assert.equal(q.max, "11:10", "Set the max time value");
+  q.min = "12:01";
+  assert.equal(q.min, "11:10", "Correct the min time value");
+  q.min = "10:15";
+  assert.equal(q.min, "10:15", "Set the min time value, #2");
 });

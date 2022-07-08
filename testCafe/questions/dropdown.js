@@ -637,4 +637,63 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(Selector(".sv_q_dropdown__value").nth(1).textContent).eql("item20");
   });
+
+  test("Check dropdown clear value by keyboard", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          defaultValue: "Volkswagen",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          renderAs: "select",
+          name: "DropdownRenderAsSelect",
+          defaultValue: "Mercedes-Benz",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    const newDropdown = Selector(".sv_q_dropdown_control .sv_q_dropdown__value");
+    const oldDropdown = Selector(".sv_q_dropdown_control").nth(1);
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .expect(newDropdown.textContent).eql("Volkswagen")
+      .expect(oldDropdown.value).eql("Mercedes-Benz")
+
+      .pressKey("delete")
+      .expect(newDropdown.textContent).eql("Choose...")
+      .expect(oldDropdown.value).eql("Mercedes-Benz")
+
+      .pressKey("tab")
+      .pressKey("delete")
+      .expect(newDropdown.textContent).eql("Choose...")
+      .expect(oldDropdown.value).eql("");
+  });
 });

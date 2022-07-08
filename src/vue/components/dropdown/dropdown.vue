@@ -53,7 +53,7 @@ export class DropdownComponent extends BaseVue {
     this.question.onClick(event);
   }
   public clear(event: any) {
-    this.question.onClick(event);
+    this.question.onClear(event);
   }
   public keyUp(event: any) {
     this.question.onKeyUp(event);

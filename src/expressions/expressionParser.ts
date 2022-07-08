@@ -69,8 +69,8 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
-        .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
-        .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
+        .replace("/[\x00-\x0F]/g", (ch) => "\\x0" + hex(ch))
+        .replace("/[\x10-\x1F\x7F-\x9F]/g", (ch) => "\\x" + hex(ch));
     }
 
     function classEscape(s: string): string {
@@ -83,8 +83,8 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
-        .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
-        .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
+        .replace("/[\x00-\x0F]/g", (ch) => "\\x0" + hex(ch))
+        .replace("/[\x10-\x1F\x7F-\x9F]/g", (ch) => "\\x" + hex(ch));
     }
 
     function describeExpectation(expectation: Expectation) {

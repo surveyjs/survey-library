@@ -16,34 +16,42 @@ import { QuestionTextProcessor } from "./textPreProcessor";
 
 /**
  * An interface used to create custom question types.
- * 
+ *
  * Refer to the following articles for more information:
- * 
+ *
  * - [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types)
  * - [Create Composite Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types)
  */
-export interface ICustomComponentDescription {
+export interface ICustomQuestionTypeConfiguration {
   /**
    * A custom question type name.
    */
   name: string;
+  /**
+   * A custom question title - human friendly type name.
+   */
+  title?: string;
+  /**
+   * A custom question icon to show in survey creator toolbox.
+   */
+  icon?: string;
   /**
    * An event that is raised when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
    */
   onInit?(): void;
   /**
    * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
-   * 
+   *
    * Default value: `true`
-   * 
+   *
    * Set this property to `false` if your custom question type is used only to customize Property Grid contents and is not meant for a survey.
    */
   showInToolbox?: boolean;
   /**
    * An event that is raised when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
-   * 
+   *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    */
   onCreated?(question: Question): void;
@@ -51,7 +59,7 @@ export interface ICustomComponentDescription {
    * An event that is raised when JSON definitions are loaded.
    *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    */
   onLoaded?(question: Question): void;
@@ -59,16 +67,16 @@ export interface ICustomComponentDescription {
    * An event that is raised after the entire question is rendered.
    *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    * - `htmlElement`: any - An HTML element that represents the custom question.
    */
   onAfterRender?(question: Question, htmlElement: any): void;
   /**
    * An event that is raised each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
-   * 
+   *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The composite question.
    * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - A nested question.
    * - `htmlElement`: any - An HTML element that represents the nested question.
@@ -82,7 +90,7 @@ export interface ICustomComponentDescription {
    * An event that is raised when a custom question type property is changed. Use it to handle property changes.
    *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    * - `propertyName`: string - The name of the changed property.
    * - `newValue`: any - A new value for the property.
@@ -96,7 +104,7 @@ export interface ICustomComponentDescription {
    * An event that is raised when the question value is changed.
    *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    * - `name`: string -  The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
    * - `newValue`: any - A new value for the question.
@@ -104,9 +112,9 @@ export interface ICustomComponentDescription {
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
    * An event that is raised when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
-   * 
+   *
    * Parameters:
-   * 
+   *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) - An `ItemValue` object.
    * - `options.propertyName`: string - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
@@ -127,26 +135,26 @@ export interface ICustomComponentDescription {
   elementsJSON?: any;
   /**
    * A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
-   * 
+   *
    * @see elementsJSON
    */
   createElements?: any;
   /**
    * A JSON definition for a built-in question type on which the custom question type is based.
-   * 
+   *
    * Refer to the [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types) help topic for more information.
    */
   questionJSON?: any;
   /**
    * A function that allows you to create a custom question if you do not specify the `questionJSON` property.
-   * 
+   *
    * @see questionJSON
    */
   createQuestion?: any;
 }
 
 export class ComponentQuestionJSON {
-  public constructor(public name: string, public json: ICustomComponentDescription) {
+  public constructor(public name: string, public json: ICustomQuestionTypeConfiguration) {
     var self = this;
     Serializer.addClass(
       name,
@@ -233,7 +241,7 @@ export class ComponentCollection {
     questionJSON: ComponentQuestionJSON
   ) => QuestionCustomModel;
   public onAddingJson: (name: string, isComposite: boolean) => void;
-  public add(json: ICustomComponentDescription): void {
+  public add(json: ICustomQuestionTypeConfiguration): void {
     if (!json) return;
     let name = json.name;
     if (!name) {

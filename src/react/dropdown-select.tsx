@@ -22,7 +22,8 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         autoComplete={this.question.autoComplete}
         onChange={this.updateValueOnEvent}
         onInput={this.updateValueOnEvent}
-        onClick={this.onClick}
+        onClick={this.click}
+        onKeyUp={this.keyup}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}

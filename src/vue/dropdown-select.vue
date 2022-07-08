@@ -5,7 +5,8 @@
         v-if="!question.isReadOnly"
         :id="question.inputId"
         v-model="question.renderedValue"
-        v-on:click="onClick()"
+        @click="click"
+        @keyup="keyUp"
         :autocomplete="question.autoComplete"
         :class="question.getControlClass()"
         :aria-required="question.ariaRequired"
@@ -35,8 +36,11 @@ import { QuestionDropdownModel, RendererFactory } from "survey-core";
 
 @Component
 export class DropdownSelect extends QuestionVue<QuestionDropdownModel> {
-  public onClick() {
-    !!this.question.onOpenedCallBack && this.question.onOpenedCallBack();
+  public click(event: any) {
+    this.question.onClick(event);
+  }
+  public keyUp(event: any) {
+    this.question.onKeyUp(event);
   }
 }
 

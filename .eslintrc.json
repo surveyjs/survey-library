@@ -117,6 +117,9 @@
 			}
 		],
 		"no-useless-escape": "off",
+		"eslintIgnore": [
+			"./src/expressions/expressionParser.ts"
+		],
 		// group: add in future
 		"@typescript-eslint/no-var-requires": "off", // TODO add ignores
 		"no-unexpected-multiline": "off",

@@ -8,6 +8,13 @@ import { RendererFactory } from "survey-core";
 })
 export class DropdownSelectComponent {
   @Input() model: any;
+
+  click(event: any) {
+    this.model.onClick(event);
+  }
+  keyup(event: any) {
+    this.model.onKeyUp(event);
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("dropdown-select-question", DropdownSelectComponent);

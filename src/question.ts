@@ -95,6 +95,7 @@ export class Question extends SurveyElement
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
+    this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", () => {
       this.updateQuestionCss();

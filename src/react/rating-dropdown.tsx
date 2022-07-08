@@ -1,7 +1,7 @@
 import * as React from "react";
 import { QuestionRatingModel, RendererFactory } from "survey-core";
+import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SurveyQuestionDropdownBase } from "./reactquestion_dropdown";
 
 export class SurveyQuestionRatingDropdown extends SurveyQuestionDropdownBase<QuestionRatingModel> {
   constructor(props: any) {

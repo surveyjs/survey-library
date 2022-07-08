@@ -81,6 +81,7 @@
         </div>
       </div>
     </form>
+    <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
   </div>
 </template>
 
@@ -88,6 +89,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp } from "survey-core";
+import { IAttachKey2clickOptions } from "../utils/utils";
 import { BaseVue } from "./base";
 
 @Component
@@ -189,10 +191,10 @@ Object.defineProperty(Survey, "cssType", {
   configurable: false,
 });
 
-export function attachKey2click( evt: KeyboardEvent, options = { processEsc: true }) {
+export function attachKey2click( evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }) {
   evt.preventDefault();
   evt.stopPropagation();
-  doKey2ClickUp(evt, options);     
+  doKey2ClickUp(evt, options);
 }
 
 Vue.component("survey", Survey);

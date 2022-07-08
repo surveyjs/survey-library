@@ -139,7 +139,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.minValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("min", val);
+    this.checkAndSetPropertyValue("min", val);
   }
   /**
    * The maximum value
@@ -152,7 +152,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maxValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("max", val);
+    this.checkAndSetPropertyValue("max", val);
   }
   /**
    * The minimum value that you can setup as expression, for example today(-1) = yesterday;
@@ -392,6 +392,42 @@ function isMinMaxType(obj: any): boolean {
   if(!t) return false;
   return minMaxTypes.indexOf(t) > -1;
 }
+function getWeekTimeNumber(str: string, delimiter: string): number {
+  const strs = str.split(delimiter);
+  if(strs.length !== 2) return -1;
+  if(!Helpers.isNumber(strs[0]) || !Helpers.isNumber(strs[1])) return -1;
+  return parseFloat(strs[0]) * 60 + parseFloat(strs[1]);
+}
+function isMinBiggerWeekTime(minStr: string, maxStr: string, delimiter: string): boolean {
+  const min = getWeekTimeNumber(minStr, delimiter);
+  const max = getWeekTimeNumber(maxStr, delimiter);
+  if(min < 0 || max < 0) return false;
+  return min > max;
+}
+function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: boolean): any {
+  let val = isMax ? max : min;
+  if(!isMinMaxType(obj)) return val;
+  if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
+  if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
+    const isMonth = obj.inputType === "month";
+    const dMin = new Date(isMonth ? min + "-1" : min);
+    const dMax = new Date(isMonth ? max + "-1" : max);
+    if(!dMin || !dMax) return val;
+    if(dMin > dMax) return isMax ? min : max;
+  }
+  if(obj.inputType === "week" || obj.inputType === "time") {
+    const delimiter = obj.inputType === "week" ? "-W": ":";
+    if(isMinBiggerWeekTime(min, max, delimiter)) return isMax ? min : max;
+    return val;
+  }
+  if(obj.inputType === "number") {
+    if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
+    if(parseFloat(min) > parseFloat(max)) return isMax ? min : max;
+  }
+  if(typeof min === "string" || typeof max === "string") return val;
+  if(min > max) return isMax ? min : max;
+  return val;
+}
 
 Serializer.addClass(
   "text",
@@ -399,22 +435,7 @@ Serializer.addClass(
     {
       name: "inputType",
       default: "text",
-      choices: [
-        "color",
-        "date",
-        "datetime",
-        "datetime-local",
-        "email",
-        "month",
-        "number",
-        "password",
-        "range",
-        "tel",
-        "text",
-        "time",
-        "url",
-        "week",
-      ],
+      choices: settings.questions.inputTypes,
     },
     {
       name: "size:number",
@@ -437,61 +458,7 @@ Serializer.addClass(
     },
     {
       name: "autoComplete",
-      dataList: [
-        "name",
-        "honorific-prefix",
-        "given-name",
-        "additional-name",
-        "family-name",
-        "honorific-suffix",
-        "nickname",
-        "organization-title",
-        "username",
-        "new-password",
-        "current-password",
-        "organization",
-        "street-address",
-        "address-line1",
-        "address-line2",
-        "address-line3",
-        "address-level4",
-        "address-level3",
-        "address-level2",
-        "address-level1",
-        "country",
-        "country-name",
-        "postal-code",
-        "cc-name",
-        "cc-given-name",
-        "cc-additional-name",
-        "cc-family-name",
-        "cc-number",
-        "cc-exp",
-        "cc-exp-month",
-        "cc-exp-year",
-        "cc-csc",
-        "cc-type",
-        "transaction-currency",
-        "transaction-amount",
-        "language",
-        "bday",
-        "bday-day",
-        "bday-month",
-        "bday-year",
-        "sex",
-        "url",
-        "photo",
-        "tel",
-        "tel-country-code",
-        "tel-national",
-        "tel-area-code",
-        "tel-local",
-        "tel-local-prefix",
-        "tel-local-suffix",
-        "tel-extension",
-        "email",
-        "impp",
-      ],
+      dataList: settings.questions.dataList,
     },
     {
       name: "min",
@@ -504,6 +471,9 @@ Serializer.addClass(
           propertyEditor.inputType = obj.inputType;
         }
       },
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(obj, val, obj.max, false);
+      },
     },
     {
       name: "max",
@@ -511,6 +481,9 @@ Serializer.addClass(
       nextToProperty: "*min",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
+      },
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(obj, obj.min, val, true);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {

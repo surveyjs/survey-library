@@ -177,6 +177,11 @@ export function getSize(value: any) {
   return value;
 }
 
+export interface IAttachKey2clickOptions {
+  processEsc?: boolean;
+  disableTabStop?: boolean;
+}
+
 const keyFocusedClassName = "sv-focused--by-key";
 export function doKey2ClickBlur(evt: KeyboardEvent): void {
   const element: any = evt.target;
@@ -184,7 +189,7 @@ export function doKey2ClickBlur(evt: KeyboardEvent): void {
   element.classList.remove(keyFocusedClassName);
 }
 
-export function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }): void {
+export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -197,11 +202,12 @@ export function doKey2ClickUp(evt: KeyboardEvent, options = { processEsc: true }
     }
   } else if (char === 13 || char === 32) {
     if (element.click) element.click();
-  } else if (options.processEsc && char === 27) {
+  } else if ((!options || options.processEsc) && char === 27) {
     if (element.blur) element.blur();
   }
 }
-export function doKey2ClickDown(evt: KeyboardEvent, options = { processEsc: true }): void {
+
+export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }

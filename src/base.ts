@@ -1085,19 +1085,29 @@ export class Event<T extends Function, Options> {
   public onCallbacksChanged: () => void;
   protected callbacks: Array<T>;
   public get isEmpty(): boolean {
-    return !this.callbacks || this.callbacks.length == 0;
+    return this.length === 0;
   }
-  public fire(sender: any, options: Options) {
+  public get length(): number {
+    return !!this.callbacks ? this.callbacks.length : 0;
+  }
+  public fireByCreatingOptions(sender: any, createOptions: () => Options): void {
+    if (!this.callbacks) return;
+    for (var i = 0; i < this.callbacks.length; i++) {
+      this.callbacks[i](sender, createOptions());
+      if (!this.callbacks) return;
+    }
+  }
+  public fire(sender: any, options: Options): void {
     if (!this.callbacks) return;
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, options);
       if (!this.callbacks) return;
     }
   }
-  public clear() {
+  public clear(): void {
     this.callbacks = undefined;
   }
-  public add(func: T) {
+  public add(func: T): void {
     if (this.hasFunc(func)) return;
     if (!this.callbacks) {
       this.callbacks = new Array<T>();
@@ -1105,7 +1115,7 @@ export class Event<T extends Function, Options> {
     this.callbacks.push(func);
     this.fireCallbackChanged();
   }
-  public remove(func: T) {
+  public remove(func: T): void {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
@@ -1116,7 +1126,7 @@ export class Event<T extends Function, Options> {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
   }
-  private fireCallbackChanged() {
+  private fireCallbackChanged(): void {
     if (!!this.onCallbacksChanged) {
       this.onCallbacksChanged();
     }

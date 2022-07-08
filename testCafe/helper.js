@@ -272,12 +272,15 @@ export async function checkSurveyWithEmptyQuestion(t) {
     Selector(".sv-string-viewer").withText("Response required.");
 
   await t
-    .expect(requiredMessage.exists)
-    .notOk()
-    .click("input[value=Complete]")
-    .expect(requiredMessage.visible)
-    .ok();
+    .expect(requiredMessage.exists).notOk()
+    .click(completeButton)
+    .expect(requiredMessage.visible).ok();
 
   let surveyResult = await getSurveyResult();
   await t.expect(typeof surveyResult).eql("undefined");
 }
+
+export function getListItemByText(text) {
+  return Selector(".sv-popup__content .sv-list .sv-list__item").withText(text).filterVisible();
+}
+export var completeButton = Selector(".sv_complete_btn");

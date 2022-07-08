@@ -1,11 +1,12 @@
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getListItemByText, completeButton, getData } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "dropdownRestful";
 
-const json = {
+const jsonRenderAsSelect = {
   questions: [
     {
       type: "dropdown",
+      renderAs: "select",
       name: "country",
       title: "Select the country...",
       isRequired: true,
@@ -29,7 +30,7 @@ export const changeValue = ClientFunction(() => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json);
+      await initSurvey(framework, jsonRenderAsSelect);
     }
   );
 
@@ -64,6 +65,68 @@ frameworks.forEach(framework => {
       .click(Selector("option").withText("Cuba"))
       .click("input[value=Complete]");
 
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.country).eql("CU");
+  });
+});
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "dropdown",
+            name: "country",
+            title: "Select the country...",
+            isRequired: true,
+            choicesByUrl: {
+              //url: "http://services.groupkt.com/country/get/all",
+              url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              path: "RestResponse;result",
+              valueName: "name",
+            },
+          },
+        ],
+      });
+    }
+  );
+
+  const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+
+  test("choose empty", async t => {
+    await checkSurveyWithEmptyQuestion(t);
+  });
+
+  test("choose value", async t => {
+    await t
+      .wait(1000)
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Cuba"))
+      .click(completeButton);
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.country).eql("Cuba");
+  });
+
+  test("change \"value\" in the returned json", async t => {
+    await t
+      .wait(1000)
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Cuba"));
+
+    let surveyData = await getData();
+    await t.expect(surveyData.country).eql("Cuba");
+
+    await changeValue();
+    await t
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Cuba"));
+
+    surveyData = await getData();
+    await t.expect(surveyData.country).eql("CU");
+
+    await t.click(completeButton);
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.country).eql("CU");
   });

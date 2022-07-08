@@ -6,7 +6,7 @@ import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur } from "../utils/utils";
+import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions } from "../utils/utils";
 import { SurveyTimerModel } from "../surveyTimerModel";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
@@ -247,10 +247,11 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
 
 ko.bindingHandlers["key2click"] = {
   init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
-    const options = valueAccessor() || {
-      processEsc: true
+    const options: IAttachKey2clickOptions = valueAccessor() || {
+      processEsc: true,
+      disableTabStop: false
     };
-    if (viewModel.disableTabStop) {
+    if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
       element.tabIndex = -1;
       return;
     }

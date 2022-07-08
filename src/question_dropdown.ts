@@ -1,30 +1,21 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
-import { Action, IAction } from "./actions/action";
-import { Base, ComputedUpdater, EventBase } from "./base";
-import { findParentByClassNames } from "./utils/utils";
-import { PopupUtils } from "./utils/popup";
+import { EventBase } from "./base";
+import { DropdownListModel } from "./dropdownListModel";
+import { settings } from "./settings";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  private getVisibleListItems() {
-    return this.visibleChoices.map((choice: ItemValue) => new Action({
-      id: choice.value,
-      title: choice.text,
-      component: this.itemComponent,
-      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
-    }));
-  }
+  dropdownListModel: DropdownListModel;
 
   constructor(name: string) {
     super(name);
@@ -168,54 +159,53 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.placeholder);
   }
 
-  public onClear(event: any): void {
-    this.clearValue();
-    event.preventDefault();
-    event.stopPropagation();
+  public get popupModel(): PopupModel {
+    if (this.renderAs !== "select" && !this.dropdownListModel) {
+      this.dropdownListModel = new DropdownListModel(this);
+    }
+    return this.dropdownListModel?.popupModel;
+  }
+
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
     if (this.popupModel) {
-      this.popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+      this.dropdownListModel.updateItems();
     }
   }
 
-  private _popupModel: PopupModel;
-  public get popupModel(): PopupModel {
-    if (this.renderAs === "select" && !this._popupModel) {
-      const listModel = new ListModel(
-        this.getVisibleListItems(),
-        (item: IAction) => {
-          this.value = item.id;
-          this.popupModel.toggleVisibility();
-        },
-        true);
-      listModel.denySearch = this.denySearch;
-
-      this._popupModel = new PopupModel("sv-list", { model: listModel, }, "bottom", "center", false);
-      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-        if (option.isVisible) {
-          this.onOpenedCallBack();
-        }
-      });
+  onClick(e: any): void {
+    if(!!this.dropdownListModel) {
+      this.dropdownListModel.onClick(e);
+    } else {
+      !!this.onOpenedCallBack && this.onOpenedCallBack();
     }
-    return this._popupModel;
   }
-  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
-  public onClick(event: any): void {
-    if (this.visibleChoices.length === 0) return;
 
-    if (!!event && !!event.target) {
-      const target = findParentByClassNames(event.target, this.cssClasses.control.split(" "));
-      if (!!target) {
-        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
-      }
+  onClear(event: any): void {
+    this.clearValue();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onKeyUp(event: any): void {
+    const char: number = event.which || event.keyCode;
+    if (char === 46) {
+      this.onClear(event);
+    } else {
+      event.preventDefault();
+      event.stopPropagation();
+      doKey2ClickUp(event, { processEsc: false, disableTabStop: this.isInputReadOnly });
     }
+  }
+
+  onBlur(event: any): void {
+    doKey2ClickBlur(event);
   }
 }
 Serializer.addClass(
@@ -226,64 +216,7 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    {
-      name: "autoComplete",
-      dataList: [
-        "name",
-        "honorific-prefix",
-        "given-name",
-        "additional-name",
-        "family-name",
-        "honorific-suffix",
-        "nickname",
-        "organization-title",
-        "username",
-        "new-password",
-        "current-password",
-        "organization",
-        "street-address",
-        "address-line1",
-        "address-line2",
-        "address-line3",
-        "address-level4",
-        "address-level3",
-        "address-level2",
-        "address-level1",
-        "country",
-        "country-name",
-        "postal-code",
-        "cc-name",
-        "cc-given-name",
-        "cc-additional-name",
-        "cc-family-name",
-        "cc-number",
-        "cc-exp",
-        "cc-exp-month",
-        "cc-exp-year",
-        "cc-csc",
-        "cc-type",
-        "transaction-currency",
-        "transaction-amount",
-        "language",
-        "bday",
-        "bday-day",
-        "bday-month",
-        "bday-year",
-        "sex",
-        "url",
-        "photo",
-        "tel",
-        "tel-country-code",
-        "tel-national",
-        "tel-area-code",
-        "tel-local",
-        "tel-local-prefix",
-        "tel-local-suffix",
-        "tel-extension",
-        "email",
-        "impp",
-      ],
-    },
+    { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "denySearch:boolean", default: false, visible: false },
     { name: "itemComponent", visible: false },

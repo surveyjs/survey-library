@@ -7307,7 +7307,7 @@ QUnit.test("Column title equals to name", (assert) => {
   assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 1");
   assert.equal(column.locTitle.renderedHtml, "col1");
   column.title = "col1";
-  assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 2");
+  assert.equal(column.locTitle.getLocaleText(""), "col1", "Column title is empty # 2");
   assert.equal(column.locTitle.renderedHtml, "col1");
 });
 

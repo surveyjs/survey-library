@@ -5395,7 +5395,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-      assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
@@ -5425,7 +5425,7 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-      assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
     assert.equal(
       q2.visibleChoices.length,
       3,
@@ -5758,7 +5758,7 @@ QUnit.test("Question title equals to name", (assert) => {
   assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 1");
   assert.equal(question.locTitle.renderedHtml, "q1");
   question.locTitle.setLocaleText("", "q1");
-  assert.notOk(question.locTitle.getLocaleText(""), "Question title is empty # 2");
+  assert.equal(question.locTitle.getLocaleText(""), "q1", "Question title is not empty # 2");
   assert.equal(question.locTitle.renderedHtml, "q1");
 });
 QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {

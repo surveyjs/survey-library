@@ -37,6 +37,7 @@ export class LocalizableString implements ILocalizableString {
   public localizationName: string;
   public onGetTextCallback: (str: string) => string;
   public onGetDefaultTextCallback: () => string;
+  public storeDefaultText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public onSearchChanged: () => void;
@@ -142,7 +143,7 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string) {
-    if (value == this.getLocaleTextWithDefault(loc)) {
+    if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== settings.defaultLocaleName) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);

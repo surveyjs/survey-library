@@ -1,14 +1,10 @@
-
 import { Component, Input } from "@angular/core";
-import { AngularComponentFactory } from "../component-factory";
-
-import { RendererFactory } from "survey-core";
 
 @Component({
-  selector: "sv-ng-dropdown-select-question",
-  templateUrl: "./dropdown-select.component.html"
+  selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
+  templateUrl: "./dropdown.component.html"
 })
-export class DropdownSelectComponent {
+export class DropdownComponent {
     @Input() model: any;
 
     click(e: any) {
@@ -19,6 +15,3 @@ export class DropdownSelectComponent {
       this.model.onClear(e);
     }
 }
-
-AngularComponentFactory.Instance.registerComponent("dropdown-select-question", DropdownSelectComponent);
-RendererFactory.Instance.registerRenderer("dropdown", "select", "dropdown-select-question");

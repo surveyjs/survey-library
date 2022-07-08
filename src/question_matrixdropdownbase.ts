@@ -803,15 +803,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   onCreateDetailPanelRenderedRowCallback: (
     renderedRow: QuestionMatrixDropdownRenderedRow
   ) => void;
+  onAddColumn: (column: MatrixDropdownColumn) => void;
+  onRemoveColumn: (column: MatrixDropdownColumn) => void;
 
   protected createColumnValues() {
     return this.createNewArray(
       "columns",
       (item: any) => {
         item.colOwner = this;
+        if(this.onAddColumn) this.onAddColumn(item);
       },
       (item: any) => {
         item.colOwner = null;
+        if(this.onRemoveColumn) this.onRemoveColumn(item);
       }
     );
   }
@@ -1308,6 +1312,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       rows[i].runCondition(newValues, properties);
     }
     this.checkColumnsVisibility();
+    this.checkColumnsRenderedRequired();
   }
   private checkColumnsVisibility() {
     var hasChanged = false;
@@ -1318,6 +1323,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     if (hasChanged) {
       this.resetRenderedTable();
+    }
+  }
+  private checkColumnsRenderedRequired(): void {
+    const rows = this.generatedVisibleRows;
+    for (var i = 0; i < this.visibleColumns.length; i++) {
+      const column = this.visibleColumns[i];
+      if (!column.requiredIf) continue;
+      let required = rows.length > 0;
+      for(var j = 0; j < rows.length; j ++) {
+        if(!rows[j].cells[i].question.isRequired) {
+          required = false;
+          break;
+        }
+      }
+      column.updateIsRenderedRequired(required);
     }
   }
   private isColumnVisibilityChanged(column: MatrixDropdownColumn): boolean {

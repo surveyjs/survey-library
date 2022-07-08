@@ -1252,6 +1252,7 @@ export class SurveyModel extends SurveyElementCore
       .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
+  @property({ defaultValue: false }) showBrandInfo: boolean;
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
@@ -6723,5 +6724,6 @@ Serializer.addClass("survey", [
     name: "widthMode",
     default: "auto",
     choices: ["auto", "static", "responsive"],
-  }
+  },
+  { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

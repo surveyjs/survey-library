@@ -1,0 +1,29 @@
+sv-brand-info {}
+
+.sv-brand-info {
+  width: 100%;
+  font-family: 'Open Sans', sans-serif;
+  text-align: center;
+  color: #161616;
+  padding: 32px;
+  background: white;
+
+  a {
+    color: #161616;
+  }
+}
+
+.sv-brand-info__text {
+  line-height: 24px;
+  font-size: 16px;
+}
+
+.sv-brand-info__logo {
+  width: 118px;
+  display: inline-block;
+}
+
+.sv-brand-info__terms {
+  line-height: 16px;
+  font-size: 12px;
+}

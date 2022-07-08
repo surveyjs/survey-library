@@ -32,6 +32,7 @@ export { Dropdown } from "../vue/dropdown.vue";
 export { DropdownSelect } from "../vue/dropdown-select.vue";
 export { File } from "../vue/file.vue";
 export { MatrixCell } from "../vue/matrixcell.vue";
+export { MatrixHeaderRequired } from "../vue/matrixheaderrequired.vue";
 export { MatrixTable } from "../vue/matrixtable.vue";
 export { MatrixDropdown } from "../vue/matrixdropdown.vue";
 export { MatrixDynamic } from "../vue/matrixdynamic.vue";
@@ -76,6 +77,7 @@ export { PanelDynamicPrevBtn } from "../vue/components/paneldynamic-actions/pane
 export { PanelDynamicProgressText } from "../vue/components/paneldynamic-actions/paneldynamic-progress-text.vue";
 export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
+export { BrandInfo } from "../vue/components/brand-info.vue";
 
 import { SurveyModel } from "survey-core";
 

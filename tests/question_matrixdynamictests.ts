@@ -1205,6 +1205,44 @@ QUnit.test("Matrixdynamic column.requiredIf", function (assert) {
     "3. q2 requiredIf depends on column1 - true"
   );
 });
+QUnit.test("Matrixdynamic column.isRenderedRequired", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [
+          { name: "column1", isRequired: true },
+          { name: "column2", requiredIf: "{a} = 5" },
+          { name: "column3", requiredIf: "{row.column1} = 2" }
+        ]
+      }
+    ]
+  });
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  question.rowCount = 2;
+  const col1 = question.columns[0];
+  const col2 = question.columns[1];
+  const col3 = question.columns[2];
+
+  assert.equal(col1.isRenderedRequired, true, "isRequired is true");
+  assert.equal(col2.isRenderedRequired, false, "col2");
+  assert.equal(col3.isRenderedRequired, false, "col3");
+  const rows = question.visibleRows;
+  survey.data = { a: 5 };
+  assert.equal(col2.isRenderedRequired, true, "col2, condition is true, #2");
+  assert.equal(col3.isRenderedRequired, false, "col3, #2");
+  survey.data = { a: 3 };
+  assert.equal(col2.isRenderedRequired, false, "col2, condition is false, #3");
+  assert.equal(col3.isRenderedRequired, false, "col3, #3");
+  rows[0].cells[0].value = 2;
+  assert.equal(col3.isRenderedRequired, false, "col3, #4");
+  rows[1].cells[0].value = 2;
+  assert.equal(col3.isRenderedRequired, true, "col3, #5");
+  rows[0].cells[0].value = 1;
+  assert.equal(col3.isRenderedRequired, false, "col3, #6");
+});
 QUnit.test(
   "Matrixdynamic column.visibleIf, load from json and add item",
   function (assert) {
@@ -7269,7 +7307,7 @@ QUnit.test("Column title equals to name", (assert) => {
   assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 1");
   assert.equal(column.locTitle.renderedHtml, "col1");
   column.title = "col1";
-  assert.notOk(column.locTitle.getLocaleText(""), "Column title is empty # 2");
+  assert.equal(column.locTitle.getLocaleText(""), "col1", "Column title is empty # 2");
   assert.equal(column.locTitle.renderedHtml, "col1");
 });
 

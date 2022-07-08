@@ -862,7 +862,7 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
 });
 
 QUnit.test("Complex: hide content question in designMode", function (assert) {
-  ComponentCollection.Instance.add({
+  ComponentCollection.Instance.add(<any>{
     name: "fullname",
     elementsJSON: [
       {
@@ -1315,7 +1315,7 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
-  ComponentCollection.Instance.add({
+  ComponentCollection.Instance.add(<any>{
     name: "fullname",
     title: "Full Name",
     elementsJSON: [
@@ -1368,7 +1368,7 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
 QUnit.test(
   "Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#2718",
   function (assert) {
-    ComponentCollection.Instance.add({
+    ComponentCollection.Instance.add(<any>{
       name: "fullname",
       title: "Full Name",
       elementsJSON: [
@@ -1605,7 +1605,7 @@ QUnit.test("getDisplayValue from component JSON function", function (assert) {
     ],
     getDisplayValue: (composite: PanelModel) => composite.getValue().firstName + " " + composite.getValue().lastName
   };
-  ComponentCollection.Instance.add(json);
+  ComponentCollection.Instance.add(<any>json);
   var survey = new SurveyModel({
     elements: [{ type: "fullname", name: "q1" }],
   });
@@ -1691,5 +1691,23 @@ QUnit.test("onvalueChanging/Changed events", function (assert) {
   assert.equal(question.contentQuestion.value, "b", "contentQuestion value is changed");
   assert.equal(counterChanging, 2, "counterChanging = 2");
   assert.equal(counterChanged, 2, "counterChanged = 2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: survey.questionsOnPageMode = `singlePage`", function (assert) {
+  const json = {
+    name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  survey.data = { q1: 3 };
+  survey.questionsOnPageMode = "singlePage";
+  const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.getType(), "newquestion", "type is correct");
+  assert.equal(q.name, "q1", "name is correct");
+  assert.equal(q.value, 3, "value is correct");
+  assert.equal(q.contentQuestion.value, 3, "content question value is correct");
   ComponentCollection.Instance.clear();
 });

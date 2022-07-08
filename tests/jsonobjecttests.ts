@@ -2745,3 +2745,24 @@ QUnit.test("Add custom calculatedValues property into survey, isArray attribute"
   assert.equal(funcs[0].getType(), "calculatedvalue", "Deserialized item has correct type");
   Serializer.removeProperty("survey", "customFunctions");
 });
+QUnit.test("Store column title in json if it equals to name, but it was set manually", function (assert) {
+  const matrix = new QuestionMatrixDynamicModel("q1");
+  const column = matrix.addColumn("col1");
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1" }] }, "title is empty");
+  column.title = "Col1";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1", title: "Col1" }] }, "title is not equal to name");
+  column.title = "";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1" }] }, "title is empty, #2");
+  column.title = "col1";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1", title: "col1" }] }, "title is equal to name");
+});
+QUnit.test("Store question title in json if it equals to name, but it was set manually", function (assert) {
+  const question = new Question("q1");
+  assert.deepEqual(question.toJSON(), { name: "q1" }, "title is empty");
+  question.title = "Q1";
+  assert.deepEqual(question.toJSON(), { name: "q1", title: "Q1" }, "title is not equal to name");
+  question.title = "";
+  assert.deepEqual(question.toJSON(), { name: "q1" }, "title is empty, #2");
+  question.title = "q1";
+  assert.deepEqual(question.toJSON(), { name: "q1", title: "q1" }, "title is equal to name");
+});

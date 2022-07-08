@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { SurveyElement } from "survey-core";
+import { MatrixDropdownColumn, SurveyElement } from "survey-core";
 import { QuestionMatrixDropdownModel } from "survey-core";
 import {
   QuestionMatrixDropdownModelBase,
@@ -12,8 +12,6 @@ import { QuestionFactory } from "survey-core";
 import { Question } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-import { PanelModel } from "survey-core";
-import { Panel } from "./kopage";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   private _tableImplementor: ImplementorBase;
@@ -21,9 +19,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     this.koRecalc = ko.observable(0);
-    (<QuestionMatrixDropdownModel>(
-      this.question
-    )).onRenderedTableCreatedCallback = (
+    this.matrix.onRenderedTableCreatedCallback = (
       table: QuestionMatrixDropdownRenderedTable
     ) => {
       if (!!this._tableImplementor) {
@@ -31,17 +27,18 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       }
       this._tableImplementor = new ImplementorBase(table);
     };
-    (<QuestionMatrixDropdownModel>(
-      this.question
-    )).onRenderedTableResetCallback = () => {
+    this.matrix.onRenderedTableResetCallback = () => {
       if (this.question.isDisposed) return;
       this.koRecalc(this.koRecalc() + 1);
+    };
+    this.matrix.onAddColumn = (column: MatrixDropdownColumn) => {
+      new ImplementorBase(column);
     };
     this.setObservaleObj(
       "koTable",
       ko.pureComputed(() => {
         this.koRecalc();
-        return (<QuestionMatrixDropdownModel>this.question).renderedTable;
+        return this.matrix.renderedTable;
       })
     );
     this.setCallbackFunc("koCellAfterRender", (el: any, con: any) => {
@@ -60,6 +57,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       this.panelAfterRender(el, con);
     });
   }
+  public get matrix(): QuestionMatrixDropdownModel { return <QuestionMatrixDropdownModel>this.question; }
   protected getQuestionTemplate(): string {
     return "matrixdynamic";
   }
@@ -113,12 +111,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     if (!!this._tableImplementor) {
       this._tableImplementor.dispose();
     }
-    (<QuestionMatrixDropdownModel>(
-      this.question
-    )).onRenderedTableCreatedCallback = undefined;
-    (<QuestionMatrixDropdownModel>(
-      this.question
-    )).onRenderedTableResetCallback = undefined;
+    this.matrix.onRenderedTableCreatedCallback = undefined;
+    this.matrix.onRenderedTableResetCallback = undefined;
+    this.matrix.onAddColumn = undefined;
     super.dispose();
   }
 }

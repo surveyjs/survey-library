@@ -167,7 +167,7 @@ NonZeroDigits
   = [1-9]+
 
 Letters
-  = [a-zA-Z]+
+  = [a-zA-Z_]+
 
 _ "whitespace"
   = [ \t\n\r]*

@@ -884,7 +884,8 @@ QUnit.test("Move new question under row with several questions", function (asser
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.rows[0].elements.length, 2, "There are two elements in the first row");
   var target = new QuestionTextModel("q4");
-  page.dragDropStart(null, target);
+  var newQuestion = new QuestionTextModel("q4");
+  page.dragDropStart(newQuestion, target);
   page.dragDropMoveTo(q3, false, true);
   page.dragDropFinish();
   assert.equal(page.rows.length, 3, "There are 3 rows");
@@ -906,12 +907,52 @@ QUnit.test("Move new question inside the row with several questions", function (
   assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.rows[0].elements.length, 2, "There are two elements in the first row");
   var target = new QuestionTextModel("q4");
-  page.dragDropStart(target, target);
-  page.dragDropMoveTo(q2, true, false);
+  var newQuestion = new QuestionTextModel("q4");
+  page.dragDropStart(newQuestion, target);
+  page.dragDropMoveTo(q2, true, true);
   page.dragDropFinish();
   assert.equal(page.rows.length, 2, "There are 2 rows");
   assert.equal(page.rows[0].elements.length, 3, "There are 3 elements in the first row");
   assert.equal(page.rows[1].elements.length, 1, "One element in the second row");
   assert.equal(page.rows[0].elements[2].name, "q4", "New question is in the first row");
   assert.equal(page.rows[0].elements[2].startWithNewLine, false, "New question is on the same line");
+});
+
+QUnit.test("Drag Drop Question with Multiline (StartWithNewLine === false)", function (assert) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  const page = survey.addNewPage("p1");
+
+  const q1 = page.addNewQuestion("text", "q1");
+  const q2 = page.addNewQuestion("text", "q2");
+  const q3 = page.addNewQuestion("text", "q3");
+  const q4 = page.addNewQuestion("text", "q4");
+  q3.startWithNewLine = false;
+  q4.startWithNewLine = false;
+
+  assert.equal(page.rows.length, 2, "There are two rows");
+  assert.equal(page.rows[1].elements.length, 3, "There are three elements in the second row");
+
+  assert.equal(page.rows[0].elements[0].name, "q1", "r1 q1 check");
+  assert.equal(page.rows[1].elements[0].name, "q2", "r2 q2 check");
+  assert.equal(page.rows[1].elements[1].name, "q3", "r2 q3 check");
+  assert.equal(page.rows[1].elements[2].name, "q4", "r2 q4 check");
+
+  var target = new QuestionTextModel("q2");
+
+  page.dragDropStart(q2, target);
+  page.dragDropMoveTo(q3, true, false);
+  page.dragDropFinish();
+
+  assert.equal(page.rows.length, 2, "There are 2 rows at the page");
+
+  assert.equal(page.rows[0].elements.length, 1, "There are 1 elements in the first row");
+  assert.equal(page.rows[0].elements[0].name, "q1", "r1 q1 check");
+
+  assert.equal(page.rows[1].elements.length, 3, "There are three elements in the second row");
+  assert.equal(page.rows[1].elements[0].name, "q3", "r2 q3 check");
+  assert.equal(page.rows[1].elements[1].name, "q2", "r2 q2 check");
+  assert.equal(page.rows[1].elements[2].name, "q4", "r2 q4 check");
 });

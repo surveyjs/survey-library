@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, getListItemByText } from "../helper";
 import { ClientFunction, fixture, test, Selector } from "testcafe";
 const title = "localization";
 
@@ -123,23 +123,23 @@ frameworks.forEach(framework => {
     await setFr();
     await t.hover("input[value=Suivant]");
   });
+
   test("check dropdown localizaition", async t => {
-    const elSelect = Selector("select");
-    const elOption = elSelect.find("option");
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await t
-      .click(elSelect)
-      .click(elOption.withText("en1"));
+      .click(questionDropdownSelect)
+      .click(getListItemByText("en1"));
     await setDe();
     await t
-      .click(elSelect)
-      .click(elOption.withText("de1"));
+      .click(questionDropdownSelect)
+      .click(getListItemByText("de1"));
     await setFr();
     await t
-      .click(elSelect)
-      .click(elOption.withText("fr2"));
+      .click(questionDropdownSelect)
+      .click(getListItemByText("fr2"));
     await setEn();
     await t
-      .click(elSelect)
-      .click(elOption.withText("en2"));
+      .click(questionDropdownSelect)
+      .click(getListItemByText("en2"));
   });
 });

@@ -25,13 +25,13 @@ import { QuestionTextProcessor } from "./textPreProcessor";
 export interface ICustomQuestionTypeConfiguration {
   /**
    * A name used to identify the custom question type.
-   * 
+   *
    * @see title
    */
   name: string;
   /**
    * A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
-   * 
+   *
    * @see name
    */
   title?: string;

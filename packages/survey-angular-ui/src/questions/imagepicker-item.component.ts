@@ -1,11 +1,11 @@
-import { Component, Input } from "@angular/core";
+import { AfterViewInit, Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 @Component({
   selector: "sv-ng-imagepicker-item",
   templateUrl: "./imagepicker-item.component.html",
 })
-export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> {
+export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implements AfterViewInit {
   @Input() question!: QuestionImagePickerModel;
   @Input() model!: ImageItemValue;
   protected getModel(): ImageItemValue {
@@ -23,5 +23,14 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> {
     } else {
       this.question.value = event.target.value;
     }
+  }
+  ngAfterViewInit(): void {
+    this.model.locImageLink.onChanged = () => {
+      this.changeDetectorRef.detectChanges();
+    };
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.locImageLink.onChanged = () => {};
   }
 }

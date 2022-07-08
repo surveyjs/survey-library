@@ -24,19 +24,23 @@ import { QuestionTextProcessor } from "./textPreProcessor";
  */
 export interface ICustomQuestionTypeConfiguration {
   /**
-   * A custom question type name.
+   * A name used to identify the custom question type.
+   * 
+   * @see title
    */
   name: string;
   /**
-   * A custom question title - human friendly type name.
+   * A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
+   * 
+   * @see name
    */
   title?: string;
   /**
-   * A custom question icon to show in survey creator toolbox.
+   * An icon for the custom question type.
    */
   icon?: string;
   /**
-   * An event that is raised when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
+   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
    */
   onInit?(): void;
   /**
@@ -48,7 +52,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   showInToolbox?: boolean;
   /**
-   * An event that is raised when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
    *
    * Parameters:
    *
@@ -56,7 +60,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onCreated?(question: Question): void;
   /**
-   * An event that is raised when JSON definitions are loaded.
+   * A function that is called when JSON definitions are loaded.
    *
    * Parameters:
    *
@@ -64,7 +68,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onLoaded?(question: Question): void;
   /**
-   * An event that is raised after the entire question is rendered.
+   * A function that is called after the entire question is rendered.
    *
    * Parameters:
    *
@@ -73,7 +77,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onAfterRender?(question: Question, htmlElement: any): void;
   /**
-   * An event that is raised each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
    *
    * Parameters:
    *
@@ -87,7 +91,7 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
-   * An event that is raised when a custom question type property is changed. Use it to handle property changes.
+   * A function that is called when a custom question type property is changed. Use it to handle property changes.
    *
    * Parameters:
    *
@@ -101,7 +105,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * An event that is raised when the question value is changed.
+   * A function that is called when the question value is changed.
    *
    * Parameters:
    *
@@ -111,7 +115,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
-   * An event that is raised when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
+   * A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
    *
    * Parameters:
    *

@@ -6,8 +6,9 @@
       :id="question.inputId"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
-      v-on:click="click"
-      v-on:keyup="keyUp"
+      @click="click"
+      @keyup="keyUp"
+      @blur="blur"
       :class="question.getControlClass()"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
@@ -20,7 +21,7 @@
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="!question.isEmpty()"
-        v-on:click="clear"
+        @click="clear"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -43,20 +44,22 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question, DropdownListModel } from "survey-core";
 import BaseVue from "src/vue/base";
-import { attachKey2click } from "../../survey.vue";
 
 @Component
 export class DropdownComponent extends BaseVue {
   @Prop() question: Question;
 
   public click(event: any) {
-    this.question.dropdownListModel?.onClick(event);
+    this.question.onClick(event);
   }
   public clear(event: any) {
-    this.question.dropdownListModel?.onClear(event);
+    this.question.onClick(event);
   }
   public keyUp(event: any) {
-    attachKey2click(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
+    this.question.onKeyUp(event);
+  }
+  public blur(event: any) {
+    this.question.onBlur(event);
   }
   protected onCreated() {
     if (!this.question.dropdownListModel) {

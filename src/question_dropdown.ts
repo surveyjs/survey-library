@@ -9,6 +9,7 @@ import { ListModel } from "./list";
 import { EventBase } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 /**
  * A Model for a dropdown question
@@ -176,6 +177,35 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (this.popupModel) {
       this.dropdownListModel.updateItems();
     }
+  }
+
+  onClick(e: any): void {
+    if(!!this.dropdownListModel) {
+      this.dropdownListModel.onClick(e);
+    } else {
+      !!this.onOpenedCallBack && this.onOpenedCallBack();
+    }
+  }
+
+  onClear(event: any): void {
+    this.clearValue();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onKeyUp(event: any): void {
+    const char: number = event.which || event.keyCode;
+    if (char === 46) {
+      this.onClear(event);
+    } else {
+      event.preventDefault();
+      event.stopPropagation();
+      doKey2ClickUp(event, { processEsc: false, disableTabStop: this.isInputReadOnly });
+    }
+  }
+
+  onBlur(event: any): void {
+    doKey2ClickBlur(event);
   }
 }
 Serializer.addClass(

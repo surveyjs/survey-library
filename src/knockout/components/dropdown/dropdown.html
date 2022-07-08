@@ -1,10 +1,12 @@
   <div data-bind="css: question.koCss().selectWrapper">
     <!-- ko ifnot: question.isReadOnly -->
-    <div tabindex="0" data-bind="css: question.getControlClass(),
-    click: click, key2click: { processEsc: false, disableTabStop: question.isInputReadOnly },
+    <div data-bind="css: question.getControlClass(),
+    click: click, 
+    event: { keyup: keyup, blur: blur },
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
+      tabindex: question.isInputReadOnly ? undefined : 0,
       disabled: question.isInputReadOnly,
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 

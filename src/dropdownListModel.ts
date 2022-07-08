@@ -55,10 +55,4 @@ export class DropdownListModel extends Base {
       }
     }
   }
-
-  public onClear(event: any): void {
-    this.question.clearValue();
-    event.preventDefault();
-    event.stopPropagation();
-  }
 }

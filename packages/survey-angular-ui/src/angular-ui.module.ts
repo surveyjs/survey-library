@@ -64,9 +64,14 @@ import { RankingQuestionComponent } from "./questions/ranking.component";
 import { RankingItemComponent } from "./questions/ranking-item.component";
 import { SurveyStringComponent } from "./survey-string.component";
 import { StringEditorComponent } from "./string-editor.component";
+import { PanelDynamicAddBtn } from "./components/paneldynamic-actions/paneldynamic-add-btn.component";
+import PanelDynamicNextBtn from "./components/paneldynamic-actions/paneldynamic-next-btn.component";
+import { PanelDynamicPrevBtn } from "./components/paneldynamic-actions/paneldynamic-prev-btn.component";
+import { PanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text.component";
+import { PanelDynamicQuestionComponent } from "./questions/paneldynamic.component";
 @NgModule({
   declarations: [
-    VisibleDirective, Key2ClickDirective,
+    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText,
     SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent,
@@ -76,7 +81,7 @@ import { StringEditorComponent } from "./string-editor.component";
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent
   ],
   imports: [
     CommonModule, FormsModule

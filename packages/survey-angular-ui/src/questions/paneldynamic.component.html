@@ -1,0 +1,67 @@
+<div [class]="model.cssClasses.root" #contentElement>
+  <div *ngIf="model.getShowNoEntriesPlaceholder()" [class]="model.cssClasses.noEntriesPlaceholder">
+    <span [model]="model.locNoEntriesText" sv-ng-string></span>
+    <sv-ng-paneldynamic-add-btn [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
+  </div>
+  <div [class]="model.cssClasses.progress" *ngIf="!model.showLegacyNavigation && model.isProgressTopShowing && model.isRangeShowing">
+    <div
+      [class]="model.cssClasses.progressBar"
+      [style]="{ width: model.progress }"
+      role="progressbar"
+    ></div>
+  </div>
+  <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showLegacyNavigation && model.isProgressTopShowing"></ng-container>
+  <!-- add track by [key]="panel.id" -->
+  <ng-container *ngFor="let panel of renderedPanels; index as index"> 
+    <div [class]="model.getPanelWrapperCss()">
+      <sv-ng-panel [model]="panel"></sv-ng-panel>
+      <ng-container *ngTemplateOutlet="removeBtn; context: { panel }"></ng-container>
+    </div>
+    <!-- add track by [key]="'separator' + panel.id" -->
+    <hr [class]="model.cssClasses.separator" *ngIf="model.isRenderModeList && index < model.panelCount - 1"/>
+  </ng-container>
+  <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showLegacyNavigation && model.isProgressBottomShowing"></ng-container>
+  <sv-ng-paneldynamic-add-btn *ngIf="model.showLegacyNavigation && model.isRenderModeList" [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
+  <ng-container [ngTemplateOutlet]="progressV2" *ngIf="model.panelCount !== 0 && !model.showLegacyNavigation"></ng-container>
+</div>
+
+<ng-template #progressV2>
+  <div [class]="model.cssClasses.footer" *ngIf="!!model.cssClasses.footer">
+    <hr [class]="model.cssClasses.separator"/>
+    <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">
+      <div
+        [class]="model.cssClasses.progressBar"
+        [style]="{ width: model.progress }"
+        role="progressbar"
+      ></div>
+    </div>
+    <div [class]="model.cssClasses.footerButtonsContainer" [model]="model.footerToolbar" sv-ng-action-bar></div>
+  </div>
+</ng-template>
+<ng-template #progress>
+  <div [class]="this.progressCssClass">
+    <div style="clear: both" [class]="this.progressCssClass">
+      <div [class]="model.cssClasses.progressContainer">
+        <sv-ng-paneldynamic-prev-btn [data]="{ question: model }"></sv-ng-paneldynamic-prev-btn>
+        <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing">
+          <div
+            [class]="model.cssClasses.progressBar"
+            [style]="{ width: model.progress }"
+            role="progressbar"
+          ></div>
+        </div>
+          <sv-ng-paneldynamic-next-btn [data]="{ question: model }"></sv-ng-paneldynamic-next-btn>
+      </div>
+      <sv-ng-paneldynamic-add-btn [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
+      <sv-ng-paneldynamic-progress-text [data]="{ question: model }"></sv-ng-paneldynamic-progress-text>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #removeBtn let-panel="panel">
+  <button type="button"
+      [visible]="model.canRemovePanel && panel.state != 'collapsed'" (click)="model.removePanelUI(panel)" [class]="model.getPanelRemoveButtonCss()">
+      <span [class]="model.cssClasses.buttonRemoveText">{{model.panelRemoveText}}</span>
+      <span [class]="model.cssClasses.iconRemove"></span>
+    </button>
+</ng-template>

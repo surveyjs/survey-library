@@ -21,7 +21,7 @@ export class ActionComponent extends BaseAngular {
   getModel() {
     return this.model;
   }
-  ngOnInit(): void {
+  override ngOnInit(): void {
     let componentRef = AngularComponentFactory.Instance.create(this.actionContent, this.model.component || "sv-action-bar-item");
     if (!componentRef) {
       componentRef = this.actionContent.createComponent(ActionBarItemComponent) as any;

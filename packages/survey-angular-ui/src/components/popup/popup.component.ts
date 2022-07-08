@@ -19,12 +19,12 @@ export class PopupComponent extends BaseAngular<PopupModel> {
     return this.popupModel;
   }
 
-  constructor(public viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private popupService: PopupService) {
-    super(changeDetectorRef);
+  constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private popupService: PopupService) {
+    super(changeDetectorRef, viewContainerRef);
   }
 
-  ngOnInit() {
-    this.model = new PopupBaseViewModel(this.popupModel, this.viewContainerRef.element.nativeElement.parentElement);
+  override ngOnInit() {
+    this.model = new PopupBaseViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement);
     this.model.initializePopupContainer();
     this.portalHost = this.popupService.createComponent(this.model);
   }

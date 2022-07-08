@@ -1,15 +1,17 @@
-import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange } from "@angular/core";
+import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
 import { ArrayChanges, Base } from "survey-core";
+import { NoRootComponent } from "./no-root-component";
 
 @Component({
   template: ""
 })
-export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnDestroy {
-  constructor(protected changeDetectorRef: ChangeDetectorRef) {}
+export abstract class BaseAngular<T extends Base = Base> extends NoRootComponent implements DoCheck, OnDestroy {
+  constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
+    super(viewContainerRef);
+  }
 
   protected abstract getModel(): T;
   protected previousModel?: T;
-
   public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
       this.makeBaseElementAngular(this.getModel());
@@ -37,33 +39,31 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
   }
 
   private makeBaseElementAngular(stateElement: Base) {
-    stateElement.iteratePropertiesHash((hash, key) => {
-      var val: any = hash[key];
-      if (Array.isArray(val)) {
-        var val: any = val;
-        val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-          if (this.getIsRendering()) return;
-          this.beforeUpdate();
-          this.changeDetectorRef.detectChanges();
-          this.afterUpdate();
-        };
-      }
-    });
-    stateElement.setPropertyValueCoreHandler = (
-      hash: any,
-      key: string,
-      val: any
-    ) => {
-      if (hash[key] !== val) {
-        hash[key] = val;
-        if (this.getIsRendering()) return;
-        this.beforeUpdate();
-        this.changeDetectorRef.detectChanges();
-        this.afterUpdate();
-      }
-    };
+    if(!(<any>stateElement)["__angular__implemented"]) {
+      (<any>stateElement)["__angular__implemented"] = true;
+      stateElement.iteratePropertiesHash((hash, key) => {
+        var val: any = hash[key];
+        if (Array.isArray(val)) {
+          var val: any = val;
+          val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
+            this.detectChanges();
+          };
+        }
+      });
+      stateElement.setPropertyValueCoreHandler = (
+        hash: any,
+        key: string,
+        val: any
+      ) => {
+        if (hash[key] !== val) {
+          hash[key] = val;
+          this.detectChanges();
+        }
+      };
+    }
   }
   private unMakeBaseElementAngular(stateElement: Base) {
+    (<any>stateElement)["__angular__implemented"] = false;
     stateElement.setPropertyValueCoreHandler = <any>undefined;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
@@ -73,6 +73,18 @@ export abstract class BaseAngular<T extends Base = Base> implements DoCheck, OnD
       }
     });
   }
+
+  protected detectChanges() {
+    if (this.getIsRendering()) return;
+    this.beforeUpdate();
+    if(!!this.embeddedView) {
+      this.embeddedView.detectChanges();
+    } else {
+      this.changeDetectorRef.detectChanges();
+    }
+    this.afterUpdate();
+  }
+
   protected beforeUpdate(): void {
     this.setIsRendering(true);
   }

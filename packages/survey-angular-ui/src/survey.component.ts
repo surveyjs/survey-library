@@ -23,7 +23,7 @@ export class SurveyComponent extends BaseAngular<SurveyModel> implements OnInit,
       this.changeDetectorRef.detectChanges();
     };
   }
-  ngOnInit(): void {
+  override ngOnInit(): void {
     if(this.model["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }

@@ -1,7 +1,5 @@
 <div [class]="row.getRowCss()" *ngIf="row.visible">
-  <ng-container *ngFor="let element of row.visibleElements">
-    <div [class]="element.cssClasses.questionWrapper" [style]="element.rootStyle">
-      <ng-template [component]="{ name: element.isPanel ? 'panel': 'question', data: { model: element } }"></ng-template>
-    </div>
+  <ng-container *ngFor="let element of row.visibleElements; trackBy: trackElementBy">
+    <sv-ng-element [model]="element"></sv-ng-element>
   </ng-container>
 </div>

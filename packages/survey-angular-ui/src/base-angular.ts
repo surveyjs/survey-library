@@ -39,7 +39,7 @@ export abstract class BaseAngular<T extends Base = Base> extends NoRootComponent
   }
 
   private makeBaseElementAngular(stateElement: Base) {
-    if(!(<any>stateElement)["__angular__implemented"]) {
+    if(!!stateElement && !(<any>stateElement)["__angular__implemented"]) {
       (<any>stateElement)["__angular__implemented"] = true;
       stateElement.iteratePropertiesHash((hash, key) => {
         var val: any = hash[key];

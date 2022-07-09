@@ -11,7 +11,4 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> {
  protected getModel(): PanelModel | Question {
    return this.model;
  }
- protected override onModelChanged(): void {
-   debugger;
- }
 }

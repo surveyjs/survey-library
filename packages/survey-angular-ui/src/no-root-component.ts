@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, EmbeddedViewRef, OnInit, T
 
 @Component({
   template: "<ng-template #template> content </ng-template>",
-  selector: "ng-no-root"
+  selector: "ng-no-root",
 })
 
 export class NoRootComponent implements OnInit {

@@ -1,0 +1,18 @@
+<div [class]="model.cssClasses.selectWrapper">
+    <div *ngIf="!model.isReadOnly" [tabindex]="model.isInputReadOnly ? null : 0" [class]="model.getControlClass()"
+        [attr.disabled]="model.isInputReadOnly ? true : null" (click)="click($event)" (blur)="blur($event)"
+        (keyup)="keyup($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
+        [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
+        [attr.aria-describedby]="model.ariaDescribedBy">
+        <div [class]="model.cssClasses.controlValue">{{ model.readOnlyText }}</div>
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
+            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">
+            <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
+            <!-- /ko -->
+            <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg"
+                [size]="'auto'" sv-ng-svg-icon></svg>
+        </div>
+    </div>
+    <sv-ng-popup [popupModel]="popupModel"></sv-ng-popup>
+    <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
+</div>

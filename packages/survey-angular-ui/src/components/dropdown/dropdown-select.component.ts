@@ -1,7 +1,5 @@
-
 import { Component, Input } from "@angular/core";
-import { AngularComponentFactory } from "../component-factory";
-
+import { AngularComponentFactory } from "../../component-factory";
 import { RendererFactory } from "survey-core";
 
 @Component({
@@ -9,15 +7,14 @@ import { RendererFactory } from "survey-core";
   templateUrl: "./dropdown-select.component.html"
 })
 export class DropdownSelectComponent {
-    @Input() model: any;
+  @Input() model: any;
 
-    click(e: any) {
-      this.model.onClick(e);
-    }
-
-    clear(e:any) {
-      this.model.onClear(e);
-    }
+  click(event: any) {
+    this.model.onClick(event);
+  }
+  keyup(event: any) {
+    this.model.onKeyUp(event);
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("dropdown-select-question", DropdownSelectComponent);

@@ -7,7 +7,7 @@ export * from "./components/popup/popup.service";
 export * from "./components/popup/popup.component";
 export * from "./components/popup/popup-container.component";
 export * from "./components/skeleton.component";
-export * from "./components/dropdown.component";
+export * from "./components/dropdown/dropdown.component";
 export * from "./questions/text.component";
 export * from "./questions/html.component";
 export * from "./questions/radiogroup.component";

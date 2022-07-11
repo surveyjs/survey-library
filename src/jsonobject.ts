@@ -1610,10 +1610,12 @@ export class JsonObject {
     var requiredProperties = JsonObject.metaData.getRequiredProperties(
       className
     );
-    if (!requiredProperties) return null;
+    if (!Array.isArray(requiredProperties)) return null;
     for (var i = 0; i < requiredProperties.length; i++) {
-      if (!jsonValue[requiredProperties[i]]) {
-        return new JsonRequiredPropertyError(requiredProperties[i], className);
+      const prop = Serializer.findProperty(className, requiredProperties[i]);
+      if(!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
+      if (!jsonValue[prop.name]) {
+        return new JsonRequiredPropertyError(prop.name, className);
       }
     }
     return null;

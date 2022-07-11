@@ -457,7 +457,7 @@ QUnit.test("Metadata add at the beginning parent class properties ", function (
   assert.equal(
     Serializer.getProperties("truck").length,
     3,
-    "2 + 1 parent propreties"
+    "2 + 1 parent properties"
   );
   assert.equal(
     Serializer.getProperties("truck")[0].name,
@@ -1058,6 +1058,15 @@ QUnit.test("Deserialize arrays with incorrect type property", function (assert) 
   );
 });
 QUnit.test("Deserialization - required property error", function (assert) {
+  Serializer.addProperty("truck", { name: "req:number", default: 0, isRequired: true });
+  const car = new Truck();
+  var jsonObj = new JsonObject();
+  jsonObj.toObject({ maxWeight: 5000 }, car);
+  assert.equal(car.maxWeight, 5000, "Property is deserialized");
+  assert.equal(jsonObj.errors.length, 0, "req property is required, but it has a default value");
+  Serializer.removeProperty("truck", "req");
+});
+QUnit.test("Deserialization - required property with default value should not produce error", function (assert) {
   var dealer = new Dealer();
   var jsonObj = new JsonObject();
   jsonObj.toObject({ cars: [{ type: "sport" }] }, dealer);

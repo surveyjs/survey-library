@@ -6,16 +6,16 @@ import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
    click = (event: any) => {
-     this.question.onClick(event);
+     this.question.dropdownListModel?.onClick(event);
    };
    clear = (event: any) => {
-     this.question.onClear(event);
+     this.question.dropdownListModel?.onClear(event);
    };
    keyup = (event: any) => {
-     this.question.onKeyUp(event);
+     this.question.dropdownListModel?.onKeyUp(event);
    };
    blur = (event: any) => {
-     this.question.onBlur(event);
+     this.question.dropdownListModel?.onBlur(event);
    };
 
    protected setValueCore(newValue: any) {

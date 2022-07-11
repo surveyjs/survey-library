@@ -35,7 +35,7 @@ export class ListItemComponent extends BaseAngular {
     return this.item;
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     if (!this.item.component) return;
 
     let componentRef = AngularComponentFactory.Instance.create(this.itemComponent, this.item.component);

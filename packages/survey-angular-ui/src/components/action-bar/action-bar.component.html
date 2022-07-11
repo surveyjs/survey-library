@@ -1,3 +1,5 @@
 <div *ngIf="model.hasActions" [class]="model.getRootCss()" (click)="onClick($event)">
-  <div *ngFor="let action of model.renderedActions" [model]="action" sv-ng-action></div>
+  <ng-container *ngFor="let action of model.renderedActions">
+    <sv-ng-action [model]="action"></sv-ng-action>
+  </ng-container>
 </div>

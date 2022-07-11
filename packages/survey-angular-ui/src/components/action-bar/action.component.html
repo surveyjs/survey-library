@@ -1,15 +1,19 @@
 
-<div class="sv-action__content">
-  <ng-container *ngIf="model.needSeparator">
-    <div class="sv-action-bar-separator"></div>
-  </ng-container>
-  <!-- ko ifnot: $data.template-->
-  <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->
-  <ng-template #actionContent></ng-template>
-  <!-- /ko -->
-  <!-- /ko -->
-  <!-- ko if: $data.template  -->
-  <!-- ko template: { name: $data.template, data: $data.data || $data } -->
-  <!-- /ko -->
-  <!-- /ko -->
-</div>
+<ng-template #template>
+  <div [class]="model.getActionRootCss()" [id]="model.id">
+    <div class="sv-action__content">
+      <ng-container *ngIf="model.needSeparator">
+        <div class="sv-action-bar-separator"></div>
+      </ng-container>
+      <!-- ko ifnot: $data.template-->
+      <!-- ko component: { name: $data.component || 'sv-action-bar-item', params: { item: $data } } -->
+      <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'sv-action-bar-item'}"></ng-template>
+      <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: $data.template  -->
+      <!-- ko template: { name: $data.template, data: $data.data || $data } -->
+      <!-- /ko -->
+      <!-- /ko -->
+    </div>
+  </div>
+</ng-template>

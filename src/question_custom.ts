@@ -24,7 +24,7 @@ import { QuestionTextProcessor } from "./textPreProcessor";
  */
 export interface ICustomQuestionTypeConfiguration {
   /**
-   * A name used to identify the custom question type.
+   * A name used to identify a custom question type.
    *
    * @see title
    */
@@ -48,7 +48,7 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Default value: `true`
    *
-   * Set this property to `false` if your custom question type is used only to customize Property Grid contents and is not meant for a survey.
+   * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
   /**

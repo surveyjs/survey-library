@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@angular/router": "^13.0.0",
-    "survey-core": "latest",
+    "survey-core": "../../build/survey-core",
     "tslib": "^2.3.0"
   }
 }

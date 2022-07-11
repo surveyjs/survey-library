@@ -1,12 +1,12 @@
 import { Component, Input } from "@angular/core";
-import { NoRootComponent } from "../../no-root-component";
+import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { SurveyElement } from "survey-core";
 
 @Component({
   selector: "sv-ng-dynamic-head",
   templateUrl: "./dynamic-head.component.html"
 })
-export class DynamicHeadComponent extends NoRootComponent {
+export class DynamicHeadComponent extends EmbeddedViewContentComponent {
   @Input() tagName!: string;
   @Input() element!: SurveyElement;
   get ariaLabel(): string | null {

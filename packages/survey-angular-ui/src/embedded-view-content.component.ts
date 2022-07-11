@@ -1,13 +1,11 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EmbeddedViewRef, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, EmbeddedViewRef, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
 
 @Component({
-  template: "<ng-template #template> content </ng-template>",
-  selector: "ng-no-root",
+  template: "",
 })
 
-export class NoRootComponent implements OnInit {
+export class EmbeddedViewContentComponent implements OnInit {
   @ViewChild("template", { read: TemplateRef, static: true }) templateRef!: TemplateRef<HTMLElement>
-  protected viewChangeDetector?: ChangeDetectorRef;
   protected embeddedView?: EmbeddedViewRef<HTMLElement>;
   constructor(protected viewContainerRef?: ViewContainerRef) {}
 

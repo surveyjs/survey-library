@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
 import { ArrayChanges, Base } from "survey-core";
-import { NoRootComponent } from "./no-root-component";
+import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 
 @Component({
   template: ""
 })
-export abstract class BaseAngular<T extends Base = Base> extends NoRootComponent implements DoCheck, OnDestroy {
+export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewContentComponent implements DoCheck, OnDestroy {
   constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
   }

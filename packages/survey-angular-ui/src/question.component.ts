@@ -1,13 +1,13 @@
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
 import { AngularComponentFactory } from "./component-factory";
-import { NoRootComponent } from "./no-root-component";
+import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 
 @Component({
   selector: "sv-ng-question",
   templateUrl: "./question.component.html"
 })
-export class QuestionComponent extends NoRootComponent {
+export class QuestionComponent extends EmbeddedViewContentComponent {
   @Input() model!: Question;
   @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
   protected getModel(): Question {

@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { AngularComponentFactory } from "../../component-factory";
+import { AngularComponentFactory } from "../../../component-factory";
 import { RendererFactory } from "survey-core";
 
 @Component({

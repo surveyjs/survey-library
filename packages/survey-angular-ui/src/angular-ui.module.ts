@@ -9,7 +9,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
-import { DropdownSelectComponent } from "./components/dropdown/dropdown-select.component";
+import { DropdownSelectComponent } from "./components/renderAs/dropdown-select/dropdown-select.component";
 import { TextQuestionComponent } from "./questions/text.component";
 import { HtmlQuestionComponent } from "./questions/html.component";
 import { RadiogroupComponent } from "./questions/radiogroup.component";

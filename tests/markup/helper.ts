@@ -187,7 +187,7 @@ export function testQuestionMarkup(assert, test, platform) {
 
 const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
   (htmlElement: HTMLElement) => htmlElement.classList.contains("sv-vue-title-additional-div"),
-  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-ng/) > -1
+  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
 ];
 
 function crearExtraElements(innerHTML: string): string {

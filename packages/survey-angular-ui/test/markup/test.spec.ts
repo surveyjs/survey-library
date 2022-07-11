@@ -37,7 +37,6 @@ class ExpectAssertAdapter {
 }
 
 const blackList = [
-  new RegExp(/paneldynamic/), //not implemented yet
   new RegExp(/file-mob2/), // waiting for action bar
   new RegExp(/image(-video)?/), //not implemented yet
   new RegExp(/dropdown-select/), //not implemented yet

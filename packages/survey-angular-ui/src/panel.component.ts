@@ -13,7 +13,9 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
     return this.model;
   }
   ngAfterViewInit(): void {
-    this.model.survey?.afterRenderPanel(this.model, this.panelContainerRef.nativeElement);
+    if(!!this.panelContainerRef?.nativeElement) {
+      this.model.survey?.afterRenderPanel(this.model, this.panelContainerRef.nativeElement);
+    }
   }
   trackRowBy = (_: any, row: any) => {
     return row.id;

@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { AngularComponentFactory } from "../../component-factory";
 import { PaneldynamicAction } from "./paneldynamic-add-btn.component";
 
 @Component({
@@ -10,4 +11,5 @@ export class PanelDynamicNextBtn extends PaneldynamicAction {
     this.question.goToNextPanel();
   }
 }
-export default PanelDynamicNextBtn;
+
+AngularComponentFactory.Instance.registerComponent("sv-paneldynamic-next-btn", PanelDynamicNextBtn);

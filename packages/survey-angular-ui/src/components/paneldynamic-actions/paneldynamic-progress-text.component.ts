@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { AngularComponentFactory } from "../../component-factory";
 import { PaneldynamicAction } from "./paneldynamic-add-btn.component";
 
 @Component({
@@ -7,3 +8,5 @@ import { PaneldynamicAction } from "./paneldynamic-add-btn.component";
 })
 export class PanelDynamicProgressText extends PaneldynamicAction {
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-paneldynamic-progress-text", PanelDynamicProgressText);

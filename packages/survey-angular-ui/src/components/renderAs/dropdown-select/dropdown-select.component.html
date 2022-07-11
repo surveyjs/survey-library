@@ -1,6 +1,6 @@
 <div [class]="model.renderCssRoot">
   <div [class]="model.cssClasses.selectWrapper">
-    <select *ngIf="!model.isReadOnly" [attr.id]="model.inputId" [(ngModel)]="model.renderedValue"
+    <select *ngIf="!model.isReadOnly" [attr.id]="model.inputId" [value]="model.renderedValue" [(ngModel)]="model.renderedValue"
       [disabled]="model.isInputReadOnly" (click)="click($event)" (keyup)="keyup($event)"
       [class]="model.getControlClass()" [attr.autocomplete]="model.autoComplete" [required]="model.isRequired"
       [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"

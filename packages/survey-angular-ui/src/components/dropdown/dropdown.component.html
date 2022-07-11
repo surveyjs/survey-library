@@ -13,6 +13,6 @@
                 [size]="'auto'" sv-ng-svg-icon></svg>
         </div>
     </div>
-    <sv-ng-popup [popupModel]="popupModel"></sv-ng-popup>
+    <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="popupModel"></sv-ng-popup>
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
 </div>

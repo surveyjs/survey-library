@@ -18,21 +18,19 @@ export class DropdownComponent implements OnDestroy, OnInit {
     }
 
     ngOnDestroy() {
-      if (!!this.dropdownListModel) {
-        this.dropdownListModel.dispose();
-      }
+      this.dropdownListModel?.dispose();
     }
 
     click(event: any) {
-      this.model.dropdownListModel?.onClick(event);
+      this.dropdownListModel?.onClick(event);
     }
     clear(event: any) {
-      this.model.dropdownListModel?.onClear(event);
+      this.dropdownListModel?.onClear(event);
     }
     keyup(event: any) {
-      this.model.dropdownListModel?.onKeyUp(event);
+      this.dropdownListModel?.onKeyUp(event);
     }
     blur(event: any) {
-      this.model.dropdownListModel?.onBlur(event);
+      this.dropdownListModel?.onBlur(event);
     }
 }

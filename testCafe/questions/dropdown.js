@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, getListItemByText, completeButton, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
+import { frameworks, url, url_test, applyTheme, setOptions, getListItemByText, completeButton, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, registerCustomItemComponent } from "../helper";
 import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "dropdown";
 
@@ -695,5 +695,33 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(newDropdown.textContent).eql("Choose...")
       .expect(oldDropdown.value).eql("");
+  });
+
+  const theme = "defaultV2";
+  test.page(`${url_test}${theme}/${framework}.html`)("Check rating as dropdown", async (t) => {
+    await applyTheme(theme);
+
+    const jsonWithDropDown = {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "dropdown",
+        }
+      ]
+    };
+    const ratingAsDropdownPlaceHolder = "Tap to rate here...";
+    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .click(ratingAsDropdown)
+      .click(getListItemByText("2"))
+      .expect(ratingAsDropdown.textContent).contains("2")
+
+      .pressKey("delete")
+      .expect(ratingAsDropdown.textContent).contains(ratingAsDropdownPlaceHolder);
   });
 });

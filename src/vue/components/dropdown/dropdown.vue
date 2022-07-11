@@ -50,16 +50,16 @@ export class DropdownComponent extends BaseVue {
   @Prop() question: Question;
 
   public click(event: any) {
-    this.question.onClick(event);
+    this.question.dropdownListModel?.onClick(event);
   }
   public clear(event: any) {
-    this.question.onClear(event);
+    this.question.dropdownListModel?.onClear(event);
   }
   public keyUp(event: any) {
-    this.question.onKeyUp(event);
+    this.question.dropdownListModel?.onKeyUp(event);
   }
   public blur(event: any) {
-    this.question.onBlur(event);
+    this.question.dropdownListModel?.onBlur(event);
   }
   protected onCreated() {
     if (!this.question.dropdownListModel) {

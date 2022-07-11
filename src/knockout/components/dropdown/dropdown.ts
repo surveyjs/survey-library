@@ -9,16 +9,16 @@ ko.components.register("sv-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const click = (_: any, e: any) => {
-        params.question.onClick(e);
+        params.question.dropdownListModel?.onClick(e);
       };
       const clear = (_: any, e: any) => {
-        params.question.onClear(e);
+        params.question.dropdownListModel?.onClear(e);
       };
       const keyup = (_: any, e: any) => {
-        params.question.onKeyUp(e);
+        params.question.dropdownListModel?.onKeyUp(e);
       };
       const blur = (_: any, e: any) => {
-        params.question.onBlur(e);
+        params.question.dropdownListModel?.onBlur(e);
       };
       if (!params.question.dropdownListModel) {
         params.question.dropdownListModel = new DropdownListModel(params.question);

@@ -11,6 +11,13 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   }
 
   protected renderSelect(cssClasses: any): JSX.Element {
+    const click = (event: any) => {
+      this.question.onClick(event);
+    };
+    const keyup = (event: any) => {
+      this.question.onKeyUp(event);
+    };
+
     const selectElement = this.isDisplayMode ? (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -22,8 +29,8 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         autoComplete={this.question.autoComplete}
         onChange={this.updateValueOnEvent}
         onInput={this.updateValueOnEvent}
-        onClick={this.click}
-        onKeyUp={this.keyup}
+        onClick={click}
+        onKeyUp={keyup}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}

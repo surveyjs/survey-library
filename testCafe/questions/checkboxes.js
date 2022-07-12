@@ -214,7 +214,7 @@ frameworks.forEach((framework) => {
     const getOtherChoice = Selector(
       () =>
         document.querySelectorAll(
-          "div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-child(4)"
+          "div[id*=sq_1] fieldset .sv_q_select_column:nth-child(1) div:nth-of-type(4)"
         )[0]
     );
     let otherChoice;

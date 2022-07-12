@@ -15,7 +15,6 @@ export class PopupService {
     const componentRef = portalHost.attach(portal);
     popupViewModel.container = popupViewModel.container.children[0];
     componentRef.instance.model = popupViewModel;
-    componentRef.instance.createAndBindPopupContent();
     componentRef.changeDetectorRef.detectChanges();
     return portalHost;
   }

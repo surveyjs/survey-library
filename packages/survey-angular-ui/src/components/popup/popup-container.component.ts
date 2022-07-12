@@ -13,7 +13,6 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
   isShow: boolean = false;
 
   @Input() model!: PopupBaseViewModel;
-  @ViewChild("popupContent", { read: ViewContainerRef, static: true }) popupContent!: ViewContainerRef;
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
     this.changeDetectorRef.detach();
@@ -47,10 +46,4 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     super.afterUpdate();
   }
 
-  public createAndBindPopupContent() {
-    let componentRef = AngularComponentFactory.Instance.create(this.popupContent, this.model.contentComponentName);
-    if (!!componentRef) {
-      (componentRef.instance as any).model = this.model.contentComponentData.model;
-    }
-  }
 }

@@ -5,7 +5,9 @@
             <div class="sv-popup__body-content">
                 <div *ngIf="model.title" class="sv-popup__body-header">{{ model.title }}</div>
                 <div class="sv-popup__scrolling-content">
-                    <div #popupContent class="sv-popup__content"></div>
+                    <div class="sv-popup__content">
+                        <ng-template [component]="{ name: model.contentComponentName, data: model.contentComponentData }"></ng-template>
+                    </div>
                 </div>
                 <div *ngIf="model.showFooter" class="sv-popup__body-footer">
                     <button type="button" (click)="model.cancel()"

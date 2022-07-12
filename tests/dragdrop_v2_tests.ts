@@ -976,24 +976,16 @@ QUnit.test("Drag Drop Question with Multiline (StartWithNewLine === false)", fun
   assert.equal(page.rows[0].elements[1].name, "q2", "r1 q2 check");
   assert.equal(page.rows[1].elements[0].name, "q3", "r2 q3 check");
 
-  //var target = new QuestionTextModel("q3");
+  var target = new QuestionTextModel("q3");
 
-  var target = new QuestionTextModel("q4");
-  var fake = new QuestionTextModel("q4");
-
-  debugger;
-
-  page.dragDropStart(target, fake);
-  page.dragDropMoveTo(q2, true, false);
+  page.dragDropStart(q3, target);
+  page.dragDropMoveTo(q2, true);
   page.dragDropFinish();
 
   assert.equal(page.rows.length, 1, "There are 1 rows at the page");
 
-  // assert.equal(page.rows[0].elements.length, 1, "There are 1 elements in the first row");
-  // assert.equal(page.rows[0].elements[0].name, "q1", "r1 q1 check");
-
-  // assert.equal(page.rows[1].elements.length, 3, "There are three elements in the second row");
-  // assert.equal(page.rows[1].elements[0].name, "q3", "r2 q3 check");
-  // assert.equal(page.rows[1].elements[1].name, "q2", "r2 q2 check");
-  // assert.equal(page.rows[1].elements[2].name, "q4", "r2 q4 check");
+  assert.equal(page.rows[0].elements.length, 3, "There are three elements in the first row");
+  assert.equal(page.rows[0].elements[0].name, "q1", "r2 q1 check");
+  assert.equal(page.rows[0].elements[1].name, "q2", "r2 q2 check");
+  assert.equal(page.rows[0].elements[2].name, "q3", "r2 q3 check");
 });

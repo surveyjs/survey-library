@@ -16,27 +16,30 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
     }
     return panels;
   }
-  constructor(private changeDetectorRef: ChangeDetectorRef) {
-    super();
-  }
-
-  ngOnInit(): void {
+  protected override onModelChanged(): void {
+    super.onModelChanged();
     this.model.panelCountChangedCallback = () => {
-      this.changeDetectorRef.detectChanges();
+      this.detectChanges();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.changeDetectorRef.detectChanges();
+      this.detectChanges();
     };
     this.model.renderModeChangedCallback = () => {
-      this.changeDetectorRef.detectChanges();
+      this.detectChanges();
     };
   }
-
   get progressCssClass() {
     return this.model.isProgressTopShowing
       ? this.model.cssClasses.progressTop
       : this.model.cssClasses.progressBottom;
   }
+  override ngOnDestroy(): void {
+    this.model.panelCountChangedCallback = () => {};
+    this.model.currentIndexChangedCallback = () => {};
+    this.model.renderModeChangedCallback = () => {};
+    super.ngOnDestroy();
+  }
+
 }
 
 AngularComponentFactory.Instance.registerComponent("paneldynamic-question", PanelDynamicQuestionComponent);

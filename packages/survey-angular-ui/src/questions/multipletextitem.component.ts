@@ -1,4 +1,4 @@
-import { MultipleTextItemModel, QuestionMultipleTextModel } from "survey-core";
+import { MultipleTextItemModel, QuestionMultipleTextModel, QuestionTextModel } from "survey-core";
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 
@@ -6,10 +6,10 @@ import { BaseAngular } from "../base-angular";
   selector: "'[sv-ng-multipletext-item]'",
   templateUrl: "./mutlipletextitem.component.html"
 })
-export class MultipleTextItemComponent extends BaseAngular<MultipleTextItemModel> {
+export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> {
   @Input() question!: QuestionMultipleTextModel;
   @Input() model!: MultipleTextItemModel;
-  protected getModel(): MultipleTextItemModel {
-    return this.model;
+  protected getModel(): QuestionTextModel {
+    return this.model.editor;
   }
 }

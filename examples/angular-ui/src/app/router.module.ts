@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from '@angular/router';
 import { TestBootstrapComponent } from "./bootstrap.component";
+import { TestCustomWidgetComponent } from "./customwidget.component";
 import { ExampleComponent } from "./example.component";
 import { TestDefaultComponent } from "./testdefault.component";
 import { TestDefaultV2Component } from "./testdefaultV2.component";
@@ -14,7 +15,9 @@ const routes = [
   { path: "examples_test/modern/angular", component: TestModernComponent },
   { path: "examples_test/modern/angular.html", component: TestModernComponent },
   { path: "examples_test/bootstrap/angular", component: TestBootstrapComponent },
-  { path: "examples_test/bootstrap/angular.html", component: TestBootstrapComponent }
+  { path: "examples_test/bootstrap/angular.html", component: TestBootstrapComponent },
+  { path: "examples_test/customWidget/angular", component: TestCustomWidgetComponent },
+  { path: "examples_test/customWidget/angular.html", component: TestCustomWidgetComponent }
 ]
 
 @NgModule({

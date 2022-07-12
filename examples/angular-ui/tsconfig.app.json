@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "../../build/angular-ui",
     "baseUrl": ".",
+    "noImplicitAny": false,
     "paths": {
       "survey-core": [
         "../../build/survey-core"

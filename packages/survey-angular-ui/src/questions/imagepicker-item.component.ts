@@ -4,6 +4,7 @@ import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 @Component({
   selector: "sv-ng-imagepicker-item",
   templateUrl: "./imagepicker-item.component.html",
+  styles: [":host { display: none; }"]
 })
 export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implements AfterViewInit {
   @Input() question!: QuestionImagePickerModel;

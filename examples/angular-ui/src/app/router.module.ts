@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from '@angular/router';
+import { TestBootstrapComponent } from "./bootstrap.component";
 import { ExampleComponent } from "./example.component";
 import { TestDefaultComponent } from "./testdefault.component";
 import { TestDefaultV2Component } from "./testdefaultV2.component";
@@ -11,7 +12,9 @@ const routes = [
   { path: "examples_test/defaultV2/angular", component: TestDefaultV2Component },
   { path: "examples_test/defaultV2/angular.html", component: TestDefaultV2Component },
   { path: "examples_test/modern/angular", component: TestModernComponent },
-  { path: "examples_test/modern/angular.html", component: TestModernComponent }
+  { path: "examples_test/modern/angular.html", component: TestModernComponent },
+  { path: "examples_test/bootstrap/angular", component: TestBootstrapComponent },
+  { path: "examples_test/bootstrap/angular.html", component: TestBootstrapComponent }
 ]
 
 @NgModule({

@@ -10,10 +10,11 @@ import { AppRoutingModule } from "./router.module";
 import { TestDefaultComponent } from "./testdefault.component";
 import { TestDefaultV2Component } from "./testdefaultV2.component";
 import { TestModernComponent } from "./testmodern.component";
+import { TestBootstrapComponent } from "./bootstrap.component";
 
 @NgModule({
   declarations: [
-    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent
+    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent
   ],
   imports: [
     BrowserModule, SurveyAngularModule, FormsModule, AppRoutingModule

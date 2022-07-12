@@ -77,7 +77,7 @@
     
     "prepare": "husky install"
   },
-  "version": "1.9.39",
+  "version": "1.9.40",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

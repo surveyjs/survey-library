@@ -148,6 +148,11 @@
           "Name": "IAction",
           "Title": "IAction",
           "IsHidden": true
+        },
+        {
+          "Name": "ICustomQuestionTypeConfiguration",
+          "Title": "ICustomQuestionTypeConfiguration",
+          "IsHidden": true
         }
       ]
     }

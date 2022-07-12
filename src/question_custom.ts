@@ -14,82 +14,151 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 
-export interface ICustomComponentDescription {
-  /*
-   * The name of a custom component
+/**
+ * An interface used to create custom question types.
+ *
+ * Refer to the following articles for more information:
+ *
+ * - [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types)
+ * - [Create Composite Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types)
+ */
+export interface ICustomQuestionTypeConfiguration {
+  /**
+   * A name used to identify a custom question type.
+   *
+   * @see title
    */
   name: string;
-  /*
-   * This function is called is when custom component question has been inited
+  /**
+   * A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
+   *
+   * @see name
+   */
+  title?: string;
+  /**
+   * An icon for the custom question type.
+   */
+  icon?: string;
+  /**
+   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
    */
   onInit?(): void;
   /**
-   * Set this property to false if you don't want to show the component in toolbox in Creator
+   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
+   *
+   * Default value: `true`
+   *
+   * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
-  /*
-   * This function is called is when custom component question has been created
+  /**
+   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    */
   onCreated?(question: Question): void;
-  /*
-   * This function is called is when custom component question has been loaded
+  /**
+   * A function that is called when JSON definitions are loaded.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
    */
   onLoaded?(question: Question): void;
-  /*
-   * This function is called is when custom component question has been rendered
+  /**
+   * A function that is called after the entire question is rendered.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `htmlElement`: any - An HTML element that represents the custom question.
    */
   onAfterRender?(question: Question, htmlElement: any): void;
-  /*
-   * This function is called is when custom component question content element has been inited
+  /**
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The composite question.
+   * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - A nested question.
+   * - `htmlElement`: any - An HTML element that represents the nested question.
    */
   onAfterRenderContentElement?(
     question: Question,
     element: Question,
     htmlElement: any
   ): void;
-  /*
-   * This function is called is then custom component property has been changed
+  /**
+   * A function that is called when a custom question type property is changed. Use it to handle property changes.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `propertyName`: string - The name of the changed property.
+   * - `newValue`: any - A new value for the property.
    */
   onPropertyChanged?(
     question: Question,
     propertyName: string,
     newValue: any
   ): void;
-  /*
-   * This function is called is then custom component value has been changed
+  /**
+   * A function that is called when the question value is changed.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `name`: string -  The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
+   * - `newValue`: any - A new value for the question.
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
-  /*
-   * This function is called is then custom component item has been changed
+  /**
+   * A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) - An `ItemValue` object.
+   * - `options.propertyName`: string - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+   * - `options.name`: string - The name of the changed property: `"text"` or `"value"`.
+   * - `options.newValue`: any - A new value for the property.
    */
   onItemValuePropertyChanged?(
     question: Question,
     options: { obj: ItemValue, propertyName: string, name: string, newValue: any }
   ): void;
-  /*
-   * This function returns component display value
+  /**
+   * A function that allows you to override the default `getDisplayValue()` implementation.
    */
   getDisplayValue?: ((keyAsText: boolean, value: any) => any) | ((question: Question) => any);
-  /*
-   * Inner elements JSON
+  /**
+   * JSON definitions of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
    */
   elementsJSON?: any;
-  /*
-   * Inner elements creator function
+  /**
+   * A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
+   *
+   * @see elementsJSON
    */
   createElements?: any;
-  /*
-   * Inner question JSON
+  /**
+   * A JSON definition for a built-in question type on which the custom question type is based.
+   *
+   * Refer to the [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types) help topic for more information.
    */
   questionJSON?: any;
-  /*
-   * Inner question creator function
+  /**
+   * A function that allows you to create a custom question if you do not specify the `questionJSON` property.
+   *
+   * @see questionJSON
    */
   createQuestion?: any;
 }
 
 export class ComponentQuestionJSON {
-  public constructor(public name: string, public json: ICustomComponentDescription) {
+  public constructor(public name: string, public json: ICustomQuestionTypeConfiguration) {
     var self = this;
     Serializer.addClass(
       name,
@@ -176,7 +245,7 @@ export class ComponentCollection {
     questionJSON: ComponentQuestionJSON
   ) => QuestionCustomModel;
   public onAddingJson: (name: string, isComposite: boolean) => void;
-  public add(json: ICustomComponentDescription): void {
+  public add(json: ICustomQuestionTypeConfiguration): void {
     if (!json) return;
     let name = json.name;
     if (!name) {

@@ -1,12 +1,13 @@
 import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
 import { SurveyProgressModel } from "survey-core";
+import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
 
 @Component({
   selector: "sv-ng-progress-default",
   templateUrl: "./progress.component.html"
 })
-export class ProgressDefaultComponent {
+export class ProgressDefaultComponent extends EmbeddedViewContentComponent {
   @Input() model: any;
   getProgressTextInBarCss(css: any): string {
     return SurveyProgressModel.getProgressTextInBarCss(css);

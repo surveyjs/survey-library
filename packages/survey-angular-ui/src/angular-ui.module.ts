@@ -43,7 +43,6 @@ import { BooleanRadioComponent } from "./components/renderAs/boolean-radio/boole
 import { BooleanRadioItemComponent } from "./components/renderAs/boolean-radio/boolean-radio-item.component";
 import { ProgressDefaultComponent } from "./components/progress/default/progress.component";
 import { ProgressButtonsComponent } from "./components/progress/buttons/progress.component";
-import { ProgressComponent } from "./components/progress/progress.component";
 import { PanelComponent } from "./panel.component";
 import { PopupService } from "./components/popup/popup.service";
 import { SurveyNavigationButton } from "./components/survey-actions/survey-nav-btn.component";
@@ -82,7 +81,7 @@ import { ElementComponent } from "./element.component";
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
-    SurveyHeaderComponent, ProgressDefaultComponent, ProgressComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
+    SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent
   ],
   imports: [

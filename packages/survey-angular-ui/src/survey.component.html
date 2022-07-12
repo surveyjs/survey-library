@@ -10,14 +10,16 @@
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
-        <sv-ng-progress *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage" [model]="model"></sv-ng-progress>
+        <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
+          <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
+        </ng-container>
         <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
         <!-- ko if: activePage -->
-          <div *ngIf="model.activePage">
+          <ng-container *ngIf="model.activePage">
             <div [id]="model.activePage.id">
               <page [model]="model.activePage" [survey]="model"></page>
             </div>
-          </div>
+          </ng-container>
           <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
           <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
           <!-- /ko -->
@@ -31,7 +33,9 @@
         <!-- ko template: { name: 'survey-timerpanel' } -->
         <!-- /ko -->
         <!-- /ko -->
-        <sv-ng-progress *ngIf="model.isShowProgressBarOnBottom && !model.isShowStartingPage" [model]="model"></sv-ng-progress>
+        <ng-container *ngIf="model.isShowProgressBarOnBottom && !model.isShowStartingPage">
+          <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
+        </ng-container>
         <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>
       </div>
       <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"

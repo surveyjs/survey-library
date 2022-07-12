@@ -27,3 +27,5 @@ export * from "./components/action-bar/action-bar-item-dropdown.component";
 
 export * from "./components/list/list-item.component";
 export * from "./components/list/list.component";
+
+export * from "./components/svg-icon/svg-icon.component";

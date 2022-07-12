@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel } from "survey-core";
-import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   selector: "sv-ng-popup-container, '[sv-ng-popup-container]'",
@@ -11,8 +10,8 @@ import { AngularComponentFactory } from "../../component-factory";
 export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
   private prevIsVisible: boolean = false;
   isShow: boolean = false;
-
   @Input() model!: PopupBaseViewModel;
+
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
     this.changeDetectorRef.detach();
@@ -45,5 +44,4 @@ export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
     }
     super.afterUpdate();
   }
-
 }

@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, Input, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, HostBinding, HostListener, Input } from "@angular/core";
 import { ListModel, Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -12,8 +12,6 @@ export class ListItemComponent extends BaseAngular {
   @Input() element: any;
   @Input() item!: Action;
   @Input() model!: ListModel;
-
-  @ViewChild("itemComponent", { read: ViewContainerRef, static: true }) itemComponent!: ViewContainerRef;
 
   @HostBinding("attr.aria-selected") get ariaSelected(): boolean | string {
     return this.model.isItemSelected(this.item) || "";
@@ -33,15 +31,6 @@ export class ListItemComponent extends BaseAngular {
 
   getModel() {
     return this.item;
-  }
-
-  override ngOnInit(): void {
-    if (!this.item.component) return;
-
-    let componentRef = AngularComponentFactory.Instance.create(this.itemComponent, this.item.component);
-    if (!!componentRef) {
-      (componentRef.instance as any).model = this.item;
-    }
   }
 }
 

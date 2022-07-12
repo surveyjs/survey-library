@@ -88,7 +88,7 @@ import { ElementComponent } from "./element.component";
     CommonModule, FormsModule
   ],
   exports: [
-    SurveyComponent
+    SurveyComponent, SvgIconComponent
   ],
   providers: [PopupService],
 })

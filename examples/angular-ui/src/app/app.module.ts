@@ -11,10 +11,12 @@ import { TestDefaultComponent } from "./testdefault.component";
 import { TestDefaultV2Component } from "./testdefaultV2.component";
 import { TestModernComponent } from "./testmodern.component";
 import { TestBootstrapComponent } from "./bootstrap.component";
+import { AngularItemTemplateComponent } from "./components/itemTemplateComponent";
 
 @NgModule({
   declarations: [
-    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent
+    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent,
+    AngularItemTemplateComponent,
   ],
   imports: [
     BrowserModule, SurveyAngularModule, FormsModule, AppRoutingModule

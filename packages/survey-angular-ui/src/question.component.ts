@@ -17,11 +17,7 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     this.model.afterRender(this.rootEl?.nativeElement);
   }
   public getComponentName(): string {
-    if (
-      this.model.customWidget &&
-      !this.model.customWidget.widgetJson.isDefaultRender
-    )
-      return "survey-widget-" + this.model.customWidget.name;
+    if (this.model.customWidget) return "survey-customwidget";
     if (this.model.isDefaultRendering()) {
       return this.model.getType() + "-question";
     }

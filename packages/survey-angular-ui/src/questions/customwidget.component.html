@@ -1,0 +1,6 @@
+<div #content>
+  <div *ngIf="hasHtml" [innerHTML]="customHtml | safeHtml"></div>
+  <ng-container *ngIf="hasDefaultRender">
+    <ng-template [component]="{ name: componentName, data: { model: model, css: css } }"></ng-template>  
+  </ng-container>
+</div>

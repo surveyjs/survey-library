@@ -46,7 +46,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         if (Array.isArray(val)) {
           var val: any = val;
           val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-            this.detectChanges();
+            this.update();
           };
         }
       });
@@ -57,7 +57,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       ) => {
         if (hash[key] !== val) {
           hash[key] = val;
-          this.detectChanges();
+          this.update();
         }
       };
     }
@@ -74,15 +74,19 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     });
   }
 
-  protected detectChanges() {
+  private update() {
     if (this.getIsRendering()) return;
     this.beforeUpdate();
+    this.detectChanges();
+    this.afterUpdate();
+  }
+
+  protected detectChanges() {
     if(!!this.embeddedView) {
       this.embeddedView.detectChanges();
     } else {
       this.changeDetectorRef.detectChanges();
     }
-    this.afterUpdate();
   }
 
   protected beforeUpdate(): void {

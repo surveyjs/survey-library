@@ -26,7 +26,7 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implem
   }
   ngAfterViewInit(): void {
     this.model.locImageLink.onChanged = () => {
-      this.embeddedView?.detectChanges();
+      this.detectChanges();
     };
   }
   override ngOnDestroy(): void {

@@ -1,32 +1,68 @@
-import { Directive, ElementRef, Input, SimpleChanges, } from "@angular/core";
-import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur } from "survey-core";
+import { Directive, ElementRef, Input, SimpleChanges, OnChanges, OnDestroy } from "@angular/core";
+import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions } from "survey-core";
 
 @Directive({
   selector: "[key2click]"
 })
-export class Key2ClickDirective {
-  options?: { processEsc: boolean } = { processEsc: true };
-  @Input() key2click?: { processEsc?: boolean };
+export class Key2ClickDirective implements OnChanges, OnDestroy {
+  static defaultOptions: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false };
+  private isSubscribed = false;
 
+  options?: IAttachKey2clickOptions = Key2ClickDirective.defaultOptions;
+  @Input() key2click?: IAttachKey2clickOptions;
+
+  private onkeydown (evt: any) {
+    doKey2ClickDown(evt, this.options);
+  }
+  private onkeyup (evt: any) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    doKey2ClickUp(evt, this.options);
+    return false;
+  }
+  private blur (evt: any) {
+    doKey2ClickBlur(evt);
+  }
   constructor(private el: ElementRef) {
-    const element = this.el.nativeElement;
-    // const options = this.key2click || { processEsc: true };
-    // if (this.ngModel.model.disableTabStop) {
-    //   element.tabIndex = -1;
-    //   return;
-    // }
-    element.tabIndex = 0;
-    element.onkeyup = (evt: any) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-      doKey2ClickUp(evt, this.options);
-      return false;
-    };
-    element.onkeydown = (evt: any) => doKey2ClickDown(evt, this.options);
-    element.onblur = (evt: any) => doKey2ClickBlur(evt);
+    this.subscribeEventListeners();
+  }
+
+  get element() {
+    return this.el.nativeElement;
+  }
+
+  subscribeEventListeners() {
+    if(this.isSubscribed) return;
+
+    this.element.tabIndex = 0;
+    this.element.addEventListener("keyup", this.onkeyup);
+    this.element.addEventListener("keydown", this.onkeydown);
+    this.element.addEventListener("blur", this.blur);
+
+    this.isSubscribed = true;
+  }
+  unsubscribeEventListeners() {
+    if(!this.isSubscribed) return;
+
+    this.element.tabIndex = -1;
+    this.element.removeEventListener("keyup", this.onkeyup);
+    this.element.removeEventListener("keydown", this.onkeydown);
+    this.element.removeEventListener("blur", this.blur);
+
+    this.isSubscribed = false;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.options = changes["key2click"].currentValue;
+    const curValue = changes["key2click"].currentValue;
+    if(curValue.disableTabStop) {
+      this.unsubscribeEventListeners();
+    } else {
+      this.subscribeEventListeners();
+    }
+    this.options = Object.assign({}, Key2ClickDirective.defaultOptions, curValue);
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeEventListeners();
   }
 }

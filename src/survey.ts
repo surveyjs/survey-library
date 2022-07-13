@@ -1115,6 +1115,7 @@ export class SurveyModel extends SurveyElementCore
       this.render(renderedElement);
     }
     this.updateCss();
+    this.calculatedWidthMode = <any>new ComputedUpdater(() => this.calculateWidthMode());
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1237,7 +1238,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
-      .append(this.css.body + "--" + this.calculateWidthMode()).toString();
+      .append(this.css.body + "--" + this.calculatedWidthMode).toString();
   }
   @property() completedCss: string;
   @property() containerCss: string;
@@ -6223,6 +6224,7 @@ export class SurveyModel extends SurveyElementCore
   public set widthMode(val: string) {
     this.setPropertyValue("widthMode", val);
   }
+  @property() calculatedWidthMode: string;
   public calculateWidthMode() {
     if (this.widthMode == "auto") {
       let isResponsive = false;

@@ -4,18 +4,20 @@ import { BrowserModule } from "@angular/platform-browser";
 
 import { AppComponent } from "./app.component";
 import { SurveyAngularModule } from "survey-angular-ui";
-import { TestComponent } from "./test.component";
-import { ExampleComponent } from "./example.component";
+import { TestComponent } from "./components/test/test.component";
+import { ExampleComponent } from "./components/example/example.component";
 import { AppRoutingModule } from "./router.module";
-import { TestDefaultComponent } from "./testdefault.component";
-import { TestDefaultV2Component } from "./testdefaultV2.component";
-import { TestModernComponent } from "./testmodern.component";
-import { TestBootstrapComponent } from "./bootstrap.component";
 import { AngularItemTemplateComponent } from "./components/itemTemplateComponent";
+import { TestDefaultComponent } from "./components/test/testdefault.component";
+import { TestDefaultV2Component } from "./components/test/testdefaultV2.component";
+import { TestModernComponent } from "./components/test/testmodern.component";
+import { TestBootstrapComponent } from "./components/test/bootstrap.component";
+import { TestCustomWidgetComponent } from "./components/test/customwidget.component";
 
 @NgModule({
   declarations: [
     AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent,
+    TestCustomWidgetComponent,
     AngularItemTemplateComponent,
   ],
   imports: [

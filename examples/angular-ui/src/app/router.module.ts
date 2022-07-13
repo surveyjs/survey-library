@@ -1,10 +1,10 @@
 import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from '@angular/router';
-import { TestBootstrapComponent } from "./bootstrap.component";
-import { ExampleComponent } from "./example.component";
-import { TestDefaultComponent } from "./testdefault.component";
-import { TestDefaultV2Component } from "./testdefaultV2.component";
-import { TestModernComponent } from "./testmodern.component";
+import { RouterModule } from '@angular/router';
+import { TestBootstrapComponent } from "./components/test/bootstrap.component";
+import { TestCustomWidgetComponent } from "./components/test//customwidget.component";
+import { TestDefaultComponent } from "./components/test//testdefault.component";
+import { TestDefaultV2Component } from "./components/test/testdefaultV2.component";
+import { TestModernComponent } from "./components/test/testmodern.component";
 
 const routes = [
   { path: "examples_test/default/angular", component: TestDefaultComponent },
@@ -14,7 +14,9 @@ const routes = [
   { path: "examples_test/modern/angular", component: TestModernComponent },
   { path: "examples_test/modern/angular.html", component: TestModernComponent },
   { path: "examples_test/bootstrap/angular", component: TestBootstrapComponent },
-  { path: "examples_test/bootstrap/angular.html", component: TestBootstrapComponent }
+  { path: "examples_test/bootstrap/angular.html", component: TestBootstrapComponent },
+  { path: "examples_test/customWidget/angular", component: TestCustomWidgetComponent },
+  { path: "examples_test/customWidget/angular.html", component: TestCustomWidgetComponent }
 ]
 
 @NgModule({

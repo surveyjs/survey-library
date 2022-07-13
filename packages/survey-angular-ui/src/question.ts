@@ -1,22 +1,28 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
+import { BaseAngular } from "./base-angular";
 
 @Component({
   template: ""
 })
-export class QuestionAngular<T extends Question = Question> implements AfterViewInit, OnDestroy {
+export class QuestionAngular<T extends Question = Question> extends BaseAngular<Question> implements AfterViewInit, OnDestroy {
   @Input() public model!: T;
 
   @ViewChild("contentElement") elementContentRef!: ElementRef<HTMLElement>;
+
+  protected getModel() {
+    return this.model;
+  }
 
   ngAfterViewInit() {
     if (!!this.model) {
       this.model.afterRenderQuestionElement(this.elementContentRef.nativeElement);
     }
   }
-  ngOnDestroy() {
+  override ngOnDestroy() {
     if (!!this.model) {
       this.model.beforeDestroyQuestionElement(this.elementContentRef.nativeElement);
     }
+    super.ngOnDestroy();
   }
 }

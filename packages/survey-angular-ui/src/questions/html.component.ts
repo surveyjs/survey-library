@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectorRef, Component } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionHtmlModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
@@ -7,6 +7,17 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./html.component.html",
   styleUrls: []
 })
-export class HtmlQuestionComponent extends QuestionAngular<QuestionHtmlModel> {}
+export class HtmlQuestionComponent extends QuestionAngular<QuestionHtmlModel> {
+  override onModelChanged(): void {
+    super.onModelChanged();
+    this.model.locHtml.onChanged = () => {
+      this.detectChanges();
+    };
+  }
+  override ngOnDestroy(): void {
+    this.model.locHtml.onChanged = () => {};
+    super.ngOnDestroy();
+  }
+}
 
 AngularComponentFactory.Instance.registerComponent("html-question", HtmlQuestionComponent);

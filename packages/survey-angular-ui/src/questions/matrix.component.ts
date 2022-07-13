@@ -8,18 +8,16 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./matrix.component.html"
 })
 export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel> {
-  constructor(private changeDetectorRef: ChangeDetectorRef) {
-    super();
-  }
-  ngOnInit() {
+  override ngOnInit() {
     this.model.visibleRowsChangedCallback = () => {
-      this.changeDetectorRef.detectChanges();
+      this.detectChanges();
     };
+    super.ngOnInit();
   }
   public onChange(row: any, column: any): void {
     if (this.model.isInputReadOnly) return;
     row.value = column.value;
-    this.changeDetectorRef.detectChanges();
+    this.detectChanges();
   }
   trackRowByFn(i: number, row: any): string {
     return "column-" + row.name + "-" + i;

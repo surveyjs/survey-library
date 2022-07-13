@@ -14,6 +14,7 @@
     "@angular/router": "^13.0.0",
     "bootstrap": "^3.3.7",
     "survey-core": "../../build/survey-core",
+    "surveyjs-widgets": "^1.9.40",
     "tslib": "^2.3.0"
   }
 }

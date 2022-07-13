@@ -160,7 +160,8 @@ export {
   QuestionCustomModel,
   QuestionCompositeModel,
   ComponentQuestionJSON,
-  ComponentCollection
+  ComponentCollection,
+  ICustomQuestionTypeConfiguration
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";

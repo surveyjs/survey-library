@@ -8,10 +8,10 @@ import { SelectBaseComponent } from "./selectbase.component";
   templateUrl: "./selectbase.component.html"
 })
 export class RadiogroupComponent extends SelectBaseComponent<QuestionRadiogroupModel> {
-  constructor() {
-    super();
+  override ngOnInit(): void {
     this.inputType = "radio";
     this.showLegend = false;
+    super.ngOnInit();
   }
 }
 

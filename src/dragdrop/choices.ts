@@ -119,6 +119,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doDragOver = (): any => {
+    if (this.parentElement.getType() === "imagepicker") return;
     const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
     node.style.cursor = "grabbing";
   };
@@ -150,6 +151,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doBanDropHere = (): any => {
+    if (this.parentElement.getType() === "imagepicker") return;
     const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
     node.style.cursor = "not-allowed";
   };

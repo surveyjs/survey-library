@@ -628,7 +628,13 @@ Serializer.addClass(
   "matrixdropdowncolumn",
   [
     { name: "!name", isUnique: true },
-    { name: "title", serializationProperty: "locTitle" },
+    { name: "title", serializationProperty: "locTitle", dependsOn: "name",
+      onPropertyEditorUpdate: function(obj: any, editor: any) {
+        if(!!obj && !!editor) {
+          editor.placeHolder = obj.name;
+        }
+      }
+    },
     { name: "cellHint", serializationProperty: "locCellHint", visible: false },
     {
       name: "cellType",

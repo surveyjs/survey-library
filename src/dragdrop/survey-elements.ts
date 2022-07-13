@@ -3,8 +3,7 @@ import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
-import { QuestionRow } from "src/knockout/kopage";
-import { QuestionRowModel } from "survey-core";
+import { QuestionRowModel } from "src/panel";
 
 export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;

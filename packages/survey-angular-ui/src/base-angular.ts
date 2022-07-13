@@ -16,6 +16,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
 
   public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
+      this.unMakeBaseElementAngular(this.previousModel);
       this.previousModel = this.getModel();
       this.needUpdateModel = true;
       this.onModelChanged();

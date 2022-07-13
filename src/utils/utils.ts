@@ -261,6 +261,25 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
     }
   }
 }
+function sanitizeEditableContent(element: any) {
+  if (window.getSelection && document.createRange) {
+    const selection = document.getSelection();
+
+    let range = selection.getRangeAt(0);
+    range.setStart(range.endContainer, range.endOffset);
+    range.setEndAfter(element.lastChild);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const tail_len = selection.toString().replace(/\n/g, "").length;
+
+    element.innerText = element.innerText.replace(/\n/g, "");
+    range = document.createRange();
+    range.setStart(element.childNodes[0], element.innerText.length - tail_len);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}
 
 export {
   getElementWidth,
@@ -283,5 +302,6 @@ export {
   increaseHeightByContent,
   getOriginalEvent,
   preventDefaults,
-  findParentByClassNames
+  findParentByClassNames,
+  sanitizeEditableContent
 };

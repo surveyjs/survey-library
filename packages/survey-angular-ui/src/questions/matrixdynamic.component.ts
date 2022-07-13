@@ -7,11 +7,6 @@ import { AngularComponentFactory } from "../component-factory";
   selector: "sv-ng-matrixdynamic-question",
   templateUrl: "./matrixdynamic.component.html"
 })
-export class MatrixDynamicComponent extends QuestionAngular<QuestionMatrixDynamicModel> {
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    debugger;
-  }
-}
+export class MatrixDynamicComponent extends QuestionAngular<QuestionMatrixDynamicModel> {}
 
 AngularComponentFactory.Instance.registerComponent("matrixdynamic-question", MatrixDynamicComponent);

@@ -1,0 +1,22 @@
+<ng-template #template>
+  <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" [title]="cell.getTitle()" [style]="getCellStyle()" [attr.colspan]="cell.colSpans" #cellContainer>
+    <sv-action-bar *ngIf="cell.isActionsCell" [model]="cell.item.getData()" [handleClick]="false"></sv-action-bar>
+    <sv-ng-panel *ngIf="cell.hasPanel" [model]="cell.panel"></sv-ng-panel>
+    <div *ngIf="cell.hasQuestion" [class]="question.cssClasses.cellQuestionWrapper" [visible]="cell.question.isVisible">
+      <div *ngIf="cell.showErrorOnTop && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
+      <ng-template *ngIf="!cell.isChoice && cell.question.isDefaultRendering()" [component]="{ name: getComponentName(cell.question), data: { model: cell.question } }"></ng-template>
+      <ng-template *ngIf="!cell.isChoice && !cell.question.isDefaultRendering()" [component]="{ name: cell.question.getComponentName(), data: { model: cell.question } }">
+      </ng-template>
+      <sv-ng-selebase-item
+        *ngIf="cell.isChoice && !cell.isCheckbox"
+        [showLabel]="false"
+        [question]="cell.question"
+        [model]="cell.item"
+      ></sv-ng-selebase-item>
+      <div *ngIf="cell.showErrorOnBottom && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
+      <div *ngIf="cell.question.isErrorsModeTooltip && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'tooltip'" sv-ng-errors></div>
+    </div>
+    <sv-ng-string *ngIf="cell.hasTitle" [model]="cell.locTitle"></sv-ng-string>
+    <span *ngIf="!!cell.requiredText" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+</td>
+</ng-template>

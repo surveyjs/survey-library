@@ -11,6 +11,7 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> {
   @Input() question!: any;
   @Input() model!: ItemValue | any;
   @Input() inputType!: string;
+  @Input() showLabel: boolean = true;
   protected getModel(): ItemValue {
     return this.model;
   }

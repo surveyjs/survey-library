@@ -71,7 +71,14 @@ import { PanelDynamicQuestionComponent } from "./questions/paneldynamic.componen
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 import { ElementComponent } from "./element.component";
 import { CustomWidgetComponent } from "./questions/customwidget.component";
-
+import { MatrixCellComponent } from "./questions/matrixcell.component";
+import { MatrixTableComponent } from "./questions/matrixtable.component";
+import { MatrixDropdownComponent } from "./questions/matrixdropdown.component";
+import { MatrixDynamicComponent } from "./questions/matrixdynamic.component";
+import { MatrixDynamicRemoveButtonComponent } from "./components/matrix-actions/remove-button/remove-button.component";
+import { MatrixDynamicDragDropIconComponent } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
+import { MatrixDetailButtonComponent } from "./components/matrix-actions/detail-button/detail-button.component";
+import { MatrixRequiredHeader } from "./questions/matrixrequiredheader.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
@@ -84,7 +91,8 @@ import { CustomWidgetComponent } from "./questions/customwidget.component";
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
-    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent
+    MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
+    MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader
   ],
   imports: [
     CommonModule, FormsModule

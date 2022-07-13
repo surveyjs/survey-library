@@ -22,10 +22,11 @@ export class ListItemComponent extends BaseAngular {
   @HostBinding("style.paddingLeft") get paddingLeft(): string {
     return this.model.getItemIndent(this.item);
   }
-  @HostListener("click") click(): void {
+  @HostListener("click", ["$event"]) click(event: PointerEvent): void {
     this.model.selectItem(this.item);
+    event.stopPropagation();
   }
-  @HostListener("pointerdown") pointerdown(event: PointerEvent): void {
+  @HostListener("pointerdown", ["$event"]) pointerdown(event: PointerEvent): void {
     this.model.onPointerDown(event, this.item);
   }
 

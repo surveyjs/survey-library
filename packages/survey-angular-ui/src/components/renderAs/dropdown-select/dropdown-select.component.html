@@ -1,11 +1,11 @@
 <div [class]="model.renderCssRoot">
   <div [class]="model.cssClasses.selectWrapper">
-    <select *ngIf="!model.isReadOnly" [attr.id]="model.inputId" [value]="model.renderedValue" [(ngModel)]="model.renderedValue"
+    <select *ngIf="!model.isReadOnly" [attr.id]="model.inputId" [(ngModel)]="editableValue"
       [disabled]="model.isInputReadOnly" (click)="click($event)" (keyup)="keyup($event)"
       [class]="model.getControlClass()" [attr.autocomplete]="model.autoComplete" [required]="model.isRequired"
       [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
       [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy">
-      <option *ngIf="model.allowClear" [value]="undefined">{{ model.placeholder }}</option>
+      <option *ngIf="model.allowClear" value="">{{ model.placeholder }}</option>
       <ng-template *ngFor="let item of model.visibleChoices" [component]="{ name: 'sv-dropdown-option-item', data: { item } }"></ng-template>
     </select>
     <div *ngIf="model.isReadOnly" disabled [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>

@@ -10,7 +10,7 @@ const json = {
     {
       name: "often",
       type: "radiogroup",
-      title: "How often do you use this applications?",
+      title: "How often do you use this?",
       choices: ["Rare", "Sometimes", "Always"]
     }
   ]
@@ -87,6 +87,47 @@ function addActionsWithModalPopupLongList(_, opt) {
     model: new window["Survey"].ListModel(getLongItemList())
   }, "bottom", "left", true, true);
   modalPopupWithTitleModel.title = "Title";
+
+  const modalPopupWithTitleAction = new window["Survey"].Action({
+    component: "sv-action-bar-item-dropdown",
+    title: "Modal with title",
+    showTitle: true,
+    action: () => {
+      modalPopupWithTitleModel.toggleVisibility();
+    },
+    popupModel: modalPopupWithTitleModel
+  });
+
+  opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
+}
+
+function addActionsWithModalPopupWideList(_, opt) {
+  const getLongItemList = () => {
+    let longList = [];
+    for (let index = 0; index < 40; index++) {
+      longList[index] = new window["Survey"].Action({ title: "item" + index });
+    }
+    return longList;
+  };
+
+  const modalPopupModel = new window["Survey"].PopupModel("sv-list", {
+    model: new window["Survey"].ListModel(getLongItemList())
+  }, "bottom", "left", true, true);
+
+  const modalPopupAction = new window["Survey"].Action({
+    component: "sv-action-bar-item-dropdown",
+    title: "Modal",
+    showTitle: true,
+    action: () => {
+      modalPopupModel.toggleVisibility();
+    },
+    popupModel: modalPopupModel
+  });
+
+  const modalPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
+    model: new window["Survey"].ListModel(getLongItemList())
+  }, "bottom", "left", true, true);
+  modalPopupWithTitleModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
   const modalPopupWithTitleAction = new window["Survey"].Action({
     component: "sv-action-bar-item-dropdown",
@@ -229,9 +270,12 @@ frameworks.forEach(framework => {
     });
 
   test("Dropdown popup styles", async t => {
-    await t.resizeWindow(1000, 600);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActions });
-    await t.click(clickButton.withText("Long List"));
+    await t
+      .wait(1000)
+      .resizeWindow(1000, 600)
+      .wait(1000)
+      .click(clickButton.withText("Long List"));
     await checkElementScreenshot("popup-dropdown-long-list.png", popupSelector, t);
 
     await t
@@ -250,6 +294,15 @@ frameworks.forEach(framework => {
       .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
       .click(clickButton.withText("Modal with title"));
     await checkElementScreenshot("popup-modal-long-list-with-title.png", popupSelector, t);
+  });
+
+  test("Modal popup with wide list styles", async t => {
+    await t.resizeWindow(1000, 1000);
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupWideList });
+
+    await t
+      .click(clickButton.withText("Modal with title"));
+    await checkElementScreenshot("popup-modal-wide-list-with-title.png", popupSelector, t);
   });
 
   test("Modal popup with short list styles", async t => {

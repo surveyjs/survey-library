@@ -8,6 +8,7 @@ registerMarkupTests(
         questions: [
           {
             "type": "dropdown",
+            "renderAs": "select",
             "name": "name",
             "title": "Question title",
             "choices": [
@@ -27,6 +28,7 @@ registerMarkupTests(
         questions: [
           {
             "type": "dropdown",
+            "renderAs": "select",
             "name": "name",
             "title": "Question title",
             "showOptionsCaption": false,
@@ -47,6 +49,7 @@ registerMarkupTests(
         questions: [
           {
             "type": "dropdown",
+            "renderAs": "select",
             "name": "name",
             "title": "Question title",
             "choices": [
@@ -70,6 +73,7 @@ registerMarkupTests(
         questions: [
           {
             "type": "dropdown",
+            "renderAs": "select",
             "name": "name",
             "title": "Question title",
             "choices": [
@@ -90,6 +94,7 @@ registerMarkupTests(
         questions: [
           {
             "type": "dropdown",
+            "renderAs": "select",
             "name": "name",
             "title": "Question title",
             "choices": [
@@ -112,13 +117,13 @@ registerMarkupTests(
             "type": "dropdown",
             "name": "name",
             "title": "Question title",
+            "allowClear": false,
             "choices": [
               "item1",
               "item2",
               "item3"
             ],
             titleLocation: "hidden",
-            renderAs: "select"
           }
         ]
       },
@@ -139,8 +144,6 @@ registerMarkupTests(
             ],
             titleLocation: "hidden",
             defaultValue: "item1",
-            showClearButton: true,
-            renderAs: "select"
           }
         ]
       },

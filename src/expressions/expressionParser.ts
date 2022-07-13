@@ -69,10 +69,8 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
+        .replace("/[\x00-\x0F]/g", (ch) => "\\x0" + hex(ch))
+        .replace("/[\x10-\x1F\x7F-\x9F]/g", (ch) => "\\x" + hex(ch));
     }
 
     function classEscape(s: string): string {
@@ -85,10 +83,8 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
-        // eslint-disable-next-line no-control-regex
-        .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
+        .replace("/[\x00-\x0F]/g", (ch) => "\\x0" + hex(ch))
+        .replace("/[\x10-\x1F\x7F-\x9F]/g", (ch) => "\\x" + hex(ch));
     }
 
     function describeExpectation(expectation: Expectation) {
@@ -363,8 +359,8 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c160 = peg$classExpectation([["0", "9"]], false, false);
   const peg$c161 = /^[1-9]/;
   const peg$c162 = peg$classExpectation([["1", "9"]], false, false);
-  const peg$c163 = /^[a-zA-Z]/;
-  const peg$c164 = peg$classExpectation([["a", "z"], ["A", "Z"]], false, false);
+  const peg$c163 = /^[a-zA-Z_]/;
+  const peg$c164 = peg$classExpectation([["a", "z"], ["A", "Z"], "_"], false, false);
   const peg$c165 = peg$otherExpectation("whitespace");
   const peg$c166 = /^[ \t\n\r]/;
   const peg$c167 = peg$classExpectation([" ", "\t", "\n", "\r"], false, false);

@@ -19,7 +19,7 @@ export var finnishSurveyStrings = {
   completingSurveyBefore:
     "Tietojemme mukaan olet jo suorittanut tämän kyselyn.",
   loadingSurvey: "Kyselyä ladataan palvelimelta...",
-  optionsCaption: "Valitse...",
+  placeholder: "Valitse...",
   value: "arvo",
   requiredError: "Vastaa kysymykseen, kiitos.",
   requiredErrorInPanel: "Vastaa ainakin yhteen kysymykseen.",

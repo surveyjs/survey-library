@@ -95,6 +95,7 @@ export class Question extends SurveyElement
     this.locTitle.onGetDefaultTextCallback = (): string => {
       return this.name;
     };
+    this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", () => {
       this.updateQuestionCss();
@@ -1970,7 +1971,13 @@ Serializer.addClass("question", [
         : [];
     },
   },
-  { name: "title:text", serializationProperty: "locTitle", layout: "row" },
+  { name: "title:text", serializationProperty: "locTitle", layout: "row", dependsOn: "name",
+    onPropertyEditorUpdate: function(obj: any, editor: any) {
+      if(!!obj && !!editor) {
+        editor.placeHolder = obj.name;
+      }
+    }
+  },
   {
     name: "titleLocation",
     default: "default",

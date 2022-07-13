@@ -3,6 +3,8 @@ import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
+import { QuestionRow } from "src/knockout/kopage";
+import { QuestionRowModel } from "survey-core";
 
 export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;
@@ -20,6 +22,8 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return "survey-element";
   }
   protected isDraggedElementSelected: boolean = false;
+
+  private isRight: boolean;
 
   public startDragToolboxItem(
     event: PointerEvent,
@@ -199,8 +203,20 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (this.getDataAttributeValueByNode(dropTargetNode) === DragDropSurveyElements.ghostSurveyElementName) {
       return this.isBottom;
     }
-    const middle = this.calculateMiddleOfHTMLElement(dropTargetNode);
+    const middle = this.calculateVerticalMiddleOfHTMLElement(dropTargetNode);
     return clientY >= middle;
+  }
+
+  protected calculateIsRight(
+    clientX: number,
+    dropTargetNode?: HTMLElement
+  ): boolean {
+    // we shouldn't reculc isBottom if drag over ghost survey element
+    if (this.getDataAttributeValueByNode(dropTargetNode) === DragDropSurveyElements.ghostSurveyElementName) {
+      return this.isRight;
+    }
+    const middle = this.calculateHorizontalMiddleOfHTMLElement(dropTargetNode);
+    return clientX >= middle;
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
@@ -251,15 +267,34 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return clientY - rect.top <= DragDropSurveyElements.edgeHeight || rect.bottom - clientY <= DragDropSurveyElements.edgeHeight;
   }
 
-  private calculateIsRight(): boolean {
-    var pageOrPanel = this.dropTarget.parent;
-    var srcIndex = pageOrPanel.elements.indexOf(this.draggedElement);
-    var destIndex = pageOrPanel.elements.indexOf(this.dropTarget);
-    return srcIndex < destIndex;
-  }
+  // private calculateIsRight(): boolean {
+  //   // const dropTarget = this.dropTarget;
+  //   // const targetRow = this.getTargetRow(dropTarget);
 
-  protected afterDragOver(): void {
+  //   // if (targetRow.elements.indexOf(this.draggedElement) !== -1) {
+  //   //   var pageOrPanel = dropTarget.parent;
+  //   //   var srcIndex = pageOrPanel.elements.indexOf(this.draggedElement);
+  //   //   var destIndex = pageOrPanel.elements.indexOf(dropTarget);
+  //   // } else {
+  //   //   if (targetRow.elements.indexOf(dropTarget) === 0) {
+  //   //     return false;
+  //   //   } else {
+  //   //     return true;
+  //   //   }
+  //   //   // else if (targetRow.elements.indexOf(dropTarget) === targetRow.elements.length -1) {
+  //   //   //   return true;
+  //   //   // }
+  //   // }
+
+  //   // return srcIndex < destIndex;
+
+  //   const middle = this.calculateHorizontalMiddleOfHTMLElement(this.dropTargetNode);
+  //   return clientY >= middle;
+  // }
+
+  protected afterDragOver(dropTargetNode: HTMLElement, event: PointerEvent): void {
     this.prevIsEdge = this.isEdge;
+    this.isRight = this.calculateIsRight(event.clientX, dropTargetNode);
     this.insertGhostElementIntoSurvey();
   }
 
@@ -289,6 +324,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (!!this.draggedElement) {
       this.draggedElement.isDragMe = false;
     }
+    this.isRight = null;
   };
 
   protected insertGhostElementIntoSurvey(): boolean {
@@ -311,7 +347,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     if (!this.isEdge && isTargetRowMultiple) {
-      this.dropTarget.dragTypeOverMe = this.calculateIsRight() ?
+      this.dropTarget.dragTypeOverMe = this.isRight ?
         DragTypeOverMeEnum.MultilineRight :
         DragTypeOverMeEnum.MultilineLeft;
       return;
@@ -325,7 +361,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     const result = this.parentElement.dragDropMoveTo(
       this.dropTarget,
-      isTargetRowMultiple ? this.calculateIsRight() : this.isBottom,
+      isTargetRowMultiple ? this.isRight : this.isBottom,
       this.isEdge
     );
 
@@ -333,20 +369,8 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   }
 
   private calcTargetRowMultiple() {
-    let targetParent = this.dropTarget.isPage || this.dropTarget.isPanel ? this.dropTarget : this.dropTarget.parent;
-
-    if (this.dropTarget.getType() === "paneldynamic") {
-      targetParent = this.dropTarget.templateValue;
-    }
-
-    let targetRow: any;
-
-    targetParent.rows.forEach((row: any) => {
-      if (row.elements.indexOf(this.dropTarget) !== -1) {
-        targetRow = row;
-      }
-    });
-
+    const targetParent = this.getTargetParent(this.dropTarget);
+    let targetRow: any = this.getTargetRow(this.dropTarget);
     const isTargetRowMultiple = targetRow && targetRow.elements.length > 1;
 
     if (this.isEdge && isTargetRowMultiple) {
@@ -356,6 +380,29 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     return isTargetRowMultiple;
+  }
+
+  private getTargetParent(dropTarget: any): any {
+    let targetParent = dropTarget.isPage || dropTarget.isPanel ? dropTarget : dropTarget.parent;
+
+    if (dropTarget.getType() === "paneldynamic") {
+      targetParent = dropTarget.templateValue;
+    }
+
+    return targetParent;
+  }
+
+  private getTargetRow(dropTarget: any): QuestionRowModel {
+    const targetParent = this.getTargetParent(dropTarget);
+    let targetRow: any;
+
+    targetParent.rows.forEach((row: any) => {
+      if (row.elements.indexOf(dropTarget) !== -1) {
+        targetRow = row;
+      }
+    });
+
+    return targetRow;
   }
 
   private isDragOverInsideEmptyPanel(): boolean {
@@ -383,7 +430,6 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
     // EO ghost new page
 
-    // fake target element (need only for "startWithNewLine:false" feature)
     //TODO need for dragDrop helper in library
     const json = new JsonObject().toJsonObject(this.draggedElement);
     json["type"] = this.draggedElement.getType();
@@ -391,7 +437,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
       this.draggedElement.name,
       json
     );
-    // EO fake target element
+    //
 
     this.parentElement.dragDropStart(
       this.draggedElement,
@@ -401,7 +447,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
     this.parentElement.dragDropMoveTo(
       this.dropTarget,
-      isTargetRowMultiple ? this.calculateIsRight() : this.isBottom,
+      isTargetRowMultiple ? this.isRight : this.isBottom,
       this.isEdge
     );
 

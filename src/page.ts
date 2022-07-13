@@ -319,24 +319,22 @@ export class PageModel extends PanelModelBase implements IPage {
       var isSamePanel = false;
 
       if (this.isDesignMode && settings.supportCreatorV2) {
-        const rowEls = row.elements.length;
-        if (!!dest && target === src && rowEls > 1 && row.elements[rowEls - 1] === dest) {
+        var srcRow = src && src.parent && (src.parent as PanelModelBase).dragDropFindRow(src);
+        if (row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1 && row.panel.elements[targetIndex] === dest) {
+          elementsToSetSWNL.push(target);
+          elementsToResetSWNL.push(row.panel.elements[targetIndex]);
+        }
+        if (target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
           elementsToResetSWNL.push(target);
-        } else {
-          var srcRow = src && src.parent && (src.parent as PanelModelBase).dragDropFindRow(src);
-          if (row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1) {
-            elementsToSetSWNL.push(target);
-            elementsToResetSWNL.push(row.panel.elements[targetIndex]);
-          }
-          if (target.startWithNewLine && row.elements.length > 1 && (!row.panel.elements[targetIndex] || !row.panel.elements[targetIndex].startWithNewLine)) {
-            elementsToResetSWNL.push(target);
-          }
-          if (srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
-            elementsToSetSWNL.push(srcRow.elements[1]);
-          }
-          if (row.elements.length <= 1) {
-            elementsToSetSWNL.push(target);
-          }
+        }
+        if (srcRow && srcRow.elements[0] === src && srcRow.elements[1]) {
+          elementsToSetSWNL.push(srcRow.elements[1]);
+        }
+        if (row.elements.length <= 1) {
+          elementsToSetSWNL.push(target);
+        }
+        if (target.startWithNewLine && row.elements.length > 1 && row.elements[0] !== dest) {
+          elementsToResetSWNL.push(target);
         }
       }
 
@@ -386,8 +384,18 @@ export class PageModel extends PanelModelBase implements IPage {
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
     if (this.isDesignMode && settings.supportCreatorV2) {
-      if (!source.startWithNewLine && destination.startWithNewLine)
-        return true;
+      const rowSource = this.dragDropFindRow(source);
+      const rowDestination = this.dragDropFindRow(destination);
+
+      if (rowSource !== rowDestination) {
+        if (!source.startWithNewLine && destination.startWithNewLine)
+          return true;
+
+        if (source.startWithNewLine && !destination.startWithNewLine) {
+          return true;
+        }
+      }
+
       let row = this.dragDropFindRow(destination);
       if (row && row.elements.length == 1)
         return true;

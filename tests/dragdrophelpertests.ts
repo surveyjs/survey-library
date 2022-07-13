@@ -101,16 +101,16 @@ QUnit.test("drop", function (assert) {
   );
 });
 
-QUnit.test("calculateMiddleOfHTMLElement", function (assert) {
+QUnit.test("calculateVerticalMiddleOfHTMLElement", function (assert) {
   let ddHelper = new DragDropSurveyElements(null);
-  const calculateMiddleOfHTMLElement = ddHelper["calculateMiddleOfHTMLElement"];
+  const calculateVerticalMiddleOfHTMLElement = ddHelper["calculateVerticalMiddleOfHTMLElement"];
   const testElement = document.body.appendChild(document.createElement("div"));
   (<any>testElement).getBoundingClientRect = () => ({
     y: 10,
     height: 100,
   });
 
-  let result = calculateMiddleOfHTMLElement(testElement);
+  let result = calculateVerticalMiddleOfHTMLElement(testElement);
   assert.deepEqual(result, 60);
 });
 
@@ -151,6 +151,63 @@ QUnit.test("calculateIsEdge", function (assert) {
   result = ddHelper["calculateIsEdge"](testElement, 280);
   assert.equal(result, true);
 });
+
+QUnit.test("calculateIsRight", function (assert) {
+  let ddHelper = new DragDropSurveyElements(null);
+  const testElement = document.body.appendChild(document.createElement("div"));
+  (<any>testElement).getBoundingClientRect = () => ({
+    x: 100,
+    width: 100,
+  });
+
+  let result = ddHelper["calculateIsRight"](150, testElement);
+  assert.equal(result, true);
+
+  result = ddHelper["calculateIsRight"](100, testElement);
+  assert.equal(result, false);
+});
+
+// QUnit.test("calculateIsRight", function (
+//   assert
+// ) {
+//   const survey = new SurveyModel(
+//     {
+//       "logoPosition": "right",
+//       "pages": [
+//         {
+//           "name": "page1",
+//           "elements": [
+//             {
+//               "type": "text",
+//               "name": "question1"
+//             },
+//             {
+//               "type": "text",
+//               "name": "question2",
+//               "startWithNewLine": false
+//             },
+//             {
+//               "type": "text",
+//               "name": "question3"
+//             }
+//           ]
+//         }
+//       ]
+//     }
+//   );
+//   let dropTarget = survey.getQuestionByName("question2");
+//   let draggedElement = survey.getQuestionByName("question3");
+
+//   const ddHelper: any = new DragDropSurveyElements(<any>survey);
+
+//   ddHelper.parentElement = survey.pages[0];
+//   ddHelper.dropTarget = dropTarget;
+//   ddHelper.draggedElement = draggedElement;
+
+//   let isRight = ddHelper.calculateIsRight();
+
+//   assert.equal(isRight, true);
+// });
 
 QUnit.test("dropTargetDataAttributeName for choices", function (assert) {
   let ddHelper: any = new DragDropChoices(null);

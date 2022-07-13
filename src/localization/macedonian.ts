@@ -18,7 +18,7 @@ export var macedonianSurveyStrings = {
   completingSurveyBefore:
     "Нашите записи покажуваат дека веќе сте го завршиле ова истражување.",
   loadingSurvey: "Анкетата се вчитува ...",
-  optionsCaption: "Изберете ...",
+  placeholder: "Изберете ...",
   value: "вредност",
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",

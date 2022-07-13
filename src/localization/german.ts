@@ -18,7 +18,7 @@ export var germanSurveyStrings = {
   completingSurveyBefore:
     "Wir haben festgestellt, dass Sie diese Umfrage bereits abgeschlossen haben.",
   loadingSurvey: "Umfrage wird geladen...",
-  optionsCaption: "Bitte auswählen...",
+  placeholder: "Bitte auswählen...",
   value: "Wert",
   requiredError: "Bitte beantworten Sie diese Frage.",
   requiredErrorInPanel: "Bitte beantworten Sie mindestens eine Frage.",

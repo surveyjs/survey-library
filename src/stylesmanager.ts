@@ -330,10 +330,11 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item:active": "opacity: 0.5;",
     ".sv_main .sv-action-bar-item:focus": "outline: none;",
 
-    ".sv_main .sv-title-actions": "display: flex;align-items: center; width: 100%;",
-    ".sv_main .sv-title-actions__title":
-      "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
+    ".sv_main .sv-title-actions": "display: flex; align-items: center; width: 100%;",
+    ".sv_main .sv-title-actions__title": "flex-wrap: wrap; max-width: 90%; min-width: 50%;",
     ".sv_main .sv-title-actions__bar": "min-width: 56px;",
+    ".sv_main .sv-title-actions .sv-title-actions__title": "min-width: unset; max-width: unset; flex-wrap: wrap; flex: 0 0 auto;",
+    ".sv_main .sv-title-actions .sv-action-title-bar": "min-width: unset; flex: 1 1 auto; justify-content: flex-end;",
     ".sv_main .sv_matrix_cell_actions .sv-action-bar":
       "margin-left: 0; padding-left: 0;",
     ".sv_main .sv_p_wrapper_in_row":
@@ -398,7 +399,7 @@ export class StylesManager {
     ".sv-list":
       "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none;",
     ".sv-list__item":
-      "width: 100%; box-sizing: border-box; padding: 8px 24px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+      "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

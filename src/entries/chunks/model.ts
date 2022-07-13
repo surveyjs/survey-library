@@ -160,12 +160,14 @@ export {
   QuestionCustomModel,
   QuestionCompositeModel,
   ComponentQuestionJSON,
-  ComponentCollection
+  ComponentCollection,
+  ICustomQuestionTypeConfiguration
 } from "../../question_custom";
 
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
 export { PopupModel, PopupBaseViewModel, createPopupModalViewModel } from "../../popup";
+export { DropdownListModel } from "../../dropdownListModel";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,

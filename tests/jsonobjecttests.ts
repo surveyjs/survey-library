@@ -457,7 +457,7 @@ QUnit.test("Metadata add at the beginning parent class properties ", function (
   assert.equal(
     Serializer.getProperties("truck").length,
     3,
-    "2 + 1 parent propreties"
+    "2 + 1 parent properties"
   );
   assert.equal(
     Serializer.getProperties("truck")[0].name,
@@ -1058,6 +1058,15 @@ QUnit.test("Deserialize arrays with incorrect type property", function (assert) 
   );
 });
 QUnit.test("Deserialization - required property error", function (assert) {
+  Serializer.addProperty("truck", { name: "req:number", default: 0, isRequired: true });
+  const car = new Truck();
+  var jsonObj = new JsonObject();
+  jsonObj.toObject({ maxWeight: 5000 }, car);
+  assert.equal(car.maxWeight, 5000, "Property is deserialized");
+  assert.equal(jsonObj.errors.length, 0, "req property is required, but it has a default value");
+  Serializer.removeProperty("truck", "req");
+});
+QUnit.test("Deserialization - required property with default value should not produce error", function (assert) {
   var dealer = new Dealer();
   var jsonObj = new JsonObject();
   jsonObj.toObject({ cars: [{ type: "sport" }] }, dealer);
@@ -2744,4 +2753,25 @@ QUnit.test("Add custom calculatedValues property into survey, isArray attribute"
   assert.equal(funcs[0].expression, "testFunc", "Deserialized item expression");
   assert.equal(funcs[0].getType(), "calculatedvalue", "Deserialized item has correct type");
   Serializer.removeProperty("survey", "customFunctions");
+});
+QUnit.test("Store column title in json if it equals to name, but it was set manually", function (assert) {
+  const matrix = new QuestionMatrixDynamicModel("q1");
+  const column = matrix.addColumn("col1");
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1" }] }, "title is empty");
+  column.title = "Col1";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1", title: "Col1" }] }, "title is not equal to name");
+  column.title = "";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1" }] }, "title is empty, #2");
+  column.title = "col1";
+  assert.deepEqual(matrix.toJSON(), { name: "q1", columns: [{ name: "col1", title: "col1" }] }, "title is equal to name");
+});
+QUnit.test("Store question title in json if it equals to name, but it was set manually", function (assert) {
+  const question = new Question("q1");
+  assert.deepEqual(question.toJSON(), { name: "q1" }, "title is empty");
+  question.title = "Q1";
+  assert.deepEqual(question.toJSON(), { name: "q1", title: "Q1" }, "title is not equal to name");
+  question.title = "";
+  assert.deepEqual(question.toJSON(), { name: "q1" }, "title is empty, #2");
+  question.title = "q1";
+  assert.deepEqual(question.toJSON(), { name: "q1", title: "q1" }, "title is equal to name");
 });

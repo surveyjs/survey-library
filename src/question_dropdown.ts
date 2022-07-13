@@ -1,34 +1,24 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { ListModel } from "./list";
-import { Action, IAction } from "./actions/action";
-import { Base, ComputedUpdater, EventBase } from "./base";
-import { findParentByClassNames } from "./utils/utils";
-import { PopupUtils } from "./utils/popup";
+import { EventBase } from "./base";
+import { DropdownListModel } from "./dropdownListModel";
+import { settings } from "./settings";
 
 /**
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  private getVisibleListItems() {
-    return this.visibleChoices.map((choice: ItemValue) => new Action({
-      id: choice.value,
-      title: choice.text,
-      component: this.itemComponent,
-      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
-    }));
-  }
+  dropdownListModel: DropdownListModel;
 
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("optionsCaption", this, false, true);
+    this.createLocalizableString("placeholder", this, false, true);
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
       ["choicesMin", "choicesMax", "choicesStep"],
@@ -37,26 +27,29 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     );
   }
-  /**
-   * This flag controls whether to show options caption item ('Choose...').
-   */
   public get showOptionsCaption(): boolean {
-    return this.getPropertyValue("showOptionsCaption");
+    return this.allowClear;
   }
   public set showOptionsCaption(val: boolean) {
-    this.setPropertyValue("showOptionsCaption", val);
+    this.allowClear = val;
   }
-  /**
-   * Use this property to set the options caption different from the default value. The default value is taken from localization strings.
-   */
   public get optionsCaption() {
-    return this.getLocalizableStringText("optionsCaption");
+    return this.placeholder;
   }
   public set optionsCaption(val: string) {
-    this.setLocalizableStringText("optionsCaption", val);
+    this.placeholder = val;
   }
-  get locOptionsCaption(): LocalizableString {
-    return this.getLocalizableString("optionsCaption");
+  /**
+   * The input place holder.
+   */
+  public get placeholder() {
+    return this.getLocalizableStringText("placeholder");
+  }
+  set placeholder(val: string) {
+    this.setLocalizableStringText("placeholder", val);
+  }
+  get locPlaceholder(): LocalizableString {
+    return this.getLocalizableString("placeholder");
   }
   public getType(): string {
     return "dropdown";
@@ -138,7 +131,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("autoComplete", val);
   }
 
-  @property({ defaultValue: false }) showClearButton: boolean;
+  /**
+ * Use it to clear the question value.
+ */
+  @property({ defaultValue: false }) allowClear: boolean;
   @property() itemComponent: string;
   @property({
     defaultValue: false,
@@ -149,14 +145,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     }
   }) denySearch: boolean;
-  @property({
-    defaultValue: "editorWidth",
-    onSet: (newValue: "contentWidth" | "editorWidth", target: QuestionDropdownModel) => {
-      if (!!target.popupModel) {
-        target.popupModel.widthMode = (newValue === "editorWidth") ? "fixedWidth" : "contentWidth";
-      }
-    }
-  }) dropdownWidthMode: "contentWidth" | "editorWidth";
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -167,57 +155,39 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .toString();
   }
   public get readOnlyText() {
-    return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+    return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.placeholder);
   }
 
-  public onClear(event: any): void {
-    this.clearValue();
-    event.preventDefault();
-    event.stopPropagation();
+  public get popupModel(): PopupModel {
+    if (this.renderAs !== "select" && !this.dropdownListModel) {
+      this.dropdownListModel = new DropdownListModel(this);
+    }
+    return this.dropdownListModel?.popupModel;
+  }
+
+  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
     if (this.popupModel) {
-      this.popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+      this.dropdownListModel.updateItems();
     }
   }
 
-  private _popupModel: PopupModel;
-  public get popupModel(): PopupModel {
-    if (this.renderAs === "select" && !this._popupModel) {
-      const listModel = new ListModel(
-        this.getVisibleListItems(),
-        (item: IAction) => {
-          this.value = item.id;
-          this.popupModel.toggleVisibility();
-        },
-        true);
-      listModel.denySearch = this.denySearch;
+  onClick(e: any): void {
+    !!this.onOpenedCallBack && this.onOpenedCallBack();
+  }
 
-      this._popupModel = new PopupModel("sv-list", {
-        model: listModel,
-      }, "bottom", "center", false);
-      this._popupModel.widthMode = (this.dropdownWidthMode === "editorWidth") ? "fixedWidth" : "contentWidth";
-      this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-        if (option.isVisible) {
-          this.onOpenedCallBack();
-        }
-      });
-    }
-    return this._popupModel;
-  }
-  public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
-  public onClick(event: any): void {
-    if (!!event && !!event.target) {
-      const target = findParentByClassNames(event.target, this.cssClasses.control.split(" "));
-      if (!!target) {
-        PopupUtils.updatePopupWidthBeforeShow(this.popupModel, target, event);
-      }
+  onKeyUp(event: any): void {
+    const char: number = event.which || event.keyCode;
+    if (char === 46) {
+      this.clearValue();
+      event.preventDefault();
+      event.stopPropagation();
     }
   }
   public get ariaRole(): string {
@@ -227,73 +197,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 Serializer.addClass(
   "dropdown",
   [
-    { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
-    { name: "showOptionsCaption:boolean", default: true },
+    { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
+    { name: "allowClear:boolean", alternativeName: "showOptionsCaption", default: true },
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    {
-      name: "autoComplete",
-      dataList: [
-        "name",
-        "honorific-prefix",
-        "given-name",
-        "additional-name",
-        "family-name",
-        "honorific-suffix",
-        "nickname",
-        "organization-title",
-        "username",
-        "new-password",
-        "current-password",
-        "organization",
-        "street-address",
-        "address-line1",
-        "address-line2",
-        "address-line3",
-        "address-level4",
-        "address-level3",
-        "address-level2",
-        "address-level1",
-        "country",
-        "country-name",
-        "postal-code",
-        "cc-name",
-        "cc-given-name",
-        "cc-additional-name",
-        "cc-family-name",
-        "cc-number",
-        "cc-exp",
-        "cc-exp-month",
-        "cc-exp-year",
-        "cc-csc",
-        "cc-type",
-        "transaction-currency",
-        "transaction-amount",
-        "language",
-        "bday",
-        "bday-day",
-        "bday-month",
-        "bday-year",
-        "sex",
-        "url",
-        "photo",
-        "tel",
-        "tel-country-code",
-        "tel-national",
-        "tel-area-code",
-        "tel-local",
-        "tel-local-prefix",
-        "tel-local-suffix",
-        "tel-extension",
-        "email",
-        "impp",
-      ],
-    },
+    { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
-    { name: "showClearButton:boolean", default: false, visible: false },
     { name: "denySearch:boolean", default: false, visible: false },
-    { name: "dropdownWidthMode", default: "editorWidth", visible: false },
     { name: "itemComponent", visible: false },
   ],
   function () {

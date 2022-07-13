@@ -169,6 +169,12 @@
 .sd-question--scroll {
   overflow-x: scroll;
 }
+.sd-matrixdropdown.sd-table {
+  table-layout: fixed;
+}
+.sd-matrixdropdown .sd-table__cell--header {
+  width: calcSize(14);
+}
 
 @mixin table_responsive {
   .sd-question.sd-question--table {

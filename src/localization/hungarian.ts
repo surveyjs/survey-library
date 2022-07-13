@@ -17,7 +17,7 @@ export var hungarianSurveyStrings = {
   completingSurvey: "Köszönjük, hogy kitöltötte felmérésünket!",
   completingSurveyBefore: "Már kitöltötte a felmérést.",
   loadingSurvey: "Felmérés betöltése...",
-  optionsCaption: "Válasszon...",
+  placeholder: "Válasszon...",
   value: "érték",
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",

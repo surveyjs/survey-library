@@ -14,7 +14,7 @@ export var tajikSurveyStrings = {
   completingSurveyBefore:
     "Шумо аллакай ин пурсишро анҷом додаед.",
   loadingSurvey: "Боргирӣ аз сервер...",
-  optionsCaption: "Интихоб кардан...",
+  placeholder: "Интихоб кардан...",
   value: "қиммат",
   requiredError: "Илтимос, ба савол ҷавоб диҳед.",
   requiredErrorInPanel: "Илтимос, ақалан ба як савол ҷавоб диҳед.",

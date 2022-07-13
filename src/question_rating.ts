@@ -91,9 +91,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMin");
   }
   public set rateMin(val: number) {
-    if (!this.isLoadingFromJson && val > this.rateMax - this.rateStep)
-      val = this.rateMax - this.rateStep;
-    this.setPropertyValue("rateMin", val);
+    this.checkAndSetPropertyValue("rateMin", val);
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the last value in the rating. The default value is 5.
@@ -105,9 +103,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMax");
   }
   public set rateMax(val: number) {
-    if (!this.isLoadingFromJson && val < this.rateMin + this.rateStep)
-      val = this.rateMin + this.rateStep;
-    this.setPropertyValue("rateMax", val);
+    this.checkAndSetPropertyValue("rateMax", val);
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the step value. The number of rate values are (rateMax - rateMin) / rateStep. The default value is 1.
@@ -119,10 +115,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateStep");
   }
   public set rateStep(val: number) {
-    if (val <= 0) val = 1;
-    if (!this.isLoadingFromJson && val > this.rateMax - this.rateMin)
-      val = this.rateMax - this.rateMin;
-    this.setPropertyValue("rateStep", val);
+    this.checkAndSetPropertyValue("rateStep", val);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
@@ -276,16 +269,16 @@ export class QuestionRatingModel extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
-  public get optionsCaption(): string {
+  public get placeholder(): string {
     return this.getLocalizableStringText("ratingOptionsCaption");
   }
-  public set optionsCaption(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("ratingOptionsCaption", val);
   }
-  get locOptionsCaption(): LocalizableString {
+  get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("ratingOptionsCaption");
   }
-  get showOptionsCaption(): boolean {
+  get allowClear(): boolean {
     return true;
   }
   public get renderedValue(): boolean {
@@ -298,7 +291,7 @@ export class QuestionRatingModel extends Question {
     return this.visibleRateValues;
   }
   public get readOnlyText() {
-    return (this.displayValue || this.showOptionsCaption && this.optionsCaption);
+    return (this.displayValue || this.placeholder);
   }
 
   public needResponsiveWidth() {
@@ -353,9 +346,24 @@ Serializer.addClass(
         return surveyLocalization.getString("choices_Item");
       },
     },
-    { name: "rateMin:number", default: 1 },
-    { name: "rateMax:number", default: 5 },
-    { name: "rateStep:number", default: 1, minValue: 0.1 },
+    { name: "rateMin:number", default: 1,
+      onSettingValue: (obj: any, val: any): any => {
+        return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep: val;
+      }
+    },
+    { name: "rateMax:number", default: 5,
+      onSettingValue: (obj: any, val: any): any => {
+        return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep: val;
+      }
+    },
+    { name: "rateStep:number", default: 1, minValue: 0.1,
+      onSettingValue: (obj: any, val: any): any => {
+        if (val <= 0) val = 1;
+        if (val > obj.rateMax - obj.rateMin)
+          val = obj.rateMax - obj.rateMin;
+        return val;
+      }
+    },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",

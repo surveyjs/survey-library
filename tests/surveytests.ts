@@ -4945,24 +4945,24 @@ QUnit.test("Survey Localization - matrix.columns", function (assert) {
 });
 
 QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
-  var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
-  var col1 = q1.addColumn("col1");
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
+  const q1 = new QuestionMatrixDropdownModel("matrixdropdown");
+  const col1 = q1.addColumn("col1");
   q1.rows = ["row1", "row2"];
   page.addQuestion(q1);
 
   col1["choices"] = ["val1"];
   col1.title = "title1";
-  col1["optionsCaption"] = "caption1";
+  col1["placeholder"] = "caption1";
   col1["choices"][0].text = "text1";
   survey.locale = "de";
   col1.title = "de-title1";
-  col1["optionsCaption"] = "de-caption1";
+  col1["placeholder"] = "de-caption1";
   col1["choices"][0].text = "de-text1";
   assert.equal(col1.title, "de-title1", "Use 'de' text, title");
   assert.equal(
-    col1["optionsCaption"],
+    col1["placeholder"],
     "de-caption1",
     "Use 'de' text, optionsCaption"
   );
@@ -4970,7 +4970,7 @@ QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
   survey.locale = "fr";
   assert.equal(col1.title, "title1", "Use default text, title");
   assert.equal(
-    col1["optionsCaption"],
+    col1["placeholder"],
     "caption1",
     "Use default text, optionsCaption"
   );
@@ -13184,6 +13184,44 @@ QUnit.test(
     assert.equal(survey.state, "running", "We have an error");
   }
 );
+QUnit.test("Several onServerValidateQuestions event, bug#4531",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    });
+    survey.onServerValidateQuestions.add((sender, options) => {
+      options.complete();
+    });
+    survey.onServerValidateQuestions.add((sender, options) => {
+      options.errors["q2"] = "error";
+      options.complete();
+    });
+    survey.completeLastPage();
+    assert.equal(survey.state, "running", "Survey is not completed");
+    assert.equal(survey.getQuestionByName("q2").errors.length, 1, "There is an error in the question");
+  }
+);
+QUnit.test("Several onServerValidateQuestions event without errors, bug#4531 part2",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    });
+    survey.onServerValidateQuestions.add((sender, options) => {
+      options.complete();
+    });
+    survey.onServerValidateQuestions.add((sender, options) => {
+      options.complete();
+    });
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "Survey is completed");
+  }
+);
 QUnit.test(
   "showPreviewBeforeComplete: 'showAllQuestions' and showProgressBar, Bug#2552",
   function (assert) {
@@ -14314,7 +14352,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" },];
+    options.titleActions = [{ id: "action" }, ];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");

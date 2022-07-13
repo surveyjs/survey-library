@@ -196,6 +196,7 @@ export class JsonObjectProperty implements IObject {
     "serializationProperty",
     "onGetValue",
     "onSetValue",
+    "onSettingValue",
     "displayName",
     "category",
     "categoryIndex",
@@ -246,6 +247,7 @@ export class JsonObjectProperty implements IObject {
   private dataListValue: Array<string>;
   public layout: string;
   public onGetValue: (obj: any) => any;
+  public onSettingValue: (obj: any, value: any) => any;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
   public visibleIf: (obj: any) => boolean;
   public onExecuteExpression: (obj: any, res: any) => any;
@@ -333,6 +335,10 @@ export class JsonObjectProperty implements IObject {
   }
   public get hasToUseSetValue() {
     return this.onSetValue || this.serializationProperty;
+  }
+  public settingValue(obj: any, value: any): any {
+    if(!this.onSettingValue || obj.isLoadingFromJson) return value;
+    return this.onSettingValue(obj, value);
   }
   public setValue(obj: any, value: any, jsonConv: JsonObject) {
     if (this.onSetValue) {
@@ -719,6 +725,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.onSetValue) {
         prop.onSetValue = propInfo.onSetValue;
+      }
+      if(propInfo.onSettingValue) {
+        prop.onSettingValue = propInfo.onSettingValue;
       }
       if (propInfo.isLocalizable) {
         propInfo.serializationProperty = "loc" + prop.name;
@@ -1601,10 +1610,12 @@ export class JsonObject {
     var requiredProperties = JsonObject.metaData.getRequiredProperties(
       className
     );
-    if (!requiredProperties) return null;
+    if (!Array.isArray(requiredProperties)) return null;
     for (var i = 0; i < requiredProperties.length; i++) {
-      if (!jsonValue[requiredProperties[i]]) {
-        return new JsonRequiredPropertyError(requiredProperties[i], className);
+      const prop = Serializer.findProperty(className, requiredProperties[i]);
+      if(!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
+      if (!jsonValue[prop.name]) {
+        return new JsonRequiredPropertyError(prop.name, className);
       }
     }
     return null;

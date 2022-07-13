@@ -18,7 +18,7 @@ export var estonianSurveyStrings = {
   completingSurveyBefore:
     "Meie andmetel oled sa sellele ankeedile juba vastanud.",
   loadingSurvey: "Laen ankeeti...",
-  optionsCaption: "Vali...",
+  placeholder: "Vali...",
   value: "väärtus",
   requiredError: "Palun vasta küsimusele.",
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",

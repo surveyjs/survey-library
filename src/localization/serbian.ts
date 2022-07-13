@@ -17,9 +17,9 @@ export var serbianStrings = {
   emptySurvey: "Nema vidljivih stranica ili pitanja u anketi.",
   completingSurvey: "Hvala na popunjavanju ankete!",
   completingSurveyBefore:
-      "Prema našim podacima, već ste popunili ovu anketu.",
+        "Prema našim podacima, već ste popunili ovu anketu.",
   loadingSurvey: "Učitavam anketu...",
-  optionsCaption: "Izaberi...",
+  placeholder: "Izaberi...",
   value: "vrednost",
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
@@ -30,7 +30,7 @@ export var serbianStrings = {
   textMinLength: "Molimo unesite bar {0} znak(ov)a.",
   textMaxLength: "Molimo unesite najviše {0} znak(ov)a.",
   textMinMaxLength:
-      "Molimo unesite najmanje {0} i ne više od {1} znak(ov)a.",
+        "Molimo unesite najmanje {0} i ne više od {1} znak(ov)a.",
   minRowCountError: "Molimo popunite najmanje {0} red(ova).",
   minSelectError: "Molimo izaberite najmanje {0} opcija/e.",
   maxSelectError: "Molimo izaberite najviše {0} opcija/e.",
@@ -42,11 +42,11 @@ export var serbianStrings = {
   invalidExpression: "Izraz: {0} bi trebalo da bude tačan.",
   urlRequestError: "Zahtev je naišao na grešku '{0}'. {1}",
   urlGetChoicesError:
-      "Zahtev nije pronašao podatke, ili je putanja netačna",
+        "Zahtev nije pronašao podatke, ili je putanja netačna",
   exceedMaxSize: "Veličina fajla ne bi trebalo da prelazi {0}.",
   otherRequiredError: "Molimo unesite drugu vrednost.",
   uploadingFile:
-      "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
+        "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
   loadingFile: "Učitavanje...",
   chooseFile: "Izaberite fajlove...",
   noFileChosen: "Nije izabran nijedan fajl",
@@ -72,7 +72,7 @@ export var serbianStrings = {
   timerSpentPage: "Proveli ste {0} na ovoj stranici.",
   timerSpentSurvey: "Proveli ste {0} ukupno.",
   timerLimitAll:
-      "Proveli ste {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
+        "Proveli ste {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
   timerLimitPage: "Proveli ste {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   cleanCaption: "Očisti",

@@ -18,7 +18,7 @@ export var persianSurveyStrings = {
   completingSurveyBefore:
     "به نظر می رسد هم هم اکنون پرسشنامه را تکمیل کرده اید.",
   loadingSurvey: "درحال ایجاد پرسشنامه",
-  optionsCaption: "انتخاب کنید...",
+  placeholder: "انتخاب کنید...",
   value: "مقدار",
   requiredError: "لطفا به سوال پاسخ دهید",
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
@@ -31,18 +31,18 @@ export var persianSurveyStrings = {
   minSelectError: "حداقل {0} انتخاب کنید.",
   maxSelectError: "لطفا بیشتر از  {0} انتخاب کنید.",
   numericMinMax:
-   "'{0}' باید بین {1} و {2} باشد",
+    "'{0}' باید بین {1} و {2} باشد",
   numericMin: "'{0}' بزرگتر مساوی {1} باشد",
   numericMax: "'{0}' باید کوچکتر یا مساوی {1} باشد",
   invalidEmail: "لطفا ایمیل صحیح درج کنید",
   invalidExpression: "عبارت: {0} پاسخ باید 'true' باشد.",
   urlRequestError: "درخواست با خطا روبرو شد: '{0}'. {1}",
   urlGetChoicesError:
-   "درخواست مسیری خالی بازگشت داده یا مسیر درست تنظیم نشده",
+    "درخواست مسیری خالی بازگشت داده یا مسیر درست تنظیم نشده",
   exceedMaxSize: "بیشترین حجم مجاز فایل: {0}",
   otherRequiredError: "مقدار 'دیگر' را وارد کنید",
   uploadingFile:
-   "فایل در حال آیلود است. لطفا صبر کنید.",
+    "فایل در حال آیلود است. لطفا صبر کنید.",
   loadingFile: "بارگیری...",
   chooseFile: "انتخاب فایل(ها)...",
   noFileChosen: "هیچ فایلی انتخاب نشده",

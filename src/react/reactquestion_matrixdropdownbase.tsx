@@ -19,6 +19,7 @@ import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 import { MatrixDropdownColumn } from "../question_matrixdropdowncolumn";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -213,9 +214,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     }
     if (cell.isActionsCell) {
       cellContent = (
-        <SurveyQuestionMatrixActionsCell
-          model={cell.item.getData()}
-        ></SurveyQuestionMatrixActionsCell>
+        ReactElementFactory.Instance.createElement("sv-matrixdynamic-actions-cell", {
+          question: this.question, cssClasses, cell, model: cell.item.getData()
+        })
       );
     }
     if (cell.hasPanel) {
@@ -254,6 +255,13 @@ class SurveyQuestionMatrixActionsCell extends ReactSurveyElement {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement(
+  "sv-matrixdynamic-actions-cell",
+  (props) => {
+    return React.createElement(SurveyQuestionMatrixActionsCell, props);
+  }
+);
 class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
   constructor(props: any) {
     super(props);

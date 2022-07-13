@@ -13,6 +13,7 @@ export {
   SurveyQuestionAndErrorsCell,
 } from "../react/reactquestion";
 export {
+  ReactSurveyElement,
   SurveyElementBase,
   SurveyQuestionElementBase,
 } from "../react/reactquestion_element";
@@ -47,7 +48,7 @@ export { SurveyQuestionBooleanRadio } from "../react/boolean-radio";
 export { SurveyQuestionEmpty } from "../react/reactquestion_empty";
 export { SurveyQuestionMatrixDropdownCell } from "../react/reactquestion_matrixdropdownbase";
 export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";
-export { SurveyQuestionMatrixDynamic } from "../react/reactquestion_matrixdynamic";
+export { SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton } from "../react/reactquestion_matrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";
 export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";

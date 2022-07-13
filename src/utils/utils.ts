@@ -261,7 +261,7 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
     }
   }
 }
-function sanitizeEditableContent(element: any) {
+export function sanitizeEditableContent(element: any) {
   if (window.getSelection && document.createRange) {
     const selection = document.getSelection();
 
@@ -302,6 +302,5 @@ export {
   increaseHeightByContent,
   getOriginalEvent,
   preventDefaults,
-  findParentByClassNames,
-  sanitizeEditableContent
+  findParentByClassNames
 };

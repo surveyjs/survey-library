@@ -222,8 +222,8 @@ class LoadingFromJsonObjBase extends Base {
   public startLoadingFromJsonCounter: number = 0;
   public endLoadingFromJsonCounter: number = 0;
   public name: string;
-  startLoadingFromJson() {
-    super.startLoadingFromJson();
+  startLoadingFromJson(json: any) {
+    super.startLoadingFromJson(json);
     this.startLoadingFromJsonCounter++;
   }
   endLoadingFromJson() {

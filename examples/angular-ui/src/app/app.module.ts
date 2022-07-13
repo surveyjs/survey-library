@@ -7,6 +7,7 @@ import { SurveyAngularModule } from "survey-angular-ui";
 import { TestComponent } from "./components/test/test.component";
 import { ExampleComponent } from "./components/example/example.component";
 import { AppRoutingModule } from "./router.module";
+import { AngularItemTemplateComponent } from "./components/itemTemplateComponent";
 import { TestDefaultComponent } from "./components/test/testdefault.component";
 import { TestDefaultV2Component } from "./components/test/testdefaultV2.component";
 import { TestModernComponent } from "./components/test/testmodern.component";
@@ -15,7 +16,9 @@ import { TestCustomWidgetComponent } from "./components/test/customwidget.compon
 
 @NgModule({
   declarations: [
-    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent, TestCustomWidgetComponent
+    AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent,
+    TestCustomWidgetComponent,
+    AngularItemTemplateComponent,
   ],
   imports: [
     BrowserModule, SurveyAngularModule, FormsModule, AppRoutingModule

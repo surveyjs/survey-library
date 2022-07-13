@@ -1,5 +1,7 @@
-<svg *ngIf="item.iconName && !item.component" class="sv-list__item-icon" [iconName]="item.iconName" [size]="24"
-  sv-ng-svg-icon></svg>
-<span *ngIf="!item.component">{{ item.title }}</span>
-
-<div #itemComponent *ngIf="item.component"></div>
+<ng-container *ngIf="!item.component">
+<svg *ngIf="item.iconName" class="sv-list__item-icon" [iconName]="item.iconName" [size]="24" sv-ng-svg-icon></svg>
+<span>{{ item.title }}</span>
+</ng-container>
+<ng-container *ngIf="item.component">
+  <ng-template [component]="{ name: item.component, data: { item: item } }"></ng-template>
+</ng-container>

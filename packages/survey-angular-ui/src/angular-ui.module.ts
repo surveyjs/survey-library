@@ -9,6 +9,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
+import { DropdownOptionItemComponent } from "./components/renderAs/dropdown-select/dropdown-option-item.component";
 import { DropdownSelectComponent } from "./components/renderAs/dropdown-select/dropdown-select.component";
 import { TextQuestionComponent } from "./questions/text.component";
 import { HtmlQuestionComponent } from "./questions/html.component";
@@ -84,7 +85,7 @@ import { MatrixRequiredHeader } from "./questions/matrixrequiredheader.component
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
     SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
-    DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent,
+    DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
     ListComponent, ListItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
@@ -98,7 +99,7 @@ import { MatrixRequiredHeader } from "./questions/matrixrequiredheader.component
     CommonModule, FormsModule
   ],
   exports: [
-    SurveyComponent
+    SurveyComponent, SvgIconComponent
   ],
   providers: [PopupService],
 })

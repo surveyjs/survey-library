@@ -250,11 +250,7 @@ function clearAttributes(el: Element) {
   if(el.hasAttribute("ng-reflect-value")) {
     el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
   }
-  if(el.nodeName == "OPTION" && el.hasAttribute("value")) {
-    if(<string>el.getAttribute("value") == "undefined") {
-      el.setAttribute("value", "");
-    }
-  }
+
   const attributesToRemove = [];
   for (let i = 0; i < el.attributes.length; i ++) {
     const attr = el.attributes[i];

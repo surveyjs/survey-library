@@ -9,6 +9,17 @@ import { RendererFactory } from "survey-core";
 export class DropdownSelectComponent {
   @Input() model: any;
 
+  get editableValue() {
+    return this.model.renderedValue || "";
+  }
+  set editableValue(newValue: any) {
+    if(newValue === "") {
+      this.model.renderedValue = undefined;
+    } else {
+      this.model.renderedValue = newValue;
+    }
+  }
+
   click(event: any) {
     this.model.onClick(event);
   }

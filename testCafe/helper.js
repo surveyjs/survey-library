@@ -149,7 +149,7 @@ export const registerCustomItemComponent = ClientFunction(
           },
         },
         template:
-          '<div class="my-list-item" style="display:flex;" data-bind="attr: { title: hint } "><span><sv-svg-icon params=\'iconName: iconName, size: iconSize\'></sv-svg-icon></span><span data-bind="text: title, css: getActionBarItemTitleCss()"></span></span></div>',
+          '<div class="my-list-item" style="display:flex;" data-bind="attr: { title: hint } "><span><sv-svg-icon params=\'iconName: iconName, size: iconSize\'></sv-svg-icon></span><span data-bind="text: title, css: getActionBarItemTitleCss()"></span></div>',
       });
     } else if (framework === "react") {
       class ItemTemplateComponent extends window["React"].Component {
@@ -197,7 +197,7 @@ export const registerCustomItemComponent = ClientFunction(
           item.hint = item.title + " - Description";
         },
         template:
-          '<div class="my-list-item" style="display:flex;" v-bind:title="item.hint" ><span><sv-svg-icon :iconName="item.iconName" :size = "item.iconSize"></sv-svg-icon></span><span v-bind:class="item.getActionBarItemTitleCss()">{{ item.title }}</span></span></div>',
+          '<div class="my-list-item" style="display:flex;" v-bind:title="item.hint" ><span><sv-svg-icon :iconName="item.iconName" :size = "item.iconSize"></sv-svg-icon></span><span v-bind:class="item.getActionBarItemTitleCss()">{{ item.title }}</span></div>',
       });
     }
   }

@@ -56,8 +56,9 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         className={className}
         role="option"
         aria-selected={this.model.isItemSelected(this.item)}
-        onClick={() => {
+        onClick={(event: any) => {
           this.model.selectItem(this.item);
+          event.stopPropagation();
         }}
         onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
       >

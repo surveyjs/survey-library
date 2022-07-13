@@ -7569,8 +7569,10 @@ QUnit.test("Get choices from matrix for default column type", function (assert) 
   });
   const matrix1 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
   const cellQuestion1 = <QuestionDropdownModel>matrix1.visibleRows[0].cells[0].question;
-  assert.equal(cellQuestion1.choices.length, 3, "Take choices from matrix choices");
-  assert.equal(cellQuestion1.choices[0].value, "item1", "First choice is correct");
+  assert.equal(matrix1.columns[0].cellType, "dropdown", "Set correct celltype");
+  assert.equal(cellQuestion1.getType(), "dropdown", "Set correct question type");
+  assert.equal(cellQuestion1.choices.length, 2, "Take choices from column choices");
+  assert.equal(cellQuestion1.choices[0].value, 1, "First choice is correct");
   const matrix2 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
   const cellQuestion2 = <QuestionDropdownModel>matrix2.visibleRows[0].cells[0].question;
   assert.equal(cellQuestion2.choices.length, 2, "Take choices from matrix choices, #2");
@@ -7635,5 +7637,33 @@ QUnit.test("Test property hideIfRowsEmpty for matrix dropdown", function (assert
   assert.equal(question.isVisible, false, "Filtered rows are empty");
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
+});
+
+QUnit.test("Load old JSON where columns without cellType set correctly", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            choices: ["a", "b", "c", "d"]
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const colQuestion = matrix.columns[0].templateQuestion;
+  assert.equal(colQuestion.getType(), "dropdown", "template is dropdown");
+  assert.deepEqual(colQuestion.choices.length, 4, "template has 4 choices");
+  assert.equal(colQuestion.choices[2].value, "c", "template has correct choices");
+  const rows = matrix.visibleRows;
+  const cellQuestion = rows[0].cells[0].question;
+  assert.equal(cellQuestion.getType(), "dropdown", "update the cell type");
+  assert.deepEqual(cellQuestion.choices.length, 4, "load 4 choices");
+  assert.equal(cellQuestion.choices[2].value, "c", "load choices correctly");
 });
 

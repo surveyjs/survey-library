@@ -12,10 +12,12 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
 
   protected abstract getModel(): T;
   protected previousModel?: T;
+  private needUpdateModel: boolean = false;
+
   public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
-      this.makeBaseElementAngular(this.getModel());
       this.previousModel = this.getModel();
+      this.needUpdateModel = true;
       this.onModelChanged();
     }
     this.beforeUpdate();
@@ -38,9 +40,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.unMakeBaseElementAngular(this.getModel());
   }
 
-  private makeBaseElementAngular(stateElement: Base) {
-    if(!!stateElement && !(<any>stateElement)["__angular__implemented"]) {
-      (<any>stateElement)["__angular__implemented"] = true;
+  private makeBaseElementAngular(stateElement: T) {
+    if(!!stateElement) {
       stateElement.iteratePropertiesHash((hash, key) => {
         var val: any = hash[key];
         if (Array.isArray(val)) {
@@ -62,16 +63,18 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       };
     }
   }
-  private unMakeBaseElementAngular(stateElement: Base) {
-    (<any>stateElement)["__angular__implemented"] = false;
-    stateElement.setPropertyValueCoreHandler = <any>undefined;
-    stateElement.iteratePropertiesHash((hash, key) => {
-      var val: any = hash[key];
-      if (Array.isArray(val)) {
-        var val: any = val;
-        val["onArrayChanged"] = () => {};
-      }
-    });
+  private unMakeBaseElementAngular(stateElement?: Base) {
+    if(!!stateElement) {
+      (<any>stateElement);
+      stateElement.setPropertyValueCoreHandler = <any>undefined;
+      stateElement.iteratePropertiesHash((hash, key) => {
+        var val: any = hash[key];
+        if (Array.isArray(val)) {
+          var val: any = val;
+          val["onArrayChanged"] = () => {};
+        }
+      });
+    }
   }
 
   private update() {
@@ -96,6 +99,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {
+    if(this.needUpdateModel) {
+      this.makeBaseElementAngular(this.getModel());
+      this.needUpdateModel = false;
+    }
     this.afterUpdate();
   }
 }

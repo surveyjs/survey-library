@@ -23,6 +23,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   protected isDraggedElementSelected: boolean = false;
 
   private isRight: boolean;
+  protected prevIsRight: boolean;
 
   public startDragToolboxItem(
     event: PointerEvent,
@@ -222,7 +223,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (this.dropTarget === this.ghostSurveyElement) return true;
     return (
       this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
-      && this.isEdge === this.prevIsEdge
+      && this.isEdge === this.prevIsEdge && this.isRight === this.prevIsRight
     );
   }
 
@@ -291,9 +292,13 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   //   return clientY >= middle;
   // }
 
+  protected doDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void {
+    this.isRight = this.calculateIsRight(event.clientX, dropTargetNode);
+  }
+
   protected afterDragOver(dropTargetNode: HTMLElement, event: PointerEvent): void {
     this.prevIsEdge = this.isEdge;
-    this.isRight = this.calculateIsRight(event.clientX, dropTargetNode);
+    this.prevIsRight = this.isRight;
     this.insertGhostElementIntoSurvey();
   }
 

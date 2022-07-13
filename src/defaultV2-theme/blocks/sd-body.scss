@@ -4,11 +4,14 @@
   .sd-body__page {
     min-width: calc(300px + 6 * #{$base-unit});
   }
+
   .sd-body__timer {
     padding: calcSize(2) calcSize(2) 0;
     box-sizing: border-box;
   }
+
   &.sd-body--static {
+
     .sd-body__timer,
     .sd-body__navigation,
     .sd-body__page {
@@ -17,21 +20,33 @@
       max-width: calcSize(84);
     }
   }
+
   &.sd-body--responsive {
     max-width: initial;
+
     .sd-body__timer,
     .sd-body__navigation {
       padding: calcSize(2) var(--sd-page-vertical-padding);
     }
   }
 }
+
 .sd-body__navigation {
   box-sizing: border-box;
   padding: calcSize(2) calcSize(2);
-  .sv-action:not(.sv-action--hidden) ~ .sv-action:not(.sv-action--hidden) {
+
+  .sv-action:not(.sv-action--hidden)~.sv-action:not(.sv-action--hidden) {
     margin-left: calcSize(2);
   }
 }
+
 .sd-body__progress {
   margin-bottom: calcSize(4);
+}
+
+.sd-body--empty {
+  min-height: 400px;
+  text-align: center;
+  padding-top: 180px;
+  box-sizing: border-box;
 }

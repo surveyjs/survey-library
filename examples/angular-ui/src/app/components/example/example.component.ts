@@ -1,9 +1,6 @@
 import { Component } from "@angular/core";
 import { SurveyModel, StylesManager, ActionContainer, Action, PopupModel, ListModel } from "survey-core";
-import * as SurveyCore from "survey-core";
 const json = require("../../../assets/survey.json");
-
-import * as widgets from "surveyjs-widgets";
 
 @Component({
   selector: "example",
@@ -101,7 +98,6 @@ export class ExampleComponent {
   }
 
   constructor() {
-    widgets.sortablejs(SurveyCore);
     StylesManager.applyTheme("defaultV2");
     this.model = new SurveyModel(json);
     (<any>window).survey = this.model;

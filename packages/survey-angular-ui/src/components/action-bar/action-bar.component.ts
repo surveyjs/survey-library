@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, ElementRef, Input, TemplateRef, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { ActionContainer } from "survey-core";
@@ -11,6 +11,7 @@ import { ActionContainer } from "survey-core";
 export class ActionBarComponent extends BaseAngular<ActionContainer> {
   @Input() model!: ActionContainer;
   @Input() handleClick: any;
+  @ViewChild("container") container!: ElementRef<HTMLDivElement>;
   getModel(): ActionContainer {
     return this.model;
   }
@@ -23,6 +24,15 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
     if(this.allowOnClick) {
       event.stopPropagation();
     }
+  }
+  ngAfterViewInit() {
+    if (!!this.model.hasActions) {
+      this.model.initResponsivityManager(this.container.nativeElement);
+    }
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.resetResponsivityManager();
   }
 }
 

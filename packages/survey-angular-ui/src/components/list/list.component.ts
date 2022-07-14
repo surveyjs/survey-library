@@ -20,8 +20,6 @@ export class ListComponent extends BaseAngular {
   }
   onKeyDown(event: Event): void {
     this.model.onKeyDown(event);
-    event.stopPropagation();
-
   }
 }
 

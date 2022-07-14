@@ -1,19 +1,21 @@
-<div [style]="{ overflowX: model.showHorizontalScroll ? 'scroll' : '' }" #contentElement>
-  <div *ngIf="model.renderedTable.showAddRowOnTop" [class]="model.cssClasses.footer">
-    <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+<ng-template #template>
+  <div [style]="{ overflowX: model.showHorizontalScroll ? 'scroll' : '' }" #contentElement>
+    <div *ngIf="model.renderedTable.showAddRowOnTop" [class]="model.cssClasses.footer">
+      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+    </div>
+    <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
+    <div *ngIf="!model.renderedTable.showTable" [class]="model.cssClasses.emptyRowsSection">
+      <div [class]="model.cssClasses.emptyRowsText" [model]="model.locEmptyRowsText" sv-ng-string></div>
+      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+    </div>
+    <div *ngIf="model.renderedTable.showAddRowOnBottom" [class]="model.cssClasses.footer">
+      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+    </div>
   </div>
-  <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
-  <div *ngIf="!model.renderedTable.showTable" [class]="model.cssClasses.emptyRowsSection">
-    <div [class]="model.cssClasses.emptyRowsText" [model]="model.locEmptyRowsText" sv-ng-string></div>
-    <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
-  </div>
-  <div *ngIf="model.renderedTable.showAddRowOnBottom" [class]="model.cssClasses.footer">
-    <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
-  </div>
-</div>
-<ng-template #addRowButton>
-  <button type="button" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
-      <sv-ng-string [model]="model.locAddRowText" ></sv-ng-string>
-      <span [class]="model.cssClasses.iconAdd"></span>
-  </button>
+  <ng-template #addRowButton>
+    <button type="button" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
+        <sv-ng-string [model]="model.locAddRowText" ></sv-ng-string>
+        <span [class]="model.cssClasses.iconAdd"></span>
+    </button>
+  </ng-template>
 </ng-template>

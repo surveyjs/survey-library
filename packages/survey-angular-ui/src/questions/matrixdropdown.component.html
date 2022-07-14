@@ -1,3 +1,5 @@
-<div [style]="{ overflowX: model.showHorizontalScroll ? 'scroll' : '' }" #contentElement>
-  <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
-</div>
+<ng-template #template>
+  <div [style]="{ overflowX: model.showHorizontalScroll ? 'scroll' : '' }" #contentElement>
+    <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
+  </div>
+</ng-template>

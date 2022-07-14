@@ -369,7 +369,7 @@ export class Base {
     return this.isLoadingFromJsonValue;
   }
 
-  startLoadingFromJson() {
+  startLoadingFromJson(json?: any) {
     this.isLoadingFromJsonValue = true;
   }
   endLoadingFromJson() {

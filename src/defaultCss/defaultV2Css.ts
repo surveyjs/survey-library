@@ -137,7 +137,8 @@ export var defaultV2Css = {
     collapsed: "sd-element--collapsed",
     expanded: "sd-element--expanded",
     nested: "sd-element--nested",
-    invisible: "sd-element--invisible"
+    invisible: "sd-element--invisible",
+    composite: "sd-element--complex",
   },
   image: {
     mainRoot: "sd-question sd-question--image",

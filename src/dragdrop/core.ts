@@ -216,7 +216,7 @@ export abstract class DragDropCore<T> extends Base {
       dropTargetNode
     );
 
-    this.doDragOver(dropTargetNode);
+    this.doDragOver(dropTargetNode, event);
 
     if (!isDropTargetValid) {
       this.banDropHere();
@@ -271,7 +271,7 @@ export abstract class DragDropCore<T> extends Base {
     return "sv-dragged-element-shortcut";
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement): void { }
+  protected doDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
   protected afterDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
 
   public getGhostPosition(item: any): string {

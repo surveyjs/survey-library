@@ -118,6 +118,12 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return parent.visibleChoices;
   }
 
+  protected doDragOver = (): any => {
+    if (this.parentElement.getType() === "imagepicker") return;
+    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    node.style.cursor = "grabbing";
+  };
+
   protected isDropTargetValid(
     dropTarget: ItemValue
   ): boolean {
@@ -143,6 +149,12 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     return true;
   }
+
+  protected doBanDropHere = (): any => {
+    if (this.parentElement.getType() === "imagepicker") return;
+    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    node.style.cursor = "not-allowed";
+  };
 
   protected calculateIsBottom(clientY: number): boolean {
     const choices = this.getVisibleChoices();

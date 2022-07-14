@@ -1399,7 +1399,7 @@ export class JsonObject {
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {
-      obj.startLoadingFromJson();
+      obj.startLoadingFromJson(jsonObj);
     }
     properties = this.addDynamicProperties(obj, jsonObj, properties);
     for (var key in jsonObj) {

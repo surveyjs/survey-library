@@ -431,6 +431,12 @@ export class MatrixDropdownColumn extends Base
     this.callOnCellQuestionUpdate(cellQuestion, row);
     return cellQuestion;
   }
+  startLoadingFromJson(json?: any) {
+    super.startLoadingFromJson(json);
+    if(!!json && !json.cellType && !!json.choices) {
+      json.cellType = this.colOwner.getCellType();
+    }
+  }
   public updateCellQuestion(
     cellQuestion: Question,
     data: any,

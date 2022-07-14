@@ -181,7 +181,8 @@ export {
   doKey2ClickDown,
   loadFileFromBase64,
   increaseHeightByContent,
-  createSvg
+  createSvg,
+  sanitizeEditableContent
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 

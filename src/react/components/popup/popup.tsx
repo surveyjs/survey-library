@@ -105,6 +105,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
           left: this.model.left,
           top: this.model.top,
           height: this.model.height,
+          width: this.model.width,
           minWidth: this.model.minWidth,
         }}
         onClick={(ev: any) => {

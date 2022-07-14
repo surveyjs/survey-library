@@ -2,6 +2,7 @@ import { PopupModel } from "survey-core";
 
 export type VerticalPosition = "top" | "bottom" | "middle";
 export type HorizontalPosition = "left" | "right" | "center";
+export type PositionMode = "flex" | "fixed";
 export interface IPosition {
   left?: number | string;
   top?: number | string;
@@ -26,29 +27,35 @@ export class PopupUtils {
     width: number,
     verticalPosition: VerticalPosition,
     horizontalPosition: HorizontalPosition,
-    showPointer: boolean
+    showPointer: boolean,
+    positionMode: PositionMode = "flex"
   ): INumberPosition {
-    if (horizontalPosition == "center")
-      var left = (targetRect.left + targetRect.right - width) / 2;
-    else if (horizontalPosition == "left") left = targetRect.left - width;
-    else left = targetRect.right;
+    let currentLeft = targetRect.left;
+    let currentTop = targetRect.top;
+
+    if(positionMode === "flex") {
+      if (horizontalPosition == "center")
+        currentLeft = (targetRect.left + targetRect.right - width) / 2;
+      else if (horizontalPosition == "left") currentLeft = targetRect.left - width;
+      else currentLeft = targetRect.right;
+    }
 
     if (verticalPosition == "middle")
-      var top = (targetRect.top + targetRect.bottom - height) / 2;
-    else if (verticalPosition == "top") top = targetRect.top - height;
-    else top = targetRect.bottom;
+      currentTop = (targetRect.top + targetRect.bottom - height) / 2;
+    else if (verticalPosition == "top") currentTop = targetRect.top - height;
+    else currentTop = targetRect.bottom;
 
     if (showPointer) {
       if (horizontalPosition != "center" && verticalPosition != "middle") {
         if (verticalPosition == "top") {
-          top = top + targetRect.height;
+          currentTop = currentTop + targetRect.height;
         } else {
-          top = top - targetRect.height;
+          currentTop = currentTop - targetRect.height;
         }
       }
     }
 
-    return { left: Math.round(left), top: Math.round(top) };
+    return { left: Math.round(currentLeft), top: Math.round(currentTop) };
   }
 
   public static updateVerticalDimensions(
@@ -70,18 +77,27 @@ export class PopupUtils {
     left: number,
     width: number,
     windowWidth: number,
-    horizontalPosition: HorizontalPosition
+    horizontalPosition: HorizontalPosition,
+    positionMode: PositionMode = "flex"
   ) {
     let newWidth = width, newLeft = left;
 
     if (horizontalPosition === "center") {
-      if (left < 0) {
-        newLeft = 0;
-        newWidth = Math.min(width, windowWidth);
-      } else if (width + left > windowWidth) {
-        newLeft = windowWidth - width;
-        newLeft = Math.max(newLeft, 0);
-        newWidth = Math.min(width, windowWidth);
+      if (positionMode === "fixed") {
+        if (left + newWidth > windowWidth) {
+          newWidth = windowWidth - left;
+        } else {
+          newWidth = undefined;
+        }
+      } else {
+        if (left < 0) {
+          newLeft = 0;
+          newWidth = Math.min(width, windowWidth);
+        } else if (width + left > windowWidth) {
+          newLeft = windowWidth - width;
+          newLeft = Math.max(newLeft, 0);
+          newWidth = Math.min(width, windowWidth);
+        }
       }
     }
 
@@ -170,7 +186,7 @@ export class PopupUtils {
     return targetPos;
   }
 
-  public static updatePopupWidthBeforeShow(popupModel: PopupModel, target: Element, e: any) {
+  public static updatePopupWidthBeforeShow(popupModel: PopupModel, target: Element) {
     if (!!target) {
       popupModel.width = target.getBoundingClientRect().width;
     }

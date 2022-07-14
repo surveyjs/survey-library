@@ -1,7 +1,7 @@
 import { Base, EventBase } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition } from "./utils/popup";
+import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition, PositionMode } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class PopupModel<T = any> extends Base {
@@ -20,6 +20,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
+  @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
 
@@ -116,6 +117,7 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
+  @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
@@ -125,6 +127,11 @@ export class PopupBaseViewModel extends Base {
 
   private hidePopup() {
     this.model.isVisible = false;
+    this.top = undefined;
+    this.left = undefined;
+    this.height = undefined;
+    this.width = undefined;
+    this.minWidth = undefined;
   }
 
   private _model: PopupModel;
@@ -223,10 +230,11 @@ export class PopupBaseViewModel extends Base {
       window.removeEventListener("scroll", this.scrollEventCallBack);
     }
   }
+
   private updatePosition() {
     if(!this.targetElement) return;
     if (this.model.displayMode !== "overlay") {
-      const rect = this.targetElement.getBoundingClientRect();
+      const targetElementRect = this.targetElement.getBoundingClientRect();
       const background = <HTMLElement>this.container.children[0];
       const popupContainer = <HTMLElement>background.children[0];
       const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
@@ -235,15 +243,15 @@ export class PopupBaseViewModel extends Base {
       const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
       const margin = marginLeft + marginRight;
       let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
-      const width = this.model.width || popupContainer.getBoundingClientRect().width;
+      const width = popupContainer.getBoundingClientRect().width;
       const widthMargins = width + margin;
-      this.minWidth = this.model.width + "px";
+      this.model.width && (this.minWidth = this.model.width + "px");
       this.height = "auto";
       let verticalPosition = this.model.verticalPosition;
       if (!!window) {
         height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
         verticalPosition = PopupUtils.updateVerticalPosition(
-          rect,
+          targetElementRect,
           height,
           this.model.verticalPosition,
           this.model.showPointer,
@@ -255,12 +263,13 @@ export class PopupBaseViewModel extends Base {
         this.model.horizontalPosition
       );
       const pos = PopupUtils.calculatePosition(
-        rect,
+        targetElementRect,
         height,
         widthMargins,
         verticalPosition,
         this.model.horizontalPosition,
-        this.showPointer
+        this.showPointer,
+        this.model.positionMode
       );
 
       if (!!window) {
@@ -273,13 +282,16 @@ export class PopupBaseViewModel extends Base {
           this.height = newVerticalDimensions.height + "px";
           pos.top = newVerticalDimensions.top;
         }
+
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
           widthMargins,
           window.innerWidth,
-          this.model.horizontalPosition
+          this.model.horizontalPosition,
+          this.model.positionMode
         );
         if (!!newHorizontalDimensions) {
+          this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
           pos.left = newHorizontalDimensions.left;
         }
       }
@@ -288,7 +300,7 @@ export class PopupBaseViewModel extends Base {
 
       if (this.showPointer) {
         this.pointerTarget = PopupUtils.calculatePointerTarget(
-          rect,
+          targetElementRect,
           pos.top,
           pos.left,
           verticalPosition,

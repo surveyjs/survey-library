@@ -190,8 +190,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       event.stopPropagation();
     }
   }
+
   public get ariaRole(): string {
-    return "textbox";
+    return "listbox";
   }
 }
 Serializer.addClass(

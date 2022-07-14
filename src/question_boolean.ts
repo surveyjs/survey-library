@@ -253,7 +253,7 @@ export class QuestionBooleanModel extends Question {
   }
 
   public get ariaRole(): string {
-    return "textbox";
+    return "radiogroup";
   }
 }
 

@@ -4,9 +4,9 @@ import { BaseAngular } from "../../base-angular";
 import { ActionContainer } from "survey-core";
 
 @Component({
-  selector: "sv-action-bar, sv-ng-action-bar, '[sv-ng-action-bar]'",
+  selector: "sv-action-bar, sv-ng-action-bar",
   templateUrl: "./action-bar.component.html",
-  styleUrls: ["./action-bar.component.scss"]
+  styles: [":host { display: none }"]
 })
 export class ActionBarComponent extends BaseAngular<ActionContainer> {
   @Input() model!: ActionContainer;

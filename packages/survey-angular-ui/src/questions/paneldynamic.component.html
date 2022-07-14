@@ -35,7 +35,9 @@
         role="progressbar"
       ></div>
     </div>
-    <div [class]="model.cssClasses.footerButtonsContainer" [model]="model.footerToolbar" sv-ng-action-bar></div>
+    <div [class]="model.cssClasses.footerButtonsContainer">
+      <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
+    </div>
   </div>
 </ng-template>
 <ng-template #progress>

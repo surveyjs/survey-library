@@ -1,3 +1,5 @@
+import { PopupModel } from "survey-core";
+
 export type VerticalPosition = "top" | "bottom" | "middle";
 export type HorizontalPosition = "left" | "right" | "center";
 export interface IPosition {
@@ -168,7 +170,7 @@ export class PopupUtils {
     return targetPos;
   }
 
-  public static updatePopupWidthBeforeShow(popupModel: any, target: Element, e: any) {
+  public static updatePopupWidthBeforeShow(popupModel: PopupModel, target: Element, e: any) {
     if (!!target) {
       popupModel.width = target.getBoundingClientRect().width;
     }

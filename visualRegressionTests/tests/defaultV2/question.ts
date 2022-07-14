@@ -248,4 +248,44 @@ frameworks.forEach(framework => {
     const qRoot = Selector(".sd-question");
     await checkElementScreenshot("question-title-location-left.png", qRoot, t);
   });
+
+  test("Composite", async (t) => {
+    const setupComposite = ClientFunction(() => {
+      window["Survey"]
+        .ComponentCollection
+        .Instance
+        .add({
+          name: "shippingaddress",
+          title: "Shipping Address",
+          elementsJSON: [
+            {
+              type: "text",
+              name: "businessAddress",
+              title: "Business Address"
+            }
+          ],
+          onCreated(question) {
+            // Hide the title for component/root location
+            question.titleLocation = "hidden";
+          }
+        });
+    });
+    await setupComposite();
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "shippingaddress",
+          "name": "question1"
+        }
+      ]
+    });
+    const qRoot = Selector(".sd-question");
+    await checkElementScreenshot("question-composite-hidden-title.png", qRoot, t);
+
+    await ClientFunction(() => {
+      window["survey"].getAllQuestions()[0].titleLocation = "default";
+    })();
+    await checkElementScreenshot("question-composite-with-title.png", qRoot, t);
+  });
 });

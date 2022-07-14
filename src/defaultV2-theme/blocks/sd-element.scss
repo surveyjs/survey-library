@@ -32,7 +32,7 @@ div:only-child > .sd-element--with-frame:not(.sd-element--collapsed) {
   }
 }
 .svc-logic-question-value,
-.sd-element:not(.sd-element--collapsed):not(.sd-element--complex):not(.sd-element--nested) {
+.sd-element:not(.sd-element--collapsed) {
   padding-top: var(--sd-base-vertical-padding);
 }
 .sd-table__cell--detail-panel {

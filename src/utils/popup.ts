@@ -80,14 +80,12 @@ export class PopupUtils {
     horizontalPosition: HorizontalPosition,
     positionMode: PositionMode = "flex"
   ) {
-    let newWidth = width, newLeft = left;
+    let newWidth = undefined, newLeft = left;
 
     if (horizontalPosition === "center") {
       if (positionMode === "fixed") {
-        if (left + newWidth > windowWidth) {
+        if (left + width > windowWidth) {
           newWidth = windowWidth - left;
-        } else {
-          newWidth = undefined;
         }
       } else {
         if (left < 0) {

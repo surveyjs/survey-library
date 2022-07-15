@@ -10,28 +10,28 @@ import { AngularComponentFactory } from "../../component-factory";
 
 export class ListItemComponent extends BaseAngular {
   @Input() element: any;
-  @Input() item!: Action;
-  @Input() model!: ListModel;
+  @Input() model!: Action;
+  @Input() listModel!: ListModel;
 
   @HostBinding("attr.aria-selected") get ariaSelected(): boolean | string {
-    return this.model.isItemSelected(this.item) || "";
+    return this.listModel.isItemSelected(this.model) || "";
   }
   @HostBinding("class") get class(): string {
-    return this.model.getItemClass(this.item);
+    return this.listModel.getItemClass(this.model);
   }
   @HostBinding("style.paddingLeft") get paddingLeft(): string {
-    return this.model.getItemIndent(this.item);
+    return this.listModel.getItemIndent(this.model);
   }
   @HostListener("click", ["$event"]) click(event: PointerEvent): void {
-    this.model.selectItem(this.item);
+    this.listModel.selectItem(this.model);
     event.stopPropagation();
   }
   @HostListener("pointerdown", ["$event"]) pointerdown(event: PointerEvent): void {
-    this.model.onPointerDown(event, this.item);
+    this.listModel.onPointerDown(event, this.model);
   }
 
   getModel() {
-    return this.item;
+    return this.model;
   }
 }
 

@@ -6,10 +6,10 @@ import { AngularComponentFactory } from "survey-angular-ui";
   templateUrl: "./itemTemplateComponent.html"
 })
 export class AngularItemTemplateComponent implements OnInit {
-  @Input() item: any;
+  @Input() model: any;
 
   ngOnInit() {
-    const item = this.item;
+    const item = this.model;
     item.iconName = "icon-defaultfile";
     item.hint = item.title + " - Description";
   }

@@ -1,7 +1,7 @@
 <div *ngIf="survey.isLogoBefore" [class]="survey.logoClassNames">
     <img
       [class]="survey.css.logoImage"
-      [attr.src]="survey.locLogo.renderedHtml"
+      [attr.src]="survey.locLogo.renderedHtml | safeUrl"
       [attr.width]="survey.logoWidth ? survey.logoWidth : undefined"
       [attr.height]="survey.logoHeight ? survey.logoHeight : undefined"
       [attr.alt]="survey.locTitle.renderedHtml"
@@ -21,9 +21,9 @@
   <div *ngIf="survey.isLogoAfter" [class]="survey.logoClassNames">
     <img
       [class]="survey.css.logoImage"
-      [src]="survey.locLogo.renderedHtml"
-      [width]="survey.logoWidth ? survey.logoWidth : undefined"
-      [height]="survey.logoHeight ? survey.logoHeight : undefined"
+      [attr.src]="survey.locLogo.renderedHtml | safeUrl"
+      [attr.width]="survey.logoWidth ? survey.logoWidth : undefined"
+      [attr.height]="survey.logoHeight ? survey.logoHeight : undefined"
       [alt]="survey.locTitle.renderedHtml"
       [style.objectFit]="survey.logoFit"
     />

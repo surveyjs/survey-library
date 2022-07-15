@@ -1,56 +1,58 @@
-<div [class]="model.cssClasses.tableWrapper" #contentElement>
-  <fieldset>
-    <legend [attr.aria-label]="model.locTitle.renderedHtml"></legend>
-    <table [class]="model.getTableCss()">
-      <thead *ngIf="model.showHeader">
-        <tr>
-          <td [visible]="model.hasRows"></td>
-          <th
-            *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell" 
-            [model]="column.locText" sv-ng-string>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
-          <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string></td>
-          <ng-container *ngIf="model.hasCellText">
-            <td *ngFor="let column of model.visibleColumns"
-              [class]="model.getItemClass(row, column)"
-              (click)="onChange(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string>
-            </td>
-          </ng-container>
-          <ng-container *ngIf="!model.hasCellText">
-            <td
-            *ngFor="let column of model.visibleColumns; index as columnIndex; trackBy: trackColumnByFn"
-            [attr.data-responsive-title]="column.locText.renderedHtml"
-            [class]="model.cssClasses.cell">
-              <label [class]="model.getItemClass(row, column)">
-                <input
-                  type="radio"
-                  [class]="model.cssClasses.itemValue"
-                  [name]="row.fullName"
-                  [value]="column.value"
-                  [checked]="row.value === column.value"
-                  [disabled]="model.isInputReadOnly"
-                  [attr.id]="model.inputId + '_' + row.name + '_' + columnIndex"
-                  (change)="onChange(row, column)"
-                  [attr.aria-required]="model.ariaRequired"
-                  [attr.aria-label]="column.locText.renderedHtml"
-                  [attr.aria-invalid]="model.ariaInvalid"
-                  [attr.aria-describedby]="model.ariaDescribedBy"
-                />
-                <span [class]="model.cssClasses.materialDecorator">
-                  <svg *ngIf="model.itemSvgIcon" [class]="model.cssClasses.itemDecorator">
-                    <use [attr.xlink:href]="model.itemSvgIcon"></use>
-                  </svg> 
-                </span>
-                <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
-              </label>
-            </td>
-          </ng-container>
-        </tr>
-      </tbody>
-    </table>
-  </fieldset>
-</div>
+<ng-template #template>
+  <div [class]="model.cssClasses.tableWrapper" #contentElement>
+    <fieldset>
+      <legend [attr.aria-label]="model.locTitle.renderedHtml"></legend>
+      <table [class]="model.getTableCss()">
+        <thead *ngIf="model.showHeader">
+          <tr>
+            <td [visible]="model.hasRows"></td>
+            <th
+              *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell" 
+              [model]="column.locText" sv-ng-string>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
+            <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows" [model]="row.locText" sv-ng-string></td>
+            <ng-container *ngIf="model.hasCellText">
+              <td *ngFor="let column of model.visibleColumns"
+                [class]="model.getItemClass(row, column)"
+                (click)="onChange(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string>
+              </td>
+            </ng-container>
+            <ng-container *ngIf="!model.hasCellText">
+              <td
+              *ngFor="let column of model.visibleColumns; index as columnIndex; trackBy: trackColumnByFn"
+              [attr.data-responsive-title]="column.locText.renderedHtml"
+              [class]="model.cssClasses.cell">
+                <label [class]="model.getItemClass(row, column)">
+                  <input
+                    type="radio"
+                    [class]="model.cssClasses.itemValue"
+                    [name]="row.fullName"
+                    [value]="column.value"
+                    [checked]="row.value === column.value"
+                    [disabled]="model.isInputReadOnly"
+                    [attr.id]="model.inputId + '_' + row.name + '_' + columnIndex"
+                    (change)="onChange(row, column)"
+                    [attr.aria-required]="model.ariaRequired"
+                    [attr.aria-label]="column.locText.renderedHtml"
+                    [attr.aria-invalid]="model.ariaInvalid"
+                    [attr.aria-describedby]="model.ariaDescribedBy"
+                  />
+                  <span [class]="model.cssClasses.materialDecorator">
+                    <svg *ngIf="model.itemSvgIcon" [class]="model.cssClasses.itemDecorator">
+                      <use [attr.xlink:href]="model.itemSvgIcon"></use>
+                    </svg> 
+                  </span>
+                  <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
+                </label>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+  </div>
+</ng-template>

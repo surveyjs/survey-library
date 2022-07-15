@@ -5,7 +5,8 @@ import { AngularComponentFactory } from "../component-factory";
 
 @Component({
   selector: "sv-ng-matrix-question",
-  templateUrl: "./matrix.component.html"
+  templateUrl: "./matrix.component.html",
+  styleUrls: ["../hide-host.scss"]
 })
 export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel> {
   override ngOnInit() {

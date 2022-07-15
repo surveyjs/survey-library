@@ -3,7 +3,8 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
 
 @Component({
   selector: "sv-ng-element-title",
-  templateUrl: "./element-title.component.html"
+  templateUrl: "./element-title.component.html",
+  styleUrls: ["../../hide-host.scss"]
 })
 export class ElementTitleComponent extends EmbeddedViewContentComponent {
   @Input() element: any;

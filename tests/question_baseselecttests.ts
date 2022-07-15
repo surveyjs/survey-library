@@ -552,3 +552,41 @@ QUnit.test("check radiogroup title actions", (assert) => {
   question.showClearButton = false;
   assert.notOk(action.visible);
 });
+
+QUnit.test("checkbox and radio css", (assert) => {
+  let survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["Item 1"]
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: ["Item 1"],
+        showClearButton: true
+      }]
+  });
+  let question1 = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
+  let question2 = <QuestionCheckboxModel>survey.getAllQuestions()[1];
+  survey.css = {
+    radiogroup: {
+      root: "css-root",
+      rootRow: "css-root-row"
+    },
+    checkbox: {
+      root: "css-root",
+      rootRow: "css-root-row"
+    }
+  };
+
+  assert.equal(question1.getSelectBaseRootCss(), "css-root");
+  assert.equal(question2.getSelectBaseRootCss(), "css-root");
+
+  question1.colCount = 0;
+  question2.colCount = 0;
+
+  assert.equal(question1.getSelectBaseRootCss(), "css-root css-root-row");
+  assert.equal(question2.getSelectBaseRootCss(), "css-root css-root-row");
+});

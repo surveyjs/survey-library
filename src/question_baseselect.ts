@@ -1264,8 +1264,16 @@ export class QuestionSelectBase extends Question {
     return columns;
   }
   get hasColumns() {
-    return !this.isMobile && this.getCurrentColCount() > 1;
+    return !this.isMobile &&
+    (this.getCurrentColCount() > 1);
   }
+  get rowLayout() {
+    return this.getCurrentColCount() == 0;
+  }
+  get blockedRow() {
+    return this.getCurrentColCount() == 0 && (this.hasFootItems || this.hasHeadItems);
+  }
+
   public choicesLoaded(): void {
     this.isChoicesLoaded = true;
     let oldIsReady: boolean = this.isReadyValue;
@@ -1307,7 +1315,10 @@ export class QuestionSelectBase extends Question {
     return this.cssClasses.itemSvgIconId;
   }
   public getSelectBaseRootCss(): string {
-    return new CssClassBuilder().append(this.cssClasses.root).toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootRow, this.rowLayout)
+      .toString();
   }
 
   public getAriaItemLabel(item: ItemValue) {

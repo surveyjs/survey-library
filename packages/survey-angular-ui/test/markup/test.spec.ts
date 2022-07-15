@@ -36,9 +36,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const blackList = [
-  new RegExp(/file-mob2/), // waiting for action bar
-];
+const blackList = [];
 
 describe("etalon tests", () => {
   beforeEach(async () => {

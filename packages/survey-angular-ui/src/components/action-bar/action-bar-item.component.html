@@ -1,6 +1,5 @@
-<button type="button" (click)="model.action()" [key2click]="{ processEsc: false }" [class]="model.getActionBarItemCss()" [title]="model.tooltip || model.title" [disabled]="model.disabled"
-  data-bind="key2click: { processEsc: false }"
->
+<button type="button" (click)="model.action()" [key2click]="{ processEsc: false }" [class]="model.getActionBarItemCss()" [attr.title]="model.tooltip || model.title" [disabled]="model.disabled" 
+  data-bind="key2click: { processEsc: false }">
   <!-- ko if: $data.iconName -->
   <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize } } --><!-- /ko -->
   <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>

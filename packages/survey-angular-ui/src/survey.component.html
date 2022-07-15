@@ -54,4 +54,5 @@
       <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
     </div>
   </form>
+  <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
 </div>

@@ -52,7 +52,7 @@ import { SvgIconComponent } from "./components/svg-icon/svg-icon.component";
 import { FileQuestionComponent, } from "./questions/file.component";
 import { VisibleDirective } from "./utils/ng-show.directive";
 import { Key2ClickDirective } from "./utils/ng-key2click.directive";
-import { SafeUrlPipe } from "./utils/safe-url.pipe";
+import { SafeUrlPipe, SafeResourceUrlPipe } from "./utils/safe-url.pipe";
 import { SafeHtmlPipe } from "./utils/safe-html.pipe";
 import { CommentQuestionComponent } from "./questions/comment.component";
 import { SignaturePadQuestionComponent } from "./questions/signature.component";
@@ -81,6 +81,7 @@ import { MatrixDynamicDragDropIconComponent } from "./components/matrix-actions/
 import { MatrixDetailButtonComponent } from "./components/matrix-actions/detail-button/detail-button.component";
 import { MatrixRequiredHeader } from "./questions/matrixrequiredheader.component";
 import { ExpressionComponent } from "./questions/expression.component";
+import { ImageQuestionComponent } from "./questions/image.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
@@ -91,10 +92,10 @@ import { ExpressionComponent } from "./questions/expression.component";
     ListComponent, ListItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
-    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent,
+    RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
-    MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent
+    MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe
   ],
   imports: [
     CommonModule, FormsModule

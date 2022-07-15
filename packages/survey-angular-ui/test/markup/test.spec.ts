@@ -38,7 +38,6 @@ class ExpectAssertAdapter {
 
 const blackList = [
   new RegExp(/file-mob2/), // waiting for action bar
-  new RegExp(/image(-video)?/), //not implemented yet
 ];
 
 describe("etalon tests", () => {

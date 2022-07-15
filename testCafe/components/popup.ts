@@ -18,6 +18,9 @@ const disposeSurvey = ClientFunction(framework => {
   if (framework === "react") {
     window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));
   }
+  if (framework === "angular") {
+    window["setSurvey"](undefined);
+  }
   window["survey"].dispose();
 });
 
@@ -308,7 +311,8 @@ frameworks.forEach(async framework => {
     const insertContainer = ClientFunction(() => {
       const container = document.createElement("div");
       container.style.height = "200px";
-      document.body.insertBefore(container, document.getElementById("surveyElement"));
+      const surveyEl = document.getElementById("surveyElement");
+      surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
     });
     const popupContainerSelector = Selector(".sv-popup__container");
     await insertContainer();

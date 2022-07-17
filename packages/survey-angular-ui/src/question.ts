@@ -16,12 +16,12 @@ export class QuestionAngular<T extends Question = Question> extends BaseAngular<
 
   ngAfterViewInit() {
     if (!!this.model) {
-      this.model.afterRenderQuestionElement(this.elementContentRef.nativeElement);
+      this.model.afterRenderQuestionElement(this.elementContentRef?.nativeElement);
     }
   }
   override ngOnDestroy() {
     if (!!this.model) {
-      this.model.beforeDestroyQuestionElement(this.elementContentRef.nativeElement);
+      this.model.beforeDestroyQuestionElement(this.elementContentRef?.nativeElement);
     }
     super.ngOnDestroy();
   }

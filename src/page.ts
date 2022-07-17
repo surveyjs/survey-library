@@ -387,8 +387,18 @@ export class PageModel extends PanelModelBase implements IPage {
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
     if (this.isDesignMode && settings.supportCreatorV2) {
-      if (!source.startWithNewLine && destination.startWithNewLine)
-        return true;
+      const rowSource = this.dragDropFindRow(source);
+      const rowDestination = this.dragDropFindRow(destination);
+
+      if (rowSource !== rowDestination) {
+        if (!source.startWithNewLine && destination.startWithNewLine)
+          return true;
+
+        if (source.startWithNewLine && !destination.startWithNewLine) {
+          return true;
+        }
+      }
+
       let row = this.dragDropFindRow(destination);
       if (row && row.elements.length == 1)
         return true;

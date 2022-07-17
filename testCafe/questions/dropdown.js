@@ -724,4 +724,41 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(ratingAsDropdown.textContent).contains(ratingAsDropdownPlaceHolder);
   });
+  test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "car",
+          "title": "What car are you driving?",
+          "choices": [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz 1 Mercedes-Benz 2 Mercedes-Benz 3 Mercedes-Benz 4 Mercedes-Benz 5 Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+
+    await t
+      .resizeWindow(800, 600)
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.clientWidth).lte(685)
+      .click(getListItemByText("Ford"))
+
+      .resizeWindow(1300, 600)
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.clientWidth).gte(850);
+  });
 });

@@ -431,6 +431,12 @@ export class MatrixDropdownColumn extends Base
     this.callOnCellQuestionUpdate(cellQuestion, row);
     return cellQuestion;
   }
+  startLoadingFromJson(json?: any) {
+    super.startLoadingFromJson(json);
+    if(!!json && !json.cellType && !!json.choices) {
+      json.cellType = this.colOwner.getCellType();
+    }
+  }
   public updateCellQuestion(
     cellQuestion: Question,
     data: any,
@@ -628,7 +634,13 @@ Serializer.addClass(
   "matrixdropdowncolumn",
   [
     { name: "!name", isUnique: true },
-    { name: "title", serializationProperty: "locTitle" },
+    { name: "title", serializationProperty: "locTitle", dependsOn: "name",
+      onPropertyEditorUpdate: function(obj: any, editor: any) {
+        if(!!obj && !!editor) {
+          editor.placeHolder = obj.name;
+        }
+      }
+    },
     { name: "cellHint", serializationProperty: "locCellHint", visible: false },
     {
       name: "cellType",

@@ -13,6 +13,7 @@ import { PanelModel } from "./panel";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * An interface used to create custom question types.
@@ -664,6 +665,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   protected getElement(): SurveyElement {
     return this.contentPanel;
+  }
+  protected getCssRoot(cssClasses: any): string {
+    return new CssClassBuilder().append(super.getCssRoot(cssClasses)).append(cssClasses.composite).toString();
   }
   public get contentPanel(): PanelModel {
     return this.panelWrapper;

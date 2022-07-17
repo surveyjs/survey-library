@@ -216,7 +216,7 @@ export abstract class DragDropCore<T> extends Base {
       dropTargetNode
     );
 
-    this.doDragOver(dropTargetNode);
+    this.doDragOver(dropTargetNode, event);
 
     if (!isDropTargetValid) {
       this.banDropHere();
@@ -230,7 +230,7 @@ export abstract class DragDropCore<T> extends Base {
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    this.afterDragOver(dropTargetNode);
+    this.afterDragOver(dropTargetNode, event);
     this.prevDropTarget = this.dropTarget;
   };
 
@@ -271,8 +271,8 @@ export abstract class DragDropCore<T> extends Base {
     return "sv-dragged-element-shortcut";
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement): void { }
-  protected afterDragOver(dropTargetNode?: HTMLElement): void { }
+  protected doDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
+  protected afterDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
 
   public getGhostPosition(item: any): string {
     if (this.dropTarget !== item) return null;
@@ -447,9 +447,14 @@ export abstract class DragDropCore<T> extends Base {
     event?: PointerEvent
   ): any;
 
-  protected calculateMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
+  protected calculateVerticalMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
     const rect = HTMLElement.getBoundingClientRect();
     return rect.y + rect.height / 2;
+  }
+
+  protected calculateHorizontalMiddleOfHTMLElement(HTMLElement: HTMLElement): number {
+    const rect = HTMLElement.getBoundingClientRect();
+    return rect.x + rect.width / 2;
   }
 
   protected abstract calculateIsBottom(

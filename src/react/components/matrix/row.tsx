@@ -4,13 +4,13 @@ import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownModelBase } fr
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
-interface IMAtrixRowProps {
+interface IMatrixRowProps {
   model: QuestionMatrixDropdownRenderedRow;
   parentMatrix: QuestionMatrixDropdownModelBase;
 }
 
-export class MatrixRow extends SurveyElementBase<IMAtrixRowProps, any> {
-  constructor(props: IMAtrixRowProps) {
+export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
+  constructor(props: IMatrixRowProps) {
     super(props);
   }
   get model(): QuestionMatrixDropdownRenderedRow {
@@ -42,7 +42,7 @@ export class MatrixRow extends SurveyElementBase<IMAtrixRowProps, any> {
 
 ReactElementFactory.Instance.registerElement(
   "sv-matrix-row",
-  (props: IMAtrixRowProps) => {
+  (props: IMatrixRowProps) => {
     return React.createElement(MatrixRow, props);
   }
 );

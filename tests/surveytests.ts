@@ -14352,7 +14352,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" }, ];
+    options.titleActions = [{ id: "action" }];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");
@@ -14994,3 +14994,51 @@ QUnit.test("Ignore firstStartPage if there is only one page", function (assert) 
   assert.equal(survey.state, "running", "There is only one page");
   assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible");
 });
+QUnit.test("Check survey calculated width mode observability",
+  function (assert) {
+    const json = {
+      "pages": [
+        {
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            },
+            {
+              "type": "text",
+              "name": "q2"
+            },
+            {
+              "type": "text",
+              "name": "q3"
+            },
+            {
+              "type": "text",
+              "name": "q4"
+            }
+          ]
+        }
+      ]
+    };
+    const model = new SurveyModel(json);
+    model.css.body="css-body";
+
+    assert.equal(model.calculatedWidthMode, "static");
+    assert.equal(model.bodyCss, "css-body css-body--static");
+    model.widthMode = "responsive";
+    assert.equal(model.calculatedWidthMode, "responsive");
+    assert.equal(model.bodyCss, "css-body css-body--responsive");
+
+    model.widthMode = "auto";
+    assert.equal(model.calculatedWidthMode, "static");
+
+    model.getAllQuestions()[1].startWithNewLine = false;
+    assert.equal(model.calculatedWidthMode, "responsive");
+
+    model.getAllQuestions()[1].startWithNewLine = true;
+    assert.equal(model.calculatedWidthMode, "static");
+
+    model.pages[0].addNewQuestion("matrix", "qm");
+    assert.equal(model.calculatedWidthMode, "responsive");
+  }
+);

@@ -5,7 +5,7 @@ sv-brand-info {}
   font-family: 'Open Sans', sans-serif;
   text-align: center;
   color: #161616;
-  padding: 32px;
+  padding: 150px 32px 150px 32px;
   background: white;
 
   a {
@@ -19,7 +19,10 @@ sv-brand-info {}
 }
 
 .sv-brand-info__logo {
-  width: 118px;
+  img {
+    width: 200px;
+  }
+
   display: inline-block;
 }
 

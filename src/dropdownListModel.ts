@@ -27,7 +27,7 @@ export class DropdownListModel extends Base {
       this.question.value = item.id;
       this._popupModel.toggleVisibility();
     }, true);
-    listModel.denySearch = this.question.denySearch;
+    listModel.searchEnabled = this.question.searchEnabled;
 
     this._popupModel = new PopupModel("sv-list", { model: listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";

@@ -222,7 +222,7 @@ frameworks.forEach(framework => {
           // renderAs: "select",
           name: "DropdownRenderAsSelect",
           hasOther: "true",
-          denySearch: true,
+          searchEnabled: false,
           choices: [
             "item1",
             "item2",

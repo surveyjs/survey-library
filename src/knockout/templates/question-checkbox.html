@@ -10,14 +10,14 @@
       <!-- ko ifnot: question.hasColumns  -->
         <!-- ko if: question.blockedRow -->
         <div data-bind="css: question.koCss().rootRow">
-          <!-- ko foreach: { data: question.choices, as: 'item', afterRender: question.koAfterRender }  -->
+          <!-- ko foreach: { data: question.dataChoices, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
           <!-- /ko -->
         </div>
         <!-- /ko -->
         <!-- ko ifnot: question.blockedRow -->
-        <!-- ko foreach: { data: question.choices, as: 'item', afterRender: question.koAfterRender }  -->
+        <!-- ko foreach: { data: question.bodyItems, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->

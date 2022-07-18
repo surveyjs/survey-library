@@ -1218,6 +1218,12 @@ export class QuestionSelectBase extends Question {
     return (this.separateSpecialChoices || this.isDesignMode)?
       this.visibleChoices.filter(choice => this.isFootChoice(choice, this)) :[];
   }
+  get dataChoices():ItemValue[] {
+    return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));
+  }
+  get bodyItems():ItemValue[] {
+    return (this.hasHeadItems || this.hasFootItems) ? this.dataChoices : this.visibleChoices;
+  }
   get hasHeadItems(): boolean {
     return this.headItems.length > 0;
   }
@@ -1229,8 +1235,7 @@ export class QuestionSelectBase extends Question {
     var colCount = this.getCurrentColCount();
     if (this.hasColumns && this.visibleChoices.length > 0) {
       let choicesToBuildColumns = (!this.separateSpecialChoices && !this.isDesignMode) ?
-        this.visibleChoices :
-        this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));
+        this.visibleChoices : this.dataChoices;
       if (settings.showItemsInOrder == "column") {
         var prevIndex = 0;
         var leftElementsCount = choicesToBuildColumns.length % colCount;
@@ -1268,7 +1273,7 @@ export class QuestionSelectBase extends Question {
     (this.getCurrentColCount() > 1);
   }
   get rowLayout() {
-    return this.getCurrentColCount() == 0;
+    return this.getCurrentColCount() == 0 && !(this.hasFootItems || this.hasHeadItems);
   }
   get blockedRow() {
     return this.getCurrentColCount() == 0 && (this.hasFootItems || this.hasHeadItems);

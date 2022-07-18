@@ -559,13 +559,16 @@ QUnit.test("checkbox and radio css", (assert) => {
       {
         type: "radiogroup",
         name: "q1",
-        choices: ["Item 1"]
+        choices: ["Item 1"],
+        hasNone: true
       },
       {
         type: "checkbox",
         name: "q2",
         choices: ["Item 1"],
-        showClearButton: true
+        showClearButton: true,
+        hasSelectAll: true,
+        hasNone: true
       }]
   });
   let question1 = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
@@ -584,9 +587,68 @@ QUnit.test("checkbox and radio css", (assert) => {
   assert.equal(question1.getSelectBaseRootCss(), "css-root");
   assert.equal(question2.getSelectBaseRootCss(), "css-root");
 
+  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1", "none"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["selectall", "Item 1", "none"]);
+
+  assert.deepEqual(question1.rowLayout, false);
+  assert.deepEqual(question2.rowLayout, false);
+
   question1.colCount = 0;
   question2.colCount = 0;
 
   assert.equal(question1.getSelectBaseRootCss(), "css-root css-root-row");
   assert.equal(question2.getSelectBaseRootCss(), "css-root css-root-row");
+
+  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1", "none"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["selectall", "Item 1", "none"]);
+
+  assert.deepEqual(question1.rowLayout, true);
+  assert.deepEqual(question2.rowLayout, true);
+
+  assert.deepEqual(question1.blockedRow, false);
+  assert.deepEqual(question2.blockedRow, false);
+
+  question1.separateSpecialChoices = true;
+  question2.separateSpecialChoices = true;
+
+  assert.equal(question1.getSelectBaseRootCss(), "css-root");
+  assert.equal(question2.getSelectBaseRootCss(), "css-root");
+
+  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.rowLayout, false);
+  assert.deepEqual(question2.rowLayout, false);
+
+  assert.deepEqual(question1.blockedRow, true);
+  assert.deepEqual(question2.blockedRow, true);
+
+  question1.separateSpecialChoices = false;
+  question2.separateSpecialChoices = false;
+
+  survey["_isDesignMode"] = true;
+
+  assert.equal(question1.getSelectBaseRootCss(), "css-root");
+  assert.equal(question2.getSelectBaseRootCss(), "css-root");
+
+  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["Item 1"]);
+
+  assert.deepEqual(question1.rowLayout, false);
+  assert.deepEqual(question2.rowLayout, false);
+
+  assert.deepEqual(question1.blockedRow, true);
+  assert.deepEqual(question2.blockedRow, true);
 });

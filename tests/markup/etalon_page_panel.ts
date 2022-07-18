@@ -1,5 +1,5 @@
 import { settings } from "../../src/settings";
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -80,8 +80,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPanel",
     snapshot: "panel-swnl-v2",
   });
@@ -115,8 +115,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-v2",
   });
@@ -143,8 +143,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-swnl-v2",
   });
@@ -174,8 +174,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-page-swnl-title-v2",
   });
@@ -191,8 +191,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-title-v2",
   });
@@ -215,8 +215,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "page-swnl-title-v2",
   });
@@ -244,8 +244,8 @@ registerMarkupTest(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     event: "onAfterRenderPage",
     snapshot: "panel-question-headers",
   });

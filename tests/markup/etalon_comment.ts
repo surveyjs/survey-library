@@ -1,4 +1,5 @@
 import { registerMarkupTests } from "./helper";
+import { settings } from "survey-core";
 
 registerMarkupTests(
   [{
@@ -47,8 +48,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: (opt: any) => opt.settings.readOnlyCommentRenderMode = "div",
-    after: (opt: any) => opt.settings.readOnlyCommentRenderMode = "textarea",
+    before: () => settings.readOnlyCommentRenderMode = "div",
+    after: () => settings.readOnlyCommentRenderMode = "textarea",
     snapshot: "comment-div",
   },
   ]

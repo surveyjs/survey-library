@@ -1,4 +1,4 @@
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -15,8 +15,8 @@ registerMarkupTest(
       ]
     },
     snapshot: "question-errors-v2-top",
-    before: (opt) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt) => opt.StylesManager.applyTheme("default"),
+    before: (opt) => StylesManager.applyTheme("defaultV2"),
+    after: (opt) => StylesManager.applyTheme("default"),
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },
@@ -36,8 +36,8 @@ registerMarkupTest(
       questionErrorLocation: "bottom"
     },
     snapshot: "question-errors-v2-bottom",
-    before: (opt) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt) => opt.StylesManager.applyTheme("default"),
+    before: (opt) => StylesManager.applyTheme("defaultV2"),
+    after: (opt) => StylesManager.applyTheme("default"),
     initSurvey: survey => survey.hasErrors(),
     event: "onAfterRenderPage"
   },

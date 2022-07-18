@@ -1,6 +1,3 @@
-import { settings } from "../../src/settings";
-import { StylesManager } from "../../src/stylesmanager";
-
 export var markupTests = [];
 
 export function registerMarkupTest(t) {
@@ -88,7 +85,7 @@ export function testQuestionMarkup(assert, test, platform) {
   }
   var done = assert.async();
   if (test.before)
-    test.before({ settings: platform.getSettings ? platform.getSettings() : settings, StylesManager: platform.getStylesManager ? platform.getStylesManager() : StylesManager });
+    test.before();
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
@@ -121,7 +118,7 @@ export function testQuestionMarkup(assert, test, platform) {
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
-      if (test.after) { test.after({ settings: platform.getSettings ? platform.getSettings() : settings, StylesManager: platform.getStylesManager ? platform.getStylesManager() : StylesManager }); }
+      if (test.after) { test.after(); }
       if(platform.finish)
         platform.finish(surveyElement);
       if(newstr != oldStr) {

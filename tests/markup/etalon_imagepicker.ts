@@ -1,4 +1,4 @@
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -143,8 +143,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "imagepicker-no-image-v2",
-    before: (opt: any) => { opt.StylesManager.applyTheme("defaultV2"); },
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => { StylesManager.applyTheme("defaultV2"); },
+    after: () => StylesManager.applyTheme("default"),
   },
   {
     name: "Test image picker colCount 2, V2 markup",
@@ -169,8 +169,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "imagepicker-colCount-2-v2",
-    before: (opt: any) => { opt.StylesManager.applyTheme("defaultV2"); },
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => { StylesManager.applyTheme("defaultV2"); },
+    after: () => StylesManager.applyTheme("default"),
   },
   {
     name: "Test image picker colCount 1, V2 markup",
@@ -195,8 +195,8 @@ registerMarkupTests(
       ]
     },
     snapshot: "imagepicker-colCount-1-v2",
-    before: (opt: any) => { opt.StylesManager.applyTheme("defaultV2"); },
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => { StylesManager.applyTheme("defaultV2"); },
+    after: () => StylesManager.applyTheme("default"),
   },
   ]
 );

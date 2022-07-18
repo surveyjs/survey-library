@@ -1,4 +1,4 @@
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -100,8 +100,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("defaultV2"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
     snapshot: "radiogroup-v2",
   },
   {
@@ -120,8 +120,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: (opt: any) => opt.StylesManager.applyTheme("modern"),
-    after: (opt: any) => opt.StylesManager.applyTheme("default"),
+    before: () => StylesManager.applyTheme("modern"),
+    after: () => StylesManager.applyTheme("default"),
     snapshot: "radiogroup-modern",
   },
   {

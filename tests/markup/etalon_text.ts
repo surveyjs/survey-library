@@ -1,3 +1,4 @@
+import { settings } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(
@@ -61,8 +62,8 @@ registerMarkupTest({
     ],
     mode: "display",
   },
-  before: (opt: any) => opt.settings.readOnlyTextRenderMode = "div",
-  after: (opt: any) => opt.settings.readOnlyTextRenderMode = "input",
+  before: () => settings.readOnlyTextRenderMode = "div",
+  after: () => settings.readOnlyTextRenderMode = "input",
   snapshot: "text-div",
 });
 registerMarkupTest({

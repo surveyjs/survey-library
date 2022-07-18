@@ -67,6 +67,7 @@
     "angular_ui_test": "ng serve --port 8080",  
     "angular_ui": "ng serve",
     "test": "ng test survey-angular-ui",
+    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
     "watch": "ng build --watch --configuration development" 
   }
 }

@@ -196,19 +196,24 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
     - script: |
+        npm run build_core
+        npm run build_i18n
+      displayName: "Build Core"
+
+    - script: |
         cd packages/survey-angular-ui
         npm install
       displayName: "NPM install packages/survey-angular-ui"
     
     - script: |
-        cd examples/angular-ui
-        npm install
-      displayName: "NPM install examples/angular-ui"
-
-    - script: |
         cd packages/survey-angular-ui
         npm run build
       displayName: "Build Angular"
+
+    - script: |
+        cd examples/angular-ui
+        npm install
+      displayName: "NPM install examples/angular-ui"
 
     - script: |
         cd packages/survey-angular-ui

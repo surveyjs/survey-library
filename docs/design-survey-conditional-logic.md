@@ -1,6 +1,6 @@
 # Conditional Logic and Dynamic Texts
 
-You can implement custom conditional logic or add dynamic texts to your survey. This functionality is based upon expressions. Expressions can include different operands that are evaluated and re-evaluated at runtime.
+You can implement custom conditional logic and add dynamic texts to your survey. This functionality is based upon expressions. Expressions can include different operands that are evaluated and re-evaluated at runtime.
 
 - [Operands](#operands)
   - [Question Values](#question-values)
@@ -14,13 +14,13 @@ You can implement custom conditional logic or add dynamic texts to your survey. 
   - [Asynchronous Functions](#asynchronous-functions)
 - [How to: Dynamically Filter Choices, Columns, or Rows](#how-to-dynamically-filter-choices-columns-or-rows)
   - [Specify Visibility Conditions for Individual Items](#specify-visibility-conditions-for-individual-items)
-  - [Specify Combined Visibility Conditions](#specify-combined-visibility-conditions)
+  - [Combine Visibility Conditions](#combine-visibility-conditions)
 
 ## Operands
 
 ### Question Values
 
-To use a question value in an expression, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. The [Html](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
+To use a question value in an expression, specify the question's [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) in curly brackets. The name will be replaced with the question value. For instance, the following example defines two [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions: First Name and Last Name. An [Html](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel) question uses their `name` property to reference them and display their values:
 
 ```js
 const surveyJson = {
@@ -98,7 +98,7 @@ Calculated values allow you to register an expression under a required name. If 
 To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/Documentation/Library?id=surveymodel#calculatedValues) array in the survey JSON definition. Each object in this array should contain the following fields:
 
 - `name` - A name used to identify the calculated value.
-- `expression` - An expression that produces the calculated value.
+- `expression` - An expression that returns the calculated value.
 - `includeIntoResult` - A Boolean property that specifies whether to include the calculated value into survey results.
 
 The following code shows how to calculate a full name value based on the first and last names:
@@ -127,7 +127,7 @@ const surveyJson = {
 
 Functions allow you to perform additional calculations within an expression. One expression can contain multiple function calls.
 
-Functions can accept arguments. For example, the following expression shows the built-in `age` and `iif` functions. `age` accepts the value of a `birthdate` question. `iif` accepts three arguments: a condition, a value to return when the condition is truthy, and a value to return when the condition is falsy.
+Functions can accept arguments. For example, the following expression shows built-in `age` and `iif` functions. `age` accepts the value of a `birthdate` question. `iif` accepts three arguments: a condition, a value to return when the condition is truthy, and a value to return when the condition is falsy.
 
 ```js
 "expression": "iif(age({birthdate}) >= 21, 'Yes', 'No')"
@@ -173,7 +173,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 *Definition*: `isContainerReady(nameOfPanelOrPage: string): Boolean`
 
-Returns `true` if all questions in a given panel or page have valid input; otherwise, returns `false`. An empty question value is considered valid if neither validators nor required status is defined for the question.
+Returns `true` if all questions in a given panel or page have valid input; otherwise, returns `false`. An empty question value is considered valid if neither validators nor required status is defined for it.
 
 *Example*: `"expression": "isContainerReady('page1')"`
 
@@ -260,7 +260,7 @@ Returns the number of days between two given dates.
 
 *Definition*: `sum(param1: number, param2: number, ...): number`  
 
-Returns the sum of passed arguments.
+Returns the sum of passed numbers.
 
 *Example*: `"expression": "sum({total1}, {total2})"`
 
@@ -364,7 +364,7 @@ Returns the total number of items in an array taken from a given question proper
 
 ## Boolean Expressions
 
-Boolean expressions evaluate to `true` or `false`. You can use them to specify whether a specific survey element is visible, read-only, or required. Assign Boolean expressions to the [visibleIf](https://surveyjs.io/Documentation/Library/?id=Question#visibleIf), [enableIf](https://surveyjs.io/Documentation/Library/?id=Question#enableIf), and [requiredIf](https://surveyjs.io/Documentation/Library/?id=Question#requiredIf) properties of questions, panels, and pages.
+Boolean expressions evaluate to `true` or `false`. You can use them to define whether a specific survey element is visible, read-only, or required. Assign Boolean expressions to the [visibleIf](https://surveyjs.io/Documentation/Library/?id=Question#visibleIf), [enableIf](https://surveyjs.io/Documentation/Library/?id=Question#enableIf), and [requiredIf](https://surveyjs.io/Documentation/Library/?id=Question#requiredIf) properties of questions, panels, and pages.
 
 A survey parses and runs all Boolean expressions on startup. If an expression evaluates to `false`, the corresponding element becomes invisible (or read-only, or optional); if `true`, the element becomes visible (or enabled, or required). After any value used in an expression changes, the survey re-runs all Boolean expressions.
 
@@ -375,13 +375,13 @@ The following table shows examples of Boolean expressions:
 | `"{age} >= 21"` | Evaluates to `true` if the `"age"` question has a value of 21 or higher. |
 | `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} == 'yes'"`  | The `or` and `and` operators combine two or more conditions. |
 | `"!({isLoyal} == 'yes' and ({rank1} + {rank2} + {rank3}) > 21)"` | The `!` or `not` operator reverts the result. |
-| `"{name} notempty"` | Evaluates to `true` if the `"name"` question has a value. |
+| `"{name} notempty"` | Evaluates to `true` if the `"name"` question has any value. |
 | `"{name} empty"` | Evaluates to `true` if the `"name"` question has no value. |
 | `"{speakinglanguages} = ['English', 'Spanish']"` | Evaluates to `true` if strictly English and Spanish are selected in the `"speakinglanguages"` question. If one of the languages is not selected or other languages are selected too, the expression evaluates to `false`. |
 | `"{speakinglanguages} contains 'Spanish'"` | Evaluates to `true` if Spanish is selected. Other languages may or may not be selected. |
 | `"age({birthdate}) >= 21"` | Evaluates to `true` if the `age` function returns 21 or higher. |
 
-If you do not specify the `visibleIf`, `enableIf`, and `requiredIf` properties, an element's behavior depends on the [`isVisible`](/Documentation/Library?id=Question#isVisible), [`isReadOnly`](/Documentation/Library?id=Question#isReadOnly), and [`isRequired`](/Documentation/Library?id=Question#isRequired) properties. You can specify them at design time or use them to get or set the current state at runtime. If you set one of these properties for a panel or page, all nested questions inherit the setting.
+If you do not specify the `visibleIf`, `enableIf`, and `requiredIf` properties, an element's state depends on the [`isVisible`](/Documentation/Library?id=Question#isVisible), [`isReadOnly`](/Documentation/Library?id=Question#isReadOnly), and [`isRequired`](/Documentation/Library?id=Question#isRequired) properties. You can specify them at design time or use them to get or set the current state at runtime. If you set one of these properties for a panel or page, all nested questions inherit the setting.
 
 - [View the "Conditional Visibility" example](/Examples/Library?id=condition-kids)
 - [View the "Enable/Disable Elements" example](/Examples/Library?id=condition-enable-kids)
@@ -534,13 +534,13 @@ FunctionFactory.Instance.register("age", age);
 
 ### Access Survey Elements Within a Custom Function
 
-You can access a [survey instance](https://surveyjs.io/Documentation/Library/?id=surveymodel) via `this.survey`. A survey instance provides access to all survey elements. For example, you can design your custom function so that it accepts a survey element name as a parameter:
+You can access a [survey instance](https://surveyjs.io/Documentation/Library/?id=surveymodel) via `this.survey`. A survey instance provides access to other survey elements. For example, you can design your custom function so that it accepts a survey element name as a parameter:
 
 ```js
 "expression": "myFunc('questionName')"
 ```
 
-Within the function, you can use the passed name to get the instance of the corresponding element:
+Within the function implementation, you can use the passed name to get the instance of the corresponding element:
 
 ```js
 function myFunc(params) {
@@ -551,7 +551,7 @@ function myFunc(params) {
 
 ### Asynchronous Functions
 
-If an expression requires time-consuming calculations or a request to a server, implement an asynchronous custom function. The following code shows a skeleton of an asynchronous function. Edit this skeleton to adapt it to your case.
+If an expression requires time-consuming calculations or a request to a server, implement an asynchronous custom function. The following code shows an example of an asynchronous function:
 
 ```js
 function asyncFunc(params: any[]): any {
@@ -580,7 +580,7 @@ SurveyJS allows you to control available choices, columns, and rows based on pre
 
 Individual items (choices, columns, rows) can be configured with objects. Each object can have a `visibleIf` property that accepts an expression. When the expression is `true`, the associated item becomes visible.
 
-In the following code, the `SMS` and `WhatsApp` choices are visible only if a user has entered their phone number in a previous question:
+In the following code, the `SMS` and `WhatsApp` choices are visible only if a user has entered their phone number:
 
 ```js
 const surveyJson = {
@@ -599,13 +599,13 @@ const surveyJson = {
 
 [View example](https://surveyjs.io/Examples/Library/?id=condition-choicesVisibleIf)
 
-This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that you want to hide. If that is your case, use a technique described in the next topic.
+This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use a technique described in the next topic.
 
-### Specify Combined Visibility Conditions
+### Combine Visibility Conditions
 
 You can specify one expression that will run against every item (choice, row, column). If the expression returns `true`, the item becomes visible. Assign your expression to the [`choicesVisibleIf`](/Documentation/Library?id=QuestionSelectBase#choicesVisibleIf), [`rowsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#rowsVisibleIf), or [`columnsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#columnsVisibleIf) property. To access the current item, use the `{item}` operand.
 
-The following code shows how to specify the `choicesVisibleIf` property. `choices` in the `"default"` question are filtered based on the `"installed"` question. `choices` in the `"secondChoice"` question depend on both the `"installed"` and `"default"` question.
+The following code shows how to specify the `choicesVisibleIf` property. `choices` in the `"default"` question are filtered based on the `"installed"` question. `choices` in the `"secondChoice"` question depend on both the `"installed"` and `"default"` questions.
 
 ```js
 const surveyJson = {

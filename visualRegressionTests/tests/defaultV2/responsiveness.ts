@@ -183,6 +183,7 @@ frameworks.forEach(framework => {
               "choices": [
                 "Yes", "No"
               ],
+              "colCount": 1,
               "cellType": "radiogroup"
             }, {
               "name": "strength",
@@ -190,6 +191,7 @@ frameworks.forEach(framework => {
               "choices": [
                 "Easy", "Compact", "Fast", "Powerfull"
               ],
+              "colCount": 1,
               "cellType": "checkbox"
             },
           ],

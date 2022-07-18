@@ -63,11 +63,10 @@
     "zone.js": "~0.11.4"
   },
   "scripts": {
-    "build_angular_ui": "ng build",
-    "angular_ui_test": "ng serve --port 8080",  
-    "angular_ui": "ng serve",
+    "build": "ng build",
+    "serve:example": "ng serve",
+    "serve:example:test": "ng serve --port 8080",
     "test": "ng test survey-angular-ui",
-    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
-    "watch": "ng build --watch --configuration development" 
+    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui"
   }
 }

@@ -919,12 +919,24 @@ QUnit.test(
     assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - non-fitting right out - width");
     assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - non-fitting right out - left");
 
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "flex", { left: 10, right: 15 });
+    assert.equal(newHorizontalDimensions.width, 225, "updateHorizontalDimensions - center - non-fitting right out - width");
+    assert.equal(newHorizontalDimensions.left, 10, "updateHorizontalDimensions - center - non-fitting right out - left");
+
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left");
     assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left - left out - width");
     assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - left - left out - left");
 
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left", "flex", { left: 10, right: 15 });
+    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left - left out - width");
+    assert.equal(newHorizontalDimensions.left, 10, "updateHorizontalDimensions - left - left out - left");
+
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right");
     assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - right - right out - width");
+    assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right - right out - left");
+
+    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right", "flex", { left: 10, right: 15 });
+    assert.equal(newHorizontalDimensions.width, 175, "updateHorizontalDimensions - right - right out - width");
     assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right - right out - left");
   }
 );

@@ -78,8 +78,10 @@ export class PopupUtils {
     width: number,
     windowWidth: number,
     horizontalPosition: HorizontalPosition,
-    positionMode: PositionMode = "flex"
+    positionMode: PositionMode = "flex",
+    margins: { left: number, right: number } = { left: 0, right: 0 }
   ) {
+    width += (margins.left + margins.right);
     let newWidth = undefined, newLeft = left;
 
     if (horizontalPosition === "center") {
@@ -111,7 +113,7 @@ export class PopupUtils {
       }
     }
 
-    return { width: newWidth, left: newLeft };
+    return { width: newWidth - margins.left - margins.right, left: newLeft || margins.left };
   }
 
   public static updateVerticalPosition(

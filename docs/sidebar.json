@@ -45,6 +45,18 @@
         {
           "Name": "design-survey-create-a-quiz",
           "Title": "Create a Quiz"
+        },
+        {
+          "Name": "design-survey-question-titles",
+          "Title": "How To: Configure Question Titles"
+        },
+        {
+          "Name": "design-survey-predefine-answers",
+          "Title": "How To: Predefine Answers"
+        },
+        {
+          "Name": "design-survey-merge-question-values",
+          "Title": "How To: Merge Question Values"
         }
       ]
     },

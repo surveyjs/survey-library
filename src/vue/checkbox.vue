@@ -2,23 +2,34 @@
   <fieldset :class="question.getSelectBaseRootCss()" role="presentation">
     <legend role="presentation" class="sv-hidden"></legend>
     <survey-checkbox-item
-      v-if="!question.hasColumns"
-      v-for="(item, index) in question.visibleChoices"
-      :key="item.value"
-      :class="question.getItemClass(item)"
-      :question="question"
-      :item="item"
-      :index="index"
-    ></survey-checkbox-item>
-    <survey-checkbox-item
         v-for="(item, index) in question.headItems"
-        v-if="question.hasColumns && question.hasHeadItems"
+        v-if="question.hasHeadItems"
         :key="item.value"
         :class="question.getItemClass(item)"
         :question="question"
         :item="item"
         :index="'' + index"
       ></survey-checkbox-item>
+    <survey-checkbox-item
+      v-if="!question.hasColumns && !question.blockedRow"
+      v-for="(item, index) in question.bodyItems"
+      :key="item.value"
+      :class="question.getItemClass(item)"
+      :question="question"
+      :item="item"
+      :index="index"
+    ></survey-checkbox-item>
+    <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
+    <survey-checkbox-item
+      v-if="!question.hasColumns && question.blockedRow"
+      v-for="(item, index) in question.dataChoices"
+      :key="item.value"
+      :class="question.getItemClass(item)"
+      :question="question"
+      :item="item"
+      :index="index"
+    ></survey-checkbox-item>
+    </div>
     <div 
       v-if="question.hasColumns"
       :class="question.cssClasses.rootMultiColumn">
@@ -41,7 +52,7 @@
     </div>
         <survey-checkbox-item
         v-for="(item, index) in question.footItems"
-        v-if="question.hasColumns && question.hasFootItems"
+        v-if="question.hasFootItems"
         :key="item.value"
         :class="question.getItemClass(item)"
         :question="question"

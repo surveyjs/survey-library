@@ -232,5 +232,51 @@ registerMarkupTests(
     },
     snapshot: "radiogroup-columns-no-head-foot",
   },
+  {
+    name: "Test radiogroup row with header and footer",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 0,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          hasNone: true,
+          hasOther: true,
+          titleLocation: "hidden",
+          separateSpecialChoices: true
+        }
+      ]
+    },
+    snapshot: "radiogroup-row-head-foot",
+  },
+  {
+    name: "Test radiogroup row with no header and footer",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "title": "Question title",
+          "showClearButton": true,
+          "colCount": 0,
+          "choices": [
+            "item1",
+            "item2"
+          ],
+          hasNone: true,
+          hasOther: true,
+          separateSpecialChoices: false,
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "radiogroup-row-no-head-foot",
+  }
   ]
 );

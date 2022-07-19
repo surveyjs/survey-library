@@ -107,6 +107,8 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 
   assert.equal(viewModel.applyButtonText, "Apply");
   assert.equal(viewModel.cancelButtonText, "Cancel");
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupViewModel styleClass", (assert) => {
@@ -125,6 +127,8 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
 
   model.showPointer = false;
   assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -172,6 +176,8 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(viewModel.popupDirection, "left");
   assert.equal(viewModel.pointerTarget.left, "0px");
   assert.equal(viewModel.pointerTarget.top, "0px");
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -218,6 +224,8 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(viewModel.popupDirection, "left");
   assert.equal(viewModel.pointerTarget.left, "0px");
   assert.equal(viewModel.pointerTarget.top, "0px");
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupModel clickOutside", (assert) => {
@@ -277,6 +285,8 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(viewModel.pointerTarget.left, "0px");
   assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupModel cancel", (assert) => {
@@ -321,6 +331,8 @@ QUnit.test("PopupModel cancel", (assert) => {
   assert.equal(trace, "->onCancel->onHide");
   assert.equal(viewModel.isVisible, false);
   trace = "";
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupModel apply", (assert) => {
@@ -366,6 +378,8 @@ QUnit.test("PopupModel apply", (assert) => {
   assert.equal(trace, "->onApply->onHide");
   assert.equal(viewModel.isVisible, false);
   trace = "";
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupModel apply when not allow", (assert) => {
@@ -392,6 +406,8 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
   canApply = true;
   viewModel.apply();
   assert.equal(viewModel.isVisible, false);
+
+  viewModel.dispose();
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {
@@ -884,34 +900,55 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "Check updateHorizontalDimensions",
-  (assert) => {
-    let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");
-    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting left out - width");
-    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - fitting left out - left");
+QUnit.test("Check updateHorizontalDimensions", (assert) => {
+  let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");
+  assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting left out - width");
+  assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - fitting left out - left");
 
-    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-100, 300, 250, "center");
-    assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - not-fitting left out - width");
-    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - not-fitting left out - left");
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-100, 300, 250, "center");
+  assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - not-fitting left out - width");
+  assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - not-fitting left out - left");
 
-    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 200, 250, "center");
-    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting right out - width");
-    assert.equal(newHorizontalDimensions.left, 50, "updateHorizontalDimensions - center - fitting right out - left");
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 200, 250, "center");
+  assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - center - fitting right out - width");
+  assert.equal(newHorizontalDimensions.left, 50, "updateHorizontalDimensions - center - fitting right out - left");
 
-    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center");
-    assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - non-fitting right out - width");
-    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - non-fitting right out - left");
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center");
+  assert.equal(newHorizontalDimensions.width, 250, "updateHorizontalDimensions - center - non-fitting right out - width");
+  assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - center - non-fitting right out - left");
 
-    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left");
-    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left - left out - width");
-    assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - left - left out - left");
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left");
+  assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left - left out - width");
+  assert.equal(newHorizontalDimensions.left, 0, "updateHorizontalDimensions - left - left out - left");
 
-    newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right");
-    assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - right - right out - width");
-    assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right - right out - left");
-  }
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right");
+  assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - right - right out - width");
+  assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right - right out - left");
+}
 );
+QUnit.test("Check updateHorizontalDimensions with margins positionMode is flex", (assert) => {
+  let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "flex", { left: 10, right: 15 });
+  assert.equal(newHorizontalDimensions.width, 225, "updateHorizontalDimensions - center+flex - non-fitting right out - width");
+  assert.equal(newHorizontalDimensions.left, 10, "updateHorizontalDimensions - center+flex - non-fitting right out - left");
+
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left", "flex", { left: 10, right: 15 });
+  assert.equal(newHorizontalDimensions.width, 200, "updateHorizontalDimensions - left+flex - left out - width");
+  assert.equal(newHorizontalDimensions.left, 10, "updateHorizontalDimensions - left+flex - left out - left");
+
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right", "flex", { left: 10, right: 15 });
+  assert.equal(newHorizontalDimensions.width, 175, "updateHorizontalDimensions - right+flex - right out - width");
+  assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - right+flex - right out - left");
+});
+
+QUnit.test("Check updateHorizontalDimensions positionMode is fixed", (assert) => {
+  let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "fixed", { left: 10, right: 15 });
+  assert.equal(newHorizontalDimensions.width, 125, "updateHorizontalDimensions - center+fixed - non-fitting right out - width");
+  assert.equal(newHorizontalDimensions.left, 90, "updateHorizontalDimensions - center+fixed - non-fitting right out - left");
+
+  newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "fixed");
+  assert.equal(newHorizontalDimensions.width, 150, "updateHorizontalDimensions - center+fixed - without margin");
+  assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - center+fixed - without margin");
+});
 
 QUnit.test("PopupModel displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
@@ -933,9 +970,11 @@ QUnit.test("PopupModel displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
   model.isModal = true;
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
+
+  viewModel.dispose();
 });
 
-QUnit.test("PopupModel position calculate", (assert) => {
+QUnit.test("PopupModel top+center position calculate", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "top", "center", true);
   const targetElement: HTMLElement = document.createElement("button");
 
@@ -963,9 +1002,12 @@ QUnit.test("PopupModel position calculate", (assert) => {
   (<any>window).innerWidth = 2000;
   viewModel.updateOnShowing();
   assert.equal(viewModel.left, (1000 - 200 / 2 - 8 + 32 / 2) + "px");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
 });
 
-QUnit.test("PopupModel position calculate", (assert) => {
+QUnit.test("PopupModel top+left position calculate", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "top", "left", true);
   const targetElement: HTMLElement = document.createElement("button");
 
@@ -993,4 +1035,109 @@ QUnit.test("PopupModel position calculate", (assert) => {
   (<any>window).innerWidth = 2000;
   viewModel.updateOnShowing();
   assert.equal(viewModel.pointerTarget.left, "200px");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
+});
+
+QUnit.test("Fixed PopupModel width calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  model.positionMode = "fixed";
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "700px";
+  popupContainer.style.height = "400px";
+
+  (<any>window).innerWidth = 1000;
+  (<any>window).innerHeight = 800;
+  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.width, "auto", "width");
+  assert.equal(viewModel.left, "200px", "left");
+  assert.equal(viewModel.top, "178px", "top");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
+});
+
+QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  model.positionMode = "fixed";
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+
+  (<any>window).innerWidth = 1000;
+  (<any>window).innerHeight = 800;
+  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.width, "auto", "width");
+  assert.equal(viewModel.left, "200px", "left");
+  assert.equal(viewModel.top, "178px", "top");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
+});
+
+QUnit.test("Fixed PopupModel width calculate and overflow content position calculate", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  model.positionMode = "fixed";
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "1500px";
+  popupContainer.style.height = "400px";
+
+  (<any>window).innerWidth = 1000;
+  (<any>window).innerHeight = 800;
+  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.width, "800px", "width");
+  assert.equal(viewModel.left, "200px", "left");
+  assert.equal(viewModel.top, "178px", "top");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
 });

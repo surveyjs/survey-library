@@ -1,19 +1,29 @@
 <script type="text/html" id="survey-question-checkbox">
   <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
       <legend role="presentation" class="sv-hidden"></legend>
-      <!-- ko ifnot: question.hasColumns  -->
-        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
+      <!-- ko if: question.hasHeadItems  -->
+        <!-- ko foreach: { data: question.headItems, as: 'item', afterRender: question.koAfterRender }  -->
           <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: question.hasColumns  -->
-        <!-- ko if: question.hasHeadItems  -->
-          <!-- ko foreach: { data: question.headItems, as: 'item', afterRender: question.koAfterRender }  -->
-            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
-            <!-- /ko -->
+      <!-- ko ifnot: question.hasColumns  -->
+        <!-- ko if: question.blockedRow -->
+        <div data-bind="css: question.koCss().rootRow">
+          <!-- ko foreach: { data: question.dataChoices, as: 'item', afterRender: question.koAfterRender }  -->
+          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
+          <!-- /ko -->
+          <!-- /ko -->
+        </div>
+        <!-- /ko -->
+        <!-- ko ifnot: question.blockedRow -->
+        <!-- ko foreach: { data: question.bodyItems, as: 'item', afterRender: question.koAfterRender }  -->
+          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->
+        <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.hasColumns  -->
         <div data-bind="css: question.koCss().rootMultiColumn">
         <!-- ko foreach: question.columns -->
             <div data-bind="css: question.getColumnClass()" role="presentation">
@@ -24,10 +34,10 @@
             </div>
         <!-- /ko -->
         </div>
-        <!-- ko if: question.hasFootItems  -->
-          <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
-            <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
-            <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.hasFootItems  -->
+        <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
+          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->

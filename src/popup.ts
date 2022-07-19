@@ -1,7 +1,7 @@
 import { Base, EventBase } from "./base";
 import { property } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition } from "./utils/popup";
+import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition, PositionMode } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class PopupModel<T = any> extends Base {
@@ -20,6 +20,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
+  @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
 
@@ -116,6 +117,7 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
   @property({ defaultValue: "auto" }) height: string;
+  @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) isVisible: boolean;
   @property({ defaultValue: "left" }) popupDirection: string;
@@ -125,6 +127,13 @@ export class PopupBaseViewModel extends Base {
 
   private hidePopup() {
     this.model.isVisible = false;
+    if(!this.isDisposed) {
+      this.top = undefined;
+      this.left = undefined;
+      this.height = undefined;
+      this.width = undefined;
+      this.minWidth = undefined;
+    }
   }
 
   private _model: PopupModel;
@@ -209,9 +218,16 @@ export class PopupBaseViewModel extends Base {
   }
   public updateOnShowing() {
     this.prevActiveElement = <HTMLElement>document.activeElement;
-    if (!this.isModal || this.isOverlay) {
+    if (this.isOverlay) {
+      this.top = null;
+      this.left = null;
+      this.height = null;
+      this.width = null;
+      this.minWidth = null;
+    } else if(!this.isModal) {
       this.updatePosition();
     }
+
     this.focusFirstInput();
     if (!this.isModal) {
       window.addEventListener("scroll", this.scrollEventCallBack);
@@ -223,88 +239,85 @@ export class PopupBaseViewModel extends Base {
       window.removeEventListener("scroll", this.scrollEventCallBack);
     }
   }
+
   private updatePosition() {
     if(!this.targetElement) return;
-    if (this.model.displayMode !== "overlay") {
-      const rect = this.targetElement.getBoundingClientRect();
-      const background = <HTMLElement>this.container.children[0];
-      const popupContainer = <HTMLElement>background.children[0];
-      const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
-      const popupComputedStyle = window.getComputedStyle(popupContainer);
-      const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
-      const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
-      const margin = marginLeft + marginRight;
-      let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
-      const width = this.model.width || popupContainer.getBoundingClientRect().width;
-      const widthMargins = width + margin;
-      this.minWidth = this.model.width + "px";
-      this.height = "auto";
-      let verticalPosition = this.model.verticalPosition;
-      if (!!window) {
-        height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
-        verticalPosition = PopupUtils.updateVerticalPosition(
-          rect,
-          height,
-          this.model.verticalPosition,
-          this.model.showPointer,
-          window.innerHeight
-        );
-      }
-      this.popupDirection = PopupUtils.calculatePopupDirection(
-        verticalPosition,
-        this.model.horizontalPosition
-      );
-      const pos = PopupUtils.calculatePosition(
-        rect,
+    const targetElementRect = this.targetElement.getBoundingClientRect();
+    const background = <HTMLElement>this.container.children[0];
+    const popupContainer = <HTMLElement>background.children[0];
+    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+    const popupComputedStyle = window.getComputedStyle(popupContainer);
+    const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
+    const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
+    let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
+    const width = popupContainer.getBoundingClientRect().width;
+    this.model.width && (this.minWidth = this.model.width + "px");
+    this.height = "auto";
+    let verticalPosition = this.model.verticalPosition;
+    if (!!window) {
+      height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
+      verticalPosition = PopupUtils.updateVerticalPosition(
+        targetElementRect,
         height,
-        widthMargins,
+        this.model.verticalPosition,
+        this.model.showPointer,
+        window.innerHeight
+      );
+    }
+    this.popupDirection = PopupUtils.calculatePopupDirection(
+      verticalPosition,
+      this.model.horizontalPosition
+    );
+    const pos = PopupUtils.calculatePosition(
+      targetElementRect,
+      height,
+      width + marginLeft + marginRight,
+      verticalPosition,
+      this.model.horizontalPosition,
+      this.showPointer,
+      this.model.positionMode
+    );
+
+    if (!!window) {
+      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+        pos.top,
+        height,
+        window.innerHeight
+      );
+      if (!!newVerticalDimensions) {
+        this.height = newVerticalDimensions.height + "px";
+        pos.top = newVerticalDimensions.top;
+      }
+
+      const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
+        pos.left,
+        width,
+        window.innerWidth,
+        this.model.horizontalPosition,
+        this.model.positionMode,
+        { left: marginLeft, right: marginRight }
+      );
+      if (!!newHorizontalDimensions) {
+        this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
+        pos.left = newHorizontalDimensions.left;
+      }
+    }
+    this.left = pos.left + "px";
+    this.top = pos.top + "px";
+
+    if (this.showPointer) {
+      this.pointerTarget = PopupUtils.calculatePointerTarget(
+        targetElementRect,
+        pos.top,
+        pos.left,
         verticalPosition,
         this.model.horizontalPosition,
-        this.showPointer
+        marginLeft,
+        marginRight
       );
-
-      if (!!window) {
-        const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
-          pos.top,
-          height,
-          window.innerHeight
-        );
-        if (!!newVerticalDimensions) {
-          this.height = newVerticalDimensions.height + "px";
-          pos.top = newVerticalDimensions.top;
-        }
-        const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
-          pos.left,
-          widthMargins,
-          window.innerWidth,
-          this.model.horizontalPosition
-        );
-        if (!!newHorizontalDimensions) {
-          pos.left = newHorizontalDimensions.left;
-        }
-      }
-      this.left = pos.left + "px";
-      this.top = pos.top + "px";
-
-      if (this.showPointer) {
-        this.pointerTarget = PopupUtils.calculatePointerTarget(
-          rect,
-          pos.top,
-          pos.left,
-          verticalPosition,
-          this.model.horizontalPosition,
-          marginLeft,
-          marginRight
-        );
-      }
-      this.pointerTarget.top += "px";
-      this.pointerTarget.left += "px";
-    } else {
-      this.left = null;
-      this.top = null;
-      this.height = null;
-      this.minWidth = null;
     }
+    this.pointerTarget.top += "px";
+    this.pointerTarget.left += "px";
   }
   private focusFirstInput() {
     setTimeout(() => {

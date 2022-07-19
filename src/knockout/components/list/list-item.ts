@@ -12,7 +12,7 @@ ko.components.register("sv-list-item", {
       return {
         item: params.item,
         model: params.model,
-        itemClick: (data: any) => data.model.selectItem(data.item)
+        itemClick: (data: any) => data.model.onItemClick(data.item)
       };
     },
   },

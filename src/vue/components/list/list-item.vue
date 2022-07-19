@@ -7,7 +7,7 @@
     :style="{ paddingLeft: model.getItemIndent(item) }"
     :key="item.id"
     v-bind:class="model.getItemClass(item)"
-    v-on:click="model.selectItem(item)"
+    v-on:click="model.onItemClick(item)"
     v-on:keyup="keyUp"
   >
     <sv-svg-icon

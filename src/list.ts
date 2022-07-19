@@ -41,7 +41,13 @@ export class ListModel extends ActionContainer {
     }
   }
 
-  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChangedCallback?: (text: string) => void) {
+  constructor(
+    items: Array<IAction>,
+    public onSelectionChanged: (item: Action, ...params: any[]) => void,
+    public allowSelection: boolean,
+    selectedItem?: IAction,
+    private onFilteredTextChangedCallback?: (text: string) => void
+  ) {
     super();
     this.setItems(items);
     this.selectedItem = selectedItem;
@@ -52,13 +58,13 @@ export class ListModel extends ActionContainer {
     super.onSet();
   }
 
-  public selectItem = (itemValue: Action) => {
+  public onItemClick = (itemValue: Action) => {
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
     }
-    if (!!this.onItemSelect) {
-      this.onItemSelect(itemValue);
+    if (!!this.onSelectionChanged) {
+      this.onSelectionChanged(itemValue);
     }
   };
 

@@ -10,6 +10,7 @@
       @keyup="keyUp"
       @blur="blur"
       :class="question.getControlClass()"
+      :role="question.ariaRole"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"

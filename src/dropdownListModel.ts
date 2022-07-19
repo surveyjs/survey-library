@@ -10,7 +10,7 @@ import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
 
-  private getVisibleListItems() {
+  protected getVisibleListItems(): Array<Action> {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
       title: <any>new ComputedUpdater<string>(() => choice.text),
@@ -19,14 +19,20 @@ export class DropdownListModel extends Base {
       enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
     }));
   }
-
-  constructor(private question: Question) {
+  protected createListModel(): ListModel {
+    const visibleItems = this.getVisibleListItems();
+    return new ListModel(visibleItems, this.onSelectionChanged, true, this.question.selectedItem);
+  }
+  constructor(protected question: Question, protected onSelectionChanged: (item: IAction, ...params: any[]) => void) {
     super();
+    if(!onSelectionChanged) {
+      onSelectionChanged = (item: IAction) => {
+        this.question.value = item.id;
+        this._popupModel.toggleVisibility();
+      };
+    }
 
-    const listModel = new ListModel(this.getVisibleListItems(), (item: IAction) => {
-      this.question.value = item.id;
-      this._popupModel.toggleVisibility();
-    }, true);
+    let listModel = this.createListModel();
     listModel.denySearch = this.question.denySearch;
 
     this._popupModel = new PopupModel("sv-list", { model: listModel, }, "bottom", "center", false);

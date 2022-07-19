@@ -110,6 +110,7 @@ export {
   QuestionSelectBase
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
+export { QuestionTagboxModel } from "../../question_tagbox";
 export { QuestionRankingModel } from "../../question_ranking";
 export { QuestionCommentModel } from "../../question_comment";
 export { QuestionDropdownModel } from "../../question_dropdown";
@@ -166,8 +167,10 @@ export {
 
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
+export { MultiSelectListModel } from "../../multiSelectListModel";
 export { PopupModel, PopupBaseViewModel, createPopupModalViewModel } from "../../popup";
 export { DropdownListModel } from "../../dropdownListModel";
+export { DropdownMultiSelectListModel } from "../../dropdownMultiSelectListModel";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,

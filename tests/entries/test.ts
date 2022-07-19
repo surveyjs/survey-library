@@ -45,8 +45,11 @@ export * from "../question_customtests";
 export * from "../question_ranking_tests";
 export * from "../question_signaturepadtests";
 export * from "../question_matrix_base_tests";
+export * from "../question_tagbox_tests";
 export * from "../cssClassBuilderTests";
 export * from "../listModelTests";
+export * from "../multi_select_list_model_tests";
+export * from "../dropdown_list_model_test";
 
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";

@@ -1632,6 +1632,8 @@ export class JsonObject {
     key: any,
     property: JsonObjectProperty
   ) {
+    if(obj[key] && !this.isValueArray(obj[key]))
+      return;
     if (obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
     var valueRes = obj[key] ? obj[key] : [];
     this.addValuesIntoArray(value, valueRes, property);

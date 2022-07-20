@@ -166,6 +166,7 @@ export var defaultV2Css = {
   },
   checkbox: {
     root: "sd-selectbase",
+    rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-checkbox sd-selectbase__item",
     itemOnError: "sd-item--error",
@@ -187,6 +188,7 @@ export var defaultV2Css = {
   },
   radiogroup: {
     root: "sd-selectbase",
+    rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-radio sd-selectbase__item",
     itemOnError: "sd-item--error",

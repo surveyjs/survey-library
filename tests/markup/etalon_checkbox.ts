@@ -216,5 +216,53 @@ registerMarkupTests(
       },
       snapshot: "checkbox-columns-no-head-foot",
     },
+    {
+      name: "Test checkbox row layout with no header and footer",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "showClearButton": true,
+            "colCount": 0,
+            "choices": [
+              "item1",
+              "item2"
+            ],
+            hasSelectAll: true,
+            hasNone: true,
+            hasOther: true,
+            separateSpecialChoices: false,
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-row-no-head-foot",
+    },
+    {
+      name: "Test checkbox row layout with header and footer",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "title": "Question title",
+            "showClearButton": true,
+            "colCount": 0,
+            "choices": [
+              "item1",
+              "item2"
+            ],
+            hasSelectAll: true,
+            hasNone: true,
+            hasOther: true,
+            separateSpecialChoices: true,
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-row-head-foot",
+    },
   ]
 );

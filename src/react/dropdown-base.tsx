@@ -48,6 +48,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           onInput={this.updateValueOnEvent}
           onKeyUp={this.keyup}
           onBlur={this.blur}
+          role={this.question.ariaRole}
           aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}

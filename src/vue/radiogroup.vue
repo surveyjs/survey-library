@@ -1,7 +1,7 @@
 <template>
   <fieldset role="presentation" :class="question.getSelectBaseRootCss()">
     <survey-radiogroup-item
-      v-if="!question.hasColumns"
+      v-if="!question.hasColumns && !question.blockedRow"
       v-for="(item, index) in question.visibleChoices"
       :key="item.value"
       :class="getItemClass(item)"
@@ -9,6 +9,17 @@
       :item="item"
       :index="index"
     ></survey-radiogroup-item>
+    <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
+    <survey-radiogroup-item
+      v-if="!question.hasColumns && question.blockedRow"
+      v-for="(item, index) in question.dataChoices"
+      :key="item.value"
+      :class="question.getItemClass(item)"
+      :question="question"
+      :item="item"
+      :index="index"
+    ></survey-radiogroup-item>
+    </div>
     <div 
       v-if="question.hasColumns"
       :class="question.cssClasses.rootMultiColumn">
@@ -30,7 +41,7 @@
     </div>
         <survey-radiogroup-item
         v-for="(item, index) in question.footItems"
-        v-if="question.hasColumns && question.hasFootItems"
+        v-if="question.hasFootItems"
         :key="item.value"
         :class="question.getItemClass(item)"
         :question="question"

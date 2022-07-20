@@ -78,8 +78,10 @@ export class PopupUtils {
     width: number,
     windowWidth: number,
     horizontalPosition: HorizontalPosition,
-    positionMode: PositionMode = "flex"
+    positionMode: PositionMode = "flex",
+    margins: { left: number, right: number } = { left: 0, right: 0 }
   ) {
+    width += (margins.left + margins.right);
     let newWidth = undefined, newLeft = left;
 
     if (horizontalPosition === "center") {
@@ -87,13 +89,14 @@ export class PopupUtils {
         if (left + width > windowWidth) {
           newWidth = windowWidth - left;
         }
+        newLeft -= margins.left;
       } else {
         if (left < 0) {
-          newLeft = 0;
+          newLeft = margins.left;
           newWidth = Math.min(width, windowWidth);
         } else if (width + left > windowWidth) {
           newLeft = windowWidth - width;
-          newLeft = Math.max(newLeft, 0);
+          newLeft = Math.max(newLeft, margins.left);
           newWidth = Math.min(width, windowWidth);
         }
       }
@@ -101,7 +104,7 @@ export class PopupUtils {
 
     if (horizontalPosition === "left") {
       if (left < 0) {
-        newLeft = 0;
+        newLeft = margins.left;
         newWidth = Math.min(width, windowWidth);
       }
     }
@@ -111,7 +114,7 @@ export class PopupUtils {
       }
     }
 
-    return { width: newWidth, left: newLeft };
+    return { width: newWidth - margins.left - margins.right, left: newLeft };
   }
 
   public static updateVerticalPosition(

@@ -950,7 +950,7 @@ export class Question extends SurveyElement
     return this.id + "_ariaTitle";
   }
   public get ariaRole(): string {
-    return null;
+    return "textbox";
   }
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);

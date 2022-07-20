@@ -2775,3 +2775,9 @@ QUnit.test("Store question title in json if it equals to name, but it was set ma
   question.title = "q1";
   assert.deepEqual(question.toJSON(), { name: "q1", title: "q1" }, "title is equal to name");
 });
+QUnit.test("One property - array to not array", function (assert) {
+  var dealer = new Dealer();
+  dealer.name = "4";
+  new JsonObject().toObject({ name: ["small"] }, dealer);
+  assert.equal(dealer.name, "4", "deserialize property for different types");
+});

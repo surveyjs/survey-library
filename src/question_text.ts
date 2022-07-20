@@ -256,7 +256,11 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
-    return errorText.replace("{0}", value.toString());
+    let errorValue = value.toString();
+    if(this.inputType === "date" && !!value.toDateString) {
+      errorValue = value.toDateString();
+    }
+    return errorText.replace("{0}", errorValue);
   }
   private get isValueLessMin(): boolean {
     return (

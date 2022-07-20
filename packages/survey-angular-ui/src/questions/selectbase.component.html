@@ -1,20 +1,23 @@
 <fieldset [class]="model.getSelectBaseRootCss()" role="presentation" #contentElement>
   <legend *ngIf="showLegend" role="presentation" class="sv-hidden"></legend>
-  <ng-container *ngIf="!model.hasColumns">
+  <ng-container *ngIf="model.hasHeadItems">
+    <sv-ng-selectbase-item *ngFor="let item of model.headItems" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
+  </ng-container>
+  <ng-container *ngIf="!model.hasColumns && !model.blockedRow">
     <sv-ng-selectbase-item *ngFor="let item of model.visibleChoices" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
   </ng-container>
+  <div [class]="model.cssClasses.rootRow" *ngIf="!model.hasColumns && model.blockedRow">
+    <sv-ng-selectbase-item *ngFor="let item of model.dataChoices" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
+  </div>
   <ng-container *ngIf="model.hasColumns">
-    <ng-container *ngIf="model.hasHeadItems">
-      <sv-ng-selectbase-item *ngFor="let item of model.headItems" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
-    </ng-container>
     <div [class]="model.cssClasses.rootMultiColumn">
       <div [class]="model.getColumnClass()" *ngFor="let column of model.columns" role="presentation">
         <sv-ng-selectbase-item *ngFor="let item of column" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>      
       </div>
     </div>
-    <ng-container *ngIf="model.hasFootItems">
-      <sv-ng-selectbase-item *ngFor="let item of model.footItems" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
-    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="model.hasFootItems">
+    <sv-ng-selectbase-item *ngFor="let item of model.footItems" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
   </ng-container>
   <div *ngIf="model.hasOther && model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
   <div *ngIf="model.showClearButtonInContent">

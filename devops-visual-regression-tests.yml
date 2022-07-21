@@ -216,8 +216,8 @@ jobs:
         verbose: false
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
-    - script: |
-        npm run build_core_dev
+    - powershell: |
+        npm run build_core
         npm run build_i18n_dev
         npm run build_core_typings
       displayName: "Build Core"

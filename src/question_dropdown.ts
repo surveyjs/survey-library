@@ -135,6 +135,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * Specifies whether to display a button that clears the selected value.
    */
   @property({ defaultValue: false }) allowClear: boolean;
+  /**
+   * The name of a component used to render drop-down menu items.
+   */
   @property() itemComponent: string;
   /**
    * Specifies whether to display a search bar in the drop-down menu.

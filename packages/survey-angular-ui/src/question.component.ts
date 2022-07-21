@@ -14,7 +14,9 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     return this.model;
   }
   ngAfterViewInit(): void {
-    this.model.afterRender(this.rootEl?.nativeElement);
+    if(!!this.rootEl?.nativeElement) {
+      this.model.afterRender(this.rootEl?.nativeElement);
+    }
   }
   public getComponentName(): string {
     if (this.model.customWidget) return "survey-customwidget";

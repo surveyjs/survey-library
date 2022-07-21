@@ -43,6 +43,7 @@
     "build_vue": "npm run build_vue_dev && npm run build_vue_prod",
     "build_vue_ui": "webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType prod",
     "build_core": "npm run build_core_dev && npm run build_core_prod",
+    "build_core_typings": "tsc --p tsconfig.typing.json && echo \"declare module 'survey-core' { import main = require('entries/core'); export = main; }\" >> build/survey-core/survey.core.d.ts",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",

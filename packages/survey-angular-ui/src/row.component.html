@@ -1,7 +1,7 @@
 <ng-template #template>
   <div [class]="row.getRowCss()" *ngIf="row.visible">
     <ng-container *ngFor="let element of row.visibleElements; trackBy: trackElementBy">
-      <sv-ng-element [model]="element"></sv-ng-element>
+      <sv-ng-element [model]="$any(element)"></sv-ng-element>
     </ng-container>
   </div>
 </ng-template>

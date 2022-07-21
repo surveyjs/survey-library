@@ -1,7 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
-import { surveyBuiltInVarible, SurveyModel, SvgRegistry } from "survey-core";
+import { AfterViewInit, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
+import { SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
-import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey",
   templateUrl: "./survey.component.html",
@@ -30,7 +29,7 @@ export class SurveyComponent extends BaseAngular<SurveyModel> implements OnInit,
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.model.renderCallback = undefined;
+    this.model.renderCallback = <any>undefined;
   }
   ngAfterViewInit(): void {
     this.model.afterRenderSurvey(this.rootEl.nativeElement);

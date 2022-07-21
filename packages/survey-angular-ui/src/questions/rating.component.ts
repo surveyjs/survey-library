@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionRatingModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";

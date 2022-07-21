@@ -1,4 +1,4 @@
-import { Component, Directive, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { QuestionRadiogroupModel, QuestionSelectBase } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";

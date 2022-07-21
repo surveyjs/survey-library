@@ -1,6 +1,6 @@
-import { Component, Input } from "@angular/core";
+import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { QuestionImagePickerModel, QuestionMatrixDropdownModel } from "survey-core";
+import { QuestionMatrixDropdownModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({

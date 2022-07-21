@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
-import { Base, ItemValue } from "survey-core";
+import { ItemValue } from "survey-core";
 
 @Component({
   selector: "['sv-ng-selectbase-item'], sv-ng-selebase-item",

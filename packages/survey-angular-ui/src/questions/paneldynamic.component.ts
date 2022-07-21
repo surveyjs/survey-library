@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { QuestionAngular } from "../question";
 import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";

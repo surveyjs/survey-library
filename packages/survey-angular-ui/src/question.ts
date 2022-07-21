@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
 import { BaseAngular } from "./base-angular";
 

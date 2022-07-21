@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, TemplateRef, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { ActionContainer } from "survey-core";

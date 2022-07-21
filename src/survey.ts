@@ -89,8 +89,6 @@ export class SurveyModel extends SurveyElementCore
   private editingObjValue: Base;
 
   private textPreProcessor: TextPreProcessor;
-  @property({ defaultValue: "" }) completedStateValue: string;
-  @property({ defaultValue: "" }) completedStateTextValue: string;
 
   private timerModelValue: SurveyTimerModel;
 

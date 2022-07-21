@@ -1,4 +1,4 @@
-import { Component, Host, HostBinding, Input, OnChanges, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, HostBinding, Input, OnChanges, ViewContainerRef } from "@angular/core";
 import * as Survey from "survey-core";
 
 @Component({

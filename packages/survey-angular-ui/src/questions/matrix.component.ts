@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, Input } from "@angular/core";
+import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { QuestionImagePickerModel, QuestionMatrixModel } from "survey-core";
+import { QuestionMatrixModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({

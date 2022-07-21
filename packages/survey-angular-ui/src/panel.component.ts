@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { PageModel, PanelModel } from "survey-core";
+import { PanelModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 import { AngularComponentFactory } from "./component-factory";
 @Component({

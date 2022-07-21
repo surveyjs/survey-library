@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component } from "@angular/core";
 import { QuestionRadiogroupModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 import { SelectBaseComponent } from "./selectbase.component";

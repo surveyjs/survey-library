@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
 import { LocalizableString } from "survey-core";
 import { AngularComponentFactory } from "./component-factory";
 

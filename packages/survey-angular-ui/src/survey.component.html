@@ -3,8 +3,6 @@
     <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
     <div [class]="model.css.container">
       <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
-      <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
-      <!-- /ko -->
       <div *ngIf="model.isShowingPage" [class]="model.bodyCss">
         <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
         <!-- ko template: { name: 'survey-timerpanel' } -->
@@ -24,10 +22,6 @@
           <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
           <!-- /ko -->
           <!-- /ko -->
-        <!-- /ko -->
-        <!-- ko if: isShowProgressBarOnBottom && !isShowStartingPage -->
-        <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-        <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
         <!-- ko template: { name: 'survey-timerpanel' } -->

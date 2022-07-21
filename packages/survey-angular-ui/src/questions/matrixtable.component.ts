@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
-import { MatrixDropdownCell, QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
+import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
 
 @Component({
   selector: "sv-ng-matrix-table",

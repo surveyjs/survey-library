@@ -219,7 +219,7 @@ jobs:
     - powershell: |
         npm run build_core
         npm run build_i18n_dev
-        npm run build_core_typings
+        npm run build-core-typings:windows
       displayName: "Build Core"
 
     - script: |

@@ -99,7 +99,7 @@ button.sv-action-bar-item {
 
 //hovered state
 .sv-action-bar-item:hover,
-.sv-action-bar-item:focus-visible {
+.sv-action-bar-item:focus {
   outline: none;
   background-color: $background-dim;
 }

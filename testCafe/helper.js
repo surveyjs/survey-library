@@ -21,17 +21,8 @@ export const applyTheme = ClientFunction((theme) => {
   window["Survey"].StylesManager.applyTheme(theme);
 });
 
-export const initSurvey = async function (
-  framework,
-  json,
-  events,
-  isDesignMode,
-  props
-) {
-  if (framework === "angular") {
-    await waitForAngular();
-  }
-  await ClientFunction((framework, json, events, isDesignMode, props) => {
+export const initSurvey = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -87,8 +78,8 @@ export const initSurvey = async function (
       window.setSurvey(model);
     }
     window["survey"] = model;
-  })(framework, json, events, isDesignMode, props);
-};
+  }
+);
 
 export const registerCustomToolboxComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
@@ -272,15 +263,19 @@ export async function checkSurveyWithEmptyQuestion(t) {
     Selector(".sv-string-viewer").withText("Response required.");
 
   await t
-    .expect(requiredMessage.exists).notOk()
+    .expect(requiredMessage.exists)
+    .notOk()
     .click(completeButton)
-    .expect(requiredMessage.visible).ok();
+    .expect(requiredMessage.visible)
+    .ok();
 
   let surveyResult = await getSurveyResult();
   await t.expect(typeof surveyResult).eql("undefined");
 }
 
 export function getListItemByText(text) {
-  return Selector(".sv-popup__content .sv-list .sv-list__item").withText(text).filterVisible();
+  return Selector(".sv-popup__content .sv-list .sv-list__item")
+    .withText(text)
+    .filterVisible();
 }
 export var completeButton = Selector(".sv_complete_btn");

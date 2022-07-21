@@ -1,52 +1,46 @@
-import { frameworks, url, applyTheme } from "../helper";
+import { frameworks, url } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
-import { waitForAngular } from "testcafe-angular-selectors";
 const title = "customCss";
-const initSurvey = async (framework, json) => {
-  if (framework === "angular") {
-    await waitForAngular();
-  }
-  await ClientFunction((framework, json) => {
-    window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
-    window["Survey"].StylesManager.applyTheme("bootstrap");
+const initSurvey = ClientFunction((framework, json) => {
+  window["Survey"].defaultBootstrapCss.navigationButton = "btn btn-primary";
+  window["Survey"].StylesManager.applyTheme("bootstrap");
 
-    var model = new window["Survey"].Model(json);
+  var model = new window["Survey"].Model(json);
 
-    model.onComplete.add(function (model) {
-      window["SurveyResult"] = model.data;
+  model.onComplete.add(function (model) {
+    window["SurveyResult"] = model.data;
+  });
+
+  var myCss = {
+    matrix: { root: "table table-striped" },
+    navigationButton: "button btn-lg",
+  };
+
+  if (framework === "knockout") {
+    model.css = myCss;
+    model.render("surveyElement");
+  } else if (framework === "react") {
+    window["ReactDOM"].render(
+      window["React"].createElement(window["Survey"].Survey, {
+        model: model,
+        css: myCss,
+      }),
+      document.getElementById("surveyElement")
+    );
+  } else if (framework === "vue") {
+    model.css = myCss;
+    var app = new window["Vue"]({
+      el: "#surveyElement",
+      data: {
+        survey: model,
+      },
     });
-
-    var myCss = {
-      matrix: { root: "table table-striped" },
-      navigationButton: "button btn-lg",
-    };
-
-    if (framework === "knockout") {
-      model.css = myCss;
-      model.render("surveyElement");
-    } else if (framework === "react") {
-      window["ReactDOM"].render(
-        window["React"].createElement(window["Survey"].Survey, {
-          model: model,
-          css: myCss,
-        }),
-        document.getElementById("surveyElement")
-      );
-    } else if (framework === "vue") {
-      model.css = myCss;
-      var app = new window["Vue"]({
-        el: "#surveyElement",
-        data: {
-          survey: model,
-        },
-      });
-    } else if (framework === "angular") {
-      model.css = myCss;
-      window.setSurvey(model);
-    }
-    window["survey"] = model;
-  })(framework, json);
-};
+  } else if (framework === "angular") {
+    model.css = myCss;
+    window.setSurvey(model);
+  }
+  window["survey"] = model;
+});
 
 const json = {
   questions: [

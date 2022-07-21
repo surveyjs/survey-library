@@ -238,5 +238,10 @@ jobs:
       displayName: "NPM install examples/angular-ui"
 
     - script: |
+        cd packages/survey-angular-ui
+        npm run build:example
+      displayName: "Build Angular Example"
+
+    - script: |
         npm run visual-regression-tests:ci:angular
       displayName: "run functional tests"

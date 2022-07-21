@@ -33,7 +33,7 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~13.0.3",
+    "@angular-devkit/build-angular": "~13.2.5",
     "@angular/animations": "~13.0.0",
     "@angular/cli": "~13.0.3",
     "@angular/common": "~13.0.0",
@@ -65,7 +65,7 @@
   "scripts": {
     "build": "ng build",
     "serve:example": "ng serve",
-    "serve:example:test": "ng serve --port 8080",
+    "build:example": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test survey-angular-ui",
     "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui"
   }

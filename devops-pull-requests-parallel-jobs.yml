@@ -217,6 +217,11 @@ jobs:
 
     - script: |
         cd packages/survey-angular-ui
+        npm run build:example
+      displayName: "Build Angular Example"
+
+    - script: |
+        cd packages/survey-angular-ui
         npm run test:single
       displayName: "run unit and markup tests"
 

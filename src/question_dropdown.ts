@@ -40,7 +40,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.placeholder = val;
   }
   /**
-   * The input place holder.
+   * A text displayed in the input field when it doesn't have a value.
    */
   public get placeholder() {
     return this.getLocalizableStringText("placeholder");
@@ -132,10 +132,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   /**
- * Use it to clear the question value.
- */
+   * Specifies whether to display a button that clears the selected value.
+   */
   @property({ defaultValue: false }) allowClear: boolean;
+  /**
+   * The name of a component used to render drop-down menu items.
+   */
   @property() itemComponent: string;
+  /**
+   * Specifies whether to display a search bar in the drop-down menu.
+   */
   @property({
     defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {

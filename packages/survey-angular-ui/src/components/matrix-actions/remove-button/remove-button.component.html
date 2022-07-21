@@ -1,0 +1,4 @@
+<button type="button" [class]="question.getRemoveRowButtonCss()" [disabled]="question.isInputReadOnly" (click)="question.removeRowUI(row)">
+  <sv-ng-string [model]="question.locRemoveRowText" ></sv-ng-string>
+  <span [class]="question.cssClasses.iconRemove"></span>
+</button>

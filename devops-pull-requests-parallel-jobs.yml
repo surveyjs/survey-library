@@ -161,3 +161,65 @@ jobs:
     - script: |
         npm run testcafe:vue
       displayName: "Vue functional tests"
+
+- job: Angular
+  steps:
+    - checkout: self
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "14.x"
+      displayName: "Install Node.js"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPMs
+
+    - task: Npm@1
+      displayName: 'NPM install root'
+      inputs:
+        command: install
+        verbose: false
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+    - script: |
+        npm run build_core
+        npm run build_i18n
+      displayName: "Build Core"
+
+    - script: |
+        cd packages/survey-angular-ui
+        npm install
+      displayName: "NPM install packages/survey-angular-ui"
+    
+    - script: |
+        cd packages/survey-angular-ui
+        npm run build
+      displayName: "Build Angular"
+
+    - script: |
+        cd examples/angular-ui
+        npm install
+      displayName: "NPM install examples/angular-ui"
+
+    - script: |
+        cd packages/survey-angular-ui
+        npm run test:single
+      displayName: "run unit and markup tests"
+
+    - script: |
+        npm run testcafe:ci:angular
+      displayName: "run functional tests"

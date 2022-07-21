@@ -1,4 +1,4 @@
-import { settings } from "../../src/settings";
+import { settings } from "survey-core";
 import { registerMarkupTest } from "./helper";
 
 registerMarkupTest(

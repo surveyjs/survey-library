@@ -1,0 +1,6 @@
+<div class="my-list-item" style="display:flex;" [attr.title]="model.hint">
+  <span>
+    <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" sv-ng-svg-icon></svg>
+  </span>
+  <span [class]="model.getActionBarItemTitleCss()">{{model.title}}</span>
+</div>

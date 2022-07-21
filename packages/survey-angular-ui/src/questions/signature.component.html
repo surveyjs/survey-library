@@ -1,0 +1,24 @@
+<div
+[class]="model.cssClasses.root"
+[style.height]="model.signatureHeight + 'px'" [style.width]="model.signatureWidth + 'px'" #contentElement>
+<div [class]="model.cssClasses.placeholder" [visible]="model.needShowPlaceholder()">
+  {{ model.placeHolderText }}
+</div>
+<div>
+  <canvas tabindex="0"></canvas>
+</div>
+<div [class]="model.cssClasses.controls" [visible]="model.canShowClearButton">
+  <button
+    type="button"
+    [class]="model.cssClasses.clearButton"
+    [title]="model.clearButtonCaption"
+    (click)="model.clearValue()"
+  >
+    <span *ngIf="!model.cssClasses.clearButtonIconId">✖</span>
+    <svg
+      *ngIf="model.cssClasses.clearButtonIconId"
+      [iconName]="model.cssClasses.clearButtonIconId"
+      [size]="'auto'" sv-ng-svg-icon></svg>
+  </button>
+</div>
+</div>

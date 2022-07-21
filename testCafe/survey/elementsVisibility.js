@@ -21,42 +21,36 @@ const json = {
   ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json, undefined, undefined, {
         showInvisibleElements: true,
       });
     }
   );
 
-  test("showInvisibleElements = true", async t => {
+  test("showInvisibleElements = true", async (t) => {
     await t.expect(Selector("input[value=Complete]").visible).notOk();
     await t.expect(Selector("input[value=Next]").visible).ok();
     await t.expect(Selector("input[value=Next]").visible).ok();
     await t.expect(Selector("span").withText("2.").visible).ok();
   });
 });
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
-  test("make element on another page visible", async t => {
+  test("make element on another page visible", async (t) => {
     await t.expect(Selector("input[value=Complete]").visible).ok();
-    const yesChoice = Selector("input[value=\"Yes\"]");
-    const noChoice = Selector("input[value=\"No\"]");
-    await t
-      .click(yesChoice)
-      .expect(yesChoice.checked)
-      .ok();
+    const yesChoice = Selector('input[value="Yes"]');
+    const noChoice = Selector('input[value="No"]');
+    await t.click(yesChoice).expect(yesChoice.checked).ok();
     await t.expect(Selector("input[value=Complete]").visible).notOk();
     await t.expect(Selector("input[value=Next]").visible).ok();
-    await t
-      .click(noChoice)
-      .expect(noChoice.checked)
-      .ok();
+    await t.click(noChoice).expect(noChoice.checked).ok();
     await t.expect(Selector("input[value=Complete]").visible).ok();
   });
 });
@@ -72,58 +66,70 @@ const json2 = {
           name: "q2",
           defaultValue: "q2Value",
           visibleIf: "{q1} = 'No'",
-        }
+        },
       ],
     },
   ],
 };
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json2);
     }
   );
 
-  test("test focus after visibility change", async t => {
-    const noChoice = Selector("input[value=\"No\"]");
+  test("test focus after visibility change", async (t) => {
+    const noChoice = Selector('input[value="No"]');
     await t
-      .expect(Selector("div[data-name=q2]").visible).notOk()
+      .expect(Selector("div[data-name=q2]").visible)
+      .notOk()
       .click(noChoice)
       .expect(noChoice.checked)
       .ok();
     await t.expect(Selector("div[data-name=q2]").visible).ok();
-    await t.expect(ClientFunction(() => { return document.activeElement == document.querySelector("input[value=\"No\"]"); })()).ok();
+    await t
+      .expect(
+        ClientFunction(() => {
+          return (
+            document.activeElement ==
+            document.querySelector('input[value="No"]')
+          );
+        })()
+      )
+      .ok();
   });
 });
 
 const json3 = {
-  "elements": [
+  elements: [
     {
-      "type": "text",
-      "name": "country",
-    }, {
-      "type": "html",
-      "name": "requesting",
-      "html": "The data is requesting",
-      "visibleIf": "{request_processing} = true"
-    }, {
-      "type": "text",
-      "name": "name_official",
-      "readOnly": true,
-      "visibleIf": "{name_official} notempty"
+      type: "text",
+      name: "country",
+    },
+    {
+      type: "html",
+      name: "requesting",
+      html: "The data is requesting",
+      visibleIf: "{request_processing} = true",
+    },
+    {
+      type: "text",
+      name: "name_official",
+      readOnly: true,
+      visibleIf: "{name_official} notempty",
     },
   ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json3);
     }
   );
 
-  test("Bug #4302 check that element root styles applies correctly after element becomes visible", async t => {
-    await ClientFunction(()=> {
+  test("Bug #4302 check that element root styles applies correctly after element becomes visible", async (t) => {
+    await ClientFunction(() => {
       var survey = window.survey;
       var officialName = "name_official";
       survey.setVariable("request_processing", true);
@@ -133,9 +139,12 @@ frameworks.forEach(framework => {
         survey.setVariable("request_processing", false);
       }, 0);
     })();
-    const getRootStyle = ClientFunction(()=>{
-      return document.querySelector("div[data-name='name_official']").parentElement.style.flex;
-    });
-    await t.expect(getRootStyle()).eql("1 1 100%");
+    await t
+      .expect(
+        Selector(
+          "div[style*=\"flex: 1 1 100%\"] div[data-name='name_official']"
+        ).exists
+      )
+      .ok();
   });
 });

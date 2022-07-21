@@ -10,7 +10,7 @@ tmp
 *.map
 .tsdrc
 .idea
-/packages/**/*
+.angular
 /.gitattributes
 project.json
 /lib_typings
@@ -40,3 +40,4 @@ coverage/**/*
 /.angular/cache
 visualRegressionTests/screenshots
 visualRegressionTests/artifacts
+packages/survey-angular-ui/src/**/*.js

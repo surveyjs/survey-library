@@ -1,0 +1,13 @@
+<ng-template #template>
+  <div *ngIf="model.isVisible" [attr.id]="model.id" [class]="model.getContainerCss()" (focusin)="model.focusIn($event)" #panelContainer>
+    <div *ngIf="model.hasDescription || model.hasTitle" [element]="model" sv-ng-element-header></div>
+    <!-- ko template: { name: 'survey-question-errors', data: $data } -->
+    <!-- /ko -->
+    <div *ngIf="!model.isCollapsed" [style.paddingLeft]="model.innerPaddingLeft" [class]="model.cssClasses.panel.content" [attr.id]="model.contentId">
+      <ng-container *ngFor="let row of model.rows; trackBy: trackRowBy">
+        <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
+      </ng-container>
+      <sv-ng-action-bar [model]="model.getFooterToolbar()"></sv-ng-action-bar>
+    </div>
+  </div>
+</ng-template>

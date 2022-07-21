@@ -53,6 +53,10 @@ export class ListModel extends ActionContainer {
   }
 
   public selectItem = (itemValue: Action) => {
+    if(this.isItemDisabled(itemValue)) {
+      return;
+    }
+
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;

@@ -183,13 +183,13 @@ export interface IAttachKey2clickOptions {
 }
 
 const keyFocusedClassName = "sv-focused--by-key";
-function doKey2ClickBlur(evt: KeyboardEvent): void {
+export function doKey2ClickBlur(evt: KeyboardEvent): void {
   const element: any = evt.target;
   if (!element || !element.classList) return;
   element.classList.remove(keyFocusedClassName);
 }
 
-function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
+export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -207,7 +207,7 @@ function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): v
   }
 }
 
-function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
+export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -295,9 +295,6 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   createSvg,
-  doKey2ClickBlur,
-  doKey2ClickUp,
-  doKey2ClickDown,
   getIconNameFromProxy,
   increaseHeightByContent,
   getOriginalEvent,

@@ -50,7 +50,7 @@ frameworks.forEach((framework) => {
 
   test("multiple columns", async (t) => {
     const baseSelectorFunc = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-child(${values[1]})`;
+      return `tbody > tr:nth-child(${values[0]}) > td:nth-of-type(${values[1]})`;
     };
 
     await t.expect(Selector("th").withText("Strongly disagree").exists).ok();

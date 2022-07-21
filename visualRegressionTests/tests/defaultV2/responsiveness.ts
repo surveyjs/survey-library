@@ -101,6 +101,7 @@ frameworks.forEach(framework => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, panelDynamicJSON);
     await ClientFunction(() => {
+      document.body.focus();
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);

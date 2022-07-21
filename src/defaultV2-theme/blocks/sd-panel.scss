@@ -3,7 +3,7 @@
   .sd-row {
     margin-top: calcSize(1);
   }
-  .sd-row:first-child {
+  .sd-row:first-of-type {
     margin-top: 0;
   }
 }

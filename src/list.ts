@@ -6,11 +6,11 @@ import { ElementHelper } from "./element-helper";
 
 export class ListModel extends ActionContainer {
   @property({
-    defaultValue: false,
+    defaultValue: true,
     onSet: (newValue: boolean, target: ListModel) => {
       target.onSet();
     }
-  }) denySearch: boolean;
+  }) searchEnabled: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
@@ -48,7 +48,7 @@ export class ListModel extends ActionContainer {
   }
 
   protected onSet(): void {
-    this.needFilter = !this.denySearch && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 

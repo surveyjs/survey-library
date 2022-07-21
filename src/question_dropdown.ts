@@ -137,14 +137,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property({ defaultValue: false }) allowClear: boolean;
   @property() itemComponent: string;
   @property({
-    defaultValue: false,
+    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
         const listModel = target.popupModel.contentComponentData.model as ListModel;
-        listModel.denySearch = newValue;
+        listModel.searchEnabled = newValue;
       }
     }
-  }) denySearch: boolean;
+  }) searchEnabled: boolean;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -201,7 +201,7 @@ Serializer.addClass(
     { name: "choicesStep:number", default: 1, minValue: 1 },
     { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
-    { name: "denySearch:boolean", default: false, visible: false },
+    { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "itemComponent", visible: false },
   ],
   function () {

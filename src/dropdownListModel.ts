@@ -72,7 +72,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected onClear(event: any): void {
+  public onClear(event: any): void {
     this.question.clearValue();
     event.preventDefault();
     event.stopPropagation();

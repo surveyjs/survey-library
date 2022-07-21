@@ -2,7 +2,7 @@ import { Action, IAction } from "./actions/action";
 import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
 import { MultiSelectListModel } from "./multiSelectListModel";
-import { QuestionTagboxModel } from "./question_tagbox";
+import { Question } from "./question";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
   private getSelectedActions(visibleItems?: Array<Action>) {
@@ -37,12 +37,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
   }
 
-  protected onClear(event: any): void {
+  public onClear(event: any): void {
     super.onClear(event);
     this.syncSelectedItemsFromQuestion();
   }
 
-  constructor(question: QuestionTagboxModel, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+  constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
   }
 }

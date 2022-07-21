@@ -1,0 +1,11 @@
+
+<ng-template #template>
+  <div [class]="model.getActionRootCss()" [id]="model.id">
+    <div class="sv-action__content">
+      <ng-container *ngIf="model.needSeparator">
+        <div class="sv-action-bar-separator"></div>
+      </ng-container>
+      <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'sv-action-bar-item'}"></ng-template>
+    </div>
+  </div>
+</ng-template>

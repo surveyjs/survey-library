@@ -19,6 +19,9 @@ var platformDescriptor = {
       );
     });
   },
+  getStrFromHtml: (snapshot) => {
+    return require("./snapshots/"+snapshot+".snap.html");
+  },
   finish: (element) => {
     ReactDOM.unmountComponentAtNode(element);
   }

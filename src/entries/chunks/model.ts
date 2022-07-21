@@ -168,7 +168,7 @@ export {
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
 export { MultiSelectListModel } from "../../multiSelectListModel";
-export { PopupModel, PopupBaseViewModel, createPopupModalViewModel } from "../../popup";
+export { PopupModel, PopupBaseViewModel, createPopupModalViewModel, createDialogOptions, IDialogOptions } from "../../popup";
 export { DropdownListModel } from "../../dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../dropdownMultiSelectListModel";
 export {
@@ -182,6 +182,7 @@ export {
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,
+  doKey2ClickBlur,
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg,

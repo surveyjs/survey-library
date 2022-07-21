@@ -44,7 +44,6 @@ export class DropdownListModel extends Base {
 
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-
     this.listModel = this.createListModel();
     this.setSearchEnabled(this.question.denySearch);
     this.createPopup();
@@ -55,7 +54,7 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean) {
-    this.listModel.denySearch = newValue;
+    this.listModel.searchEnabled = newValue;
   }
   public updateItems() {
     this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());

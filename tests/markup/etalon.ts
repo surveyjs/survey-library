@@ -1,5 +1,5 @@
 import { settings } from "../../src/settings";
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 export * from "./etalon_image";
 export * from "./etalon_text";

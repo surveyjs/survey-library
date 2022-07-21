@@ -130,14 +130,14 @@ QUnit.test("Test dropdown renderAs select", assert => {
   assert.equal(listModel.needFilter, true);
 });
 
-QUnit.test("Test dropdown renderAs select denySearch property", assert => {
+QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const json = {
     questions: [{
       type: "dropdown",
       // renderAs: "select",
       name: "question1",
       hasOther: "true",
-      denySearch: true,
+      searchEnabled: false,
       choices: [
         "item1",
         "item2",
@@ -174,7 +174,7 @@ QUnit.test("Test dropdown renderAs select denySearch property", assert => {
   const listModel = question.popupModel.contentComponentData.model as ListModel;
   assert.equal(listModel.needFilter, false);
 
-  question.denySearch = false;
+  question.searchEnabled = true;
   assert.equal(listModel.needFilter, true);
 });
 

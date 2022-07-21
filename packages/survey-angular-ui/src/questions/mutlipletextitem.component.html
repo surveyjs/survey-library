@@ -1,0 +1,18 @@
+<label [class]="question.getItemLabelCss(model)">
+  <span [class]="question.getItemTitleCss()">
+    <span *ngIf=" model.editor.isRequireTextBeforeTitle || model.editor.isRequireTextOnStart"
+      [class]="question.cssClasses.requiredText">{{ model.editor.requiredText }}</span>
+    <sv-ng-string [model]="model.locTitle"></sv-ng-string>
+    <span
+      *ngIf="model.editor.isRequireTextAfterTitle"
+      [class]="question.cssClasses.requiredText"
+      >{{ model.editor.requiredText }}</span
+    >
+  </span>
+  <div [class]="question.getItemCss()">
+    <div *ngIf="model.editor.showErrorOnTop && model.editor.hasVisibleErrors" [element]="model.editor" sv-ng-errors></div>
+    <sv-ng-text-question [model]="model.editor"></sv-ng-text-question>
+    <div *ngIf="model.editor.showErrorOnBottom && model.editor.hasVisibleErrors" [element]="model.editor" sv-ng-errors></div>
+  </div>
+  <div *ngIf="model.editor.isErrorsModeTooltip && model.editor.hasVisibleErrors" [element]="model.editor" [location]="'tooltip'" sv-ng-errors></div>
+</label>

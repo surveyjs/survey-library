@@ -2,10 +2,20 @@
 
   <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
     <!-- ko ifnot: question.hasColumns -->
-    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender } -->
-      <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+      <!-- ko if: question.blockedRow -->
+      <div data-bind="css: question.koCss().rootRow">
+        <!-- ko foreach: { data: question.dataChoices, as: 'item', afterRender: question.koAfterRender }  -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+        <!-- /ko -->
+        <!-- /ko -->
+      </div>
       <!-- /ko -->
-    <!-- /ko -->
+      <!-- ko ifnot: question.blockedRow -->
+      <!-- ko foreach: { data: question.bodyItems, as: 'item', afterRender: question.koAfterRender }  -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
+        <!-- /ko -->
+      <!-- /ko -->
+      <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: question.hasColumns -->
       <div data-bind="css: question.koCss().rootMultiColumn">
@@ -19,14 +29,14 @@
         </div>
         <!-- /ko -->
       </div>
-      <!-- ko if: question.hasFootItems  -->
-        <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
-          <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
-          <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: question.hasFootItems  -->
+      <!-- ko foreach: { data: question.footItems, as: 'item', afterRender: question.koAfterRender }  -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-radiogroup-item', data: item } } } -->
         <!-- /ko -->
       <!-- /ko -->
-
     <!-- /ko -->
+
     <!-- ko if: question.hasOther && question.isOtherSelected -->
       <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
     <!-- /ko -->

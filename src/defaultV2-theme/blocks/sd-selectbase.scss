@@ -4,6 +4,15 @@
   padding: 0;
 }
 
+.sd-selectbase--row {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: calcSize(4);
+}
+
 .sd-selectbase--multi-column {
   display: flex;
   flex: 1 1 0px;

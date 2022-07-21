@@ -25,9 +25,11 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         ref={(fieldset) => (this.control = fieldset)}
       >
         <legend role="presentation" className={"sv-hidden"}></legend>
+        {this.getHeader()}
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
-          : this.getItems(cssClasses)}
+          : this.getBody(cssClasses)}
+        {this.getFooter()}
         {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther() : null}
       </fieldset>
     );
@@ -61,13 +63,9 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
   protected getColumnedBody(cssClasses: any) {
     return (
-      <>
-        {this.getHeader()}
-        <div className={cssClasses.rootMultiColumn}>
-          {this.getColumns(cssClasses)}
-        </div>
-        {this.getFooter()}
-      </>
+      <div className={cssClasses.rootMultiColumn}>
+        {this.getColumns(cssClasses)}
+      </div>
     );
   }
   protected getColumns(cssClasses: any) {
@@ -88,10 +86,17 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       );
     });
   }
-  protected getItems(cssClasses: any): Array<any> {
+
+  protected getBody(cssClasses: any): JSX.Element {
+    if(this.question.blockedRow) {
+      return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
+    }
+    else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
+  }
+  protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
     var renderedItems = [];
-    for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i];
+    for (var i = 0; i < choices.length; i++) {
+      var item = choices[i];
       var key = "item" + i;
       var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
       renderedItems.push(renderedItem);

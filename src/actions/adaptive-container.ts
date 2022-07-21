@@ -62,13 +62,15 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
 
+  private static ContainerID = 1;
+
   constructor() {
     super();
     this.dotsItemPopupModel = new PopupModel("sv-list", {
       model: this.invisibleItemsListModel
     });
     this.dotsItem = new Action({
-      id: "dotsItem-id",
+      id: "dotsItem-id" + AdaptiveActionContainer.ContainerID++,
       component: "sv-action-bar-item-dropdown",
       css: "sv-dots",
       innerCss: "sv-dots__item",

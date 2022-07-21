@@ -1,0 +1,11 @@
+<ng-template #template>
+  <div [class]="model.css.progress">
+    <div [class]="model.css.progressBar" [style.width]="model.progressValue + '%'"
+        role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <span [class]="getProgressTextInBarCss(model.css)">
+          {{ model.progressText }}
+        </span>
+    </div>
+    <span [class]="getProgressTextUnderBarCss(model.css)"> {{  model.progressText }} </span>
+  </div>
+</ng-template>

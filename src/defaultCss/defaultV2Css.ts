@@ -102,6 +102,7 @@ export var defaultV2Css = {
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
+  pageRow: "sd-page__row",
   question: {
     mainRoot: "sd-element sd-question sd-row__question",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
@@ -165,6 +166,7 @@ export var defaultV2Css = {
   },
   checkbox: {
     root: "sd-selectbase",
+    rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-checkbox sd-selectbase__item",
     itemOnError: "sd-item--error",
@@ -186,6 +188,7 @@ export var defaultV2Css = {
   },
   radiogroup: {
     root: "sd-selectbase",
+    rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-radio sd-selectbase__item",
     itemOnError: "sd-item--error",

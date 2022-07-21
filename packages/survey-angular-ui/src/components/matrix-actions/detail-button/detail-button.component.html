@@ -1,0 +1,7 @@
+<button type="button" [class]="question.getDetailPanelButtonCss(row)" (click)="row.showHideDetailPanelClick()"
+  [attr.aria-expanded]="question.getIsDetailPanelShowing(row) ? 'true' : 'false'"
+  [attr.aria-controls]="question.getIsDetailPanelShowing(row) ? row.detailPanelId : null">
+  <svg [class]="this.question.getDetailPanelIconCss(this.row)" 
+    [iconName]="this.question.getDetailPanelIconId(this.row)" [size]="'auto'" sv-ng-svg-icon>
+  </svg>
+</button>

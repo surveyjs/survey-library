@@ -1,7 +1,6 @@
 import * as ko from "knockout";
-import { createPopupModalViewModel, PopupBaseViewModel } from "survey-core";
+import { createPopupModalViewModel, PopupBaseViewModel, settings, IDialogOptions, createDialogOptions } from "survey-core";
 import { ImplementorBase } from "../../kobase";
-import { settings } from "survey-core";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
@@ -24,6 +23,7 @@ export class PopupViewModel {
   }
 }
 
+// replace to showDialog then delete
 export function showModal(
   componentName: string,
   data: any,
@@ -33,10 +33,22 @@ export function showModal(
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
 ) {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(componentName, data, onApply, onCancel,
-    () => {
-      viewModel.dispose();
-    }, undefined, cssClass, title, displayMode);
+  const options = createDialogOptions(
+    componentName,
+    data,
+    onApply,
+    onCancel,
+    undefined,
+    undefined,
+    cssClass,
+    title,
+    displayMode
+  );
+  showDialog(options);
+}
+export function showDialog(dialogOptions: IDialogOptions) {
+  dialogOptions.onHide = () => { viewModel.dispose(); };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
 }

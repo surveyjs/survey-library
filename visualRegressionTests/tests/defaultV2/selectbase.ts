@@ -38,6 +38,8 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("checkbox-col-count-1.png", Selector(".sd-question"), t);
     await ClientFunction(() => { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
+    await ClientFunction(() => { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 0; })();
+    await checkElementScreenshot("checkbox-col-count-0.png", Selector(".sd-question"), t);
   });
   test("Check radiogroup question", async (t) => {
     await t.resizeWindow(1920, 1080);
@@ -49,7 +51,7 @@ frameworks.forEach(framework => {
           "name": "car",
           "title": "What car are you driving?",
           "hasNone": true,
-          "colCount": 4,
+          "colCount": 0,
           "choices": [
             "Ford",
             "Vauxhall",
@@ -66,6 +68,8 @@ frameworks.forEach(framework => {
       ]
     });
     await ClientFunction(() => { document.body.focus(); })();
+    await checkElementScreenshot("radiogroup-col-count-0.png", Selector(".sd-question"), t);
+    await ClientFunction(() => { (<any>window).survey.getQuestionByName("car").colCount = 4; })();
     await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);
     await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
     await checkElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t);

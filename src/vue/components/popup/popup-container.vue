@@ -80,8 +80,15 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
+import {
+  PopupBaseViewModel,
+  createDialogOptions,
+  createPopupModalViewModel,
+  IDialogOptions,
+  settings,
+} from "survey-core";
 import { BaseVue } from "../../base";
+
 @Component
 export class PopupContainer extends BaseVue {
   @Prop() model: PopupBaseViewModel;
@@ -99,27 +106,37 @@ export class PopupContainer extends BaseVue {
     this.prevIsVisible = this.model.isVisible;
   }
 }
+// replace to showDialog then delete
 export function showModal(
   componentName: string,
   data: any,
   onApply: () => boolean,
   onCancel?: () => void,
   cssClass?: string,
-  title?: string
+  title?: string,
+  displayMode: "popup" | "overlay" = "popup"
 ) {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
+  const options = createDialogOptions(
     componentName,
     data,
     onApply,
     onCancel,
-    () => {
-      popup.$destroy();
-      popupViewModel.dispose();
-    },
+    undefined,
     undefined,
     cssClass,
-    title
+    title,
+    displayMode
   );
+  showDialog(options);
+}
+export function showDialog(dialogOptions: IDialogOptions) {
+  dialogOptions.onHide = () => {
+    {
+      popup.$destroy();
+      popupViewModel.dispose();
+    }
+  };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },

@@ -1,6 +1,6 @@
 import { Selector, fixture, test } from "testcafe";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
-const title = "imagepicker";
+const title = "image";
 
 const json = {
   questions: [

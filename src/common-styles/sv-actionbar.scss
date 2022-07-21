@@ -74,10 +74,10 @@ button.sv-action-bar-item {
   line-height: calcSize(2);
   margin: 0 calcSize(0.5);
 }
-.sv-action:first-child .sv-action-bar-item {
+.sv-action:first-of-type .sv-action-bar-item {
   margin-inline-start: 0; //margin-left
 }
-.sv-action:last-child .sv-action-bar-item {
+.sv-action:last-of-type .sv-action-bar-item {
   margin-inline-end: 0; //margin-right
 }
 

@@ -1,0 +1,20 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "outDir": "../../build/angular-ui-spec",
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "types": [
+      "jasmine",
+      "node"
+    ]
+  },
+  "files": [
+    "test/test.ts"
+  ],
+  "include": [
+    "test/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}

@@ -89,6 +89,7 @@ export class SurveyModel extends SurveyElementCore
   private editingObjValue: Base;
 
   private textPreProcessor: TextPreProcessor;
+
   private timerModelValue: SurveyTimerModel;
 
   private navigationBarValue: ActionContainer;

@@ -139,9 +139,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property({
     defaultValue: false,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
-        const listModel = target.popupModel.contentComponentData.model as ListModel;
-        listModel.denySearch = newValue;
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
   }) denySearch: boolean;

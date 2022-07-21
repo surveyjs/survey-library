@@ -85,11 +85,65 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = new DropdownListModel(question);
   assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof ListModel);
+
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 28);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(question.value, "item1");
+
+  list.onItemClick(list.actions[3]);
+  assert.equal(question.value, "item4");
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.equal(question.value, undefined);
 });
 
 QUnit.test("DropdownListModel with MultiListModel", (assert) => {
   const survey = new SurveyModel(jsonTagbox);
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownMultiSelectListModel(question, true);
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
   assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(list.actions.length, 28);
+  assert.deepEqual(question.value, []);
+
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, ["item1"]);
+
+  list.onItemClick(list.actions[3]);
+  assert.deepEqual(question.value, ["item1", "item4"]);
+
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, ["item4"]);
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.equal(question.value.length, 0);
+});
+
+QUnit.test("DropdownListModel with MultiListModel state actions", (assert) => {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(list.actions.length, 28);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.actions[0].active, true);
+  assert.equal(list.actions[3].active, false);
+
+  list.onItemClick(list.actions[3]);
+  assert.equal(list.actions[0].active, true);
+  assert.equal(list.actions[3].active, true);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.actions[0].active, false);
+  assert.equal(list.actions[3].active, true);
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.equal(list.actions[0].active, false);
+  assert.equal(list.actions[3].active, false);
 });

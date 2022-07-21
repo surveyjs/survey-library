@@ -66,10 +66,10 @@ QUnit.test("MultiSelectListModel onSelectionChanged removed item", function (ass
   selectedItems.push(multiSelectList.renderedActions[1]);
   selectedItems.push(multiSelectList.renderedActions[2]);
 
-  assert.equal(multiSelectList.selectedItems?.length, 2);
+  assert.equal(multiSelectList.selectedItems.length, 2);
 
   multiSelectList.onItemClick(multiSelectList.renderedActions[1]);
-  assert.equal(multiSelectList.selectedItems?.length, 1);
+  assert.equal(multiSelectList.selectedItems.length, 1);
   assert.ok(selectedItems[0] === multiSelectList.renderedActions[2]);
 });
 
@@ -85,7 +85,7 @@ QUnit.test("MultiSelectListModel isSelectedItem", function (assert) {
   selectedItems.push(multiSelectList.renderedActions[1]);
   selectedItems.push(multiSelectList.renderedActions[2]);
 
-  assert.equal(multiSelectList.selectedItems?.length, 2);
+  assert.equal(multiSelectList.selectedItems.length, 2);
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[0]), false);
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[1]), true);
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[2]), true);

@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -16,12 +16,36 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
   }
+
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    if (!this.dropdownListModel) {
+      this.dropdownListModel = new DropdownMultiSelectListModel(this);
+    }
+  }
+
   public get readOnlyText() {
     return this.selectedItems.length === 0 ? this.placeholder : this.selectedItems.map(item => item.text).join(", ");
   }
 
   /**
-   * The input place holder.
+   * Specifies whether to display a button that clears the selected value.
+   */
+  @property({ defaultValue: true }) allowClear: boolean;
+  /**
+   * Specifies whether to display a search bar in the drop-down menu.
+   */
+  @property({
+    defaultValue: true,
+    onSet: (newValue: boolean, target: QuestionTagboxModel) => {
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setSearchEnabled(newValue);
+      }
+    }
+  }) searchEnabled: boolean;
+
+  /**
+   * A text displayed in the input field when it doesn't have a value.
    */
   public get placeholder() {
     return this.getLocalizableStringText("placeholder");
@@ -32,13 +56,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }
+
   public getType(): string {
     return "tagbox";
   }
   public get popupModel(): PopupModel {
-    if (this.renderAs !== "select" && !this.dropdownListModel) {
-      this.dropdownListModel = new DropdownMultiSelectListModel(this);
-    }
     return this.dropdownListModel?.popupModel;
   }
 
@@ -83,7 +105,7 @@ Serializer.addClass(
   [
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
-    { name: "searchEnabled:boolean", default: false },
+    { name: "searchEnabled:boolean", default: true },
     { name: "showSelectionControls:boolean", default: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "itemComponent", visible: false }

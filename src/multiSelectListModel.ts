@@ -1,18 +1,16 @@
 import { Action, IAction } from "./actions/action";
 import { ListModel } from "./list";
-// import { Base, ComputedUpdater } from "./base";
-// import { DropdownListModel } from "./dropdownListModel";
-// import { ItemValue } from "./itemvalue";
-// import { Question } from "./question";
-// import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class MultiSelectListModel extends ListModel {
+  public selectedItems: Array<IAction>;
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, public selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
+  private updateItemActiveState() {
+    this.actions.forEach(action => action.active = this.isItemSelected(action));
+  }
+
+  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
     super(items, onSelectionChanged, allowSelection, undefined, onFilteredTextChangedCallback);
-    if(!this.selectedItems) {
-      this.selectedItems = [];
-    }
+    this.setSelectedItems(selectedItems || []);
   }
 
   public onItemClick = (item: Action) => {
@@ -31,6 +29,11 @@ export class MultiSelectListModel extends ListModel {
   };
 
   public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.allowSelection && !!this.selectedItems && this.selectedItems.filter(item => item.id == itemValue.id).length > 0;
+    return !!this.allowSelection && this.selectedItems.filter(item => item.id == itemValue.id).length > 0;
   };
+
+  public setSelectedItems(newItems: Array<IAction>) : void {
+    this.selectedItems = newItems;
+    this.updateItemActiveState();
+  }
 }

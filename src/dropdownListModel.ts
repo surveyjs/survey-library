@@ -9,8 +9,19 @@ import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/
 
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
+  protected listModel: ListModel;
 
-  protected getVisibleListItems(): Array<Action> {
+  private createPopup() {
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
+    this._popupModel.positionMode = "fixed";
+    this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+      if (option.isVisible && !!this.question.onOpenedCallBack) {
+        this.question.onOpenedCallBack();
+      }
+    });
+  }
+
+  protected getAvailableItems(): Array<Action> {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
       title: <any>new ComputedUpdater<string>(() => choice.text),
@@ -20,36 +31,34 @@ export class DropdownListModel extends Base {
     }));
   }
   protected createListModel(): ListModel {
-    const visibleItems = this.getVisibleListItems();
-    return new ListModel(visibleItems, this.onSelectionChanged, true, this.question.selectedItem);
-  }
-  constructor(protected question: Question, protected onSelectionChanged: (item: IAction, ...params: any[]) => void) {
-    super();
-    if(!onSelectionChanged) {
-      onSelectionChanged = (item: IAction) => {
+    const visibleItems = this.getAvailableItems();
+    let _onSelectionChanged = this.onSelectionChanged;
+    if(!_onSelectionChanged) {
+      _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
         this._popupModel.toggleVisibility();
       };
     }
+    return new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+  }
 
-    let listModel = this.createListModel();
-    listModel.denySearch = this.question.denySearch;
+  constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+    super();
 
-    this._popupModel = new PopupModel("sv-list", { model: listModel, }, "bottom", "center", false);
-    this._popupModel.positionMode = "fixed";
-    this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      if (option.isVisible && !!this.question.onOpenedCallBack) {
-        this.question.onOpenedCallBack();
-      }
-    });
+    this.listModel = this.createListModel();
+    this.setSearchEnabled(this.question.denySearch);
+    this.createPopup();
   }
 
   get popupModel(): PopupModel {
     return this._popupModel;
   }
 
+  public setSearchEnabled(newValue: boolean) {
+    this.listModel.denySearch = newValue;
+  }
   public updateItems() {
-    this._popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
   }
 
   public onClick(event: any): void {
@@ -63,7 +72,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  onClear(event: any): void {
+  protected onClear(event: any): void {
     this.question.clearValue();
     event.preventDefault();
     event.stopPropagation();

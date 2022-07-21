@@ -80,7 +80,7 @@ export class ListModel extends ActionContainer {
     return new CssClassBuilder()
       .append("sv-list__item")
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
-      .append("sv-list__item--selected", this.isItemSelected(itemValue))
+      .append("sv-list__item--selected", itemValue.active || this.isItemSelected(itemValue))
       .toString();
   };
 

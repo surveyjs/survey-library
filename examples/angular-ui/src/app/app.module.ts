@@ -28,5 +28,7 @@ import { CustomActionComponent } from "./components/test-custom-components/actio
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule { 
+  static declaration = [AngularItemTemplateComponent, CustomActionComponent]
+}
 

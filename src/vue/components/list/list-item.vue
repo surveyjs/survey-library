@@ -45,7 +45,7 @@ export class ListItem extends BaseVue {
     attachKey2click(event);
   }
   public click(event: any) {
-    this.model.selectItem(this.item as any);
+    this.model.onClick(this.item as any);
     event.stopPropagation();
   }
 }

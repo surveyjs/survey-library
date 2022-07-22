@@ -23,7 +23,7 @@ export class ListItemComponent extends BaseAngular {
     return this.listModel.getItemIndent(this.model);
   }
   @HostListener("click", ["$event"]) click(event: PointerEvent): void {
-    this.listModel.selectItem(this.model);
+    this.listModel.onClick(this.model);
     event.stopPropagation();
   }
   @HostListener("pointerdown", ["$event"]) pointerdown(event: PointerEvent): void {

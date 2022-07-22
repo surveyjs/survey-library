@@ -244,4 +244,4 @@ jobs:
 
     - script: |
         npm run visual-regression-tests:ci:angular
-      displayName: "run functional tests"
+      displayName: "run vrt tests"

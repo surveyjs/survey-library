@@ -1,5 +1,5 @@
 // styles
-import "../../main.scss";
+// import "../../main.scss";
 //import "../../modern.scss";
 
 export var Version: string;
@@ -183,7 +183,8 @@ export {
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg,
-  sanitizeEditableContent
+  sanitizeEditableContent,
+  IAttachKey2clickOptions
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 

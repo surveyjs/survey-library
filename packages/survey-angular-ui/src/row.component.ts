@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { PanelModel, Question, QuestionRowModel } from "survey-core";
+import { IElement, QuestionRowModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 @Component({
   selector: "sv-ng-row",
@@ -11,7 +11,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> {
   protected getModel(): QuestionRowModel {
     return this.row;
   }
-  trackElementBy (index: number, element: Question | PanelModel): string {
+  trackElementBy (index: number, element: IElement): string {
     return element.name + index;
   }
 }

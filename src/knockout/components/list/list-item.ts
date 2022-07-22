@@ -13,7 +13,7 @@ ko.components.register("sv-list-item", {
         item: params.item,
         model: params.model,
         itemClick: (data: any, event: any) => {
-          data.model.onClick(data.item);
+          data.model.onItemClick(data.item);
           event.stopPropagation();
         }
       };

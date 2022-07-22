@@ -8,6 +8,7 @@
       required: question.isRequired, 
       tabindex: question.isInputReadOnly ? undefined : 0,
       disabled: question.isInputReadOnly,
+      role: question.ariaRole,
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 

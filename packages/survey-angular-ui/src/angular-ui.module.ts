@@ -9,6 +9,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
+import { TagboxComponent } from "./components/tagbox/tagbox.component";
 import { DropdownOptionItemComponent } from "./components/renderAs/dropdown-select/dropdown-option-item.component";
 import { DropdownSelectComponent } from "./components/renderAs/dropdown-select/dropdown-select.component";
 import { TextQuestionComponent } from "./questions/text.component";
@@ -18,6 +19,7 @@ import { RadiogroupItemComponent } from "./questions/radiogroup-item.component";
 import { CheckboxComponent } from "./questions/checkbox.component";
 import { CheckboxItemComponent } from "./questions/checkbox-item.component";
 import { DropdownQuestionComponent } from "./questions/dropdown.component";
+import { TagboxQuestionComponent } from "./questions/tagbox.component";
 import { RatingQuestionComponent } from "./questions/rating.component";
 import { BooleanQuestionComponent } from "./questions/boolean.component";
 import { ImagePickerItemComponent } from "./questions/imagepicker-item.component";
@@ -93,6 +95,7 @@ import { CompositeQuestionComponent } from "./questions/composite.component";
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
     ListComponent, ListItemComponent,
+    TagboxComponent, TagboxQuestionComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,

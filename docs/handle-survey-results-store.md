@@ -1,6 +1,9 @@
 # Store Survey Results
 
-Survey results are JSON objects that you can store [in your own database](#store-survey-results-in-your-own-database) or [in the SurveyJS Service](#store-survey-results-in-the-surveyjs-service).
+Survey results are JSON objects that you can store in your own database or in the SurveyJS Service.
+
+- [Store Survey Results in Your Own Database](#store-survey-results-in-your-own-database)
+- [Store Survey Results in the SurveyJS Service](#store-survey-results-in-the-surveyjs-service)
 
 ## Store Survey Results in Your Own Database
 
@@ -66,3 +69,9 @@ Follow the steps below to start using the SurveyJS Service:
     }
     ```
 [View example](https://surveyjs.io/Examples/Library?id=service-send)
+
+## See Also
+
+- [Access Survey Results](/Documentation/Library?id=handle-survey-results-access)
+- [Continue an Incomplete Survey](/Documentation/Library?id=handle-survey-results-continue-incomplete)
+- [Merge Question Values](/Documentation/Library?id=design-survey-merge-question-values)

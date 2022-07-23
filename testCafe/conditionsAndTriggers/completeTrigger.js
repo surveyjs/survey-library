@@ -100,9 +100,27 @@ frameworks.forEach(framework => {
       .click("input[value=\"No\"]")
       .click("input[value=\"Next\"]")
       .click("input[value=\"Yes\"]")
-      .click("input[value=\"Next\"]");
+      .click("input[value=\"Complete\"]");
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ exit1: "No", exit2: "Yes" });
+  });
+  test("check button visibility", async t => {
+    const nextSelector = Selector("input[value=\"Next\"]");
+    const completeSelector = Selector("input[value=\"Complete\"]");
+    await t
+      .expect(nextSelector.exists).ok()
+      .expect(completeSelector.exists).notOk()
+      .click("input[value=\"Yes\"]")
+      .expect(nextSelector.exists).notOk()
+      .expect(completeSelector.exists).ok()
+      .click("input[value=\"No\"]")
+      .expect(nextSelector.exists).ok()
+      .expect(completeSelector.exists).notOk()
+      .click("input[value=\"Yes\"]")
+      .click("input[value=\"Complete\"]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({ exit1: "Yes" });
   });
 });

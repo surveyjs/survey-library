@@ -105,7 +105,7 @@ frameworks.forEach(framework => {
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ exit1: "No", exit2: "Yes" });
   });
-  test("check button visibility", async t => {
+  test("check complete and next buttons visibility", async t => {
     const nextSelector = Selector("input[value=\"Next\"]");
     const completeSelector = Selector("input[value=\"Complete\"]");
     await t

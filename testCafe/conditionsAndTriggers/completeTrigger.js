@@ -106,8 +106,8 @@ frameworks.forEach(framework => {
     await t.expect(surveyResult).eql({ exit1: "No", exit2: "Yes" });
   });
   test("check complete and next buttons visibility", async t => {
-    const nextSelector = Selector("input[value=\"Next\"]");
-    const completeSelector = Selector("input[value=\"Complete\"]");
+    const nextSelector = Selector("input[value=\"Next\"]").filterVisible();
+    const completeSelector = Selector("input[value=\"Complete\"]").filterVisible();
     await t
       .expect(nextSelector.exists).ok()
       .expect(completeSelector.exists).notOk()

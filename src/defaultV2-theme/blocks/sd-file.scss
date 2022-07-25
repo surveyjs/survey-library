@@ -188,6 +188,10 @@
 }
 .sd-file--single-image {
   height: calc(36 * #{$base-unit});
+  .sd-file__preview {
+    width: 100%;
+    margin: 0;
+  }
   .sd-file__list {
     padding: 0;
     height: 100%;

@@ -64,8 +64,26 @@
       ]
     },
     {
+      "Name": "handle-survey-results",
+      "Title": "Handle Survey Results",
+      "Items": [
+        {
+          "Name": "handle-survey-results-access",
+          "Title": "Access Survey Results"
+        },
+        {
+          "Name": "handle-survey-results-store",
+          "Title": "Store Survey Results"
+        },
+        {
+          "Name": "handle-survey-results-continue-incomplete",
+          "Title": "Continue an Incomplete Survey"
+        }
+      ]
+    },
+    {
       "Name": "api",
-      "Title": "Survey API",
+      "Title": "API",
       "Items": [
         {
           "Name": "surveymodel",

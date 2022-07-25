@@ -37,7 +37,7 @@ const surveyJson = {
 }
 ```
 
-Matrix Dynamic and Panel Dynamic are compatible because they both produce arrays of objects. In some instances, you need to associate two or more questions that produce results in different formats. This is the case with the Checkbox question type. It produces an array of primitive values that cannot be merged with an array of objects. To force a Checkbox question to produce an array of objects, specify the [`valuePropertyName`](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel#valuePropertyName) property with a field name that should store question values. In the following example, a Checkbox question stores values in the `car` field. A Panel Dynamic adds the `years-owned` and `rating` fields to each object in the `cars` array:
+Matrix Dynamic and Panel Dynamic are compatible because they both produce arrays of objects. In some instances, you need to associate two or more questions that produce results in different formats and as such are incompatible. For example, the Checkbox question type produces an array of primitive values that cannot be merged with an array of objects. To force a Checkbox question to produce an array of objects, specify the [`valuePropertyName`](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel#valuePropertyName) property with a field name that should store question values. In the following example, a Checkbox question stores values in the `car` field. A Panel Dynamic adds the `years-owned` and `rating` fields to each object in the `cars` array:
 
 ```js
 const surveyJson = {

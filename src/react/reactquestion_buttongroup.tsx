@@ -20,7 +20,7 @@ export class SurveyQuestionButtonGroup extends SurveyQuestionElementBase {
   getStateElement() {
     return this.question;
   }
-  render() {
+  renderElement() {
     const items = this.renderItems();
     return <div className={this.question.cssClasses.root}>{items}</div>;
   }
@@ -44,7 +44,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   public model: ButtonGroupItemModel;
   constructor(props: any) {
     super(props);
-    this.model = new ButtonGroupItemModel(this.question, this.item, this.index);
   }
   get index(): number {
     return this.props.index;
@@ -58,7 +57,8 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   getStateElement() {
     return this.item;
   }
-  public render() {
+  public renderElement() {
+    this.model = new ButtonGroupItemModel(this.question, this.item, this.index);
     const icon = this.renderIcon();
     const input = this.renderInput();
     const caption = this.renderCaption();

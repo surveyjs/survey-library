@@ -51,7 +51,7 @@ survey.onValueChanged.add((survey, { name, question, value }) => {
 
 ## Access Full Survey Results
 
-To access full survey results, use the Survey's [`data`](/Documentation/Library?id=surveymodel#data) property. It is a JSON object that contains only answered questions and has the following structure:
+To access full survey results, use the Survey's [`data`](/Documentation/Library?id=surveymodel#data) property. It contains a JSON object with answered questions and has the following structure:
 
 ```js
 {

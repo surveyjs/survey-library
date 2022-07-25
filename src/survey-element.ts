@@ -195,6 +195,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.registerFunctionOnPropertyValueChanged("errors", () => {
       this.updateVisibleErrors();
     });
+    this.registerFunctionOnPropertyValueChanged("isSingleInRow", () => {
+      this.updateElementCss(false);
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -687,8 +690,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get hasParent() {
     return (this.parent && !this.parent.isPage) || (this.parent === undefined);
   }
+  @property({ defaultValue: true }) isSingleInRow: boolean = true;
   protected get hasFrameV2() {
-    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode;
+    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
   }
 
   /**

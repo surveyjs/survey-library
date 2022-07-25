@@ -1,4 +1,4 @@
-<label data-bind="css: model.css.label, attr: { title: model.caption.koRenderedHtml }">
+<label role="radio" data-bind="css: model.css.label, attr: { title: model.caption.koRenderedHtml }">
   <input type="radio"
     data-bind="attr: { name: model.name, id: model.id, 'aria-required': model.isRequired, 'aria-label': model.caption.koRenderedHtml, role: 'radio', 'aria-invalid': model.hasErrors, 'aria-describedby': model.describeBy}, checkedValue: model.value, checked: model.question.renderedValue, disable: model.readOnly, css: model.css.control" />
   <div data-bind="css: model.css.decorator">

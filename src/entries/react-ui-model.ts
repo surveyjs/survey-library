@@ -32,6 +32,7 @@ export {
 export { SurveyQuestionOptionItem } from "../react/dropdown-item";
 export { SurveyQuestionDropdownBase } from "../react/dropdown-base";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";
+export { SurveyQuestionTagbox } from "../react/reactquestion_tagbox";
 export { SurveyQuestionDropdownSelect } from "../react/dropdown-select";
 export {
   SurveyQuestionMatrix,

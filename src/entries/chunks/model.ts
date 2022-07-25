@@ -1,5 +1,5 @@
 // styles
-import "../../main.scss";
+// import "../../main.scss";
 //import "../../modern.scss";
 
 export var Version: string;
@@ -110,6 +110,7 @@ export {
   QuestionSelectBase
 } from "../../question_baseselect";
 export { QuestionCheckboxModel } from "../../question_checkbox";
+export { QuestionTagboxModel } from "../../question_tagbox";
 export { QuestionRankingModel } from "../../question_ranking";
 export { QuestionCommentModel } from "../../question_comment";
 export { QuestionDropdownModel } from "../../question_dropdown";
@@ -166,8 +167,10 @@ export {
 
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
-export { PopupModel, PopupBaseViewModel, createPopupModalViewModel } from "../../popup";
+export { MultiSelectListModel } from "../../multiSelectListModel";
+export { PopupModel, PopupBaseViewModel, createPopupModalViewModel, createDialogOptions, IDialogOptions } from "../../popup";
 export { DropdownListModel } from "../../dropdownListModel";
+export { DropdownMultiSelectListModel } from "../../dropdownMultiSelectListModel";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,
@@ -179,10 +182,12 @@ export {
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,
+  doKey2ClickBlur,
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg,
-  sanitizeEditableContent
+  sanitizeEditableContent,
+  IAttachKey2clickOptions
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 

@@ -1,0 +1,72 @@
+{
+  "name": "survey-angular-ui",
+  "version": "1.9.9",
+  "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
+  "keywords": [
+    "Survey",
+    "JavaScript",
+    "Bootstrap",
+    "Library",
+    "angular",
+    "angular-component"
+  ],
+  "homepage": "https://surveyjs.io/",
+  "license": "MIT",
+  "files": [
+    "survey.css",
+    "survey.min.css",
+    "modern.css",
+    "modern.min.css",
+    "survey-angular-ui.d.ts",
+    "survey-angular-ui.js",
+    "survey-angular-ui.min.js"
+  ],
+  "main": "survey-angular-ui.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surveyjs/surveyjs.git"
+  },
+  "typings": "survey-angular-ui.d.ts",
+  "peerDependencies": {
+    "rxjs": "~7.4.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "~13.2.5",
+    "@angular/animations": "~13.0.0",
+    "@angular/cli": "~13.0.3",
+    "@angular/common": "~13.0.0",
+    "@angular/compiler": "~13.0.0",
+    "@angular/compiler-cli": "~13.0.0",
+    "@angular/core": "~13.0.0",
+    "@angular/forms": "~13.0.0",
+    "@angular/platform-browser": "~13.0.0",
+    "@angular/platform-browser-dynamic": "~13.0.0",
+    "@angular/router": "~13.0.0",
+    "@angular/cdk": "~13.0.0",
+    "@types/jasmine": "~3.10.0",
+    "@types/node": "^12.20.43",
+    "jasmine": "^4.1.0",
+    "jasmine-core": "~3.10.0",
+    "karma": "~6.3.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.0.3",
+    "karma-html2js-preprocessor": "^1.1.0",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "~1.7.0",
+    "ng-packagr": "^13.0.0",
+    "rxjs": "~7.4.0",
+    "survey-core": "../../build/survey-core",
+    "tslib": "^2.3.0",
+    "typescript": "~4.4.3",
+    "zone.js": "~0.11.4"
+  },
+  "scripts": {
+    "build": "ng build",
+    "serve:example": "ng serve",
+    "build:example": "ng build --aot --output-hashing=none angular-ui",
+    "test": "ng test survey-angular-ui",
+    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui"
+  }
+}

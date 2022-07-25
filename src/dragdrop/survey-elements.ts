@@ -377,7 +377,9 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     let targetRow: any = this.getTargetRow(this.dropTarget);
     const isTargetRowMultiple = targetRow && targetRow.elements.length > 1;
 
-    if (this.isEdge && isTargetRowMultiple) {
+    const isTemplatePanelInPanelDynamic = targetParent.isPanel && !targetParent.name;
+
+    if (this.isEdge && isTargetRowMultiple && !isTemplatePanelInPanelDynamic) {
       targetParent.__page = this.dropTarget.page;
       this.dropTarget = targetParent;
       return false;

@@ -74,7 +74,18 @@ export class PopupModel<T = any> extends Base {
   }
 }
 
-export function createPopupModalViewModel(
+export interface IDialogOptions {
+  componentName: string;
+  data: any;
+  onApply: () => boolean;
+  onCancel?: () => void;
+  onHide?: () => void;
+  onShow?: () => void;
+  cssClass?: string;
+  title?: string;
+  displayMode?: "popup" | "overlay";
+}
+export function createDialogOptions(
   componentName: string,
   data: any,
   onApply: () => boolean,
@@ -83,27 +94,37 @@ export function createPopupModalViewModel(
   onShow = () => { },
   cssClass?: string,
   title?: string,
-  displayMode: "popup" | "overlay" = "popup"
-) {
+  displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
+  return <IDialogOptions>{
+    componentName: componentName,
+    data: data,
+    onApply: onApply,
+    onCancel: onCancel,
+    onHide: onHide,
+    onShow: onShow,
+    cssClass: cssClass,
+    title: title,
+    displayMode: displayMode
+  };
+}
+
+export function createPopupModalViewModel(options: IDialogOptions) {
   const popupModel = new PopupModel(
-    componentName,
-    data,
+    options.componentName,
+    options.data,
     "top",
     "left",
     false,
     true,
-    onCancel,
-    onApply,
-    onHide,
-    onShow,
-    cssClass,
-    title
+    options.onCancel,
+    options.onApply,
+    options.onHide,
+    options.onShow,
+    options.cssClass,
+    options.title
   );
-  popupModel.displayMode = displayMode;
-  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    popupModel,
-    undefined
-  );
+  popupModel.displayMode = options.displayMode || "popup";
+  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(popupModel, undefined);
   popupViewModel.initializePopupContainer();
   return popupViewModel;
 }
@@ -249,10 +270,8 @@ export class PopupBaseViewModel extends Base {
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
-    const margin = marginLeft + marginRight;
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
-    const widthMargins = width + margin;
     this.model.width && (this.minWidth = this.model.width + "px");
     this.height = "auto";
     let verticalPosition = this.model.verticalPosition;
@@ -273,7 +292,7 @@ export class PopupBaseViewModel extends Base {
     const pos = PopupUtils.calculatePosition(
       targetElementRect,
       height,
-      widthMargins,
+      width + marginLeft + marginRight,
       verticalPosition,
       this.model.horizontalPosition,
       this.showPointer,
@@ -293,10 +312,11 @@ export class PopupBaseViewModel extends Base {
 
       const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
         pos.left,
-        widthMargins,
+        width,
         window.innerWidth,
         this.model.horizontalPosition,
-        this.model.positionMode
+        this.model.positionMode,
+        { left: marginLeft, right: marginRight }
       );
       if (!!newHorizontalDimensions) {
         this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;

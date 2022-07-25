@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
 
 const title = "File Screenshot";
 
@@ -39,6 +39,8 @@ frameworks.forEach(framework => {
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
     await takeScreenshot("file-question-single-image.png", questionRoot, screenshotComparerOptions);
+    await t.setFilesToUpload(Selector(".sd-file input"), ["files/Flamingo.png"]);
+    await checkElementScreenshot("file-question-single-file-small-image.png", questionRoot, t);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());

@@ -101,6 +101,7 @@ frameworks.forEach(framework => {
     await t.resizeWindow(600, 1080);
     await initSurvey(framework, panelDynamicJSON);
     await ClientFunction(() => {
+      document.body.focus();
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
     await checkElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t);
@@ -183,6 +184,7 @@ frameworks.forEach(framework => {
               "choices": [
                 "Yes", "No"
               ],
+              "colCount": 1,
               "cellType": "radiogroup"
             }, {
               "name": "strength",
@@ -190,6 +192,7 @@ frameworks.forEach(framework => {
               "choices": [
                 "Easy", "Compact", "Fast", "Powerfull"
               ],
+              "colCount": 1,
               "cellType": "checkbox"
             },
           ],

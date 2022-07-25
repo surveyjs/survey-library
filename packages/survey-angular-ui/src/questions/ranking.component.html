@@ -1,0 +1,8 @@
+<div [class]="model.rootClass" #contentElement>
+  <sv-ng-ranking-item
+    *ngFor="let item of model.rankingChoices; index as index; trackBy: trackItemBy"
+    [index]="index"
+    [question]="model"
+    [model]="item"
+  ></sv-ng-ranking-item>
+</div>

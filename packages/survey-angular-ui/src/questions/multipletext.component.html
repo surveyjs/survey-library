@@ -1,0 +1,12 @@
+<table [class]="model.cssClasses.root" #contentElement>
+  <tbody>
+    <tr
+      *ngFor="let row of model.getRows(); index as rowIndex; trackBy: trackRowBy"
+      [class]="model.cssClasses.row"
+    >
+      <ng-container *ngFor="let item of row; trackBy: trackItemBy" >
+        <td [class]="model.cssClasses.cell" [question]="model" [model]="item" sv-ng-multipletext-item></td>
+      </ng-container>
+    </tr>
+  </tbody>
+</table>

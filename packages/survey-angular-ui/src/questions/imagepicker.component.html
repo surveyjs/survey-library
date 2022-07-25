@@ -1,0 +1,11 @@
+  <fieldset [class]="model.getSelectBaseRootCss()" #contentElement>
+      <legend [attr.aria-label]="model.locTitle.renderedHtml" role="radio"></legend>
+      <ng-container *ngIf="!model.hasColumns">
+        <sv-ng-imagepicker-item *ngFor="let item of model.visibleChoices" [model]="$any(item)" [question]="model"></sv-ng-imagepicker-item>
+      </ng-container>
+      <ng-container *ngIf="model.hasColumns">
+        <div *ngFor="let column of model.columns" [class]="model.getColumnClass()" role="presentation">
+          <sv-ng-imagepicker-item *ngFor="let item of column" [model]="item" [question]="model"></sv-ng-imagepicker-item>
+        </div>
+      </ng-container>
+  </fieldset>

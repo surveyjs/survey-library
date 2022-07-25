@@ -89,6 +89,7 @@ export class SurveyModel extends SurveyElementCore
   private editingObjValue: Base;
 
   private textPreProcessor: TextPreProcessor;
+
   private timerModelValue: SurveyTimerModel;
 
   private navigationBarValue: ActionContainer;
@@ -2966,6 +2967,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
+    this.canBeCompletedByTrigger = false;
     if (clearData) {
       this.data = null;
       this.variablesHash = {};
@@ -3834,11 +3836,13 @@ export class SurveyModel extends SurveyElementCore
     return this.getPageMaxTimeToFinish(page) <= 0;
   }
   private calcIsShowNextButton(): boolean {
-    return this.state === "running" && !this.isLastPage;
+    return this.state === "running" && !this.isLastPage && !this.canBeCompletedByTrigger;
   }
   public calcIsCompleteButtonVisible(): boolean {
     const state = this.state;
-    return this.isEditMode && (this.state === "running" && this.isLastPage && !this.isShowPreviewBeforeComplete || state === "preview");
+    return this.isEditMode && (this.state === "running" &&
+      (this.isLastPage && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
+      || state === "preview");
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (
@@ -4062,8 +4066,14 @@ export class SurveyModel extends SurveyElementCore
       this.doComplete(true);
     }
   }
-  public setCompleted() {
+  public setCompleted(): void {
     this.isCompleted = true;
+  }
+  canBeCompleted(): void {
+    if(!this.canBeCompletedByTrigger) {
+      this.canBeCompletedByTrigger = true;
+      this.updateButtonsVisibility();
+    }
   }
   /**
    * Returns the HTML content for the complete page.
@@ -5042,15 +5052,17 @@ export class SurveyModel extends SurveyElementCore
     this.triggerKeys = key;
     this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
+    let prevCanBeCompleted = this.canBeCompletedByTrigger;
+    this.canBeCompletedByTrigger = false;
     for (var i: number = 0; i < this.triggers.length; i++) {
-      var trigger = this.triggers[i];
-      if (trigger.isOnNextPage == isOnNextPage) {
-        trigger.checkExpression(
-          this.triggerKeys,
-          this.triggerValues,
-          properties
-        );
-      }
+      this.triggers[i].checkExpression(isOnNextPage,
+        this.triggerKeys,
+        this.triggerValues,
+        properties
+      );
+    }
+    if(prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+      this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
   }

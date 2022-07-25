@@ -31,6 +31,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
     return this.items;
   }
   setCompleted() {}
+  canBeCompleted() {}
   triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
   copyTriggerValue(name: string, fromName: string) {}
@@ -214,4 +215,46 @@ QUnit.test("On trigger executed", function(
   survey.setValue("q1", 3);
   survey.nextPage();
   assert.deepEqual(triggers, ["setvaluetrigger", "completetrigger"]);
+});
+QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          }
+        ]
+      },
+      {
+        elements: [{ type: "text", name: "q3" }]
+      }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  assert.equal(survey.isShowNextButton, true, "#1-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#1-complete");
+  survey.setValue("q1", 1);
+  assert.equal(survey.isShowNextButton, true, "#2-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#2-complete");
+  survey.setValue("q1", 3);
+  assert.equal(survey.isShowNextButton, false, "#3-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#3-complete");
+  survey.setValue("q1", 5);
+  assert.equal(survey.isShowNextButton, true, "#4-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#4-complete");
+  survey.setValue("q1", 3);
+  assert.equal(survey.isShowNextButton, false, "#5-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#5-complete");
+  survey.clear();
+  assert.equal(survey.isShowNextButton, true, "#6-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#6-complete");
 });

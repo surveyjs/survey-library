@@ -160,7 +160,8 @@ frameworks.forEach(framework => {
   });
 
   test("Check Matrixdynamic with allowRowsDragAndDrop", async (t) => {
-    if (framework === "vue") {
+    //todo
+    if (framework === "vue" || framework === "angular") {
       return;
     }
     await t.resizeWindow(1280, 1100);

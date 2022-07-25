@@ -40,7 +40,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.placeholder = val;
   }
   /**
-   * The input place holder.
+   * A text displayed in the input field when it doesn't have a value.
    */
   public get placeholder() {
     return this.getLocalizableStringText("placeholder");
@@ -132,19 +132,24 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   /**
- * Use it to clear the question value.
- */
-  @property({ defaultValue: false }) allowClear: boolean;
+   * Specifies whether to display a button that clears the selected value.
+   */
+  @property({ defaultValue: true }) allowClear: boolean;
+  /**
+   * The name of a component used to render drop-down menu items.
+   */
   @property() itemComponent: string;
+  /**
+   * Specifies whether to display a search bar in the drop-down menu.
+   */
   @property({
-    defaultValue: false,
+    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
-        const listModel = target.popupModel.contentComponentData.model as ListModel;
-        listModel.denySearch = newValue;
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
-  }) denySearch: boolean;
+  }) searchEnabled: boolean;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -201,7 +206,7 @@ Serializer.addClass(
     { name: "choicesStep:number", default: 1, minValue: 1 },
     { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
-    { name: "denySearch:boolean", default: false, visible: false },
+    { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "itemComponent", visible: false },
   ],
   function () {

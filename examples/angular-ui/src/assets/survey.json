@@ -1,0 +1,273 @@
+{
+  "showProgressBar": "top",
+  "title": "Survey New Design Test",
+  "description": "This is the survey shown via survey-angular-ui module.",
+  "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+  "logoPosition": "left",
+  "widthMode": "static",
+  "pages": [
+    {
+      "name": "page1",
+      "title": "Page 1 Title",
+      "description": "This is the first page of test survey shown via survey-angular-ui module.",
+      "questions": [
+        {
+          "type": "multipletext",
+          "name": "pricelimit",
+          "title": "What is the... ",
+          "items": [
+            {
+              "name": "mostamount",
+              "title": "Most amount you would every pay for a product like ours"
+            }, {
+              "name": "leastamount",
+              "title": "The least amount you would feel comfortable paying"
+            }
+          ]
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature",
+          "isRequired": true,
+          "title": "Please sign your answers here"
+        },
+        {
+          "type": "file",
+          "title": "Please upload your photo",
+          "name": "image",
+          "showPreview": true,
+          "imageWidth": 150
+        },
+        {
+          "type": "matrix",
+          "name": "Quality",
+          "title": "Please indicate if you agree or disagree with the following statements",
+          "columns": [
+            {
+              "value": 1,
+              "text": "Strongly Disagree"
+            },
+            {
+              "value": 2,
+              "text": "Disagree"
+            },
+            {
+              "value": 3,
+              "text": "Neutral"
+            },
+            {
+              "value": 4,
+              "text": "Agree"
+            }, {
+              "value": 5,
+              "text": "Strongly Agree"
+            }
+          ],
+          "rows": [
+            {
+              "value": "affordable",
+              "text": "Product is affordable"
+            }, {
+              "value": "does what it claims",
+              "text": "Product does what it claims"
+            }, {
+              "value": "better then others",
+              "text": "Product is better than other products on the market"
+            }, {
+              "value": "easy to use",
+              "text": "Product is easy to use"
+            }
+          ]
+        },
+        {
+          "type": "rating",
+          "name": "satisfaction",
+          "title": "How satisfied are you with the Product?",
+          "mininumRateDescription": "Not Satisfied",
+          "maximumRateDescription": "Completely satisfied"
+        },
+        {
+          "type": "panel",
+          "innerIndent": 1,
+          "name": "panel1",
+          "title": "Please, help us improve our product",
+          "visibleIf": "{satisfaction} < 3",
+          "elements": [
+            {
+              "type": "checkbox",
+              "isRequired": true,
+              "choices": [
+                {
+                  "value": "1",
+                  "text": "Customer relationship"
+                },
+                {
+                  "value": "2",
+                  "text": "Service quality"
+                },
+                {
+                  "value": "3",
+                  "text": "Support response time"
+                }
+              ],
+              "name": "What should be improved?"
+            },
+            {
+              "type": "comment",
+              "name": "suggestions",
+              "title": "What would make you more satisfied with the Product?"
+            },
+            {
+              "type": "panel",
+              "innerIndent": 1,
+              "name": "panel2",
+              "title": "Send us your contact information (optionally)",
+              "state": "collapsed",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "title": "Name:"
+                },
+                {
+                  "type": "text",
+                  "inputType": "email",
+                  "name": "email",
+                  "title": "E-mail"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "imagepicker",
+          "name": "choosepicture",
+          "title": "What animal would you like to see first ?",
+          "choices": [
+            {
+              "value": "lion"
+            },
+            {
+              "value": "giraffe",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            },
+            {
+              "value": "panda",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+            },
+            {
+              "value": "camel",
+              "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+            }
+          ]
+        },
+        {
+          "type": "boolean",
+          "name": "boolean",
+          "labelTrue": "fewfewfwefwfqfewqfwqefwe",
+          "labelFalse": "fewfewfwefwfqfewqfwqefwe"
+        },
+        {
+          "type": "rating",
+          "name": "nps_score",
+          "title": "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+          "isRequired": true,
+          "rateMin": 0,
+          "rateMax": 10,
+          "minRateDescription": "(Most unlikely)",
+          "maxRateDescription": "(Most likely)"
+        },
+        {
+          "name": "dropdownRenderAs",
+          "type": "dropdown",
+          "title": "Choose an item RenderAs",
+          "renderAs": "select",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        {
+          "name": "dropdown",
+          "type": "dropdown",
+          "title": "Choose an item dropdown",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        {
+          "name": "radiogroup",
+          "type": "radiogroup",
+          "title": "Choose an item",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "title": "Text",
+          "enableIf": "{radiogroup} == 'item1'",
+          "placeHolder": "Jon Snow"
+        },
+        {
+          "name": "birthdate",
+          "type": "text",
+          "inputType": "date",
+          "title": "Text Date"
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "inputType": "color",
+          "title": "Text Color"
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "visibleIf": "{radiogroup} == 'item1'",
+          "inputType": "email",
+          "title": "Text Email",
+          "placeHolder": "jon.snow@nightwatch.org",
+          "validators": [
+            {
+              "type": "email"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "page2",
+      "title": "Page 2",
+      "questions": [
+        {
+          "name": "checkbox",
+          "type": "checkbox",
+          "title": "Choose item(s)",
+          "choices": [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        {
+          "name": "surname",
+          "type": "text",
+          "title": "Surname",
+          "placeHolder": "Snow"
+        },
+        {
+          "name": "signature",
+          "type": "signaturepad",
+          "title": "Sign here"
+        }
+      ]
+    }
+  ]
+}

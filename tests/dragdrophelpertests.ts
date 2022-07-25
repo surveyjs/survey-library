@@ -459,3 +459,44 @@ QUnit.test("DragDrop shortcutCoordinates", function (assert) {
   const shortcutBottomCoordinate = dnd["getShortcutBottomCoordinate"](currentYCoordinate, shortcutHeight, shortcutYOffset);
   assert.equal(shortcutBottomCoordinate, 10 + 10 - 5);
 });
+
+QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "paneldynamic1",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "text1"
+              },
+              {
+                "type": "text",
+                "name": "text2",
+                "startWithNewLine": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+
+  const paneldynamic1 = survey.getQuestionByName("paneldynamic1");
+  const text1 = paneldynamic1.template.elements[0];
+  const text2 = paneldynamic1.template.elements[1];
+
+  const ddHelper: any = new DragDropSurveyElements(<any>survey);
+  ddHelper.isEdge = true;
+  ddHelper.draggedElement = text1;
+  ddHelper.dropTarget = text2;
+
+  assert.equal(ddHelper["calcTargetRowMultiple"](), true);
+});

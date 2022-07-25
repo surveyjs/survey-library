@@ -1,0 +1,36 @@
+<div [class]="model.css.progressButtonsContainerCenter">
+  <div [class]="model.css.progressButtonsContainer">
+    <div
+      [class]="getScrollButtonCss(true)"
+      (click)="clickScrollButton(true)"
+      role="button"
+    ></div>
+    <div
+      [class]="model.css.progressButtonsListContainer" #progressButtonsListContainer>
+      <ul [class]="model.css.progressButtonsList">
+        <li
+          *ngFor="let page of model.visiblePages; index as index"
+          [class]="getListElementCss(index)"
+          (click)="isListElementClickable(index) ? clickListElement(index) : null">
+          <div
+            [class]="model.css.progressButtonsPageTitle"
+            [title]="page.locNavigationTitle.renderedHtml || page.name"
+          >
+            {{ page.locNavigationTitle.renderedHtml || page.name }}
+          </div>
+          <div
+            [class]="model.css.progressButtonsPageDescription"
+            [title]="page.locNavigationDescription.renderedHtml"
+          >
+            {{ page.locNavigationDescription.renderedHtml }}
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div
+      [class]="getScrollButtonCss(false)"
+      (click)="clickScrollButton(false)"
+      role="button"
+    ></div>
+  </div>
+</div>

@@ -4,7 +4,7 @@ $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
-$background-semitransparent: var(--background-semitransparent,rgba(144, 144, 144, 0.5));
+$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
 $foreground: var(--foreground, #161616);
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
@@ -27,7 +27,7 @@ sv-popup {
   width: 100vw;
   height: 100vh;
   outline: none;
-  z-index: 2;
+  z-index: 1500;
 }
 
 .sv-popup__container {

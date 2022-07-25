@@ -99,6 +99,9 @@ export class QuestionTextBase extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
+  public get ariaRole(): string {
+    return "textbox";
+  }
 }
 Serializer.addClass(
   "textbase",

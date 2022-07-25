@@ -12,13 +12,13 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
 
   protected abstract getModel(): T;
   protected previousModel?: T;
-  private needUpdateModel: boolean = false;
+  private isModelSubsribed: boolean = false;
 
   public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
       this.unMakeBaseElementAngular(this.previousModel);
       this.previousModel = this.getModel();
-      this.needUpdateModel = true;
+      this.makeBaseElementAngular(this.getModel());
       this.onModelChanged();
     }
     this.beforeUpdate();
@@ -42,7 +42,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   private makeBaseElementAngular(stateElement: T) {
-    if(!!stateElement) {
+    if(!!stateElement && !(<any>stateElement).__ngImplemented) {
+      this.isModelSubsribed = true;
+      (<any>stateElement).__ngImplemented = true;
       stateElement.iteratePropertiesHash((hash, key) => {
         var val: any = hash[key];
         if (Array.isArray(val)) {
@@ -65,8 +67,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
-    if(!!stateElement) {
-      (<any>stateElement);
+    if(!!stateElement && this.isModelSubsribed) {
+      this.isModelSubsribed = false;
+      (<any>stateElement).__ngImplemented = false;
       stateElement.setPropertyValueCoreHandler = <any>undefined;
       stateElement.iteratePropertiesHash((hash, key) => {
         var val: any = hash[key];
@@ -100,10 +103,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {
-    if(this.needUpdateModel) {
-      this.makeBaseElementAngular(this.getModel());
-      this.needUpdateModel = false;
-    }
     this.afterUpdate();
   }
 }

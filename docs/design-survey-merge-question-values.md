@@ -1,8 +1,8 @@
 # Merge Question Values
 
-You can merge values from multiple questions into a single array or object. This functionality enables you to split complex forms into connected parts. For example, you can create a form in which users enter a list of employees in one question and fill out details about them in another question. If you associate the questions with each other, their values will be merged into a single array.
+You can merge values from multiple questions into a single array or object. This functionality enables you to split complex forms into connected parts. For example, you can create a form where users enter a list of employees in one question and fill out details about them in another question. If you associate the questions with each other, their values will be merged into a single array.
 
-To associate two questions, assign the `name` value of a main question to the `valueName` property of other questions. For example, the following code associates a [Matrix Dynamic](https://surveyjs.io/Documentation/Library?id=questionmatrixdynamicmodel) with a [Panel Dynamic](https://surveyjs.io/Documentation/Library?id=questionpaneldynamicmodel). Together they produce an `employees` array of objects. The Matrix Dynamic supplies the `employess-name` field values; the Panel Dynamic supplies the `address` and `phone` field values. 
+To associate two questions, assign the `name` value of a main question to the `valueName` property of other questions. For example, the following code associates a [Matrix Dynamic](https://surveyjs.io/Documentation/Library?id=questionmatrixdynamicmodel) with a [Panel Dynamic](https://surveyjs.io/Documentation/Library?id=questionpaneldynamicmodel). Together they produce an `employees` array of objects. The Matrix Dynamic supplies the `employees-name` field values; the Panel Dynamic supplies the `address` and `phone` field values. 
 
 ```js
 const surveyJson = {

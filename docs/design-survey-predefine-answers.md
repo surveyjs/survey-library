@@ -1,6 +1,6 @@
 # Predefine Answers
 
-You can set a question's [`defaultValue`](https://surveyjs.io/Documentation/Library?id=Question#defaultValue) that will be used until a proper [`value`](https://surveyjs.io/Documentation/Library?id=Question#value) is not specified by a user or programmatically. If the proper `value` is never specified, the `defaultValue` is saved in the survey results.
+You can set a question's [`defaultValue`](https://surveyjs.io/Documentation/Library?id=Question#defaultValue) that will be used until a proper [`value`](https://surveyjs.io/Documentation/Library?id=Question#value) is specified by a user or programmatically. If the proper `value` is never specified, the `defaultValue` is saved in the survey results.
 
 ```js
 const surveyJson = {

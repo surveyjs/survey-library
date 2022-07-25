@@ -112,7 +112,7 @@ To configure a calculated value, define the [`calculatedValues`](https://surveyj
 
 - `name` - A name that identifies the calculated value.
 - `expression` - An expression that returns the calculated value.
-- `includeIntoResult` - A Boolean property that specifies whether to include the calculated value into survey results.
+- `includeIntoResult` - A Boolean property that specifies whether to include the calculated value in survey results.
 
 The following code shows how to calculate a full name value based on the first and last names:
 
@@ -483,7 +483,7 @@ function asyncFunc(params: any[]): any {
 }
 ```
 
-After you implement an asynchronous function, register it in the `FunctionFactory`. The third parameter specifies if this function is asynchronous: 
+After you implement an asynchronous function, register it in `FunctionFactory`. The third parameter specifies if this function is asynchronous:
 
 ```js
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
@@ -560,7 +560,7 @@ const surveyJson = {
 
 [View example](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf)
 
-This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use a technique described in the next topic.
+This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use the technique described in the next topic.
 
 #### Combine Visibility Conditions
 
@@ -686,6 +686,6 @@ const surveyJson = {
 
 ### `runexpression`
 
-If the `expression` is `true`, runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
+If the `expression` is `true`, the trigger runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
 
 [View the "Run Expression Trigger" example](https://surveyjs.io/Examples/Library?id=trigger-runexpression)

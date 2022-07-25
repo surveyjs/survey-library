@@ -182,19 +182,19 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget(
     {
-      name: "tagbox",
+      name: "tagbox2",
       isFit: (question) => {
-        return question.getType() === "tagbox";
+        return question.getType() === "tagbox2";
       },
     }
   );
-  if (!Serializer.findClass("tagbox")) {
-    Serializer.addClass("tagbox", [], null, "text");
+  if (!Serializer.findClass("tagbox2")) {
+    Serializer.addClass("tagbox2", [], null, "text");
   }
   const survey = new SurveyModel({
     elements: [
       {
-        type: "tagbox",
+        type: "tagbox2",
         name: "q1"
       },
       {
@@ -203,7 +203,7 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
         "columns": [
           {
             "name": "subjects",
-            "cellType": "tagbox",
+            "cellType": "tagbox2",
             "isRequired": true,
             "choices": [1, 2, 3]
           }

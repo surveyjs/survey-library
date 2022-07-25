@@ -134,7 +134,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: false }) allowClear: boolean;
+  @property({ defaultValue: true }) allowClear: boolean;
   /**
    * The name of a component used to render drop-down menu items.
    */
@@ -145,9 +145,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property({
     defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.popupModel && target.popupModel.contentComponentData.model instanceof ListModel) {
-        const listModel = target.popupModel.contentComponentData.model as ListModel;
-        listModel.searchEnabled = newValue;
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
   }) searchEnabled: boolean;

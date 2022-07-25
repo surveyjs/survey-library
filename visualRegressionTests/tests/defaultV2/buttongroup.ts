@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
   test("Check dropdown question", async (t) => {
     await t.resizeWindow(1920, 1080);
     await registerButtongroup(framework);
-    if (framework === "vue") {
+    if (framework === "vue" || framework === "angular") {
       return;
     }
     await initSurvey(framework, {

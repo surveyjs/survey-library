@@ -1,9 +1,10 @@
 import { settings } from "../../src/settings";
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 export * from "./etalon_image";
 export * from "./etalon_text";
 export * from "./etalon_dropdown";
+export * from "./etalon_tagbox";
 export * from "./etalon_checkbox";
 export * from "./etalon_radiogroup";
 export * from "./etalon_imagepicker";

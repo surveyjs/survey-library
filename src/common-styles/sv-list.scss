@@ -34,7 +34,8 @@ $base-unit: var(--base-unit, 8px);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: $background-dim;
     outline: none;
   }
@@ -66,12 +67,8 @@ $base-unit: var(--base-unit, 8px);
     fill: $background;
   }
 }
-.sv-list__item--disabled {
+.sv-list__item.sv-list__item--disabled {
   cursor: default;
-  pointer-events: none;
-}
-
-.sv-list__item--disabled span {
   color: $foreground-light;
 }
 

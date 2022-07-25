@@ -11,7 +11,7 @@
 }
 .sd-table--alternate-rows {
   .sd-table__row:nth-child(odd) {
-    &> td, td:first-child {
+    &> td, td:first-of-type {
       background-color: $background-dim-light;
       .sd-input, .sd-item__decorator {
         background-color: $primary-foreground;
@@ -108,10 +108,10 @@
   position: sticky;
   background: $background;
   z-index: 12;
-  &:first-child {
+  &:first-of-type {
     left: calcSize(-1);
   }
-  &:last-child {
+  &:last-of-type {
     right: calcSize(-1);
   }
 }
@@ -198,6 +198,7 @@
       padding-bottom: calcSize(1);
     }
   }
+  
   .sd-table thead {
     display: none;
   }
@@ -237,7 +238,7 @@
     padding-top: 0;
     padding-bottom: 0;
   }
-  .sd-table__cell:not(.sd-matrix__cell):not(:first-child) {
+  .sd-table__cell:not(.sd-matrix__cell):not(:first-of-type) {
     margin-top: calcSize(1);
   }
   .sd-table__cell:not(.sd-matrix__cell):not(.sd-table__cell--actions):not(.sd-table__cell--row-text) {

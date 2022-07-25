@@ -1,0 +1,2 @@
+<span *ngIf="!model.hasHtml" class="sv-string-viewer">{{model.renderedHtml}}</span>
+<span *ngIf="model.hasHtml" class="sv-string-viewer" [innerHtml]="model.renderedHtml"></span>

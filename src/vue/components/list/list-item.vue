@@ -7,7 +7,7 @@
     :style="{ paddingLeft: model.getItemIndent(item) }"
     :key="item.id"
     v-bind:class="model.getItemClass(item)"
-    v-on:click="model.selectItem(item)"
+    v-on:click="click"
     v-on:keyup="keyUp"
   >
     <sv-svg-icon
@@ -43,6 +43,10 @@ export class ListItem extends BaseVue {
   }
   public keyUp(event: any) {
     attachKey2click(event);
+  }
+  public click(event: any) {
+    this.model.onItemClick(this.item as any);
+    event.stopPropagation();
   }
 }
 

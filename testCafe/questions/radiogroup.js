@@ -183,7 +183,7 @@ frameworks.forEach(framework => {
     const isCheckedClassExistsByIndex = ClientFunction(index =>
       document
         .querySelector(
-          `fieldset .sv_q_select_column:nth-child(3) div:nth-child(${index})`
+          `fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(${index})`
         )
         .classList.contains("checked")
     );
@@ -192,14 +192,14 @@ frameworks.forEach(framework => {
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      "fieldset .sv_q_select_column:nth-child(3) div:nth-child(2) label input"
+      "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(2) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
     await t.click(
-      "fieldset .sv_q_select_column:nth-child(3) div:nth-child(3) label input"
+      "fieldset .sv_q_select_column:nth-child(3) div:nth-of-type(3) label input"
     );
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);

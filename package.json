@@ -43,6 +43,8 @@
     "build_vue": "npm run build_vue_dev && npm run build_vue_prod",
     "build_vue_ui": "webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType prod",
     "build_core": "npm run build_core_dev && npm run build_core_prod",
+    "build-core-typings:linux": "tsc --p tsconfig.typing.json && echo \"declare module 'survey-core' { import main = require('entries/core'); export = main; }\" >> build/survey-core/survey.core.d.ts",
+    "build-core-typings:windows": "tsc --p tsconfig.typing.json && echo declare module 'survey-core' { import main = require('entries/core'); export = main; } >> build/survey-core/survey.core.d.ts",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
@@ -67,15 +69,29 @@
     "visual-regression-tests": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard",
     "visual-regression-tests:ci:knockout": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=knockout",
+    "visual-regression-tests:ci:angular": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
+    "visual-regression-tests:angular": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
     "visual-regression-tests:ci:react": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=react",
     "visual-regression-tests:ci:vue": "testcafe -c 4 -q chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal,dashboard --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "testcafe:angular": "testcafe -c 4 -q chrome testCafe/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal,dashboard --env=angular",
+    "testcafe:ci:angular": "testcafe -c 4 -q chrome:headless testCafe/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.40",
+  "version": "1.9.41",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@angular-devkit/build-angular": "~13.0.0",
+    "@angular/cli": "~13.0.0",
+    "@angular/common": "~13.0.0",
+    "@angular/compiler": "~13.0.0",
+    "@angular/compiler-cli": "~13.0.0",
+    "@angular/core": "~13.0.0",
+    "@angular/forms": "~13.0.0",
+    "@angular/platform-browser": "~13.0.0",
+    "@angular/platform-browser-dynamic": "~13.0.0",
+    "@angular/cdk": "~13.0.0",
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",
     "@types/jest": "23.3.3",
@@ -122,13 +138,16 @@
     "madge": "^4.0.2",
     "mini-css-extract-plugin": "^0.9.0",
     "minimist": "^1.2.5",
+    "ng-packagr": "^13.0.0",
     "node-uuid": "^1.4.8",
+    "postcss": "^8.4.0",
     "puppeteer": "^1.19.0",
     "qunit": "2.14.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "replace-in-file": "^3.4.3",
     "rimraf": "2.5.4",
+    "rxjs": "~6.6.0",
     "sass": "^1",
     "sass-loader": "^8.0.2",
     "standard-version": "^8.0.1",
@@ -156,7 +175,8 @@
     "webpack-dev-server": "^3.11.0",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.7.3",
-    "webpack-svgstore-plugin": "4.0.1"
+    "webpack-svgstore-plugin": "4.0.1",
+    "zone.js": "~0.11.4"
   },
   "overrides": {
     "karma-webpack": {
@@ -169,6 +189,7 @@
     }
   },
   "dependencies": {
-    "signature_pad": "^2.3.2"
+    "signature_pad": "^2.3.2",
+    "testcafe-angular-selectors": "^0.4.1"
   }
 }

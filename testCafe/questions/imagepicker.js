@@ -46,10 +46,10 @@ frameworks.forEach(framework => {
 
   test("check integrity", async t => {
     await t
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(2)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(4)")
-      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-child(5)");
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(1)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(2)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(3)")
+      .hover("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(4)");
   });
 
   test("choose empty", async t => {
@@ -60,7 +60,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click("fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)")
+      .click("fieldset.sv_imgsel .sv_q_imgsel:nth-of-type(2)")
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();

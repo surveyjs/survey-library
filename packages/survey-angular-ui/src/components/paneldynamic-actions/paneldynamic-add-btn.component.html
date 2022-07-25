@@ -1,0 +1,3 @@
+<button type="button" *ngIf="question.canAddPanel" [class]="question.getAddButtonCss()" (click)="addPanelClick()">
+<span [class]="question.cssClasses.buttonAddText">{{question.panelAddText}}</span>
+</button>

@@ -357,7 +357,7 @@ export class StylesManager {
     //eo button-group
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
-    ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none; z-index: 2;",
+    ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none; z-index: 1500;",
     ".sv-popup__container": "filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); position: absolute; padding: 0;",
     ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
     ".sv-popup--modal": "display: flex; align-items: center; justify-content: center;",
@@ -408,7 +408,7 @@ export class StylesManager {
       "background-color: var(--background-dim, #f3f3f3);",
     ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
-    ".sv-list__item--disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default; pointer-events: none;",
+    ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
     ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff);",

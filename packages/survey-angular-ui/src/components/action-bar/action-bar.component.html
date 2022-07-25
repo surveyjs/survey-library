@@ -1,0 +1,7 @@
+<ng-template #template>
+  <div *ngIf="model.hasActions" [class]="model.getRootCss()" (click)="onClick($event)" #container>
+    <ng-container *ngFor="let action of model.renderedActions">
+      <sv-ng-action [model]="action"></sv-ng-action>
+    </ng-container>
+  </div>
+</ng-template>

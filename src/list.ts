@@ -6,11 +6,11 @@ import { ElementHelper } from "./element-helper";
 
 export class ListModel extends ActionContainer {
   @property({
-    defaultValue: false,
+    defaultValue: true,
     onSet: (newValue: boolean, target: ListModel) => {
       target.onSet();
     }
-  }) denySearch: boolean;
+  }) searchEnabled: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property() selectedItem: IAction;
@@ -41,24 +41,34 @@ export class ListModel extends ActionContainer {
     }
   }
 
-  constructor(items: Array<IAction>, public onItemSelect: (item: Action) => void, public allowSelection: boolean, selectedItem?: IAction, private onFilteredTextChangedCallback?: (text: string) => void) {
+  constructor(
+    items: Array<IAction>,
+    public onSelectionChanged: (item: Action, ...params: any[]) => void,
+    public allowSelection: boolean,
+    selectedItem?: IAction,
+    private onFilteredTextChangedCallback?: (text: string) => void
+  ) {
     super();
     this.setItems(items);
     this.selectedItem = selectedItem;
   }
 
   protected onSet(): void {
-    this.needFilter = !this.denySearch && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 
-  public selectItem = (itemValue: Action) => {
+  public onItemClick = (itemValue: Action) => {
+    if(this.isItemDisabled(itemValue)) {
+      return;
+    }
+
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
     }
-    if (!!this.onItemSelect) {
-      this.onItemSelect(itemValue);
+    if (!!this.onSelectionChanged) {
+      this.onSelectionChanged(itemValue);
     }
   };
 
@@ -74,7 +84,7 @@ export class ListModel extends ActionContainer {
     return new CssClassBuilder()
       .append("sv-list__item")
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
-      .append("sv-list__item--selected", this.isItemSelected(itemValue))
+      .append("sv-list__item--selected", itemValue.active || this.isItemSelected(itemValue))
       .toString();
   };
 

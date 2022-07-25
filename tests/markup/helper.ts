@@ -89,119 +89,117 @@ export function testQuestionMarkup(assert, test, platform) {
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
-    var all = options.htmlElement.getElementsByTagName("*");
-    for (var i = 0, max = all.length; i < max; i++) {
-      all[i].removeAttribute("aria-labelledby");
-      all[i].removeAttribute("data-bind");
-      all[i].removeAttribute("data-key");
-      all[i].removeAttribute("data-rendered");
-      all[i].removeAttribute("id");
-      all[i].removeAttribute("aria-describedby");
-      all[i].removeAttribute("for");
-      if(all[i].getAttribute("list")) all[i].removeAttribute("list");
-      all[i].removeAttribute("fragment");
-      if(all[i].getAttribute("name") !== "name")
-        all[i].removeAttribute("name");
-      if(all[i].checked) {
-        all[i].setAttribute("checked", "");
+    setTimeout(()=>{
+      const htmlElement = options.htmlElement;
+      var all = htmlElement.getElementsByTagName("*");
+      for (var i = 0, max = all.length; i < max; i++) {
+        clearAttributes(all[i]);
+        clearClasses(all[i]);
       }
-      if(all[i].multiple) {
-        all[i].setAttribute("multiple", "");
+      sortAttributes(all);
+      const newEl = document.createElement("div");
+      newEl.innerHTML = crearExtraElements(htmlElement.innerHTML);
+      let str = newEl.children[0].innerHTML;
+
+      var re = /(<!--[\s\S]*?-->)/g;
+      var newstr = str.replace(re, "");
+      newstr = newstr.replace(/(>\s+<)/g, "><").trim();
+      var oldStr = test.etalon || !test.etalon && platform.getStrFromHtml(test.snapshot);
+      oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
+      oldStr = oldStr.replace(/(> +<)/g, "><").trim();
+
+      //temp
+      newstr = sortClasses(newstr);
+      oldStr = sortClasses(oldStr);
+      newstr = sortInlineStyles(newstr);
+      oldStr = sortInlineStyles(oldStr);
+
+      assert.equal(newstr, oldStr,
+        newstr == oldStr ?
+          platform.name + " " + test.name + " rendered correctly" :
+          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
+      if (test.after) { test.after(); }
+      if(platform.finish)
+        platform.finish(surveyElement);
+      if(newstr != oldStr) {
+        var form =document.createElement("form");
+        form.action = "https://text-compare.com/";
+        form.target = "_blank";
+        form.method = "post";
+        form.id = test.snapshot;
+        reportElement.appendChild(form);
+
+        var testTitle = document.createElement("h1");
+        testTitle.innerText = test.name+" ("+test.snapshot+")";
+        form.appendChild(testTitle);
+
+        var table = document.createElement("table");
+        form.appendChild(table);
+        var tableRow = document.createElement("tr");
+        table.appendChild(tableRow);
+        var tableCell1 = document.createElement("td");
+        var tableCell2 = document.createElement("td");
+        var tableCell3 = document.createElement("td");
+        tableRow.appendChild(tableCell1);
+        tableRow.appendChild(tableCell2);
+        tableRow.appendChild(tableCell3);
+
+        var caption = document.createElement("h2");
+        caption.innerText = "Expected:";
+        tableCell1.appendChild(caption);
+        var preEl = document.createElement("textarea");
+        preEl.value = format(oldStr);
+        preEl.name = "text1";
+        tableCell1.appendChild(preEl);
+
+        var caption2 = document.createElement("h2");
+        caption2.innerText = "Actual:";
+        tableCell2.appendChild(caption2);
+        var preEl2 = document.createElement("textarea");
+        preEl2.value = format(newstr);
+        preEl2.name = "text2";
+        tableCell2.appendChild(preEl2);
+
+        var caption3 = document.createElement("h2");
+        caption3.innerText = "Do:";
+        tableCell3.appendChild(caption3);
+        var submit = document.createElement("button");
+        submit.innerText = "Compare on https://text-compare.com/";
+        tableCell3.appendChild(submit);
+        tableCell3.appendChild(document.createElement("br"));
+
+        var download = document.createElement("a");
+        download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
+        download.setAttribute("download", test.snapshot+".snap.html");
+        download.innerText = "Download snapshot";
+        tableCell3.appendChild(download);
       }
-      if(all[i].hasAttribute("readonly"))
-        all[i].setAttribute("readonly", "");
-    }
-    sortAttributes(all);
-    var str = options.htmlElement.children[0].innerHTML;
-    str = clearVueDiv(str);
-    var re = /(<!--.*?-->)/g;
-    var newstr = str.replace(re, "");
-    newstr = newstr.replace(/(\r\n|\n|\r)/gm, "");
-    newstr = newstr.replace(/(> +<)/g, "><").trim();
-    var oldStr = test.etalon || !test.etalon && require("./snapshots/"+test.snapshot+".snap.html");
-    oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
-    oldStr = oldStr.replace(/(> +<)/g, "><").trim();
-
-    assert.equal(newstr, oldStr,
-      newstr == oldStr ?
-        platform.name + " " + test.name + " rendered correctly" :
-        platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
-    if (test.after)
-      test.after();
-    if(platform.finish)
-      platform.finish(surveyElement);
-    if(newstr != oldStr) {
-      var form =document.createElement("form");
-      form.action = "https://text-compare.com/";
-      form.target = "_blank";
-      form.method = "post";
-      form.id = test.snapshot;
-      reportElement.appendChild(form);
-
-      var testTitle = document.createElement("h1");
-      testTitle.innerText = test.name+" ("+test.snapshot+")";
-      form.appendChild(testTitle);
-
-      var table = document.createElement("table");
-      form.appendChild(table);
-      var tableRow = document.createElement("tr");
-      table.appendChild(tableRow);
-      var tableCell1 = document.createElement("td");
-      var tableCell2 = document.createElement("td");
-      var tableCell3 = document.createElement("td");
-      tableRow.appendChild(tableCell1);
-      tableRow.appendChild(tableCell2);
-      tableRow.appendChild(tableCell3);
-
-      var caption = document.createElement("h2");
-      caption.innerText = "Expected:";
-      tableCell1.appendChild(caption);
-      var preEl = document.createElement("textarea");
-      preEl.value = format(oldStr);
-      preEl.name = "text1";
-      tableCell1.appendChild(preEl);
-
-      var caption2 = document.createElement("h2");
-      caption2.innerText = "Actual:";
-      tableCell2.appendChild(caption2);
-      var preEl2 = document.createElement("textarea");
-      preEl2.value = format(newstr);
-      preEl2.name = "text2";
-      tableCell2.appendChild(preEl2);
-
-      var caption3 = document.createElement("h2");
-      caption3.innerText = "Do:";
-      tableCell3.appendChild(caption3);
-      var submit = document.createElement("button");
-      submit.innerText = "Compare on https://text-compare.com/";
-      tableCell3.appendChild(submit);
-      tableCell3.appendChild(document.createElement("br"));
-
-      var download = document.createElement("a");
-      download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
-      download.setAttribute("download", test.snapshot+".snap.html");
-      download.innerText = "Download snapshot";
-      tableCell3.appendChild(download);
-    }
-
-    done();
+      done();
+    }, 10);
   });
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
 }
 
-function clearVueDiv(innerHtml: string): string {
+const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
+  (htmlElement: HTMLElement) => htmlElement.classList.contains("sv-vue-title-additional-div"),
+  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
+];
+
+function crearExtraElements(innerHTML: string): string {
   const container = document.createElement("div");
-  container.innerHTML = innerHtml;
-  container.querySelectorAll(".sv-vue-title-additional-div").forEach(el => {
-    removeVueAdditionalDiv(<HTMLElement>el);
+  container.innerHTML = innerHTML;
+  container.querySelectorAll("*").forEach((el)=>{
+    if(removeExtraElementsConditions.some(condition => condition(<HTMLElement>el))) {
+      removeExtraElement(<HTMLElement>el);
+    }
   });
   return container.innerHTML;
 }
 
-function removeVueAdditionalDiv(el: HTMLElement) {
-  const parentEl = el.parentElement;
+function removeExtraElement(el: HTMLElement) {
+  const parentEl = el.parentElement || el;
   let nextSibling:any = el.nextSibling;
   el.remove();
   while (el.children.length > 0) {
@@ -209,4 +207,79 @@ function removeVueAdditionalDiv(el: HTMLElement) {
     parentEl.insertBefore(el.children[el.children.length - 1], nextSibling);
     nextSibling = childEl;
   }
+}
+
+function clearClasses(el: Element) {
+  let classesToRemove: Array<string> = [];
+  if(el.className !== "") {
+    el.classList.forEach((className: string) => {
+      if(className.search(/^ng-/) > -1) {
+        classesToRemove.push(className);
+      }
+    });
+    el.classList.remove(...classesToRemove);
+    if(el.className === "") {
+      el.removeAttribute("class");
+    }
+  }
+}
+
+function clearAttributes(el: Element) {
+  el.removeAttribute("aria-labelledby");
+  el.removeAttribute("data-bind");
+  el.removeAttribute("data-key");
+  el.removeAttribute("data-rendered");
+  el.removeAttribute("id");
+  el.removeAttribute("aria-describedby");
+  el.removeAttribute("for");
+  if(el.getAttribute("list")) el.removeAttribute("list");
+  el.removeAttribute("fragment");
+  if(el.getAttribute("name") !== "name")
+    el.removeAttribute("name");
+  if((<any>el).checked) {
+    el.setAttribute("checked", "");
+  }
+  if((<any>el).multiple) {
+    el.setAttribute("multiple", "");
+  }
+  if(el.hasAttribute("readonly"))
+    el.setAttribute("readonly", "");
+  if(el.hasAttribute("ng-reflect-value")) {
+    el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
+  }
+
+  const attributesToRemove = [];
+  for (let i = 0; i < el.attributes.length; i ++) {
+    const attr = el.attributes[i];
+    if (attr.name.search(/^(_ng|ng-|sv-ng)/) > -1) {
+      attributesToRemove.push(el.attributes[i].name);
+    }
+  }
+  attributesToRemove.forEach((attr) => {
+    el.removeAttribute(attr);
+  });
+}
+
+function sortClasses(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    if(el.className !== "") {
+      const classList = el.classList.value.replace(/\s+/, " ").split(" ");
+      el.classList.value = classList.sort((a: string, b: string) => a.localeCompare(b)).join(" ");
+    }
+  });
+  return div.innerHTML;
+}
+
+function sortInlineStyles(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    if(!!el.getAttribute("style")) {
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/\s+/, " ").split(" ");
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).join(" "));
+    }
+  });
+  return div.innerHTML;
 }

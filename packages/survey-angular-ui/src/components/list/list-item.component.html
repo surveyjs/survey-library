@@ -1,0 +1,7 @@
+<ng-container *ngIf="!model.component">
+<svg *ngIf="model.iconName" class="sv-list__model-icon" [iconName]="model.iconName" [size]="24" sv-ng-svg-icon></svg>
+<span>{{ model.title }}</span>
+</ng-container>
+<ng-container *ngIf="model.component">
+  <ng-template [component]="{ name: model.component, data: { model: model } }"></ng-template>
+</ng-container>

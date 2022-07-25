@@ -78,6 +78,7 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1920);
     const paneldynamicRoot = Selector(".sd-question--paneldynamic");
     await ClientFunction(() => {
+      document.body.focus();
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
     await checkElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t);

@@ -8,7 +8,7 @@ You can specify the [`title`](https://surveyjs.io/Documentation/Library?id=Quest
 
 ## Question Numbers
 
-Questions are numbered starting with 1. If you want to start numbering with a different number or use letters instead, specify the Survey's [`questionStartIndex`](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property. You can include desired prefixes and postfixes into the property value:
+Questions are numbered starting with 1. If you want to start numbering with a different number or use letters instead, specify the Survey's [`questionStartIndex`](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property. You can include desired prefixes and postfixes in the property value:
 
 ```js
 const surveyJson = {

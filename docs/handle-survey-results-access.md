@@ -35,7 +35,7 @@ npsQuestion.value = 10;
 // console.log(survey.setValue("nps_score", 10));
 ```
 
-If you need to access an individual question value before or right after it is changed, handle the Survey's [`onValueChanging`](/Documentation/Library?id=surveymodel#onValueChanging) or [`onValueChanged`](/Documentation/Library?id=surveymodel#onValueChanged) events:
+If you need to access an individual question value before or immediately after it is changed, handle the Survey's [`onValueChanging`](/Documentation/Library?id=surveymodel#onValueChanging) or [`onValueChanged`](/Documentation/Library?id=surveymodel#onValueChanged) events:
 
 ```js
 survey.onValueChanging.add((survey, { name, question, oldValue, value }) => {

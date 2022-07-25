@@ -7,7 +7,7 @@ Survey results are JSON objects that you can store in your own database or in th
 
 ## Store Survey Results in Your Own Database
 
-To store survey results in your own database, handle the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event. It is raised when a user clicks the Complete button. The following code shows how to use this event to send survey results to your server:
+To store survey results in your own database, handle the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event raised in response to a click on the Complete button. The following code shows how to use this event to send survey results to your server:
 
 ```js
 import { Model } from "survey-core";
@@ -36,7 +36,7 @@ survey.onComplete.add(function (sender, options) {
 });
 ```
 
-The `onComplete` event handler only sends survey results in JSON format to your server. How you store them fully depends on your backend.
+The `onComplete` event handler only sends survey results in JSON format to your server. The way you store them fully depends on your backend.
 
 ## Store Survey Results in the SurveyJS Service
 

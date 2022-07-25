@@ -1,6 +1,6 @@
 # Continue an Incomplete Survey
 
-Your respondents may not complete your survey in a single session. In this case, you can restore their answers from the previous session the next time they get to the survey. Incomplete results can be loaded from your database or the browser's [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+Your respondents may not complete your survey in a single session. In this case, you can restore their answers from the previous session next time they get to the survey. Incomplete results can be loaded from your database or the browser's [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
 
 To save incomplete results, enable the Survey's [`sendResultOnPageNext`](/Documentation/Library?id=surveymodel#sendResultOnPageNext) property. With this setting, the Survey raises the [`onPartialSend`](/Documentation/Library?id=surveymodel#onPartialSend) event each time a respondent navigates to the next survey page. Handle this event to send incomplete results to your database or `localStorage`:
 

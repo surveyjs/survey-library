@@ -23,8 +23,7 @@ This help topic describes how to implement custom conditional logic and add dyna
 
 Survey UI texts support placeholders whose values are computed at runtime to make the texts dynamic. Placeholders can be used in the following places:
 
-- Titles of surveys, pages, panels, and questions
-- Descriptions of surveys, pages, panels, and questions
+- Titles and descriptions of surveys, pages, panels, and questions
 - Properties that accept HTML markup ([`completedHtml`](https://surveyjs.io/Documentation/Library?id=surveymodel#completedHtml), [`loadingHtml`](https://surveyjs.io/Documentation/Library?id=surveymodel#loadingHtml), etc.)
 - [Expressions](#expressions)
 
@@ -111,7 +110,7 @@ Calculated values allow you to register an [expression](#expressions) under a re
 
 To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/Documentation/Library?id=surveymodel#calculatedValues) array in the survey JSON definition. Each object in this array should contain the following fields:
 
-- `name` - A name used to identify the calculated value.
+- `name` - A name that identifies the calculated value.
 - `expression` - An expression that returns the calculated value.
 - `includeIntoResult` - A Boolean property that specifies whether to include the calculated value into survey results.
 
@@ -160,7 +159,7 @@ SurveyJS supports the following expression types:
 - **Boolean expression**    
   An expression that evaluates to `true` or `false`. Boolean expressions are widely used to implement conditional logic. Refer to the following help topic for more information: [Conditional Visibility](#conditional-visibility).
 
-Expressions can include question names, variables, and calculated values (described in the [Dynamic Texts](#dynamic-texts) section). Plus expressions can use [built-in](#built-in-functions) and [custom functions](#custom-functions).
+Expressions can include question names, variables, and calculated values (described in the [Dynamic Texts](#dynamic-texts) section). Plus, expressions can use [built-in](#built-in-functions) and [custom functions](#custom-functions).
 
 ### Built-In Functions
 
@@ -192,7 +191,7 @@ The following built-in functions are available:
 - [`avgInArray`](#avginarray)
 - [`countInArray`](#countinarray)
 
-If you do not find a needed function in the list above, you can [implement a custom function](#custom-functions) with the required functionality.
+If you do not find a required function in the list above, you can [implement a custom function](#custom-functions) with the required functionality.
 
 ---
 
@@ -335,7 +334,7 @@ Returns the minimum of passed numbers.
 
 *Definition*: `avg(par1: number, par2: number, ...): number`
 
-Returns an average of passed numbers.
+Returns the average of passed numbers.
 
 *Example*: `"expression": "avg({total1}, {total2}, {total3})"`
 
@@ -383,7 +382,7 @@ Returns the minimum of numbers in an array taken from a given question property.
 
 *Definition*: `avgInArray(questionName: expression, propertyName: string): number`
 
-Returns an average of numbers in an array taken from a given question property.
+Returns the average of numbers in an array taken from a given question property.
 
 *Example*: `"expression": "avgInArray({matrixdynamic2}, 'quantity') > 10"`
 
@@ -413,7 +412,7 @@ Your custom function must accept only one array-like parameter that will contain
 "expression": "myFunc({question1}, {question2})"
 ```
 
-However, the `myFunc` implementation must accept only one parameter&mdash;an array that contains all the arguments:
+However, the `myFunc` implementation must accept only one parameter&mdash;an array that contains all arguments:
 
 ```js
 function myFunc(params) {
@@ -454,7 +453,7 @@ FunctionFactory.Instance.register("age", age);
 
 #### Access Survey Elements Within a Custom Function
 
-You can access a [survey instance](https://surveyjs.io/Documentation/Library?id=surveymodel) via `this.survey`. A survey instance provides access to other survey elements. For example, you can design your custom function so that it accepts a survey element name as a parameter:
+You can access any survey element via a [survey instance](https://surveyjs.io/Documentation/Library?id=surveymodel). Use the `this.survey` property to get the survey instance within your custom function implementation. This property allows you to design your function so that it accepts a survey element name as a parameter:
 
 ```js
 "expression": "myFunc('questionName')"
@@ -484,7 +483,7 @@ function asyncFunc(params: any[]): any {
 }
 ```
 
-After you implement an asynchronous function, register it in the `FunctionFactory`. The third parameter specifies that this function is asynchronous: 
+After you implement an asynchronous function, register it in the `FunctionFactory`. The third parameter specifies if this function is asynchronous: 
 
 ```js
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);

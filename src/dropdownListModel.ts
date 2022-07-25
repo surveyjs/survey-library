@@ -9,27 +9,10 @@ import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/
 
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
+  protected listModel: ListModel;
 
-  private getVisibleListItems() {
-    return this.question.visibleChoices.map((choice: ItemValue) => new Action({
-      id: choice.value,
-      title: <any>new ComputedUpdater<string>(() => choice.text),
-      component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
-      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
-    }));
-  }
-
-  constructor(private question: Question) {
-    super();
-
-    const listModel = new ListModel(this.getVisibleListItems(), (item: IAction) => {
-      this.question.value = item.id;
-      this._popupModel.toggleVisibility();
-    }, true);
-    listModel.denySearch = this.question.denySearch;
-
-    this._popupModel = new PopupModel("sv-list", { model: listModel, }, "bottom", "center", false);
+  private createPopup() {
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && !!this.question.onOpenedCallBack) {
@@ -38,12 +21,43 @@ export class DropdownListModel extends Base {
     });
   }
 
+  protected getAvailableItems(): Array<Action> {
+    return this.question.visibleChoices.map((choice: ItemValue) => new Action({
+      id: choice.value,
+      title: <any>new ComputedUpdater<string>(() => choice.text),
+      component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
+      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
+    }));
+  }
+  protected createListModel(): ListModel {
+    const visibleItems = this.getAvailableItems();
+    let _onSelectionChanged = this.onSelectionChanged;
+    if(!_onSelectionChanged) {
+      _onSelectionChanged = (item: IAction) => {
+        this.question.value = item.id;
+        this._popupModel.toggleVisibility();
+      };
+    }
+    return new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+  }
+
+  constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+    super();
+    this.listModel = this.createListModel();
+    this.setSearchEnabled(this.question.denySearch);
+    this.createPopup();
+  }
+
   get popupModel(): PopupModel {
     return this._popupModel;
   }
 
+  public setSearchEnabled(newValue: boolean) {
+    this.listModel.searchEnabled = newValue;
+  }
   public updateItems() {
-    this._popupModel.contentComponentData.model.setItems(this.getVisibleListItems());
+    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
   }
 
   public onClick(event: any): void {
@@ -57,7 +71,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  onClear(event: any): void {
+  public onClear(event: any): void {
     this.question.clearValue();
     event.preventDefault();
     event.stopPropagation();

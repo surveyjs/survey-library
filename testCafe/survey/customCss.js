@@ -1,4 +1,4 @@
-import { frameworks, url, applyTheme } from "../helper";
+import { frameworks, url } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "customCss";
 const initSurvey = ClientFunction((framework, json) => {
@@ -7,13 +7,13 @@ const initSurvey = ClientFunction((framework, json) => {
 
   var model = new window["Survey"].Model(json);
 
-  model.onComplete.add(function(model) {
+  model.onComplete.add(function (model) {
     window["SurveyResult"] = model.data;
   });
 
   var myCss = {
     matrix: { root: "table table-striped" },
-    navigationButton: "button btn-lg"
+    navigationButton: "button btn-lg",
   };
 
   if (framework === "knockout") {
@@ -21,7 +21,10 @@ const initSurvey = ClientFunction((framework, json) => {
     model.render("surveyElement");
   } else if (framework === "react") {
     window["ReactDOM"].render(
-      window["React"].createElement(window["Survey"].Survey, { model: model, css: myCss }),
+      window["React"].createElement(window["Survey"].Survey, {
+        model: model,
+        css: myCss,
+      }),
       document.getElementById("surveyElement")
     );
   } else if (framework === "vue") {
@@ -29,11 +32,13 @@ const initSurvey = ClientFunction((framework, json) => {
     var app = new window["Vue"]({
       el: "#surveyElement",
       data: {
-        survey: model
-      }
+        survey: model,
+      },
     });
+  } else if (framework === "angular") {
+    model.css = myCss;
+    window.setSurvey(model);
   }
-
   window["survey"] = model;
 });
 
@@ -49,29 +54,31 @@ const json = {
         { value: 2, text: "Disagree" },
         { value: 3, text: "Neutral" },
         { value: 4, text: "Agree" },
-        { value: 5, text: "Strongly Agree" }
+        { value: 5, text: "Strongly Agree" },
       ],
       rows: [
         { value: "affordable", text: "Product is affordable" },
         { value: "does what it claims", text: "Product does what it claims" },
         {
           value: "better than others",
-          text: "Product is better than other products on the market"
+          text: "Product is better than other products on the market",
         },
-        { value: "easy to use", text: "Product is easy to use" }
-      ]
-    }
-  ]
+        { value: "easy to use", text: "Product is easy to use" },
+      ],
+    },
+  ],
 };
 
-frameworks.forEach(framework => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
+    async (t) => {
       await initSurvey(framework, json);
     }
   );
 
-  test("check custom class", async t => {
-    await t.expect(Selector("input[value=\"Complete\"]").classNames).contains("btn-lg");
+  test("check custom class", async (t) => {
+    await t
+      .expect(Selector('input[value="Complete"]').classNames)
+      .contains("btn-lg");
   });
 });

@@ -1,0 +1,37 @@
+import { AfterViewInit, ChangeDetectorRef, Component, DoCheck, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
+import { SurveyModel, SvgRegistry } from "survey-core";
+import { BaseAngular } from "./base-angular";
+@Component({
+  selector: "survey",
+  templateUrl: "./survey.component.html",
+  styleUrls: ["./survey.component.scss"]
+})
+export class SurveyComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
+  @Input() model!: SurveyModel;
+  @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
+  protected getModel(): SurveyModel {
+    return this.model;
+  }
+  constructor(changeDetectorRef: ChangeDetectorRef) {
+    super(changeDetectorRef);
+    changeDetectorRef.detach();
+  }
+  protected override onModelChanged(): void {
+    this.changeDetectorRef.detectChanges();
+    this.model.renderCallback = () => {
+      this.changeDetectorRef.detectChanges();
+    };
+  }
+  override ngOnInit(): void {
+    if(this.model["needRenderIcons"]) {
+      SvgRegistry.renderIcons();
+    }
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.model.renderCallback = <any>undefined;
+  }
+  ngAfterViewInit(): void {
+    this.model.afterRenderSurvey(this.rootEl.nativeElement);
+  }
+}

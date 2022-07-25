@@ -1,0 +1,27 @@
+<div [class]="model.cssClasses.root" #contentElement>
+  <img
+    *ngIf="model.renderedMode === 'image'"
+    [class]="model.getImageCss()"
+    [attr.src]="model.imageLink"
+    [attr.alt]="model.text || model.title"
+    [attr.width]="model.renderedWidth"
+    [attr.height]="model.renderedHeight"
+    [style]="{ objectFit: model.imageFit }"
+  /><video
+    controls
+    *ngIf="model.renderedMode === 'video'"
+    [class]="model.getImageCss()"
+    [attr.src]="model.imageLink"
+    [attr.width]="model.renderedWidth"
+    [attr.height]="model.renderedHeight"
+    [style]="{ objectFit: model.imageFit }"
+  ></video>
+  <iframe
+    *ngIf="model.renderedMode === 'youtube'"
+    [class]="model.getImageCss()"
+    [attr.src]="model.imageLink | safeResourceUrl"
+    [attr.width]="model.renderedWidth"
+    [attr.height]="model.renderedHeight"
+    [style]="{ objectFit: model.imageFit }"
+  ></iframe>
+</div>

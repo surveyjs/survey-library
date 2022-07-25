@@ -20,14 +20,17 @@ const setCustomNavigation = ClientFunction(() => {
         .replace(new RegExp(",", "g"), "")
     );
 
-  document.getElementById("surveyPrev").onclick = function() {
+  document.getElementById("surveyPrev").onclick = function(event) {
     window["survey"].prevPage();
+    event.preventDefault();
   };
   document.getElementById("surveyNext").onclick = function() {
     window["survey"].nextPage();
+    event.preventDefault();
   };
   document.getElementById("surveyComplete").onclick = function() {
     window["survey"].completeLastPage();
+    event.preventDefault();
   };
 
   window["survey"].showTitle = false;

@@ -74,7 +74,18 @@ export class PopupModel<T = any> extends Base {
   }
 }
 
-export function createPopupModalViewModel(
+export interface IDialogOptions {
+  componentName: string;
+  data: any;
+  onApply: () => boolean;
+  onCancel?: () => void;
+  onHide?: () => void;
+  onShow?: () => void;
+  cssClass?: string;
+  title?: string;
+  displayMode?: "popup" | "overlay";
+}
+export function createDialogOptions(
   componentName: string,
   data: any,
   onApply: () => boolean,
@@ -83,27 +94,37 @@ export function createPopupModalViewModel(
   onShow = () => { },
   cssClass?: string,
   title?: string,
-  displayMode: "popup" | "overlay" = "popup"
-) {
+  displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
+  return <IDialogOptions>{
+    componentName: componentName,
+    data: data,
+    onApply: onApply,
+    onCancel: onCancel,
+    onHide: onHide,
+    onShow: onShow,
+    cssClass: cssClass,
+    title: title,
+    displayMode: displayMode
+  };
+}
+
+export function createPopupModalViewModel(options: IDialogOptions) {
   const popupModel = new PopupModel(
-    componentName,
-    data,
+    options.componentName,
+    options.data,
     "top",
     "left",
     false,
     true,
-    onCancel,
-    onApply,
-    onHide,
-    onShow,
-    cssClass,
-    title
+    options.onCancel,
+    options.onApply,
+    options.onHide,
+    options.onShow,
+    options.cssClass,
+    options.title
   );
-  popupModel.displayMode = displayMode;
-  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    popupModel,
-    undefined
-  );
+  popupModel.displayMode = options.displayMode || "popup";
+  const popupViewModel: PopupBaseViewModel = new PopupBaseViewModel(popupModel, undefined);
   popupViewModel.initializePopupContainer();
   return popupViewModel;
 }

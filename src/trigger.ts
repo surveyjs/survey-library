@@ -108,11 +108,18 @@ export class Trigger extends Base {
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
   }
+  protected canBeExecuted(isOnNextPage: boolean): boolean {
+    return true;
+  }
+  protected isExecutingOnNextPage: boolean;
   public checkExpression(
+    isOnNextPage: boolean,
     keys: any,
     values: HashTable<any>,
     properties: HashTable<any> = null
-  ) {
+  ): void {
+    this.isExecutingOnNextPage = isOnNextPage;
+    if(!this.canBeExecuted(isOnNextPage)) return;
     if (!this.isCheckRequired(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(values, properties);
@@ -216,7 +223,8 @@ export class Trigger extends Base {
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  setCompleted(): any;
+  setCompleted(): void;
+  canBeCompleted(): void;
   triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string): any;
@@ -242,11 +250,11 @@ export class SurveyTrigger extends Trigger {
       ? (<any>this.owner).getSurvey()
       : null;
   }
-  public get isOnNextPage() {
-    return false;
+  protected isRealExecution(): boolean {
+    return true;
   }
   protected onSuccessExecuted(): void {
-    if(!!this.owner) {
+    if(!!this.owner && this.isRealExecution()) {
       this.owner.triggerExecuted(this);
     }
   }
@@ -294,11 +302,16 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   public getType(): string {
     return "completetrigger";
   }
-  public get isOnNextPage() {
-    return !settings.executeCompleteTriggerOnValueChanged;
+  protected isRealExecution(): boolean {
+    return !settings.executeCompleteTriggerOnValueChanged === this.isExecutingOnNextPage;
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
-    if (this.owner) this.owner.setCompleted();
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
+    if (!this.owner) return;
+    if(this.isRealExecution()) {
+      this.owner.setCompleted();
+    } else {
+      this.owner.canBeCompleted();
+    }
   }
 }
 /**
@@ -358,8 +371,8 @@ export class SurveyTriggerSkip extends SurveyTrigger {
   public set gotoName(val: string) {
     this.setPropertyValue("gotoName", val);
   }
-  public get isOnNextPage() {
-    return !settings.executeSkipTriggerOnValueChanged;
+  protected canBeExecuted(isOnNextPage: boolean): boolean {
+    return isOnNextPage === !settings.executeSkipTriggerOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;

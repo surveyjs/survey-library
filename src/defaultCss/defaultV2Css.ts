@@ -102,6 +102,7 @@ export var defaultV2Css = {
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
+  pageRow: "sd-page__row",
   question: {
     mainRoot: "sd-element sd-question sd-row__question",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
@@ -506,7 +507,30 @@ export var defaultV2Css = {
     mobileWidth: "--sd-mobile-width",
     imagepickerGapBetweenItems: "--sd-imagepicker-gap",
     themeMark: "--sv-defaultV2-mark"
-  }
+  },
+  tagbox: {
+    root: "sd-selectbase",
+    small: "sd-row__question--small",
+    selectWrapper: "",
+    other: "sd-input sd-comment sd-selectbase__other",
+    onError: "sd-input--error",
+    label: "sd-selectbase__label",
+    item: "sd-item sd-radio sd-selectbase__item",
+    itemDisabled: "sd-item--disabled sd-radio--disabled",
+    itemChecked: "sd-item--checked sd-radio--checked",
+    itemHover: "sd-item--allowhover sd-radio--allowhover",
+    itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
+    itemDecorator: "sd-item__svg sd-radio__svg",
+    cleanButton: "sd-tagbox_clean-button sd-dropdown_clean-button",
+    cleanButtonSvg: "sd-tagbox_clean-button-svg sd-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear",
+    control: "sd-input sd-tagbox sd-dropdown",
+    controlValue: "sd-tagbox__value sd-dropdown__value",
+    controlDisabled: "sd-input--disabled",
+    controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
+    controlLabel: "sd-item__control-label",
+    materialDecorator: "sd-item__decorator sd-radio__decorator"
+  },
 };
 
 surveyCss["defaultV2"] = defaultV2Css;

@@ -408,7 +408,7 @@ export class StylesManager {
       "background-color: var(--background-dim, #f3f3f3);",
     ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
-    ".sv-list__item--disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default; pointer-events: none;",
+    ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",
     ".sv-list__item span": "white-space: nowrap;",
     ".sv-list__container": "position: relative;",
     ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff);",

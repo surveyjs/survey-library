@@ -40,6 +40,48 @@ QUnit.test("check dropdown disabled class", function (assert) {
   assert.ok(question.getControlClass().indexOf("sv_q_dropdown_disabled") != -1);
 });
 
+QUnit.test("DropdownListModel with ListModel", (assert) => {
+  const jsonDropdown = {
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      hasOther: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5",
+        "item6",
+        "item7",
+        "item8",
+        "item9",
+        "item10",
+        "item11",
+        "item12",
+        "item13",
+        "item14",
+        "item15",
+        "item16",
+        "item17",
+        "item18",
+        "item19",
+        "item20",
+        "item21",
+        "item22",
+        "item23",
+        "item24",
+        "item25",
+        "item26",
+        "item27"
+      ]
+    }]
+  };
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.ok(question.popupModel.contentComponentData.model instanceof ListModel);
+});
+
 QUnit.test("Test dropdown renderAs select", assert => {
   const json = {
     questions: [{
@@ -88,14 +130,14 @@ QUnit.test("Test dropdown renderAs select", assert => {
   assert.equal(listModel.needFilter, true);
 });
 
-QUnit.test("Test dropdown renderAs select denySearch property", assert => {
+QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const json = {
     questions: [{
       type: "dropdown",
       // renderAs: "select",
       name: "question1",
       hasOther: "true",
-      denySearch: true,
+      searchEnabled: false,
       choices: [
         "item1",
         "item2",
@@ -132,7 +174,7 @@ QUnit.test("Test dropdown renderAs select denySearch property", assert => {
   const listModel = question.popupModel.contentComponentData.model as ListModel;
   assert.equal(listModel.needFilter, false);
 
-  question.denySearch = false;
+  question.searchEnabled = true;
   assert.equal(listModel.needFilter, true);
 });
 

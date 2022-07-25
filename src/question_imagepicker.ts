@@ -273,7 +273,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 
   private _width: number;
 
-  private onContentLoaded = (item: ImageItemValue, event: any) => {
+  public onContentLoaded = (item: ImageItemValue, event: any) => {
     const content: any = event.target;
     if (this.contentMode == "video") {
       item["aspectRatio"] = content.videoWidth / content.videoHeight;

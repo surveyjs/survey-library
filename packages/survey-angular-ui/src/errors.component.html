@@ -1,0 +1,8 @@
+<div *ngFor="let error of element.errors;">
+  <span
+    [class]="element.cssClasses ? element.cssClasses.error.icon : 'panel-error-icon'"
+    aria-hidden="true"
+  ></span>
+  <span [class]="element.cssClasses ? element.cssClasses.error.item : 'panel-error-item'" [model]="error.locText" sv-ng-string>
+  </span>
+</div>

@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
@@ -201,6 +201,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
 }
 
+// replace to showDialog then delete
 export function showModal(
   componentName: string,
   data: any,
@@ -210,20 +211,25 @@ export function showModal(
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
 ) {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
+  const options = createDialogOptions(
     componentName,
     data,
     onApply,
     onCancel,
-    () => {
-      ReactDOM.unmountComponentAtNode(popupViewModel.container);
-      popupViewModel.unmountPopupContainer();
-    },
+    undefined,
     undefined,
     cssClass,
     title,
     displayMode
   );
+  showDialog(options);
+}
+export function showDialog(dialogOptions: IDialogOptions) {
+  dialogOptions.onHide = () => { {
+    ReactDOM.unmountComponentAtNode(popupViewModel.container);
+    popupViewModel.unmountPopupContainer();
+  } };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;

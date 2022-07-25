@@ -1,0 +1,20 @@
+<span style="position: static">
+  <span
+    class="sv-string-editor"
+    contenteditable="true"
+    style="position: static"
+    *ngIf="model.hasHtml"
+    [innerHtml]="model.renderedHtml"
+    (blur)="onInput($event)"
+    (click)="onClick($event)"
+  ></span>
+  <span
+    class="sv-string-editor"
+    contenteditable="true"
+    style="position: static"
+    *ngIf="!model.hasHtml"
+    (blur)="onInput($event)"
+    (click)="onClick($event)"
+    >{{ model.renderedHtml }}</span
+  >
+</span>

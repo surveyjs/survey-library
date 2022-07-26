@@ -83,6 +83,7 @@ export class ListModel extends ActionContainer {
   public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
       .append("sv-list__item")
+      .append("sv-list__item--with-icon", !!itemValue.iconName)
       .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
       .append("sv-list__item--selected", itemValue.active || this.isItemSelected(itemValue))
       .toString();

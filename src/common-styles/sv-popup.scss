@@ -116,19 +116,21 @@ sv-popup {
 .sv-popup__scrolling-content {
   height: 100%;
   overflow: auto;
-
-  &::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-    background-color: $background-dim;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: $primary-light;
+  &, * {
+    &::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+      background-color: $background-dim;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: $primary-light;
+    }
   }
 }
 
 .sv-popup__content {
   min-width: 100%;
+  height: 100%;
 }
 
 .sv-popup--show-pointer.sv-popup--top {

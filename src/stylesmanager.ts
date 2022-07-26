@@ -374,7 +374,7 @@ export class StylesManager {
     ".sv-popup__scrolling-content": "height: 100%; overflow: auto;",
     ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
-    ".sv-popup__content": "min-width: 100%;",
+    ".sv-popup__content": "min-width: 100%; height: 100%;",
     ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px))) rotate(180deg);",
     ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));",
     ".sv-popup--show-pointer.sv-popup--right": "transform: translate(calc(1 * var(--base-unit, 8px)));",
@@ -397,7 +397,8 @@ export class StylesManager {
     //eo popup
     //list
     ".sv-list":
-      "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none;",
+      "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none; overflow-y: auto;",
+    ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
     ".sv-list__item":
       "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
@@ -410,10 +411,10 @@ export class StylesManager {
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
     ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",
     ".sv-list__item span": "white-space: nowrap;",
-    ".sv-list__container": "position: relative;",
-    ".sv-list__filter": "position: sticky; top: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff);",
-    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 16px; padding-bottom: 16px; outline: none; font-size: 1em; border: 1px solid transparent;",
-    ".sv-list__filter-icon": "display: block; position: absolute; top: 16px; left: 16px;",
+    ".sv-list__container": "position: relative; display: flex; flex-direction: column; height: 100%;",
+    ".sv-list__filter": "border-bottom: 1px solid rgba(0, 0, 0, 0.16); background: var(--background, #fff); padding-bottom: calcSize(1);",
+    ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 12px; padding-bottom: 12px; outline: none; font-size: 1em; border: none",
+    ".sv-list__filter-icon": "display: block; position: absolute; top: 12px; left: 16px;",
     ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
@@ -955,7 +956,6 @@ export class StylesManager {
     //list
     ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv-list__input::placeholder": "color: $foreground-light;",
-    ".sv-list__input:focus": "border-color: $main-color;",
     ".sv-list__input:disabled": "color: $foreground-disabled;",
     ".sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
     //eo list

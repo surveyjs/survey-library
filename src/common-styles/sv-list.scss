@@ -19,6 +19,7 @@ $base-unit: var(--base-unit, 8px);
 .sv-list {
   padding: 0;
   margin: 0;
+  overflow-y: auto;
   background: $background;
   font-family: $font-family;
   list-style-type: none;
@@ -40,7 +41,10 @@ $base-unit: var(--base-unit, 8px);
     outline: none;
   }
 }
-
+.sv-list__item--with-icon {
+  padding-top: calcSize(1.5);
+  padding-bottom: calcSize(1.5);
+}
 .sv-list__item-icon {
   float: left;
   width: calcSize(3);
@@ -78,19 +82,21 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__container {
   position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
 }
 
 .sv-list__filter {
-  position: sticky;
-  top: 0;
   border-bottom: 1px solid $border-inside;
   background: $background;
+  padding-bottom: calcSize(1);
 }
 
 .sv-list__filter-icon {
   display: block;
   position: absolute;
-  top: calcSize(2);
+  top: calcSize(1.5);
   left: calcSize(2);
   .sv-svg-icon {
     width: calcSize(3);
@@ -109,22 +115,15 @@ $base-unit: var(--base-unit, 8px);
   background: $background;
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid $border-inside;
   outline: none;
   font-size: 1em;
   color: $foreground;
-  padding: calcSize(2);
-  padding-left: calcSize(8);
-  padding-right: calcSize(3);
+  padding: calcSize(1.5) calcSize(3) calcSize(1.5) calcSize(7);
   line-height: calcSize(3);
 }
 
 .sv-list__input::placeholder {
   color: $foreground-light;
-}
-
-.sv-list__input:focus {
-  border: 1px solid $primary;
 }
 
 .sv-list__input:disabled,

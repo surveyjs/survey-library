@@ -115,8 +115,8 @@ Serializer.addClass(
   },
   "checkbox"
 );
-QuestionFactory.Instance.registerQuestion("tagbox", (name) => {
-  const q = new QuestionTagboxModel(name);
-  q.choices = QuestionFactory.DefaultChoices;
-  return q;
-});
+// QuestionFactory.Instance.registerQuestion("tagbox", (name) => {
+//   const q = new QuestionTagboxModel(name);
+//   q.choices = QuestionFactory.DefaultChoices;
+//   return q;
+// });

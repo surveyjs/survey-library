@@ -6352,11 +6352,7 @@ QUnit.test("Detail panel, rendered table and className", function (assert) {
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.visibleRows[0].showDetailPanel();
-  assert.equal(
-    matrix.renderedTable.headerRow.cells[1].className,
-    "sv_matrix_cell_header",
-    "Set header cell"
-  );
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "Set header cell");
   var rows = matrix.renderedTable.rows;
   assert.equal(
     rows[0].cells[0].className,

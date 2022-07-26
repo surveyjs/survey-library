@@ -803,7 +803,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
-    cell.className = new CssClassBuilder().append(this.cssClasses.headerCell).append(this.cssClasses.emptyCell, !!cell.isEmpty).toString();
+    const cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
+    cell.className = new CssClassBuilder()
+      .append(this.cssClasses.headerCell)
+      .append(this.cssClasses.emptyCell, !!cell.isEmpty)
+      .append(this.cssClasses.cell + "--" + cellType)
+      .toString();
     return cell;
   }
   private setHeaderCell(

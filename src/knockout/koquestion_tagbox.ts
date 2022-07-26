@@ -54,8 +54,8 @@ export class QuestionTagbox extends QuestionTagboxModel {
 Serializer.overrideClassCreator("tagbox", function() {
   return new QuestionTagbox("");
 });
-QuestionFactory.Instance.registerQuestion("tagbox", name => {
-  const q = new QuestionTagbox(name);
-  q.choices = QuestionFactory.DefaultChoices;
-  return q;
-});
+// QuestionFactory.Instance.registerQuestion("tagbox", name => {
+//   const q = new QuestionTagbox(name);
+//   q.choices = QuestionFactory.DefaultChoices;
+//   return q;
+// });

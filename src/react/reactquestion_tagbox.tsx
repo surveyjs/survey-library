@@ -34,6 +34,6 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<Question> {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("tagbox", (props) => {
-  return React.createElement(SurveyQuestionTagbox, props);
-});
+// ReactQuestionFactory.Instance.registerQuestion("tagbox", (props) => {
+//   return React.createElement(SurveyQuestionTagbox, props);
+// });

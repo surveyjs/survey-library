@@ -19,7 +19,7 @@ Refer to the sections below for information on how to enable validation in your 
 
 ## Built-In Client-Side Validators
 
-SurveyJS Library supports several built-in client-side validators. The Required validator is configured differently from the rest of them. This validator checks that a question value is not empty. To add it to a question, enable the question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property. Specify the [`requiredText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property if you want to override the default error message:
+SurveyJS Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property to override the default error message:
 
 ```js
 const surveyJson = {
@@ -32,7 +32,7 @@ const surveyJson = {
 }
 ```
 
-You can also use the [`requiredIf`](https://surveyjs.io/Documentation/Library?id=Question#requiredIf) property to specify the required state dynamically based on a condition. Refer to the following help topic for more information: [Conditional Visibility](/Documentation/Library?id=design-survey-conditional-logic#conditional-visibility).
+If you want to specify the required state dynamically based on a condition, use the [`requiredIf`](https://surveyjs.io/Documentation/Library?id=Question#requiredIf) property. Refer to the following help topic for more information: [Conditional Visibility](/Documentation/Library?id=design-survey-conditional-logic#conditional-visibility).
 
 Other validators are implemented as JavaScript classes. You can create an object of a validator class and push it to a question's [`validators`](https://surveyjs.io/Documentation/Library?id=Question#validators) array. Set the `text` property in the class constructor if you want to override the default error message:
 

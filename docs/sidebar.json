@@ -45,7 +45,8 @@
         {
           "Name": "design-survey-create-a-quiz",
           "Title": "Create a Quiz"
-        }, {
+        },
+        {
           "Name": "design-survey-conditional-logic",
           "Title": "Conditional Logic and Dynamic Texts"
         },
@@ -80,6 +81,10 @@
           "Title": "Continue an Incomplete Survey"
         }
       ]
+    },
+    {
+      "Name": "data-validation",
+      "Title": "Data Validation"
     },
     {
       "Name": "api",

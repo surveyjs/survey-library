@@ -426,12 +426,16 @@ function myFunc(params) {
 After you implement a custom function, register it in the `FunctionFactory`:
 
 ```js
+import { FunctionFactory } from "survey-core";
+
 FunctionFactory.Instance.register("myFunc", myFunc);
 ```
 
 For illustrative purposes, the code below shows the built-in `age` function implementation:
 
 ```js
+import { FunctionFactory } from "survey-core";
+
 // Accepts a birthdate and returns the current age in full years
 function age(params: any[]): any {
   if (!params && params.length < 1) return null;
@@ -474,11 +478,9 @@ If an expression requires time-consuming calculations or a request to a server, 
 
 ```js
 function asyncFunc(params: any[]): any {
-  // Preserve the context variable to access the `returnResult` callback later
-  var self = this;
-  setTimeout(function() {
+  setTimeout(() => {
     // Return the function result via the callback
-    self.returnResult(yourValue);
+    this.returnResult(yourValue);
   }, 100);
 }
 ```
@@ -486,6 +488,8 @@ function asyncFunc(params: any[]): any {
 After you implement an asynchronous function, register it in `FunctionFactory`. The third parameter specifies if this function is asynchronous:
 
 ```js
+import { FunctionFactory } from "survey-core";
+
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 ```
 

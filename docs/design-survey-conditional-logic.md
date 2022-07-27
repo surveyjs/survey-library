@@ -423,7 +423,7 @@ function myFunc(params) {
 }
 ```
 
-After you implement a custom function, register it in the `FunctionFactory`:
+After you implement a custom function, register it in `FunctionFactory`:
 
 ```js
 import { FunctionFactory } from "survey-core";

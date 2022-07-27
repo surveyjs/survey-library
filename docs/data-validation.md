@@ -75,7 +75,7 @@ The following class-based validators are available:
 
 ## Implement Custom Client-Side Validation
 
-SurveyJS Library raises the [`onValidateQuestion`](https://surveyjs.io/Documentation/Library?id=surveymodel#onValidateQuestion) event that you can handle to add custom validation logic to your survey. For example, the following code checks that the answer to a `"memo"` question contains the word "survey":
+SurveyJS Library raises the [`onValidateQuestion`](https://surveyjs.io/Documentation/Library?id=surveymodel#onValidateQuestion) event, which you can handle to add custom validation logic to your survey. For example, the following code checks that the answer to a `"memo"` question contains the word "survey":
 
 ```js
 import { Model } from "survey-core";

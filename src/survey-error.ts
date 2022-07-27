@@ -17,6 +17,7 @@ export class SurveyError {
   public get locText(): LocalizableString {
     if (!this.locTextValue) {
       this.locTextValue = new LocalizableString(this.errorOwner, true);
+      this.locTextValue.storeDefaultText = true;
       this.locTextValue.text = this.getText();
     }
     return this.locTextValue;

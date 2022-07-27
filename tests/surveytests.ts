@@ -15155,4 +15155,15 @@ QUnit.test("Survey Localization - check errors update after locale changed", fun
 
   assert.equal(q6.errors.length, 1);
   assert.equal(q6.errors[0].locText.renderedHtml, "custom_other_error_text_deutch");
+
+  //check that when return to default locale onChange isCalled
+  let onChangedCalled = 0;
+  q1.errors[0].locText.onChanged = () => {
+    onChangedCalled++;
+  };
+  survey.locale = "en";
+
+  assert.equal(q1.errors.length, 1);
+  assert.equal(onChangedCalled, 1);
+  assert.equal(q1.errors[0].locText.renderedHtml, "Response required.");
 });

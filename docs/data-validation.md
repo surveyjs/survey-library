@@ -90,7 +90,7 @@ const survey = new Model(surveyJson);
 
 survey.onValidateQuestion.add((survey, options) => {
   if (options.name === "memo") {
-    if (!!options.value.indexOf("survey")) {
+    if (options.value.indexOf("survey") === -1) {
       options.error = 'Your answer must contain the word "survey"'
     }
   }

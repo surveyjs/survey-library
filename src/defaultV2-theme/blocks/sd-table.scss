@@ -29,7 +29,6 @@
   text-align: center;
 }
 .sd-table__cell--header {
-  width: calcSize(14);
   font-weight: 600;
   vertical-align: top;
   padding: calcSize(1.5) calcSize(1) calcSize(2.5);
@@ -37,7 +36,7 @@
     min-width: calcSize(14);
   }
 }
-.sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
+.sd-matrixdropdown .sd-table__cell--header {
   min-width: calcSize(14);
   width: calcSize(14);
 

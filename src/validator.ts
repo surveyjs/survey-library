@@ -77,7 +77,9 @@ export class SurveyValidator extends Base {
     return !!this.errorOwner ? this.errorOwner.getProcessedText(text) : text;
   }
   protected createCustomError(name: string): SurveyError {
-    return new CustomError(this.getErrorText(name), this.errorOwner);
+    const err = new CustomError(this.getErrorText(name), this.errorOwner);
+    err.onUpdateErrorTextCallback = (err => err.text = this.getErrorText(name));
+    return err;
   }
   public toString(): string {
     var res = this.getType().replace("validator", "");

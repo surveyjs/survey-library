@@ -1,6 +1,6 @@
 # Data Validation
 
-SurveyJS Library allows you to validate user responses on the client or on the server side. Regardless of the type, validation activates before a user proceeds to the next page or completes the survey. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a user answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanging"`:
+SurveyJS Library allows you to validate user responses on the client or server side. Regardless of the type, validation activates before a user proceeds to the next page or completes the survey. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a user answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanging"`:
 
 ```js
 const surveyJson = {
@@ -97,7 +97,7 @@ survey.onValidateQuestion.add((survey, options) => {
 });
 ```
 
-Alternatively, you can implement custom validation via [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions). Create a [custom function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#custom-functions), register it, and then call it from within your expression. The following code uses this approach to demonstrate the use case above:
+Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create a [custom function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#custom-functions), register it, and then call it from within your expression. The following code uses this technique to implement the same value validation scenario:
 
 ```js
 import { FunctionFactory } from "survey-core";
@@ -173,7 +173,7 @@ survey.onServerValidateQuestions.add(validateCountry);
 
 [View example](https://surveyjs.io/Examples/Library?id=validators-server)
 
-Alternatively, you can implement custom validation via [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions). Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it from within your expression. The following code uses this approach to demonstrate the use case above:
+Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it within your expression. The following code uses this technique to implement the previously demonstrated validation scenario:
 
 ```js
 import { FunctionFactory } from "survey-core";

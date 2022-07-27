@@ -284,6 +284,9 @@ export class TextValidator extends SurveyValidator {
   }
 }
 
+/**
+ * Validates the number of answers.
+ */
 export class AnswerCountValidator extends SurveyValidator {
   constructor(minCount: number = null, maxCount: number = null) {
     super();

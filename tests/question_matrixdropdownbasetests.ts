@@ -106,3 +106,171 @@ QUnit.test("column.templateQuestion has set parentQuestion", function (assert) {
   const col = matrix2.addColumn("col1");
   assert.equal(col.templateQuestion.parentQuestion.name, "q1", "column created from code has parentQuestion");
 });
+QUnit.test("column cell css classes by column cellType test", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "title": "Please tells us your opinion about JavaScript MVVM frameworks",
+        "horizontalScroll": true,
+        "columnMinWidth": "130px",
+        "choices": [
+          "Excelent",
+          "Good",
+          "Average",
+          "Fair",
+          "Poor"
+        ],
+        "columns": [
+          {
+            "name": "using",
+            "title": "Do you use it?",
+            "choices": [
+              "Yes", "No"
+            ],
+            "cellType": "radiogroup"
+          },
+          {
+            "name": "experience",
+            "title": "How long do you use it?",
+            "cellType": "dropdown",
+            "choices": [
+              {
+                "value": 5,
+                "text": "3-5 years"
+              }, {
+                "value": 2,
+                "text": "1-2 years"
+              }, {
+                "value": 1,
+                "text": "less then a year"
+              }
+            ]
+          },
+          {
+            "name": "strength",
+            "title": "What is main strength?",
+            "choices": [
+              "Easy", "Compact", "Fast", "Powerfull"
+            ],
+            "cellType": "checkbox"
+          },
+          {
+            "name": "knowledge",
+            "title": "Please describe your experience",
+            "cellType": "comment"
+          }, {
+            "name": "rate",
+            "title": "Please rate the framework itself"
+          }
+        ],
+        "rows": [
+          {
+            "value": "angularv1",
+            "text": "angularjs v1.x"
+          }, {
+            "value": "angularv2",
+            "text": "angularjs v2"
+          }, {
+            "value": "knockoutjs"
+          }, {
+            "value": "reactjs"
+          }
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
+  assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header sv_matrix_cell--radiogroup", "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 2");
+  assert.equal(matrix.renderedTable.headerRow.cells[3].className, "sv_matrix_cell_header sv_matrix_cell--checkbox", "column 3");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].className, "sv_matrix_cell_header sv_matrix_cell--comment", "column 4");
+  assert.equal(matrix.renderedTable.headerRow.cells[5].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 5");
+
+});
+QUnit.test("column cell css classes by matrix cellType test", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "title": "Please tells us your opinion about JavaScript MVVM frameworks",
+        "horizontalScroll": true,
+        "columnMinWidth": "130px",
+        "cellType": "dropdown",
+        "choices": [
+          "Excelent",
+          "Good",
+          "Average",
+          "Fair",
+          "Poor"
+        ],
+        "columns": [
+          {
+            "name": "using",
+            "title": "Do you use it?",
+            "choices": [
+              "Yes", "No"
+            ],
+          },
+          {
+            "name": "experience",
+            "title": "How long do you use it?",
+            "choices": [
+              {
+                "value": 5,
+                "text": "3-5 years"
+              }, {
+                "value": 2,
+                "text": "1-2 years"
+              }, {
+                "value": 1,
+                "text": "less then a year"
+              }
+            ]
+          },
+          {
+            "name": "strength",
+            "title": "What is main strength?",
+            "choices": [
+              "Easy", "Compact", "Fast", "Powerfull"
+            ],
+          },
+          {
+            "name": "knowledge",
+            "title": "Please describe your experience",
+          }, {
+            "name": "rate",
+            "title": "Please rate the framework itself"
+          }
+        ],
+        "rows": [
+          {
+            "value": "angularv1",
+            "text": "angularjs v1.x"
+          }, {
+            "value": "angularv2",
+            "text": "angularjs v2"
+          }, {
+            "value": "knockoutjs"
+          }, {
+            "value": "reactjs"
+          }
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 6);
+  assert.equal(matrix.renderedTable.headerRow.cells[0].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "empty column");
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 2");
+  assert.equal(matrix.renderedTable.headerRow.cells[3].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 3");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 4");
+  assert.equal(matrix.renderedTable.headerRow.cells[5].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 5");
+});

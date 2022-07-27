@@ -221,7 +221,6 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   public ownerPropertyName: string = "";
   //private itemValue: any;
   private locTextValue: LocalizableString;
-  private isVisibleValue: boolean = true;
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
@@ -386,10 +385,10 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     this.setPropertyValue("enableIf", val);
   }
   public get isVisible() {
-    return this.isVisibleValue;
+    return this.getPropertyValue("isVisible", true);
   }
   public setIsVisible(val: boolean) {
-    this.isVisibleValue = val;
+    this.setPropertyValue("isVisible", val);
   }
   public get isEnabled() {
     return this.getPropertyValue("isEnabled", true);

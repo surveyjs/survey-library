@@ -24,6 +24,7 @@ export class DropdownListModel extends Base {
   protected getAvailableItems(): Array<Action> {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
+      data: choice,
       title: <any>new ComputedUpdater<string>(() => choice.text),
       component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
       visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),

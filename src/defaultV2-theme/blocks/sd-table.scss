@@ -36,7 +36,11 @@
     min-width: calcSize(14);
   }
 }
-.sd-matrixdropdown .sd-table__cell--header {
+.sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
+  min-width: calcSize(14);
+  width: calcSize(14);
+}
+.sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
   min-width: calcSize(14);
   width: calcSize(14);
 

@@ -5,6 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
+import { EventBase } from "./base";
 
 /**
  * A Model for a tagbox question
@@ -17,15 +18,15 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.createLocalizableString("placeholder", this, false, true);
   }
 
+  public get readOnlyText() {
+    return this.placeholder;
+  }
+
   public onSurveyLoad() {
     super.onSurveyLoad();
     if (!this.dropdownListModel) {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
-  }
-
-  public get readOnlyText() {
-    return this.selectedItems.length === 0 ? this.placeholder : this.selectedItems.map(item => item.text).join(", ");
   }
 
   /**
@@ -65,7 +66,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public getControlClass(): string {
-
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
@@ -73,10 +73,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
-  // public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
-  // public onOpenedCallBack(): void {
-  //   this.onOpened.fire(this, { question: this, choices: this.choices });
-  // }
+  public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
+  public onOpenedCallBack(): void {
+    this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
 
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
@@ -85,19 +85,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModel.updateItems();
     }
   }
-/*
-  onClick(e: any): void {
-    !!this.onOpenedCallBack && this.onOpenedCallBack();
-  }
-
-  onKeyUp(event: any): void {
-    const char: number = event.which || event.keyCode;
-    if (char === 46) {
-      this.clearValue();
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }*/
 }
 
 Serializer.addClass(

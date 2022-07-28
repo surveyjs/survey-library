@@ -18,23 +18,38 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     if(!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction, status: string) => {
         if(item.id === "selectall") {
-          this.question.toggleSelectAll();
-          this.syncSelectedItemsFromQuestion();
-          return;
-        }
-        let newValue = [].concat(this.question.renderedValue || []);
-        if(status === "added" && item.id == "none") {
-          newValue = ["none"];
+          this.selectAllItems();
+        } else if(status === "added" && item.id == "none") {
+          this.selectNoneItem();
         } else if(status === "added") {
-          newValue.push(item.id);
-        } else {
-          newValue.splice(newValue.indexOf(item.id), 1);
+          this.selectItem(item.id);
+        } else if(status === "removed") {
+          this.deselectItem(item.id);
         }
-        this.question.renderedValue = newValue;
-        this.syncSelectedItemsFromQuestion();
       };
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
+  }
+
+  public selectAllItems(): void {
+    this.question.toggleSelectAll();
+    this.syncSelectedItemsFromQuestion();
+  }
+  public selectNoneItem(): void {
+    this.question.renderedValue = ["none"];
+    this.syncSelectedItemsFromQuestion();
+  }
+  public selectItem(id: string): void {
+    let newValue = [].concat(this.question.renderedValue || []);
+    newValue.push(id);
+    this.question.renderedValue = newValue;
+    this.syncSelectedItemsFromQuestion();
+  }
+  public deselectItem(id: string): void {
+    let newValue = [].concat(this.question.renderedValue || []);
+    newValue.splice(newValue.indexOf(id), 1);
+    this.question.renderedValue = newValue;
+    this.syncSelectedItemsFromQuestion();
   }
 
   public onClear(event: any): void {

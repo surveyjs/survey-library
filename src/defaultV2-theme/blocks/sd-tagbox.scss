@@ -1,0 +1,53 @@
+.sd-input.sd-tagbox:not(.sd-tagbox--empty) {
+  height: auto;
+  padding: calcSize(0.5);
+  padding-right: calcSize(6);
+}
+
+.sd-tagbox_clean-button {
+  padding: calcSize(1);
+  margin: auto 0;
+}
+
+.sv-tagbox__item {
+  position: relative;
+  display: flex;
+  height: calcSize(3);
+  padding: calcSize(1) calcSize(1.5);
+  background-color: $primary;
+  border-radius: calcSize(0.25);
+}
+
+.sv-tagbox__item-text {
+  color: $primary-foreground;
+}
+
+.sv-tagbox__item:hover,
+.sv-tagbox__item:focus,
+.sv-tagbox__item:focus-within {
+  .sd-tagbox-item_clean-button {
+    display: block;
+  }
+}
+.sd-tagbox-item_clean-button {
+  display: none;
+  position: absolute;
+  inset-inline-end: calcSize(1.5);
+  height: calcSize(3);
+  padding: 0px 0px 0px calcSize(4);
+  background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+}
+.sd-tagbox-item_clean-button-svg {
+  margin: calcSize(0.5);
+}
+.sd-tagbox-item_clean-button-svg use {
+  fill: $primary-foreground;
+}
+.sd-tagbox__value.sd-dropdown__value {
+  gap: calcSize(0.5);
+  display: flex;
+  flex-wrap: wrap;
+  padding-inline: unset;
+  margin-inline: unset;
+  margin-block: unset;
+}

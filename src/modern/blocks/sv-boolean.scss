@@ -69,3 +69,13 @@
     }
   }
 }
+
+.sv-boolean__switch { background-color: $main-color; }
+.sv-boolean__slider { background-color: $slider-color; }
+.sv-boolean__label--disabled { color: $disabled-label-color;}
+.sv-boolean--disabled .sv-boolean__switch {
+  background-color: $disabled-switch-color;
+}
+.sv-boolean--disabled .sv-boolean__slider {
+  background-color: $disabled-slider-color;
+}

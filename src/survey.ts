@@ -42,7 +42,7 @@ import { settings } from "./settings";
 import { getSize, isContainerVisible, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
@@ -1191,10 +1191,19 @@ export class SurveyModel extends SurveyElementCore
     return this.cssValue;
   }
   public set css(value: any) {
-    this.mergeValues(value, this.css);
+    this.setCss(value);
+  }
+
+  public setCss(value: any, needMerge = true) {
+    if(needMerge) {
+      this.mergeValues(value, this.css);
+    } else {
+      this.cssValue = value;
+    }
     this.updateCss();
     this.updateElementCss(false);
   }
+
   public get cssTitle(): string {
     return this.css.title;
   }
@@ -5370,10 +5379,7 @@ export class SurveyModel extends SurveyElementCore
 
   private updateNavigationBarCss() {
     const val = this.navigationBar;
-    const cssClasses = this.css.actionBar;
-    if (!!cssClasses) {
-      val.cssClasses = cssClasses;
-    }
+    val.cssClasses = this.css.actionBar;
     val.containerCss = this.css.footer;
   }
   protected createNavigationBar(): ActionContainer {

@@ -186,13 +186,13 @@ export class StylesManager {
     ".sv-ranking-item:focus .sv-ranking-item__icon--focus":
       "visibility: visible; top: 15px;",
     ".sv-ranking-item:focus .sv-ranking-item__index":
-      "background: white; border: 2px solid #19b394;",
+      "background: white; border: 2px solid var(--primary, #19b394);",
     ".sv-ranking-item__content":
       "display: flex; align-items: center; line-height: 1em; background-color: white;padding: 5px 0px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
       "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
     ".sv-ranking-item__icon":
-      "visibility: hidden;top:20px;fill:#19b394;position: absolute;",
+      "visibility: hidden;top:20px; fill: var(--primary, #19b394); position: absolute;",
     ".sv-ranking-item__index":
       "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
     ".sv-ranking-item__text": "display: inline-block;",
@@ -212,6 +212,7 @@ export class StylesManager {
       "visibility:hidden;",
     ".sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
     ".sv-ranking--disabled": "opacity: 0.8;",
+    ".sv-ranking-shortcut .sv-ranking-item__icon": "fill: var(--primary, #19b394); ",
     // EO ranking
 
     // drag drop
@@ -960,6 +961,12 @@ export class StylesManager {
     ".sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
     //eo list
     ".sv-skeleton-element": "background-color: $background-dim;",
+
+    //ranking
+    ".sv_main .sv-ranking-item:focus .sv-ranking-item__index": "border: 2px solid $main-color;",
+    ".sv_main .sv-ranking-item__icon": "fill: $main-color;",
+    "body .sv-ranking-shortcut .sv-ranking-item__icon": "fill: $main-color;"
+    //eo ranking
   };
 
   public static modernThemeCss: { [key: string]: string } = {
@@ -1100,6 +1107,12 @@ export class StylesManager {
     ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
     //eo drag-drop
     ".sv-skeleton-element": "background-color: $background-dim;",
+
+    //ranking
+    ".sv-ranking-item:focus .sv-ranking-item__index": "border: 2px solid $main-color;",
+    ".sv-ranking-item__icon": "fill: $main-color;",
+    "body .sv-ranking-shortcut .sv-ranking-item__icon": "fill: $main-color;"
+    //eo ranking
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {
@@ -1336,10 +1349,17 @@ export class StylesManager {
             (colorVariableName) => (cssRuleText = cssRuleText.replace(new RegExp("\\" + colorVariableName, "g"), theme[colorVariableName]))
           );
           try {
-            sheet.insertRule(
-              themeSelector + selector + " { " + cssRuleText + " }",
-              0
-            );
+            if (selector.indexOf("body") === 0) {
+              sheet.insertRule(
+                selector + " { " + cssRuleText + " }",
+                0
+              );
+            } else {
+              sheet.insertRule(
+                themeSelector + selector + " { " + cssRuleText + " }",
+                0
+              );
+            }
           } catch (e) { }
         });
       }

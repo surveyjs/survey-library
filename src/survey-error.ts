@@ -17,10 +17,12 @@ export class SurveyError {
   public get locText(): LocalizableString {
     if (!this.locTextValue) {
       this.locTextValue = new LocalizableString(this.errorOwner, true);
+      this.locTextValue.storeDefaultText = true;
       this.locTextValue.text = this.getText();
     }
     return this.locTextValue;
   }
+
   public getText(): string {
     var res = this.text;
     if (!res) res = this.getDefaultText();
@@ -40,5 +42,12 @@ export class SurveyError {
   }
   protected getLocalizationString(locStrName: string): string {
     return surveyLocalization.getString(locStrName, this.getLocale());
+  }
+  public onUpdateErrorTextCallback: (error: SurveyError) => void = undefined;
+  public updateText() {
+    if(this.onUpdateErrorTextCallback) {
+      this.onUpdateErrorTextCallback(this);
+    }
+    this.locText.text = this.getText();
   }
 }

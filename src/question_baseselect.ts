@@ -852,7 +852,9 @@ export class QuestionSelectBase extends Question {
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
-    errors.push(new OtherEmptyError(this.otherErrorText, this));
+    const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
+    otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
+    errors.push(otherEmptyError);
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);

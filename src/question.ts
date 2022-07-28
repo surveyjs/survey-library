@@ -1636,7 +1636,9 @@ export class Question extends SurveyElement
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     if (!isOnValueChanged && this.hasRequiredError()) {
-      errors.push(new AnswerRequiredError(this.requiredErrorText, this));
+      const err = new AnswerRequiredError(this.requiredErrorText, this);
+      err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
+      errors.push(err);
     }
   }
   protected hasRequiredError(): boolean {

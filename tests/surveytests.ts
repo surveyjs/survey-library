@@ -5780,6 +5780,16 @@ QUnit.test("css sets correctly if src key is object and dest key is string", fun
 }
 );
 
+QUnit.test("check setCss method without merge", function (assert) {
+  var survey = new SurveyModel();
+  const newFullCss = {
+    navigation: {}
+  };
+  survey.setCss(newFullCss, false);
+  assert.equal(survey.css, newFullCss);
+}
+);
+
 QUnit.test("Apply css for questions on start page", function (assert) {
   const survey = new SurveyModel({
     firstPageIsStarted: true,

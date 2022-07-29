@@ -17,7 +17,21 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
+      <div
+        v-if="question.selectedItems.length === 0"
+        :class="question.cssClasses.controlValue"
+      >{{ question.placeholder }}</div>
+      <ul
+        v-if="question.selectedItems.length !== 0"
+        :class="question.cssClasses.controlValue"
+      >
+        <sv-tagbox-item
+          v-for="(item, index) in question.selectedItems"
+          :item="item"
+          :question="question"
+          :key="'item' + index"
+        ></sv-tagbox-item>
+      </ul>
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"

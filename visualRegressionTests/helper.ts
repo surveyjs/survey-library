@@ -1,5 +1,5 @@
 import { ClientFunction } from "testcafe";
-import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
+import { createScreenshotsComparer, ScreenshotsComparer } from "devextreme-screenshot-comparer";
 
 export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
@@ -15,6 +15,23 @@ export const explicitErrorHandler = ClientFunction(() => { window.addEventListen
 export const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
+
+export async function wrapVisualTest(t: TestController, fn: (t: TestController, comparer: ScreenshotsComparer) => Promise<any>): Promise<void> {
+  const comparer = createScreenshotsComparer(t);
+
+  await fn(t, comparer);
+
+  await t
+    .expect(comparer.compareResults.isValid())
+    .ok(comparer.compareResults.errorMessages());
+}
+
+export async function takeElementScreenshot(screenshotName: string, element: Selector, t: TestController, comparer: ScreenshotsComparer): Promise<void> {
+  await t
+    .wait(1000)
+    .expect(element.visible).ok("element is invisible for " + screenshotName);
+  await comparer.takeScreenshot(screenshotName, element, screenshotComparerOptions);
+}
 
 export async function checkElementScreenshot(screenshotName: string, element: Selector, t: TestController): Promise<void> {
   const comparer = createScreenshotsComparer(t);

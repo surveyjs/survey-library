@@ -223,26 +223,32 @@ export class QuestionTextModel extends QuestionTextBase {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
     if (this.isValueLessMin) {
-      errors.push(
-        new CustomError(
-          this.getMinMaxErrorText(
-            this.minErrorText,
-            this.getCalculatedMinMax(this.renderedMin)
-          ),
-          this
-        )
+      const minError = new CustomError(
+        this.getMinMaxErrorText(
+          this.minErrorText,
+          this.getCalculatedMinMax(this.renderedMin)
+        ),
+        this
       );
+      minError.onUpdateErrorTextCallback = err => { err.text = this.getMinMaxErrorText(
+        this.minErrorText,
+        this.getCalculatedMinMax(this.renderedMin)
+      ); };
+      errors.push(minError);
     }
     if (this.isValueGreaterMax) {
-      errors.push(
-        new CustomError(
-          this.getMinMaxErrorText(
-            this.maxErrorText,
-            this.getCalculatedMinMax(this.renderedMax)
-          ),
-          this
-        )
+      const maxError = new CustomError(
+        this.getMinMaxErrorText(
+          this.maxErrorText,
+          this.getCalculatedMinMax(this.renderedMax)
+        ),
+        this
       );
+      maxError.onUpdateErrorTextCallback = err => { err.text = this.getMinMaxErrorText(
+        this.maxErrorText,
+        this.getCalculatedMinMax(this.renderedMax)
+      ); };
+      errors.push(maxError);
     }
   }
   protected canSetValueToSurvey(): boolean {

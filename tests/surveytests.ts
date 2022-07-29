@@ -5780,6 +5780,16 @@ QUnit.test("css sets correctly if src key is object and dest key is string", fun
 }
 );
 
+QUnit.test("check setCss method without merge", function (assert) {
+  var survey = new SurveyModel();
+  const newFullCss = {
+    navigation: {}
+  };
+  survey.setCss(newFullCss, false);
+  assert.equal(survey.css, newFullCss);
+}
+);
+
 QUnit.test("Apply css for questions on start page", function (assert) {
   const survey = new SurveyModel({
     firstPageIsStarted: true,
@@ -15042,3 +15052,128 @@ QUnit.test("Check survey calculated width mode observability",
     assert.equal(model.calculatedWidthMode, "responsive");
   }
 );
+
+QUnit.test("Survey Localization - check errors update after locale changed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        isRequired: true,
+        name: "question1"
+      },
+      {
+        type: "text",
+        isRequired: true,
+        name: "question2",
+        requiredErrorText: {
+          default: "custom_error_text",
+          de: "custom_error_text_deutch"
+        }
+      },
+      {
+        type: "text",
+        name: "question3",
+        maxErrorText: {
+          default: "custom_max_error_text {0}",
+          de: "custom_max_error_text_deutch {0}"
+        },
+        inputType: "numeric",
+        max: 10,
+      },
+      {
+        type: "text",
+        name: "question4",
+        minErrorText: {
+          default: "custom_min_error_text {0}",
+          de: "custom_min_error_text_deutch {0}"
+        },
+        inputType: "numeric",
+        min: 10,
+      },
+      {
+        type: "text",
+        name: "question5",
+        "validators": [
+          {
+            text: {
+              default: "custom_min_error_text",
+              de: "custom_min_error_text_deutch"
+            },
+            "type": "numeric",
+            "minValue": 10,
+          }
+        ]
+      },
+      {
+        type: "radiogroup",
+        name: "question6",
+        isRequired: true,
+        hasOther: true,
+        otherErrorText: {
+          default: "custom_other_error_text",
+          de: "custom_other_error_text_deutch"
+        }
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("question1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("question2");
+  const q3 = <QuestionTextModel>survey.getQuestionByName("question3");
+  const q4 = <QuestionTextModel>survey.getQuestionByName("question4");
+  const q5 = <QuestionTextModel>survey.getQuestionByName("question5");
+  const q6 = <QuestionTextModel>survey.getQuestionByName("question6");
+  q3.value = 11;
+  q4.value = 9;
+  q5.value = 9;
+  q6.value = "other";
+
+  survey.completeLastPage();
+  assert.equal(q1.errors.length, 1);
+  assert.equal(q1.errors[0].locText.renderedHtml, "Response required.");
+
+  assert.equal(q2.errors.length, 1);
+  assert.equal(q2.errors[0].locText.renderedHtml, "custom_error_text");
+
+  assert.equal(q3.errors.length, 1);
+  assert.equal(q3.errors[0].locText.renderedHtml, "custom_max_error_text 10");
+
+  assert.equal(q4.errors.length, 1);
+  assert.equal(q4.errors[0].locText.renderedHtml, "custom_min_error_text 10");
+
+  assert.equal(q5.errors.length, 1);
+  assert.equal(q5.errors[0].locText.renderedHtml, "custom_min_error_text");
+
+  assert.equal(q6.errors.length, 1);
+  assert.equal(q6.errors[0].locText.renderedHtml, "custom_other_error_text");
+
+  survey.locale = "de";
+
+  assert.equal(q1.errors.length, 1);
+  assert.equal(q1.errors[0].locText.renderedHtml, "Bitte beantworten Sie diese Frage.");
+
+  assert.equal(q2.errors.length, 1);
+  assert.equal(q2.errors[0].locText.renderedHtml, "custom_error_text_deutch");
+
+  assert.equal(q3.errors.length, 1);
+  assert.equal(q3.errors[0].locText.renderedHtml, "custom_max_error_text_deutch 10");
+
+  assert.equal(q4.errors.length, 1);
+  assert.equal(q4.errors[0].locText.renderedHtml, "custom_min_error_text_deutch 10");
+
+  assert.equal(q5.errors.length, 1);
+  assert.equal(q5.errors[0].locText.renderedHtml, "custom_min_error_text_deutch");
+
+  assert.equal(q6.errors.length, 1);
+  assert.equal(q6.errors[0].locText.renderedHtml, "custom_other_error_text_deutch");
+
+  //check that when return to default locale onChange isCalled
+  let onChangedCalled = 0;
+  q1.errors[0].locText.onChanged = () => {
+    onChangedCalled++;
+  };
+  survey.locale = "en";
+
+  assert.equal(q1.errors.length, 1);
+  assert.equal(onChangedCalled, 1);
+  assert.equal(q1.errors[0].locText.renderedHtml, "Response required.");
+});

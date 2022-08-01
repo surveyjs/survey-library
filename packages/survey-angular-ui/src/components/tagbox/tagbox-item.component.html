@@ -1,0 +1,8 @@
+<li class="sv-tagbox__item">
+  <div class="sv-tagbox__item-text">
+    <sv-ng-string [model]="item.locText"></sv-ng-string>
+  </div>
+  <div [class]="question.cssClasses.cleanItemButton" (click)="removeItem($event)">
+    <svg [iconName]="question.cssClasses.cleanItemButtonIconId" [partCss]="question.cssClasses.cleanItemButtonSvg" [size]="16" sv-ng-svg-icon></svg>
+  </div>
+</li>

@@ -219,6 +219,7 @@ frameworks.forEach((framework) => {
   });
 
   test("add row", async (t) => {
+    await t.resizeWindow(1920, 1080);
     await t
       .expect(Selector(".sv_matrix_row").count).eql(2)
       .click(Selector("button[type=button]").withText("Add Subject"))

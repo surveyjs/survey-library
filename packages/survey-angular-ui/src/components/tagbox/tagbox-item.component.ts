@@ -4,8 +4,8 @@ import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
-  selector: "sv-tagbox-item, '[sv-tagbox-item]'",
-  templateUrl: "./tagbox-item.component.html"
+  selector: "sv-ng-tagbox-item, '[sv-ng-tagbox-item]'",
+  templateUrl: "./tagbox-item.component.html",
 })
 export class TagboxItemComponent extends BaseAngular {
   @Input() item!: ItemValue;

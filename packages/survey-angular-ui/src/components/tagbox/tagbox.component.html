@@ -4,9 +4,9 @@
         (keyup)="keyup($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
-        <div *ngIf="(model.isEmpty()" [class]="model.cssClasses.controlValue">{{ model.placeholder }}</div>
-        <ul *ngIf="(!model.isEmpty())" [class]="model.cssClasses.controlValue">
-            <sv-tagbox-item *ngFor="let item of model.selectedItems" [question]="model" [item]="item"></sv-tagbox-item>
+        <div *ngIf="model.isEmpty()" [class]="model.cssClasses.controlValue">{{ model.placeholder }}</div>
+        <ul *ngIf="!model.isEmpty()" [class]="model.cssClasses.controlValue">
+            <sv-ng-tagbox-item *ngFor="let item of model.selectedItems" [item]="item" [question]="model"></sv-ng-tagbox-item>
         </ul>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"
             (click)="clear($event)" [visible]="!model.isEmpty()">

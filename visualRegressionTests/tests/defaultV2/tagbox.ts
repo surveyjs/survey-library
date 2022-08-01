@@ -173,4 +173,48 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("tagbox-disabled-popup-items.png", popupContainer, t, comparer);
     });
   });
+
+  test("Check tagbox multivalue selected items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "question12",
+            hasOther: "true",
+            allowClear: false,
+            defaultValue: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+            ],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+            ]
+          }
+        ]
+      });
+
+      const questionTagbox = Selector(".sd-input.sd-tagbox");
+      await takeElementScreenshot("tagbox-question-multiline-selected-items.png", questionTagbox, t, comparer);
+    });
+  });
 });

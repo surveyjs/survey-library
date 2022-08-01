@@ -2,7 +2,7 @@
 
 SurveyJS Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application. 
 
-![IMAGE]()
+![SurveyJS Library / Runner](images/overview.png)
 
 ## Features
 

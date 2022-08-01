@@ -287,7 +287,7 @@ frameworks.forEach(framework => {
       await applyTheme(theme);
     });
 
-  test.only("Dropdown popup styles", async t => {
+  test("Dropdown popup styles", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActions });
     await t
       .wait(1000)
@@ -301,7 +301,7 @@ frameworks.forEach(framework => {
       .click(clickButton.withText("Short List"));
     await checkElementScreenshot("popup-dropdown-short-list.png", popupSelector, t);
   });
-  test.only("Dropdown popup styles with icons", async t => {
+  test("Dropdown popup styles with icons", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithIcons });
     await t
       .wait(1000)
@@ -311,7 +311,7 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("popup-dropdown-list-with-icons.png", popupSelector, t);
   });
 
-  test.only("Modal popup with long list styles", async t => {
+  test("Modal popup with long list styles", async t => {
     await t.resizeWindow(1000, 600);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupLongList });
     await t.click(clickButton.withText("Modal"));

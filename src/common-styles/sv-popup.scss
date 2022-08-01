@@ -232,3 +232,11 @@ sv-popup {
 .sv-popup__button--apply:disabled {
   background-color: $background-dim;
 }
+.sv-popup--modal, .sv-popup--overlay {
+  .sv-list__filter {
+    padding-top: calcSize(1);
+  }
+  .sv-list__filter-icon {
+    top: calcSize(2.5);
+  }
+}

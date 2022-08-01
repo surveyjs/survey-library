@@ -85,6 +85,9 @@ $base-unit: var(--base-unit, 8px);
   display: flex;
   height: 100%;
   flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .sv-list__filter {

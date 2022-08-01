@@ -372,7 +372,7 @@ export class StylesManager {
     ".sv-popup--overlay .sv-popup__body-footer": "margin-top: calc(2 * var(--base-unit, 8px));",
     ".sv-popup--overlay .sv-popup__body-footer-item": "width: 100%;",
     ".sv-popup--overlay .sv-popup__button--cancel": "background-color: var(--primary, #19b394); border: 2px solid var(--primary, #19b394); color: var(--primary-foreground, #fff);",
-    ".sv-popup__scrolling-content": "height: 100%; overflow: auto; padding: 0 2px 2px 2px",
+    ".sv-popup__scrolling-content": "height: 100%; overflow: auto; padding: 2px; margin: -2px;",
     ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
     ".sv-popup__content": "min-width: 100%;",

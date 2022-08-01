@@ -17,14 +17,8 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div
-        v-if="question.selectedItems.length === 0"
-        :class="question.cssClasses.controlValue"
-      >{{ question.placeholder }}</div>
-      <ul
-        v-if="question.selectedItems.length !== 0"
-        :class="question.cssClasses.controlValue"
-      >
+      <div v-if="question.isEmpty()" :class="question.cssClasses.controlValue">{{ question.placeholder }}</div>
+      <ul v-if="!question.isEmpty()" :class="question.cssClasses.controlValue">
         <sv-tagbox-item
           v-for="(item, index) in question.selectedItems"
           :item="item"

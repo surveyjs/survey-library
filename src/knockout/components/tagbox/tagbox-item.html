@@ -3,7 +3,7 @@
     <!-- ko template: { name: 'survey-string', data: item.locText } -->
     <!-- /ko -->
   </div>
-  <div data-bind="css: question.cssClasses.cleanItemButton">
+  <div data-bind="css: question.cssClasses.cleanItemButton, click: removeItem">
     <sv-svg-icon params="iconName: question.cssClasses.cleanItemButtonIconId, css: question.cssClasses.cleanItemButtonSvg, size: 16"></sv-svg-icon>
   </div>
 </li>

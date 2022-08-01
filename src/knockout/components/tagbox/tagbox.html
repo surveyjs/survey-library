@@ -14,12 +14,12 @@
       'aria-invalid': question.ariaInvalid, 
       'aria-describedby': question.ariaDescribedBy 
     },">
-    <!-- ko if: (question.selectedItems.length === 0) -->
+    <!-- ko if: question.isEmpty() -->
     <div data-bind="text: question.placeholder, css: question.koCss().controlValue"></div>
     <!-- /ko -->
-    <!-- ko if: (question.selectedItems.length !== 0) -->
+    <!-- ko if: !question.isEmpty() -->
     <ul data-bind="css: question.cssClasses.controlValue">
-      <!--ko foreach: question.selectedItems -->
+      <!-- ko foreach: question.renderedValue -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->

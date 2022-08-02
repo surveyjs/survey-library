@@ -162,7 +162,6 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       return (
         <SurveyQuestionMatrixDropdownCell
           key={key}
-          itemCss={cell.className}
           cssClasses={cssClasses}
           cell={cell}
           creator={this.creator}
@@ -291,6 +290,9 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   private get cell(): QuestionMatrixDropdownRenderedCell {
     return this.props.cell;
+  }
+  protected get itemCss(): string {
+    return !!this.cell ? this.cell.className : "";
   }
   protected getQuestion(): Question {
     var q = super.getQuestion();

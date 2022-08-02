@@ -9,6 +9,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
+import { TagboxItemComponent } from "./components/tagbox/tagbox-item.component";
 import { TagboxComponent } from "./components/tagbox/tagbox.component";
 import { DropdownOptionItemComponent } from "./components/renderAs/dropdown-select/dropdown-option-item.component";
 import { DropdownSelectComponent } from "./components/renderAs/dropdown-select/dropdown-select.component";
@@ -95,7 +96,7 @@ import { CompositeQuestionComponent } from "./questions/composite.component";
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
     ListComponent, ListItemComponent,
-    TagboxComponent, TagboxQuestionComponent,
+    TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,

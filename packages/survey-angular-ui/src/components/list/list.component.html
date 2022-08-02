@@ -10,7 +10,7 @@
                 (keyup)="onGoToItems($event)" />
         </div>
         <ul class="sv-list" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
-            <li role="option" *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item" [key2click] [visible]="model.isItemVisible(item)" sv-ng-list-item></li>
+            <sv-ng-list-item *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item"></sv-ng-list-item>
             <!--ko foreach: model.renderedActions -->
             <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
             <!-- /ko -->

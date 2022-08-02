@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, Input } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ListModel, Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -6,6 +6,7 @@ import { AngularComponentFactory } from "../../component-factory";
 @Component({
   selector: "sv-ng-list-item, '[sv-ng-list-item]'",
   templateUrl: "./list-item.component.html",
+  styleUrls: ["../../hide-host.scss"],
 })
 
 export class ListItemComponent extends BaseAngular {
@@ -13,20 +14,20 @@ export class ListItemComponent extends BaseAngular {
   @Input() model!: Action;
   @Input() listModel!: ListModel;
 
-  @HostBinding("attr.aria-selected") get ariaSelected(): boolean | string {
+  get ariaSelected(): boolean | string {
     return this.listModel.isItemSelected(this.model) || "";
   }
-  @HostBinding("class") get class(): string {
+  get class(): string {
     return this.listModel.getItemClass(this.model);
   }
-  @HostBinding("style.paddingLeft") get paddingLeft(): string {
+  get paddingLeft(): string {
     return this.listModel.getItemIndent(this.model);
   }
-  @HostListener("click", ["$event"]) click(event: PointerEvent): void {
+  click(event: any): void {
     this.listModel.onItemClick(this.model);
     event.stopPropagation();
   }
-  @HostListener("pointerdown", ["$event"]) pointerdown(event: PointerEvent): void {
+  pointerdown(event: any): void {
     this.listModel.onPointerDown(event, this.model);
   }
 

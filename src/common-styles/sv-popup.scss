@@ -113,6 +113,11 @@ sv-popup {
   }
 }
 
+.sv-popup--modal .sv-popup__scrolling-content {
+  padding: 2px;
+  margin: -2px;
+}
+
 .sv-popup__scrolling-content {
   height: 100%;
   overflow: auto;

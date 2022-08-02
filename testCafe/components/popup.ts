@@ -239,11 +239,11 @@ frameworks.forEach(async framework => {
   });
 
   test("navigate between list items", async t => {
-    let items = [];
-    for (let index = 0; index < 10; index++) {
-      items[index] = new window["Survey"].Action({ title: "item" + index });
-    }
     const currentAddDropdownTitleAction = (_, opt) => {
+      let items = [];
+      for (let index = 0; index < 10; index++) {
+        items[index] = new window["Survey"].Action({ title: "item" + index });
+      }
       const item = window["Survey"].createDropdownActionModel(
         { title: "Click", showTitle: true },
         { items: items }

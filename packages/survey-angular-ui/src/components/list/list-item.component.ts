@@ -23,11 +23,11 @@ export class ListItemComponent extends BaseAngular {
   get paddingLeft(): string {
     return this.listModel.getItemIndent(this.model);
   }
-  click(event: MouseEvent): void {
+  click(event: any): void {
     this.listModel.onItemClick(this.model);
     event.stopPropagation();
   }
-  pointerdown(event: MouseEvent): void {
+  pointerdown(event: any): void {
     this.listModel.onPointerDown(event, this.model);
   }
 

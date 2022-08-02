@@ -87,6 +87,10 @@
       "Title": "Data Validation"
     },
     {
+      "Name": "localization",
+      "Title": "Localization & Globalization"
+    },
+    {
       "Name": "api",
       "Title": "API",
       "Items": [

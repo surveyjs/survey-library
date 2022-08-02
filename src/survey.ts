@@ -4405,6 +4405,9 @@ export class SurveyModel extends SurveyElementCore
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel) {
+    if(!this.isLoadingFromJson) {
+      this.updateVisibleIndexes();
+    }
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
     if(panelIndex === undefined) {
@@ -4418,6 +4421,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
+    this.updateVisibleIndexes();
     this.onDynamicPanelRemoved.fire(this, {
       question: question,
       panelIndex: panelIndex,

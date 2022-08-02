@@ -6665,7 +6665,14 @@ Serializer.addClass("survey", [
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxOthersLength:number", default: 0, minValue: 0 },
-  "goNextPageAutomatic:boolean",
+  { name: "goNextPageAutomatic:boolean",
+    onSetValue: function (obj: any, value: any) {
+      if(value !== "autogonext") {
+        value = Helpers.isTwoValueEquals(value, true);
+      }
+      obj.setPropertyValue("goNextPageAutomatic", value);
+    }
+  },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

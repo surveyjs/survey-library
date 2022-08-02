@@ -17,7 +17,7 @@ Survey UI is translated into over 50 languages. We ship translated strings as [d
 
 ### Enable Localization and Switch Between Locales
 
-The localization engine that works with dictionaries is available as a separate scrips/module. Reference this script in the `<head>` tag of your page or import this module in the component that renders your survey:
+The localization engine that works with dictionaries is available as a separate script/module. Reference this script in the `<head>` tag of your page or import this module into the component that renders your survey:
 
 ```html
 <script src="https://unpkg.com/survey-core/survey.i18n.min.js"></script>
@@ -27,7 +27,7 @@ The localization engine that works with dictionaries is available as a separate 
 import "survey-core/survey.i18n";
 ```
 
-The default language for UI elements is English. To use another language, set the Survey's [`locale`](https://surveyjs.io/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
+The default language for UI elements is English. To select another language, use the Survey's [`locale`](https://surveyjs.io/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
 
 ```js
 import { Model } from "survey-core";
@@ -69,7 +69,7 @@ surveyLocalization.locales["customlocale"] = customLocaleStrings;
 survey.locale = "customlocale";
 ```
 
-If any translation strings are missing from your custom locale, they will be taken from the default English locale. You can specify the `defaultLocale` property to use another locale as default:
+If any translation strings are missing in your custom locale, they will be taken from the default English locale. You can specify the `defaultLocale` property to use another locale as default:
 
 ```js
 surveyLocalization.defaultLocale = "fr";
@@ -79,7 +79,7 @@ surveyLocalization.defaultLocale = "fr";
 
 ## Localize Survey Contents
 
-You can localize questions, choices, columns, rows, and other survey texts right in the survey JSON definition. Normally, properties that specify survey texts accept string values, as the [`title`](/Documentation/Library?id=Question#title) property in the code below:
+You can localize questions, choices, columns, rows, and other survey texts right in the survey JSON definition. Normally, properties that specify survey texts accept string values, like the [`title`](/Documentation/Library?id=Question#title) property does in the code below:
 
 ```js
 const surveyJson = {
@@ -107,7 +107,7 @@ const surveyJson = {
 };
 ```
 
-You do not have to specify translations for all locales. If a translation is missing from the current locale, the survey takes it from the `default` field.
+You do not have to specify translations for all locales. If a translation is missing for the current locale, the survey takes the translation from the `default` field.
 
 To apply your translations, set the current locale:
 

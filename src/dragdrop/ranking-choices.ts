@@ -13,7 +13,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     event: PointerEvent
   ): HTMLElement {
     const draggedElementShortcut:any = document.createElement("div");
-    draggedElementShortcut.className = this.shortcutClass;
+    draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;

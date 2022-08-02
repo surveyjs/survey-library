@@ -680,7 +680,6 @@ export class Question extends SurveyElement
       .append(cssClasses.collapsed, !!this.isCollapsed)
       .append(cssClasses.withFrame, this.hasFrameV2)
       .append(cssClasses.nested, this.hasParent && this.isDefaultV2Theme)
-      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
   public get cssHeader(): string {
@@ -784,6 +783,7 @@ export class Question extends SurveyElement
     return new CssClassBuilder()
       .append(this.cssRoot)
       .append(this.cssClasses.disabled, this.isReadOnly)
+      .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
@@ -1636,7 +1636,9 @@ export class Question extends SurveyElement
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
     if (!isOnValueChanged && this.hasRequiredError()) {
-      errors.push(new AnswerRequiredError(this.requiredErrorText, this));
+      const err = new AnswerRequiredError(this.requiredErrorText, this);
+      err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
+      errors.push(err);
     }
   }
   protected hasRequiredError(): boolean {

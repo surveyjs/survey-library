@@ -1,6 +1,7 @@
 import { Helpers } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { settings } from "./settings";
+import { EventBase } from "./base";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -64,6 +65,7 @@ export class LocalizableString implements ILocalizableString {
       this.calculatedTextValue = undefined;
     }
     this.onChanged();
+    this.onStringChanged.fire(this, {});
   }
   public get text(): string {
     return this.pureText;
@@ -268,6 +270,7 @@ export class LocalizableString implements ILocalizableString {
     return this.searchIndex != undefined;
   }
   public onChanged() {}
+  public onStringChanged: EventBase<LocalizableString> = new EventBase<LocalizableString>();
   protected onCreating() {}
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;

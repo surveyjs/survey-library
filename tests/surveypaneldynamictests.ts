@@ -818,6 +818,10 @@ QUnit.test("PanelDynamic, question no", function(assert) {
     "onPanel - panelQuestion2.visibleIndex"
   );
   assert.equal(question2.visibleIndex, 2, "onPanel - question2.visibleIndex");
+  panel.addPanel();
+  var panelQuestion3 = <Question>panel.panels[2].questions[1];
+  assert.equal(panelQuestion3.visibleIndex, 1, "onPanel - panelQuestion3.visibleIndex");
+  panel.removePanel(2);
 
   panel.showQuestionNumbers = "onSurvey";
   assert.equal(question1.visibleIndex, 0, "onSurvey - question1.visibleIndex");
@@ -834,6 +838,11 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   );
   assert.equal(question2.visibleIndex, 5, "onSurvey - question2.visibleIndex");
 
+  panel.addPanel();
+  panelQuestion3 = <Question>panel.panels[2].questions[1];
+  assert.equal(panelQuestion3.visibleIndex, 4 + 2, "onSurvey - panelQuestion3.visibleIndex");
+  panel.removePanel(2);
+
   panelQuestion1.visible = false;
   assert.equal(
     panelQuestion2.visibleIndex,
@@ -844,6 +853,9 @@ QUnit.test("PanelDynamic, question no", function(assert) {
     question2.visibleIndex,
     4,
     "onSurvey, panelQuestion1 is invisible - question2.visibleIndex"
+  );
+  panel.removePanel(1);
+  assert.equal(question2.visibleIndex, 2, "onSurvey, second panel is removed - question2.visibleIndex"
   );
 });
 

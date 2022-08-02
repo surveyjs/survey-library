@@ -42,7 +42,7 @@ import { settings } from "./settings";
 import { getSize, isContainerVisible, isMobile, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
@@ -1191,10 +1191,19 @@ export class SurveyModel extends SurveyElementCore
     return this.cssValue;
   }
   public set css(value: any) {
-    this.mergeValues(value, this.css);
+    this.setCss(value);
+  }
+
+  public setCss(value: any, needMerge = true) {
+    if(needMerge) {
+      this.mergeValues(value, this.css);
+    } else {
+      this.cssValue = value;
+    }
     this.updateCss();
     this.updateElementCss(false);
   }
+
   public get cssTitle(): string {
     return this.css.title;
   }
@@ -4396,6 +4405,9 @@ export class SurveyModel extends SurveyElementCore
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel) {
+    if(!this.isLoadingFromJson) {
+      this.updateVisibleIndexes();
+    }
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
     if(panelIndex === undefined) {
@@ -4409,6 +4421,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
+    this.updateVisibleIndexes();
     this.onDynamicPanelRemoved.fire(this, {
       question: question,
       panelIndex: panelIndex,
@@ -5370,10 +5383,7 @@ export class SurveyModel extends SurveyElementCore
 
   private updateNavigationBarCss() {
     const val = this.navigationBar;
-    const cssClasses = this.css.actionBar;
-    if (!!cssClasses) {
-      val.cssClasses = cssClasses;
-    }
+    val.cssClasses = this.css.actionBar;
     val.containerCss = this.css.footer;
   }
   protected createNavigationBar(): ActionContainer {
@@ -6659,7 +6669,14 @@ Serializer.addClass("survey", [
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxOthersLength:number", default: 0, minValue: 0 },
-  "goNextPageAutomatic:boolean",
+  { name: "goNextPageAutomatic:boolean",
+    onSetValue: function (obj: any, value: any) {
+      if(value !== "autogonext") {
+        value = Helpers.isTwoValueEquals(value, true);
+      }
+      obj.setPropertyValue("goNextPageAutomatic", value);
+    }
+  },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

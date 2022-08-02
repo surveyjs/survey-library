@@ -793,4 +793,12 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.toggleState();
     }
   }
+  public localeChanged() {
+    super.localeChanged();
+    if(this.errors.length > 0) {
+      this.errors.forEach(err => {
+        err.updateText();
+      });
+    }
+  }
 }

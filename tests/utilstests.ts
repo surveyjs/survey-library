@@ -6,7 +6,9 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
   element.innerHTML = text;
   const selection = document.getSelection();
   const range = document.createRange();
-  range.setStart(element.childNodes[selectionNodeIndex], selectionStart);
+  if(selectionNodeIndex >= 0) {
+    range.setStart(element.childNodes[selectionNodeIndex], selectionStart);
+  }
   range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
@@ -40,6 +42,10 @@ QUnit.test(
     var res = checkSanitizer(element, "some<b>t</b>ext", 2, 1);
     assert.equal(res.text, "sometext");
     assert.equal(res.offset, 6);
+
+    var res = checkSanitizer(element, "", -1, 0);
+    assert.equal(res.text, "");
+    assert.equal(res.offset, 0);
 
     element.remove();
   }

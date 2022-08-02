@@ -245,3 +245,20 @@ jobs:
     - script: |
         npm run visual-regression-tests:ci:angular
       displayName: "run vrt tests"
+    
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT'
+        OverWrite: true
+      condition: always()
+      displayName: 'copy vrt artifacts'
+      
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/'
+        ArtifactName: 'Library_Angular_VRT'
+        publishLocation: 'Container'
+      condition: always()
+      displayName: 'publish vrt artifacts'

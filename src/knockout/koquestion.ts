@@ -15,7 +15,7 @@ export class QuestionImplementor extends ImplementorBase {
     var isSynchronizing = false;
     this._koValue.subscribe((newValue) => {
       if (!isSynchronizing) {
-        this.question.value = newValue;
+        this.setKoValue(newValue);
       }
     });
 
@@ -84,6 +84,9 @@ export class QuestionImplementor extends ImplementorBase {
   }
   protected getKoValue() {
     return this.question.value;
+  }
+  protected setKoValue(val: any) {
+    this.question.value = val;
   }
   protected onSurveyLoad() {}
   protected getQuestionTemplate(): string {

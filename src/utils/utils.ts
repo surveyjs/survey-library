@@ -262,7 +262,7 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
   }
 }
 export function sanitizeEditableContent(element: any) {
-  if (window.getSelection && document.createRange) {
+  if (window.getSelection && document.createRange && element.childNodes.length > 0) {
     const selection = document.getSelection();
 
     let range = selection.getRangeAt(0);

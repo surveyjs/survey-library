@@ -60,6 +60,24 @@ function addDropdownActions(_, opt) {
   opt.titleActions = [dropDownWithSearch, dropDownWithSearchAction];
 }
 
+function addDropdownActionsWithIcons(_, opt) {
+  const getItemWithIconList = () => {
+    return [new window["Survey"].Action({ title: "item1", iconName: "icon-search" }), new window["Survey"].Action({ title: "item2", iconName: "icon-search" })];
+  };
+  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list",
+    { model: new window["Survey"].ListModel(getItemWithIconList()) }, "bottom", "left", true);
+  const dropDownWithIcons = new window["Survey"].Action({
+    component: "sv-action-bar-item-dropdown",
+    title: "List Icons",
+    showTitle: true,
+    action: () => {
+      itemPopupModel1.toggleVisibility();
+    },
+    popupModel: itemPopupModel1
+  });
+  opt.titleActions = [dropDownWithIcons];
+}
+
 function addActionsWithModalPopupLongList(_, opt) {
   const getLongItemList = () => {
     let longList = [];
@@ -282,6 +300,15 @@ frameworks.forEach(framework => {
       .click(clickButton.withText("Long List"))
       .click(clickButton.withText("Short List"));
     await checkElementScreenshot("popup-dropdown-short-list.png", popupSelector, t);
+  });
+  test("Dropdown popup styles with icons", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithIcons });
+    await t
+      .wait(1000)
+      .resizeWindow(1000, 600)
+      .wait(1000)
+      .click(clickButton.withText("List Icons"));
+    await checkElementScreenshot("popup-dropdown-list-with-icons.png", popupSelector, t);
   });
 
   test("Modal popup with long list styles", async t => {

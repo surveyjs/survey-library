@@ -5,6 +5,7 @@ import { AngularComponentFactory } from "../../component-factory";
 @Component({
   selector: "sv-ng-list, '[sv-ng-list]'",
   templateUrl: "./list.component.html",
+  styleUrls: ["../../hide-host.scss"]
 })
 export class ListComponent extends BaseAngular {
   @Input() model: any;

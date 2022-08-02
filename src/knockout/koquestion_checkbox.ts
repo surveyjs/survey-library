@@ -12,6 +12,9 @@ export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor
   protected getKoValue() {
     return this.question.renderedValue;
   }
+  protected setKoValue(val: any) {
+    this.question.renderedValue = val;
+  }
 }
 
 export class QuestionCheckbox extends QuestionCheckboxModel {

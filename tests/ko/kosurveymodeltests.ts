@@ -156,6 +156,33 @@ QUnit.test(
     assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
   }
 );
+QUnit.test("checkbox and valuePropertyName", (assert) => {
+  const survey = new Survey({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+      }
+    ]
+  });
+  const q = <QuestionCheckbox>survey.getQuestionByName("q1");
+  q.valuePropertyName = "fruit";
+  q.koValue(["apple"]);
+  assert.deepEqual(q.value, [{ fruit: "apple" }], "#1");
+  assert.deepEqual(q.koValue(), ["apple"], "#2");
+  assert.equal(q.isItemSelected(q.choices[0]), true, "#2.1");
+  assert.equal(q.isItemSelected(q.choices[1]), false, "#2.2");
+  assert.equal(q.isItemSelected(q.choices[2]), false, "#2.3");
+  q.value = [{ fruit: "apple" }, { fruit: "orange" }];
+  assert.deepEqual(q.koValue(), ["apple", "orange"], "#3");
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple" }, { fruit: "orange" }] }, "convert to data correctly, #4");
+  assert.equal(q.isItemSelected(q.choices[0]), true, "#3.1");
+  assert.equal(q.isItemSelected(q.choices[1]), false, "#3.2");
+  assert.equal(q.isItemSelected(q.choices[2]), true, "#3.3");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: [{ fruit: "apple" }, { fruit: "orange" }] }, "survey.data is correct on complete, #5");
+});
 QUnit.test(
   "Do not change currentPage on calculating expressions, Bug T3455",
   function(assert) {

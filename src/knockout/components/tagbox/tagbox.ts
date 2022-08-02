@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { DropdownMultiSelectListModel } from "survey-core";
+import { DropdownMultiSelectListModel, ItemValue } from "survey-core";
 
 const template = require("./tagbox.html");
 
@@ -8,22 +8,23 @@ export var TagboxViewModel: any;
 ko.components.register("sv-tagbox", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
+      const q = params.question;
       const click = (_: any, e: any) => {
-        params.question.dropdownListModel?.onClick(e);
+        q.dropdownListModel?.onClick(e);
       };
       const clear = (_: any, e: any) => {
-        params.question.dropdownListModel?.onClear(e);
+        q.dropdownListModel?.onClear(e);
       };
       const keyup = (_: any, e: any) => {
-        params.question.dropdownListModel?.onKeyUp(e);
+        q.dropdownListModel?.onKeyUp(e);
       };
       const blur = (_: any, e: any) => {
-        params.question.dropdownListModel?.onBlur(e);
+        q.dropdownListModel?.onBlur(e);
       };
-      if (!params.question.dropdownListModel) {
-        params.question.dropdownListModel = new DropdownMultiSelectListModel(params.question);
+      if (!q.dropdownListModel) {
+        q.dropdownListModel = new DropdownMultiSelectListModel(q);
       }
-      return { question: params.question, popupModel: params.question?.dropdownListModel?.popupModel, click: click, clear: clear, keyup: keyup, blur: blur };
+      return { question: q, popupModel: q?.dropdownListModel?.popupModel, click: click, clear: clear, keyup: keyup, blur: blur };
     },
   },
   template: template,

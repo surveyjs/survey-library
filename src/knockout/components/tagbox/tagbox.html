@@ -1,6 +1,6 @@
-  <div data-bind="css: question.koCss().selectWrapper">
-    <!-- ko ifnot: question.isReadOnly -->
-    <div data-bind="css: question.getControlClass(),
+<div data-bind="css: question.koCss().selectWrapper">
+  <!-- ko ifnot: question.isReadOnly -->
+  <div data-bind="css: question.getControlClass(),
     click: click, 
     event: { keyup: keyup, blur: blur },
     attr: { 
@@ -14,20 +14,30 @@
       'aria-invalid': question.ariaInvalid, 
       'aria-describedby': question.ariaDescribedBy 
     },">
-    <div data-bind="text: question.readOnlyText, css: question.koCss().controlValue"></div> 
-      <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-      <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
-        <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto' } } -->
-        <!-- /ko -->
-      </div>
+    <!-- ko if: question.isEmpty() -->
+    <div data-bind="text: question.placeholder, css: question.koCss().controlValue"></div>
+    <!-- /ko -->
+    <!-- ko if: !question.isEmpty() -->
+    <ul data-bind="css: question.cssClasses.controlValue">
+      <!-- ko foreach: question.renderedValue -->
+      <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
-    </div>
-    <!-- ko component: { name: "sv-popup", params: { model: popupModel }} -->
+      <!-- /ko -->
+    </ul>
     <!-- /ko -->
-    <!-- /ko -->
-    <!-- ko if: question.isReadOnly -->
-    <div disabled
-      data-bind="text: question.readOnlyText, css: question.getControlClass(), attr: { id: question.inputId }, ">
+    <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
+    <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
+      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto' } } -->
+      <!-- /ko -->
     </div>
     <!-- /ko -->
   </div>
+  <!-- ko component: { name: "sv-popup", params: { model: popupModel }} -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko if: question.isReadOnly -->
+  <div disabled
+    data-bind="text: question.readOnlyText, css: question.getControlClass(), attr: { id: question.inputId }, ">
+  </div>
+  <!-- /ko -->
+</div>

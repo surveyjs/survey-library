@@ -20,18 +20,6 @@ export class SurveyQuestionDropdown extends SurveyQuestionDropdownBase<Question>
       </div>
     );
   }
-  protected renderOther(cssClasses: any): JSX.Element {
-    return (
-      <div className="form-group">
-        <SurveyQuestionCommentItem
-          question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
-      </div>
-    );
-  }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("dropdown", (props) => {

@@ -1,18 +1,20 @@
-<div class="sv-list__container">
-    <div *ngIf="model.needFilter" class="sv-list__filter">
-        <div class="sv-list__filter-icon">
-            <svg class="sv-list__item-icon" [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
+<ng-template #template>
+    <div class="sv-list__container">
+        <div *ngIf="model.needFilter" class="sv-list__filter">
+            <div class="sv-list__filter-icon">
+                <svg class="sv-list__item-icon" [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
+            </div>
+            <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
+                [attr.aria-label]="model.filteredTextPlaceholder || ''"
+                [attr.placeholder]="model.filteredTextPlaceholder || ''"
+                (keyup)="onGoToItems($event)" />
         </div>
-        <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
-            [attr.aria-label]="model.filteredTextPlaceholder || ''"
-            [attr.placeholder]="model.filteredTextPlaceholder || ''"
-            (keyup)="onGoToItems($event)" />
+        <ul class="sv-list" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
+            <sv-ng-list-item *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item"></sv-ng-list-item>
+            <!--ko foreach: model.renderedActions -->
+            <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
+            <!-- /ko -->
+            <!-- /ko -->
+        </ul>
     </div>
-    <ul class="sv-list" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
-        <li role="option" *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item" [key2click] [visible]="model.isItemVisible(item)" sv-ng-list-item></li>
-        <!--ko foreach: model.renderedActions -->
-        <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
-        <!-- /ko -->
-        <!-- /ko -->
-    </ul>
-</div>
+</ng-template>

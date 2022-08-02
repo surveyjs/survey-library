@@ -22,6 +22,7 @@
 @import "blocks/sd-rating.scss";
 @import "blocks/sd-ranking.scss";
 @import "blocks/sd-dropdown.scss";
+@import "blocks/sd-tagbox.scss";
 @import "blocks/sd-imagepicker.scss";
 @import "blocks/sd-image.scss";
 @import "blocks/sd-html.scss";
@@ -50,7 +51,6 @@
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
 @import "../common-styles/sv-brand-info.scss";
-
 
 body {
   --sv-defaultV2-mark: true;
@@ -91,26 +91,27 @@ body {
   .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
-
-    &::-webkit-scrollbar {
-      width: 12px;
-      height: 12px;
-      background-color: $background;
-    }
-    &::-webkit-scrollbar-thumb {
-      border: 4px solid rgba(0, 0, 0, 0);
-      background-clip: padding-box;
-      border-radius: 32px;
-      background-color: $border;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      border: 2px solid rgba(0, 0, 0, 0);
-      background-color: $foreground-light;
+    *, & {
+      &::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+        background-color: $background;
+      }
+      &::-webkit-scrollbar-thumb {
+        border: 4px solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 32px;
+        background-color: $border;
+      }
+  
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+  
+      &::-webkit-scrollbar-thumb:hover {
+        border: 2px solid rgba(0, 0, 0, 0);
+        background-color: $foreground-light;
+      }
     }
   }
 }
@@ -139,8 +140,4 @@ body {
   .sv-popup__body-content {
     background-color: $background-dim;
   }
-}
-
-.sv-list__input:focus {
-  border: 1px solid transparent;
 }

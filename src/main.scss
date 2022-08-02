@@ -101,6 +101,27 @@ body {
     height: 1em;
   }
 
+  .sv_q_input.sv_q_tagbox {
+    height: auto;
+  }
+  .sv_q_tagbox__value.sv_q_dropdown__value {
+    display: flex;
+    flex-wrap: wrap;
+    padding-inline: unset;
+    margin-inline: unset;
+    margin-block: unset;
+    gap: 4px;
+  }
+  .sv-tagbox__item {
+    position: relative;
+    display: flex;
+    border-radius: 2px;
+    color: white;
+    background-color: rgb(26, 179, 148);
+  }
+  .sv_q_tagbox-item_clean-button-svg use {
+    fill: white;
+  }
   .sv_select_wrapper {
     background-color: $body-background-color;
     &:before {

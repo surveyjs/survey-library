@@ -1,7 +1,12 @@
-<ng-container *ngIf="!model.component">
-<svg *ngIf="model.iconName" class="sv-list__model-icon" [iconName]="model.iconName" [size]="24" sv-ng-svg-icon></svg>
-<span>{{ model.title }}</span>
-</ng-container>
-<ng-container *ngIf="model.component">
-  <ng-template [component]="{ name: model.component, data: { model: model } }"></ng-template>
-</ng-container>
+<ng-template #template>
+  <li role="option" [key2click] [visible]="listModel.isItemVisible(model)" [class]="class" [style.paddingLeft]="paddingLeft" [attr.aria-selected]="ariaSelected" (click)="click($event)" (pointerdown)="pointerdown($event)">
+    <ng-container *ngIf="!model.component">
+      <svg *ngIf="model.iconName" class="sv-list__item-icon" [iconName]="model.iconName" [size]="24"
+        sv-ng-svg-icon></svg>
+      <span>{{ model.title }}</span>
+    </ng-container>
+    <ng-container *ngIf="model.component">
+      <ng-template [component]="{ name: model.component, data: { model: model } }"></ng-template>
+    </ng-container>
+  </li>
+</ng-template>

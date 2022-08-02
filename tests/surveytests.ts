@@ -3716,6 +3716,15 @@ QUnit.test(
     assert.notEqual(survey.state, "completed", "survey is still running");
   }
 );
+QUnit.test("test goNextPageAutomatic property - 'autogonext' - load from survey", function (assert) {
+  const survey = new SurveyModel({
+    goNextPageAutomatic: "autogonext",
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  assert.equal(survey.goNextPageAutomatic, "autogonext", "goNextPageAutomatic set to autogonext on loading correctly");
+});
 QUnit.test("test goNextPageAutomatic after errors", function (assert) {
   var survey = twoPageSimplestSurvey();
 

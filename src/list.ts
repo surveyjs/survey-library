@@ -4,6 +4,13 @@ import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 
+export interface IListModel {
+  items: Array<IAction>;
+  onSelectionChanged: (item: Action, ...params: any[]) => void;
+  allowSelection: boolean;
+  selectedItem?: IAction;
+  onFilteredTextChangedCallback?: (text: string) => void;
+}
 export class ListModel extends ActionContainer {
   @property({
     defaultValue: true,

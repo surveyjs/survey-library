@@ -1,6 +1,8 @@
 import { LocalizableString } from "survey-core";
 import { Base } from "../base";
 import { property } from "../jsonobject";
+import { IListModel, ListModel } from "../list";
+import { IPopupModel, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
@@ -121,6 +123,34 @@ export interface IAction {
   mode?: actionModeType;
   visibleIndex?: number;
   needSpace?: boolean;
+}
+
+export function createDropdownActionModel(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupModel): Action {
+  const listModel: ListModel = new ListModel(
+    listOptions.items,
+    (item: Action) => {
+      listOptions.onSelectionChanged(item),
+      innerPopupModel.toggleVisibility();
+    },
+    listOptions.allowSelection,
+    listOptions.selectedItem,
+    listOptions.onFilteredTextChangedCallback
+  );
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);
+  innerPopupModel.displayMode = popupOptions?.displayMode as any;
+
+  const newActionOptions = Object.assign({}, actionOptions, {
+    component: "sv-action-bar-item-dropdown",
+    popupModel: innerPopupModel,
+    action: () => {
+      !!(actionOptions.action) && actionOptions.action();
+      innerPopupModel.toggleVisibility();
+    },
+  });
+  const newAction: Action = new Action(newActionOptions);
+  newAction.data = listModel;
+
+  return newAction;
 }
 
 export class Action extends Base implements IAction {

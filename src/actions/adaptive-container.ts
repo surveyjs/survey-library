@@ -1,30 +1,14 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
-import { PopupModel } from "../popup";
-import { Action, actionModeType, IAction } from "./action";
+import { Action, actionModeType, createDropdownActionModel, IAction } from "./action";
 import { ActionContainer } from "./container";
 import { surveyLocalization } from "src/surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
-  protected dotsItemPopupModel: PopupModel;
-  private responsivityManager: ResponsivityManager;
+    private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
-  protected invisibleItemsListModel: ListModel = new ListModel(
-    [],
-    (item: T) => {
-      this.invisibleItemSelected(item);
-      this.dotsItemPopupModel.toggleVisibility();
-    },
-    false
-  );
-
-  private invisibleItemSelected(item: T): void {
-    if (!!item && typeof item.action === "function") {
-      item.action();
-    }
-  }
 
   private hideItemsGreaterN(visibleItemsCount: number) {
     const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
@@ -66,22 +50,26 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   constructor() {
     super();
-    this.dotsItemPopupModel = new PopupModel("sv-list", {
-      model: this.invisibleItemsListModel
-    });
-    this.dotsItem = new Action({
+
+    this.dotsItem = createDropdownActionModel({
       id: "dotsItem-id" + AdaptiveActionContainer.ContainerID++,
-      component: "sv-action-bar-item-dropdown",
       css: "sv-dots",
       innerCss: "sv-dots__item",
       iconName: "icon-more",
       visible: false,
       tooltip: surveyLocalization.getString("more"),
-      action: (item: any) => {
-        this.dotsItemPopupModel.toggleVisibility();
+    }, {
+      items: [],
+      onSelectionChanged: (item: T) => {
+        if (!!item && typeof item.action === "function") {
+          item.action();
+        }
       },
-      popupModel: this.dotsItemPopupModel
+      allowSelection: false
     });
+  }
+  public get invisibleItemsListModel(): ListModel {
+    return this.dotsItem.data as ListModel;
   }
   protected onSet() {
     this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));

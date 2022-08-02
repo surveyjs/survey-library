@@ -60,20 +60,10 @@ function addModalPopupTitleAction(survey, opt) {
 }
 
 function addDropdownTitleAction(_, opt) {
-  const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel([
-      new window["Survey"].Action({ title: "Item 1" }),
-    ]),
-  }, "bottom", "left", true);
-  const item = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Click",
-    showTitle: true,
-    action: () => {
-      itemPopupModel.toggleVisibility();
-    },
-    popupModel: itemPopupModel
-  });
+  const item = window["Survey"].createDropdownActionModel(
+    { title: "Click", showTitle: true },
+    { items: [new window["Survey"].Action({ title: "Item 1" })] }
+  );
   opt.titleActions = [item];
 }
 
@@ -249,23 +239,15 @@ frameworks.forEach(async framework => {
   });
 
   test("navigate between list items", async t => {
+    let items = [];
+    for (let index = 0; index < 10; index++) {
+      items[index] = new window["Survey"].Action({ title: "item" + index });
+    }
     const currentAddDropdownTitleAction = (_, opt) => {
-      let items = [];
-      for (let index = 0; index < 10; index++) {
-        items[index] = new window["Survey"].Action({ title: "item" + index });
-      }
-      const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-        model: new window["Survey"].ListModel(items)
-      });
-      const item = new window["Survey"].Action({
-        component: "sv-action-bar-item-dropdown",
-        title: "Click",
-        showTitle: true,
-        action: () => {
-          itemPopupModel.toggleVisibility();
-        },
-        popupModel: itemPopupModel
-      });
+      const item = window["Survey"].createDropdownActionModel(
+        { title: "Click", showTitle: true },
+        { items: items }
+      );
       opt.titleActions = [item];
     };
     let listItems = popupSelector.find(".sv-list__item");
@@ -296,19 +278,10 @@ frameworks.forEach(async framework => {
       for (let index = 0; index < 20; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }
-      const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-        model: new window["Survey"].ListModel(items)
-      });
-
-      const item = new window["Survey"].Action({
-        component: "sv-action-bar-item-dropdown",
-        title: "Click",
-        showTitle: true,
-        action: () => {
-          itemPopupModel.toggleVisibility();
-        },
-        popupModel: itemPopupModel
-      });
+      const item = window["Survey"].createDropdownActionModel(
+        { title: "Click", showTitle: true },
+        { items: items }
+      );
       opt.titleActions = [item];
     };
     const insertContainer = ClientFunction(() => {

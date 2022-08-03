@@ -13,7 +13,11 @@ export class ListModel extends ActionContainer {
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
-  @property() selectedItem: IAction;
+  @property({
+    onSet: (newValue: boolean, target: ListModel) => {
+      target.updateItemActiveState();
+    }
+  }) selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
       target.onFilteredTextChanged(target.filteredText);
@@ -56,6 +60,10 @@ export class ListModel extends ActionContainer {
   protected onSet(): void {
     this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
+  }
+
+  protected updateItemActiveState() {
+    this.actions.forEach(action => action.active = this.isItemSelected(action));
   }
 
   public onItemClick = (itemValue: Action) => {

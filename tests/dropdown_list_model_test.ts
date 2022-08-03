@@ -91,12 +91,20 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
 
   list.onItemClick(list.actions[0]);
   assert.equal(question.value, "item1");
+  assert.equal(list.selectedItem, list.actions[0]);
+  assert.equal(list.actions[0].active, true);
 
   list.onItemClick(list.actions[3]);
   assert.equal(question.value, "item4");
+  assert.equal(list.selectedItem, list.actions[3]);
+  assert.equal(list.actions[0].active, false);
+  assert.equal(list.actions[3].active, true);
 
   dropdownListModel.onClear(new Event("click"));
   assert.equal(question.value, undefined);
+  assert.equal(list.selectedItem, undefined);
+  assert.equal(list.actions[0].active, false);
+  assert.equal(list.actions[3].active, false);
 });
 
 QUnit.test("DropdownListModel with MultiListModel", (assert) => {

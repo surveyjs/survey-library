@@ -7,7 +7,7 @@ import { ElementHelper } from "./element-helper";
 export interface IListModel {
   items: Array<IAction>;
   onSelectionChanged: (item: Action, ...params: any[]) => void;
-  allowSelection: boolean;
+  allowSelection?: boolean;
   selectedItem?: IAction;
   onFilteredTextChangedCallback?: (text: string) => void;
 }

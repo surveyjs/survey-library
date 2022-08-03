@@ -2,7 +2,7 @@ import { LocalizableString } from "survey-core";
 import { Base } from "../base";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
-import { IPopupModel, PopupModel } from "../popup";
+import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
@@ -125,13 +125,13 @@ export interface IAction {
   needSpace?: boolean;
 }
 
-export interface IDropdownOptions extends IListModel, IPopupModel {
+export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
 }
-export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IDropdownOptions): Action {
+export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions): Action {
   const newAction = createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
   return newAction;
 }
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupModel): Action {
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {

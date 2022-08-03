@@ -1,7 +1,7 @@
 import { property, propertyArray } from "../jsonobject";
 import { Base } from "../base";
 import { IAction, Action } from "./action";
-import { CssClassBuilder } from "survey-core";
+import { CssClassBuilder } from "../utils/cssClassBuilder";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",

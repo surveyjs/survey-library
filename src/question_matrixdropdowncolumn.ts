@@ -637,7 +637,7 @@ Serializer.addClass(
     { name: "title", serializationProperty: "locTitle", dependsOn: "name",
       onPropertyEditorUpdate: function(obj: any, editor: any) {
         if(!!obj && !!editor) {
-          editor.placeHolder = obj.name;
+          editor.placeholder = obj.name;
         }
       }
     },

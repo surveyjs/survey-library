@@ -49,7 +49,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         this.updateValueOnEvent(e);
       }
     };
-    var placeHolder = this.question.renderedPlaceHolder;
+    const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
@@ -67,7 +67,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         max={this.question.renderedMax}
         step={this.question.renderedStep}
         size={this.question.inputSize}
-        placeholder={placeHolder}
+        placeholder={placeholder}
         list={this.question.dataListId}
         autoComplete={this.question.autoComplete}
         onBlur={this.updateValueOnEvent}

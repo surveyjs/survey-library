@@ -92,7 +92,7 @@ registerMarkupTest({
         type: "text",
         inputType: "email",
         title: "Your e-mail:",
-        placeHolder: "jon.snow@nightwatch.org",
+        placeholder: "jon.snow@nightwatch.org",
         isRequired: true,
         autoComplete: "email",
         validators: [

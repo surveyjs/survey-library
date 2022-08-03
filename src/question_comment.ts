@@ -95,7 +95,9 @@ Serializer.addClass(
     { name: "maxLength:number", default: -1 },
     { name: "cols:number", default: 50 },
     { name: "rows:number", default: 4 },
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    { name: "placeholder",
+      alternativeName: "placeHolder",
+      serializationProperty: "locPlaceholder" },
     {
       name: "textUpdateMode",
       default: "default",

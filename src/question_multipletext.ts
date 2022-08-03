@@ -149,14 +149,23 @@ export class MultipleTextItemModel extends Base
   /**
    * The input place holder.
    */
+  public get placeholder(): string {
+    return this.editor.placeholder;
+  }
+  public set placeholder(val: string) {
+    this.editor.placeholder = val;
+  }
+  get locPlaceholder(): LocalizableString {
+    return this.editor.locPlaceholder;
+  }
   public get placeHolder(): string {
-    return this.editor.placeHolder;
+    return this.placeholder;
   }
   public set placeHolder(val: string) {
-    this.editor.placeHolder = val;
+    this.placeholder = val;
   }
   get locPlaceHolder(): LocalizableString {
-    return this.editor.locPlaceHolder;
+    return this.locPlaceholder;
   }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
@@ -606,7 +615,7 @@ Serializer.addClass(
   [
     "name",
     "isRequired:boolean",
-    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
+    { name: "placeholder", alternativeName: "placeHolder", serializationProperty: "locPlaceholder" },
     {
       name: "inputType",
       default: "text",

@@ -32,7 +32,7 @@ export class QuestionTextModel extends QuestionTextBase {
     );
     this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
       this.updateInputSize();
-      this.calcRenderedPlaceHolder();
+      this.calcRenderedPlaceholder();
     });
   }
   protected isTextValue(): boolean {
@@ -551,8 +551,9 @@ Serializer.addClass(
       },
     },
     {
-      name: "placeHolder",
-      serializationProperty: "locPlaceHolder",
+      name: "placeholder",
+      alternativeName: "placeHolder",
+      serializationProperty: "locPlaceholder",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;

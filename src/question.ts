@@ -1976,7 +1976,7 @@ Serializer.addClass("question", [
   { name: "title:text", serializationProperty: "locTitle", layout: "row", dependsOn: "name",
     onPropertyEditorUpdate: function(obj: any, editor: any) {
       if(!!obj && !!editor) {
-        editor.placeHolder = obj.name;
+        editor.placeholder = obj.name;
       }
     }
   },

@@ -1412,7 +1412,7 @@ QUnit.test("MatrixDropdownColumn add/remove serialization properties", function 
   var column = new MatrixDropdownColumn("col1");
   assert.ok(column["placeholder"], "placeholder property has been created");
   assert.ok(column["locPlaceholder"], "Serialization property has been created for placeholder");
-  column.cellType = "text";
+  column.cellType = "radiogroup";
   assert.notOk(column["placeholder"], "placeholder property has been removed");
   assert.notOk(column["locPlaceholder"], "Serialization property has been removed for placeholder");
 });

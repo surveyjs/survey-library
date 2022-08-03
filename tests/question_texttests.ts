@@ -1,7 +1,7 @@
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
-import { Serializer } from "../src/jsonobject";
+import { QuestionTextBase } from "../src/question_textbase";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -19,7 +19,7 @@ QUnit.test("check dropdown disabled class", function(assert) {
   question.readOnly = true;
   assert.ok(question.getControlClass().indexOf("sv_q_text_disabled") != -1);
 });
-QUnit.test("Test renderedPlaceHolder", function(assert) {
+QUnit.test("Test renderedPlaceholder", function(assert) {
   var json = {
     questions: [
       {
@@ -43,21 +43,21 @@ QUnit.test("Test renderedPlaceHolder", function(assert) {
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
   const q2 = <QuestionCommentModel>survey.getAllQuestions()[1];
   const q3 = <QuestionTextModel>survey.getAllQuestions()[2];
-  assert.notOk(q1.renderedPlaceHolder, "q1, there is no placeHolder");
-  assert.equal(q2.renderedPlaceHolder, "comment_2", "q2 has placeHolder");
-  assert.notOk(q3.renderedPlaceHolder, "q3, question is readOnly");
+  assert.notOk(q1.renderedPlaceholder, "q1, there is no placeHolder");
+  assert.equal(q2.renderedPlaceholder, "comment_2", "q2 has placeHolder");
+  assert.notOk(q3.renderedPlaceholder, "q3, question is readOnly");
   q2.readOnly = true;
-  assert.notOk(q2.renderedPlaceHolder, "q2, question is readOnly");
+  assert.notOk(q2.renderedPlaceholder, "q2, question is readOnly");
   q3.readOnly = false;
-  assert.equal(q3.renderedPlaceHolder, "text_3", "q3 is not readOnly any more");
+  assert.equal(q3.renderedPlaceholder, "text_3", "q3 is not readOnly any more");
   q1.placeHolder = "text_1";
-  assert.equal(q1.renderedPlaceHolder, "text_1", "q1 has placeHolder now");
+  assert.equal(q1.renderedPlaceholder, "text_1", "q1 has placeHolder now");
   q1.inputType = "range";
-  assert.notOk(q1.renderedPlaceHolder, "q1 has inputType range");
+  assert.notOk(q1.renderedPlaceholder, "q1 has inputType range");
   q1.inputType = "text";
-  assert.equal(q1.renderedPlaceHolder, "text_1", "q1 has inputType text");
+  assert.equal(q1.renderedPlaceholder, "text_1", "q1 has inputType text");
 });
-QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
+QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const json = {
     questions: [
       {
@@ -75,14 +75,14 @@ QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
   const survey = new SurveyModel(json);
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
   const q2 = <QuestionCommentModel>survey.getAllQuestions()[1];
-  assert.equal(q1.renderedPlaceHolder, "text_en", "text, locale en");
-  assert.equal(q2.renderedPlaceHolder, "comment_en", "text, locale en");
+  assert.equal(q1.renderedPlaceholder, "text_en", "text, locale en");
+  assert.equal(q2.renderedPlaceholder, "comment_en", "text, locale en");
   survey.locale = "de";
-  assert.equal(q1.renderedPlaceHolder, "text_de", "text, locale de");
-  assert.equal(q2.renderedPlaceHolder, "comment_de", "text, locale de");
+  assert.equal(q1.renderedPlaceholder, "text_de", "text, locale de");
+  assert.equal(q2.renderedPlaceholder, "comment_de", "text, locale de");
   survey.locale = "";
 });
-QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
+QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -98,7 +98,7 @@ QUnit.test("Test renderedPlaceHolder on locale change", function(assert) {
     "locale": "es",
   });
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
-  assert.equal(q1.renderedPlaceHolder, "Spanish", "text, locale es");
+  assert.equal(q1.renderedPlaceholder, "Spanish", "text, locale es");
 });
 QUnit.test("min date error text, bug #4596", function(assert) {
   const survey = new SurveyModel({
@@ -177,4 +177,26 @@ QUnit.test("min/max onSettingValue property function", function(assert) {
   assert.equal(q.min, "11:10", "Correct the min time value");
   q.min = "10:15";
   assert.equal(q.min, "10:15", "Set the min time value, #2");
+});
+QUnit.test("Change placeHolder to placeholder", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", placeHolder: "text1" },
+      { type: "text", name: "q2", placeholder: "text2" },
+      { type: "comment", name: "q3", placeHolder: "text3" },
+      { type: "comment", name: "q4", placeholder: "text4" }
+    ]
+  });
+  let q = <QuestionTextBase>survey.getQuestionByName("q1");
+  assert.equal(q.placeHolder, "text1", "placeHolder #1");
+  assert.equal(q.placeholder, "text1", "placeholder #1");
+  q = <QuestionTextBase>survey.getQuestionByName("q2");
+  assert.equal(q.placeHolder, "text2", "placeHolder #2");
+  assert.equal(q.placeholder, "text2", "placeholder #2");
+  q = <QuestionTextBase>survey.getQuestionByName("q3");
+  assert.equal(q.placeHolder, "text3", "placeHolder #3");
+  assert.equal(q.placeholder, "text3", "placeholder #3");
+  q = <QuestionTextBase>survey.getQuestionByName("q4");
+  assert.equal(q.placeHolder, "text4", "placeHolder #4");
+  assert.equal(q.placeholder, "text4", "placeholder #4");
 });

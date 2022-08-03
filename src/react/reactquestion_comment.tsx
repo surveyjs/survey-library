@@ -15,7 +15,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
       else
         this.question.updateElement();
     };
-    var placeHolder = this.question.renderedPlaceHolder;
+    const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
@@ -27,7 +27,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         readOnly={ this.question.isInputReadOnly }
         ref={(tetxarea) => (this.control = tetxarea)}
         maxLength={this.question.getMaxLength()}
-        placeholder={placeHolder}
+        placeholder={placeholder}
         onBlur={onBlur}
         onInput={onInput}
         onKeyDown={(event) => { this.question.onKeyDown(event); }}

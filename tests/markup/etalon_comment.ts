@@ -10,7 +10,7 @@ registerMarkupTests(
           name: "name",
           type: "comment",
           title: "Question title",
-          placeHolder: "placeholder text",
+          placeholder: "placeholder text",
           titleLocation: "hidden"
         }
       ]
@@ -26,7 +26,7 @@ registerMarkupTests(
           name: "name",
           type: "comment",
           title: "Question title",
-          placeHolder: "placeholder text",
+          placeholder: "placeholder text",
           titleLocation: "hidden"
         }
       ]
@@ -42,7 +42,7 @@ registerMarkupTests(
           name: "name",
           type: "comment",
           title: "Question title",
-          placeHolder: "placeholder text",
+          placeholder: "placeholder text",
           defaultValue: "val",
           titleLocation: "hidden"
         }

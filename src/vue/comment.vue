@@ -8,7 +8,7 @@
       :maxlength="question.getMaxLength()"
       :cols="question.cols"
       :rows="question.rows"
-      :placeholder="question.renderedPlaceHolder"
+      :placeholder="question.renderedPlaceholder"
       :class="question.className"
       @change="change"
       @input="(e) => { question.onInput(e) }"

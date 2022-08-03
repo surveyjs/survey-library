@@ -2,6 +2,7 @@ import { Question } from "./question";
 import { property, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * A Base Model for a comment and text questions
@@ -33,8 +34,11 @@ export class QuestionTextBase extends Question {
   /**
    * Use this property to set the input place holder.
    */
-  @property({ localizable: true, onSet: (val, target) => target.calcRenderedPlaceHolder() })
-  public placeHolder: string;
+  @property({ localizable: true, onSet: (val, target) => target.calcRenderedPlaceholder() })
+  public placeholder: string;
+  public get placeHolder(): string { return this.placeholder; }
+  public set placeHolder(val: string) { this.placeholder = val; }
+  public get locPlaceHolder(): LocalizableString { return this.locPlaceholder; }
 
   public getType(): string {
     return "textbase";
@@ -64,30 +68,30 @@ export class QuestionTextBase extends Question {
       return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
     return this.textUpdateMode == "onTyping";
   }
-  public get renderedPlaceHolder(): string {
-    return this.getPropertyValue("renderedPlaceHolder");
+  public get renderedPlaceholder(): string {
+    return this.getPropertyValue("renderedPlaceholder");
   }
-  protected setRenderedPlaceHolder(val: string) {
-    this.setPropertyValue("renderedPlaceHolder", val);
+  protected setRenderedPlaceholder(val: string) {
+    this.setPropertyValue("renderedPlaceholder", val);
   }
   protected onReadOnlyChanged() {
     super.onReadOnlyChanged();
-    this.calcRenderedPlaceHolder();
+    this.calcRenderedPlaceholder();
   }
   public onSurveyLoad(): void {
-    this.calcRenderedPlaceHolder();
+    this.calcRenderedPlaceholder();
     super.onSurveyLoad();
   }
   public localeChanged() {
     super.localeChanged();
-    this.calcRenderedPlaceHolder();
+    this.calcRenderedPlaceholder();
   }
-  protected calcRenderedPlaceHolder() {
+  protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceHolder()) {
       res = undefined;
     }
-    this.setRenderedPlaceHolder(res);
+    this.setRenderedPlaceholder(res);
   }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly;

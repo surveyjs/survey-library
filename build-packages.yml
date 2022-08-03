@@ -484,6 +484,12 @@ jobs:
       displayName: "NPM install packages/survey-angular-ui"
     
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run release -- --release-as $(SurveyJSVersion)
+        git status
+      displayName: "npm run release"
+    
+    - script: |
         cd packages/survey-angular-ui
         npm run build
       displayName: "Build Angular"

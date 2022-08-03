@@ -312,31 +312,9 @@ frameworks.forEach(framework => {
     });
     const qRoot = Selector(".sd-question");
     await checkElementScreenshot("question-title-actions-long-title.png", qRoot, t);
-  });
-  test("Question with hidden title action + long title", async (t) => {
-    const json = {
-      questions: [
-        {
-          name: "name",
-          type: "text",
-          title: "Text long  long long long long long long long long long long long long long long",
-          placeHolder: "Jon Snow",
-          isRequired: true
-        }
-      ]
-    };
-    await initSurvey(framework, json, {
-      onGetQuestionTitleActions: (_, opt) => {
-        opt.titleActions = [
-          {
-            title: "Action",
-            action: () => { },
-            visible: false
-          },
-        ];
-      },
-    });
-    const qRoot = Selector(".sd-question");
+    await ClientFunction(() => {
+      (window as any).survey.getAllQuestions()[0].titleToolbarValue.actions[0].visible = false;
+    })();
     await checkElementScreenshot("question-hidden-title-actions-long-title.png", qRoot, t);
   });
 });

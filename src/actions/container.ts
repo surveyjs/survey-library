@@ -1,6 +1,7 @@
-import { propertyArray } from "../jsonobject";
+import { property, propertyArray } from "../jsonobject";
 import { Base } from "../base";
 import { IAction, Action } from "./action";
+import { CssClassBuilder } from "survey-core";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",
@@ -36,8 +37,10 @@ export class ActionContainer<T extends Action = Action> extends Base {
   public updateCallback: (isResetInitialized: boolean) => void;
   public containerCss: string;
   public sizeMode: "default" | "small" = "default";
+  @property({ defaultValue: false }) isEmpty: boolean;
 
   protected raiseUpdate(isResetInitialized: boolean) {
+    this.isEmpty = !this.actions.some((action) => action.visible);
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
 
@@ -71,7 +74,9 @@ export class ActionContainer<T extends Action = Action> extends Base {
   }
   public getRootCss(): string {
     const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;
-    return this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : "");
+    return new CssClassBuilder().append(this.cssClasses.root + (!!sizeModeClass ? " " + sizeModeClass : "") + (!!this.containerCss ? " " + this.containerCss : ""))
+      .append(this.cssClasses.root + "--empty", this.isEmpty)
+      .toString();
   }
   public set cssClasses(val: any) {
     this.cssClassesValue = val;

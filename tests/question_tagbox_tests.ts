@@ -174,3 +174,91 @@ QUnit.test("Select None item", (assert) => {
   assert.deepEqual(question.value, ["item1"], "item1 selected");
   assert.equal(list.selectedItems.length, 1, "item1 selected");
 });
+
+QUnit.test("Tagbox hideSelectedItems property default false", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      defaultValue: ["item1"],
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, ["item1"]);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.selectedItems.length, 0);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, []);
+
+  list.onItemClick(list.actions[3]);
+  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, ["item4"]);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.selectedItems.length, 2);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, ["item4", "item1"]);
+});
+
+QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      defaultValue: ["item1"],
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  question.hideSelectedItems = true;
+
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions[0].visible, false);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, ["item1"]);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.selectedItems.length, 0);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, true);
+  assert.deepEqual(question.value, []);
+
+  list.onItemClick(list.actions[3]);
+  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions[0].visible, true);
+  assert.equal(list.actions[3].visible, false);
+  assert.deepEqual(question.value, ["item4"]);
+
+  list.onItemClick(list.actions[0]);
+  assert.equal(list.selectedItems.length, 2);
+  assert.equal(list.actions[0].visible, false);
+  assert.equal(list.actions[3].visible, false);
+  assert.deepEqual(question.value, ["item4", "item1"]);
+});

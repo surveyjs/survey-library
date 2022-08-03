@@ -51,13 +51,17 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.question.renderedValue = newValue;
     this.syncSelectedItemsFromQuestion();
   }
-
   public onClear(event: any): void {
     super.onClear(event);
+    this.syncSelectedItemsFromQuestion();
+  }
+  public setHideSelectedItems(newValue: boolean) {
+    (<MultiSelectListModel>this.listModel).hideSelectedItems = newValue;
     this.syncSelectedItemsFromQuestion();
   }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
+    this.setHideSelectedItems(question.hideSelectedItems);
   }
 }

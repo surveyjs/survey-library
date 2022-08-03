@@ -1,11 +1,17 @@
+import { property } from "./jsonobject";
 import { Action, IAction } from "./actions/action";
 import { ListModel } from "./list";
 
 export class MultiSelectListModel extends ListModel {
   public selectedItems: Array<IAction>;
+  @property() hideSelectedItems: boolean;
 
-  private updateItemActiveState() {
-    this.actions.forEach(action => action.active = this.isItemSelected(action));
+  private updateItemState() {
+    this.actions.forEach(action => {
+      const isSelected = this.isItemSelected(action);
+      action.active = isSelected;
+      action.visible = this.hideSelectedItems ? !isSelected : true;
+    });
   }
 
   constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
@@ -34,6 +40,6 @@ export class MultiSelectListModel extends ListModel {
 
   public setSelectedItems(newItems: Array<IAction>) : void {
     this.selectedItems = newItems;
-    this.updateItemActiveState();
+    this.updateItemState();
   }
 }

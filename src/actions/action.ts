@@ -125,7 +125,13 @@ export interface IAction {
   needSpace?: boolean;
 }
 
-export function createDropdownActionModel(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupModel): Action {
+export interface IDropdownOptions extends IListModel, IPopupModel {
+}
+export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IDropdownOptions): Action {
+  const newAction = createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
+  return newAction;
+}
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupModel): Action {
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {

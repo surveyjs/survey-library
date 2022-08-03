@@ -1,6 +1,6 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
-import { Action, actionModeType, createDropdownActionModel, IAction } from "./action";
+import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
 import { surveyLocalization } from "src/surveyStrings";
 
@@ -51,7 +51,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   constructor() {
     super();
 
-    this.dotsItem = createDropdownActionModel({
+    this.dotsItem = createDropdownActionModelAdvanced({
       id: "dotsItem-id" + AdaptiveActionContainer.ContainerID++,
       css: "sv-dots",
       innerCss: "sv-dots__item",

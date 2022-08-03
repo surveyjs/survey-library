@@ -31,14 +31,12 @@ function addDropdownActions(_, opt) {
   };
   const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
     { title: "Long List", showTitle: true },
-    { items: getItems(40) },
-    { showPointer: true }
+    { items: getItems(40), showPointer: true }
   );
 
   const dropdownWithSearch = window["Survey"].createDropdownActionModel(
     { title: "Short List", showTitle: true },
-    { items: getItems(3, 1) },
-    { showPointer: true }
+    { items: getItems(3, 1), showPointer: true }
   );
   opt.titleActions = [dropdownWithSearch, dropdownWithSearchAction];
 }
@@ -72,14 +70,12 @@ function addActionsWithModalPopupLongList(_, opt) {
   const items = getItems(40);
   const modalPopupAction = window["Survey"].createDropdownActionModel(
     { title: "Modal", showTitle: true },
-    { items: items },
-    { isModal: true }
+    { items: items, isModal: true }
   );
 
   const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
     { title: "Modal with title", showTitle: true },
-    { items: items },
-    { isModal: true, title: "Title" }
+    { items: items, isModal: true, title: "Title" }
   );
 
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
@@ -96,15 +92,13 @@ function addActionsWithModalPopupWideList(_, opt) {
   const items = getItems(40);
   const modalPopupAction = window["Survey"].createDropdownActionModel(
     { title: "Modal", showTitle: true },
-    { items: items },
-    { isModal: true }
+    { items: items, isModal: true }
   );
   modalPopupAction.popupModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
   const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
     { title: "Modal with title", showTitle: true },
-    { items: items },
-    { isModal: true, title: "Title" }
+    { items: items, isModal: true, title: "Title" }
   );
   modalPopupWithTitleAction.popupModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
@@ -122,14 +116,12 @@ function addActionsWithModalPopupShortList(_, opt) {
   const items = getItems(3, 1);
   const modalPopupAction = window["Survey"].createDropdownActionModel(
     { title: "Modal", showTitle: true },
-    { items: items },
-    { isModal: true }
+    { items: items, isModal: true }
   );
 
   const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
     { title: "Modal with title", showTitle: true },
-    { items: items },
-    { isModal: true, title: "Title" }
+    { items: items, isModal: true, title: "Title" }
   );
 
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
@@ -146,14 +138,12 @@ function addActionsWithOverlayPopupShortList(_, opt) {
   const items = getItems(3, 1);
   const overlayPopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay", showTitle: true },
-    { items: items },
-    { isModal: true, displayMode: "overlay" }
+    { items: items, isModal: true, displayMode: "overlay" }
   );
 
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true },
-    { items: items },
-    { displayMode: "overlay", title: "Title" }
+    { items: items, displayMode: "overlay", title: "Title" }
   );
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
@@ -169,14 +159,12 @@ function addActionsWithOverlayPopupLongList(_, opt) {
   const items = getItems(40);
   const overlayPopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay", showTitle: true },
-    { items: items },
-    { isModal: true, displayMode: "overlay" }
+    { items: items, isModal: true, displayMode: "overlay" }
   );
 
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true, },
-    { items: items },
-    { displayMode: "overlay", title: "Title" }
+    { items: items, displayMode: "overlay", title: "Title" }
   );
 
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];

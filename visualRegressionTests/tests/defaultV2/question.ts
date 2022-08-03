@@ -288,4 +288,55 @@ frameworks.forEach(framework => {
     })();
     await checkElementScreenshot("question-composite-with-title.png", qRoot, t);
   });
+  test("Question with title action + long title", async (t) => {
+    const json = {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          title: "Text long  long long long long long long long long long long long long long long",
+          placeHolder: "Jon Snow",
+          isRequired: true
+        }
+      ]
+    };
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action",
+            action: () => { },
+          },
+        ];
+      },
+    });
+    const qRoot = Selector(".sd-question");
+    await checkElementScreenshot("question-title-actions-long-title.png", qRoot, t);
+  });
+  test("Question with hidden title action + long title", async (t) => {
+    const json = {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          title: "Text long  long long long long long long long long long long long long long long",
+          placeHolder: "Jon Snow",
+          isRequired: true
+        }
+      ]
+    };
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action",
+            action: () => { },
+            visible: false
+          },
+        ];
+      },
+    });
+    const qRoot = Selector(".sd-question");
+    await checkElementScreenshot("question-hidden-title-actions-long-title.png", qRoot, t);
+  });
 });

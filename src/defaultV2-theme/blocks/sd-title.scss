@@ -47,10 +47,6 @@
     width: 100%;
     justify-content: space-between;
   }
-  .sd-action-bar {
-    margin: calcSize(-1) 0;
-    margin-right: calcSize(-3);
-  }
 }
 .sd-root-modern:not(.svc-tab-designer) {
   .sd-container-modern__title {
@@ -68,8 +64,24 @@
   }
 }
 
+.sd-title .sv-title-actions {
+  align-items: flex-start;
+  width: calc(100% + 3 * #{$base-unit});
+  .sv-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+    max-width: calc(100% - 6 * #{$base-unit});
+    white-space: initial;
+    min-width: unset;
+  }
+}
 .sd-action-title-bar {
   flex: 1 1 auto;
   justify-content: flex-end;
-  min-width: unset;
+  min-width: calcSize(6);
+  margin: calcSize(-1) 0;
+  overflow: hidden;
+  .sv-action {
+    flex: 0 0 auto;
+  }
 }

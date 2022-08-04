@@ -4,6 +4,29 @@ import { surveyLocalization } from "./surveyStrings";
 import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition, PositionMode } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
+export interface IPopupOptionsBase {
+  onHide?: () => void;
+  onShow?: () => void;
+  onApply?: () => boolean;
+  onCancel?: () => void;
+  cssClass?: string;
+  title?: string;
+  verticalPosition?: VerticalPosition;
+  horizontalPosition?: HorizontalPosition;
+  showPointer?: boolean;
+  isModal?: boolean;
+  displayMode?: "popup" | "overlay";
+}
+export interface IDialogOptions extends IPopupOptionsBase{
+  componentName: string;
+  data: any;
+  onApply: () => boolean;
+}
+export interface IPopupModel<T = any> extends IDialogOptions {
+  contentComponentName: string;
+  contentComponentData: T;
+}
+
 export class PopupModel<T = any> extends Base {
   public width: number;
 
@@ -74,17 +97,6 @@ export class PopupModel<T = any> extends Base {
   }
 }
 
-export interface IDialogOptions {
-  componentName: string;
-  data: any;
-  onApply: () => boolean;
-  onCancel?: () => void;
-  onHide?: () => void;
-  onShow?: () => void;
-  cssClass?: string;
-  title?: string;
-  displayMode?: "popup" | "overlay";
-}
 export function createDialogOptions(
   componentName: string,
   data: any,

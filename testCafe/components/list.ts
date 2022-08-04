@@ -43,20 +43,11 @@ function addTitleActions2(_, opt) {
   for (let index = 0; index < 10; index++) {
     items[index] = new window["Survey"].Action({ title: "item" + index });
   }
-  const list = new window["Survey"].ListModel(items);
-  const itemPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: list
-  });
-
-  const item1 = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
+  const item1 = window["Survey"].createDropdownActionModel({
     title: "Open popup",
     showTitle: true,
-    action: () => {
-      itemPopupModel.toggleVisibility();
-    },
-    popupModel: itemPopupModel
-  });
+    action: () => {} }, { items: items }
+  );
   const item2 = new window["Survey"].Action({
     title: "Set items",
     showTitle: true,
@@ -65,7 +56,7 @@ function addTitleActions2(_, opt) {
       for (let index = 0; index < 20; index++) {
         items2[index] = { title: "item" + index };
       }
-      list.setItems(items2);
+      item1.data.setItems(items2);
     },
   });
   opt.titleActions = [item1, item2];

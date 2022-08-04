@@ -5,6 +5,7 @@ import { MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
+
   private getSelectedActions(visibleItems?: Array<Action>) {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
@@ -13,6 +14,8 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   protected override createListModel(): MultiSelectListModel {
+    this.popupCssClasses = "sv-multi-select-list";
+
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if(!_onSelectionChanged) {

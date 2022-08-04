@@ -1,4 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
+import { getListItemByText } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Dropdown Screenshot";
@@ -281,6 +282,82 @@ frameworks.forEach(framework => {
         .pressKey("esc")
         .click(questionDropdownSelect);
       await takeElementScreenshot("dropdown-select-disabled-popup-items.png", popupContainer, t, comparer);
+    });
+  });
+
+  test("Check dropdown selected items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 500);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "question1",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7"
+            ]
+          },
+          {
+            type: "dropdown",
+            name: "question2",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item13",
+              "item14",
+              "item15",
+              "item16",
+              "item17",
+              "item18",
+              "item19",
+              "item20",
+              "item21",
+              "item22",
+              "item23",
+              "item24",
+              "item25",
+              "item26",
+              "item27"
+            ]
+          }
+        ]
+      });
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      await t.click(questionDropdownSelect.nth(0));
+      await takeElementScreenshot("dropdown-question-with-search-empty-value.png", popupContainer, t, comparer);
+
+      await t.click(getListItemByText("item1"));
+      await t.click(questionDropdownSelect.nth(0));
+      await takeElementScreenshot("dropdown-question-with-search-noempty-value.png", popupContainer, t, comparer);
+
+      await t.click(questionDropdownSelect.nth(1));
+      await takeElementScreenshot("dropdown-question-without-search-empty-value.png", popupContainer, t, comparer);
+
+      await t.click(getListItemByText("item7"));
+      await t.click(questionDropdownSelect.nth(1));
+      await takeElementScreenshot("dropdown-question-without-search-noempty-value.png", popupContainer, t, comparer);
+
+      await t.resizeWindow(1280, 1100);
     });
   });
 });

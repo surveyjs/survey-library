@@ -289,6 +289,7 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("question-composite-with-title.png", qRoot, t);
   });
   test("Question with title action + long title", async (t) => {
+    await t.resizeWindow(1920, 1080);
     const json = {
       questions: [
         {

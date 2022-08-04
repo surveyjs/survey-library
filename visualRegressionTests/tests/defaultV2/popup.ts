@@ -22,42 +22,23 @@ const popupSelector = Selector(".sv-popup").filterVisible();
 const clickButton = Selector(".sv-action").filterVisible();
 
 function addDropdownActions(_, opt) {
-  const getLongItemList = () => {
-    let longList = [];
-    for (let index = 0; index < 40; index++) {
-      longList[index] = new window["Survey"].Action({ title: "item" + index });
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
-    return longList;
+    return list;
   };
-  const getShortItemList = () => {
-    return [new window["Survey"].Action({ title: "item1" }), new window["Survey"].Action({ title: "item2" })];
-  };
-  const itemPopupModel1 = new window["Survey"].PopupModel("sv-list",
-    { model: new window["Survey"].ListModel(getLongItemList()) }, "bottom", "left", true);
-  const dropDownWithSearchAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Long List",
-    showTitle: true,
-    action: () => {
-      itemPopupModel1.toggleVisibility();
-    },
-    popupModel: itemPopupModel1
-  });
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Long List", showTitle: true },
+    { items: getItems(40), showPointer: true }
+  );
 
-  const itemPopupModel2 = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getShortItemList())
-  }, "bottom", "left", true);
-  const dropDownWithSearch = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Short List",
-    showTitle: true,
-    action: () => {
-      itemPopupModel2.toggleVisibility();
-    },
-    popupModel: itemPopupModel2
-  });
-
-  opt.titleActions = [dropDownWithSearch, dropDownWithSearchAction];
+  const dropdownWithSearch = window["Survey"].createDropdownActionModel(
+    { title: "Short List", showTitle: true },
+    { items: getItems(3, 1), showPointer: true }
+  );
+  opt.titleActions = [dropdownWithSearch, dropdownWithSearchAction];
 }
 
 function addDropdownActionsWithIcons(_, opt) {
@@ -79,204 +60,114 @@ function addDropdownActionsWithIcons(_, opt) {
 }
 
 function addActionsWithModalPopupLongList(_, opt) {
-  const getLongItemList = () => {
-    let longList = [];
-    for (let index = 0; index < 40; index++) {
-      longList[index] = new window["Survey"].Action({ title: "item" + index });
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
-    return longList;
+    return list;
   };
+  const items = getItems(40);
+  const modalPopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal", showTitle: true },
+    { items: items, isModal: true }
+  );
 
-  const modalPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  }, "bottom", "left", true, true);
-
-  const modalPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal",
-    showTitle: true,
-    action: () => {
-      modalPopupModel.toggleVisibility();
-    },
-    popupModel: modalPopupModel
-  });
-
-  const modalPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  }, "bottom", "left", true, true);
-  modalPopupWithTitleModel.title = "Title";
-
-  const modalPopupWithTitleAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal with title",
-    showTitle: true,
-    action: () => {
-      modalPopupWithTitleModel.toggleVisibility();
-    },
-    popupModel: modalPopupWithTitleModel
-  });
+  const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal with title", showTitle: true },
+    { items: items, isModal: true, title: "Title" }
+  );
 
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
 }
 
 function addActionsWithModalPopupWideList(_, opt) {
-  const getLongItemList = () => {
-    let longList = [];
-    for (let index = 0; index < 40; index++) {
-      longList[index] = new window["Survey"].Action({ title: "item" + index });
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
-    return longList;
+    return list;
   };
+  const items = getItems(40);
+  const modalPopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal", showTitle: true },
+    { items: items, isModal: true }
+  );
+  modalPopupAction.popupModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
-  const modalPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  }, "bottom", "left", true, true);
-
-  const modalPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal",
-    showTitle: true,
-    action: () => {
-      modalPopupModel.toggleVisibility();
-    },
-    popupModel: modalPopupModel
-  });
-
-  const modalPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  }, "bottom", "left", true, true);
-  modalPopupWithTitleModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-
-  const modalPopupWithTitleAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal with title",
-    showTitle: true,
-    action: () => {
-      modalPopupWithTitleModel.toggleVisibility();
-    },
-    popupModel: modalPopupWithTitleModel
-  });
+  const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal with title", showTitle: true },
+    { items: items, isModal: true, title: "Title" }
+  );
+  modalPopupWithTitleAction.popupModel.title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
 }
 
 function addActionsWithModalPopupShortList(_, opt) {
-  const getShortItemList = () => {
-    return [new window["Survey"].Action({ title: "item1" }), new window["Survey"].Action({ title: "item2" })];
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
+    }
+    return list;
   };
+  const items = getItems(3, 1);
+  const modalPopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal", showTitle: true },
+    { items: items, isModal: true }
+  );
 
-  const modalPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getShortItemList())
-  }, "bottom", "left", true, true);
-
-  const modalPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal",
-    showTitle: true,
-    action: () => {
-      modalPopupModel.toggleVisibility();
-    },
-    popupModel: modalPopupModel
-  });
-
-  const modalPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getShortItemList())
-  }, "bottom", "left", true, true);
-  modalPopupWithTitleModel.title = "Title";
-
-  const modalPopupWithTitleAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Modal with title",
-    showTitle: true,
-    action: () => {
-      modalPopupWithTitleModel.toggleVisibility();
-    },
-    popupModel: modalPopupWithTitleModel
-  });
+  const modalPopupWithTitleAction = window["Survey"].createDropdownActionModel(
+    { title: "Modal with title", showTitle: true },
+    { items: items, isModal: true, title: "Title" }
+  );
 
   opt.titleActions = [modalPopupAction, modalPopupWithTitleAction];
 }
 
 function addActionsWithOverlayPopupShortList(_, opt) {
-  const getShortItemList = () => {
-    return [new window["Survey"].Action({ title: "item1" }), new window["Survey"].Action({ title: "item2" })];
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
+    }
+    return list;
   };
+  const items = getItems(3, 1);
+  const overlayPopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Overlay", showTitle: true },
+    { items: items, isModal: true, displayMode: "overlay" }
+  );
 
-  const overlayPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getShortItemList())
-  }, "bottom", "left", true, true);
-  overlayPopupModel.displayMode = "overlay";
-
-  const modalPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Overlay",
-    showTitle: true,
-    action: () => {
-      overlayPopupModel.toggleVisibility();
-    },
-    popupModel: overlayPopupModel
-  });
-
-  const overlayPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getShortItemList())
-  });
-  overlayPopupWithTitleModel.displayMode = "overlay";
-  overlayPopupWithTitleModel.title = "Title";
-
-  const overlayPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Overlay with title",
-    showTitle: true,
-    action: () => {
-      overlayPopupWithTitleModel.toggleVisibility();
-    },
-    popupModel: overlayPopupWithTitleModel
-  });
-
-  opt.titleActions = [modalPopupAction, overlayPopupAction];
+  const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Overlay with title", showTitle: true },
+    { items: items, displayMode: "overlay", title: "Title" }
+  );
+  opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
 function addActionsWithOverlayPopupLongList(_, opt) {
-  const getLongItemList = () => {
-    let longList = [];
-    for (let index = 0; index < 40; index++) {
-      longList[index] = new window["Survey"].Action({ title: "item" + index });
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
-    return longList;
+    return list;
   };
+  const items = getItems(40);
+  const overlayPopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Overlay", showTitle: true },
+    { items: items, isModal: true, displayMode: "overlay" }
+  );
 
-  const overlayPopupModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  }, "bottom", "left", true, true);
-  overlayPopupModel.displayMode = "overlay";
+  const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
+    { title: "Overlay with title", showTitle: true, },
+    { items: items, displayMode: "overlay", title: "Title" }
+  );
 
-  const modalPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Overlay",
-    showTitle: true,
-    action: () => {
-      overlayPopupModel.toggleVisibility();
-    },
-    popupModel: overlayPopupModel
-  });
-
-  const overlayPopupWithTitleModel = new window["Survey"].PopupModel("sv-list", {
-    model: new window["Survey"].ListModel(getLongItemList())
-  });
-  overlayPopupWithTitleModel.displayMode = "overlay";
-  overlayPopupWithTitleModel.title = "Title";
-
-  const overlayPopupAction = new window["Survey"].Action({
-    component: "sv-action-bar-item-dropdown",
-    title: "Overlay with title",
-    showTitle: true,
-    action: () => {
-      overlayPopupWithTitleModel.toggleVisibility();
-    },
-    popupModel: overlayPopupWithTitleModel
-  });
-
-  opt.titleActions = [modalPopupAction, overlayPopupAction];
+  opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
 frameworks.forEach(framework => {

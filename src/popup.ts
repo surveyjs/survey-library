@@ -4,6 +4,29 @@ import { surveyLocalization } from "./surveyStrings";
 import { PopupUtils, VerticalPosition, HorizontalPosition, IPosition, PositionMode } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
+export interface IPopupOptionsBase {
+  onHide?: () => void;
+  onShow?: () => void;
+  onApply?: () => boolean;
+  onCancel?: () => void;
+  cssClass?: string;
+  title?: string;
+  verticalPosition?: VerticalPosition;
+  horizontalPosition?: HorizontalPosition;
+  showPointer?: boolean;
+  isModal?: boolean;
+  displayMode?: "popup" | "overlay";
+}
+export interface IDialogOptions extends IPopupOptionsBase{
+  componentName: string;
+  data: any;
+  onApply: () => boolean;
+}
+export interface IPopupModel<T = any> extends IDialogOptions {
+  contentComponentName: string;
+  contentComponentData: T;
+}
+
 export class PopupModel<T = any> extends Base {
   public width: number;
 
@@ -74,17 +97,6 @@ export class PopupModel<T = any> extends Base {
   }
 }
 
-export interface IDialogOptions {
-  componentName: string;
-  data: any;
-  onApply: () => boolean;
-  onCancel?: () => void;
-  onHide?: () => void;
-  onShow?: () => void;
-  cssClass?: string;
-  title?: string;
-  displayMode?: "popup" | "overlay";
-}
 export function createDialogOptions(
   componentName: string,
   data: any,
@@ -148,13 +160,20 @@ export class PopupBaseViewModel extends Base {
 
   private hidePopup() {
     this.model.isVisible = false;
-    if(!this.isDisposed) {
-      this.top = undefined;
-      this.left = undefined;
-      this.height = undefined;
-      this.width = undefined;
-      this.minWidth = undefined;
+  }
+  private setupModel(model: PopupModel) {
+    if (!!this.model) {
+      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
     }
+    this._model = model;
+    const onIsVisibleChangedHandler = () => {
+      if (!model.isVisible) {
+        this.updateOnHiding();
+      }
+      this.isVisible = model.isVisible;
+    };
+    model.registerFunctionOnPropertyValueChanged("isVisible", onIsVisibleChangedHandler, "PopupBaseViewModel");
+    onIsVisibleChangedHandler();
   }
 
   private _model: PopupModel;
@@ -162,18 +181,7 @@ export class PopupBaseViewModel extends Base {
     return this._model;
   }
   public set model(model: PopupModel) {
-    if (!!this.model) {
-      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
-    }
-    this._model = model;
-    const updater = () => {
-      if (!model.isVisible) {
-        this.updateOnHiding();
-      }
-      this.isVisible = model.isVisible;
-    };
-    model.registerFunctionOnPropertyValueChanged("isVisible", updater, "PopupBaseViewModel");
-    updater();
+    this.setupModel(model);
   }
 
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
@@ -258,6 +266,13 @@ export class PopupBaseViewModel extends Base {
     this.prevActiveElement && this.prevActiveElement.focus();
     if (!this.isModal) {
       window.removeEventListener("scroll", this.scrollEventCallBack);
+    }
+    if(!this.isDisposed) {
+      this.top = undefined;
+      this.left = undefined;
+      this.height = undefined;
+      this.width = undefined;
+      this.minWidth = undefined;
     }
   }
 

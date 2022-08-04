@@ -4,6 +4,13 @@ import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 
+export interface IListModel {
+  items: Array<IAction>;
+  onSelectionChanged: (item: Action, ...params: any[]) => void;
+  allowSelection?: boolean;
+  selectedItem?: IAction;
+  onFilteredTextChangedCallback?: (text: string) => void;
+}
 export class ListModel extends ActionContainer {
   @property({
     defaultValue: true,
@@ -13,7 +20,11 @@ export class ListModel extends ActionContainer {
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
-  @property() selectedItem: IAction;
+  @property({
+    onSet: (newValue: boolean, target: ListModel) => {
+      target.updateItemActiveState();
+    }
+  }) selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
       target.onFilteredTextChanged(target.filteredText);
@@ -56,6 +67,10 @@ export class ListModel extends ActionContainer {
   protected onSet(): void {
     this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
+  }
+
+  protected updateItemActiveState() {
+    this.actions.forEach(action => action.active = this.isItemSelected(action));
   }
 
   public onItemClick = (itemValue: Action) => {

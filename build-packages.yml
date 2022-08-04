@@ -496,7 +496,7 @@ jobs:
     
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular-ui"
+        SourceFolder: "$(Build.SourcesDirectory)/build/survey-angular-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular-ui"
 
     - script: |

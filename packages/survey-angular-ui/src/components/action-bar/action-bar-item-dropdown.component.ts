@@ -5,7 +5,8 @@ import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   selector: "sv-action-bar-item-dropdown",
-  templateUrl: "./action-bar-item-dropdown.component.html"
+  templateUrl: "./action-bar-item-dropdown.component.html",
+  styleUrls: ["../../hide-host.scss"]
 })
 export class ActionBarItemDropdownComponent extends BaseAngular {
   @Input() model: any

@@ -5,7 +5,7 @@ import { AngularComponentFactory } from "../../component-factory";
 @Component({
   selector: "sv-action-bar-item",
   templateUrl: "./action-bar-item.component.html",
-  styleUrls: ["./action-bar-item.component.scss"]
+  styleUrls: ["../../hide-host.scss"]
 })
 export class ActionBarItemComponent extends BaseAngular {
   @Input() model: any;

@@ -45,6 +45,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   }) searchEnabled: boolean;
 
+  @property({
+    defaultValue: false,
+    onSet: (newValue: boolean, target: QuestionTagboxModel) => {
+      if (!!target.dropdownListModel) {
+        target.dropdownListModel.setHideSelectedItems(newValue);
+      }
+    }
+  })
+  hideSelectedItems: boolean;
+
   /**
    * A text displayed in the input field when it doesn't have a value.
    */
@@ -93,7 +103,6 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
-    { name: "showSelectionControls:boolean", default: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "itemComponent", visible: false }
   ],

@@ -10,10 +10,12 @@ import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
   protected listModel: ListModel;
+  protected popupCssClasses = "sv-single-select-list";
 
   private createPopup() {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";
+    this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && !!this.question.onOpenedCallBack) {
         this.question.onOpenedCallBack();

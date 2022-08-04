@@ -1141,3 +1141,62 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   viewModel.dispose();
   document.body.removeChild(targetElement);
 });
+
+QUnit.test("PopupViewModel updateOnHiding", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  model.positionMode = "fixed";
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "550px";
+  popupContainer.style.height = "400px";
+
+  assert.equal(viewModel.isVisible, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
+  assert.equal(viewModel.height, "auto");
+  assert.equal(viewModel.width, "auto");
+
+  let trace: String = "";
+  model.onHide = () => {
+    trace += "->onHide";
+  };
+  model.onShow = () => {
+    trace += "->onShow";
+  };
+
+  model.toggleVisibility();
+  (<any>window).innerWidth = 600;
+  (<any>window).innerHeight = 400;
+  viewModel.updateOnShowing();
+
+  assert.equal(trace, "->onShow");
+  assert.equal(viewModel.isVisible, true);
+  assert.notEqual(viewModel.top, "0px", "onShow top");
+  assert.notEqual(viewModel.left, "0px", "onShow left");
+  assert.notEqual(viewModel.height, "auto", "onShow height");
+  assert.notEqual(viewModel.width, "auto", "onShow width");
+  trace = "";
+
+  model.toggleVisibility();
+  assert.equal(trace, "->onHide");
+  assert.equal(viewModel.isVisible, false);
+  assert.equal(viewModel.top, "0px", "onHide top");
+  assert.equal(viewModel.left, "0px", "onHide left");
+  assert.equal(viewModel.height, "auto", "onHide height");
+  assert.equal(viewModel.width, "auto", "onHide width");
+
+  viewModel.dispose();
+});

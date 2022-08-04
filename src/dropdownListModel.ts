@@ -74,6 +74,7 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
+    this.listModel.selectedItem = undefined;
     event.preventDefault();
     event.stopPropagation();
   }

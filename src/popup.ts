@@ -148,13 +148,20 @@ export class PopupBaseViewModel extends Base {
 
   private hidePopup() {
     this.model.isVisible = false;
-    if(!this.isDisposed) {
-      this.top = undefined;
-      this.left = undefined;
-      this.height = undefined;
-      this.width = undefined;
-      this.minWidth = undefined;
+  }
+  private setupModel(model: PopupModel) {
+    if (!!this.model) {
+      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
     }
+    this._model = model;
+    const onIsVisibleChangedHandler = () => {
+      if (!model.isVisible) {
+        this.updateOnHiding();
+      }
+      this.isVisible = model.isVisible;
+    };
+    model.registerFunctionOnPropertyValueChanged("isVisible", onIsVisibleChangedHandler, "PopupBaseViewModel");
+    onIsVisibleChangedHandler();
   }
 
   private _model: PopupModel;
@@ -162,18 +169,7 @@ export class PopupBaseViewModel extends Base {
     return this._model;
   }
   public set model(model: PopupModel) {
-    if (!!this.model) {
-      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
-    }
-    this._model = model;
-    const updater = () => {
-      if (!model.isVisible) {
-        this.updateOnHiding();
-      }
-      this.isVisible = model.isVisible;
-    };
-    model.registerFunctionOnPropertyValueChanged("isVisible", updater, "PopupBaseViewModel");
-    updater();
+    this.setupModel(model);
   }
 
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
@@ -258,6 +254,13 @@ export class PopupBaseViewModel extends Base {
     this.prevActiveElement && this.prevActiveElement.focus();
     if (!this.isModal) {
       window.removeEventListener("scroll", this.scrollEventCallBack);
+    }
+    if(!this.isDisposed) {
+      this.top = undefined;
+      this.left = undefined;
+      this.height = undefined;
+      this.width = undefined;
+      this.minWidth = undefined;
     }
   }
 

@@ -4,10 +4,6 @@ import { ListModel } from "./list";
 export class MultiSelectListModel extends ListModel {
   public selectedItems: Array<IAction>;
 
-  private updateItemActiveState() {
-    this.actions.forEach(action => action.active = this.isItemSelected(action));
-  }
-
   constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
     super(items, onSelectionChanged, allowSelection, undefined, onFilteredTextChangedCallback);
     this.setSelectedItems(selectedItems || []);

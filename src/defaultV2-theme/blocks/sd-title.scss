@@ -47,10 +47,6 @@
     width: 100%;
     justify-content: space-between;
   }
-  .sd-action-bar {
-    margin: calcSize(-1) 0;
-    margin-right: calcSize(-3);
-  }
 }
 .sd-root-modern:not(.svc-tab-designer) {
   .sd-container-modern__title {
@@ -68,8 +64,26 @@
   }
 }
 
+.sd-title .sv-title-actions {
+  align-items: flex-start;
+  width: calc(100% + 3 * #{$base-unit});
+  .sv-title-actions__title {
+    flex-wrap: wrap;
+    flex: 0 1 auto;
+    max-width: calc(100% - 3 * #{$base-unit});
+    white-space: initial;
+    min-width: unset;
+  }
+}
 .sd-action-title-bar {
-  flex: 1 1 auto;
+  flex: 1 9 auto;
+  min-width: calcSize(6);
   justify-content: flex-end;
-  min-width: unset;
+  margin: calcSize(-1) 0;
+  .sv-action {
+    flex: 0 0 auto;
+  }
+}
+.sd-action-title-bar.sd-action-bar--empty {
+  min-width: 0;
 }

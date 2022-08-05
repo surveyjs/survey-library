@@ -27,7 +27,7 @@ settings.customIcons["icon-export"] = "icon-import";
 
 ## Custom Icons
 
-If you want to replace a built-in icon with a custom SVG icon, call the `registerIconFromSvg` method on `SvgRegistry` object. Pass the name of the built-in icon as the first argument and the custom icon markup converted to a string as the second argument. In the following code, a custom icon replaces the `icon-delete` icon:
+If you want to replace a built-in icon with a custom SVG icon, call the `registerIconFromSvg` method on the `SvgRegistry` object. Pass the name of the built-in icon as the first argument and the custom icon markup converted to a string as the second argument. In the following code, a custom icon replaces the `icon-delete` icon:
 
 ```js
 const creator = new SurveyCreator.SurveyCreator(creatorOptions);

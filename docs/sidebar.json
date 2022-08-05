@@ -91,6 +91,10 @@
       "Title": "Localization & Globalization"
     },
     {
+      "Name": "icons",
+      "Title": "Icons"
+    },
+    {
       "Name": "api",
       "Title": "API",
       "Items": [

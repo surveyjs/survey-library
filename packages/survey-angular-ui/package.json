@@ -12,16 +12,6 @@
   ],
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
-  "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "survey-angular-ui.d.ts",
-    "survey-angular-ui.js",
-    "survey-angular-ui.min.js"
-  ],
-  "main": "survey-angular-ui.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/surveyjs.git"

@@ -7,6 +7,8 @@ import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
 import { settings } from "../src/settings";
+import { surveyLocalization } from "../src/surveyStrings";
+import { englishStrings } from "../src/localization/english";
 
 export default QUnit.module("LocalizableString");
 
@@ -618,4 +620,25 @@ QUnit.test("Localization strings should return copy on getJson", function(assert
   let json = locStrings.getJson();
   json.fr = "dummy";
   assert.equal(locStrings.getLocaleText("fr"), "val1-fr\nval2-fr", "Do not touch object");
+});
+QUnit.test("Survey localization string name", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner);
+  locString.localizationName = "pageNextText";
+  assert.equal(locString.text, "Next", "English next");
+});
+QUnit.test("External localization string name", function(assert) {
+  surveyLocalization.onGetExternalString = (name: string, locale: string): string => {
+    if(name === "ed.test") {
+      if(locale === "de") return "ExternalStr-de";
+      return "ExternalStr";
+    }
+    return "";
+  };
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner);
+  locString.localizationName = "ed.test";
+  assert.equal(locString.text, "ExternalStr", "English ExternalStr");
+  owner.locale = "de";
+  assert.equal(locString.text, "ExternalStr-de", "Deutsch ExternalStr");
 });

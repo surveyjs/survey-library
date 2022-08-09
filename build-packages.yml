@@ -475,6 +475,7 @@ jobs:
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run build_core
         npm run build_i18n
       displayName: "Build Core"
@@ -501,7 +502,7 @@ jobs:
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular-ui"
 
     - script: |
-        cd examples/angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/examples/angular-ui
         npm install
       displayName: "NPM install examples/angular-ui"
 
@@ -516,6 +517,7 @@ jobs:
       displayName: "run unit and markup tests"
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:ci:angular
       displayName: "run functional tests"
 

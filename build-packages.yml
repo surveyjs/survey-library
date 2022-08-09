@@ -454,7 +454,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/"
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
         Contents: "package.json"
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
@@ -463,7 +463,7 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/node_modules
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPMs
 

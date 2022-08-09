@@ -443,6 +443,7 @@ jobs:
 - job: Angular
   steps:
     - checkout: self
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 

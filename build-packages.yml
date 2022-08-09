@@ -665,6 +665,13 @@ jobs:
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
+  
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildAngular'
+        downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: CopyFiles@2
       inputs:

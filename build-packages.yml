@@ -479,18 +479,18 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm install
       displayName: "NPM install packages/survey-angular-ui"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run release -- --release-as $(SurveyJSVersion)
         git status
       displayName: "npm run release"
     
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run build
       displayName: "Build Angular"
     
@@ -505,12 +505,12 @@ jobs:
       displayName: "NPM install examples/angular-ui"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run build:example
       displayName: "Build Angular Example"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run test:single
       displayName: "run unit and markup tests"
 

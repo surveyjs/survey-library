@@ -2,6 +2,7 @@ import { property, propertyArray } from "../jsonobject";
 import { Base } from "../base";
 import { IAction, Action } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
+import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",
@@ -15,7 +16,22 @@ export let defaultActionBarCss = {
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
 };
 
-export class ActionContainer<T extends Action = Action> extends Base {
+export class ActionContainer<T extends Action = Action> extends Base implements ILocalizableOwner {
+  public getMarkdownHtml(text: string, name: string): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : null;
+  }
+  public getRenderer(name: string): string {
+    return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
+  }
+  public getProcessedText(text: string): string {
+    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  }
+  public getLocale(): string {
+    return !!this.locOwner ? this.locOwner.getLocale() : "";
+  }
   @propertyArray({
     onSet: (_: any, target: ActionContainer<Action>) => {
       target.onSet();
@@ -37,6 +53,7 @@ export class ActionContainer<T extends Action = Action> extends Base {
   public updateCallback: (isResetInitialized: boolean) => void;
   public containerCss: string;
   public sizeMode: "default" | "small" = "default";
+  public locOwner: ILocalizableOwner;
   @property({ defaultValue: false }) isEmpty: boolean;
 
   protected raiseUpdate(isResetInitialized: boolean) {

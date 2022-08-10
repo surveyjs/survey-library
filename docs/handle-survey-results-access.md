@@ -4,6 +4,7 @@ This help topic describes how you can access, modify, and display individual que
 
 - [Access Individual Question Values](#access-individual-question-values)
 - [Access Full Survey Results](#access-full-survey-results)
+- [Modify Survey Results](#modify-survey-results)
 
 ## Access Individual Question Values
 
@@ -94,7 +95,7 @@ If you need to get survey results as an array of JavaScript objects, call the Su
   name: String, // Question name
   title: String, // Question title
   value: any, // Question value
-  displayValue: String, // Question value converted to string
+  displayValue: String, // Question value converted to a string
   isNode: Boolean, // `true` if the question contains more than one value
   // Details about the values. Present only if `isNode` is `true`
   data: Array<{ name, title, value, displayValue, isNode, data}>
@@ -105,6 +106,40 @@ The following code shows how to call the `getPlainData()` method and output the 
 
 ```js
 console.log(survey.getPlainData());
+```
+
+## Modify Survey Results
+
+The previous section described the default format of survey results. If you want to use a different format, modify survey results in a custom function. For example, you can bring survey result objects to the following structure:
+
+```js
+{
+  name: String, // Question name
+  title: String, // Question title
+  value: any, // Question value
+  displayValue: String // Question value converted to a string
+}
+```
+
+The code below converts survey results to this structure when a user [completes the survey](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete):
+
+```js
+survey.onComplete.add((survey) => {
+  const resultData = [];
+  for (const key in survey.data) {
+    const question = survey.getQuestionByName(key);
+    if (!!question) {
+      const item = {
+        name: key,
+        value: question.value,
+        title: question.displayValue,
+        displayValue: question.displayValue
+      };
+      resultData.push(item);
+    }
+  }
+  return resultData;
+});
 ```
 
 ## See Also

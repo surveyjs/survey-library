@@ -780,14 +780,21 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     allowNotifyValueChanged?: boolean
   ): any {
     if (this.settingNewValue) return;
-    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
-    if (!this.contentPanel) return;
-    var q = this.contentPanel.getQuestionByName(name);
-    if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
-      this.settingNewValue = true;
-      q.value = newValue;
-      this.settingNewValue = false;
+    this.settingNewValue = true;
+    if (!this.isEditingSurveyElement && !!this.contentPanel) {
+      const panelValue = this.contentPanel.getValue();
+      if(!this.isTwoValueEquals(this.getValueCore(), panelValue)) {
+        this.setValueCore(panelValue);
+      }
     }
+    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    if (!!this.contentPanel) {
+      var q = this.contentPanel.getQuestionByName(name);
+      if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
+        q.value = newValue;
+      }
+    }
+    this.settingNewValue = false;
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,

@@ -1,4 +1,4 @@
-import { LocalizableString } from "survey-core";
+import { ILocalizableOwner, LocalizableString } from "survey-core";
 import { Base } from "../base";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
@@ -127,11 +127,10 @@ export interface IAction {
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
 }
-export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions): Action {
-  const newAction = createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
-  return newAction;
+export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
+  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions, locOwner);
 }
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase, locOwner?: ILocalizableOwner): Action {
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
@@ -142,6 +141,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.selectedItem,
     listOptions.onFilteredTextChangedCallback
   );
+  listModel.locOwner = locOwner;
   const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 

@@ -311,3 +311,34 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
   });
 });
 
+QUnit.test("ListModel localization", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "car",
+        "title": "What car are you driving?",
+        "showOptionsCaption": false,
+        "optionsCaption": "New optionsCaption",
+        "choices": [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen",
+          "Nissan",
+          "Audi",
+          "Mercedes-Benz",
+          "BMW",
+          "Peugeot",
+          "Toyota",
+          "Citroen"
+        ]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  assert.equal(listModel.filteredTextPlaceholder, "Type to search...", "filtered text in en");
+  survey.locale = "de";
+  assert.equal(listModel.filteredTextPlaceholder, "Tippe um zu suchen...", "filtered text in de");
+  survey.locale = "";
+});

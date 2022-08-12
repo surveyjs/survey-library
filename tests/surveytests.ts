@@ -2043,7 +2043,14 @@ QUnit.test("Panel.questionStartIndex, nested Panel", function (assert) {
   nestedPanel.showNumber = true;
   assert.equal(nestedPanel.no, "A.", "use panel questionStartIndex");
 });
-
+QUnit.test("showQuestionNumbers - accept bool values", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  assert.equal(survey.showQuestionNumbers, "on");
+  survey.showQuestionNumbers = false as any;
+  assert.equal(survey.showQuestionNumbers, "off");
+  survey.showQuestionNumbers = true as any;
+  assert.equal(survey.showQuestionNumbers, "on");
+});
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal((<Question>survey.getQuestionByName("question1"))["no"], 1);

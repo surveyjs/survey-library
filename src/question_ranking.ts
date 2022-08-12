@@ -7,6 +7,7 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
+import { QuestionSelectBase } from "./question_baseselect";
 
 /**
  * A Model for a ranking question
@@ -249,6 +250,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
     this.value = value;
   };
+
+  protected getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    const res = super.getChoicesFromQuestion(question);
+    if(this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+      res.push(new ItemValue(question.otherItem.value, question.comment));
+    }
+    return res;
+  }
 
   private setValueFromUI = () => {
     const value: string[] = [];

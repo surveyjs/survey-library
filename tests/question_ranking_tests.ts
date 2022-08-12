@@ -150,6 +150,31 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
     q2: [2, 3],
   });
 });
+QUnit.test("Ranking: Carry Forward and hasOther", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      {
+        type: "ranking",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
+
+  assert.deepEqual(q2.rankingChoices, []);
+  assert.deepEqual(q2.isEmpty(), true);
+
+  q1.value = [2, 3, "other"];
+  assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
+  q1.comment = "someText";
+  assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
+  assert.equal(q2.visibleChoices[2].value, "other", "other value");
+  assert.equal(q2.visibleChoices[2].text, "someText", "other text");
+});
 QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   var survey = new SurveyModel({
     elements: [

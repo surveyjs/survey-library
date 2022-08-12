@@ -76,7 +76,7 @@ export var dutchSurveyStrings = {
   chooseFileCaption: "Gekozen bestand",
   removeFileCaption: "Verwijder deze file",
   booleanCheckedLabel: "Ja",
-  booleanUncheckedLabel: "Neen",
+  booleanUncheckedLabel: "Nee",
   confirmRemoveFile: "Bent u zeker dat u deze file wilt verwijderen: {0}?",
   confirmRemoveAllFiles: "Bent u zeker dat u al deze files wilt verwijderen?",
   questionTitlePatternText: "Titel van de vraag",

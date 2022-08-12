@@ -44,8 +44,22 @@ class XmlParser {
 }
 
 /**
- * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
- * The run method call a restful service and results can be get on getResultCallback.
+ * Configures access to a RESTful service that returns choices for [Checkbox](https://surveyjs.io/Examples/Library?id=questiontype-checkbox), [Dropdown](https://surveyjs.io/Examples/Library?id=questiontype-dropdown), [Radiogroup](https://surveyjs.io/Examples/Library?id=questiontype-radiogroup), and other multiple-choice question types.
+ *
+ * Use the following properties to configure this object:
+ *
+ * ```js
+ * {
+ *   url: "http://...", // A RESTful service's URL.
+ *   valueName: "value", // Specifies which field contains choice values.
+ *   titleName: "title", // Specifies which field contains display texts for choice values.
+ *   imageLinkName: "imageUrl", // Specifies which field contains image URLs. Used in Image Picker questions.
+ *   // Path to the array of choices. Specify `path` only if the array of choices is nested within the object returned by the service.
+ *   path: "myNestedArray"
+ * }
+ * ```
+ *
+ * Typically, you should assign this object to a question's [`choicesByUrl`](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choicesByUrl) property.
  */
 export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
@@ -314,14 +328,18 @@ export class ChoicesRestful extends Base {
     return res;
   }
   /**
-   * Gets or sets a link to a web service. You can use text preprocessing here.
-   * For example, the following url: _https://surveyjs.io/api/CountriesExample?region={region}_ is changed based on the _region_ question's value.
-   * SurveyJS automatically gets data from the web service when the value of the _region_ question changes.
+   * A RESTful service's URL.
+   *
+   * This property supports [dynamic URLs](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#dynamic-texts). For example, the URL below depends on the `region` question's value. When the value changes, the survey automatically loads a new dataset that corresponds to the selected region.
+   *
+   * ```js
+   * url: "https://surveyjs.io/api/CountriesExample?region={region}"
+   * ```
+   *
+   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
    * @see path
    * @see valueName
    * @see titleName
-   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
   public get url(): string {
     return this.getPropertyValue("url", "");
@@ -339,14 +357,21 @@ export class ChoicesRestful extends Base {
     }
   }
   /**
-   * Use this property, if a web service returns a lot of information and you need only a part of it.
-   * For example, a web service returns a list of countries and a list of capitals.
-   * If you need a list of countries, set a correct path from which SurveyJS obtains the data, like: _DataList1\DataList2_
+   * Path to the array of choices.
+   *
+   * Specify this property only if the array of choices is nested within the object returned by the service. For example, the service returns the following object:
+   *
+   * ```js
+   * {
+   *   countries: [ ... ],
+   *   capitals: [ ... ]
+   * }
+   * ```
+   *
+   * To populate choices with values from the `countries` array, set the `path` property to `"countries"`. To use the `capitals` array, set this property to `"capitals"`.
    * @see url
    * @see valueName
    * @see titleName
-   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
 
   public get path(): string {
@@ -356,12 +381,13 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("path", val);
   }
   /**
-   * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide values for choice items.
+   * Specifies which property in the obtained data object contains choice values.
+   *
+   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
+   *
    * @see url
    * @see path
    * @see titleName
-   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
 
   public get valueName(): string {
@@ -371,12 +397,11 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("valueName", val);
   }
   /**
-   * Gets or sets the name of a property (in the obtained data object) to which SurveyJS binds to provide display texts for choice items.
+   * Specifies which property in the obtained data object contains display texts for choices.
+   *
    * @see url
    * @see path
-   * @see valueeName
-   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
+   * @see valueName
    */
 
   public get titleName(): string {
@@ -385,6 +410,14 @@ export class ChoicesRestful extends Base {
   public set titleName(val: string) {
     this.setPropertyValue("titleName", val);
   }
+
+  /**
+   * Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
+   *
+   * @see url
+   * @see path
+   * @see valueName
+   */
   public get imageLinkName(): string {
     return this.getPropertyValue("imageLinkName", "");
   }

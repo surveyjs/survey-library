@@ -2344,7 +2344,13 @@ export class SurveyModel extends SurveyElementCore
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
   }
-  public set showQuestionNumbers(value: string) {
+  public set showQuestionNumbers(value: string|boolean) {
+    if(value === true) {
+      value = "on";
+    }
+    if(value === false) {
+      value = "off";
+    }
     value = value.toLowerCase();
     value = value === "onpage" ? "onPage" : value;
     if (value === this.showQuestionNumbers) return;

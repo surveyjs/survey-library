@@ -45,7 +45,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <video controls
           className={cssClasses}
-          src={this.question.imageLink}
+          src={this.question.locImageLink.renderedHtml}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
@@ -56,7 +56,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       control = (
         <iframe
           className={cssClasses}
-          src={this.question.imageLink}
+          src={this.question.locImageLink.renderedHtml}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}

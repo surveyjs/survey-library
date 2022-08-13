@@ -6,6 +6,17 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 const youtubeTags = ["youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
+const youtubeUrl = "https://www.youtube.com/";
+const youtubeEmbed = "embed";
+
+function isUrlYoutubeVideo(url: string): boolean {
+  if (!url) return false;
+  url = url.toLowerCase();
+  for (let i = 0; i < youtubeTags.length; i++) {
+    if (url.indexOf(youtubeTags[i]) !== -1) return true;
+  }
+  return false;
+}
 
 /**
  * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
@@ -13,7 +24,10 @@ const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
 export class QuestionImageModel extends QuestionNonValue {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("imageLink", this, false);
+    const locImageLink = this.createLocalizableString("imageLink", this, false);
+    locImageLink.onGetTextCallback = (text: string): string => {
+      return getCorrectImageLink(text);
+    };
     this.createLocalizableString("text", this, false);
     this.registerFunctionOnPropertiesValueChanged(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
@@ -131,13 +145,7 @@ export class QuestionImageModel extends QuestionNonValue {
     }
   }
   private isYoutubeVideo(): boolean {
-    let link = this.imageLink;
-    if (!link) return false;
-    link = link.toLowerCase();
-    for (let i = 0; i < youtubeTags.length; i++) {
-      if (link.indexOf(youtubeTags[i]) !== -1) return true;
-    }
-    return false;
+    return isUrlYoutubeVideo(this.imageLink);
   }
   private isVideo(): boolean {
     let link = this.imageLink;
@@ -148,6 +156,18 @@ export class QuestionImageModel extends QuestionNonValue {
     }
     return false;
   }
+}
+
+function getCorrectImageLink(val: string): string {
+  if(!val || !isUrlYoutubeVideo(val)) return val;
+  let res = val.toLocaleLowerCase();
+  if(res.indexOf(youtubeEmbed) > -1) return val;
+  let id = "";
+  for(var i = val.length - 1; i >= 0; i --) {
+    if(val[i] === "=" || val[i] === "/") break;
+    id = val[i] + id;
+  }
+  return youtubeUrl + youtubeEmbed + "/" + id;
 }
 
 Serializer.addClass(

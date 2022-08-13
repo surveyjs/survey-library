@@ -3,7 +3,7 @@
     <img
       v-if="question.renderedMode === 'image'"
       :class="question.getImageCss()"
-      :src="question.imageLink"
+      :src="question.locImageLink.renderedHtml"
       :alt="question.text || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
@@ -12,7 +12,7 @@
       controls
       v-if="question.renderedMode === 'video'"
       :class="question.getImageCss()"
-      :src="question.imageLink"
+      :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
@@ -20,7 +20,7 @@
     <iframe
       v-if="question.renderedMode === 'youtube'"
       :class="question.getImageCss()"
-      :src="question.imageLink"
+      :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"

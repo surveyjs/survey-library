@@ -443,6 +443,7 @@ jobs:
 - job: Angular
   steps:
     - checkout: self
+    - checkout: EmptyRepo
       persistCredentials: true
       clean: true
 
@@ -453,7 +454,7 @@ jobs:
 
     - task: CopyFiles@2
       inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/"
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
         Contents: "package.json"
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
@@ -462,61 +463,96 @@ jobs:
     - task: Cache@2
       inputs:
         key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/node_modules
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPMs
+
+    # setup next release version
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+        pipeline: "47"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+    - powershell: |
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
+        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+    ##########################################################################
 
     - task: Npm@1
       displayName: 'NPM install root'
       inputs:
         command: install
         verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
       condition: ne(variables.NPM_CACHE_RESTORED, 'true')
   
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
       displayName: "Build Core"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm install
       displayName: "NPM install packages/survey-angular-ui"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run release -- --release-as $(SurveyJSVersion)
         git status
       displayName: "npm run release"
     
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run build
       displayName: "Build Angular"
-    
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/build/survey-angular-ui"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular-ui"
 
     - script: |
-        cd examples/angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/examples/angular-ui
         npm install
       displayName: "NPM install examples/angular-ui"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run build:example
       displayName: "Build Angular Example"
 
     - script: |
-        cd packages/survey-angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
         npm run test:single
       displayName: "run unit and markup tests"
 
     - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run testcafe:ci:angular
       displayName: "run functional tests"
+    
+    
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular-ui"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular-ui"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+        ArtifactName: "SurveyJSLibraryBuildAngular"
+        publishLocation: "Container"
 
 - job: Finalize
   dependsOn:
@@ -629,11 +665,23 @@ jobs:
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-jquery"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
+  
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildAngular'
+        downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-angular"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
+  
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular-ui"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular-ui"
 
     - task: CopyFiles@2
       inputs:

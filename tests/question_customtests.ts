@@ -1711,3 +1711,48 @@ QUnit.test("Single: survey.questionsOnPageMode = `singlePage`", function (assert
   assert.equal(q.contentQuestion.value, 3, "content question value is correct");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: in matrices cells", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{
+      type: "matrixdynamic",
+      name: "matrix",
+      rowCount: 1,
+      columns: [
+        { cellType: "customerinfo", name: "col1" },
+      ]
+    }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let row = matrix.visibleRows[0];
+  let q = row.cells[0].question;
+  assert.equal(q.getType(), "customerinfo", "The correct type is created");
+  assert.equal(q.contentPanel.elements.length, 2, "There are two elements in panel");
+  q.contentPanel.getQuestionByName("firstName").value = "Jon";
+  q.contentPanel.getQuestionByName("lastName").value = "Snow";
+  assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" }, "Set value to composite question correctly");
+  assert.deepEqual(row.value, { col1: { firstName: "Jon", lastName: "Snow" } }, "Row value is correct");
+  assert.deepEqual(matrix.value, [{ col1: { firstName: "Jon", lastName: "Snow" } }], "Matrix value is correct");
+  assert.deepEqual(survey.data, { matrix: [{ col1: { firstName: "Jon", lastName: "Snow" } }] }, "survey.data is correct");
+
+  survey.data = { matrix: [
+    { col1: { firstName: "Jaime", lastName: "Lannister" } },
+    { col1: { firstName: "Jon", lastName: "Snow" } }] };
+
+  row = matrix.visibleRows[0];
+  q = row.cells[0].question;
+  assert.equal(q.contentPanel.getQuestionByName("firstName").value, "Jaime", "row 0, firstName");
+  assert.equal(q.contentPanel.getQuestionByName("lastName").value, "Lannister", "row 0, lastname");
+  row = matrix.visibleRows[1];
+  q = row.cells[0].question;
+  assert.equal(q.contentPanel.getQuestionByName("firstName").value, "Jon", "row 1, firstName");
+  assert.equal(q.contentPanel.getQuestionByName("lastName").value, "Snow", "row 1, lastname");
+  ComponentCollection.Instance.clear();
+});

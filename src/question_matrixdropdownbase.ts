@@ -409,7 +409,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     this.updateQuestionsValue(name, newColumnValue, isComment);
     var newValue = this.value;
     var changedName = isComment ? name + settings.commentPrefix : name;
-    var changedValue = isComment ? this.getComment(name) : this.getValue(name);
+    var changedValue = newColumnValue;
     var changedQuestion = this.getQuestionByName(name);
     var changingValue = this.data.onRowChanging(this, changedName, newValue);
     if (

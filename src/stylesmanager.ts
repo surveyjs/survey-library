@@ -412,7 +412,7 @@ export class StylesManager {
     ".sv-list__item-icon use": "fill: #909090;",
     ".sv-list__item:not(.sv-list__item--selected):hover":
       "background-color: var(--background-dim, #f3f3f3);",
-    ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    // ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
     ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",
     ".sv-list__item span": "white-space: nowrap;",
@@ -959,10 +959,11 @@ export class StylesManager {
     ".sv_main .sv_qstn textarea": "max-width: 100%",
 
     //list
-    ".sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv-list__input::placeholder": "color: $foreground-light;",
-    ".sv-list__input:disabled": "color: $foreground-disabled;",
-    ".sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
+    "body .sv-list__input": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
+    "body .sv-list__input::placeholder": "color: $foreground-light;",
+    "body .sv-list__input:disabled": "color: $foreground-disabled;",
+    "body .sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
+    "body .sv-list__item--selected": "background-color: $main-color; color: $inputs-background-color;",
     //eo list
     ".sv-skeleton-element": "background-color: $background-dim;",
 

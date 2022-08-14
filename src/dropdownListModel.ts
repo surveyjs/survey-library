@@ -52,7 +52,9 @@ export class DropdownListModel extends Base {
         this._popupModel.toggleVisibility();
       };
     }
-    return new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+    const res = new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+    res.locOwner = this.question;
+    return res;
   }
 
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {

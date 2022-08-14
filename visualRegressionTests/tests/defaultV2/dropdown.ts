@@ -287,7 +287,7 @@ frameworks.forEach(framework => {
 
   test("Check dropdown selected items", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(500, 500);
+      await t.resizeWindow(500, 300);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
         questions: [
@@ -295,6 +295,8 @@ frameworks.forEach(framework => {
             type: "dropdown",
             name: "question1",
             hasOther: "true",
+            hasNone: "true",
+            hasSelectAll: "true",
             choices: [
               "item1",
               "item2",
@@ -343,18 +345,22 @@ frameworks.forEach(framework => {
       });
       const popupContainer = Selector(".sv-popup__container").filterVisible();
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-      await t.click(questionDropdownSelect.nth(0));
+      const questionDropdownWithoutSearch = questionDropdownSelect.nth(0);
+      const questionDropdownWithSearch = questionDropdownSelect.nth(1);
+      await t.click(questionDropdownWithSearch);
       await takeElementScreenshot("dropdown-question-with-search-empty-value.png", popupContainer, t, comparer);
 
-      await t.click(getListItemByText("item1"));
-      await t.click(questionDropdownSelect.nth(0));
+      await t.click(getListItemByText("item21"));
+      await t.click(questionDropdownWithSearch);
       await takeElementScreenshot("dropdown-question-with-search-noempty-value.png", popupContainer, t, comparer);
 
-      await t.click(questionDropdownSelect.nth(1));
+      await t
+        .pressKey("esc")
+        .click(questionDropdownWithoutSearch);
       await takeElementScreenshot("dropdown-question-without-search-empty-value.png", popupContainer, t, comparer);
 
       await t.click(getListItemByText("item7"));
-      await t.click(questionDropdownSelect.nth(1));
+      await t.click(questionDropdownWithoutSearch);
       await takeElementScreenshot("dropdown-question-without-search-noempty-value.png", popupContainer, t, comparer);
 
       await t.resizeWindow(1280, 1100);

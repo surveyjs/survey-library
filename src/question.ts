@@ -952,6 +952,13 @@ export class Question extends SurveyElement
   public get ariaRole(): string {
     return "textbox";
   }
+  /**
+   * Specifies whether to display the "Other" choice item.
+   *
+   * @see otherText
+   * @see otherItem
+   * @see otherErrorText
+   */
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);
   }

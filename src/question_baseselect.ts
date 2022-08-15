@@ -458,7 +458,6 @@ export class QuestionSelectBase extends Question {
    * @see choices
    * @see ChoicesRestful
    * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
-   * @see [Docs: Fill Choices from a RESTful Service](https://surveyjs.io/Documentation/Library/?id=LibraryOverview#fill-the-choices-from-a-restful-service)
    */
   public get choicesByUrl(): ChoicesRestful {
     return this.getPropertyValue("choicesByUrl");

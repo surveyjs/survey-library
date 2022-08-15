@@ -146,9 +146,11 @@ frameworks.forEach(async framework => {
       .expect(Selector(".sv-popup span").withText("modal_question").visible).ok();
 
     const popupClientRect = await getElementClientRect(".sv-popup--modal .sv-popup__container");
+    const calcTop = Math.round((600 / 2 - popupClientRect.height / 2) * 10) / 10;
+    const calcLeft = Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10;
     await t
-      .expect(popupClientRect.left).eql(Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10)
-      .expect(popupClientRect.top).eql(Math.round((600 / 2 - popupClientRect.height / 2) * 10) / 10)
+      .expect(Math.abs(popupClientRect.left - calcLeft)).lte(0.1)
+      .expect(Math.abs(popupClientRect.top - calcTop)).lte(0.1)
 
       .click(clickButton)
       .expect(popupModalSelector.visible).ok()

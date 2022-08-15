@@ -50,7 +50,7 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();
-    this.setSearchEnabled(this.question.denySearch);
+    this.setSearchEnabled(this.question.searchEnabled);
     this.createPopup();
   }
 

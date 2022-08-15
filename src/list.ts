@@ -65,7 +65,7 @@ export class ListModel extends ActionContainer {
   }
 
   protected onSet(): void {
-    this.needFilter = this.searchEnabled ? (this.actions || []).length > ListModel.MINELEMENTCOUNT : false;
+    this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 

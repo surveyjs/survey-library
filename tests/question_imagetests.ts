@@ -80,3 +80,22 @@ QUnit.test("Image adaptive mode", function (assert) {
   question.imageHeight = "150";
   assert.equal(question.getImageCss(), "css_image css_adaptive");
 });
+QUnit.test("Image question correct youtube url", function (assert) {
+  let question = new QuestionImageModel("q1");
+  question.imageLink = "https://youtu.be/-5CdAup0o-I";
+  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I");
+  question.imageLink = "https://www.youtube.com/watch?v=-5CdAup0o-I2";
+  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I2");
+  const json = {
+    questions: [
+      {
+        type: "image",
+        name: "q1",
+        imageLink: "https://www.youtube.com/watch?v=-5CdAup0o-I3"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  question = <any>survey.getQuestionByName("q1");
+  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I3");
+});

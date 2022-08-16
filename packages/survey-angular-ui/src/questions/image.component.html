@@ -2,7 +2,7 @@
   <img
     *ngIf="model.renderedMode === 'image'"
     [class]="model.getImageCss()"
-    [attr.src]="model.imageLink"
+    [attr.src]="model.locImageLink.renderedHtml"
     [attr.alt]="model.text || model.title"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
@@ -11,7 +11,7 @@
     controls
     *ngIf="model.renderedMode === 'video'"
     [class]="model.getImageCss()"
-    [attr.src]="model.imageLink"
+    [attr.src]="model.locImageLink.renderedHtml"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
@@ -19,7 +19,7 @@
   <iframe
     *ngIf="model.renderedMode === 'youtube'"
     [class]="model.getImageCss()"
-    [attr.src]="model.imageLink | safeResourceUrl"
+    [attr.src]="model.locImageLink.renderedHtml | safeResourceUrl"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"

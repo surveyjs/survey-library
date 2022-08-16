@@ -11,7 +11,7 @@
   <!-- ko if: $data.model.isEmpty -->
   <div class="sv-list__empty-container">
     <div class="sv-list__empty-text" data-bind="text: model.emptyMessage, attr: { 'aria-label': model.emptyMessage }"></div>
-  </div> 
+  </div>
   <!-- /ko -->
   <ul class="sv-list" role="listbox"
     data-bind="event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; } }">

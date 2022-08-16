@@ -32,7 +32,7 @@
         :question="cell.question"
       />
       <survey-radiogroup-item
-        v-if="cell.isChoice && !cell.isCheckbox"
+        v-if="cell.isRadio"
         :key="cell.item.value"
         :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
@@ -41,7 +41,7 @@
         :hideLabel="true"
       ></survey-radiogroup-item>
       <survey-checkbox-item
-        v-if="cell.isChoice && cell.isCheckbox"
+        v-if="cell.isCheckbox"
         :key="cell.item.value"
         :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
@@ -49,6 +49,10 @@
         :index="'' + cell.index"
         :hideLabel="true"
       ></survey-checkbox-item>
+      <survey-other-choice
+        v-if="cell.isOtherChoice"
+        :question="cell.question"
+      />
       <survey-errors
         v-if="cell.showErrorOnBottom"
         :element="cell.question"

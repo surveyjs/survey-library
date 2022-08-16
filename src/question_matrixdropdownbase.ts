@@ -427,12 +427,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
         this.hasQuestonError(changedQuestion)
       )
         return;
-      this.data.onRowChanged(
-        this,
-        changedName,
-        newValue,
-        newColumnValue == null && !changedQuestion
-      );
+      const isDeleting = newColumnValue == null && !changedQuestion ||
+        isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+      this.data.onRowChanged(this, changedName, newValue, isDeleting);
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
@@ -1171,9 +1168,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onColumnsChanged();
     if (name == "isRequired") {
       this.resetRenderedTable();
-    }
-    if (column.isShowInMultipleColumns) {
-      this.onShowInMultipleColumnsChanged(column);
     }
   }
   onColumnItemValuePropertyChanged(

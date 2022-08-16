@@ -8,12 +8,13 @@
       <ng-template *ngIf="!cell.isChoice && !cell.question.isDefaultRendering()" [component]="{ name: cell.question.getComponentName(), data: { model: cell.question } }">
       </ng-template>
       <sv-ng-selebase-item
-        *ngIf="cell.isChoice"
+        *ngIf="cell.isItemChoice"
         [showLabel]="false"
         [inputType]="cell.isCheckbox ? 'checkbox': 'radio'"
         [question]="cell.question"
         [model]="cell.item"
       ></sv-ng-selebase-item>
+      <div *ngIf="cell.isOtherChoice" class="form-group" [question]="cell.question" sv-ng-comment></div>
       <div *ngIf="cell.showErrorOnBottom && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
       <div *ngIf="cell.question.isErrorsModeTooltip && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'tooltip'" sv-ng-errors></div>
     </div>

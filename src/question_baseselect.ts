@@ -329,14 +329,30 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.owner = this;
     this.choicesByUrl.loadingOwner = this;
   }
+  get autoOtherMode(): boolean {
+    return this.getPropertyValue("autoOtherMode");
+  }
+  set autoOtherMode(val: boolean) {
+    this.setPropertyValue("autoOtherMode", val);
+  }
   protected getQuestionComment(): string {
     if (!!this.commentValue) return this.commentValue;
     if (this.hasComment || this.getStoreOthersAsComment())
       return super.getQuestionComment();
     return this.commentValue;
   }
+  protected selectOtherValueFromComment(val: boolean): void {
+    this.value = val ? this.otherItem.value : undefined;
+  }
   private isSettingComment: boolean = false;
-  protected setQuestionComment(newValue: string) {
+  protected setQuestionComment(newValue: string): void {
+    if(this.autoOtherMode) {
+      this.prevCommentValue = undefined;
+      const isSelected = this.isOtherSelected;
+      if(!isSelected && !!newValue || isSelected && !newValue) {
+        this.selectOtherValueFromComment(!!newValue);
+      }
+    }
     if (this.hasComment || this.getStoreOthersAsComment())
       super.setQuestionComment(newValue);
     else {
@@ -388,7 +404,7 @@ export class QuestionSelectBase extends Question {
       this.comment = oldComment;
     }
     if (!isOtherSel && !!this.comment) {
-      if (this.getStoreOthersAsComment()) {
+      if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
         this.prevCommentValue = this.comment;
       }
       this.comment = "";

@@ -466,6 +466,21 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return val;
   }
+  protected selectOtherValueFromComment(val: boolean): void {
+    var newVal = [];
+    const rendVal = this.renderedValue;
+    if(Array.isArray(rendVal)) {
+      for(var i = 0; i < rendVal.length; i ++) {
+        if(rendVal[i] !== this.otherItem.value) {
+          newVal.push(rendVal[i]);
+        }
+      }
+    }
+    if(val) {
+      newVal.push(this.otherItem.value);
+    }
+    this.value = newVal;
+  }
   public get checkBoxSvgPath(): string {
     return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }

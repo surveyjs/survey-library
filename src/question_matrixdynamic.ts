@@ -224,6 +224,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.generatedVisibleRows.push(newRow);
         this.onMatrixRowCreated(newRow);
       }
+      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
     this.onRowsChanged();
   }

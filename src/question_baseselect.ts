@@ -349,6 +349,7 @@ export class QuestionSelectBase extends Question {
         this.isSettingComment = false;
       }
     }
+    this.updateChoicesDependedQuestions();
   }
   public clearValue() {
     super.clearValue();

@@ -29,6 +29,7 @@ export interface IPopupModel<T = any> extends IDialogOptions {
 
 export class PopupModel<T = any> extends Base {
   public width: number;
+  public focusFirstInputSelector = "";
 
   @property() contentComponentName: string;
   @property() contentComponentData: T;
@@ -359,7 +360,7 @@ export class PopupBaseViewModel extends Base {
     setTimeout(() => {
       if (!this.container) return;
 
-      var el = this.container.querySelector(FOCUS_INPUT_SELECTOR);
+      var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
       else (<HTMLElement>this.container.children[0]).focus();
     }, 100);

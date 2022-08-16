@@ -4,14 +4,17 @@ import { ListModel } from "../src/list";
 export default QUnit.module("List Model");
 const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
 
+function createIActionArray(count: number,) {
+  let result: Array<IAction> = [];
+  for (let index = 0; index < count; ++index) {
+    result.push(<IAction>{ id: "test" + index, title: "test" + index });
+  }
+  return result;
+}
+
 QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
-  const items = [
-    <IAction>{ id: "test1", title: "test1" },
-    <IAction>{ id: "test2", title: "test2" },
-    <IAction>{ id: "test3", title: "test3" },
-    <IAction>{ id: "test4", title: "test4" }
-  ];
+  const items = createIActionArray(4);
   const list = new ListModel(items, () => { }, true);
 
   assert.equal(list.renderedActions.length, 4);
@@ -23,16 +26,8 @@ QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) 
 
 QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
-  const items = [
-    <IAction>{ id: "test1", title: "test1" },
-    <IAction>{ id: "test2", title: "test2" },
-    <IAction>{ id: "test3", title: "test3" },
-    <IAction>{ id: "test4", title: "test4" },
-    <IAction>{ id: "test5", title: "test5" },
-    <IAction>{ id: "test6", title: "test6" },
-    <IAction>{ id: "test7", title: "test7" },
-    <IAction>{ id: "test8", title: "test8", visible: false }
-  ];
+  const items = createIActionArray(7);
+  items.push(<IAction>{ id: "test8", title: "test8", visible: false });
   const list = new ListModel(items, () => { }, true);
 
   assert.equal(list.renderedActions.length, 8);
@@ -52,27 +47,14 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
 
 QUnit.test("ListModel reassign items", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
-  const items = [
-    <IAction>{ id: "test1", title: "test1" },
-    <IAction>{ id: "test2", title: "test2" },
-    <IAction>{ id: "test3", title: "test3" },
-    <IAction>{ id: "test4", title: "test4" }
-  ];
+  const items = createIActionArray(4);
   const list = new ListModel(items, () => { }, true);
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
   assert.notOk(list.needFilter);
 
-  list.setItems([
-    <IAction>{ id: "test1", title: "test1" },
-    <IAction>{ id: "test2", title: "test2" },
-    <IAction>{ id: "test3", title: "test3" },
-    <IAction>{ id: "test4", title: "test4" },
-    <IAction>{ id: "test5", title: "test5" },
-    <IAction>{ id: "test6", title: "test6" },
-    <IAction>{ id: "test7", title: "test7" }
-  ]);
+  list.setItems(createIActionArray(7));
 
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
@@ -138,4 +120,17 @@ QUnit.test("ListModel custom onFilter", assert => {
   assert.equal(list.filteredText, "", "filteredText is reset");
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+});
+
+QUnit.test("ListModel shows placeholder if there are no visible elements", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+
+  assert.equal(list.renderedActions.length, 12);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
+  assert.notOk(list.isEmpty, "!isEmpty");
+
+  list.filteredText = "item";
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
+  assert.ok(list.isEmpty, "isEmpty");
 });

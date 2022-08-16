@@ -152,7 +152,7 @@ QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
   assert.equal(list.needFilter, false);
   assert.equal(popupModel.isVisible, true);
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "needFilter=false && value = 'item1'");
-
+});
 QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) => {
   const survey = new SurveyModel({
     questions: [{
@@ -201,7 +201,6 @@ QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) =>
 
   question.searchEnabled = true;
   assert.equal(list.needFilter, true);
->>>>>>> 81d841bf665b2f38d9ad3d13441078ed2e29b01f
 });
 
 QUnit.test("DropdownListModel with MultiListModel", (assert) => {

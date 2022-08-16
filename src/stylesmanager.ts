@@ -198,6 +198,7 @@ export class StylesManager {
     ".sv-ranking-item__text": "display: inline-block;",
     ".sv-ranking-item__ghost":
       "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
+    "[dir='rtl'] .sv-ranking-item__ghost": "left: initilal; right: 25px;",
     ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
     ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
     ".sv-ranking-item--drag .sv-ranking-item__content":

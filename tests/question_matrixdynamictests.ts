@@ -4342,7 +4342,9 @@ QUnit.test("showInMultipleColumns property", function (assert) {
     "col2",
     "Column header"
   );
+  assert.notEqual(matrix.columns[1].templateQuestion.autoOtherMode, true, "It is turn off by default");
   matrix.columns[1].showInMultipleColumns = true;
+  assert.equal(matrix.columns[1].templateQuestion.autoOtherMode, true, "It is turn on on setting showInMultipleColumns");
   assert.equal(
     matrix.renderedTable.headerRow.cells.length,
     1 + 2 + 3,
@@ -4479,6 +4481,110 @@ QUnit.test("showInMultipleColumns property, change column choices in running", f
   assert.ok(column.templateQuestion.loadedChoicesFromServerCallback, "Calback is set");
   column.templateQuestion.loadedChoicesFromServerCallback();
   assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
+});
+QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            hasOther: true,
+            choices: [1, 2, 3]
+          },
+          { name: "col2", cellType: "comment" }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].templateQuestion.autoOtherMode, true, "Other mode is set for column template question");
+  assert.equal(
+    matrix.renderedTable.headerRow.cells.length,
+    1 + 3 + 2,
+    "header: row value + 3 choices + hasOther"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].cells.length,
+    1 + 3 + 2,
+    "first row: row value + 3 choices + hasOther"
+  );
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "Other (describe)", "Column text is correct");
+  const cell = matrix.renderedTable.rows[0].cells[4];
+  assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
+  assert.equal(cell.question.autoOtherMode, true, "autoOtherMode is set");
+  assert.equal(cell.isOtherChoice, true, "it is other choice index");
+  assert.equal(cell.isCheckbox, false, "it is not check");
+  assert.equal(cell.isRadio, false, "it is not radio");
+  const commentCell = matrix.renderedTable.rows[0].cells[5];
+  assert.equal(commentCell.isOtherChoice, false, "it is not other choice index");
+  cell.question.comment = "comment1";
+  assert.deepEqual(matrix.value, { row1: { col1: ["other"], "col1-Comment": "comment1" } }, "Matrix value col1-comment is set");
+  cell.question.comment = "comment2";
+  assert.deepEqual(matrix.value, { row1: { col1: ["other"], "col1-Comment": "comment2" } }, "Matrix value col1-comment is set, #2");
+  cell.question.comment = "";
+  assert.notOk(matrix.value, "Reset comment value");
+});
+QUnit.test("showInMultipleColumns and hasOther properties, change in run-time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            choices: [1, 2, 3]
+          }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3, "header: row value + 3 choices");
+  matrix.renderedTable["test_id"] = "#1";
+  matrix.columns[0].hasOther = true;
+  assert.notEqual(matrix.renderedTable["test_id"], "#1", "Re-create renderedTable");
+  assert.equal(matrix.columns[0].templateQuestion.autoOtherMode, true, "Other mode is set for column template question");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1, "header: row value + 3 choices + hasOther");
+  assert.equal(matrix.renderedTable.rows[0].cells.length, 1 + 3 + 1, "first row: row value + 3 choices + hasOther");
+  assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "Other (describe)", "Column text is correct");
+});
+QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in matrix dynamic", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRemoveRows: false,
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            choices: [1, 2]
+          }
+        ]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 2, "header: 2 choices");
+  matrix.renderedTable["test_id"] = "#1";
+  matrix.columns[0].hasOther = true;
+  assert.notEqual(matrix.renderedTable["test_id"], "#1", "Re-create renderedTable");
+  assert.equal(matrix.columns[0].templateQuestion.autoOtherMode, true, "Other mode is set for column template question");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 2 + 1, "header: 2 choices + hasOther");
+  assert.equal(matrix.renderedTable.rows[0].cells.length, 2 + 1, "first row: 2 choices + hasOther");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].locTitle.text, "Other (describe)", "Column text is correct");
 });
 QUnit.test(
   "showInMultipleColumns property + columnLayout = 'vertical'",

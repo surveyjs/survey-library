@@ -155,6 +155,7 @@ export class MatrixDropdownColumn extends Base
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
+    this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
     this.templateQuestion.endLoadingFromJson();
     this.templateQuestion.onGetSurvey = () => {
       return this.getSurvey();
@@ -515,6 +516,7 @@ export class MatrixDropdownColumn extends Base
     }
     question.loadingOwner = this;
     question.isEditableTemplateElement = true;
+    question.autoOtherMode = this.isShowInMultipleColumns;
     this.setQuestionProperties(question);
     this.setParentQuestionToTemplate(question);
     return question;
@@ -556,10 +558,12 @@ export class MatrixDropdownColumn extends Base
     if(name === "isRequired") {
       this.updateIsRenderedRequired(newValue);
     }
-    if (!Serializer.hasOriginalProperty(this, name)) return;
-    if (this.colOwner != null && !this.isLoadingFromJson) {
-      this.colOwner.onColumnPropertyChanged(this, name, newValue);
+    if (!this.colOwner || this.isLoadingFromJson) return;
+    if(this.isShowInMultipleColumns && ["visibleChoices", "choices"].indexOf(name) > -1) {
+      this.colOwner.onShowInMultipleColumnsChanged(this);
     }
+    if (!Serializer.hasOriginalProperty(this, name)) return;
+    this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   private doItemValuePropertyChanged(
     propertyName: string,
@@ -584,6 +588,9 @@ export class MatrixDropdownColumn extends Base
   private doShowInMultipleColumnsChanged() {
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onShowInMultipleColumnsChanged(this);
+    }
+    if(this.templateQuestion) {
+      this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
     }
   }
   private getProperties(curCellType: string): Array<JsonObjectProperty> {

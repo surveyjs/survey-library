@@ -27,6 +27,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public question: Question;
   public isRemoveRow: boolean;
   public choiceIndex: number;
+  public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
   public requiredText: string;
   public isEmpty: boolean;
@@ -78,11 +79,17 @@ export class QuestionMatrixDropdownRenderedCell {
   public get isChoice(): boolean {
     return !!this.item;
   }
+  public get isItemChoice(): boolean {
+    return this.isChoice && !this.isOtherChoice;
+  }
   public get choiceValue(): any {
     return this.isChoice ? this.item.value : null;
   }
   public get isCheckbox(): boolean {
-    return this.isChoice && this.question.getType() == "checkbox";
+    return this.isItemChoice && this.question.isDescendantOf("checkbox");
+  }
+  public get isRadio(): boolean {
+    return this.isItemChoice && this.question.isDescendantOf("radiogroup");
   }
   public get isFirstChoice(): boolean {
     return this.choiceIndex === 0;
@@ -752,26 +759,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     res.question = cell.question;
     res.matrix = this.matrix;
     res.item = choiceItem;
+    res.isOtherChoice = !!choiceItem && !!cell.question && cell.question.otherItem === choiceItem;
 
     res.className = res.calculateFinalClassName(this.cssClasses);
-    //res.css = res.calcCss(this.cssClasses.cell);
-
-    // var questionCss = cell.question.cssClasses;
-    // var className = "";
-    // if (!!questionCss) {
-    //   className = "";
-    //   if (!!questionCss.itemValue) {
-    //     className += " " + questionCss.itemValue;
-    //   }
-    //   if (!!questionCss.asCell) {
-    //     if (!!className) className += "";
-    //     className += questionCss.asCell;
-    //   }
-    // }
-    // if (!className && !!this.cssClasses.cell) {
-    //   className = this.cssClasses.cell;
-    // }
-    //res.className = className;
     return res;
   }
   private createMutlipleColumnsFooter(
@@ -849,6 +839,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
     cell.locTitle = locTitle;
+    if(!!locTitle) {
+      locTitle.strChanged();
+    }
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;
     }

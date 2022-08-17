@@ -820,6 +820,11 @@ export class JsonMetadata {
     if (!!obj[name] && !!obj[name].setJson) {
       obj[name].setJson(val);
     } else {
+      if(Array.isArray(val)) {
+        const newVal = [];
+        for(var i = 0; i < val.length; i ++) newVal.push(val[i]);
+        val = newVal;
+      }
       obj[name] = val;
     }
   }

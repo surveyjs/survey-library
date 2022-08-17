@@ -79,6 +79,16 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue for arrays", function(assert) {
+  Serializer.addProperty("question", { name: "tagbox:set", choices: [1, 2, 3, 4] });
+  const question = new QuestionTextModel("q1");
+  const val = [1, 2];
+  Serializer.setObjPropertyValue(question, "tagbox", val);
+  assert.deepEqual(question.tagbox, [1, 2], "set correctly");
+  val.splice(0, 1);
+  assert.deepEqual(question.tagbox, [1, 2], "do not change on chaning array outside");
+  Serializer.removeProperty("question", "tagbox");
+});
 QUnit.test(
   "Serializer.getObjPropertyValue doesn't work correctly for multipletext item",
   function(assert) {

@@ -25,6 +25,24 @@ $base-unit: var(--base-unit, 8px);
   list-style-type: none;
 }
 
+.sv-list__empty-container {
+  width: 100%;
+  font-family: $font-family;
+  box-sizing: border-box;
+  padding: calcSize(6) calcSize(8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sv-list__empty-text {
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  font-weight: 400;
+  text-align: center;
+  color: $foreground-light;
+}
+
 .sv-list__item {
   width: 100%;
   align-items: center;

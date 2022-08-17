@@ -19,6 +19,7 @@ export class ListModel extends ActionContainer {
     }
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) needFilter: boolean;
+  @property({ defaultValue: false }) isEmpty: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({
     onSet: (newValue: boolean, target: ListModel) => {
@@ -47,6 +48,9 @@ export class ListModel extends ActionContainer {
   }
   private onFilteredTextChanged(text: string) {
     if (!this.needFilter) return;
+
+    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
+
     if (!!this.onFilteredTextChangedCallback) {
       this.onFilteredTextChangedCallback(text);
     }
@@ -109,8 +113,11 @@ export class ListModel extends ActionContainer {
     return (level + 1) * ListModel.INDENT + "px";
   };
 
-  public get filteredTextPlaceholder() {
+  public get filteredTextPlaceholder(): string {
     return this.getLocalizationString("filteredTextPlaceholder");
+  }
+  public get emptyMessage(): string {
+    return this.getLocalizationString("emptyMessage");
   }
 
   public goToItems(event: KeyboardEvent): void {

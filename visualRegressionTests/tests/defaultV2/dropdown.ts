@@ -366,4 +366,57 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1280, 1100);
     });
   });
+
+  test("Check dropdown empty list", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "q1",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item13",
+              "item14",
+              "item15",
+              "item16",
+              "item17",
+              "item18",
+              "item19",
+              "item20",
+              "item21",
+              "item22",
+              "item23",
+              "item24",
+              "item25",
+              "item26",
+              "item27"
+            ]
+          }
+        ]
+      });
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      const popupContainer = Selector(".sv-list__empty-container").filterVisible();
+      await t
+        .click(questionDropdownSelect)
+        .typeText(".sv-list__input", "test")
+        .wait(100);
+      await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
+    });
+  });
 });

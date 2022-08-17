@@ -30,6 +30,7 @@ export class List extends SurveyElementBase<IListProps, any> {
     return (
       <div className="sv-list__container">
         {this.searchElementContent()}
+        {this.emptyContent()}
         <ul
           className="sv-list"
           role="listbox"
@@ -89,6 +90,14 @@ export class List extends SurveyElementBase<IListProps, any> {
           ></input>
         </div>
       );
+    }
+  }
+  emptyContent() {
+    if (!this.model.isEmpty) return null;
+    else {
+      return (<div className="sv-list__empty-container">
+        <div className="sv-list__empty-text" aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
+      </div>);
     }
   }
 }

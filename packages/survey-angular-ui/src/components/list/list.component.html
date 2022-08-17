@@ -6,8 +6,11 @@
             </div>
             <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
                 [attr.aria-label]="model.filteredTextPlaceholder || ''"
-                [attr.placeholder]="model.filteredTextPlaceholder || ''"
+                [attr.placeholder]="model.filteredTextPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
+        </div>
+        <div *ngIf="model.isEmpty" class="sv-list__empty-container">
+            <div class="sv-list__empty-text" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
         <ul class="sv-list" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
             <sv-ng-list-item *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item"></sv-ng-list-item>

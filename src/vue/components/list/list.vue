@@ -14,6 +14,9 @@
         @keyup="keyup"
       />
     </div>
+    <div class="sv-list__empty-container" v-if="model.isEmpty">
+      <div class="sv-list__empty-text" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
+    </div>
     <ul
       class="sv-list"
       role="listbox"

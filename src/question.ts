@@ -1929,13 +1929,13 @@ export class Question extends SurveyElement
   protected processResponsiveness(requiredWidth: number, availableWidth: number): any {
     availableWidth = Math.round(availableWidth);
     if (Math.abs(requiredWidth - availableWidth) > 2) {
-    const oldRenderAs = this.renderAs;
+      const oldRenderAs = this.renderAs;
       if (requiredWidth > availableWidth) {
-      this.renderAs = this.getCompactRenderAs();
-    } else {
-      this.renderAs = this.getDesktopRenderAs();
-    }
-    return oldRenderAs !== this.renderAs;
+        this.renderAs = this.getCompactRenderAs();
+      } else {
+        this.renderAs = this.getDesktopRenderAs();
+      }
+      return oldRenderAs !== this.renderAs;
     }
     return false;
   }

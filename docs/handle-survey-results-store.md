@@ -68,7 +68,7 @@ Follow the steps below to start using the SurveyJS Service:
       "surveyShowDataSaving": true
     }
     ```
-[View example](https://surveyjs.io/Examples/Library?id=service-send)
+[View example](https://surveyjs.io/Examples/Library?id=service-send (linkStyle))
 
 ## See Also
 

@@ -69,4 +69,4 @@ const surveyJson = {
 }
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=survey-shareddata)
+[View example](https://surveyjs.io/Examples/Library?id=survey-shareddata (linkStyle))

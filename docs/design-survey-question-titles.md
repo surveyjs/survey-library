@@ -37,7 +37,7 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext)
+[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
 
 ## Required Mark
 
@@ -50,7 +50,7 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext)
+[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
 
 ## Title Pattern
 
@@ -66,4 +66,4 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext)
+[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))

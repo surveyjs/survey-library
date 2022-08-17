@@ -39,7 +39,7 @@ if (prevData) {
 }
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=real-patient-history)
+[View example](https://surveyjs.io/Examples/Library?id=real-patient-history (linkStyle))
 
 ## See Also
 

@@ -59,7 +59,7 @@ Certain question types can contain multiple values. Use a dot symbol to access a
 | [Matrix](/Documentation/Library?id=questionmatrixmodel) | `{questionname.rowname}` |
 | [Matrix Dropdown](/Documentation/Library?id=questionmatrixdropdownmodel) | `{questionname.rowname.columnname}` |
 
-[View the "Complex Questions in Expressions" example](/Examples/Library?id=condition-complexquestions)
+[View the "Complex Questions in Expressions" example](/Examples/Library?id=condition-complexquestions (linkStyle))
 
 In dynamic questions, use a zero-based index to access a specific value (question or cell):
 
@@ -70,7 +70,7 @@ In dynamic questions, use a zero-based index to access a specific value (questio
 
 In addition, Matrix questions support a `row` prefix that allows you to access cells on the same row: `{row.columnname}`. Similarly, you can use a `panel` prefix to access questions in the same Panel: `{panel.questionName}`.
 
-[View the "Conditions in Dynamic Questions" example](/Examples/Library?id=condition-dynamic)
+[View the "Conditions in Dynamic Questions" example](/Examples/Library?id=condition-dynamic (linkStyle))
 
 ### Variables
 
@@ -134,7 +134,7 @@ const surveyJson = {
 };
 ```
 
-[View the "Use Calculated Values" example](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues)
+[View the "Use Calculated Values" example](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
 
 ## Expressions
 
@@ -493,7 +493,7 @@ import { FunctionFactory } from "survey-core";
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 ```
 
-[View the "Async Function in Expression" example](https://surveyjs.io/Examples/Library?id=questiontype-expression-async)
+[View the "Async Function in Expression" example](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
 
 ## Conditional Visibility
 
@@ -534,8 +534,8 @@ const surveyJson = {
 
 If you do not specify the `visibleIf`, `enableIf`, and `requiredIf` properties, an element's state depends on the [`isVisible`](/Documentation/Library?id=Question#isVisible), [`isReadOnly`](/Documentation/Library?id=Question#isReadOnly), and [`isRequired`](/Documentation/Library?id=Question#isRequired) properties. You can specify them at design time or use them to get or set the current state at runtime. If you set one of these properties for a panel or page, all nested questions inherit the setting.
 
-- [View the "Conditional Visibility" example](/Examples/Library?id=condition-kids)
-- [View the "Enable/Disable Elements" example](/Examples/Library?id=condition-enable-kids)
+[View the "Conditional Visibility" example](/Examples/Library?id=condition-kids (linkStyle))
+[View the "Enable/Disable Elements" example](/Examples/Library?id=condition-enable-kids (linkStyle))
 
 ### Item Visibility (Choices, Columns, Rows)
 
@@ -562,7 +562,7 @@ const surveyJson = {
 }
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf)
+[View example](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf (linkStyle))
 
 This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use the technique described in the next topic.
 
@@ -592,8 +592,8 @@ const surveyJson = {
 }
 ```
 
-- [View Matrix example](https://surveyjs.io/Examples/Library?id=condition-matrixVisibleIf)
-- [View Matrix Dropdown example](https://surveyjs.io/Examples/Library?id=condition-matrixDropdownVisibleIf)
+[View Matrix example](https://surveyjs.io/Examples/Library?id=condition-matrixVisibleIf (linkStyle))
+[View Matrix Dropdown example](https://surveyjs.io/Examples/Library?id=condition-matrixDropdownVisibleIf (linkStyle))
 
 ## Conditional Survey Logic (Triggers)
 
@@ -692,4 +692,4 @@ const surveyJson = {
 
 If the `expression` is `true`, the trigger runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
 
-[View the "Run Expression Trigger" example](https://surveyjs.io/Examples/Library?id=trigger-runexpression)
+[View the "Run Expression Trigger" example](https://surveyjs.io/Examples/Library?id=trigger-runexpression (linkStyle))

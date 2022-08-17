@@ -243,7 +243,7 @@ survey.doComplete();
 
 In this tutorial, the survey uses out-of-the-box page navigation and does not demonstrate the described API members. However, the given information should help you implement custom page navigation if you find it more suitable in your scenario.
 
-[View Custom Navigation Example](https://surveyjs.io/Examples/Library?id=survey-customnavigation)
+[View Custom Navigation example](https://surveyjs.io/Examples/Library?id=survey-customnavigation (linkStyle))
 
 ### Page Navigation UI
 

@@ -26,7 +26,7 @@ Use this approach if you want to add or remove survey elements at runtime.
 
 ### Define a Static Survey Model in JSON
 
-Static survey models are specified by model definitions (JSON objects). For example, the following model definition declares a [page](https://surveyjs.io/Documentation/Library?id=pagemodel) that contains two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel) and an expandable panel with two more textual questions. All survey elements have [names](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name) that can be used to identify the elements in code. The panel and questions also have [titles](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) that are displayed on screen.
+Static survey models are specified by model schemas (JSON objects). For example, the following model schema declares a [page](https://surveyjs.io/Documentation/Library?id=pagemodel) that contains two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel) and an expandable panel with two more textual questions. All survey elements have [names](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name) that can be used to identify the elements in code. The panel and questions also have [titles](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) that are displayed on screen.
 
 ```js
 const surveyJson = {
@@ -61,7 +61,7 @@ const surveyJson = {
 const survey = new Survey.Model(surveyJson);
 ```
 
-The model definition above produces the following survey:
+The model schema above produces the following survey:
 
 <p class="codepen" data-height="528" data-default-tab="result" data-slug-hash="eYGgGZP" data-user="romantsukanov" style="height: 528px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
   <span>See the Pen <a href="https://codepen.io/romantsukanov/pen/eYGgGZP">

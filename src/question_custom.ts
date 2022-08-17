@@ -61,7 +61,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onCreated?(question: Question): void;
   /**
-   * A function that is called when JSON definitions are loaded.
+   * A function that is called when JSON schemas are loaded.
    *
    * Parameters:
    *
@@ -135,7 +135,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   getDisplayValue?: ((keyAsText: boolean, value: any) => any) | ((question: Question) => any);
   /**
-   * JSON definitions of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
    */
   elementsJSON?: any;
   /**
@@ -145,7 +145,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   createElements?: any;
   /**
-   * A JSON definition for a built-in question type on which the custom question type is based.
+   * A JSON schema for a built-in question type on which the custom question type is based.
    *
    * Refer to the [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types) help topic for more information.
    */

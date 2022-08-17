@@ -45,7 +45,7 @@ const question = survey.getQuestionByName("question1")
 question.validators.push(new NumericValidator({ text: "Value must be a number" }));
 ```
 
-Alternatively, you can declare the `validators` array in the survey JSON definition:
+Alternatively, you can declare the `validators` array in the survey JSON schema:
 
 ```js
 const surveyJson = {

@@ -300,8 +300,14 @@ export abstract class DragDropCore<T> extends Base {
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
     const shortcutWidth = this.draggedElementShortcut.offsetWidth;
-    const shortcutXOffset = this.draggedElementShortcut.shortcutXOffset || shortcutWidth / 2;
-    const shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
+    let shortcutXOffset = this.draggedElementShortcut.shortcutXOffset || shortcutWidth / 2;
+    let shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
+
+    // TODO this is hot fix for RTL support. Probably we need better global strategy for it. https://github.com/surveyjs/survey-library/issues/4554
+    if (document.querySelectorAll("[dir='rtl']").length !== 0) {
+      shortcutXOffset = shortcutWidth / 2;
+      shortcutYOffset = shortcutHeight / 2;
+    }
 
     const documentBottom = document.documentElement.clientHeight;
     const documentRight = document.documentElement.clientWidth;

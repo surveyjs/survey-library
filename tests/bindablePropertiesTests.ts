@@ -266,3 +266,24 @@ QUnit.test("onPropertyValueChangedCallback is not changed on changing bindings",
   assert.deepEqual(e_newValue, bindingJSON, "#3, newValue");
   assert.equal(e_sender.name, "matrix1", "#3, sender");
 });
+QUnit.test("Dynamic Matrix, bind rowCount and expression column", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { name: "q1", type: "text" },
+      {
+        name: "matrix1",
+        type: "matrixdynamic",
+        columns: [{ name: "col1", cellType: "expression", expression: "'Row ' + {rowIndex}" }],
+        rowCount: 0,
+        bindings: {
+          rowCount: "q1",
+        },
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  assert.equal(matrix.rowCount, 0, "row count is 0 by default");
+  survey.setValue("q1", 3);
+  assert.equal(matrix.rowCount, 3, "bindable question value is 3");
+  assert.deepEqual(matrix.value, [{ col1: "Row 1" }, { col1: "Row 2" }, { col1: "Row 3" }], "expression set correct value");
+});

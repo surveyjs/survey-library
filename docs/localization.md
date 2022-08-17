@@ -79,7 +79,7 @@ surveyLocalization.defaultLocale = "fr";
 
 ## Localize Survey Contents
 
-You can localize questions, choices, columns, rows, and other survey texts right in the survey JSON definition. Normally, properties that specify survey texts accept string values, like the [`title`](/Documentation/Library?id=Question#title) property does in the code below:
+You can localize questions, choices, columns, rows, and other survey texts right in the survey JSON schema. Normally, properties that specify survey texts accept string values, like the [`title`](/Documentation/Library?id=Question#title) property does in the code below:
 
 ```js
 const surveyJson = {

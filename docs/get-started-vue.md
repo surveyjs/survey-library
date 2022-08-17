@@ -66,7 +66,7 @@ StylesManager.applyTheme("modern");
 
 A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
 
-Models are specified by model definitions (JSON objects). For example, the following model definition declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
+Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
 ```js
 const surveyJson = {
@@ -82,7 +82,7 @@ const surveyJson = {
 };
 ```
 
-To instantiate a model, pass the model definition to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey. 
+To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey. 
 
 ```js
 <template>
@@ -302,7 +302,7 @@ export default {
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model definition.
+As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `npm run serve` in a command line and open [http://localhost:8080/](http://localhost:8080/) in your browser.
 

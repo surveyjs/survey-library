@@ -108,7 +108,7 @@ console.log(survey.getVariableNames()); // Outputs [ "currentyear" ]
 
 Calculated values allow you to register an [expression](#expressions) under a required name. If the expression includes [questions](#question-values), [variables](#variables), or [functions](#built-in-functions), it is recalculated each time their values are changed.
 
-To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/Documentation/Library?id=surveymodel#calculatedValues) array in the survey JSON definition. Each object in this array should contain the following fields:
+To configure a calculated value, define the [`calculatedValues`](https://surveyjs.io/Documentation/Library?id=surveymodel#calculatedValues) array in the survey JSON schema. Each object in this array should contain the following fields:
 
 - `name` - A name that identifies the calculated value.
 - `expression` - An expression that returns the calculated value.
@@ -138,7 +138,7 @@ const surveyJson = {
 
 ## Expressions
 
-Expressions allow you to add logic to your survey and perform calculations right in the survey JSON definition. Expressions are evaluated and re-evaluated at runtime.
+Expressions allow you to add logic to your survey and perform calculations right in the survey JSON schema. Expressions are evaluated and re-evaluated at runtime.
 
 SurveyJS supports the following expression types:
 

@@ -40,9 +40,9 @@ The `onComplete` event handler only sends survey results in JSON format to your 
 
 ## Store Survey Results in the SurveyJS Service
 
-SurveyJS Service is a full-cycle survey solution. The service allows you to create a survey and store its JSON definition in our database. You can also load surveys from the database, display them to your clients, and send the results back to the service for storage and analysis.
+SurveyJS Service is a full-cycle survey solution. The service allows you to create a survey and store its JSON schema in our database. You can also load surveys from the database, display them to your clients, and send the results back to the service for storage and analysis.
 
-> **DISCLAIMER**: SurveyJS Service is meant as a demonstration of what you can build with SurveyJS products. SurveyJS assumes no responsibility for any consequence of misusing or violating any sensitive data communicated via the service. In real-world applications, we strongly recommend storing survey results and JSON definitions [in your own database](#store-survey-results-in-your-own-database).
+> **DISCLAIMER**: SurveyJS Service is meant as a demonstration of what you can build with SurveyJS products. SurveyJS assumes no responsibility for any consequence of misusing or violating any sensitive data communicated via the service. In real-world applications, we strongly recommend storing survey results and JSON schemas [in your own database](#store-survey-results-in-your-own-database).
 
 Follow the steps below to start using the SurveyJS Service:
 

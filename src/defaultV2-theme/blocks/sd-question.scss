@@ -138,5 +138,6 @@
 }
 .sd-scrollable-container:not(.sd-scrollable-container--compact) {
   width: max-content;
+  overflow-x: hidden;
   max-width: 100%;
 }

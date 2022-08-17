@@ -189,6 +189,27 @@ QUnit.test("check rating useDropdown", (assert) => {
   q1["processResponsiveness"](600, 500);
   assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
 });
+QUnit.test("do not process reponsiveness when required width differs from avalailable less then 2px: #4554", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1["processResponsiveness"](502, 500), false);
+  assert.equal(q1.renderAs, "default", "difference too small: not processed");
+  assert.equal(q1["processResponsiveness"](503, 500), true);
+  assert.equal(q1.renderAs, "dropdown", "difference is enough: is processed");
+  q1["processResponsiveness"](503, 500) // dummy: to reset isProcessed flag
+  assert.equal(q1["processResponsiveness"](500, 502), false);
+  assert.equal(q1.renderAs, "dropdown", "difference too small: not processed");
+  assert.equal(q1["processResponsiveness"](500, 503), true);
+  assert.equal(q1.renderAs, "default", "difference is enough: processed");
+});
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {
     questions: [

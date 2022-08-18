@@ -5,7 +5,7 @@
     "serve_ci": "http-server",
     "test": "karma start ./build-scripts/karma.conf.js",
     "testcafe": "testcafe chrome testCafe/ --app \"http-server\" --selector-timeout 1500 --reporter minimal",
-    "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/survey/afterRenderEvent.js --selector-timeout 1500 --reporter minimal\"",
+    "testcafe_file": "concurrently \"http-server --silent\" \"testcafe chrome testCafe/survey/surveyWidth.ts --selector-timeout 1500 --reporter minimal\"",
     "testcafe_ci": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "testcafe:ko": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=knockout",

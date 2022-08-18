@@ -89,9 +89,13 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
+    const style: any = {};
+    if(!!this.survey.width) {
+      style.width = this.survey.width;
+    }
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={style}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>

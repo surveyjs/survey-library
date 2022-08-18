@@ -14,14 +14,14 @@ export class DropdownListModel extends Base {
   protected popupCssClasses = "sv-single-select-list";
 
   private updatePopupFocusFirstInputSelector() {
-    this._popupModel.focusFirstInputSelector = (!this.listModel.needFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
+    this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
   }
 
   private createPopup() {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";
     this.updatePopupFocusFirstInputSelector();
-    this.listModel.registerFunctionOnPropertyValueChanged("needFilter", () => {
+    this.listModel.registerFunctionOnPropertyValueChanged("showFilter", () => {
       this.updatePopupFocusFirstInputSelector();
     });
     this._popupModel.cssClass = this.popupCssClasses;

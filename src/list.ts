@@ -18,7 +18,7 @@ export class ListModel extends ActionContainer {
       target.onSet();
     }
   }) searchEnabled: boolean;
-  @property({ defaultValue: false }) needFilter: boolean;
+  @property({ defaultValue: false }) showFilter: boolean;
   @property({ defaultValue: false }) isEmpty: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({
@@ -44,10 +44,10 @@ export class ListModel extends ActionContainer {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
   }
   private get shouldProcessFilter(): boolean {
-    return this.needFilter && !this.onFilteredTextChangedCallback;
+    return this.showFilter && !this.onFilteredTextChangedCallback;
   }
   private onFilteredTextChanged(text: string) {
-    if (!this.needFilter) return;
+    if (!this.showFilter) return;
 
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
 
@@ -69,7 +69,7 @@ export class ListModel extends ActionContainer {
   }
 
   protected onSet(): void {
-    this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
 

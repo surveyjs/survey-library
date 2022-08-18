@@ -1,6 +1,6 @@
 <template>
   <div class="sv-list__container">
-    <div class="sv-list__filter" v-if="model.needFilter">
+    <div class="sv-list__filter" v-if="model.showFilter">
       <div class="sv-list__filter-icon">
         <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
       </div>

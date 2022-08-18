@@ -60,7 +60,7 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
 
   searchElementContent() {
-    if (!this.model.needFilter) return null;
+    if (!this.model.showFilter) return null;
     else {
       const onChange = (e: any) => {
         if (e.target === document.activeElement) {

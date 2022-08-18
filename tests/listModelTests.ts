@@ -19,7 +19,7 @@ QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) 
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
-  assert.notOk(list.needFilter);
+  assert.notOk(list.showFilter);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
@@ -32,7 +32,7 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
 
   assert.equal(list.renderedActions.length, 8);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
-  assert.ok(list.needFilter);
+  assert.ok(list.showFilter);
 
   list.filteredText = "test";
   assert.equal(list.renderedActions.length, 8);
@@ -52,13 +52,13 @@ QUnit.test("ListModel reassign items", function (assert) {
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
-  assert.notOk(list.needFilter);
+  assert.notOk(list.showFilter);
 
   list.setItems(createIActionArray(7));
 
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
-  assert.ok(list.needFilter);
+  assert.ok(list.showFilter);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
@@ -101,7 +101,7 @@ QUnit.test("ListModel custom onFilter", assert => {
 
   assert.equal(list.renderedActions.length, 7, "initial list.renderedActions");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "initial list.renderedActions.filter(item => item.visible)");
-  assert.ok(list.needFilter, "initial list.filterableListItems");
+  assert.ok(list.showFilter, "initial list.filterableListItems");
 
   list.filteredText = "test";
   assert.equal(list.renderedActions.length, 7, "items filteredText = test");

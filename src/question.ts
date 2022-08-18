@@ -309,9 +309,6 @@ export class Question extends SurveyElement
   public get isAllowTitleLeft(): boolean {
     return true;
   }
-  /**
-   * Returns the type of the object as a string as it represents in the json.
-   */
   public getType(): string {
     return "question";
   }

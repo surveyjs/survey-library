@@ -480,6 +480,10 @@ export class CustomPropertiesCollection {
       }
     }
   }
+  public static removeAllProperties(className: string): void {
+    className = className.toLowerCase();
+    delete CustomPropertiesCollection.properties[className];
+  }
   public static addClass(className: string, parentClassName: string) {
     className = className.toLowerCase();
     if (parentClassName) {
@@ -522,7 +526,7 @@ export class CustomPropertiesCollection {
     }
   }
   private static createPropertyInObj(obj: any, prop: JsonObjectProperty) {
-    if (obj[prop.name] || obj.hasOwnProperty(prop.name)) return;
+    if (obj.hasOwnProperty(prop.name) || obj[prop.name]) return;
     if (
       prop.isLocalizable &&
       prop.serializationProperty &&
@@ -599,6 +603,7 @@ export class JsonMetadataClass {
   static requiredSymbol = "!";
   static typeSymbol = ":";
   properties: Array<JsonObjectProperty> = null;
+  private isCustomValue: boolean;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -606,16 +611,17 @@ export class JsonMetadataClass {
     public parentName: string = null
   ) {
     name = name.toLowerCase();
+    this.isCustomValue = !creator && name !== "survey";
     if (this.parentName) {
       this.parentName = this.parentName.toLowerCase();
       CustomPropertiesCollection.addClass(name, this.parentName);
+      if(!!creator) {
+        this.makeParentRegularClass();
+      }
     }
     this.properties = new Array<JsonObjectProperty>();
     for (var i = 0; i < properties.length; i++) {
-      var prop = this.createProperty(properties[i]);
-      if (prop) {
-        this.properties.push(prop);
-      }
+      this.createProperty(properties[i], this.isCustom);
     }
   }
   public find(name: string): JsonObjectProperty {
@@ -624,7 +630,27 @@ export class JsonMetadataClass {
     }
     return null;
   }
-  public createProperty(propInfo: any): JsonObjectProperty {
+  public get isCustom(): boolean { return this.isCustomValue; }
+  private isOverridedProp(propName: string): boolean {
+    return !!this.parentName && !!Serializer.findProperty(this.parentName, propName);
+  }
+  private hasRegularChildClass(): void {
+    if(!this.isCustom) return;
+    this.isCustomValue = false;
+    for(var i = 0; i < this.properties.length; i ++) {
+      this.properties[i].isCustom = false;
+    }
+    CustomPropertiesCollection.removeAllProperties(this.name);
+    this.makeParentRegularClass();
+  }
+  private makeParentRegularClass(): void {
+    if(!this.parentName) return;
+    const parent = Serializer.findClass(this.parentName);
+    if(!!parent) {
+      parent.hasRegularChildClass();
+    }
+  }
+  public createProperty(propInfo: any, isCustom: boolean = false): JsonObjectProperty {
     var propertyName = typeof propInfo === "string" ? propInfo : propInfo.name;
     if (!propertyName) return;
     var propertyType = null;
@@ -763,6 +789,11 @@ export class JsonMetadataClass {
       if (propInfo.dependsOn) {
         this.addDependsOnProperties(prop, propInfo.dependsOn);
       }
+    }
+    this.properties.push(prop);
+    if(isCustom && !this.isOverridedProp(prop.name)) {
+      prop.isCustom = true;
+      CustomPropertiesCollection.addProperty(this.name, prop);
     }
     return prop;
   }
@@ -1090,12 +1121,9 @@ export class JsonMetadata {
     propertyInfo: any
   ): JsonObjectProperty {
     if (!metaDataClass) return null;
-    var property = metaDataClass.createProperty(propertyInfo);
+    var property = metaDataClass.createProperty(propertyInfo, true);
     if (property) {
-      property.isCustom = true;
-      this.addPropertyToClass(metaDataClass, property);
       this.emptyClassPropertiesHash(metaDataClass);
-      CustomPropertiesCollection.addProperty(metaDataClass.name, property);
     }
     return property;
   }
@@ -1111,13 +1139,6 @@ export class JsonMetadata {
         propertyName
       );
     }
-  }
-  private addPropertyToClass(
-    metaDataClass: JsonMetadataClass,
-    property: JsonObjectProperty
-  ) {
-    if (metaDataClass.find(property.name) != null) return;
-    metaDataClass.properties.push(property);
   }
   private removePropertyFromClass(
     metaDataClass: JsonMetadataClass,

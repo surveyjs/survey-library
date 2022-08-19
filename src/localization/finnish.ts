@@ -84,7 +84,7 @@ export var finnishSurveyStrings = {
   modalCancelButtonText: "Peruuta",
   modalApplyButtonText: "Käytä",
   ratingOptionsCaption: "Arvioi napauttamalla tätä...",
-  filteredTextPlaceholder: "Hae kirjoittamalla...",
+  filterStringPlaceholder: "Hae kirjoittamalla...",
   indexText: "{0} / {1}",
   minError: "Arvo ei saa olla pienempi kuin {0}",
   maxError: "Arvo ei saa olla suurempi kuin {0}",

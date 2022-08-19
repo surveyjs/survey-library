@@ -9,7 +9,7 @@ export interface IListModel {
   onSelectionChanged: (item: Action, ...params: any[]) => void;
   allowSelection?: boolean;
   selectedItem?: IAction;
-  onFilteredTextChangedCallback?: (text: string) => void;
+  onFilterStringChangedCallback?: (text: string) => void;
 }
 export class ListModel extends ActionContainer {
   @property({
@@ -28,29 +28,29 @@ export class ListModel extends ActionContainer {
   }) selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
-      target.onFilteredTextChanged(target.filteredText);
+      target.onfilterStringChanged(target.filterString);
     }
-  }) filteredText: string;
+  }) filterString: string;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
 
-  private hasText(item: Action, filteredTextInLow: string): boolean {
-    if (!filteredTextInLow) return true;
+  private hasText(item: Action, filterStringInLow: string): boolean {
+    if (!filterStringInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
-    return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
+    return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: Action) {
-    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
+    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
   }
   private get shouldProcessFilter(): boolean {
-    return !this.onFilteredTextChangedCallback;
+    return !this.onFilterStringChangedCallback;
   }
-  private onFilteredTextChanged(text: string) {
+  private onfilterStringChanged(text: string) {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
 
-    if (!!this.onFilteredTextChangedCallback) {
-      this.onFilteredTextChangedCallback(text);
+    if (!!this.onFilterStringChangedCallback) {
+      this.onFilterStringChangedCallback(text);
     }
   }
 
@@ -59,7 +59,7 @@ export class ListModel extends ActionContainer {
     public onSelectionChanged: (item: Action, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilteredTextChangedCallback?: (text: string) => void
+    private onFilterStringChangedCallback?: (text: string) => void
   ) {
     super();
     this.setItems(items);
@@ -111,8 +111,8 @@ export class ListModel extends ActionContainer {
     return (level + 1) * ListModel.INDENT + "px";
   };
 
-  public get filteredTextPlaceholder(): string {
-    return this.getLocalizationString("filteredTextPlaceholder");
+  public get filterStringPlaceholder(): string {
+    return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
     return this.getLocalizationString("emptyMessage");
@@ -137,6 +137,6 @@ export class ListModel extends ActionContainer {
   }
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh() {
-    this.filteredText = "";
+    this.filterString = "";
   }
 }

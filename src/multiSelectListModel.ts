@@ -14,8 +14,8 @@ export class MultiSelectListModel extends ListModel {
     });
   }
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
-    super(items, onSelectionChanged, allowSelection, undefined, onFilteredTextChangedCallback);
+  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void) {
+    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback);
     this.setSelectedItems(selectedItems || []);
   }
 

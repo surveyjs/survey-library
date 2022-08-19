@@ -307,7 +307,7 @@ QUnit.test("DropdownListModel with MultiListModel state actions", (assert) => {
   assert.equal(list.actions[3].active, false);
 });
 
-QUnit.test("filteredText test", function (assert) {
+QUnit.test("filterString test", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = new DropdownListModel(question);
@@ -316,15 +316,15 @@ QUnit.test("filteredText test", function (assert) {
   assert.equal(list.renderedActions.length, 28);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 28);
 
-  dropdownListModel.filteredText = "1";
+  dropdownListModel.filterString = "1";
   assert.equal(list.renderedActions.length, 28);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
 
-  dropdownListModel.filteredText = "11";
+  dropdownListModel.filterString = "11";
   assert.equal(list.renderedActions.length, 28);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
 
-  dropdownListModel.filteredText = "110";
+  dropdownListModel.filterString = "110";
   assert.equal(list.renderedActions.length, 28);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
 });

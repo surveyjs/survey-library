@@ -340,8 +340,8 @@ QUnit.test("ListModel localization", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const listModel = question.popupModel.contentComponentData.model as ListModel;
-  assert.equal(listModel.filteredTextPlaceholder, "Type to search...", "filtered text in en");
+  assert.equal(listModel.filterStringPlaceholder, "Type to search...", "filtered text in en");
   survey.locale = "de";
-  assert.equal(listModel.filteredTextPlaceholder, "Tippe um zu suchen...", "filtered text in de");
+  assert.equal(listModel.filterStringPlaceholder, "Tippe um zu suchen...", "filtered text in de");
   survey.locale = "";
 });

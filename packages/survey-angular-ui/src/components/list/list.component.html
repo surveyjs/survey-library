@@ -4,9 +4,9 @@
             <div class="sv-list__filter-icon">
                 <svg class="sv-list__item-icon" [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
             </div>
-            <input type="text" class="sv-list__input" [(ngModel)]="model.filteredText"
-                [attr.aria-label]="model.filteredTextPlaceholder || ''"
-                [attr.placeholder]="model.filteredTextPlaceholder || ''" 
+            <input type="text" class="sv-list__input" [(ngModel)]="model.filterString"
+                [attr.aria-label]="model.filterStringPlaceholder || ''"
+                [attr.placeholder]="model.filterStringPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
         </div>
         <div *ngIf="model.isEmpty" class="sv-list__empty-container">

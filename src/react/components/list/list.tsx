@@ -13,7 +13,7 @@ export class List extends SurveyElementBase<IListProps, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      filteredText: this.model.filteredText || ""
+      filterString: this.model.filterString || ""
     };
   }
   get model(): ListModel {
@@ -64,7 +64,7 @@ export class List extends SurveyElementBase<IListProps, any> {
     else {
       const onChange = (e: any) => {
         if (e.target === document.activeElement) {
-          this.model.filteredText = e.target.value;
+          this.model.filterString = e.target.value;
         }
       };
       const onKeyUp = (e: any) => {
@@ -82,9 +82,9 @@ export class List extends SurveyElementBase<IListProps, any> {
           <input
             type="text"
             className="sv-list__input"
-            aria-label={this.model.filteredTextPlaceholder}
-            placeholder={this.model.filteredTextPlaceholder}
-            value={this.state.filteredText}
+            aria-label={this.model.filterStringPlaceholder}
+            placeholder={this.model.filterStringPlaceholder}
+            value={this.state.filterString}
             onKeyUp={onKeyUp}
             onChange={onChange}
           ></input>

@@ -81,7 +81,7 @@ export var slovakSurveyStrings = {
   questionTitlePatternText: "Titul otázky",
   modalCancelButtonText: "Zrušiť",
   modalApplyButtonText: "Použiť",
-  filteredTextPlaceholder: "Vyhľadávanie písaním...",
+  filterStringPlaceholder: "Vyhľadávanie písaním...",
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie."
 };
 

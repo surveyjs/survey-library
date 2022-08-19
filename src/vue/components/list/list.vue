@@ -7,9 +7,9 @@
       <input
         type="text"
         class="sv-list__input"
-        :aria-label="model.filteredTextPlaceholder"
-        :placeholder="model.filteredTextPlaceholder"
-        :value="model.filteredText"
+        :aria-label="model.filterStringPlaceholder"
+        :placeholder="model.filterStringPlaceholder"
+        :value="model.filterString"
         @change="change"
         @keyup="keyup"
       />
@@ -60,10 +60,10 @@ export class List extends BaseVue {
     return this.model;
   }
   change(event: any) {
-    this.model.filteredText = event.target.value;
+    this.model.filterString = event.target.value;
   }
   keyup(event: any) {
-    this.model.filteredText = event.target.value;
+    this.model.filterString = event.target.value;
     this.model.goToItems(event);
   }
 }

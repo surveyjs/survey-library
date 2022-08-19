@@ -35,7 +35,7 @@ export class DropdownListModel extends Base {
   }
 
   private setFilter(newValue: string):void {
-    this.listModel.filteredText = newValue;
+    this.listModel.filterString = newValue;
   }
 
   protected getAvailableItems(): Array<Action> {
@@ -65,9 +65,9 @@ export class DropdownListModel extends Base {
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     onSet: (_, target: DropdownListModel) => {
-      target.setFilter(target.filteredText);
+      target.setFilter(target.filterString);
     }
-  }) filteredText: string;
+  }) filterString: string;
 
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();

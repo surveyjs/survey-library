@@ -5,7 +5,7 @@
       <sv-svg-icon params="iconName: 'icon-search', size: 24"></sv-svg-icon>
     </div>
     <input type="text" class="sv-list__input"
-      data-bind="textInput: model.filteredText, attr: { placeholder: model.filteredTextPlaceholder, 'aria-label': model.filteredTextPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
+      data-bind="textInput: model.filterString, attr: { placeholder: model.filterStringPlaceholder, 'aria-label': model.filterStringPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
   </div>
   <!-- /ko -->
   <!-- ko if: $data.model.isEmpty -->

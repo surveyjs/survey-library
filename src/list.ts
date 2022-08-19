@@ -44,11 +44,9 @@ export class ListModel extends ActionContainer {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
   }
   private get shouldProcessFilter(): boolean {
-    return this.showFilter && !this.onFilteredTextChangedCallback;
+    return !this.onFilteredTextChangedCallback;
   }
   private onFilteredTextChanged(text: string) {
-    if (!this.showFilter) return;
-
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
 
     if (!!this.onFilteredTextChangedCallback) {

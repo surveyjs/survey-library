@@ -127,7 +127,8 @@ QUnit.test("Test dropdown renderAs select", assert => {
   assert.ok(question.popupModel.contentComponentData.model instanceof ListModel);
 
   const listModel = question.popupModel.contentComponentData.model as ListModel;
-  assert.equal(listModel.showFilter, true);
+  assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, true);
 });
 
 QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
@@ -173,9 +174,11 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const listModel = question.popupModel.contentComponentData.model as ListModel;
   assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, false);
 
   question.searchEnabled = true;
-  assert.equal(listModel.showFilter, true);
+  assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, true);
 });
 
 QUnit.test("add placeholder & allowClear", assert => {

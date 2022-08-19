@@ -113,44 +113,46 @@ QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
   const dropdownListModel = new DropdownListModel(question);
   const popupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.showFilter = true;
 
   popupModel.isVisible = true;
   assert.equal(list.actions.length, 28);
-  assert.equal(question.value, undefined);
-  assert.equal(list.showFilter, true);
-  assert.equal(popupModel.isVisible, true);
+  assert.equal(question.value, undefined, "question.value");
+  assert.equal(list.showFilter, true, "list.showFilter");
+  assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, "", "showFilter=true && value = undefined");
 
   list.onItemClick(list.actions[0]);
   popupModel.isVisible = true;
-  assert.equal(question.value, "item1");
-  assert.equal(list.showFilter, true);
-  assert.equal(popupModel.isVisible, true);
+  assert.equal(question.value, "item1", "question.value");
+  assert.equal(list.showFilter, true, "list.showFilter");
+  assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, "", "showFilter=true && value = 'item1'");
 
   popupModel.isVisible = false;
   dropdownListModel.onClear(new Event("click"));
   popupModel.isVisible = true;
   assert.equal(list.actions.length, 28);
-  assert.equal(question.value, undefined);
-  assert.equal(list.showFilter, true);
-  assert.equal(popupModel.isVisible, true);
+  assert.equal(question.value, undefined, "question.value");
+  assert.equal(list.showFilter, true, "list.showFilter");
+  assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, "", "showFilter=true && value = undefined");
 
   popupModel.isVisible = false;
   list.setItems(list.actions.slice(0, 9));
+  list.showFilter = false;
   popupModel.isVisible = true;
   assert.equal(list.actions.length, 9);
-  assert.equal(question.value, undefined);
-  assert.equal(list.showFilter, false);
-  assert.equal(popupModel.isVisible, true);
+  assert.equal(question.value, undefined, "question.value");
+  assert.equal(list.showFilter, false, "list.showFilter");
+  assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, "", "showFilter=false && value = undefined");
 
   list.onItemClick(list.actions[0]);
   popupModel.isVisible = true;
-  assert.equal(question.value, "item1");
-  assert.equal(list.showFilter, false);
-  assert.equal(popupModel.isVisible, true);
+  assert.equal(question.value, "item1", "question.value");
+  assert.equal(list.showFilter, false, "list.showFilter");
+  assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "showFilter=false && value = 'item1'");
 });
 QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) => {
@@ -197,10 +199,12 @@ QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) =>
 
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.actions.length, 28);
-  assert.equal(list.showFilter, false);
+  assert.equal(list.showFilter, false, "list.showFilter false");
+  assert.equal(dropdownListModel.searchEnabled, false, "dropdownListModel.searchEnabled false");
 
   question.searchEnabled = true;
-  assert.equal(list.showFilter, true);
+  assert.equal(list.showFilter, false, "list.showFilter false");
+  assert.equal(dropdownListModel.searchEnabled, true, "dropdownListModel.searchEnabled true");
 });
 
 QUnit.test("DropdownListModel with MultiListModel", (assert) => {
@@ -269,10 +273,12 @@ QUnit.test("DropdownListModel with MultiListModel & searchEnabled false", (asser
   assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
 
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-  assert.equal(list.showFilter, false);
+  assert.equal(list.showFilter, false, "list.showFilter false");
+  assert.equal(dropdownListModel.searchEnabled, false, "dropdownListModel.searchEnabled false");
 
   question.searchEnabled = true;
-  assert.equal(list.showFilter, true);
+  assert.equal(list.showFilter, false, "list.showFilter false");
+  assert.equal(dropdownListModel.searchEnabled, true, "dropdownListModel.searchEnabled true");
 });
 
 QUnit.test("DropdownListModel with MultiListModel state actions", (assert) => {
@@ -299,4 +305,26 @@ QUnit.test("DropdownListModel with MultiListModel state actions", (assert) => {
   dropdownListModel.onClear(new Event("click"));
   assert.equal(list.actions[0].active, false);
   assert.equal(list.actions[3].active, false);
+});
+
+QUnit.test("filteredText test", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(list.renderedActions.length, 28);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 28);
+
+  dropdownListModel.filteredText = "1";
+  assert.equal(list.renderedActions.length, 28);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
+
+  dropdownListModel.filteredText = "11";
+  assert.equal(list.renderedActions.length, 28);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
+
+  dropdownListModel.filteredText = "110";
+  assert.equal(list.renderedActions.length, 28);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
 });

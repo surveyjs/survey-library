@@ -1,6 +1,7 @@
 import { Action, IAction } from "./actions/action";
 import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
+import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
@@ -33,6 +34,10 @@ export class DropdownListModel extends Base {
     });
   }
 
+  private setFilter(newValue: string):void {
+    this.listModel.filteredText = newValue;
+  }
+
   protected getAvailableItems(): Array<Action> {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
       id: choice.value,
@@ -57,6 +62,13 @@ export class DropdownListModel extends Base {
     return res;
   }
 
+  @property({ defaultValue: true }) searchEnabled: boolean;
+  @property({
+    onSet: (_, target: DropdownListModel) => {
+      target.setFilter(target.filteredText);
+    }
+  }) filteredText: string;
+
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();
@@ -69,7 +81,8 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean) {
-    this.listModel.searchEnabled = newValue;
+    this.listModel.searchEnabled = false;
+    this.searchEnabled = newValue;
   }
   public updateItems() {
     this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());

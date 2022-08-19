@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -82,5 +82,56 @@ frameworks.forEach(framework => {
       (window as any).survey.getQuestionByName("applications").renderMode = "list";
     })();
     await checkElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t);
+  });
+});
+
+frameworks.forEach(framework => {
+  const json = {
+    elements: [
+      {
+        type: "panel",
+        title: "Panel",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "nested_paneldynamic",
+            title: "Paneldynamic",
+            panelCount: 1,
+            templateElements: [{
+              name: "q2",
+              title: "Text question",
+              type: "text"
+            }]
+          },
+          {
+            type: "paneldynamic",
+            name: "nested_paneldynamic2",
+            title: "Paneldynamic",
+            startWithNewLine: false,
+            panelCount: 1,
+            templateElements: [{
+              name: "q2",
+              title: "Text question",
+              type: "text"
+            }]
+          }
+        ]
+      }
+    ]
+  };
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
+  test("Two Paneldynamics in one row", async (t)=>{
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1920);
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("two-paneldynamic-in-one-row", Selector(".sd-panel"), t, comparer);
+    });
   });
 });

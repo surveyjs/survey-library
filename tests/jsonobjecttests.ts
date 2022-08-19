@@ -2629,6 +2629,34 @@ QUnit.test("Load localizable @property", function (assert) {
   assert.equal(obj["locStr1"].renderedHtml, "str1 da", "da html string");
   Serializer.removeClass("new_declared_props");
 });
+QUnit.test("Load localizable @property with undefined creator", function (assert) {
+  Serializer.addClass("new_declared_props", [{
+    name: "str1",
+    serializationProperty: "locStr1",
+  }, {
+    name: "strProp",
+    serializationProperty: "locStrProp"
+  }], undefined, "car");
+  const obj = new TestDeclaredProps();
+  obj.fromJSON({
+    str1: {
+      "da": "str1 da",
+      "default": "str1 en"
+    },
+    strProp: {
+      "da": "strProp da",
+      "default": "strProp en"
+    }
+  });
+  assert.equal(obj.str1, "str1 en", "default string");
+  assert.equal(obj.strProp, "strProp en", "default string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 en", "default html string");
+  obj.locale = "da";
+  assert.equal(obj.str1, "str1 da", "da string");
+  assert.equal(obj.strProp, "strProp da", "da string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 da", "da html string");
+  Serializer.removeClass("new_declared_props");
+});
 QUnit.test("Get default value for custom localizable @property from global localized strings", function (assert) {
   Serializer.addProperty("car", {
     name: "strWithDefaultValue",

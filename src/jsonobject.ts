@@ -526,11 +526,11 @@ export class CustomPropertiesCollection {
     }
   }
   private static createPropertyInObj(obj: any, prop: JsonObjectProperty) {
-    if (obj.hasOwnProperty(prop.name) || obj[prop.name]) return;
+    if(CustomPropertiesCollection.checkIsPropertyExists(obj, prop.name)) return;
+    if(!!prop.serializationProperty && CustomPropertiesCollection.checkIsPropertyExists(obj, prop.serializationProperty)) return;
     if (
       prop.isLocalizable &&
       prop.serializationProperty &&
-      !obj[prop.serializationProperty] &&
       obj.createCustomLocalizableObj
     ) {
       obj.createCustomLocalizableObj(prop.name);
@@ -596,6 +596,9 @@ export class CustomPropertiesCollection {
         obj.addExpressionProperty(prop.name, prop.onExecuteExpression);
       }
     }
+  }
+  private static checkIsPropertyExists(obj: any, name: string): boolean {
+    return obj.hasOwnProperty(name) || obj[name];
   }
 }
 

@@ -6,22 +6,22 @@ import { surveyLocalization } from "src/surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;
-    private responsivityManager: ResponsivityManager;
+  private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
 
   private hideItemsGreaterN(visibleItemsCount: number) {
     const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount) - (this.visibleActions.length - actionsToHide.length);
-    const invisibleItems: IAction[] = [];
+    const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
-        invisibleItems.push(item.innerItem);
+        hiddenItems.push(item.innerItem);
       }
       visibleItemsCount--;
     });
-    this.invisibleItemsListModel.setItems(invisibleItems);
+    this.hiddenItemsListModel.setItems(hiddenItems);
   }
 
   private getVisibleItemsCount(availableSize: number): number {
@@ -61,16 +61,21 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }, {
       items: [],
       onSelectionChanged: (item: T) => {
-        if (!!item && typeof item.action === "function") {
-          item.action();
-        }
+        this.hiddenItemSelected(item);
       },
       allowSelection: false
     });
   }
-  public get invisibleItemsListModel(): ListModel {
+  public get hiddenItemsListModel(): ListModel {
     return this.dotsItem.data as ListModel;
   }
+
+  protected hiddenItemSelected(item: T): void {
+    if (!!item && typeof item.action === "function") {
+      item.action();
+    }
+  }
+
   protected onSet() {
     this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));
     super.onSet();

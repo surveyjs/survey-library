@@ -15193,3 +15193,27 @@ QUnit.test("Survey Localization - check errors update after locale changed", fun
   assert.equal(onChangedCalled, 1);
   assert.equal(q1.errors[0].locText.renderedHtml, "Response required.");
 });
+QUnit.test("First page with conditions. Make the second only page visible/invisible", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      name: "page1",
+      elements: [{
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2]
+      }] },
+    {
+      name: "page2",
+      elements: [{
+        type: "text",
+        name: "question2"
+      }],
+      visibleIf: "{question1} = 1"
+    }],
+    firstPageIsStarted: true
+  });
+  assert.equal(survey.getPropertyValue("isStartedState"), true, "the state is started");
+  assert.equal(survey.startedPage.name, "page1", "The started page");
+  assert.equal(survey.isShowingPage, true, "show the first page");
+  assert.equal(survey.state, "starting", "The state is starting");
+});

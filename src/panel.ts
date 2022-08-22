@@ -1961,7 +1961,7 @@ Serializer.addClass(
     },
     { name: "startWithNewLine:boolean", default: true },
     "width",
-    { name: "minWidth", default: settings.minWidth },
+    { name: "minWidth", default: "min-content" },
     { name: "maxWidth", default: settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },

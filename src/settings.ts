@@ -17,8 +17,8 @@ export var settings = {
    */
   useLocalTimeZone: true,
   /**
-   * The prefix that uses to store the question comment, as {questionName} + {commentPrefix}.
-   * The default
+   * The prefix that uses to store the question comment, as "questionName + commentPrefix".
+   * The default value is "-Comment"
    */
   commentPrefix: "-Comment",
   /**

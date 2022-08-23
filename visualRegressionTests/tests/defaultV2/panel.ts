@@ -218,49 +218,4 @@ frameworks.forEach(framework => {
     const panelRoot = Selector(".sd-panel");
     await checkElementScreenshot("panel-with-actions.png", panelRoot, t);
   });
-  test("Check panel with actions", async(t) => {
-    await t.resizeWindow(722, 1000);
-    await initSurvey(framework, {
-      showQuestionNumbers: "off",
-      questions: [
-
-        {
-          "type": "panel",
-          "name": "panel1",
-          "elements": [
-            {
-              "type": "panel",
-              "name": "panel2",
-              "elements": [
-                {
-                  "type": "text",
-                  "name": "question1"
-                }
-              ],
-              "title": "Panel 2",
-              "startWithNewLine": false
-            },
-            {
-              "type": "panel",
-              "name": "panel3",
-              "elements": [
-                {
-                  "type": "text",
-                  "name": "question2"
-                }
-              ],
-              "title": "Panel 3",
-              "startWithNewLine": false
-            }
-          ],
-          "title": "Panel 1"
-        },
-      ]
-    });
-    await ClientFunction(()=>{
-      document.body.focus();
-    })();
-    const panelRoot = Selector(".sd-panel");
-    await checkElementScreenshot("two-panels-one-row-small-screen.png", panelRoot, t);
-  });
 });

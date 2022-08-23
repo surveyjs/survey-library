@@ -3,6 +3,7 @@ import { Base } from "../base";
 import { IAction, Action } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
+import { mergeValues } from "src/utils/utils";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",
@@ -95,14 +96,20 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
       .append(this.cssClasses.root + "--empty", this.isEmpty)
       .toString();
   }
+  protected getDefaultCssClasses(): any {
+    return defaultActionBarCss;
+  }
   public set cssClasses(val: any) {
-    this.cssClassesValue = val;
+    mergeValues(val, this.cssClasses);
     this.actions.forEach((action: T) => {
       this.setActionCssClasses(action);
     });
   }
   public get cssClasses(): any {
-    return this.cssClassesValue || defaultActionBarCss;
+    if(!this.cssClassesValue) {
+      this.cssClassesValue = this.getDefaultCssClasses();
+    }
+    return this.cssClassesValue;
   }
   private createAction(item: IAction) {
     return item instanceof Action ? item : new Action(item);

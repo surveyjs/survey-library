@@ -5355,6 +5355,7 @@ export class SurveyModel extends SurveyElementCore
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
+    this.updateState();
   }
   public setJsonObject(jsonObj: any) {
     this.fromJSON(jsonObj);

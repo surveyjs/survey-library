@@ -107,7 +107,8 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
   }
   public get cssClasses(): any {
     if(!this.cssClassesValue) {
-      this.cssClassesValue = this.getDefaultCssClasses();
+      this.cssClassesValue = {};
+      this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
     }
     return this.cssClassesValue;
   }

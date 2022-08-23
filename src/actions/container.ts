@@ -3,7 +3,7 @@ import { Base } from "../base";
 import { IAction, Action } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
-import { mergeValues } from "src/utils/utils";
+import { mergeValues } from "../utils/utils";
 
 export let defaultActionBarCss = {
   root: "sv-action-bar",

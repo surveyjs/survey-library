@@ -855,11 +855,22 @@ export class SurveyModel extends SurveyElementCore
    *- `options.panel` - a removed panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
+   * @see onDynamicPanelRemoving
    */
-  public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
+   * The event is fired before removing a panel from Panel Dynamic question. You can disable removing and optionally clear the data instead.
+   *- `sender` - the survey object that fires the event.
+   *- `options.question` - a panel question.
+   *- `options.panelIndex` - a removed panel index.
+   *- `options.panel` - a removed panel.
+   *- `options.allow` - a boolean property. Set it to `false` to disable the panel removing.
+   * @see QuestionPanelDynamicModel
+   * @see QuestionPanelDynamicModel.panels
+   * @see onDynamicPanelRemoved
+   */
+   public onDynamicPanelRemoving: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+   /**
    * The event is fired every second if the method `startTimer` has been called.
    * @see startTimer
    * @see timeSpent
@@ -4433,6 +4444,16 @@ export class SurveyModel extends SurveyElementCore
       panelIndex: panelIndex,
       panel: panel,
     });
+  }
+  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean {
+    const options = {
+      question: question,
+      panelIndex: panelIndex,
+      panel: panel,
+      allow: true
+    };
+    this.onDynamicPanelRemoving.fire(this, options);
+    return options.allow;
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;

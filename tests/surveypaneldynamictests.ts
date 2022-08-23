@@ -1301,6 +1301,35 @@ QUnit.test("PanelDynamic, survey.onDanamicPanelAdd/Remove", function(assert) {
   );
   assert.equal(panelIndex, 1, "the removed panel index is correct");
 });
+QUnit.test("PanelDynamic, survey.onDanamicPanelRemoving", function(assert) {
+  var survey = new SurveyModel();
+  survey.clearInvisibleValues = "onComplete";
+  var page = survey.addNewPage("p");
+  var panel = <QuestionPanelDynamicModel>(
+    page.addNewQuestion("paneldynamic", "panel")
+  );
+  panel.template.addNewQuestion("text", "panelq1");
+  var questionName = "";
+  var panelRemovedCounter = 0;
+  var panelIndex = -1;
+  survey.onDynamicPanelRemoving.add(function(survey, options) {
+    questionName = options.question.name;
+    panelRemovedCounter++;
+    panelIndex = options.panelIndex;
+    options.allow = panelIndex != 1;
+  });
+  panel.panelCount = 3;
+  panel.removePanel(0);
+  assert.equal(questionName, "panel", "the question was passed correctly on removed, #1");
+  assert.equal(panelRemovedCounter, 1, "one panel was removed, #1");
+  assert.equal(panel.panelCount, 2, "panel count is 2, #1");
+  assert.equal(panelIndex, 0, "the removed panel index is correct, #1");
+  panel.removePanel(1);
+  assert.equal(questionName, "panel", "the question was passed correctly on removed, #2");
+  assert.equal(panelRemovedCounter, 2, "one panel was removed, #2");
+  assert.equal(panel.panelCount, 2, "panel count is still 2, #2");
+  assert.equal(panelIndex, 1, "the removed panel index is correct, #2");
+});
 QUnit.test("PanelDynamic defaultValue in questions", function(assert) {
   var survey = new SurveyModel({
     elements: [

@@ -100,6 +100,8 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
     return defaultActionBarCss;
   }
   public set cssClasses(val: any) {
+    this.cssClassesValue = {};
+    this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
     mergeValues(val, this.cssClasses);
     this.actions.forEach((action: T) => {
       this.setActionCssClasses(action);
@@ -107,8 +109,7 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
   }
   public get cssClasses(): any {
     if(!this.cssClassesValue) {
-      this.cssClassesValue = {};
-      this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
+      this.cssClassesValue = this.getDefaultCssClasses();
     }
     return this.cssClassesValue;
   }

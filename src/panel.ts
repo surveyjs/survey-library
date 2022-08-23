@@ -1118,6 +1118,7 @@ export class PanelModelBase extends SurveyElement
     if (elIndex < 0) return;
     row.elements.splice(elIndex, 1);
     if (row.elements.length > 0) {
+      row.elements[0].startWithNewLine = true;
       row.updateVisible();
     } else {
       if (row.index >= 0) {

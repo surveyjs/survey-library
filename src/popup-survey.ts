@@ -3,10 +3,10 @@ import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
 
 /**
- * A Model for a survey running in the Window.
+ * A Model for a survey running in the Popup Window.
  */
-export class SurveyWindowModel extends Base {
-  public static surveyElementName = "windowSurveyJS";
+export class PopupSurveyModel extends Base {
+  public static surveyElementName = "PoupSurveyJS";
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 
@@ -39,7 +39,7 @@ export class SurveyWindowModel extends Base {
   }
   protected onCreating(): void {}
   public getType(): string {
-    return "window";
+    return "popupsurvey";
   }
   /**
    * A survey object.
@@ -49,11 +49,11 @@ export class SurveyWindowModel extends Base {
     return this.surveyValue;
   }
   /**
-   * Set this value to negative value, for example -1, to avoid closing the window on completing the survey. Leave it equals to 0 (default value) to close the window immediately, or set it to 3, 5, 10, ... to close the window in 3, 5, 10 seconds.
+   * Set this value to negative value, for example -1, to avoid closing the popup window on completing the survey. Leave it equals to 0 (default value) to close the popup window immediately, or set it to 3, 5, 10, ... to close the popup window in 3, 5, 10 seconds.
    */
   public closeOnCompleteTimeout: number = 0;
   /**
-   * Returns true if the window is currently showing. Set it to true to show the window and false to hide it.
+   * Returns true if the popup window is currently showing. Set it to true to show the popup window and false to hide it.
    * @see show
    * @see hide
    */
@@ -64,7 +64,7 @@ export class SurveyWindowModel extends Base {
     this.setPropertyValue("isShowing", val);
   }
   /**
-   * Show the window
+   * Show the popup window
    * @see hide
    * @see isShowing
    */
@@ -72,7 +72,7 @@ export class SurveyWindowModel extends Base {
     this.isShowing = true;
   }
   /**
-   * Hide the window
+   * Hide the popup window
    * @see show
    * @see isShowing
    */
@@ -80,7 +80,7 @@ export class SurveyWindowModel extends Base {
     this.isShowing = false;
   }
   /**
-   * Returns true if the window is expanded. Set it to true to expand the window or false to collapse it.
+   * Returns true if the popup window is expanded. Set it to true to expand the popup window or false to collapse it.
    * @see expand
    * @see collapse
    */
@@ -97,7 +97,7 @@ export class SurveyWindowModel extends Base {
     this.updateCssButton();
   }
   /**
-   * The window and survey title.
+   * The popup window and survey title.
    */
   public get title(): string {
     return this.survey.title;
@@ -109,13 +109,13 @@ export class SurveyWindowModel extends Base {
     return this.survey.locTitle;
   }
   /**
-   * Expand the window to show the survey.
+   * Expand the popup window to show the survey.
    */
   public expand(): void {
     this.isExpanded = true;
   }
   /**
-   * Collapse the window and show survey title only.
+   * Collapse the popup window and show survey title only.
    */
   public collapse(): void {
     this.isExpanded = false;
@@ -184,3 +184,7 @@ export class SurveyWindowModel extends Base {
     }
   }
 }
+/**
+ * Obsolete. Please use PopupSurvey
+ */
+export class SurveyWindowModel extends PopupSurveyModel {}

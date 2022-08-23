@@ -155,7 +155,7 @@ export {
   SurveyTriggerRunExpression,
   Trigger
 } from "../../trigger";
-export { SurveyWindowModel } from "../../surveyWindow";
+export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 
 export { dxSurveyService } from "../../dxSurveyService";

@@ -1,5 +1,5 @@
 export { Survey } from "../knockout/kosurvey";
-export { SurveyWindow } from "../knockout/koSurveyWindow";
+export { PopupSurvey, SurveyWindow } from "../knockout/koPopupSurvey";
 export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
 export { FlowPanel } from "../knockout/koflowpanel";
@@ -34,7 +34,7 @@ export { QuestionBoolean } from "../knockout/koquestion_boolean";
 export { QuestionEmpty } from "../knockout/koquestion_empty";
 export { QuestionExpression } from "../knockout/koquestion_expression";
 export { QuestionImagePicker } from "../knockout/koquestion_imagepicker";
-export { SurveyWindowImplementor } from "../knockout/koSurveyWindow";
+export { PopupSurveyImplementor } from "../knockout/koPopupSurvey";
 export { SurveyTemplateText } from "../knockout/templateText";
 export { QuestionImage } from "../knockout/koquestion_image";
 export { QuestionSignaturePad } from "../knockout/koquestion_signaturepad";

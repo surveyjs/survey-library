@@ -57,7 +57,7 @@ export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
 export { SurveyQuestionRating } from "../react/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../react/rating-dropdown";
 export { SurveyQuestionExpression } from "../react/reactquestion_expression";
-export { SurveyWindow } from "../react/reactSurveyWindow";
+export { PopupSurvey, SurveyWindow } from "../react/react-popup-survey";
 export { ReactQuestionFactory } from "../react/reactquestion_factory";
 export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";

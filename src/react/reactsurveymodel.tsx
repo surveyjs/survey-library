@@ -1,4 +1,4 @@
-import { SurveyModel, QuestionMatrixDropdownRenderedCell, SurveyWindowModel, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
+import { SurveyModel, QuestionMatrixDropdownRenderedCell, SurveyElement, QuestionRowModel, ItemValue, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 export class ReactSurveyElementsWrapper {

@@ -1,12 +1,12 @@
 <template>
-  <div class="sv-list__container">
-    <div class="sv-list__filter" v-if="model.needFilter">
-      <div class="sv-list__filter-icon">
+  <div v-bind:class="model.cssClasses.root">
+    <div v-bind:class="model.cssClasses.filter" v-if="model.needFilter">
+      <div v-bind:class="model.cssClasses.filterIcon">
         <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
       </div>
       <input
         type="text"
-        class="sv-list__input"
+        v-bind:class="model.cssClasses.filterInput"
         :aria-label="model.filteredTextPlaceholder"
         :placeholder="model.filteredTextPlaceholder"
         :value="model.filteredText"
@@ -14,11 +14,11 @@
         @keyup="keyup"
       />
     </div>
-    <div class="sv-list__empty-container" v-if="model.isEmpty">
-      <div class="sv-list__empty-text" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
+    <div v-bind:class="model.cssClasses.emptyContainer" v-if="model.isEmpty">
+      <div v-bind:class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
     </div>
     <ul
-      class="sv-list"
+      v-bind:class="model.cssClasses.itemsContainer"
       role="listbox"
       @mousedown="
         (event) => {

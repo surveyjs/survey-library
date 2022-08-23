@@ -13,8 +13,13 @@
 }
 .sd-row--multiple {
   margin-top: calcSize(2);
-  .sd-question {
-    padding-right: 0 !important;
+  & > div {
+    & > .sd-question {
+      padding-right: 0 !important;
+    }
+    & > .sd-question--paneldynamic {
+      padding-right: var(--sd-base-padding) !important;
+    }
   }
 }
 :not(.svc-row) > .sd-row--multiple {

@@ -1118,6 +1118,7 @@ export class PanelModelBase extends SurveyElement
     if (elIndex < 0) return;
     row.elements.splice(elIndex, 1);
     if (row.elements.length > 0) {
+      row.elements[0].startWithNewLine = true;
       row.updateVisible();
     } else {
       if (row.index >= 0) {
@@ -1903,7 +1904,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   public getContainerCss() {
     return new CssClassBuilder().append(this.cssClasses.panel.container)
       .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
-      .append(this.cssClasses.panel.nested, !!(this.parent && this.parent.isPanel && !this.isDesignMode))
+      .append(this.cssClasses.panel.nested, !!((this.parent && this.parent.isPanel || !this.isSingleInRow) && !this.isDesignMode))
       .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
       .append(this.cssClasses.panel.expanded, !!this.isExpanded)
       .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)

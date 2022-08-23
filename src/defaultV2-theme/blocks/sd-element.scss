@@ -183,7 +183,7 @@
     width: 0;
   }
 }
-div:not(:only-of-type) > .sd-element > .sd-question__header,
+div:not(:only-of-type) > .sd-element:not(.sd-question--paneldynamic) > .sd-question__header,
 .sd-element__title--expandable {
   .sd-action-bar {
     margin-right: 0;

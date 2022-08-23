@@ -164,7 +164,7 @@ if (panel) {
 
 ## Display the Survey
 
-You can embed the survey inside your page or display it as an expandable window:
+You can embed the survey inside your page or display it as a pop-up survey:
 
 <details>
     <summary>Angular</summary> 
@@ -193,8 +193,8 @@ export class AppComponent implements OnInit {
     // Render the survey inside the page
     SurveyNG.render("surveyContainer", { model: survey });
 
-    // Render the survey as an expandable window
-    SurveyWindowNG.render("surveyContainer", { model: survey });
+    // Render the survey in a pop-up window
+    SurveyWindowNG.render("surveyContainer", { model: survey, isExpanded: true });
   }
 }
 ```
@@ -209,8 +209,8 @@ export class AppComponent implements OnInit {
   <!-- Render the survey inside the page -->
   <Survey :survey="survey" />
 
-  <!-- Render the survey as an expandable window -->
-  <SurveyWindow :survey="survey" />
+  <!-- Render the survey in a pop-up window -->
+  <SurveyWindow :survey="survey" :isExpanded="true" />
 </template>
 
 <script>
@@ -255,8 +255,8 @@ function App() {
   // Render the survey inside the page
   return <Survey model={survey} />;
 
-  // Render the survey as an expandable window
-  return <SurveyWindow model={surveyJson} />;
+  // Render the survey in a pop-up window
+  return <SurveyWindow model={survey} isExpanded={true} />;
 }
 
 export default App;
@@ -282,9 +282,12 @@ document.addEventListener("DOMContentLoaded", function() {
     survey.render("surveyContainer");
 });
 
-// Render the survey as an expandable window
-const survey = new Survey.SurveyWindow(surveyJson);
-survey.show();
+// Render the survey in a pop-up window
+const survey = new Survey.SurveyWindowModel(survey);
+survey.isExpanded = true;
+document.addEventListener("DOMContentLoaded", function() {
+  survey.show();
+});
 ```
 </details>
 
@@ -307,11 +310,13 @@ $(function() {
     // Render the survey inside the page
     $("#surveyContainer").Survey({ model: survey });
 
-    // Render the survey as an expandable window
-    $("#surveyContainer").SurveyWindow({ model: survey });
+    // Render the survey in a pop-up window
+    $("#surveyContainer").SurveyWindow({ model: survey, isExpanded: true });
 });
 ```
 </details>
+
+[View Pop-Up Survey example](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
 
 ## Further Reading
 

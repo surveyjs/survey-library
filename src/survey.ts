@@ -5355,6 +5355,7 @@ export class SurveyModel extends SurveyElementCore
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
+    this.updateState();
   }
   public setJsonObject(jsonObj: any) {
     this.fromJSON(jsonObj);
@@ -6264,6 +6265,15 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.widthMode;
   }
+  /**
+   * Gets or sets the width of the survey root element. It is empty by default. Use it to limit survey width to a particular value.
+   */
+  public get width(): string {
+    return this.getPropertyValue("width");
+  }
+  public set width(val: string) {
+    this.setPropertyValue("width", val);
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
@@ -6762,5 +6772,6 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
+  "width",
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

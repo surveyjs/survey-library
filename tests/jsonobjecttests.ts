@@ -2608,7 +2608,35 @@ QUnit.test("Load localizable @property", function (assert) {
   }, {
     name: "strProp",
     serializationProperty: "locStrProp"
-  }], null, "car");
+  }], () => new TestDeclaredProps(), "car");
+  const obj = new TestDeclaredProps();
+  obj.fromJSON({
+    str1: {
+      "da": "str1 da",
+      "default": "str1 en"
+    },
+    strProp: {
+      "da": "strProp da",
+      "default": "strProp en"
+    }
+  });
+  assert.equal(obj.str1, "str1 en", "default string");
+  assert.equal(obj.strProp, "strProp en", "default string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 en", "default html string");
+  obj.locale = "da";
+  assert.equal(obj.str1, "str1 da", "da string");
+  assert.equal(obj.strProp, "strProp da", "da string");
+  assert.equal(obj["locStr1"].renderedHtml, "str1 da", "da html string");
+  Serializer.removeClass("new_declared_props");
+});
+QUnit.test("Load localizable @property with undefined creator", function (assert) {
+  Serializer.addClass("new_declared_props", [{
+    name: "str1",
+    serializationProperty: "locStr1",
+  }, {
+    name: "strProp",
+    serializationProperty: "locStrProp"
+  }], undefined, "car");
   const obj = new TestDeclaredProps();
   obj.fromJSON({
     str1: {
@@ -2780,4 +2808,9 @@ QUnit.test("One property - array to not array", function (assert) {
   dealer.name = "4";
   new JsonObject().toObject({ name: ["small"] }, dealer);
   assert.equal(dealer.name, "4", "deserialize property for different types");
+});
+QUnit.test("Find out are properties addingin in addClass are custom or not", function (assert) {
+  Serializer.addClass("testcar", ["name"]);
+  assert.equal(Serializer.findProperty("testcar", "name").isCustom, true, "testcar properties are custom");
+  assert.equal(Serializer.findProperty("car", "name").isCustom, false, "car properties are not custom");
 });

@@ -5,6 +5,15 @@
 export var Version: string;
 Version = `${process.env.VERSION}`;
 
+export function checkLibraryVersion(ver: string, libraryName: string): void {
+  if(Version != ver) {
+    const str = "survey-core has version '" + Version + "' and " + libraryName
+      + " has version '" + ver + "'. SurveyJS libraries should have the same versions to work correctly.";
+    /* eslint no-console: ["error", { allow: ["error"] }] */
+    console.error(str);
+  }
+}
+
 export { settings } from "../../settings";
 export { Helpers, HashTable } from "../../helpers";
 export {

@@ -151,14 +151,3 @@ $base-unit: var(--base-unit, 8px);
 .sv-list__input:disabled::placeholder {
   color: $foreground-light;
 }
-
-.sv-multi-select-list .sv-list__item--selected {
-  background-color: $primary-light;
-  color: $foreground;
-
-  &:hover,
-  &:focus {
-    background-color: $primary;
-    color: $primary-foreground;
-  }
-}

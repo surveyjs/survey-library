@@ -14,8 +14,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   protected override createListModel(): MultiSelectListModel {
-    this.popupCssClasses = "sv-multi-select-list";
-
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if(!_onSelectionChanged) {

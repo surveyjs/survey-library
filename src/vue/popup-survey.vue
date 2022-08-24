@@ -28,24 +28,24 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
-import { Base, SurveyWindowModel } from "survey-core";
+import { Base, PopupSurveyModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
-export class SurveyWindow extends BaseVue {
-  @Prop() window: SurveyWindowModel;
+export class PopupSurvey extends BaseVue {
+  @Prop() window: PopupSurveyModel;
   @Prop() survey: SurveyModel;
   @Prop() isExpanded: boolean;
   @Prop() isexpanded: boolean;
   @Prop() closeOnCompleteTimeout: number;
 
-  surveyWindow: SurveyWindowModel;
+  surveyWindow: PopupSurveyModel;
   constructor() {
     super();
     if (this.window) {
       this.surveyWindow = this.window;
     } else {
-      this.surveyWindow = new SurveyWindowModel(null, this.survey);
+      this.surveyWindow = new PopupSurveyModel(null, this.survey);
     }
     if (this.isexpanded !== undefined) {
       this.surveyWindow.isExpanded = this.isexpanded;
@@ -83,6 +83,13 @@ export class SurveyWindow extends BaseVue {
     this.surveyWindow.changeExpandCollapse();
   }
 }
+
+/**
+ * Obsolete, please use PopupSurvey
+ */
+export class SurveyWindow extends PopupSurvey {}
 Vue.component("survey-window", SurveyWindow);
-export default SurveyWindow;
+
+Vue.component("popup-survey", PopupSurvey);
+export default PopupSurvey;
 </script>

@@ -12,7 +12,7 @@
   >
     <sv-svg-icon
       v-if="item.iconName && !item.component"
-      class="sv-list__item-icon"
+      v-bind:class="model.cssClasses.itemIcon"
       :iconName="item.iconName"
       :size="24"
     ></sv-svg-icon>

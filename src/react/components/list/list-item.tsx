@@ -38,7 +38,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       const icon = this.item.iconName ? (
         <SvgIcon
           key={1}
-          className="sv-list__item-icon"
+          className={this.model.cssClasses.itemIcon}
           iconName={this.item.iconName}
           size={24}
           aria-label={this.item.title}

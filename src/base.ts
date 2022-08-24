@@ -1037,7 +1037,7 @@ export class Base {
       dst[key] = source;
     }
   }
-  protected copyCssClasses(dest: any, source: any) {
+  protected copyCssClasses(dest: any, source: any): void {
     if (!source) return;
     if (typeof source === "string" || source instanceof String) {
       dest["root"] = source;

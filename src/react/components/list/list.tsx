@@ -28,11 +28,11 @@ export class List extends SurveyElementBase<IListProps, any> {
   renderElement() {
     const items = this.renderItems();
     return (
-      <div className="sv-list__container">
+      <div className={this.model.cssClasses.root}>
         {this.searchElementContent()}
         {this.emptyContent()}
         <ul
-          className="sv-list"
+          className={this.model.cssClasses.itemsContainer}
           role="listbox"
           onMouseDown={(e) => {
             e.preventDefault();
@@ -71,8 +71,8 @@ export class List extends SurveyElementBase<IListProps, any> {
         this.model.goToItems(e);
       };
       return (
-        <div className="sv-list__filter">
-          <div className={"sv-list__filter-icon"}>
+        <div className={this.model.cssClasses.filter}>
+          <div className={this.model.cssClasses.filterIcon}>
             <SvgIcon
               iconName={"icon-search"}
               size={"auto"}
@@ -81,7 +81,7 @@ export class List extends SurveyElementBase<IListProps, any> {
           </div>
           <input
             type="text"
-            className="sv-list__input"
+            className={this.model.cssClasses.filterInput}
             aria-label={this.model.filterStringPlaceholder}
             placeholder={this.model.filterStringPlaceholder}
             value={this.state.filterString}
@@ -95,8 +95,8 @@ export class List extends SurveyElementBase<IListProps, any> {
   emptyContent() {
     if (!this.model.isEmpty) return null;
     else {
-      return (<div className="sv-list__empty-container">
-        <div className="sv-list__empty-text" aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
+      return (<div className={this.model.cssClasses.emptyContainer}>
+        <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
       </div>);
     }
   }

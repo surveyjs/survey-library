@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Survey, SurveyWindow } from "./knockout-ui-model";
+import { Survey, PopupSurvey } from "./knockout-ui-model";
 export * from "./core";
 
 // localization
@@ -10,7 +10,6 @@ export { innerKo as ko };
 
 import { registerTemplateEngine } from "../knockout/kosurvey";
 import { SurveyModel } from "../survey";
-import { SurveyWindowModel } from "../surveyWindow";
 
 export class ReactSurveyModel extends Survey {
   constructor(
@@ -37,11 +36,11 @@ export class SurveyNG {
   }
 }
 
-export class SurveyWindowNG {
+export class PopupSurveyNG {
   public static render(elementId: string | Element, props: any): void {
     var model: SurveyModel = props.model;
     model.updateSurvey(props);
-    var survey = new SurveyWindow(null, model);
+    var survey = new PopupSurvey(null, model);
     if (props.expanded !== undefined) {
       survey.isExpanded = props.expanded;
     }
@@ -50,6 +49,9 @@ export class SurveyWindowNG {
     }
     survey.show();
   }
+}
+
+export class SurveyWindowNG extends PopupSurveyNG {
 }
 
 SurveyModel.platform = "angular";

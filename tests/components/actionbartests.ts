@@ -1,5 +1,6 @@
 import { Action, ActionDropdownViewModel } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
+import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { settings } from "../../src/settings";
@@ -118,4 +119,15 @@ QUnit.test("Check action title", (assert) => {
   action.title = "loc_title_3";
   assert.equal(action.title, "loc_title_3");
   assert.equal(locTitle.text, "loc_title_3");
+});
+
+QUnit.test("Check action bar cssClasses", (assert) => {
+  const actionBar = new ActionContainer();
+  assert.ok(actionBar.cssClasses === defaultActionBarCss);
+  actionBar.cssClasses = {
+    root: "custom-action-bar"
+  };
+  assert.ok(actionBar.cssClasses !== defaultActionBarCss);
+  assert.equal(actionBar.cssClasses.root, "custom-action-bar");
+  assert.equal(actionBar.cssClasses.item, "sv-action-bar-item");
 });

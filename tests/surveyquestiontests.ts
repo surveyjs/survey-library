@@ -5878,11 +5878,11 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
   });
   survey.locale = "";
   var question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  assert.equal(question.optionsCaption, "Choose...", "default locale");
+  assert.equal(question.optionsCaption, "Select...", "default locale");
   survey.locale = "de";
   assert.equal(question.optionsCaption, "Bitte auswählen...", "locale = de");
   survey.locale = "";
-  assert.equal(question.optionsCaption, "Choose...", "default locale, #2");
+  assert.equal(question.optionsCaption, "Select...", "default locale, #2");
 });
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({

@@ -549,7 +549,7 @@ frameworks.forEach((framework) => {
 
     const myListItems = Selector(".my-list-item");
     await t
-      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Choose...")
+      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Select...")
 
       .click(questionDropdownSelect)
       .expect(myListItems.count).eql(10)
@@ -688,12 +688,12 @@ frameworks.forEach((framework) => {
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("delete")
-      .expect(newDropdown.textContent).eql("Choose...")
+      .expect(newDropdown.textContent).eql("Select...")
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("tab")
       .pressKey("delete")
-      .expect(newDropdown.textContent).eql("Choose...")
+      .expect(newDropdown.textContent).eql("Select...")
       .expect(oldDropdown.value).eql("");
   });
 

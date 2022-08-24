@@ -24,7 +24,7 @@ ko.components.register("sv-tagbox", {
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownMultiSelectListModel(q);
       }
-      return { question: q, popupModel: q?.dropdownListModel?.popupModel, click: click, clear: clear, keyup: keyup, blur: blur };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur };
     },
   },
   template: template,

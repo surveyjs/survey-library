@@ -28,7 +28,7 @@ export class ListModel extends ActionContainer {
   }) selectedItem: IAction;
   @property({
     onSet: (_, target: ListModel) => {
-      target.onfilterStringChanged(target.filterString);
+      target.onFilterStringChanged(target.filterString);
     }
   }) filterString: string;
 
@@ -46,7 +46,7 @@ export class ListModel extends ActionContainer {
   private get shouldProcessFilter(): boolean {
     return !this.onFilterStringChangedCallback;
   }
-  private onfilterStringChanged(text: string) {
+  private onFilterStringChanged(text: string) {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
 
     if (!!this.onFilterStringChangedCallback) {

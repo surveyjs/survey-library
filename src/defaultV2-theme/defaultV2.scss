@@ -40,9 +40,9 @@
 @import "blocks/sd-context-btn.scss";
 @import "blocks/sd-completedpage.scss";
 @import "blocks/sd-progress-buttons.scss";
+@import "blocks/sd-list.scss";
 @import "../common-styles/sv-actionbar.scss";
 @import "../common-styles/sv-popup.scss";
-@import "../common-styles/sv-list.scss";
 @import "../common-styles/sv-buttongroup.scss";
 @import "../common-styles/sv-visuallyhidden.scss";
 @import "../common-styles/sv-hidden.scss";
@@ -62,15 +62,18 @@ body {
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;
+
   * {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
   }
+
   ::-webkit-scrollbar {
     width: 12px;
     height: 12px;
     background-color: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     border: 4px solid rgba(0, 0, 0, 0);
     background-clip: padding-box;
@@ -87,27 +90,31 @@ body {
     background-color: $foreground-light;
   }
 }
+
 .sv-popup {
   .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
-    *, & {
+
+    *,
+    & {
       &::-webkit-scrollbar {
         width: 12px;
         height: 12px;
         background-color: $background;
       }
+
       &::-webkit-scrollbar-thumb {
         border: 4px solid rgba(0, 0, 0, 0);
         background-clip: padding-box;
         border-radius: 32px;
         background-color: $border;
       }
-  
+
       &::-webkit-scrollbar-track {
         background: transparent;
       }
-  
+
       &::-webkit-scrollbar-thumb:hover {
         border: 2px solid rgba(0, 0, 0, 0);
         background-color: $foreground-light;
@@ -120,6 +127,7 @@ body {
   .sv-popup__shadow {
     filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
   }
+
   .sv-popup__body-content {
     background-color: $background;
     padding: calcSize(1) 0;
@@ -131,6 +139,7 @@ body {
     box-shadow: 0px calcSize(1) calcSize(2) $shadow-medium;
     background-color: $background-dim-light;
   }
+
   .sv-popup__body-footer {
     padding-bottom: 2px;
   }

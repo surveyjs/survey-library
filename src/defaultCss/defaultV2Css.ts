@@ -495,9 +495,16 @@ export var defaultV2Css = {
     itemDisabled: "sv-button-group__item--disabled",
     itemControl: "sv-visuallyhidden",
   },
+  list: {
+    root: "sv-list__container sd-list",
+    item: "sv-list__item sd-list__item",
+    itemSelected: "sv-list__item--selected sd-list__item--selected"
+  },
   actionBar: {
     root: "sd-action-bar",
     item: "sd-action",
+    defaultSizeMode: "",
+    smallSizeMode: "",
     itemPressed: "sd-action--pressed",
     itemAsIcon: "sd-action--icon",
     itemIcon: "sd-action__icon",

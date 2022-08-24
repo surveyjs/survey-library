@@ -4,6 +4,20 @@ import { Action, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 
+export let defaultListCss = {
+  root: "sv-list__container",
+  item: "sv-list__item",
+  itemSelected: "sv-list__item--selected",
+  itemWithIcon: "sv-list__item--with-icon",
+  itemDisabled: "sv-list__item--disabled",
+  itemIcon: "sv-list__item-icon",
+  itemsContainer: "sv-list",
+  filter: "sv-list__filter",
+  filterIcon: "sv-list__filter-icon",
+  filterInput: "sv-list__input",
+  emptyContainer: "sv-list__empty-container",
+  emptyText: "sv-list__empty-text"
+};
 export interface IListModel {
   items: Array<IAction>;
   onSelectionChanged: (item: Action, ...params: any[]) => void;
@@ -72,6 +86,9 @@ export class ListModel extends ActionContainer {
     this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
+  protected getDefaultCssClasses() {
+    return defaultListCss;
+  }
 
   protected updateItemActiveState() {
     this.actions.forEach(action => action.active = this.isItemSelected(action));
@@ -101,10 +118,10 @@ export class ListModel extends ActionContainer {
 
   public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
-      .append("sv-list__item")
-      .append("sv-list__item--with-icon", !!itemValue.iconName)
-      .append("sv-list__item--disabled", this.isItemDisabled(itemValue))
-      .append("sv-list__item--selected", itemValue.active || this.isItemSelected(itemValue))
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
+      .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
+      .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
       .toString();
   };
 

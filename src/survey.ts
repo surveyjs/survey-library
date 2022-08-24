@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -3013,17 +3013,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public mergeValues(src: any, dest: any) {
-    if (!dest || !src) return;
-    if (typeof dest !== "object") return;
-    for (var key in src) {
-      var value = src[key];
-      if (value && typeof value === "object") {
-        if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
-        this.mergeValues(value, dest[key]);
-      } else {
-        dest[key] = value;
-      }
-    }
+    mergeValues(src, dest);
   }
   private updateValuesWithDefaults() {
     if (this.isDesignMode || this.isLoading) return;

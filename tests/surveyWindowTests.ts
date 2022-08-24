@@ -1,17 +1,17 @@
-import { SurveyWindowModel } from "../src/surveyWindow";
+import { PopupSurveyModel } from "../src/popup-survey";
 import { surveyCss } from "../src/defaultCss/cssstandard";
 
-export default QUnit.module("SurveyWindow");
+export default QUnit.module("PopupSurvey");
 
 QUnit.test("Survey is created", function (assert) {
-  const window = new SurveyWindowModel({ elements: [{ type: "text", name: "q1" }] });
+  const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   const questions = window.survey.getAllQuestions();
   assert.equal(questions.length, 1, "There is one question");
   assert.equal(questions[0].name, "q1", "The question name is correct");
   assert.equal(window.survey.showTitle, false, "Do not show survey title by default");
 });
 QUnit.test("isShowing/isExpanded properties", function (assert) {
-  const window = new SurveyWindowModel({ elements: [{ type: "text", name: "q1" }] });
+  const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   let expandedCounter = 0;
   let showingCounter = 0;
   window.expandedChangedCallback = () => {
@@ -54,7 +54,7 @@ QUnit.test("buttonCss", function (assert) {
   css.window.header.buttonCollapsed = "state1";
   css.window.header.buttonExpanded = "state2";
 
-  const window = new SurveyWindowModel({ elements: [{ type: "text", name: "q1" }] });
+  const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(window.css.window.header.buttonCollapsed, "state1", "check state1");
   assert.equal(window.css.window.header.buttonExpanded, "state2", "check state2");
   window.show();
@@ -78,7 +78,7 @@ QUnit.test("cssStyles", function (assert) {
   css.window.header.title = "headerTitle";
   css.window.body = "windowBody";
 
-  const window = new SurveyWindowModel({ elements: [{ type: "text", name: "q1" }] });
+  const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   window.show();
   assert.equal(window.cssRoot, "windowRoot", "Root");
   assert.equal(window.cssHeaderRoot, "headerRoot", "HeaderRoot");

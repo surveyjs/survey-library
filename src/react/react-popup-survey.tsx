@@ -1,26 +1,26 @@
 import * as React from "react";
 import { Survey } from "./reactSurvey";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Base, SurveyWindowModel } from "survey-core";
+import { Base, PopupSurveyModel } from "survey-core";
 
-export class SurveyWindow extends Survey {
-  protected window: SurveyWindowModel;
+export class PopupSurvey extends Survey {
+  protected popup: PopupSurveyModel;
   constructor(props: any) {
     super(props);
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
   }
   protected getStateElements(): Array<Base> {
-    return [this.window, this.window.survey];
+    return [this.popup, this.popup.survey];
   }
   handleOnExpanded(event: any) {
-    this.window.changeExpandCollapse();
+    this.popup.changeExpandCollapse();
   }
   protected canRender(): boolean {
-    return super.canRender() && this.window.isShowing;
+    return super.canRender() && this.popup.isShowing;
   }
   protected renderElement(): JSX.Element {
     var header = this.renderWindowHeader();
-    var body = this.window.isExpanded ? this.renderBody() : null;
+    var body = this.popup.isExpanded ? this.renderBody() : null;
     let style: React.CSSProperties = {
       position: "fixed",
       bottom: 3,
@@ -28,7 +28,7 @@ export class SurveyWindow extends Survey {
       maxWidth: "60%",
     };
     return (
-      <div className={this.window.cssRoot} style={style}>
+      <div className={this.popup.cssRoot} style={style}>
         {header}
         {body}
       </div>
@@ -37,23 +37,23 @@ export class SurveyWindow extends Survey {
   protected renderWindowHeader(): JSX.Element {
     var styleA = { width: "100%", cursor: "pointer" };
     var styleTitle = { paddingRight: "10px" };
-    var glyphClassName = this.window.cssButton;
+    var glyphClassName = this.popup.cssButton;
     glyphClassName = "glyphicon pull-right " + glyphClassName;
     var title = SurveyElementBase.renderLocString(this.survey.locTitle);
     return (
-      <div className={this.window.cssHeaderRoot}>
+      <div className={this.popup.cssHeaderRoot}>
         <span onClick={this.handleOnExpanded} style={styleA}>
-          <span className={this.window.cssHeaderTitle} style={styleTitle}>
+          <span className={this.popup.cssHeaderTitle} style={styleTitle}>
             {title}
           </span>
           <span className={glyphClassName} aria-hidden="true" />
         </span>
-        {this.window.isExpanded ? (
+        {this.popup.isExpanded ? (
           <span
             onClick={this.handleOnExpanded}
             style={{ float: "right", cursor: "pointer" }}
           >
-            <span className={this.window.cssHeaderTitle} style={styleTitle}>
+            <span className={this.popup.cssHeaderTitle} style={styleTitle}>
               X
             </span>
           </span>
@@ -62,17 +62,21 @@ export class SurveyWindow extends Survey {
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.window.cssBody}>{this.doRender()}</div>;
+    return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};
     super.createSurvey(newProps);
-    this.window = new SurveyWindowModel(null, this.survey);
+    this.popup = new PopupSurveyModel(null, this.survey);
     if (newProps.closeOnCompleteTimeout) {
-      this.window.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
+      this.popup.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
-    this.window.isShowing = true;
-    if (!this.window.isExpanded && (newProps.expanded || newProps.isExpanded))
-      this.window.expand();
+    this.popup.isShowing = true;
+    if (!this.popup.isExpanded && (newProps.expanded || newProps.isExpanded))
+      this.popup.expand();
   }
 }
+/**
+ * Obsolete. Please use PopupSurvey
+ */
+export class SurveyWindow extends PopupSurvey {}

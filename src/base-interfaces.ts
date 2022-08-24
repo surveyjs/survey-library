@@ -188,12 +188,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isValidateOnValueChanging: boolean;
   isValidateOnValueChanged: boolean;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
-  dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): any;
-  dynamicPanelRemoved(
-    question: IQuestion,
-    panelIndex: number,
-    panel: IPanel
-  ): any;
+  dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): void;
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
+  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
 
   dragAndDropAllow(options: any): boolean;

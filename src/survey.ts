@@ -855,11 +855,22 @@ export class SurveyModel extends SurveyElementCore
    *- `options.panel` - a removed panel.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
+   * @see onDynamicPanelRemoving
    */
-  public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
+   * The event is fired before removing a panel from Panel Dynamic question. You can disable removing and optionally clear the data instead.
+   *- `sender` - the survey object that fires the event.
+   *- `options.question` - a panel question.
+   *- `options.panelIndex` - a removed panel index.
+   *- `options.panel` - a removed panel.
+   *- `options.allow` - a boolean property. Set it to `false` to disable the panel removing.
+   * @see QuestionPanelDynamicModel
+   * @see QuestionPanelDynamicModel.panels
+   * @see onDynamicPanelRemoved
+   */
+   public onDynamicPanelRemoving: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+   /**
    * The event is fired every second if the method `startTimer` has been called.
    * @see startTimer
    * @see timeSpent
@@ -4434,6 +4445,16 @@ export class SurveyModel extends SurveyElementCore
       panel: panel,
     });
   }
+  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean {
+    const options = {
+      question: question,
+      panelIndex: panelIndex,
+      panel: panel,
+      allow: true
+    };
+    this.onDynamicPanelRemoving.fire(this, options);
+    return options.allow;
+  }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;
     this.onDynamicPanelItemValueChanged.fire(this, options);
@@ -5355,6 +5376,7 @@ export class SurveyModel extends SurveyElementCore
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
+    this.updateState();
   }
   public setJsonObject(jsonObj: any) {
     this.fromJSON(jsonObj);
@@ -6264,6 +6286,15 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.widthMode;
   }
+  /**
+   * Gets or sets the width of the survey root element. It is empty by default. Use it to limit survey width to a particular value.
+   */
+  public get width(): string {
+    return this.getPropertyValue("width");
+  }
+  public set width(val: string) {
+    this.setPropertyValue("width", val);
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
@@ -6762,5 +6793,6 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
+  "width",
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

@@ -10,6 +10,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
+import { IElement } from "../src/base-interfaces";
 
 export default QUnit.module("Panel");
 
@@ -1659,4 +1660,22 @@ QUnit.test("Check needResponsiveWidth method", function (assert) {
   panel.startWithNewLine = true;
   panel.elements[1].startWithNewLine = false;
   assert.ok(panel.needResponsiveWidth());
+});
+QUnit.test("Delete a first question in the row", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3", startWithNewLine: false },
+    ],
+  });
+  const page = <PageModel>survey.currentPage;
+  assert.equal(page.rows.length, 2, "There are two rows");
+  assert.equal(page.rows[1].elements.length, 2, "There are two elements in the second row");
+  const q2 = <IElement>survey.getQuestionByName("q2");
+  const q3 = <IElement>survey.getQuestionByName("q3");
+  assert.equal(q3.startWithNewLine, false, "q3 startWithNewLine is false");
+  q2.delete();
+  assert.equal(page.rows.length, 2, "Still two rows");
+  assert.equal(q3.startWithNewLine, true, "q3 startWithNewLine is true");
 });

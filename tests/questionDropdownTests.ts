@@ -217,7 +217,7 @@ QUnit.test("add placeholder & allowClear", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.placeholder, "Choose...");
+  assert.equal(question.placeholder, "Select...");
   assert.ok(question.allowClear === true);
 
   assert.deepEqual(question.toJSON(), {

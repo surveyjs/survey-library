@@ -14,13 +14,14 @@ export class DropdownListModel extends Base {
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
 
-  private updatePopupFocusFirstInputSelector() {
+  private updatePopupFocusFirstInputSelector() { // TODO remove
     this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
   }
 
   private createPopup() {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";
+    this._popupModel.isFocusedContent = false;
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerFunctionOnPropertyValueChanged("showFilter", () => {
       this.updatePopupFocusFirstInputSelector();
@@ -30,6 +31,9 @@ export class DropdownListModel extends Base {
       if (option.isVisible && !!this.question.onOpenedCallBack) {
         this.updatePopupFocusFirstInputSelector();
         this.question.onOpenedCallBack();
+      }
+      if(!option.isVisible) {
+        this.resetFilterString();
       }
     });
   }
@@ -61,10 +65,17 @@ export class DropdownListModel extends Base {
     res.locOwner = this.question;
     return res;
   }
+  protected resetFilterString(): void {
+    this.filterString = undefined;
+  }
 
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
+    defaultValue: "",
     onSet: (_, target: DropdownListModel) => {
+      if(!!target.filterString && !target.popupModel.isVisible) {
+        target.popupModel.isVisible = true;
+      }
       target.setFilter(target.filterString);
     }
   }) filterString: string;
@@ -119,6 +130,11 @@ export class DropdownListModel extends Base {
   }
 
   onBlur(event: any): void {
+    this.resetFilterString();
     doKey2ClickBlur(event);
+  }
+
+  keyupHandler(event: any): void {
+    //
   }
 }

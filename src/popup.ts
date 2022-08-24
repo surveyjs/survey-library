@@ -37,6 +37,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
+  @property({ defaultValue: true }) isFocusedContent: boolean;
   @property({ defaultValue: () => { } }) onCancel: () => void;
   @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
   @property({ defaultValue: () => { } }) onHide: () => void;
@@ -204,6 +205,9 @@ export class PopupBaseViewModel extends Base {
   public get isModal(): boolean {
     return this.model.isModal;
   }
+  public get isFocusedContent(): boolean {
+    return this.model.isFocusedContent;
+  }
   public get showFooter(): boolean {
     return this.isModal || this.isOverlay;
   }
@@ -258,7 +262,9 @@ export class PopupBaseViewModel extends Base {
       this.updatePosition();
     }
 
-    this.focusFirstInput();
+    if(this.isFocusedContent) {
+      this.focusFirstInput();
+    }
     if (!this.isModal) {
       window.addEventListener("scroll", this.scrollEventCallBack);
     }

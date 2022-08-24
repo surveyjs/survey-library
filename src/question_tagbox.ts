@@ -19,7 +19,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public get readOnlyText() {
-    return this.placeholder;
+    return this.displayValue || this.placeholder;
   }
 
   public onSurveyLoad() {

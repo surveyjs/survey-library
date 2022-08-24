@@ -536,9 +536,12 @@ export var defaultV2Css = {
     cleanItemButtonIconId: "icon-clear_16x16",
     control: "sd-input sd-tagbox sd-dropdown",
     controlValue: "sd-tagbox__value sd-dropdown__value",
+    controlValueItems: "sd-tagbox__value-items",
+    placeholderInput: "sd-tagbox__placeholder",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",
+    filterStringInput: "sd-tagbox__filter-string-input",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
 };

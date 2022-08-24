@@ -352,6 +352,7 @@ export var defaultStandardCss = {
     control: "sv_q_input sv_q_tagbox sv_q_dropdown_control",
     controlValue: "sv_q_tagbox__value sv_q_dropdown__value",
     controlEmpty: "sv_q_dropdown--empty sv_q_tagbox--empty",
+    filterStringInput: "sv_q_tagbox__filter-string-input"
   },
 };
 

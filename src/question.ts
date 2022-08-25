@@ -970,9 +970,6 @@ export class Question extends SurveyElement
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
-  public get areaLabel(): string {
-    return this.locTitle.renderedHtml;
-  }
   public get ariaRole(): string {
     return "textbox";
   }

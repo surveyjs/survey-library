@@ -709,7 +709,7 @@ QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
   };
   qrm.setElementMaxMinWidth(el2);
   assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
-  assert.equal(el2.maxWidth, "initial", "maxWidth in '%' is default");
+  assert.equal(el2.maxWidth, "100%", "maxWidth in '%' is default");
 });
 
 QUnit.test("Page/Panel.getProgressInfo()", function (assert) {

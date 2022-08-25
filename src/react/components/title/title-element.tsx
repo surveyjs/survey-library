@@ -31,7 +31,7 @@ export class TitleElement extends React.Component<any, any> {
       <CustomTag
         className={element.cssTitle}
         id={element.ariaTitleId}
-        aria-label={element.titleAriaLable}
+        aria-label={element.titleAriaLabel}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
         onClick={onClick}

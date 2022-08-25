@@ -11,6 +11,6 @@ export class DynamicHeadComponent extends EmbeddedViewContentComponent {
   @Input() tagName!: string;
   @Input() element!: SurveyElement;
   get ariaLabel(): string | null {
-    return this.element.titleAriaLable;
+    return this.element.titleAriaLabel;
   }
 }

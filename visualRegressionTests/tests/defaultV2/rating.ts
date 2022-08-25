@@ -145,4 +145,27 @@ frameworks.forEach(framework => {
     await ClientFunction(()=>{ document.body.focus(); })();
     await checkElementScreenshot("question-rating-long-items.png", questionRoot, t);
   });
+  test("Check big srating in panel", async (t) => {
+    await t.resizeWindow(1000, 1080);
+    await initSurvey(framework, {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          type: "panel",
+          title: "Panel",
+          elements: [
+            {
+              type: "rating",
+              rateMax: 20,
+              name: "What should be improved?"
+            },
+          ]
+        },
+      ]
+    });
+
+    const questionRoot = Selector(".sd-question");
+    await ClientFunction(()=>{ document.body.focus(); })();
+    await checkElementScreenshot("long-rating-in-panel.png", questionRoot, t);
+  });
 });

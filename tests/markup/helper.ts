@@ -277,8 +277,8 @@ function sortInlineStyles(str: string) {
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
-      const inlineStyle = (<string>el.getAttribute("style")).replace(/\s+/, " ").split(" ");
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).join(" "));
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).join("; ") + ";");
     }
   });
   return div.innerHTML;

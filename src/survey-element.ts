@@ -85,6 +85,12 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
   public get titleAriaExpanded(): boolean { return undefined; }
+  public get ariaLabel(): string {
+    return this.locTitle.renderedHtml;
+  }
+  public get titleAriaLabel(): string | null {
+    return this.ariaLabel;
+  }
   //ILocalizableOwner
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;

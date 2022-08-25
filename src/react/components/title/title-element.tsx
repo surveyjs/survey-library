@@ -31,11 +31,7 @@ export class TitleElement extends React.Component<any, any> {
       <CustomTag
         className={element.cssTitle}
         id={element.ariaTitleId}
-        aria-label={
-          element.getType() === "radiogroup"
-            ? ""
-            : element.locTitle.renderedHtml
-        }
+        aria-label={element.titleAriaLabel}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
         onClick={onClick}

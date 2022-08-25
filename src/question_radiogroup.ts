@@ -20,7 +20,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public get ariaRole(): string {
     return "radiogroup";
   }
-
+  public get titleAriaLabel(): string | null {
+    return null;
+  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }

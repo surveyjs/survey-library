@@ -11,6 +11,6 @@ export class DynamicHeadComponent extends EmbeddedViewContentComponent {
   @Input() tagName!: string;
   @Input() element!: SurveyElement;
   get ariaLabel(): string | null {
-    return this.element.getType() !== "radiogroup" ? this.element.locTitle.renderedHtml : null;
+    return this.element.titleAriaLabel;
   }
 }

@@ -9,8 +9,8 @@ export class TagboxComponent implements OnDestroy, OnInit {
     @Input() model: any;
     private dropdownListModel!: DropdownListModel;
 
-    get popupModel(): PopupModel {
-      return this.dropdownListModel.popupModel;
+    get dropdownModel():DropdownListModel {
+      return this.dropdownListModel;
     }
 
     ngOnInit(): void {

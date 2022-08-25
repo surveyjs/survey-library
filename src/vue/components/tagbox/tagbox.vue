@@ -1,9 +1,9 @@
 <template>
   <div :class="question.cssClasses.selectWrapper">
     <div
-      tabindex="0"
       v-if="!question.isReadOnly"
       :id="question.inputId"
+      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @click="click"
@@ -17,15 +17,27 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div v-if="question.isEmpty()" :class="question.cssClasses.controlValue">{{ question.placeholder }}</div>
-      <ul v-if="!question.isEmpty()" :class="question.cssClasses.controlValue">
+      <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
           v-for="(item, index) in question.selectedItems"
           :item="item"
           :question="question"
           :key="'item' + index"
         ></sv-tagbox-item>
-      </ul>
+        <input
+          type="text"
+          v-if="model.searchEnabled"
+          v-bind:class="question.cssClasses.filterStringInput"
+          :value="model.filterString"
+          :size="!model.filterString ? 1 : null"
+          @change="change"
+          @keyup="keyup"
+        />
+        <div
+          v-if="question.isEmpty() && !model.filterString"
+          :class="question.cssClasses.placeholderInput"
+        >{{ question.placeholder }}</div>
+      </div>
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
@@ -40,10 +52,7 @@
         </sv-svg-icon>
       </div>
     </div>
-    <sv-popup
-      v-if="!question.isReadOnly"
-      :model="question.dropdownListModel.popupModel"
-    ></sv-popup>
+    <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
   </div>
 </template>
@@ -57,6 +66,20 @@ import BaseVue from "src/vue/base";
 @Component
 export class TagboxComponent extends BaseVue {
   @Prop() question: Question;
+
+  get model() {
+    return this.question.dropdownListModel;
+  }
+  getModel() {
+    return this.model;
+  }
+  change(event: any) {
+    this.model.filterString = event.target.value;
+  }
+  keyup(event: any) {
+    this.model.filterString = event.target.value;
+    this.model.keyupHandler(event);
+  }
 
   public click(event: any) {
     this.question.dropdownListModel?.onClick(event);

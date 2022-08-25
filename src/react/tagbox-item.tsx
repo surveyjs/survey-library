@@ -30,7 +30,7 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
     };
 
     return (
-      <li className="sv-tagbox__item">
+      <div className="sv-tagbox__item">
         <div className="sv-tagbox__item-text">{text}</div>
         <div
           className={ this.question.cssClasses.cleanItemButton}
@@ -42,7 +42,7 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
             size={16}
           ></SvgIcon>
         </div>
-      </li>
+      </div>
     );
   }
 }

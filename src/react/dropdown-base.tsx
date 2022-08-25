@@ -36,7 +36,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
          (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);
        }
        selectElement = <>
-         {this.renderInput()}
+         {this.renderInput(this.question["dropdownListModel"])}
          <Popup model={this.question?.dropdownListModel?.popupModel}></Popup>
        </>;
      }
@@ -48,7 +48,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      );
    }
 
-   protected renderInput(): JSX.Element {
+   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}

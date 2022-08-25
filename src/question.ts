@@ -104,7 +104,7 @@ export class Question extends SurveyElement
       }
     });
     this.registerFunctionOnPropertyValueChanged("isRequired", () => {
-      this.locTitle.onChanged();
+      this.locTitle.strChanged();
       this.clearCssClasses();
     });
     this.registerFunctionOnPropertiesValueChanged(
@@ -175,7 +175,7 @@ export class Question extends SurveyElement
     this.initDataFromSurvey();
   }
   protected onNameChanged(oldValue: string): void {
-    this.locTitle.onChanged();
+    this.locTitle.strChanged();
     if (!this.survey) return;
     this.survey.questionRenamed(
       this,

@@ -92,7 +92,7 @@ export class Panel extends PanelModel {
   }
   protected onCreating() { }
   protected onNumChanged(value: number) {
-    this.locTitle.onChanged();
+    this.locTitle.strChanged();
   }
   public dispose() {
     this.koCss.dispose();
@@ -118,7 +118,7 @@ export class Page extends PageModel {
   }
   protected onCreating() { }
   protected onNumChanged(value: number) {
-    this.locTitle.onChanged();
+    this.locTitle.strChanged();
   }
   public dispose() {
     super.dispose();

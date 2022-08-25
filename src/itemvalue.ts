@@ -405,7 +405,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     if (name === "value" && !this.hasText) {
-      this.locText.onChanged();
+      this.locText.strChanged();
     }
     var funcName = "itemValuePropertyChanged";
     if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;

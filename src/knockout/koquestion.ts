@@ -108,7 +108,7 @@ export class QuestionImplementor extends ImplementorBase {
   protected updateKoDummy() {
     if (this.question.isDisposed) return;
     this.koDummy(this.koDummy() + 1);
-    this.question.locTitle.onChanged();
+    this.question.locTitle.strChanged();
   }
   protected koQuestionAfterRender(elements: any, con: any) {
     setTimeout(() => {

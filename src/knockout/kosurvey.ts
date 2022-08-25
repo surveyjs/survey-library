@@ -110,49 +110,44 @@ export class SurveyImplementor extends ImplementorBase {
   }
 }
 
-SurveyModel.prototype["onCreating"] = function() {
-  this.implementor = new SurveyImplementor(this);
-};
-SurveyModel.prototype["render"] = function(element: any = null) {
-  this.implementor.render(element);
-};
-SurveyModel.prototype["getHtmlTemplate"] = function(): string {
-  return koTemplate;
-};
+// SurveyModel.prototype["onCreating"] = function() {
+//   this.implementor = new SurveyImplementor(this);
+// };
+// SurveyModel.prototype["render"] = function(element: any = null) {
+//   this.implementor.render(element);
+// };
+// SurveyModel.prototype["getHtmlTemplate"] = function(): string {
+//   return koTemplate;t
+// };
 
 export class Survey extends SurveyModel {
+  private implementor: SurveyImplementor;
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super(jsonObj, renderedElement);
+    this.implementor = new SurveyImplementor(this);
+  }
+  render(element: any = null): void {
+    this.implementor.render(element);
+  }
+  public getHtmlTemplate(): string {
+    return koTemplate;
   }
 }
 
 LocalizableString.prototype["onCreating"] = function () {
-  // var self = this;
-  // this.koReRender = ko.observable(0);
+  var self = this;
   this.koHasHtml = ko.observable(this.hasHtml);
   this.koRenderedHtml = ko.observable(this.renderedHtml);
-  // Object.defineProperty(self, "koHasHtml", {
-  //   get: () => {
-  //     self.koReRender();
-  //     return self.hasHtml;
-  //   },
-  // });
-  // this.koRenderedHtml = ko.pureComputed(function() {
-  //   self.koReRender();
-  //   return self.renderedHtml;
-  // });
+  this.onStringChanged.add(function() {
+    const hasHtml = self.hasHtml;
+    self.koHasHtml(hasHtml);
+    self.koRenderedHtml(hasHtml ? self.getHtmlValue() : self.calculatedText);
+  });
 };
 
 ItemValue.prototype["onCreating"] = function () {
   new ImplementorBase(this);
   this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
-};
-
-LocalizableString.prototype["onChanged"] = function () {
-  // this.koReRender(this.koReRender() + 1);
-  const hasHtml = this.hasHtml;
-  this.koHasHtml(hasHtml);
-  this.koRenderedHtml(hasHtml ? this.getHtmlValue() : this.calculatedText);
 };
 
 ko.components.register("survey", {

@@ -1,8 +1,8 @@
 import * as ko from "knockout";
-import { QuestionMatrixDropdownRenderedRow, Serializer } from "survey-core";
+import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
+import { KoQuestionMatrixDropdownRenderedTable, QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "survey-core";
 import { Question } from "survey-core";
 import {
@@ -39,6 +39,9 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   constructor(name: string) {
     super(name);
   }
+  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
+    return new KoQuestionMatrixDropdownRenderedTable(this);
+  }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixDynamicImplementor(this);
@@ -54,9 +57,9 @@ Serializer.overrideClassCreator("matrixdynamic", function() {
   return new QuestionMatrixDynamic("");
 });
 
-QuestionMatrixDropdownRenderedRow.prototype["onCreating"] = function() {
-  new ImplementorBase(this);
-};
+// QuestionMatrixDropdownRenderedRow.prototype["onCreating"] = function() {
+//   new ImplementorBase(this);
+// };
 
 QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   var q = new QuestionMatrixDynamic(name);

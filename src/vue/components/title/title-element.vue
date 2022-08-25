@@ -3,7 +3,7 @@
     v-if="element.hasTitle"
     v-bind:is="element.titleTagName"
     :class="element.cssTitle"
-    v-bind:aria-label="element.ariaLabel"
+    v-bind:aria-label="element.titleAriaLabel"
     v-bind:id="element.ariaTitleId"
     v-bind:tabindex="element.titleTabIndex"
     v-bind:aria-expanded="element.titleAriaExpanded"

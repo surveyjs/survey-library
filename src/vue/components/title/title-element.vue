@@ -3,7 +3,9 @@
     v-if="element.hasTitle"
     v-bind:is="element.titleTagName"
     :class="element.cssTitle"
-    v-bind:aria-label="element.ariaLabel"
+    v-bind:aria-label="
+      element.getType() === 'radiogroup' ? '' : element.locTitle.renderedHtml
+    "
     v-bind:id="element.ariaTitleId"
     v-bind:tabindex="element.titleTabIndex"
     v-bind:aria-expanded="element.titleAriaExpanded"

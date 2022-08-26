@@ -110,7 +110,7 @@ import { CompositeQuestionComponent } from "./questions/composite.component";
     CommonModule, FormsModule
   ],
   exports: [
-    SurveyComponent, SvgIconComponent
+    SurveyComponent, SvgIconComponent, PopupSurveyComponent
   ],
   providers: [PopupService],
 })

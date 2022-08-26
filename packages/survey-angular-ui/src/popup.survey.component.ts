@@ -18,4 +18,8 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> {
     super(changeDetectorRef);
     changeDetectorRef.detach();
   }
+  protected override onModelChanged(): void {
+    this.model.isShowing = true;
+    this.changeDetectorRef.detectChanges();
+  }
 }

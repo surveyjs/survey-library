@@ -1,4 +1,4 @@
-<div *ngIf="!!model" [class]="model.cssRoot" style="position: fixed; bottom: 3px; right: 10px; max-width: 60%;">
+<div *ngIf="!!model && model.isShowing" [class]="model.cssRoot" style="position: fixed; bottom: 3px; right: 10px; max-width: 60%;">
   <div [class]="model.cssHeaderRoot">
       <span (click)="model.changeExpandCollapse()" style="width: 100%; cursor: pointer;">
           <span style="padding-right:10px" [class]="model.cssHeaderTitle">{{model.locTitle.renderedHtml}}</span>

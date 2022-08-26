@@ -83,7 +83,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test.only("Show Popup", async t => {
+  test("Show Popup", async t => {
     let surveyResult;
     const titleSelector = Selector("span").withText("Car survey");
     await t

@@ -22,7 +22,6 @@ const initPopupSurvey = ClientFunction(
       );
     };
     model.onComplete.add(surveyComplete);
-
     if (framework === "knockout") {
       const popupSurvey = new window["Survey"].PopupSurvey(undefined, model);
       popupSurvey.show();
@@ -44,7 +43,8 @@ const initPopupSurvey = ClientFunction(
         data: { survey: model },
       });
     } else if (framework === "angular") {
-      window.setSurvey(model);
+      const popupSurvey = new window["Survey"].PopupSurveyModel(undefined, model);
+      window.setSurvey(popupSurvey);
     }
     window["survey"] = model;
   }

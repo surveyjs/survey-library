@@ -12,10 +12,6 @@ ko.components.register("sv-tagbox", {
       const q = params.question;
       const click = (_: any, e: any) => {
         q.dropdownListModel?.onClick(e);
-        const input = e.target.querySelector("input");
-        if(!!input) {
-          input.focus();
-        }
       };
       const clear = (_: any, e: any) => {
         q.dropdownListModel?.onClear(e);

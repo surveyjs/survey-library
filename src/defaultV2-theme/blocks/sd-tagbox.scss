@@ -58,18 +58,11 @@
   margin-inline: unset;
   margin-block: unset;
 }
-.sd-input.sd-tagbox:focus-within {
-  .sd-tagbox__filter-string-input {
-    z-index: 2000;
-  }
-}
+
 .sd-tagbox__filter-string-input {
-  border: none;
-  outline: none;
-  color: $foreground;
-  font-family: $font-family;
-  font-size: calcSize(2);
-  background-color: transparent;
+  width: auto;
+  display: flex;
+  flex-grow: 1;
 }
 .sd-tagbox__placeholder {
   position: absolute;

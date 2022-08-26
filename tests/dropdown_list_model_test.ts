@@ -80,6 +80,11 @@ const jsonTagbox = {
     ]
   }]
 };
+function getVisibleActionByIndex(list: ListModel, index: number) {
+  const array = list.renderedActions.filter(item => list.isItemVisible(item));
+  return array[index];
+}
+
 QUnit.test("DropdownListModel with ListModel", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -342,9 +347,14 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
   dropdownListModel.filterString = "1";
   assert.equal(popup.isVisible, true, "popup.isVisible 2");
 
-  list.onItemClick(list.actions[3]);
+  list.onItemClick(getVisibleActionByIndex(list, 3));
   assert.equal(popup.isVisible, false, "popup.isVisible 3");
-  assert.equal(dropdownListModel.filterString, "", "filterString 2");
+  assert.equal(dropdownListModel.filterString, "item12", "filterString 2");
+  assert.equal(question.value, "item12", "question.value");
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.equal(dropdownListModel.filterString, "", "filterString after onClear");
+  assert.equal(question.value, undefined, "question.value after onClear");
 });
 
 QUnit.test("open/hide tagbox popup after start/end filtration", function (assert) {
@@ -360,7 +370,12 @@ QUnit.test("open/hide tagbox popup after start/end filtration", function (assert
   dropdownListModel.filterString = "1";
   assert.equal(popup.isVisible, true, "popup.isVisible 2");
 
-  list.onItemClick(list.actions[3]);
+  list.onItemClick(getVisibleActionByIndex(list, 3));
   assert.equal(popup.isVisible, true, "popup.isVisible 3");
   assert.equal(dropdownListModel.filterString, "", "filterString 3");
+  assert.deepEqual(question.value, ["item12"], "question.value before onClear");
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.equal(dropdownListModel.filterString, "", "filterString after onClear");
+  assert.deepEqual(question.value, [], "question.value after onClear");
 });

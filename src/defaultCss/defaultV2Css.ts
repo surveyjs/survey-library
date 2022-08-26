@@ -269,6 +269,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",
     controlLabel: "sd-item__control-label",
+    filterStringInput: "sd-dropdown__filter-string-input",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
   imagepicker: {
@@ -541,7 +542,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",
-    filterStringInput: "sd-tagbox__filter-string-input",
+    filterStringInput: "sd-tagbox__filter-string-input sd-dropdown__filter-string-input",
     materialDecorator: "sd-item__decorator sd-radio__decorator"
   },
 };

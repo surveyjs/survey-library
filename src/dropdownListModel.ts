@@ -33,13 +33,16 @@ export class DropdownListModel extends Base {
         this.question.onOpenedCallBack();
       }
       if(!option.isVisible) {
-        this.resetFilterString();
+        this.onHidePopup();
       }
     });
   }
 
   private setFilter(newValue: string):void {
     this.listModel.filterString = newValue;
+  }
+
+  protected onHidePopup() {
   }
 
   protected getAvailableItems(): Array<Action> {
@@ -58,6 +61,7 @@ export class DropdownListModel extends Base {
     if(!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
+        this.filterString = item.id;
         this._popupModel.toggleVisibility();
       };
     }
@@ -108,11 +112,16 @@ export class DropdownListModel extends Base {
       if (!!target) {
         PopupUtils.updatePopupWidthBeforeShow(this._popupModel, target);
       }
+      const input = event.target.querySelector("input");
+      if(!!input) {
+        input.focus();
+      }
     }
   }
 
   public onClear(event: any): void {
     this.question.clearValue();
+    this.resetFilterString();
     this.listModel.selectedItem = undefined;
     event.preventDefault();
     event.stopPropagation();

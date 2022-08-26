@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import { ImplementorBase } from "src/knockout/kobase";
 import { DropdownListModel } from "survey-core";
 
 const template = require("./dropdown.html");
@@ -24,6 +25,7 @@ ko.components.register("sv-dropdown", {
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownListModel(params.question);
       }
+      new ImplementorBase(q.dropdownListModel);
       return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur };
     },
   },

@@ -52,9 +52,10 @@ engLocale.pagePrevText = "Back";
 engLocale.pageNextText = "Forward";
 ```
 
-You can also create a custom locale to apply multiple translations in a batch. Declare an object with your translations and assign it to the `locales["localeName"]` property:
+You can also create a custom locale to apply multiple translations in a batch. Declare an object with your translations and assign it to the `locales["localeName"]` property. The following code shows how to do it in a separate TypeScript translation file (dictionary):
 
 ```js
+// custom-locale.ts
 import { surveyLocalization } from 'survey-core';
 
 const customLocaleStrings = {
@@ -64,6 +65,10 @@ const customLocaleStrings = {
 };
 
 surveyLocalization.locales["customlocale"] = customLocaleStrings;
+```
+
+```js
+import './localization/custom-locale.ts'
 // ...
 // Activate the custom locale
 survey.locale = "customlocale";

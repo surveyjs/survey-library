@@ -142,9 +142,9 @@ export var settings = {
    */
   minWidth: "300px",
   /**
-   * Set this property to change the default value of the minWidth constraint
+   * Set this property to change the default value of the maxWidth constraint
    */
-  maxWidth: "initial",
+  maxWidth: "100%",
   /**
    * This property tells how many times survey re-run expressions on value changes during condition running. We need it to avoid recursions in the expressions
    */

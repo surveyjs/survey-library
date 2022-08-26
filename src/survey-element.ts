@@ -774,7 +774,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   get rootStyle() {
     var style: { [index: string]: any } = {};
     if (this.allowRootStyle && this.renderWidth) {
-      style["width"] = this.renderWidth;
+      // style["width"] = this.renderWidth;
       style["flexGrow"] = 1;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;

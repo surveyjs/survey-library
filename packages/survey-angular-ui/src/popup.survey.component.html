@@ -1,0 +1,14 @@
+<div *ngIf="!!model" [class]="model.cssRoot" style="position: fixed; bottom: 3px; right: 10px; max-width: 60%;">
+  <div [class]="model.cssHeaderRoot">
+      <span (click)="model.changeExpandCollapse()" style="width: 100%; cursor: pointer;">
+          <span style="padding-right:10px" [class]="model.cssHeaderTitle">{{model.locTitle.renderedHtml}}</span>
+          <span aria-hidden="true" [class]="model.cssButton"></span>
+      </span>
+      <span *ngIf="model.isExpanded" (click)="model.changeExpandCollapse()" style="float: right; cursor: pointer;">
+          <span style="padding-right:10px" [class]="model.cssHeaderTitle">X</span>
+      </span>
+  </div>
+  <div *ngIf="model.isExpanded" [class]="model.cssBody">
+    <survey [model]="model.survey"></survey>
+  </div>
+</div>

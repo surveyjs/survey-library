@@ -30,8 +30,8 @@
           v-bind:class="question.cssClasses.filterStringInput"
           :value="model.filterString"
           :size="!model.filterString ? 1 : null"
-          @change="change"
-          @keyup="keyup"
+          @change="inputChange"
+          @keyup="inputKeyUp"
         />
         <div
           v-if="question.isEmpty() && !model.filterString"
@@ -73,10 +73,10 @@ export class TagboxComponent extends BaseVue {
   getModel() {
     return this.model;
   }
-  change(event: any) {
+  inputChange(event: any) {
     this.model.filterString = event.target.value;
   }
-  keyup(event: any) {
+  inputKeyUp(event: any) {
     this.model.filterString = event.target.value;
     this.model.keyupHandler(event);
   }

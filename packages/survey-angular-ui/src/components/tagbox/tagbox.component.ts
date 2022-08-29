@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { DropdownListModel, PopupModel } from "survey-core";
+import { DropdownListModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-tagbox, '[sv-ng-tagbox]'",
@@ -9,7 +9,7 @@ export class TagboxComponent implements OnDestroy, OnInit {
     @Input() model: any;
     private dropdownListModel!: DropdownListModel;
 
-    get dropdownModel():DropdownListModel {
+    get dropdownModel(): DropdownListModel {
       return this.dropdownListModel;
     }
 

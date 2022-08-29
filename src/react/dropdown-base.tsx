@@ -1,11 +1,14 @@
 import * as React from "react";
 import { Question, DropdownListModel } from "survey-core";
+import { Helpers } from "../helpers";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
+  inputElement: HTMLInputElement | null;
+
    click = (event: any) => {
      this.question.dropdownListModel?.onClick(event);
    };
@@ -49,10 +52,18 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    }
 
    protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
+     const onInputChange = (e: any) => {
+       if (e.target === document.activeElement) {
+         dropdownListModel.filterString = e.target.value;
+       }
+     };
+     const onInputKeyUp = (e: any) => {
+       dropdownListModel.keyupHandler(e);
+     };
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}
-       tabIndex={this.question.isInputReadOnly ? undefined : 0}
+       tabIndex={this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : 0}
        onClick={this.click}
        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
        // @ts-ignore
@@ -68,7 +79,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        aria-invalid={this.question.ariaInvalid}
        aria-describedby={this.question.ariaDescribedBy}
      >
-       <div className={this.question.cssClasses.controlValue}>{this.question.readOnlyText}</div>
+       <div className={this.question.cssClasses.controlValue}>
+         <input type="text"
+           ref={(element) => (this.inputElement = element)}
+           className={ this.question.cssClasses.filterStringInput }
+           placeholder= { this.question.readOnlyText }
+           readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
+           onKeyUp={(e) => { onInputKeyUp(e); }}
+           onChange={(e) => { onInputChange(e); }}
+         ></input>
+       </div>
        {this.createClearButton()}
      </div>);
    }
@@ -103,5 +123,23 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
          />
        </div>
      );
+   }
+
+   componentDidUpdate(prevProps: any, prevState: any) {
+     super.componentDidUpdate(prevProps, prevState);
+     this.updateInputDomElement();
+   }
+   componentDidMount() {
+     super.componentDidMount();
+     this.updateInputDomElement();
+   }
+   updateInputDomElement() {
+     if (!!this.inputElement) {
+       const control: any = this.inputElement;
+       const newValue = this.question.dropdownListModel.filterString;
+       if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+         control.value = this.question.dropdownListModel.filterString;
+       }
+     }
    }
 }

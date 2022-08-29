@@ -1,11 +1,11 @@
 <template>
   <div :class="question.cssClasses.selectWrapper">
     <div
-      tabindex="0"
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
+      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
       @click="click"
       @keyup="keyUp"
       @blur="blur"
@@ -17,7 +17,17 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
+      <div :class="question.cssClasses.controlValue">
+        <input
+          type="text"
+          v-bind:class="question.cssClasses.filterStringInput"
+          :value="model.filterString"
+          :readonly="!model.searchEnabled ? true : null"
+          :placeholder="question.readOnlyText"
+          @change="inputChange"
+          @keyup="inputKeyUp"
+        />
+      </div>
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
@@ -50,6 +60,21 @@ import BaseVue from "src/vue/base";
 export class DropdownComponent extends BaseVue {
   @Prop() question: Question;
 
+  get model() {
+    return this.question.dropdownListModel;
+  }
+  getModel() {
+    return this.model;
+  }
+
+  inputChange(event: any) {
+    this.model.filterString = event.target.value;
+  }
+  inputKeyUp(event: any) {
+    this.model.filterString = event.target.value;
+    this.model.keyupHandler(event);
+  }
+
   public click(event: any) {
     this.question.dropdownListModel?.onClick(event);
   }
@@ -62,6 +87,7 @@ export class DropdownComponent extends BaseVue {
   public blur(event: any) {
     this.question.dropdownListModel?.onBlur(event);
   }
+
   protected onCreated() {
     if (!this.question.dropdownListModel) {
       this.question.dropdownListModel = new DropdownListModel(this.question);

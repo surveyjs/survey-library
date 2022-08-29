@@ -150,6 +150,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     }
   }) searchEnabled: boolean;
+  /**
+   * The clean files button caption.
+   */
+  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
 
   public getControlClass(): string {
     return new CssClassBuilder()

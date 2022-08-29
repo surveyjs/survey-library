@@ -17,7 +17,7 @@
       <div data-bind="text: question.readOnlyText, css: question.koCss().controlValue"></div> 
       <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
       <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
-        <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto' } } -->
+        <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.cleanButtonCaption } } -->
         <!-- /ko -->
       </div>
       <!-- /ko -->

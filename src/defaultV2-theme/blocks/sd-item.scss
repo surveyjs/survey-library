@@ -3,6 +3,7 @@
 }
 .sd-item--disabled.sd-item--disabled .sd-item__decorator,
 .sd-item__decorator {
+  --sd-item-default-background: $background-for-editors;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +11,7 @@
   height: calcSize(3);
   box-sizing: border-box;
   box-shadow: inset 0px 1px 2px $border-inside;
-  background: $background-for-editors;
+  background: var(--sd-item-default-background);
   border: none;
   flex-shrink: 0;
 }

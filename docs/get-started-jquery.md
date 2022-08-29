@@ -9,7 +9,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 
 As a result, you will create a survey displayed below:
 
-<p class="codepen" data-height="443" data-default-tab="js,result" data-slug-hash="QWqbyPE" data-user="romantsukanov" style="height: 443px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+<p class="codepen" data-height="600" data-default-tab="js,result" data-slug-hash="QWqbyPE" data-user="romantsukanov" style="height: 443px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
   <span>See the Pen <a href="https://codepen.io/romantsukanov/pen/QWqbyPE">
   SurveyJS - Add a Survey to a jQuery Application</a> by RomanTsukanov (<a href="https://codepen.io/romantsukanov">@romantsukanov</a>)
   on <a href="https://codepen.io">CodePen</a>.</span>
@@ -31,21 +31,21 @@ Insert links to the script and one of the style sheets within the `<head>` tag o
     <!-- ... -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
-
     <!-- Default V2 theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
+    <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
+
+    <!-- Modern theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery"></script>
     <!-- ... -->
 </head>
 ```
 
-To apply the linked theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+To apply the linked theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
 
 ```js
-Survey.StylesManager.applyTheme("modern");
+Survey.StylesManager.applyTheme("defaultV2");
 ```
 
 ## Create a Model
@@ -85,11 +85,11 @@ const survey = new Survey.Model(surveyJson);
     <meta charset="utf-8">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
-
     <!-- Default V2 theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
+    <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
+
+    <!-- Modern theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -102,7 +102,7 @@ const survey = new Survey.Model(surveyJson);
 ```js
 Survey
     .StylesManager
-    .applyTheme("modern");
+    .applyTheme("defaultV2");
 
 const surveyJson = {
     elements: [{
@@ -153,11 +153,11 @@ If you replicate the code correctly, you should see the following survey:
     <meta charset="utf-8">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
-
     <!-- Default V2 theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
+    <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
+
+    <!-- Modern theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -171,7 +171,7 @@ If you replicate the code correctly, you should see the following survey:
 ```js
 Survey
     .StylesManager
-    .applyTheme("modern");
+    .applyTheme("defaultV2");
 
 const surveyJson = {
     elements: [{
@@ -253,11 +253,11 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <meta charset="utf-8">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- Modern theme -->
-    <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet">
-
     <!-- Default V2 theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet"> -->
+    <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
+
+    <!-- Modern theme -->
+    <!-- <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-jquery/survey.jquery.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
@@ -271,7 +271,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 ```js
 Survey
     .StylesManager
-    .applyTheme("modern");
+    .applyTheme("defaultV2");
 
 const surveyJson = {
     elements: [{

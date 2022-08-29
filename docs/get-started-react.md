@@ -11,7 +11,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 As a result, you will create a survey displayed below:
 
 <iframe src="https://codesandbox.io/embed/surveyjs-add-a-survey-to-a-react-application-j206b?fontsize=14&hidenavigation=1&theme=dark"
-    style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+    style="width:100%; height:600px; border:0; border-radius: 4px; overflow:hidden;"
     title="SurveyJS - Add a Survey to a React Application"
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
@@ -35,18 +35,18 @@ SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 Open the React component in which your survey will be and import a style sheet that implements the required theme.
 
 ```js
-// Modern theme
-import 'survey-core/modern.min.css';
 // Default V2 theme
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
+// Modern theme
+// import 'survey-core/modern.min.css';
 ```
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
 
 ```js
 import { StylesManager } from 'survey-core';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 ```
 
 ## Create a Model
@@ -85,11 +85,10 @@ function App() {
     <summary>View full code</summary>  
 
 ```js
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -136,12 +135,11 @@ If you replicate the code correctly, you should see the following survey:
     <summary>View full code</summary>  
 
 ```js
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -232,12 +230,11 @@ To view the application, run `npm run start` in a command line and open [http://
 ```js
 import { useCallback } from 'react';
 
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{

@@ -54,35 +54,39 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   })
   hideSelectedItems: boolean;
-
   /**
+   * The clean files button caption.
+   */
+   @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+
+   /**
    * A text displayed in the input field when it doesn't have a value.
    */
-  public get placeholder() {
-    return this.getLocalizableStringText("placeholder");
-  }
-  set placeholder(val: string) {
-    this.setLocalizableStringText("placeholder", val);
-  }
-  get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("placeholder");
-  }
+   public get placeholder() {
+     return this.getLocalizableStringText("placeholder");
+   }
+   set placeholder(val: string) {
+     this.setLocalizableStringText("placeholder", val);
+   }
+   get locPlaceholder(): LocalizableString {
+     return this.getLocalizableString("placeholder");
+   }
 
-  public getType(): string {
-    return "tagbox";
-  }
-  public get popupModel(): PopupModel {
-    return this.dropdownListModel?.popupModel;
-  }
+   public getType(): string {
+     return "tagbox";
+   }
+   public get popupModel(): PopupModel {
+     return this.dropdownListModel?.popupModel;
+   }
 
-  public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.errors.length > 0)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .toString();
-  }
+   public getControlClass(): string {
+     return new CssClassBuilder()
+       .append(this.cssClasses.control)
+       .append(this.cssClasses.controlEmpty, this.isEmpty())
+       .append(this.cssClasses.onError, this.errors.length > 0)
+       .append(this.cssClasses.controlDisabled, this.isReadOnly)
+       .toString();
+   }
   public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });

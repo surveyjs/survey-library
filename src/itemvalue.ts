@@ -44,6 +44,12 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     ItemValue.setupArray(items, locOwner);
     return items;
   }
+  private static makeReactive(item: ItemValue) {
+    const survey: any = item.getSurvey();
+    if(!!survey && typeof survey.makeReactive == "function") {
+      survey.makeReactive(item);
+    }
+  }
   public static setupArray(
     items: Array<ItemValue>,
     locOwner: ILocalizableOwner
@@ -51,11 +57,13 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     items.push = function (value): number {
       var result = Array.prototype.push.call(this, value);
       value.locOwner = locOwner;
+      ItemValue.makeReactive(value);
       return result;
     };
     items.unshift = function (value): number {
       var result = Array.prototype.unshift.call(this, value);
       value.locOwner = locOwner;
+      ItemValue.makeReactive(value);
       return result;
     };
     items.splice = function (
@@ -72,6 +80,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
       if (!items) items = [];
       for (var i = 0; i < items.length; i++) {
         items[i].locOwner = locOwner;
+        ItemValue.makeReactive(items[i]);
       }
       return result;
     };

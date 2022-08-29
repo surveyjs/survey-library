@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { SurveyModel, SvgRegistry } from "survey-core";
+import { Base, SurveyModel, SvgRegistry } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
@@ -132,6 +132,9 @@ export class Survey extends SurveyModel {
   public getHtmlTemplate(): string {
     return koTemplate;
   }
+  public makeReactive(obj: Base): void {
+    new ImplementorBase(obj);
+  }
 }
 
 LocalizableString.prototype["onCreating"] = function () {
@@ -146,7 +149,7 @@ LocalizableString.prototype["onCreating"] = function () {
 };
 
 ItemValue.prototype["onCreating"] = function () {
-  new ImplementorBase(this);
+  // new ImplementorBase(this);
   this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 

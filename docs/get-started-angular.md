@@ -49,10 +49,10 @@ Open the `angular.json` file and reference a style sheet that implements the req
             // ...
             "styles": [
               "src/styles.css",
-              // Modern theme
-              "node_modules/survey-angular/modern.min.css",
               // Default V2 theme
-              // "node_modules/survey-angular/defaultV2.min.css"
+              "node_modules/survey-angular/defaultV2.min.css",
+              // Modern theme
+              // "node_modules/survey-angular/modern.min.css"
             ],
             // ...
           }
@@ -63,13 +63,13 @@ Open the `angular.json` file and reference a style sheet that implements the req
 }
 ```
 
-To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
 
 ```js
 import { Component } from '@angular/core';
 import { StylesManager } from "survey-angular";
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 @Component({
   // ...
@@ -122,7 +122,7 @@ export class AppComponent implements OnInit {
 import { Component, OnInit } from '@angular/core';
 import { Model, StylesManager } from "survey-angular";
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -190,7 +190,7 @@ If you replicate the code correctly, you should see the following survey:
 import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -299,7 +299,7 @@ To view the application, run `ng serve` in a command line and open [http://local
 import { Component, OnInit } from '@angular/core';
 import { Model, SurveyNG, StylesManager } from "survey-angular";
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{

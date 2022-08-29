@@ -63,7 +63,7 @@ const survey = new Survey.Model(surveyJson);
 
 The model schema above produces the following survey:
 
-<p class="codepen" data-height="528" data-default-tab="result" data-slug-hash="eYGgGZP" data-user="romantsukanov" style="height: 528px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+<p class="codepen" data-height="700" data-default-tab="result" data-slug-hash="eYGgGZP" data-user="romantsukanov" style="height: 528px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
   <span>See the Pen <a href="https://codepen.io/romantsukanov/pen/eYGgGZP">
   SurveyJS - Define a Static Survey Model in JSON</a> by RomanTsukanov (<a href="https://codepen.io/romantsukanov">@romantsukanov</a>)
   on <a href="https://codepen.io">CodePen</a>.</span>
@@ -175,7 +175,7 @@ You can embed the survey inside your page or display it as a pop-up survey:
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { Model, SurveyNG, SurveyWindowNG } from "survey-angular";
+import { Model, SurveyNG, PopupSurveyNG } from "survey-angular";
 
 const surveyJson = {
   // ...
@@ -194,7 +194,7 @@ export class AppComponent implements OnInit {
     SurveyNG.render("surveyContainer", { model: survey });
 
     // Render the survey in a pop-up window
-    SurveyWindowNG.render("surveyContainer", { model: survey, isExpanded: true });
+    PopupSurveyNG.render("surveyContainer", { model: survey, isExpanded: true });
   }
 }
 ```
@@ -210,12 +210,12 @@ export class AppComponent implements OnInit {
   <Survey :survey="survey" />
 
   <!-- Render the survey in a pop-up window -->
-  <SurveyWindow :survey="survey" :isExpanded="true" />
+  <PopupSurvey :survey="survey" :isExpanded="true" />
 </template>
 
 <script>
 import { Model } from 'survey-core';
-import { Survey, SurveyWindow } from 'survey-vue-ui';
+import { Survey, PopupSurvey } from 'survey-vue-ui';
 
 const surveyJson = {
   // ...
@@ -224,7 +224,7 @@ const surveyJson = {
 export default {
   components: {
     Survey,
-    SurveyWindow
+    PopupSurvey
   },
   data() {
     const survey = new Model(surveyJson);
@@ -243,7 +243,7 @@ export default {
 
 ```js
 import { Model } from 'survey-core';
-import { Survey, SurveyWindow } from 'survey-react-ui';
+import { Survey, PopupSurvey } from 'survey-react-ui';
 
 const surveyJson = {
   // ...
@@ -256,7 +256,7 @@ function App() {
   return <Survey model={survey} />;
 
   // Render the survey in a pop-up window
-  return <SurveyWindow model={survey} isExpanded={true} />;
+  return <PopupSurvey model={survey} isExpanded={true} />;
 }
 
 export default App;
@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Render the survey in a pop-up window
-const survey = new Survey.SurveyWindowModel(survey);
+const survey = new Survey.PopupSurveyModel(survey);
 survey.isExpanded = true;
 document.addEventListener("DOMContentLoaded", function() {
   survey.show();
@@ -311,7 +311,7 @@ $(function() {
     $("#surveyContainer").Survey({ model: survey });
 
     // Render the survey in a pop-up window
-    $("#surveyContainer").SurveyWindow({ model: survey, isExpanded: true });
+    $("#surveyContainer").PopupSurvey({ model: survey, isExpanded: true });
 });
 ```
 </details>

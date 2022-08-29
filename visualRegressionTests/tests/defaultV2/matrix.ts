@@ -157,6 +157,7 @@ frameworks.forEach(framework => {
             {
               "type": "matrix",
               "name": "question1",
+              "isRequired": true,
               "alternateRows": true,
               "columns": [
                 "Column 1",
@@ -177,8 +178,21 @@ frameworks.forEach(framework => {
       ]
     });
     //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
-    const questionRoot = Selector(".sd-row");
-    await checkElementScreenshot("question-matrix-alternate-rows.png", questionRoot, t);
+    const rowElement = Selector(".sd-row");
+
+    await checkElementScreenshot("question-matrix-alternate-rows.png", rowElement, t);
+
+    await t.click(Selector(".sd-navigation__complete-btn"));
+    await ClientFunction(() => { document.body.focus(); })();
+    await checkElementScreenshot("question-matrix-alternate-rows-invalid-value.png", rowElement, t);
+
+    await ClientFunction(()=>{
+      (window as any).survey.getAllQuestions()[0].value = { "Row 1": "Column 1" };
+      document.body.focus();
+    })();
+
+    await checkElementScreenshot("question-matrix-alternate-rows-selected-value.png", rowElement, t);
+
   });
 
   test("Matrix dropdown row top align", async (t) => {

@@ -6,7 +6,7 @@ import { LocalizableString } from "./localizablestring";
  * A Model for a survey running in the Popup Window.
  */
 export class PopupSurveyModel extends Base {
-  public static surveyElementName = "PoupSurveyJS";
+  public static surveyElementName = "PopupSurveyJS";
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 

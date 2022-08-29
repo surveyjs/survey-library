@@ -1,6 +1,6 @@
 <template>
   <div
-    v-show="surveyWindow.isShowing"
+    v-if="surveyWindow.isShowing"
     style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
     :class="surveyWindow.cssRoot"
   >
@@ -18,7 +18,7 @@
         <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">X</span>
       </span>
     </div>
-    <div v-show="isExpandedSurvey" :class="surveyWindow.cssBody">
+    <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody">
       <survey :survey="windowSurvey"></survey>
     </div>
   </div>

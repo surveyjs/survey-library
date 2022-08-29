@@ -23,7 +23,7 @@
       <input type="text" data-bind="textInput: model.filterString, 
        css: question.cssClasses.filterStringInput, 
        attr: { size: !model.filterString ? 1 : null },
-       event: { keyup: function (model, event) { $data.model.keyupHandler(event); } }"></input>
+       event: { keyup: function (model, event) { $data.model.inputKeyUpHandler(event); } }"></input>
       <!-- /ko -->
       <!-- ko if: (question.isEmpty() && !model.filterString) -->
       <div data-bind="text: question.placeholder, css: question.cssClasses.placeholderInput"></div>

@@ -78,7 +78,7 @@ export class TagboxComponent extends BaseVue {
   }
   inputKeyUp(event: any) {
     this.model.filterString = event.target.value;
-    this.model.keyupHandler(event);
+    this.model.inputKeyUpHandler(event);
   }
 
   public click(event: any) {

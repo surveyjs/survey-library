@@ -7,7 +7,7 @@
         <div [class]="model.cssClasses.controlValue">
             <input type="text" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput" 
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (keyup)="dropdownModel.keyupHandler($event)" />
+            (keyup)="dropdownModel.inputKeyUpHandler($event)" />
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

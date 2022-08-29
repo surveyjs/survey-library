@@ -41,7 +41,7 @@ export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any>
     }
   }
   onKeyUp (e: any) {
-    this.model.keyupHandler(e);
+    this.model.inputKeyUpHandler(e);
   }
 
   constructor(props: any) {

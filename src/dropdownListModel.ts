@@ -143,7 +143,12 @@ export class DropdownListModel extends Base {
     doKey2ClickBlur(event);
   }
 
-  keyupHandler(event: any): void {
+  inputKeyUpHandler(event: any): void {
     //
+    if(event.keyCode === 38 || event.keyCode === 40) {
+
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 }

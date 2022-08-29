@@ -11,7 +11,7 @@
             </ng-container>
             <input *ngIf="model.searchEnabled" type="text" [(ngModel)]="dropdownModel.filterString"
                 [class]="model.cssClasses.filterStringInput" [attr.size]="!dropdownModel.filterString ? 1 : null"
-                (keyup)="dropdownModel.keyupHandler($event)" />
+                (keyup)="dropdownModel.inputKeyUpHandler($event)" />
             <div *ngIf="model.isEmpty() && !dropdownModel.filterString" [class]="model.cssClasses.placeholderInput">{{ model.placeholder }}</div>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"

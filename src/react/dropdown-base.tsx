@@ -58,7 +58,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        }
      };
      const onInputKeyUp = (e: any) => {
-       dropdownListModel.keyupHandler(e);
+       dropdownListModel.inputKeyUpHandler(e);
      };
      return (<div
        id={this.question.inputId}

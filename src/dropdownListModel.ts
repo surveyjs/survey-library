@@ -30,6 +30,7 @@ export class DropdownListModel extends Base {
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && !!this.question.onOpenedCallBack) {
         this.updatePopupFocusFirstInputSelector();
+        this.listModel.focusFirstVisibleItem();
         this.question.onOpenedCallBack();
       }
       if(!option.isVisible) {
@@ -40,6 +41,9 @@ export class DropdownListModel extends Base {
 
   private setFilter(newValue: string):void {
     this.listModel.filterString = newValue;
+    if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
+      this.listModel.focusFirstVisibleItem();
+    }
   }
 
   protected onHidePopup() {
@@ -140,13 +144,28 @@ export class DropdownListModel extends Base {
 
   onBlur(event: any): void {
     this.resetFilterString();
+    this._popupModel.isVisible = false;
     doKey2ClickBlur(event);
   }
 
-  inputKeyUpHandler(event: any): void {
-    //
-    if(event.keyCode === 38 || event.keyCode === 40) {
-
+  public inputKeyUpHandler(event: any): void {
+    if(event.keyCode === 38) {
+      this.listModel.focusPrevVisibleItem();
+      event.preventDefault();
+      event.stopPropagation();
+    } else if(event.keyCode === 40) {
+      if(!this.popupModel.isVisible) {
+        this.popupModel.toggleVisibility();
+      }
+      this.listModel.focusNextVisibleItem();
+      event.preventDefault();
+      event.stopPropagation();
+    } else if(event.keyCode === 27 || event.keyCode === 9) {
+      if(this.popupModel.isVisible) {
+        this.popupModel.toggleVisibility();
+      }
+    } else if(this.popupModel.isVisible && event.keyCode === 13) {
+      this.listModel.selectFocusedItem();
       event.preventDefault();
       event.stopPropagation();
     }

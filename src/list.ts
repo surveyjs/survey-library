@@ -10,6 +10,7 @@ export let defaultListCss = {
   itemSelected: "sv-list__item--selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
+  itemFocused: "sv-list__item--focused",
   itemIcon: "sv-list__item-icon",
   itemsContainer: "sv-list",
   filter: "sv-list__filter",
@@ -40,6 +41,7 @@ export class ListModel extends ActionContainer {
       target.updateItemActiveState();
     }
   }) selectedItem: IAction;
+  @property() focusedItem: Action;
   @property({
     onSet: (_, target: ListModel) => {
       target.onFilterStringChanged(target.filterString);
@@ -54,8 +56,11 @@ export class ListModel extends ActionContainer {
     let textInLow = (item.title || "").toLocaleLowerCase();
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
-  public isItemVisible(item: Action) {
+  public isItemVisible(item: Action): boolean {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
+  }
+  public get visibleItems(): Array<Action> {
+    return this.visibleActions.filter(item => this.isItemVisible(item));
   }
   private get shouldProcessFilter(): boolean {
     return !this.onFilterStringChangedCallback;
@@ -114,11 +119,16 @@ export class ListModel extends ActionContainer {
     return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
+  public isItemFocused: (itemValue: Action) => boolean = (itemValue: Action) => {
+    return !!this.focusedItem && this.focusedItem.id == itemValue.id;
+  };
+
   public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
+      .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
       .toString();
   };
@@ -153,7 +163,45 @@ export class ListModel extends ActionContainer {
     }
   }
   public onPointerDown(event: PointerEvent, item: any) { }
-  public refresh() {
+  public refresh(): void {
     this.filterString = "";
+  }
+  public focusFirstVisibleItem(): void {
+    this.focusedItem = this.visibleItems[0];
+  }
+  public focusLastVisibleItem(): void {
+    this.focusedItem = this.visibleItems[this.visibleItems.length - 1];
+  }
+
+  public focusNextVisibleItem(): void {
+    if(!this.focusedItem) {
+      this.focusFirstVisibleItem();
+    } else {
+      const items = this.visibleItems;
+      const currentFocusedItemIndex = items.indexOf(this.focusedItem);
+      const nextItem = items[currentFocusedItemIndex + 1];
+      if(nextItem) {
+        this.focusedItem = nextItem;
+      } else {
+        this.focusFirstVisibleItem();
+      }
+    }
+  }
+  public focusPrevVisibleItem(): void {
+    if(!this.focusedItem) {
+      this.focusFirstVisibleItem();
+    } else {
+      const items = this.visibleItems;
+      const currentFocusedItemIndex = items.indexOf(this.focusedItem);
+      const prevItem = items[currentFocusedItemIndex - 1];
+      if(prevItem) {
+        this.focusedItem = prevItem;
+      } else {
+        this.focusLastVisibleItem();
+      }
+    }
+  }
+  public selectFocusedItem(): void {
+    this.onItemClick(this.focusedItem);
   }
 }

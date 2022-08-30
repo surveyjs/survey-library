@@ -19,7 +19,7 @@
       textInput: model.filterString, 
       css: question.cssClasses.filterStringInput, 
       attr: { placeholder: question.readOnlyText, readonly: !model.searchEnabled },
-      event: { keyup: function (model, event) { $data.model.inputKeyUpHandler(event); } }"></input>
+      event: { keyup: inputKeyUp, blur: blur }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">

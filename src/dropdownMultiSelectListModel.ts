@@ -65,9 +65,22 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     (<MultiSelectListModel>this.listModel).hideSelectedItems = newValue;
     this.syncSelectedItemsFromQuestion();
   }
+  public removeLastSelectedItem() {
+    this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
+  }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
+  }
+
+  public inputKeyUpHandler(event: any): void {
+    if(event.keyCode === 8) {
+      this.removeLastSelectedItem();
+      event.preventDefault();
+      event.stopPropagation();
+    } else {
+      super.inputKeyUpHandler(event);
+    }
   }
 }

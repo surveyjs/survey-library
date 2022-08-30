@@ -42,4 +42,11 @@ export class MultiSelectListModel extends ListModel {
     this.selectedItems = newItems;
     this.updateItemState();
   }
+
+  public selectFocusedItem(): void {
+    super.selectFocusedItem();
+    if(this.hideSelectedItems) {
+      this.focusNextVisibleItem();
+    }
+  }
 }

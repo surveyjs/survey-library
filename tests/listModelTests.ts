@@ -1,16 +1,9 @@
 import { Action, IAction } from "../src/actions/action";
 import { ListModel } from "../src/list";
+import { createIActionArray } from "./utilstests";
 
 export default QUnit.module("List Model");
 const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
-
-function createIActionArray(count: number,) {
-  let result: Array<IAction> = [];
-  for (let index = 0; index < count; ++index) {
-    result.push(<IAction>{ id: "test" + index, title: "test" + index });
-  }
-  return result;
-}
 
 QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
@@ -133,4 +126,86 @@ QUnit.test("ListModel shows placeholder if there are no visible elements", funct
   list.filterString = "item";
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
   assert.ok(list.isEmpty, "isEmpty");
+});
+
+QUnit.test("ListModel focus item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+
+  assert.equal(list.renderedActions.length, 12);
+  assert.equal(list.focusedItem, undefined);
+
+  list.focusNextVisibleItem();
+  assert.equal(list.focusedItem, list.actions[0]);
+
+  list.focusNextVisibleItem();
+  assert.equal(list.focusedItem, list.actions[1]);
+
+  list.focusPrevVisibleItem();
+  assert.equal(list.focusedItem, list.actions[0]);
+});
+
+QUnit.test("focusNextVisibleItem item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.focusedItem = list.actions[list.actions.length - 1];
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[0]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+});
+
+QUnit.test("focusNextVisibleItem item + filtration", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+
+  assert.equal(list.visibleItems.length, 3);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[10]);
+});
+
+QUnit.test("focusPrevVisibleItem item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.focusedItem = list.actions[0];
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 2]);
+});
+QUnit.test("focusPrevVisibleItem item + filtration", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+  assert.equal(list.visibleItems.length, 3);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 2]);
+});
+
+QUnit.test("selectFocusedItem", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+  assert.ok(list.selectedItem === undefined);
+
+  list.selectFocusedItem();
+  assert.ok(list.selectedItem === list.actions[1]);
 });

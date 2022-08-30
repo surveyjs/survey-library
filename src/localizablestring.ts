@@ -53,8 +53,13 @@ export class LocalizableString implements ILocalizableString {
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }
-  public get locale() {
-    return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
+  public get locale(): string {
+    if(this.owner && this.owner.getLocale) {
+      const res = this.owner.getLocale();
+      if(!!res || !this.sharedData) return res;
+    }
+    if(!!this.sharedData) return this.sharedData.locale;
+    return "";
   }
   public strChanged() {
     this.searchableText = undefined;
@@ -104,7 +109,7 @@ export class LocalizableString implements ILocalizableString {
     if (!res && loc !== settings.defaultLocaleName) {
       res = this.getValue(settings.defaultLocaleName);
     }
-    if (!res && !!this.localizationName) {
+    if (!res && !!this.getLocalizationName()) {
       res = this.getLocalizationStr();
       if(!!this.onGetLocalizationTextCallback) {
         res = this.onGetLocalizationTextCallback(res);
@@ -113,8 +118,12 @@ export class LocalizableString implements ILocalizableString {
     if (!res) res = "";
     return res;
   }
+  private getLocalizationName(): string {
+    return !!this.sharedData ? this.sharedData.localizationName : this.localizationName;
+  }
   private getLocalizationStr(): string {
-    return !!this.localizationName ? surveyLocalization.getString(this.localizationName, this.locale): "";
+    const name = this.getLocalizationName();
+    return !!name ? surveyLocalization.getString(name, this.locale): "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();
@@ -276,7 +285,7 @@ export class LocalizableString implements ILocalizableString {
     if (!this.owner || !this.useMarkdown) return false;
     var renderedText = this.calculatedText;
     if (!renderedText) return false;
-    if(!!this.localizationName && renderedText === this.getLocalizationStr()) return false;
+    if(!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) return false;
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
     (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText, this.name);

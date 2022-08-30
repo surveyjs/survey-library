@@ -462,6 +462,15 @@ QUnit.test("Using shared values", function(assert) {
   );
 });
 
+QUnit.test("Using sharedData and translated strings", function(assert) {
+  var owner = new LocalizableOwnerTester("");
+  var locString = new LocalizableString(owner, true);
+  locString.localizationName = "completeText";
+  var sharedString = new LocalizableString(owner, false);
+  sharedString.sharedData = locString;
+  assert.equal(sharedString.renderedHtml, "Complete", "Use localization name from sharedData");
+});
+
 QUnit.test("text property should not be changed by onGetTextCallback", function(
   assert
 ) {

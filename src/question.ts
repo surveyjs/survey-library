@@ -193,9 +193,6 @@ export class Question extends SurveyElement
   public get ariaRequired() {
     return this.isRequired ? "true" : "false";
   }
-  public get ariaLabel(): string {
-    return this.locTitle.renderedHtml;
-  }
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }

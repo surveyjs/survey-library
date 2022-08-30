@@ -40,14 +40,14 @@ Open the Vue component in which your survey will be and import a style sheet tha
 </template>
 
 <script>
-// Modern theme
-import 'survey-core/modern.min.css';
 // Default V2 theme
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
+// Modern theme
+// import 'survey-core/modern.min.css';
 </script>
 ```
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Modern theme:
+To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
 
 ```js
 <template>
@@ -58,7 +58,7 @@ To apply the imported theme, call the `applyTheme(themeName)` method. Depending 
 // ...
 import { StylesManager } from 'survey-core';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 </script>
 ```
 
@@ -114,11 +114,10 @@ export default {
 </template>
 
 <script>
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -188,12 +187,11 @@ If you replicate the code correctly, you should see the following survey:
 </template>
 
 <script>
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -315,12 +313,11 @@ To view the application, run `npm run serve` in a command line and open [http://
 </template>
 
 <script>
-import 'survey-core/modern.min.css';
-// import 'survey-core/defaultV2.min.css';
+import 'survey-core/defaultV2.min.css';
 import { StylesManager, Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
 
-StylesManager.applyTheme("modern");
+StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{

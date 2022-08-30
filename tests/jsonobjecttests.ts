@@ -2747,6 +2747,26 @@ QUnit.test("Add condition custom property", function (assert) {
   assert.equal(matrix.showHeader, false, "Header is invisible #4");
   Serializer.removeProperty("matrix", "showHeaderIf");
 });
+QUnit.test("Add condition custom property into survey", function (assert) {
+  const newProp = Serializer.addProperty("survey", { name: "showTitleIf:condition", category: "logic",
+    onExecuteExpression: (obj: Base, res: any) => { (<any>obj).showTitle = res === true; }
+  });
+  const survey = new SurveyModel({
+    showTitleIf: "{q1} = 1",
+    elements: [
+      {
+        type: "text",
+        name: "q1"
+      }
+    ]
+  });
+  assert.equal(survey.showTitle, false, "It is false by default");
+  survey.setValue("q1", 1);
+  assert.equal(survey.showTitle, true, "It is shown");
+  survey.setValue("q1", 2);
+  assert.equal(survey.showTitle, false, "It is hidden again");
+  Serializer.removeProperty("survey", "showTitleIf");
+});
 QUnit.test("base.isDescendantOf", function (assert) {
   const big = new BigCar();
   const dealer = <Dealer>Serializer.createClass("customdealer");

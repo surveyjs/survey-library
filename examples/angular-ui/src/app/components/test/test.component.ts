@@ -8,11 +8,13 @@ import "survey-core/survey.i18n";
   template: "<router-outlet></router-outlet>",
 })
 export class TestComponent {
-  public model?: SurveyModel;
+  public model?: SurveyModel | Survey.PopupSurveyModel;
+  public isPopup: boolean;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     (window as any).Survey = Survey;
-    (<any>window).setSurvey = (survey: SurveyModel) => {
+    (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel) => {
       this.model = survey;
+      this.isPopup = this.model instanceof Survey.PopupSurveyModel;
       this.changeDetectorRef.detectChanges();
     }
   }

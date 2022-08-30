@@ -107,8 +107,8 @@
           "Title": "Page"
         },
         {
-          "Name": "surveywindowmodel",
-          "Title": "Survey Window"
+          "Name": "popupsurveymodel",
+          "Title": "Popup Survey"
         },
         {
           "Name": "questiontextmodel",

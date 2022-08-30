@@ -108,6 +108,11 @@ export class StylesManager {
 
     ".sv_q_dd_other": "margin-top: 1em;",
     ".sv_q_dd_other input": "width: 100%;",
+    ".sv_q_dd_clean-button": "margin: 0.15em 3em;",
+    ".sv_q_dd_clean-button-svg": "width: 1em; height: 1em;",
+    ".sv_q_dd_control": "display: flex; justify-content: space-between; appearance: none;",
+    ".sv_q_dd_root": "position: relative;",
+    ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; right: 0; top: 0;",
 
     ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
@@ -402,8 +407,7 @@ export class StylesManager {
     ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: var(--background-dim, #f3f3f3);",
     //eo popup
     //list
-    ".sv-list":
-      "padding: 0; margin: 0; background: var(--background, #fff); font-family: 'Open Sans'; list-style-type: none; overflow-y: auto;",
+    ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",
     ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
     ".sv-list__item":
       "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
@@ -422,6 +426,8 @@ export class StylesManager {
     ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 12px; padding-bottom: 12px; outline: none; font-size: 1em; border: none",
     ".sv-list__filter-icon": "display: block; position: absolute; top: 12px; left: 16px;",
     ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
+    ".sv-list__empty-container": "width: 100%; box-sizing: border-box; padding: 48px 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__empty-text": "line-height: 24px; font-size: 16px; font-weight: 400; text-align: center; color: var(--foreground-light, #909090);",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
   };

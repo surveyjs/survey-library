@@ -121,7 +121,7 @@ export class SurveyImplementor extends ImplementorBase {
 // };
 
 export class Survey extends SurveyModel {
-  private implementor: SurveyImplementor;
+  public implementor: SurveyImplementor;
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super(jsonObj, renderedElement);
     this.implementor = new SurveyImplementor(this);

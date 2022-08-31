@@ -18,9 +18,13 @@
   },
   "typings": "survey-angular-ui.d.ts",
   "peerDependencies": {
+    "@angular/cdk": "*",
+    "@angular/core": "*",
+    "@angular/forms": "*",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.11.4"
+    "zone.js": "~0.11.4",
+    "survey-core": "^1.9.46"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.2.5",
@@ -34,7 +38,6 @@
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
     "@angular/router": "~13.0.0",
-    "@angular/cdk": "~13.0.0",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.20.43",
     "jasmine": "^4.1.0",

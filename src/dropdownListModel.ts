@@ -65,7 +65,7 @@ export class DropdownListModel extends Base {
     if(!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
-        this.filterString = item.id;
+        this.filterString = item.id.toString();
         this._popupModel.toggleVisibility();
       };
     }

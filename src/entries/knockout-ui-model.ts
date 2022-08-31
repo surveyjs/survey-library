@@ -1,4 +1,4 @@
-export { Survey } from "../knockout/kosurvey";
+export { Survey, Survey as Model } from "../knockout/kosurvey";
 export { PopupSurvey, SurveyWindow } from "../knockout/koPopupSurvey";
 export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";

@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { MatrixDropdownColumn, SurveyElement } from "survey-core";
+import { MatrixDropdownColumn, QuestionMatrixDropdownRenderedRow, SurveyElement } from "survey-core";
 import { QuestionMatrixDropdownModel } from "survey-core";
 import {
   QuestionMatrixDropdownModelBase,
@@ -123,6 +123,9 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   constructor(name: string) {
     super(name);
   }
+  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
+    return new KoQuestionMatrixDropdownRenderedTable(this);
+  }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixBaseImplementor(this);
@@ -131,6 +134,14 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;
+  }
+}
+
+export class KoQuestionMatrixDropdownRenderedTable extends QuestionMatrixDropdownRenderedTable {
+  protected createRenderedRow(cssClasses: any, isDetailRow: boolean = false) {
+    const renderedRow = new QuestionMatrixDropdownRenderedRow(cssClasses, isDetailRow);
+    new ImplementorBase(renderedRow);
+    return renderedRow;
   }
 }
 

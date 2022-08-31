@@ -14,7 +14,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
   }
   protected override onModelChanged(): void {
     this.model.renderCallback = () => {
-      this.changeDetectorRef.detectChanges();
+      this.detectChanges();
     };
   }
   override ngOnInit(): void {

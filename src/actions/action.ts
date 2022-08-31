@@ -167,13 +167,16 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   constructor(public innerItem: IAction) {
     super();
-    this.locTitleValue = this.createLocalizableString("title", this, true);
+    this.locTitleValue = !innerItem || !innerItem["locTitle"] ? this.createLocTitle() : innerItem["locTitle"];
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }
+  }
+  private createLocTitle(): LocalizableString {
+    return this.createLocalizableString("title", this, true);
   }
   public owner: ILocalizableOwner;
   location?: string;
@@ -207,10 +210,13 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property({ defaultValue: false }) needSpace: boolean;
   public get locTitle(): LocalizableString { return this.locTitleValue; }
   public set locTitle(val: LocalizableString) {
-    this.locTitleValue.sharedData = val;
+    if(!val && !this.locTitleValue) {
+      val = this.createLocTitle();
+    }
+    this.locTitleValue = val;
   }
   public get title(): string {
-    const res = this.locTitleValue.text;
+    const res = this.locTitleValue.renderedHtml;
     return !!res ? res : undefined;
   }
   public set title(val: string) {

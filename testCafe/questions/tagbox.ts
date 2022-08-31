@@ -52,8 +52,7 @@ frameworks.forEach((framework) => {
 
   test.before(async (t) => {
     await initSurvey(framework, json);
-  })
-  ("tagbox editing", async (t) => {
+  })("tagbox editing", async (t) => {
     await t
       .expect(selectedItems.count).eql(0)
 
@@ -80,17 +79,19 @@ frameworks.forEach((framework) => {
   })("tagbox popup position recalculate", async (t) => {
     const constant = 100;
     await t
+      .resizeWindow(800, 600)
       .expect(selectedItems.count).eql(0)
 
       .click(questionTagbox)
       .expect(popupContainer.offsetTop).lte(constant);
 
-    for(let i = 1; i< 27; i++) {
+    for (let i = 1; i < 27; i++) {
       await t.click(getListItemByText("item" + i.toString()));
     }
 
     await t
       .expect(selectedItems.count).eql(26)
-      .expect(popupContainer.offsetTop).gt(constant);
+      .expect(popupContainer.offsetTop).gt(constant)
+      .resizeWindow(1920, 1080);
   });
 });

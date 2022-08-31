@@ -210,7 +210,8 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.locTitleValue.sharedData = val;
   }
   public get title(): string {
-    return this.locTitleValue.text;
+    const res = this.locTitleValue.text;
+    return !!res ? res : undefined;
   }
   public set title(val: string) {
     this.locTitleValue.text = val;

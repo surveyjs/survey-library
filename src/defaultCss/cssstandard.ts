@@ -341,7 +341,7 @@ export var defaultStandardCss = {
   tagbox: {
     root: "",
     small: "sv_q_row__question--small",
-    selectWrapper: "sv_select_wrapper",
+    selectWrapper: "sv_select_wrapper sv_q_tagbox_wrapper",
     other: "sv_q_input sv_q_comment sv_q_selectbase__other",
     cleanButton: "sv_q_tagbox_clean-button sv_q_dropdown_clean-button",
     cleanButtonSvg: "sv_q_tagbox_clean-button-svg sv_q_dropdown_clean-button-svg",

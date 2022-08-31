@@ -114,6 +114,8 @@ export class StylesManager {
     ".sv_q_dd_root": "position: relative;",
     ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; right: 0; top: 0;",
 
+    ".sv_q_tagbox_clean-button": "margin: auto 2em;",
+
     ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-2, .sv-question .sv-q-col-2":
@@ -883,6 +885,8 @@ export class StylesManager {
       "outline: 1px dotted $main-color;",
     ".sv_default_css select:focus": "border-color: $main-color;",
     ".sv_default_css textarea:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_q_input.sv_q_input.sv_q_input.sv_q_tagbox.sv_q_tagbox.sv_q_tagbox:not(.sv_q_tagbox--empty)": "height: auto;",
+    ".sv_default_css .sv_select_wrapper.sv_q_tagbox_wrapper::before": "height: 100%; padding: 0 1em;",
 
     ".sv_default_css .sv_select_wrapper":
       "background-color: $body-background-color;",

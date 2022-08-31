@@ -101,7 +101,11 @@ body {
     height: 1em;
   }
 
-  .sv_q_input.sv_q_tagbox {
+  .sv_q_tagbox_clean-button {
+    margin: auto 2em;
+  }
+
+  .sv_q_input.sv_q_input.sv_q_input.sv_q_tagbox.sv_q_tagbox.sv_q_tagbox {
     height: auto;
   }
   .sv_q_tagbox__value.sv_q_dropdown__value {
@@ -506,6 +510,11 @@ body {
               z-index: 1;
               pointer-events: none;
             }
+          }
+
+          .sv_select_wrapper.sv_q_tagbox_wrapper::before {
+            height: 100%;
+            padding: 0 1em;
           }
 
           input[type="color"] {

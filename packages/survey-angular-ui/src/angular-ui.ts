@@ -86,6 +86,7 @@ export * from "./questions/image.component";
 export * from "./components/brand-info/brand-info.component";
 export * from "./questions/custom.component";
 export * from "./questions/composite.component";
+export * from "./base-angular";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

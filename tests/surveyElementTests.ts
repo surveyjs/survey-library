@@ -258,9 +258,8 @@ QUnit.test("allowRootStyle", function (assert) {
     "flexBasis": "100.000000%",
     "flexGrow": 1,
     "flexShrink": 1,
-    "maxWidth": "initial",
+    "maxWidth": "100%",
     "minWidth": "300px",
-    "width": "100.000000%"
   });
   q1.allowRootStyle = false;
   survey.css = defaultV2Css;

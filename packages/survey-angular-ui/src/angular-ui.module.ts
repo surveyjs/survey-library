@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { SurveyComponent } from "./survey.component";
+import { PopupSurveyComponent } from "./popup.survey.component";
 import { PageComponent } from "./page.component";
 import { QuestionComponent } from "./question.component";
 import { StringViewerComponent } from "./string-viewer.component";
@@ -91,7 +92,7 @@ import { CompositeQuestionComponent } from "./questions/composite.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
-    SurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
+    SurveyComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
@@ -109,7 +110,7 @@ import { CompositeQuestionComponent } from "./questions/composite.component";
     CommonModule, FormsModule
   ],
   exports: [
-    SurveyComponent, SvgIconComponent
+    SurveyComponent, SvgIconComponent, PopupSurveyComponent
   ],
   providers: [PopupService],
 })

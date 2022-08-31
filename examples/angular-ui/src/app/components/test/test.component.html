@@ -1,1 +1,4 @@
-<div id="surveyElement"><survey *ngIf="!!model" [model]="model"></survey></div><div id="surveyResultElement"></div>
+<div id="surveyElement">
+  <popup-survey *ngIf="!!model && isPopup" [model]="model"></popup-survey>
+  <survey *ngIf="!!model && !isPopup" [model]="model"></survey></div>
+<div id="surveyResultElement"></div>

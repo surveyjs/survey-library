@@ -5166,6 +5166,7 @@ export class SurveyModel extends SurveyElementCore
         properties
       );
     }
+    super.runConditionCore(this.conditionValues, properties);
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(this.conditionValues, properties);
     }

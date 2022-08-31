@@ -13,8 +13,11 @@
   .sd-table__row:nth-child(odd) {
     &> td, td:first-of-type {
       background-color: $background-dim-light;
-      .sd-input, .sd-item__decorator {
+      .sd-input {
         background-color: $primary-foreground;
+      }
+      .sd-item__decorator {
+        --sd-item-default-background: $primary-foreground;
       }
     }
   }

@@ -39,6 +39,7 @@ export interface IQuestionPanelDynamicData {
 }
 
 class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
+  private sharedQuestions: any = {};
   constructor(
     private data: IQuestionPanelDynamicData,
     protected panelItem: QuestionPanelDynamicItem,
@@ -62,9 +63,16 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
     var res = super.getQuestionByName(name);
     if (!!res) return res;
     var index = this.panelIndex;
-    return index > -1
-      ? this.data.getSharedQuestionFromArray(name, index)
-      : null;
+    res = index > -1 ? this.data.getSharedQuestionFromArray(name, index) : undefined;
+    const qName = !!res ? res.name : name;
+    this.sharedQuestions[qName] = name;
+    return res;
+  }
+  protected getQuestionDisplayText(question: Question): string {
+    const name = this.sharedQuestions[question.name];
+    if(!name) return super.getQuestionDisplayText(question);
+    const val = this.panelItem.getValue(name);
+    return question.getDisplayValue(true, val);
   }
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {

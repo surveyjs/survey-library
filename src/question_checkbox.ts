@@ -9,6 +9,7 @@ import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IQuestion } from "./base-interfaces";
 
 /**
  * A Model for a checkbox question
@@ -53,6 +54,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public set valuePropertyName(val: string) {
     this.setPropertyValue("valuePropertyName", val);
+  }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if(!!name && name === this.valuePropertyName) {
+      const v = this.value;
+      if(Array.isArray(v) && index < v.length) return this;
+    }
+    return null;
   }
   /**
    * Returns the select all item. By using this property, you may change programmatically it's value and text.
@@ -311,8 +319,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       return super.getDisplayValueCore(keysAsText, value);
     var items = this.visibleChoices;
     var str = "";
+    const valuePropName = this.valuePropertyName;
     for (var i = 0; i < value.length; i++) {
-      var valStr = this.getChoicesDisplayValue(items, value[i]);
+      let val = value[i];
+      if(!!valuePropName && !!val[valuePropName]) {
+        val = val[valuePropName];
+      }
+      let valStr = this.getChoicesDisplayValue(items, val);
       if (valStr) {
         if (str) str += ", ";
         str += valStr;

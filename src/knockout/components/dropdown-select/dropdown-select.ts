@@ -1,5 +1,6 @@
 import * as ko from "knockout";
-import { RendererFactory } from "survey-core";
+import { ImplementorBase } from "src/knockout/kobase";
+import { ItemValue, RendererFactory } from "survey-core";
 
 const template = require("./dropdown-select.html");
 
@@ -8,6 +9,9 @@ export var DropdownSelectViewModel: any;
 ko.components.register("sv-dropdown-select", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
+      params.question.choices.forEach((choice: ItemValue) => {
+        new ImplementorBase(choice);
+      });
       const keyup = (_: any, e: any) => {
         params.question.onKeyUp(e);
       };

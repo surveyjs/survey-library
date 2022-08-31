@@ -3,12 +3,15 @@ import {
   LocalizableString,
   LocalizableStrings,
 } from "../src/localizablestring";
-import { JsonObject, Serializer } from "../src/jsonobject";
+import { JsonObject, propertyArray, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
 import { settings } from "../src/settings";
 import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
+import { Base } from "../src/base";
+import { Question } from "../src/question";
+import { SurveyElementCore } from "../src/survey-element";
 
 export default QUnit.module("LocalizableString");
 
@@ -234,9 +237,43 @@ QUnit.test("Test json serialization", function(assert) {
   );
 });
 
+class BaseItemValueArrayTester extends Base implements ILocalizableOwner {
+  public values: HashTable<string> = {};
+  constructor(public locale: string) {
+    super();
+    this.createItemValues("items");
+  }
+  public getLocale(): string {
+    return this.locale;
+  }
+  public getMarkdownHtml(text: string): string {
+    if (text.indexOf("markdown") > -1)
+      return LocalizableOwnerTester.MarkdownText;
+    return null as any;
+  }
+  public getRenderer(name: string): string {
+    return undefined as any;
+  }
+  public getRendererContext(locStr: LocalizableString): any {
+    return undefined;
+  }
+  public getProcessedText(text: string): string {
+    for (var key in this.values) {
+      text = text.replace("{" + key + "}", this.values[key]);
+    }
+    return text;
+  }
+  public get items(): Array<any> {
+    return this.getPropertyValue("items");
+  }
+  public set items(newValue: Array<any>) {
+    this.setPropertyValue("items", newValue);
+  }
+}
+
 QUnit.test("Array<ItemValue> localization", function(assert) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
+  var owner = new BaseItemValueArrayTester("");
+  var items = owner.items;
   items.push(new ItemValue("val1", "text1"));
   items.push(new ItemValue("val2"));
   owner.locale = "de";
@@ -254,16 +291,16 @@ QUnit.test("Array<ItemValue> localization", function(assert) {
   assert.equal(items[0].calculatedText, "val1", "Check6, use value");
 });
 QUnit.test("ItemValue.value = 0, #538", function(assert) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
+  var owner = new BaseItemValueArrayTester("");
+  var items = owner.items;
 
   items.push(new ItemValue(0));
   assert.equal(items[0].locText.textOrHtml, "0", "value 0, text should be '0'");
 });
 
 QUnit.test("Array<ItemValue> localization serialize", function(assert) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
+  var owner = new BaseItemValueArrayTester("");
+  var items = owner.items;
   items.push(new ItemValue("val1", "text1"));
   items.push(new ItemValue("val2"));
   owner.locale = "de";
@@ -287,8 +324,8 @@ QUnit.test("Array<ItemValue> localization serialize", function(assert) {
 QUnit.test("Array<ItemValue> localization deserialize/setData", function(
   assert
 ) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
+  var owner = new BaseItemValueArrayTester("");
+  var items = owner.items;
   var json = [
     {
       value: "val1",
@@ -317,8 +354,8 @@ QUnit.test("Array<ItemValue> localization deserialize/setData", function(
 QUnit.test(
   "Array<ItemValue> localization deserialize/setData, no default value",
   function(assert) {
-    var owner = new LocalizableOwnerTester("");
-    var items = ItemValue.createArray(owner);
+    var owner = new BaseItemValueArrayTester("");
+    var items = owner.items;
     var json = [{ value: "val1", text: { de: "de-text1" } }];
     ItemValue.setData(items, json);
     assert.deepEqual(
@@ -355,8 +392,8 @@ QUnit.test("Localization string markdown test", function(assert) {
 });
 
 QUnit.test("ItemValue markdown support", function(assert) {
-  var owner = new LocalizableOwnerTester("");
-  var items = ItemValue.createArray(owner);
+  var owner = new BaseItemValueArrayTester("");
+  var items = owner.items;
   var json = [
     "val1",
     { value: "val2", text: "text2" },

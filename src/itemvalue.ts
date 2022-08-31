@@ -39,44 +39,6 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   public static set Separator(val: string) {
     settings.itemValueSeparator = val;
   }
-  public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
-    var items: Array<ItemValue> = [];
-    ItemValue.setupArray(items, locOwner);
-    return items;
-  }
-  public static setupArray(
-    items: Array<ItemValue>,
-    locOwner: ILocalizableOwner
-  ) {
-    items.push = function (value): number {
-      var result = Array.prototype.push.call(this, value);
-      value.locOwner = locOwner;
-      return result;
-    };
-    items.unshift = function (value): number {
-      var result = Array.prototype.unshift.call(this, value);
-      value.locOwner = locOwner;
-      return result;
-    };
-    items.splice = function (
-      start?: number,
-      deleteCount?: number,
-      ...items: ItemValue[]
-    ): ItemValue[] {
-      var result = Array.prototype.splice.call(
-        this,
-        start,
-        deleteCount,
-        ...items
-      );
-      if (!items) items = [];
-      for (var i = 0; i < items.length; i++) {
-        items[i].locOwner = locOwner;
-      }
-      return result;
-    };
-  }
-
   /**
    * Resets the input array and fills it with values from the values array
    */
@@ -405,7 +367,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     if (name === "value" && !this.hasText) {
-      this.locText.onChanged();
+      this.locText.strChanged();
     }
     var funcName = "itemValuePropertyChanged";
     if (!this.locOwner || !(<any>this.locOwner)[funcName]) return;

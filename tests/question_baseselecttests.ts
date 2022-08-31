@@ -498,6 +498,23 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
   q.comment = "text1";
   assert.deepEqual(survey.data, { q1: [{ fruit: "other" }], "q1-Comment": "text1" }, "2");
 });
+QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+        valuePropertyName: "fruit"
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.value = [1, 3];
+  assert.deepEqual(q.getDisplayValue(false, [{ fruit: 1 }, { fruit: 3 }]), "apple, orange", "display value for all values");
+  //assert.deepEqual(q.getDisplayValue(false, [{ fruite: 1 }]), ["apple", "orange"], "display value for all values");
+  //assert.deepEqual(q.getDisplayValue(false), ["apple", "orange"], "display value for all values");
+});
 QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,

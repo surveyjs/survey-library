@@ -124,7 +124,7 @@ frameworks.forEach(framework => {
     await t.hover("input[value=Suivant]");
   });
 
-  test("check dropdown localizaition", async t => {
+  test("check dropdown localization", async t => {
     const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await t
       .click(questionDropdownSelect)

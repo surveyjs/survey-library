@@ -86,7 +86,6 @@ QUnit.test("Test dropdown renderAs select", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       choices: [
@@ -135,7 +134,6 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       searchEnabled: false,

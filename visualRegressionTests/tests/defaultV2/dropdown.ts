@@ -60,7 +60,6 @@ frameworks.forEach(framework => {
             optionsCaption: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
-          // renderAs: "select"
           },
         ]
       });
@@ -131,7 +130,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question12",
             hasOther: "true",
             defaultValue: "item1",
@@ -161,7 +159,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question1",
             defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
             choices: [
@@ -175,7 +172,6 @@ frameworks.forEach(framework => {
             ]
           }, {
             type: "dropdown",
-            // renderAs: "select",
             allowClear: false,
             name: "question2",
             defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
@@ -207,7 +203,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "DropdownRenderAsSelect",
             hasOther: "true",
             searchEnabled: false,

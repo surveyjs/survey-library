@@ -1043,6 +1043,7 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
 QUnit.test("Fixed PopupModel width calculate", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
   model.positionMode = "fixed";
+  model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1063,7 +1064,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  model.toggleVisibility();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "auto", "width");
@@ -1077,6 +1078,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
 QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
   model.positionMode = "fixed";
+  model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1097,7 +1099,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  model.toggleVisibility();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "auto", "width");
@@ -1111,6 +1113,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
 QUnit.test("Fixed PopupModel width calculate and overflow content position calculate", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
   model.positionMode = "fixed";
+  model.setWidthByTarget = true;
   const targetElement: HTMLElement = document.createElement("button");
 
   targetElement.style.position = "absolute";
@@ -1131,7 +1134,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
 
   (<any>window).innerWidth = 1000;
   (<any>window).innerHeight = 800;
-  PopupUtils.updatePopupWidthBeforeShow(model, targetElement);
+  model.toggleVisibility();
   viewModel.updateOnShowing();
   assert.equal(viewModel.minWidth, "560px", "minWidth");
   assert.equal(viewModel.width, "800px", "width");

@@ -22,6 +22,7 @@ export class DropdownListModel extends Base {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
     this._popupModel.positionMode = "fixed";
     this._popupModel.isFocusedContent = false;
+    this._popupModel.setWidthByTarget = true;
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerFunctionOnPropertyValueChanged("showFilter", () => {
       this.updatePopupFocusFirstInputSelector();
@@ -110,12 +111,9 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     if (this.question.visibleChoices.length === 0) return;
+    this._popupModel.toggleVisibility();
 
     if (!!event && !!event.target) {
-      const target = findParentByClassNames(event.target, this.question.cssClasses.control.split(" "));
-      if (!!target) {
-        PopupUtils.updatePopupWidthBeforeShow(this._popupModel, target);
-      }
       const input = event.target.querySelector("input");
       if(!!input) {
         input.focus();

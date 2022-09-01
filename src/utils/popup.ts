@@ -186,11 +186,4 @@ export class PopupUtils {
     }
     return targetPos;
   }
-
-  public static updatePopupWidthBeforeShow(popupModel: PopupModel, target: Element) {
-    if (!!target) {
-      popupModel.width = target.getBoundingClientRect().width;
-    }
-    popupModel.toggleVisibility();
-  }
 }

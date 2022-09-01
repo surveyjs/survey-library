@@ -28,7 +28,7 @@ export interface IPopupModel<T = any> extends IDialogOptions {
 }
 
 export class PopupModel<T = any> extends Base {
-  public width: number;
+  public setWidthByTarget: boolean;
   public focusFirstInputSelector = "";
 
   @property() contentComponentName: string;
@@ -302,7 +302,7 @@ export class PopupBaseViewModel extends Base {
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
-    this.model.width && (this.minWidth = this.model.width + "px");
+    this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
     if(onShowing) {
       this.height = "auto";
     }

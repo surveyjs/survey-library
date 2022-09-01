@@ -50,7 +50,7 @@ frameworks.forEach((framework) => {
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.question1).eql([2]);
   });
-  test.only("Check Text Markdown on dropdown", async (t) => {
+  test("Check Text Markdown on dropdown", async (t) => {
     await t
       .click(Selector(".sv_q_dropdown_control"))
       .click(Selector(".markdownclass").withText("*choice 3*"))

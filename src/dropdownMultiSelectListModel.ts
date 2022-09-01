@@ -12,6 +12,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private syncSelectedItemsFromQuestion() {
     (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
   }
+  private popupTargetModified() {
+    setTimeout(() => {
+      this.popupModel.targetModified();
+    }, 1);
+  }
 
   protected override createListModel(): MultiSelectListModel {
     const visibleItems = this.getAvailableItems();
@@ -27,6 +32,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         } else if(status === "removed") {
           this.deselectItem(item.id);
         }
+        this.popupTargetModified();
       };
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));

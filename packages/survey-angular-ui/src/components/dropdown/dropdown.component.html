@@ -5,7 +5,8 @@
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
         <div [class]="model.cssClasses.controlValue">
-            <input type="text" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput" 
+            <input type="text" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
+            [attr.id]="model.getInputId()"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (keyup)="dropdownModel.inputKeyUpHandler($event)" />
         </div>

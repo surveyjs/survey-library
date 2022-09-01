@@ -860,8 +860,7 @@ export class StylesManager {
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_text_root":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css .sv_q_dropdown_control":
-      "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_dropdown_control": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input[type='text']":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css select":
@@ -872,12 +871,12 @@ export class StylesManager {
       "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-input-color; -webkit-text-fill-color: $text-input-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
-      "background-color: $inputs-background-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ": "background-color: $inputs-background-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control:focus-within": "border: 1px solid rgb(26, 179, 148);",
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_q_dropdown_control:focus":
-      "border-color: $main-color;",
+    ".sv_default_css .sv_q_dropdown_control:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
     '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
       "outline: 1px dotted $main-color;",

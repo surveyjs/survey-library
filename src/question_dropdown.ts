@@ -187,6 +187,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
 
+  protected getFirstInputElementId(): string {
+    return this.inputId + (this.searchEnabled ? "_0" : "");
+  }
+  public getInputId() {
+    return this.inputId + "_0";
+  }
+
   onClick(e: any): void {
     !!this.onOpenedCallBack && this.onOpenedCallBack();
   }

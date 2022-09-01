@@ -44,7 +44,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          <DropdownFilter model={dropdownListModel} cssClasses={this.question.cssClasses} ></DropdownFilter>
+          <DropdownFilter model={dropdownListModel} cssClasses={this.question.cssClasses} id={this.question.getInputId()}></DropdownFilter>
           {(isEmpty && !dropdownListModel.filterString) ?
             (<div className={this.question.cssClasses.placeholderInput}>{this.question.placeholder}</div>) :
             (null) }

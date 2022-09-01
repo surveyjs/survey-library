@@ -7,6 +7,7 @@ import { Helpers } from "../helpers";
 interface IDropdownFilterProps {
   model: DropdownListModel;
   cssClasses: any;
+  id: string;
 }
 
 export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any> {
@@ -54,6 +55,7 @@ export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any>
     if(!this.model.searchEnabled) return null;
 
     return (<input type="text"
+      id={this.props.id}
       ref={(element) => (this.inputElement = element)}
       className={ this.cssClasses.filterStringInput }
       size={ !this.model.filterString ? 1 : undefined }

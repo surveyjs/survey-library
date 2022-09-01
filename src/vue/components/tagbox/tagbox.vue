@@ -28,6 +28,7 @@
           type="text"
           v-if="model.searchEnabled"
           v-bind:class="question.cssClasses.filterStringInput"
+          :id="question.getInputId()"
           :value="model.filterString"
           :size="!model.filterString ? 1 : null"
           @change="inputChange"

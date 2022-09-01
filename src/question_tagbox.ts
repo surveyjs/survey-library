@@ -99,6 +99,13 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModel.updateItems();
     }
   }
+
+  protected getFirstInputElementId(): string {
+    return this.inputId + (this.searchEnabled ? "_0" : "");
+  }
+  public getInputId() {
+    return this.inputId + "_0";
+  }
 }
 
 Serializer.addClass(

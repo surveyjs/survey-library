@@ -10,6 +10,7 @@
                 </sv-ng-tagbox-item>
             </ng-container>
             <input *ngIf="model.searchEnabled" type="text" [(ngModel)]="dropdownModel.filterString"
+                [attr.id]="model.getInputId()"
                 [class]="model.cssClasses.filterStringInput" [attr.size]="!dropdownModel.filterString ? 1 : null"
                 (keyup)="dropdownModel.inputKeyUpHandler($event)" />
             <div *ngIf="model.isEmpty() && !dropdownModel.filterString" [class]="model.cssClasses.placeholderInput">{{ model.placeholder }}</div>

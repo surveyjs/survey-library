@@ -82,7 +82,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question1",
             hasOther: "true",
             choices: [
@@ -114,35 +113,13 @@ frameworks.forEach(framework => {
               "item26",
               "item27"
             ]
-          },
-          {
-            type: "dropdown",
-            // renderAs: "select",
-            name: "question12",
-            hasOther: "true",
-            choices: [
-              "item1",
-              "item2",
-              "item3",
-              "item4",
-              "item5",
-              "item6",
-              "item7"
-            ]
           }
         ]
       });
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       const popupContainer = Selector(".sv-popup__container").filterVisible();
-      await t
-        .click(questionDropdownSelect)
-        .pressKey("tab tab");
-      await takeElementScreenshot("dropdown-select-question-popup-with-search.png", popupContainer, t, comparer);
-
-      await t
-        .pressKey("esc")
-        .click(questionDropdownSelect.nth(1));
+      await t.click(questionDropdownSelect);
       await takeElementScreenshot("dropdown-select-question-popup.png", popupContainer, t, comparer);
     });
   });
@@ -295,22 +272,6 @@ frameworks.forEach(framework => {
             type: "dropdown",
             name: "question1",
             hasOther: "true",
-            hasNone: "true",
-            hasSelectAll: "true",
-            choices: [
-              "item1",
-              "item2",
-              "item3",
-              "item4",
-              "item5",
-              "item6",
-              "item7"
-            ]
-          },
-          {
-            type: "dropdown",
-            name: "question2",
-            hasOther: "true",
             choices: [
               "item1",
               "item2",
@@ -345,23 +306,15 @@ frameworks.forEach(framework => {
       });
       const popupContainer = Selector(".sv-popup__container").filterVisible();
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-      const questionDropdownWithoutSearch = questionDropdownSelect.nth(0);
-      const questionDropdownWithSearch = questionDropdownSelect.nth(1);
-      await t.click(questionDropdownWithSearch);
-      await takeElementScreenshot("dropdown-question-with-search-empty-value.png", popupContainer, t, comparer);
-
-      await t.click(getListItemByText("item21"));
-      await t.click(questionDropdownWithSearch);
-      await takeElementScreenshot("dropdown-question-with-search-noempty-value.png", popupContainer, t, comparer);
 
       await t
         .pressKey("esc")
-        .click(questionDropdownWithoutSearch);
-      await takeElementScreenshot("dropdown-question-without-search-empty-value.png", popupContainer, t, comparer);
+        .click(questionDropdownSelect);
+      await takeElementScreenshot("dropdown-question-empty-value.png", popupContainer, t, comparer);
 
       await t.click(getListItemByText("item7"));
-      await t.click(questionDropdownWithoutSearch);
-      await takeElementScreenshot("dropdown-question-without-search-noempty-value.png", popupContainer, t, comparer);
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("dropdown-question-noempty-value.png", popupContainer, t, comparer);
 
       await t.resizeWindow(1280, 1100);
     });

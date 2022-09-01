@@ -876,7 +876,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none; padding: 0;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
     '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
       "outline: 1px dotted $main-color;",

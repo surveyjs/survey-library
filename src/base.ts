@@ -858,6 +858,12 @@ export class Base {
     var result = this.createNewArray(name, function (item: any) {
       item.locOwner = self;
       item.ownerPropertyName = name;
+      if (typeof item.getSurvey == "function") {
+        const survey: any = item.getSurvey();
+        if (!!survey && typeof survey.makeReactive == "function") {
+          survey.makeReactive(item);
+        }
+      }
     });
     this.arraysInfo[name].isItemValues = true;
     return result;

@@ -1109,7 +1109,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("columnColCount", value);
   }
   /**
-   * Use this property to set the minimum column width.
+   * Minimum column width in CSS values.
+   *
+   * @see width
    */
   public get columnMinWidth(): string {
     return this.getPropertyValue("columnMinWidth", "");

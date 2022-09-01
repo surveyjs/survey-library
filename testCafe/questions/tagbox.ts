@@ -43,17 +43,16 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
   const questionTagbox = Selector(".sv_q_input.sv_q_tagbox");
   const deleteItemButton = Selector(".sv_q_tagbox-item_clean-button");
   const selectedItems = Selector(".sv-tagbox__item");
+  const popupContainer = Selector(".sv-popup__container").filterVisible();
 
-  test("tagbox editing", async (t) => {
+  test.before(async (t) => {
+    await initSurvey(framework, json);
+  })("tagbox editing", async (t) => {
     await t
       .expect(selectedItems.count).eql(0)
 
@@ -73,5 +72,26 @@ frameworks.forEach((framework) => {
       .hover(selectedItems)
       .click(deleteItemButton)
       .expect(selectedItems.count).eql(0);
+  });
+
+  test.before(async (t) => {
+    await initSurvey(framework, json);
+  })("tagbox popup position recalculate", async (t) => {
+    const constant = 100;
+    await t
+      .resizeWindow(800, 600)
+      .expect(selectedItems.count).eql(0)
+
+      .click(questionTagbox)
+      .expect(popupContainer.offsetTop).lte(constant);
+
+    for (let i = 1; i < 27; i++) {
+      await t.click(getListItemByText("item" + i.toString()));
+    }
+
+    await t
+      .expect(selectedItems.count).eql(26)
+      .expect(popupContainer.offsetTop).gt(constant)
+      .resizeWindow(1920, 1080);
   });
 });

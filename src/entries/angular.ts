@@ -1,6 +1,7 @@
 import * as ko from "knockout";
 import { Survey, PopupSurvey } from "./knockout-ui-model";
-export * from "./core";
+export { Model } from "./knockout-ui-model";
+export * from "./core-wo-model";
 
 // localization
 import "./chunks/localization";

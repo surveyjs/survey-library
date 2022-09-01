@@ -48,6 +48,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
+  public onTargetModified: EventBase<Base> = this.addEvent<Base>();
 
   constructor(
     contentComponentName: string,
@@ -94,8 +95,11 @@ export class PopupModel<T = any> extends Base {
       this.onHide();
     }
   }
-  public toggleVisibility() {
+  public toggleVisibility(): void {
     this.isVisible = !this.isVisible;
+  }
+  public targetModified(): void {
+    this.onTargetModified.fire(this, {});
   }
 }
 
@@ -189,6 +193,9 @@ export class PopupBaseViewModel extends Base {
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super();
     this.model = model;
+    this.model.onTargetModified.add((_, options: { }) => {
+      this.updatePosition(false);
+    });
   }
   public get title(): string {
     return this.model.title;
@@ -250,6 +257,7 @@ export class PopupBaseViewModel extends Base {
       }
     }
   }
+
   public updateOnShowing() {
     this.prevActiveElement = <HTMLElement>document.activeElement;
     if (this.isOverlay) {
@@ -283,7 +291,7 @@ export class PopupBaseViewModel extends Base {
     }
   }
 
-  private updatePosition() {
+  private updatePosition(onShowing = true) {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
@@ -295,7 +303,9 @@ export class PopupBaseViewModel extends Base {
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
     this.model.width && (this.minWidth = this.model.width + "px");
-    this.height = "auto";
+    if(onShowing) {
+      this.height = "auto";
+    }
     let verticalPosition = this.model.verticalPosition;
     if (!!window) {
       height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
@@ -396,6 +406,7 @@ export class PopupBaseViewModel extends Base {
     this.unmountPopupContainer();
     this.container = undefined;
     this.model.onVisibilityChanged.clear();
+    this.model.onTargetModified.clear();
   }
   public initializePopupContainer() {
     if (!this.container) {

@@ -1,4 +1,4 @@
-export * from "./core";
+export * from "./core-wo-model";
 
 // localization
 import "./chunks/localization";

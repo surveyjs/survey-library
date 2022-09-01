@@ -134,6 +134,9 @@ export class QuestionTextProcessor implements ITextProcessor {
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
     return false;
   }
+  protected getQuestionDisplayText(question: Question): string {
+    return question.displayValue;
+  }
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     if (!textValue) return;
@@ -149,7 +152,7 @@ export class QuestionTextProcessor implements ITextProcessor {
     var values = {};
     if (question) {
       (<any>values)[firstName] = textValue.returnDisplayValue
-        ? question.displayValue
+        ? this.getQuestionDisplayText(question)
         : question.value;
     } else {
       var allValues = !!this.panel ? this.getValues() : null;

@@ -859,12 +859,15 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelRemoved: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
-   * The event is fired before removing a panel from Panel Dynamic question. You can disable removing and optionally clear the data instead.
-   *- `sender` - the survey object that fires the event.
-   *- `options.question` - a panel question.
-   *- `options.panelIndex` - a removed panel index.
-   *- `options.panel` - a removed panel.
-   *- `options.allow` - a boolean property. Set it to `false` to disable the panel removing.
+   * An event that is raised before a panel is removed from a Dynamic Panel question. Use this event to cancel the removal.
+   *
+   * Parameters:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A [Panel Dynamic](https://surveyjs.io/Documentation/Library?id=questionpaneldynamicmodel) question instance.
+   * - `options.panelIndex` - The index of the removed panel.
+   * - `options.panel` - The [instance of the removed panel](https://surveyjs.io/Documentation/Library?id=panelmodel).
+   * - `options.allow` - A Boolean property that you should set to `false` if you want to cancel the panel removal.
    * @see QuestionPanelDynamicModel
    * @see QuestionPanelDynamicModel.panels
    * @see onDynamicPanelRemoved
@@ -6278,7 +6281,9 @@ export class SurveyModel extends SurveyElementCore
     return this.widthMode;
   }
   /**
-   * Gets or sets the width of the survey root element. It is empty by default. Use it to limit survey width to a particular value.
+   * A survey width in CSS values.
+   *
+   * Default value: `undefined` (the survey inherits the width from its container)
    */
   public get width(): string {
     return this.getPropertyValue("width");

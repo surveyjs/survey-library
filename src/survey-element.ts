@@ -702,7 +702,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
 
   /**
-   * Use it to set the specific width to the survey element like css style (%, px, em etc).
+   * A survey element width in CSS values.
   */
   public get width(): string {
     return this.getPropertyValue("width", "");

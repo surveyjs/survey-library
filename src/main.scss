@@ -108,6 +108,10 @@ body {
     width: auto;
     display: flex;
     flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
   }
 
   .sv_q_tagbox__placeholder {

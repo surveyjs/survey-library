@@ -61,4 +61,8 @@
   background-color: transparent;
   width: 100%;
   max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }

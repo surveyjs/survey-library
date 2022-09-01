@@ -23,29 +23,30 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render() {
-    if (!this.item) {
-      return null;
-    }
+  render(): JSX.Element {
+    if (!this.item) return null;
     const isVisible = this.model.isItemVisible(this.item);
     const style = {
       paddingLeft: this.model.getItemIndent(this.item),
       display: isVisible ? null : "none",
     };
     const className = this.model.getItemClass(this.item);
-    const content = [];
+    const content: Array<JSX.Element> = [];
     if (!this.item.component) {
-      const icon = this.item.iconName ? (
-        <SvgIcon
+      const text = this.renderLocString(this.item.locTitle);
+      if(this.item.iconName) {
+        const icon = <SvgIcon
           key={1}
           className={this.model.cssClasses.itemIcon}
           iconName={this.item.iconName}
           size={24}
           aria-label={this.item.title}
-        ></SvgIcon>
-      ) : null;
-      content.push(icon);
-      content.push(<span key={2}>{this.item.title}</span>);
+        ></SvgIcon>;
+        content.push(icon);
+        content.push(<span key={2}>{text}</span>);
+      } else {
+        content.push(text);
+      }
     } else {
       content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id }));
     }

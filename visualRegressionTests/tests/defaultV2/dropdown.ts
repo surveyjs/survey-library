@@ -363,11 +363,9 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       const popupContainer = Selector(".sv-list__empty-container").filterVisible();
       await t
-        .click(questionDropdownSelect)
-        .typeText(".sv-list__input", "test")
+        .typeText(".sd-dropdown__filter-string-input", "test")
         .wait(100);
       await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
     });

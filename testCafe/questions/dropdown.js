@@ -560,7 +560,7 @@ frameworks.forEach((framework) => {
       .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan");
   });
 
-  test("Check dropdown key press", async (t) => {
+  test.only("Check dropdown key press", async (t) => {
     const jsonWithDropDown = {
       questions: [
         {

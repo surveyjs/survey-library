@@ -26,19 +26,14 @@ const json = {
   ]
 };
 
-const setMarkdownEvent = ClientFunction(() => {
-  window["survey"].onTextMarkdown.add((sender, options) => {
-    if (options.text.indexOf("|") > -1) {
-      options.html = "<span class='markdownclass'>" + options.text.replace("|", "*").replace("|", "*") + "</span>";
-    }
-  });
-});
-
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
-      await initSurvey(framework, json);
-      await setMarkdownEvent();
+      await initSurvey(framework, json, { "onTextMarkdown": (sender, options) => {
+        if (options.text.indexOf("|") > -1) {
+          options.html = "<span class='markdownclass'>" + options.text.replace("|", "*").replace("|", "*") + "</span>";
+        }
+      } });
     }
   );
 

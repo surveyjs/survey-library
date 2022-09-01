@@ -392,6 +392,7 @@ export var defaultV2Css = {
     controlValue: "sd-dropdown__value",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",
+    filterStringInput: "sd-dropdown__filter-string-input",
     onError: "sd-input--error",
   },
   comment: {

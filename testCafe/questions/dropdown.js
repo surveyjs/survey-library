@@ -624,7 +624,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
 
-      .pressKey("tab enter")
+      .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")

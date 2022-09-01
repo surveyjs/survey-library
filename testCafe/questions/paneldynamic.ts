@@ -161,25 +161,25 @@ frameworks.forEach((framework) => {
 
       .click(ageDropdown)
       .click(getListItemByText("72"))
-      .expect(ageDropdown.find(".sv_q_dropdown__value").textContent).eql("72")
+      .expect(ageDropdown.find("input").getAttribute("placeholder")).eql("72")
 
       .click(".sv-paneldynamic__next-btn")
       .click("input[value=\"Yes\"]")
 
       .click(ageDropdown)
       .click(getListItemByText("65"))
-      .expect(ageDropdown.find(".sv_q_dropdown__value").textContent).eql("65")
+      .expect(ageDropdown.find("input").getAttribute("placeholder")).eql("65")
 
       .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
 
       .click(relativeTypeDropdown)
       .click(getListItemByText("sister"))
-      .expect(relativeTypeDropdown.find(".sv_q_dropdown__value").textContent).eql("sister")
+      .expect(relativeTypeDropdown.find("input").getAttribute("placeholder")).eql("sister")
       .click("input[value=\"No\"]")
 
       .click(deceasedAgeDropdown)
       .click(getListItemByText("42"))
-      .expect(deceasedAgeDropdown.find(".sv_q_dropdown__value").textContent).eql("42")
+      .expect(deceasedAgeDropdown.find("input").getAttribute("placeholder")).eql("42")
       .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
       .click(".sv-paneldynamic__prev-btn")
       .click(".sv-paneldynamic__prev-btn")
@@ -188,8 +188,8 @@ frameworks.forEach((framework) => {
 
       .click(relativeillnessDropdown)
       .click(getListItemByText("Diabetes"))
-      .expect(relativeillnessDropdown.find(".sv_q_dropdown__value").textContent).eql("Diabetes")
-      .typeText("div[data-name='relativeillness'] input[type=\"text\"]", "Type 2")
+      .expect(relativeillnessDropdown.find("input").getAttribute("placeholder")).eql("Diabetes")
+      .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
 
       .click(".sv-paneldynamic__next-btn")
       .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))

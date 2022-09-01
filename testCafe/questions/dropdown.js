@@ -628,7 +628,6 @@ frameworks.forEach((framework) => {
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("down")
       .pressKey("enter")
       .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item20");
   });
@@ -708,7 +707,7 @@ frameworks.forEach((framework) => {
       ]
     };
     const ratingAsDropdownPlaceHolder = "Tap to rate here...";
-    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
+    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value input");
     await initSurvey(framework, jsonWithDropDown);
 
     await t

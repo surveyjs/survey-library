@@ -167,7 +167,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   constructor(public innerItem: IAction) {
     super();
-    this.locTitleValue = !innerItem || !innerItem["locTitle"] ? this.createLocTitle() : innerItem["locTitle"];
+    this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
@@ -208,21 +208,25 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property() disableShrink: boolean;
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
+  @property({ onSet: (val, target) => {
+    if(target.locTitleValue.text === val) return;
+    target.locTitleValue.text = val;
+  } }) title: string;
   public get locTitle(): LocalizableString { return this.locTitleValue; }
   public set locTitle(val: LocalizableString) {
     if(!val && !this.locTitleValue) {
       val = this.createLocTitle();
     }
+    if(!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+    }
     this.locTitleValue = val;
+    this.locTitleValue.onStringChanged.add(this.locTitleChanged);
+    this.locTitleChanged();
   }
-  public get title(): string {
-    const res = this.locTitleValue.renderedHtml;
-    return !!res ? res : undefined;
+  private locTitleChanged = () => {
+    this.setPropertyValue("title", this.locTitle.renderedHtml);
   }
-  public set title(val: string) {
-    this.locTitleValue.text = val;
-  }
-
   private cssClassesValue: any;
 
   public set cssClasses(val: any) {

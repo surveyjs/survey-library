@@ -1,10 +1,12 @@
-import { Action, ActionDropdownViewModel } from "../../src/actions/action";
+import { Action, ActionDropdownViewModel, IAction } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
 import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { settings } from "../../src/settings";
 import { getIconNameFromProxy } from "../../src/utils/utils";
+import { PageModel } from "../../src/page";
+import { ComputedUpdater } from "../../src/base";
 
 QUnit.test("Check that items are wrapped after set", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -130,4 +132,15 @@ QUnit.test("Check action bar cssClasses", (assert) => {
   assert.ok(actionBar.cssClasses !== defaultActionBarCss);
   assert.equal(actionBar.cssClasses.root, "custom-action-bar");
   assert.equal(actionBar.cssClasses.item, "sv-action-bar-item");
+});
+QUnit.test("Action title", (assert) => {
+  const page = new PageModel("page1");
+  const actionInner: IAction = {
+    id: page.id,
+    title: <any>new ComputedUpdater<string>(() => page.name)
+  };
+  const action = new Action(actionInner);
+  assert.equal(action.title, "page1", "get from page name #1");
+  page.name = "page2";
+  assert.equal(action.title, "page2", "get from page name #2");
 });

@@ -71,4 +71,10 @@
 }
 .sd-dropdown__filter-string-input::placeholder {
   color: $foreground;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }

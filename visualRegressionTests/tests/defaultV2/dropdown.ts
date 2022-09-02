@@ -187,11 +187,11 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t, comparer);
-
       await takeElementScreenshot("dropdown-select-question-and-long-text.png", questionDropdownSelect.nth(1), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t, comparer);
     });
   });
 

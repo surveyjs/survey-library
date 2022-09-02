@@ -16,8 +16,7 @@
       :iconName="item.iconName"
       :size="24"
     ></sv-svg-icon>
-    <span v-if="!item.component">{{ item.title }}</span>
-
+    <survey-string v-if="!item.component" :locString="item.locTitle" />
     <component v-if="item.component" :is="item.component" :item="item"> </component>
   </li>
 </template>

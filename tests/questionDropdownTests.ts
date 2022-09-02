@@ -342,3 +342,25 @@ QUnit.test("ListModel localization", assert => {
   assert.equal(listModel.filteredTextPlaceholder, "Tippe um zu suchen...", "filtered text in de");
   survey.locale = "";
 });
+QUnit.test("readOnlyText", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "placeholder": "click",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onTextMarkdown.add((sender, options) => {
+    options.html = options.text + "_" + options.text;
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.readOnlyText, "click", "use place-holder");
+  question.value = "other";
+  assert.equal(question.readOnlyText, "Other (describe)", "use other");
+  question.value = 2;
+  assert.equal(question.readOnlyText, "item 2", "use choice text");
+});

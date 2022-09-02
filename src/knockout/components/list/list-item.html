@@ -4,7 +4,7 @@
   <!-- ko if: $data.item.iconName -->
   <sv-svg-icon data-bind="css: $data.model.cssClasses.itemIcon" params="iconName: $data.item.iconName, size: 24"></sv-svg-icon>
   <!-- /ko -->
-  <span data-bind="text: $data.item.title"></span>
+  <!-- ko template: { name: 'survey-string', data: $data.item.locTitle } --><!-- /ko -->
   <!-- /ko -->
   <!-- ko if: $data.item.component -->
   <!-- ko component: { name: $data.item.component, params: { item: $data.item } } -->

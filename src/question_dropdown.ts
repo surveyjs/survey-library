@@ -164,9 +164,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .toString();
   }
   public get readOnlyText() {
-    return this.hasOther && this.isOtherSelected ? this.otherText : (this.displayValue || this.placeholder);
+    return this.hasOther && this.isOtherSelected ? this.otherText : (this.selectedItemText || this.placeholder);
   }
-
+  private get selectedItemText(): string {
+    const item = this.selectedItem;
+    return !!item ? item.text : "";
+  }
   public get popupModel(): PopupModel {
     if (this.renderAs !== "select" && !this.dropdownListModel) {
       this.dropdownListModel = new DropdownListModel(this);

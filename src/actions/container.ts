@@ -68,10 +68,12 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);
+    item.owner = this;
     this.raiseUpdate(true);
   }
 
   protected onRemove(item: T) {
+    item.owner = null;
     this.raiseUpdate(true);
   }
 

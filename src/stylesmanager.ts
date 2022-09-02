@@ -974,7 +974,10 @@ export class StylesManager {
     "body .sv-list__input::placeholder": "color: $foreground-light;",
     "body .sv-list__input:disabled": "color: $foreground-disabled;",
     "body .sv-list__input:disabled::placeholder": "color: $foreground-disabled;",
-    "body .sv-list__item--selected": "background-color: $main-color; color: $inputs-background-color;",
+    "body .sv-list__item--selected": "background: rgba(25, 179, 148, 0.1); color: $foreground-disabled",
+    "body .sv-list__item--selected.sv-list__item--focused": "background-color: $main-color; color: $inputs-background-color;",
+    "body .sv-list__item--selected:focus": "background-color: $main-color; color: $inputs-background-color;",
+    "body .sv-list__item--selected:hover": "background-color: $main-color; color: $inputs-background-color;",
     //eo list
     ".sv-skeleton-element": "background-color: $background-dim;",
 

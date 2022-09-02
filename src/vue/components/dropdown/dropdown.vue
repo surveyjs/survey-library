@@ -22,7 +22,6 @@
           type="text"
           v-bind:class="question.cssClasses.filterStringInput"
           :id="question.getInputId()"
-          :value="model.filterString"
           :readonly="!model.searchEnabled ? true : null"
           :placeholder="question.readOnlyText"
           @change="inputChange"

@@ -144,3 +144,7 @@ QUnit.test("Action title", (assert) => {
   page.name = "page2";
   assert.equal(action.title, "page2", "get from page name #2");
 });
+QUnit.test("Empty action title", (assert) => {
+  const action = new Action({ id: "1" });
+  assert.strictEqual(action.title, undefined, "title is undefined");
+});

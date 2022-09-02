@@ -199,7 +199,11 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.questionBase) {
-      this.questionBase.beforeDestroyQuestionElement(this.control);
+      const el: HTMLElement = this.control;
+      this.questionBase.beforeDestroyQuestionElement(el);
+      if (!!el) {
+        el.removeAttribute("data-rendered");
+      }
     }
   }
   protected updateDomElement() {

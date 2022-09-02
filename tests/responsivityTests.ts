@@ -40,7 +40,7 @@ QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
   adaptiveContainer.actions = actions;
   assert.equal(adaptiveContainer.visibleActions.length, 2, "adaptiveContainer visibleActions");
   assert.equal(adaptiveContainer.renderedActions.length, 4, "adaptiveContainer renderedActions");
-  assert.equal(adaptiveContainer.renderedActions[3].id, "dotsItem-id8");
+  assert.equal(adaptiveContainer.renderedActions[3].id.indexOf("dotsItem-id"), 0, "dotsItem-id exists");
 });
 
 QUnit.test("ActionContainer: renderedActions & visibleActions if only one element", assert => {

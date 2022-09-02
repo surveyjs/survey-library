@@ -251,7 +251,7 @@ frameworks.forEach(framework => {
         },
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
 

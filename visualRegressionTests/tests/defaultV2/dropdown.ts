@@ -39,7 +39,7 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(() => { document.body.focus(); })();
+      await resetFocusToBody();
       await takeElementScreenshot("dropdown-question.png", questionRoot, t, comparer);
 
       await ClientFunction(() => { (<any>window).survey.getQuestionByName("dropdown_question").value = "Greece"; })();
@@ -65,7 +65,8 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(() => { document.body.focus(); })();
+      await resetFocusToBody();
+      //
       await takeElementScreenshot("dropdown-select-question.png", questionRoot, t, comparer);
 
       await ClientFunction(() => { (<any>window).survey.getQuestionByName("dropdown_question").value = "Greece"; })();
@@ -191,7 +192,7 @@ frameworks.forEach(framework => {
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       await takeElementScreenshot("dropdown-select-question-and-long-text.png", questionDropdownSelect.nth(1), t, comparer);
 
-      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t, comparer);
+      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect.nth(0), t, comparer);
     });
   });
 

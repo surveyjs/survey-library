@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot, resetFocusToBody } from "../../helper";
 import { imageSource } from "../../constants";
 
 const title = "Image Screenshot";
@@ -52,7 +52,7 @@ frameworks.forEach(framework => {
         }
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await t.wait(1000);
     await checkElementScreenshot("imagepicker-responsive-max.png", Selector(".sd-question"), t);
     await t.resizeWindow(700, 1500);
@@ -91,7 +91,7 @@ frameworks.forEach(framework => {
         }
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await t.wait(1000);
     await checkElementScreenshot("imagepicker-responsive-col-count-3.png", Selector(".sd-question"), t);
     await ClientFunction(() => { (<any>window).survey.getAllQuestions()[0].colCount = 1; })();

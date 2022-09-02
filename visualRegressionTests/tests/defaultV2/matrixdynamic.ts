@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, applyTheme, checkElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, applyTheme, checkElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -68,7 +68,7 @@ frameworks.forEach(framework => {
     });
 
     const matrixdynamicRoot = Selector(".sd-question");
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("matrixdynamic.png", matrixdynamicRoot, t);
   });
 
@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
     });
 
     const matrixdynamicRoot = Selector(".sd-question");
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("matrixdynamic-vertical.png", matrixdynamicRoot, t);
   });
 
@@ -153,7 +153,7 @@ frameworks.forEach(framework => {
     });
     const matrixdynamicRoot = Selector(".sd-question");
     await t.click(".sd-navigation__complete-btn");
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
 
     await t.hover(".sd-table__question-wrapper", { offsetX: 50, offsetY: 20 });
     await checkElementScreenshot("matrixdynamic-errors-in-cell.png", matrixdynamicRoot, t);
@@ -168,7 +168,7 @@ frameworks.forEach(framework => {
     await initSurvey(framework, { "pages": [{ "name": "page1", "elements": [{ "type": "matrixdynamic", "name": "relatives", "title": "Please enter all blood relatives you know", "columns": [{ "name": "relativeType", "title": "Relative", "cellType": "dropdown", "isRequired": true, "choices": ["father", "mother", "brother", "sister", "son", "daughter"] }, { "name": "firstName", "title": "First name", "cellType": "text", "isRequired": true }, { "name": "lastName", "title": "Last name", "cellType": "text", "isRequired": true }], "detailElements": [{ "type": "radiogroup", "name": "isalive", "startWithNewLine": false, "title": "Alive?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "dropdown", "name": "liveage", "visibleIf": "{row.isalive} = 'Yes'", "startWithNewLine": false, "title": "Age", "isRequired": true, "choicesMin": 1, "choicesMax": 115 }, { "type": "dropdown", "name": "deceasedage", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Deceased Age", "isRequired": true, "choices": [{ "value": -1, "text": "Unknown" }], "choicesMin": 1, "choicesMax": 115 }, { "type": "radiogroup", "name": "causeofdeathknown", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Cause of Death Known?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "text", "name": "causeofdeath", "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'", "startWithNewLine": false, "title": "Cause of Death", "isRequired": true }], "detailPanelMode": "underRow", "addRowText": "Add a blood relative", "removeRowText": "Remove the relative", "allowRowsDragAndDrop": true }] }], "checkErrorsMode": "onValueChanged" });
 
     const matrixdynamicRoot = Selector(".sd-question");
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t);
   });
 });

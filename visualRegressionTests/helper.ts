@@ -16,6 +16,8 @@ export const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
 
+export const resetFocusToBody = ClientFunction(()=>{ document.body.focus(); });
+
 export async function wrapVisualTest(t: TestController, fn: (t: TestController, comparer: ScreenshotsComparer) => Promise<any>): Promise<void> {
   const comparer = createScreenshotsComparer(t);
 

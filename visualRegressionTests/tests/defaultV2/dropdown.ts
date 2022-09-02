@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { getListItemByText } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
 
@@ -187,10 +187,10 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await resetFocusToBody();
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       await takeElementScreenshot("dropdown-select-question-and-long-text.png", questionDropdownSelect.nth(1), t, comparer);
 
-      await t.pressKey("tab");
       await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t, comparer);
     });
   });

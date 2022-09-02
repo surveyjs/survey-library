@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { url, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, resetFocusToBody } from "../../helper";
 
 const title = "Rating Screenshot";
 
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
     });
 
     const questionRoot = Selector(".sd-question");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-rating-many.png", questionRoot, t);
   });
   test("Check rating question as dropdown", async (t) => {
@@ -110,7 +110,7 @@ frameworks.forEach(framework => {
     });
 
     const questionRoot = Selector(".sd-question");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-rating-dropdown.png", questionRoot, t);
   });
 
@@ -142,7 +142,7 @@ frameworks.forEach(framework => {
     });
 
     const questionRoot = Selector(".sd-question");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-rating-long-items.png", questionRoot, t);
   });
   test("Check big rating in panel", async (t) => {
@@ -165,7 +165,7 @@ frameworks.forEach(framework => {
     });
 
     const questionRoot = Selector(".sd-panel");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("long-rating-in-panel.png", questionRoot, t);
   });
 });

@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, resetFocusToBody } from "../../helper";
 
 const title = "Question Screenshot";
 
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
     await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await takeScreenshot("question-invisible.png", questionRoot, screenshotComparerOptions);
   });
   test("Check question title actions", async (t) => {
@@ -127,7 +127,7 @@ frameworks.forEach(framework => {
     });
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await takeScreenshot("question-required.png", questionRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
@@ -153,7 +153,7 @@ frameworks.forEach(framework => {
     },);
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const rowSelector = Selector(".sd-row");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await takeScreenshot("multiple-row.png", rowSelector, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
@@ -183,7 +183,7 @@ frameworks.forEach(framework => {
       ]
     },);
     const rowSelector = Selector(".sd-row");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("multiple-row-overflow.png", rowSelector, t);
   });
   test("Check question error", async(t)=> {
@@ -204,7 +204,7 @@ frameworks.forEach(framework => {
     });
     const qRoot = Selector(".sd-question");
     await t.click(".sd-navigation__complete-btn");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-with-error.png", qRoot, t);
     await t.resizeWindow(600, 1080);
     await checkElementScreenshot("responsiveness-question-with-error.png", qRoot, t);
@@ -228,7 +228,7 @@ frameworks.forEach(framework => {
     });
     const qRoot = Selector(".sd-question");
     await t.click(".sd-navigation__complete-btn");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-with-error-below.png", qRoot, t);
     await t.resizeWindow(600, 1080);
     await checkElementScreenshot("responsiveness-question-with-error-below.png", qRoot, t);

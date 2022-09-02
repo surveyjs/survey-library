@@ -32,6 +32,7 @@
   font-size: calcSize(2);
   color: $foreground;
 }
+
 .sd-dropdown_clean-button {
   padding: 0 calcSize(1);
 }
@@ -55,7 +56,6 @@
   border: none;
   outline: none;
   padding: 0;
-  color: inherit;
   font-family: $font-family;
   font-size: calcSize(2);
   background-color: transparent;
@@ -65,4 +65,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
+}
+.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
+  color: $foreground-light;
+}
+.sd-dropdown__filter-string-input::placeholder {
+  color: $foreground;
 }

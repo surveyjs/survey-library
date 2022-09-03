@@ -3,6 +3,7 @@
   Serializer,
   JsonUnknownPropertyError,
   property,
+  JsonObjectProperty,
 } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
@@ -2833,4 +2834,51 @@ QUnit.test("Find out are properties addingin in addClass are custom or not", fun
   Serializer.addClass("testcar", ["name"]);
   assert.equal(Serializer.findProperty("testcar", "name").isCustom, true, "testcar properties are custom");
   assert.equal(Serializer.findProperty("car", "name").isCustom, false, "car properties are not custom");
+});
+QUnit.test("Custom survey serialization, onSerializingProperty", function (assert) {
+  const mapping : any = {
+    base: { elements: "Questions", visible: { name: "IsHidden", converter: (obj: Base, value: any): any => { return !value; } } },
+    question: { choices: "AnswerOptions" },
+    survey: { title: "Name", pages: "sections" }
+  };
+  const getMappedObj = function(type: string, name: string): string {
+    const typeMap = mapping[type];
+    return !!typeMap ? typeMap[name] : undefined;
+  };
+  Serializer.onSerializingProperty = (obj: Base, prop: JsonObjectProperty, value: any, json: any): boolean => {
+    let typesList = new Array<string>();
+    typesList.push(obj.getType());
+    if(obj.isDescendantOf("question")) {
+      typesList.push("question");
+    }
+    typesList.push("base");
+
+    for(var i = 0; i < typesList.length; i ++) {
+      let mapObj = <any>getMappedObj(typesList[i], prop.name);
+      if(!mapObj) continue;
+      const name = typeof mapObj === "string" ? mapObj : mapObj.name;
+      if(typeof mapObj !== "string" && mapObj.converter) {
+        value = mapObj.converter(obj, value);
+      }
+      json[name] = value;
+      return true;
+    }
+    return false;
+  };
+  const checkJSON = function(origionalJSON: any, expectedJSON: any, attempt: string) {
+    const survey = new SurveyModel(origionalJSON);
+    assert.deepEqual(survey.toJSON(), expectedJSON, "Failed attempt: " + attempt);
+  };
+  checkJSON({ title: "Your Questionnaire" }, { Name: "Your Questionnaire" }, "survey title => survey Name");
+  checkJSON({ pages: [{ name: "page1" }] }, { sections: [{ name: "page1" }] }, "survey pages => survey sections");
+  checkJSON(
+    { pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }] },
+    { sections: [{ name: "page1", Questions: [{ type: "text", name: "q1" }] }] }, "page elements => page Questions");
+  checkJSON(
+    { pages: [{ name: "page1", elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] }] },
+    { sections: [{ name: "page1", Questions: [{ type: "checkbox", name: "q1", AnswerOptions: [1, 2] }] }] }, "choices => page AnswerOptions");
+  checkJSON(
+    { pages: [{ name: "page1", elements: [{ type: "text", name: "q1", visible: false }] }] },
+    { sections: [{ name: "page1", Questions: [{ type: "text", name: "q1", IsHidden: true }] }] }, "visible => isHidden (opposite)");
+  Serializer.onSerializingProperty = undefined;
 });

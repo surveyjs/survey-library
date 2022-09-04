@@ -274,3 +274,46 @@ QUnit.test("column cell css classes by matrix cellType test", function (assert) 
   assert.equal(matrix.renderedTable.headerRow.cells[4].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 4");
   assert.equal(matrix.renderedTable.headerRow.cells[5].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 5");
 });
+QUnit.test("Incorrect default value in matrix dropdown", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        defaultValueExpression: "no",
+        columns: [
+          {
+            name: "col1",
+          },
+        ],
+        rows: [
+          "row 1",
+          "row 2",
+        ]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.renderedTable;
+  assert.ok(!!matrix["renderedTableValue"]);
+});
+QUnit.test("Incorrect default value in matrix dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        defaultValueExpression: "no",
+        columns: [
+          {
+            name: "col1",
+          },
+        ],
+        rowCount: 2
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.renderedTable;
+  assert.ok(!!matrix["renderedTableValue"]);
+});

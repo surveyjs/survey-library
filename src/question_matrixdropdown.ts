@@ -122,6 +122,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
+  protected setNewValue(newValue: any): void {
+    if(!!newValue && typeof newValue !== "object") return;
+    super.setNewValue(newValue);
+  }
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;

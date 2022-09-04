@@ -4614,3 +4614,22 @@ QUnit.test("checkbox vs valuePropertyName and display text", (assert) => {
   assert.equal(p1_q1.locTitle.renderedHtml, "apple", "title for question in panel1");
   assert.equal(p2_q1.locTitle.renderedHtml, "orange", "title for question in panel2");
 });
+QUnit.test("Incorrect default value in panel dynamic", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        defaultValueExpression: "no",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+        panelCount: 2
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panelCount, 2, "There are two panels");
+  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+  assert.equal(p1_q1.name, "panel_q1", "question name is correct");
+});

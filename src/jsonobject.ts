@@ -839,6 +839,7 @@ export class JsonMetadata {
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private classProperties: HashTable<Array<JsonObjectProperty>> = {};
   private classHashProperties: HashTable<HashTable<JsonObjectProperty>> = {};
+  public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
     if (this.isObjWrapper(obj)) {
       var orignalObj = obj.getOriginalObj();
@@ -1519,7 +1520,7 @@ export class JsonObject {
     result: any,
     property: JsonObjectProperty,
     storeDefaults = false
-  ) {
+  ): void {
     if (
       property.isSerializable === false ||
       (property.isLightSerializable === false && this.lightSerializing)
@@ -1540,7 +1541,9 @@ export class JsonObject {
       typeof obj["getPropertyValue"] === "function" &&
       obj["getPropertyValue"](property.name, null) !== null;
     if ((storeDefaults && hasValue) || !property.isDefaultValue(value)) {
-      result[property.name] = value;
+      if(!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
+        result[property.name] = value;
+      }
     }
   }
   public valueToObj(value: any, obj: any, property: JsonObjectProperty) {

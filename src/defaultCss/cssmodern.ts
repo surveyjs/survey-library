@@ -242,6 +242,7 @@ export var modernCss = {
     cleanButton: "sv-dropdown_clean-button",
     cleanButtonSvg: "sv-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
+    filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
   },
   imagepicker: {
@@ -328,6 +329,7 @@ export var modernCss = {
     itemText: "sv-rating__item-text",
     maxText: "sv-rating__max-text",
     itemDisabled: "sv-rating--disabled",
+    filterStringInput: "sv-dropdown__filter-string-input",
   },
   comment: {
     root: "sv-comment",

@@ -65,11 +65,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
+  line-height: calcSize(3);
+  appearance: none;
 }
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
   color: $foreground-light;
 }
 .sd-dropdown__filter-string-input::placeholder {
+  font-family: $font-family;
+  font-size: calcSize(2);
   color: $foreground;
   width: 100%;
   max-width: 100%;
@@ -77,4 +81,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
+  line-height: calcSize(3);
+  appearance: none;
 }

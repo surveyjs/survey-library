@@ -30,6 +30,9 @@ export class DynamicComponentDirective implements OnChanges {
     } else if (this.component.default) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.default).instance;
     }
+    if(!this.componentInstance) {
+      throw new Error(`Can't create component with name: ${this.component.name}`);
+    }
     this.updateComponentData();
   }
   updateComponentData(): void {

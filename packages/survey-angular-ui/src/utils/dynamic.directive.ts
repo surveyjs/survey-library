@@ -33,6 +33,7 @@ export class DynamicComponentDirective implements OnChanges {
     this.updateComponentData();
   }
   updateComponentData(): void {
+    if(!this.componentInstance) return;
     const data = this.component.data;
     Object.keys(data).forEach((key) => {
       this.componentInstance[key] = data[key];

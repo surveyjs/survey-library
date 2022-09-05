@@ -304,7 +304,6 @@ frameworks.forEach(framework => {
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
 
       await t
-        .pressKey("esc")
         .click(questionDropdownSelect);
       await takeElementScreenshot("dropdown-question-empty-value.png", popupContainer, t, comparer);
 

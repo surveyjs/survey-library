@@ -13,9 +13,6 @@ export class ActionComponent extends BaseAngular {
   getModel() {
     return this.model;
   }
-  getComponentName() {
-    return this.model.component || "sv-action-bar-item";
-  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-action", ActionComponent);

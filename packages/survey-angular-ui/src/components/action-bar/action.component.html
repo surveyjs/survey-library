@@ -5,7 +5,7 @@
       <ng-container *ngIf="model.needSeparator">
         <div class="sv-action-bar-separator"></div>
       </ng-container>
-      <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'sv-action-bar-item'}"></ng-template>
+      <ng-template [component]="{ name: model.component, data: { model }, default: 'sv-action-bar-item'}"></ng-template>
     </div>
   </div>
 </ng-template>

@@ -33,7 +33,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     const className = this.model.getItemClass(this.item);
     const content: Array<JSX.Element> = [];
     if (!this.item.component) {
-      const text = this.renderLocString(this.item.locTitle);
+      const text = this.renderLocString(this.item.locTitle, undefined, "locString");
       if(this.item.iconName) {
         const icon = <SvgIcon
           key={1}

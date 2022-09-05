@@ -1021,6 +1021,11 @@ export class StylesManager {
     ".sv-dropdown--error": "border-color: $error-color; color: $error-color;",
     ".sv-dropdown--error::placeholder": "color: $error-color;",
     ".sv-dropdown--error::-ms-input-placeholder": "color: $error-color;",
+    ".sv-tagbox": "border-bottom: 0.06em solid $text-border-color;",
+    ".sv-tagbox:focus": "border-color: $dropdown-border-color;",
+    ".sv-tagbox--error": "border-color: $error-color; color: $error-color;",
+    ".sv-tagbox--error::placeholder": "color: $error-color;",
+    ".sv-tagbox--error::-ms-input-placeholder": "color: $error-color;",
     ".sv-file__decorator":
       "background-color: $body-container-background-color;",
     ".sv-file__clean-btn": "background-color: $remove-button-color;",

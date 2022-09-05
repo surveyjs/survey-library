@@ -75,12 +75,12 @@
   appearance: none;
 }
 .sv-dropdown--empty:not(.sv-input--disabled) .sv-dropdown__filter-string-input::placeholder {
-  color: $disabled-text-color;
+  font-family: $font-family;
+  color: $text-color;
 }
 .sv-dropdown__filter-string-input::placeholder {
-  font-family: $font-family;
+  color: $disabled-text-color;
   font-size: inherit;
-  color: $text-color;
   width: 100%;
   max-width: 100%;
   overflow: hidden;

@@ -245,6 +245,23 @@ export var modernCss = {
     filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
   },
+  tagbox: {
+    root: "",
+    small: "sv-row__question--small",
+    selectWrapper: "sv_select_wrapper sv-tagbox_wrapper",
+    other: "sv-input sv-comment sv-selectbase__other",
+    cleanButton: "sv-tagbox_clean-button sv-dropdown_clean-button",
+    cleanButtonSvg: "sv-tagbox_clean-button-svg sv-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear_16x16",
+    cleanItemButton: "sv-tagbox__item_clean-button",
+    cleanItemButtonSvg: "sv-tagbox__item_clean-button-svg",
+    cleanItemButtonIconId: "icon-clear_16x16",
+    control: "sv-input sv-tagbox sv-dropdown",
+    controlValue: "sv-tagbox__value sv-dropdown__value",
+    controlEmpty: "sv-dropdown--empty sv-tagbox--empty",
+    placeholderInput: "sv-tagbox__placeholder",
+    filterStringInput: "sv-tagbox__filter-string-input sv-dropdown__filter-string-input"
+  },
   imagepicker: {
     root: "sv-selectbase sv-imagepicker",
     column: "sv-selectbase__column",

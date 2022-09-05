@@ -159,13 +159,15 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
-export class Action extends Base implements IAction {
+export class Action extends Base implements IAction, ILocalizableOwner {
+  private locTitleValue: LocalizableString;
   public updateCallback: () => void;
   private raiseUpdate() {
     this.updateCallback && this.updateCallback();
   }
   constructor(public innerItem: IAction) {
     super();
+    this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
@@ -173,6 +175,10 @@ export class Action extends Base implements IAction {
       }
     }
   }
+  private createLocTitle(): LocalizableString {
+    return this.createLocalizableString("title", this, true);
+  }
+  public owner: ILocalizableOwner;
   location?: string;
   @property() id: string;
   @property() iconName: string;
@@ -202,31 +208,26 @@ export class Action extends Base implements IAction {
   @property() disableShrink: boolean;
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
-  @property({ onSet: (val, obj) => {
-    val.onChanged = () => {
-      obj.updateTitleValue();
-    };
-    obj.updateTitleValue();
-  } }) locTitle: LocalizableString;
-
-  @property() private titleValue: string;
-
-  private updateTitleValue() {
-    if(!!this.locTitle) {
-      this.titleValue = this.locTitle.renderedHtml;
+  @property({ onSet: (val, target) => {
+    if(target.locTitleValue.text === val) return;
+    target.locTitleValue.text = val;
+  } }) title: string;
+  public get locTitle(): LocalizableString { return this.locTitleValue; }
+  public set locTitle(val: LocalizableString) {
+    if(!val && !this.locTitleValue) {
+      val = this.createLocTitle();
     }
-  }
-  public get title(): string {
-    return this.titleValue;
-  }
-  public set title(val: string) {
-    if(!!this.locTitle) {
-      this.locTitle.text = val;
-    } else {
-      this.titleValue = val;
+    if(!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
+    this.locTitleValue = val;
+    this.locTitleValue.onStringChanged.add(this.locTitleChanged);
+    this.locTitleChanged();
   }
-
+  private locTitleChanged = () => {
+    const val = this.locTitle.renderedHtml;
+    this.setPropertyValue("title", !!val ? val : undefined);
+  }
   private cssClassesValue: any;
 
   public set cssClasses(val: any) {
@@ -280,6 +281,12 @@ export class Action extends Base implements IAction {
       .append(this.innerCss)
       .toString();
   }
+  //ILocalizableOwner
+  getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
+  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name): text; }
+  getProcessedText(text: string): string { return this.owner ? this.owner.getProcessedText(text) : text; }
+  getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
+  getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   minDimension: number;
   maxDimension: number;

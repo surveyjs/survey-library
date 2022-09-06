@@ -801,6 +801,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
   public localeChanged() {
     super.localeChanged();
+    this.updateDescriptionVisibility(this.description);
     if(this.errors.length > 0) {
       this.errors.forEach(err => {
         err.updateText();

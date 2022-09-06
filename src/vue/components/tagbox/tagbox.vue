@@ -26,6 +26,7 @@
         ></sv-tagbox-item>
         <input
           type="text"
+          autocomplete="off"
           v-if="model.searchEnabled"
           v-bind:class="question.cssClasses.filterStringInput"
           :id="question.getInputId()"

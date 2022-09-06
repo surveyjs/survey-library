@@ -54,7 +54,7 @@ export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any>
   render(): JSX.Element {
     if(!this.model.searchEnabled) return null;
 
-    return (<input type="text"
+    return (<input type="text" autoComplete="off"
       id={this.props.id}
       ref={(element) => (this.inputElement = element)}
       className={ this.cssClasses.filterStringInput }

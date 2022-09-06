@@ -20,7 +20,7 @@
       <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: (model.searchEnabled) -->
-      <input type="text" data-bind="textInput: model.filterString, 
+      <input type="text" autocomplete="off" data-bind="textInput: model.filterString, 
        css: question.cssClasses.filterStringInput, 
        attr: { size: !model.filterString ? 1 : null, id: question.getInputId() },
        event: { keyup: inputKeyUp, blur: blur }"></input>

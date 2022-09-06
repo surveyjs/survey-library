@@ -15,7 +15,7 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.koCss().controlValue">
-      <input type="text" data-bind="
+      <input type="text" autocomplete="off" data-bind="
       textInput: model.filterString, 
       css: question.cssClasses.filterStringInput, 
       attr: { placeholder: question.readOnlyText, readonly: !model.searchEnabled, id: question.getInputId() },

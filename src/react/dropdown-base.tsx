@@ -80,7 +80,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        aria-describedby={this.question.ariaDescribedBy}
      >
        <div className={this.question.cssClasses.controlValue}>
-         <input type="text"
+         <input type="text" autoComplete="off"
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}
            className={ this.question.cssClasses.filterStringInput }

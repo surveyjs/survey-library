@@ -30,7 +30,6 @@ export class DropdownListModel extends Base {
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && !!this.question.onOpenedCallBack) {
         this.updatePopupFocusFirstInputSelector();
-        this.listModel.focusFirstVisibleItem();
         this.question.onOpenedCallBack();
       }
       if(!option.isVisible) {
@@ -48,6 +47,7 @@ export class DropdownListModel extends Base {
 
   protected onHidePopup(): void {
     this.resetFilterString();
+    this.listModel.reset();
   }
 
   protected getAvailableItems(): Array<Action> {
@@ -75,7 +75,9 @@ export class DropdownListModel extends Base {
     return res;
   }
   protected resetFilterString(): void {
-    this.filterString = undefined;
+    if(!!this.filterString) {
+      this.filterString = undefined;
+    }
   }
 
   @property({ defaultValue: true }) searchEnabled: boolean;

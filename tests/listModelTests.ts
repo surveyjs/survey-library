@@ -109,7 +109,7 @@ QUnit.test("ListModel custom onFilter", assert => {
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = 1");
 
   list.setItems(items);
-  list.refresh(); // if popup is visible
+  list.reset();
   assert.equal(list.filterString, "", "filterString is reset");
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
@@ -196,6 +196,14 @@ QUnit.test("focusPrevVisibleItem item + filtration", function (assert) {
 
   list.focusPrevVisibleItem();
   assert.ok(list.focusedItem === list.actions[list.actions.length - 2]);
+});
+
+QUnit.test("focusNextVisibleItem item if there is selected item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true, items[2]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[2]);
 });
 
 QUnit.test("selectFocusedItem", function (assert) {

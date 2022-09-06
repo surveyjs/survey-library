@@ -43,6 +43,14 @@ export class MultiSelectListModel extends ListModel {
     this.updateItemState();
   }
 
+  public initFocusedItem() {
+    if(this.hideSelectedItems || !this.selectedItems.length) {
+      this.focusFirstVisibleItem();
+    } else if(!!this.selectedItems.length) {
+      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItems[0].id)[0];
+    }
+  }
+
   public selectFocusedItem(): void {
     super.selectFocusedItem();
     if(this.hideSelectedItems) {

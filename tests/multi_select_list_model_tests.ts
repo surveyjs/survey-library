@@ -119,3 +119,11 @@ QUnit.test("selectFocusedItem & hideSelectedItems", function (assert) {
   assert.equal(list.selectedItems.length, 1);
   assert.ok(list.focusedItem === list.actions[10]);
 });
+
+QUnit.test("focusNextVisibleItem item if there is selected items", function (assert) {
+  const items = createIActionArray(12);
+  const list = new MultiSelectListModel(items, () => { }, true, [items[2]]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[2]);
+});

@@ -163,8 +163,9 @@ export class ListModel extends ActionContainer {
     }
   }
   public onPointerDown(event: PointerEvent, item: any) { }
-  public refresh(): void {
+  public reset(): void {
     this.filterString = "";
+    this.focusedItem = undefined;
   }
   public focusFirstVisibleItem(): void {
     this.focusedItem = this.visibleItems[0];
@@ -172,10 +173,16 @@ export class ListModel extends ActionContainer {
   public focusLastVisibleItem(): void {
     this.focusedItem = this.visibleItems[this.visibleItems.length - 1];
   }
-
+  public initFocusedItem() {
+    if(!!this.selectedItem) {
+      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItem.id)[0];
+    } else {
+      this.focusFirstVisibleItem();
+    }
+  }
   public focusNextVisibleItem(): void {
     if(!this.focusedItem) {
-      this.focusFirstVisibleItem();
+      this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);
@@ -189,7 +196,7 @@ export class ListModel extends ActionContainer {
   }
   public focusPrevVisibleItem(): void {
     if(!this.focusedItem) {
-      this.focusFirstVisibleItem();
+      this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);

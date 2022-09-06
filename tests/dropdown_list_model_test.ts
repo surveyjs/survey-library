@@ -210,7 +210,7 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
 
   list.onItemClick(getVisibleActionByIndex(list, 3));
   assert.equal(popup.isVisible, false, "popup.isVisible 3");
-  assert.equal(dropdownListModel.filterString, "item12", "filterString 2");
+  assert.equal(dropdownListModel.filterString, "", "filterString 2");
   assert.equal(question.value, "item12", "question.value");
 
   dropdownListModel.onClear(new Event("click"));

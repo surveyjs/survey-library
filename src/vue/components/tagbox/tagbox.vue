@@ -34,6 +34,7 @@
           :size="!model.filterString ? 1 : null"
           @change="inputChange"
           @keyup="inputKeyUp"
+          @blur="blur"
         />
         <div
           v-if="question.isEmpty() && !model.filterString"

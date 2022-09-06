@@ -88,6 +88,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            onKeyUp={(e) => { onInputKeyUp(e); }}
            onChange={(e) => { onInputChange(e); }}
+           onBlur={this.blur}
          ></input>
        </div>
        {this.createClearButton()}

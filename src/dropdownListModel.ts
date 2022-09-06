@@ -5,8 +5,7 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { PopupUtils } from "./utils/popup";
-import { findParentByClassNames, doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
@@ -47,7 +46,8 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected onHidePopup() {
+  protected onHidePopup(): void {
+    this.resetFilterString();
   }
 
   protected getAvailableItems(): Array<Action> {

@@ -39,10 +39,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
   }
 
-  protected onHidePopup() {
-    this.resetFilterString();
-  }
-
   public selectAllItems(): void {
     this.question.toggleSelectAll();
     this.syncSelectedItemsFromQuestion();

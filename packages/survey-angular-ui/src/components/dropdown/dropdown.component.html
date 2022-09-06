@@ -8,7 +8,7 @@
             <input type="text" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.id]="model.getInputId()"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (keyup)="dropdownModel.inputKeyUpHandler($event)" />
+            (keyup)="dropdownModel.inputKeyUpHandler($event)" (blur)="blur($event)" />
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

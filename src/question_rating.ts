@@ -91,7 +91,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMin");
   }
   public set rateMin(val: number) {
-    this.checkAndSetPropertyValue("rateMin", val);
+    this.setPropertyValue("rateMin", val);
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the last value in the rating. The default value is 5.
@@ -103,7 +103,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMax");
   }
   public set rateMax(val: number) {
-    this.checkAndSetPropertyValue("rateMax", val);
+    this.setPropertyValue("rateMax", val);
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the step value. The number of rate values are (rateMax - rateMin) / rateStep. The default value is 1.
@@ -115,7 +115,7 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateStep");
   }
   public set rateStep(val: number) {
-    this.checkAndSetPropertyValue("rateStep", val);
+    this.setPropertyValue("rateStep", val);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);

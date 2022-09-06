@@ -139,7 +139,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.minValueExpression = val.substring(1);
       return;
     }
-    this.checkAndSetPropertyValue("min", val);
+    this.setPropertyValue("min", val);
   }
   /**
    * The maximum value
@@ -152,7 +152,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maxValueExpression = val.substring(1);
       return;
     }
-    this.checkAndSetPropertyValue("max", val);
+    this.setPropertyValue("max", val);
   }
   /**
    * The minimum value that you can setup as expression, for example today(-1) = yesterday;

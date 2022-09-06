@@ -214,7 +214,7 @@ export class Base {
       return value.trim();
     return value;
   }
-  protected IsPropertyEmpty(value: any): boolean {
+  protected isPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
   }
 
@@ -427,12 +427,12 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueCore(this.propertyHash, name);
-    if (this.IsPropertyEmpty(res)) {
+    if (this.isPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
       const prop = Serializer.findProperty(this.getType(), name);
       if (!!prop && (!prop.isCustom || !this.isCreating)) {
         if (
-          !this.IsPropertyEmpty(prop.defaultValue) &&
+          !this.isPropertyEmpty(prop.defaultValue) &&
           !Array.isArray(prop.defaultValue)
         )
           return prop.defaultValue;
@@ -481,26 +481,17 @@ export class Base {
     keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
-   * set property value and before check if new property value is correct by calling JsonProperty onSettingValue function
-   * If onSettingValue is not set in declaration, then this function works as `setPropertyValue`.
-   * @param name property name
-   * @param val new property value
-   * @see setPropertyValue
-   */
-  public checkAndSetPropertyValue(name: string, val: any): void {
-    const prop = !this.isLoadingFromJson ? this.getPropertyByName(name) : undefined;
-    if(!!prop) {
-      val = prop.settingValue(this, val);
-    }
-    this.setPropertyValue(name, val);
-  }
-  /**
    * set property value
    * @param name property name
    * @param val new property value
-   * @see checkAndSetPropertyValue
    */
   public setPropertyValue(name: string, val: any): void {
+    if(!this.isLoadingFromJson) {
+      const prop = this.getPropertyByName(name);
+      if(!!prop) {
+        val = prop.settingValue(this, val);
+      }
+    }
     var oldValue = this.getPropertyValue(name);
     if (
       oldValue &&

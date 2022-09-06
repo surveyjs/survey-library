@@ -118,7 +118,7 @@ frameworks.forEach(framework => {
     await setSurveyInDesignMode();
     assert.equal(await isDescriptionExists(), true);
   });
-  test.only("render page description on changig locale when description is empty for default locale", async t => {
+  test("render page description on changig locale when description is empty for default locale", async t => {
     var json = {
       pages: [
         {

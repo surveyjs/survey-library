@@ -8,6 +8,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Base, ItemValue, SurveyModel } from "survey-core";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -126,18 +127,16 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     cssClasses: any,
     index: string
   ): JSX.Element {
-    const renderedItem = (
-      <SurveyQuestionCheckboxItem
-        key={key}
-        question={this.question}
-        cssClasses={cssClasses}
-        isDisplayMode={this.isDisplayMode}
-        item={item}
-        textStyle={this.textStyle}
-        isFirst={isFirst}
-        index={index}
-      />
-    );
+    const renderedItem = ReactElementFactory.Instance.createElement("survey-checkbox-item", {
+      key: key,
+      question: this.question,
+      cssClasses: cssClasses,
+      isDisplayMode: this.isDisplayMode,
+      item: item,
+      textStyle: this.textStyle,
+      index: index,
+      isFirst: isFirst,
+    });
     const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
     if(!!survey) {
@@ -260,6 +259,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement("survey-checkbox-item", (props: any) => {
+  return React.createElement(SurveyQuestionCheckboxItem, props);
+});
 
 ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
   return React.createElement(SurveyQuestionCheckbox, props);

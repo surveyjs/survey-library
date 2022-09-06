@@ -114,6 +114,7 @@ export class DropdownListModel extends Base {
   public onClick(event: any): void {
     if (this.question.visibleChoices.length === 0) return;
     this._popupModel.toggleVisibility();
+    this.listModel.focusNextVisibleItem();
 
     if (!!event && !!event.target) {
       const input = event.target.querySelector("input");

@@ -9,7 +9,7 @@
                 <sv-ng-tagbox-item *ngFor="let item of model.selectedItems" [item]="item" [question]="model">
                 </sv-ng-tagbox-item>
             </ng-container>
-            <input *ngIf="model.searchEnabled" type="text" [(ngModel)]="dropdownModel.filterString"
+            <input *ngIf="model.searchEnabled" type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString"
                 [attr.id]="model.getInputId()"
                 [class]="model.cssClasses.filterStringInput" [attr.size]="!dropdownModel.filterString ? 1 : null"
                 (keyup)="dropdownModel.inputKeyUpHandler($event)" 

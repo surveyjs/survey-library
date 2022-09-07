@@ -1,14 +1,17 @@
 <table [class]="question.getTableCss()">
   <thead *ngIf="table.showHeader">
     <tr>
-      <th
-        [class]="cell.className"
+      <ng-container
         *ngFor="let cell of table.headerRow.cells; trackBy: trackCellBy"
-        [style]="{ minWidth: cell.minWidth, width: cell.width }"
       >
-        <sv-ng-string *ngIf="cell.hasTitle" [model]="cell.locTitle"></sv-ng-string>
-        <sv-ng-matrixheaderrequired *ngIf="!!cell.column" [column]="cell.column" [question]="question"></sv-ng-matrixheaderrequired>
-      </th>
+            <th *ngIf="cell.hasTitle" [class]="cell.className" [style]="{ minWidth: cell.minWidth, width: cell.width }">
+              <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
+              <sv-ng-matrixheaderrequired *ngIf="!!cell.column" [column]="cell.column" [question]="question">
+              </sv-ng-matrixheaderrequired>
+            </th>
+            
+            <td *ngIf="!cell.hasTitle" [class]="cell.className" [style]="{ minWidth: cell.minWidth, width: cell.width }"></td>
+      </ng-container>
     </tr>
   </thead>
   <tbody>

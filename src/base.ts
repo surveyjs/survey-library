@@ -313,7 +313,7 @@ export class Base {
     return null;
   }
   /**
-   * Returns `true` if the survey is being designed in Survey Creator at the moment.
+   * Returns `true` if the survey is being designed in Survey Creator.
    */
   public get isDesignMode(): boolean {
     const survey = this.getSurvey();
@@ -342,7 +342,7 @@ export class Base {
     return this.getType();
   }
   /**
-   * Returns `true` if the object configuration is being loaded from JSON at the moment.
+   * Returns `true` if the object configuration is being loaded from JSON.
    */
   public get isLoadingFromJson(): boolean {
     return this.isLoadingFromJsonValue || this.getIsLoadingFromJson();
@@ -432,7 +432,7 @@ export class Base {
   /**
    * Returns the value of a property with a specified name.
    *
-   * If the property is not found or does not have a value, this method returns either `undefined`, a `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
+   * If the property is not found or does not have a value, this method returns either `undefined`, `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
    *
    * @param name A property name.
    * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.

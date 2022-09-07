@@ -24,22 +24,7 @@
           :question="question"
           :key="'item' + index"
         ></sv-tagbox-item>
-        <input
-          type="text"
-          autocomplete="off"
-          v-if="model.searchEnabled"
-          v-bind:class="question.cssClasses.filterStringInput"
-          :id="question.getInputId()"
-          :value="model.filterString"
-          :size="!model.filterString ? 1 : null"
-          @change="inputChange"
-          @keyup="inputKeyUp"
-          @blur="blur"
-        />
-        <div
-          v-if="question.isEmpty() && !model.filterString"
-          :class="question.cssClasses.placeholderInput"
-        >{{ question.placeholder }}</div>
+        <sv-tagbox-filter :model="model" :question="question"></sv-tagbox-filter>
       </div>
       <div
         :class="question.cssClasses.cleanButton"

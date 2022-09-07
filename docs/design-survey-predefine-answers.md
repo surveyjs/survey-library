@@ -1,6 +1,6 @@
 # Populate Form Fields
 
-SurveyJS Form Library allows you to control and populate form fields programmatically. This help topic describes how to set a single or multiple question values in code and how to specify a default value for a survey question.
+SurveyJS Form Library allows you to control and populate form fields programmatically. This help topic describes how to set one or more question values in code and how to specify a default value for a survey question.
 
 - [Single Question Value](#single-question-value)
 - [Multiple Question Values](#multiple-question-values)
@@ -8,7 +8,7 @@ SurveyJS Form Library allows you to control and populate form fields programmati
 
 ## Single Question Value
 
-You can set a question's [`value`](https://surveyjs.io/form-library/documentation/questiontextmodel#value) property directly to populate a single form field. Call the Survey's [`getQuestionByName(questionName)`](https://surveyjs.io/form-library/documentation/surveymodel#getQuestionByName) method to obtain the question's instance and then set the `value` property on this instance:
+You can set a question's [`value`](https://surveyjs.io/form-library/documentation/questiontextmodel#value) property directly to populate a form field. Call the Survey's [`getQuestionByName(questionName)`](https://surveyjs.io/form-library/documentation/surveymodel#getQuestionByName) method to obtain the question's instance and then set the `value` property on this instance:
 
 ```js
 import { Model } from "survey-core";
@@ -42,7 +42,7 @@ survey.setValue("subscribed", false);
 
 ## Multiple Question Values
 
-To populate multiple form fields, use the [`data`](https://surveyjs.io/Documentation/Library?id=surveymodel#data) property of a Survey instance. This property contains survey results data as an object in which keys are question names and values are answers. You can assign a new object to `data` property:
+To populate multiple form fields, use the [`data`](https://surveyjs.io/Documentation/Library?id=surveymodel#data) property of a Survey instance. This property contains survey result data as an object in which keys are question names and values are answers. You can assign a new object to the `data` property:
 
 ```js
 import { Model } from "survey-core";
@@ -64,7 +64,7 @@ survey.data = {
 }
 ```
 
-The code above *replaces* the old `data` object and erases entered data (if there was any). If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method:
+The code above *replaces* the old `data` object and erases entered data if there was any. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method:
 
 ```js
 import { Model } from "survey-core";

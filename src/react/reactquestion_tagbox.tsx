@@ -1,9 +1,9 @@
 import * as React from "react";
-import { QuestionTagboxModel, DropdownListModel } from "survey-core";
+import { QuestionTagboxModel, DropdownListModel, DropdownMultiSelectListModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
-import { DropdownFilter } from "./dropdown-filter";
+import { TagboxFilterString } from "./tagbox-filter";
 
 export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTagboxModel> {
   constructor(props: any) {
@@ -22,13 +22,13 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
   }
 
   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
-    const isEmpty = this.question.selectedItems.length === 0;
+    const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedItems.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={(this.question.isInputReadOnly || dropdownListModel.searchEnabled) ? undefined : 0}
+        tabIndex={(this.question.isInputReadOnly || dropdownMultiSelectListModel.searchEnabled) ? undefined : 0}
         onClick={this.click}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -44,10 +44,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          <DropdownFilter model={dropdownListModel} cssClasses={this.question.cssClasses} id={this.question.getInputId()}></DropdownFilter>
-          {(isEmpty && !dropdownListModel.filterString) ?
-            (<div className={this.question.cssClasses.placeholderInput}>{this.question.placeholder}</div>) :
-            (null) }
+          <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
         </div>
         {this.createClearButton()}
       </div>);

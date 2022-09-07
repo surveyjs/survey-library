@@ -1,23 +1,22 @@
 import * as React from "react";
-import { DropdownListModel } from "survey-core";
+import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyElementBase } from "./reactquestion_element";
 import { Helpers } from "../helpers";
 
-interface IDropdownFilterProps {
-  model: DropdownListModel;
-  cssClasses: any;
-  id: string;
+interface ITagboxFilterProps {
+  model: DropdownMultiSelectListModel;
+  question: QuestionTagboxModel;
 }
 
-export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any> {
+export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, any> {
   inputElement: HTMLInputElement | null;
 
-  get model(): DropdownListModel {
+  get model(): DropdownMultiSelectListModel {
     return this.props.model;
   }
-  get cssClasses(): any {
-    return this.props.cssClasses;
+  get question(): QuestionTagboxModel {
+    return this.props.question;
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -44,6 +43,9 @@ export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any>
   onKeyUp (e: any) {
     this.model.inputKeyUpHandler(e);
   }
+  onBlur (e: any) {
+    this.model.onBlur(e);
+  }
 
   constructor(props: any) {
     super(props);
@@ -52,19 +54,20 @@ export class DropdownFilter extends SurveyElementBase<IDropdownFilterProps, any>
     return this.model;
   }
   render(): JSX.Element {
-    if(!this.model.searchEnabled) return null;
-
     return (<input type="text" autoComplete="off"
-      id={this.props.id}
+      id={this.question.getInputId()}
       ref={(element) => (this.inputElement = element)}
-      className={ this.cssClasses.filterStringInput }
+      className={ this.question.cssClasses.filterStringInput }
+      readOnly={ !this.model.searchEnabled ? true : undefined }
       size={ !this.model.filterString ? 1 : undefined }
+      placeholder={ this.model.filterStringPlaceholder }
       onKeyUp={(e) => { this.onKeyUp(e); }}
       onChange={(e) => { this.onChange(e); }}
+      onBlur={(e) => { this.onBlur(e); }}
     ></input>);
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("sv-dropdown-filter", (props) => {
-  return React.createElement(DropdownFilter, props);
+ReactQuestionFactory.Instance.registerQuestion("sv-tagbox-filter", (props) => {
+  return React.createElement(TagboxFilterString, props);
 });

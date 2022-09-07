@@ -53,7 +53,7 @@ frameworks.forEach((framework) => {
     };
 
     await t.expect(Selector("th").withText("Strongly disagree").exists).ok();
-    await t.expect(Selector("th").count).eql(7);
+    await t.expect(Selector("th").count).eql(6);
 
     await t
       .click(`${baseSelectorFunc`${1}${2}`} input[type=radio]`)
@@ -88,7 +88,7 @@ frameworks.forEach((framework) => {
     await updateColumn();
 
     await t.expect(Selector("th").withText("Other (describe)").exists).ok();
-    await t.expect(Selector("th").count).eql(8);
+    await t.expect(Selector("th").count).eql(7);
 
     await t
       .click(`${baseSelectorFunc`${1}${2}`} input[type=radio]`)

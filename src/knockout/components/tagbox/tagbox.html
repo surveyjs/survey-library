@@ -19,15 +19,10 @@
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
-      <!-- ko if: (model.searchEnabled) -->
       <input type="text" autocomplete="off" data-bind="textInput: model.filterString, 
        css: question.cssClasses.filterStringInput, 
-       attr: { size: !model.filterString ? 1 : null, id: question.getInputId() },
+       attr: { size: !model.filterString ? 1 : null, id: question.getInputId(), placeholder: model.filterStringPlaceholder, readonly: !model.searchEnabled },
        event: { keyup: inputKeyUp, blur: blur }"></input>
-      <!-- /ko -->
-      <!-- ko if: (question.isEmpty() && !model.filterString) -->
-      <div data-bind="text: question.placeholder, css: question.cssClasses.placeholderInput"></div>
-      <!-- /ko -->
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">

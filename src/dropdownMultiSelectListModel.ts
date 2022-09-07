@@ -9,17 +9,21 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
 
+  private syncFilterStringPlacholder(actions?: Array<Action>) {
+    const selectedActions = actions || this.getSelectedActions();
+    if(selectedActions.length) {
+      this.filterStringPlaceholder = undefined;
+    } else {
+      this.filterStringPlaceholder = this.question.placeholder;
+    }
+  }
   private getSelectedActions(visibleItems?: Array<Action>) {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
   private syncSelectedItemsFromQuestion() {
     const selectedActions = this.getSelectedActions();
-    (<MultiSelectListModel>this.listModel).setSelectedItems(selectedActions);
-    if(selectedActions.length) {
-      this.resetFilterStringPlaceholder();
-    } else {
-      this.syncFilterStringPlaceholder();
-    }
+    (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
+    this.syncFilterStringPlacholder(selectedActions);
   }
   private popupTargetModified() {
     setTimeout(() => {
@@ -79,17 +83,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   public removeLastSelectedItem() {
     this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
   }
-  public resetFilterStringPlaceholder(): void {
-    this.filterStringPlaceholder = undefined;
-  }
-  public syncFilterStringPlaceholder(): void {
-    this.filterStringPlaceholder = this.question.placeholder;
-  }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
-    this.syncFilterStringPlaceholder();
+    this.syncFilterStringPlacholder();
   }
 
   public inputKeyUpHandler(event: any): void {

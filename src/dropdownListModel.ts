@@ -47,7 +47,7 @@ export class DropdownListModel extends Base {
 
   protected onHidePopup(): void {
     this.resetFilterString();
-    this.listModel.reset();
+    this.listModel.refresh();
   }
 
   protected getAvailableItems(): Array<Action> {

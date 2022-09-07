@@ -163,7 +163,7 @@ export class ListModel extends ActionContainer {
     }
   }
   public onPointerDown(event: PointerEvent, item: any) { }
-  public reset(): void {
+  public refresh(): void { // used in popup
     this.filterString = "";
     this.focusedItem = undefined;
   }

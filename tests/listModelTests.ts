@@ -109,7 +109,7 @@ QUnit.test("ListModel custom onFilter", assert => {
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = 1");
 
   list.setItems(items);
-  list.reset();
+  list.refresh();
   assert.equal(list.filterString, "", "filterString is reset");
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;

@@ -118,18 +118,16 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     cssClasses: any,
     index: string
   ): JSX.Element {
-    const renderedItem = (
-      <SurveyQuestionRadioItem
-        key={key}
-        question={this.question}
-        cssClasses={cssClasses}
-        isDisplayMode={this.isDisplayMode}
-        item={item}
-        textStyle={this.textStyle}
-        index={index}
-        isChecked={value === item.value}
-      />
-    );
+    const renderedItem = ReactElementFactory.Instance.createElement("survey-radiogroup-item", {
+      key: key,
+      question: this.question,
+      cssClasses: cssClasses,
+      isDisplayMode: this.isDisplayMode,
+      item: item,
+      textStyle: this.textStyle,
+      index: index,
+      isChecked: value === item.value,
+    });
     const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
     if (!!survey) {

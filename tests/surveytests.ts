@@ -15217,3 +15217,29 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
   assert.equal(survey.isShowingPage, true, "show the first page");
   assert.equal(survey.state, "starting", "The state is starting");
 });
+QUnit.test("hasDescription is not updated on changing locale", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      name: "page1",
+      title: "Page title",
+      description: {
+        "de": "desc"
+      },
+      elements: [{
+        type: "text",
+        name: "q1",
+        description: {
+          "de": "desc"
+        },
+      }]
+    }]
+  });
+  const page = survey.pages[0];
+  const question = survey.getQuestionByName("q1");
+  assert.notOk(page.hasDescription, "Page description is not shown for 'en'");
+  assert.notOk(question.hasDescription, "Question description is not shown for 'en'");
+  survey.locale = "de";
+  assert.equal(page.hasDescription, true, "Page description is shown for 'de'");
+  assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
+  survey.locale = "";
+});

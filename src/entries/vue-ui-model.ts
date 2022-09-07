@@ -68,6 +68,7 @@ export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
 export { DropdownOptionItem } from "../vue/components/dropdown/option-item.vue";
+export { DropdownFilterComponent } from "../vue/components/dropdown/dropdown-filter.vue";
 export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
 export { TagboxComponent } from "../vue/components/tagbox/tagbox.vue";
 export { TagboxItem } from "../vue/components/tagbox/tagbox-item.vue";

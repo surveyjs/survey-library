@@ -44,6 +44,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       }
     }
   }) searchEnabled: boolean;
+  /**
+   * The name of a component used to render drop-down menu items.
+   */
+  @property() itemComponent: string;
 
   @property({
     defaultValue: false,

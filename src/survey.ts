@@ -5933,7 +5933,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    if (!this.isMovingQuestion) {
+    if (!this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2) {
       this.onQuestionAdded.fire(this, {
         question: question,
         name: question.name,

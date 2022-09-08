@@ -5,6 +5,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { FlowPanelModel } from "../src/flowpanel";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Drag and Drop Tests");
 
@@ -1003,4 +1004,21 @@ QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
   page.dragDropFinish();
 
   assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging");
+  survey.setDesignMode(true);
+  target = new QuestionTextModel("q3");
+  page.dragDropStart(q3, target);
+  page.dragDropMoveTo(q1, true);
+  page.dragDropFinish();
+
+  assert.notOk(eventIsFired, "onQuestionAdded event is fired while dragging, Creator V1");
+
+  eventIsFired = false;
+  settings.supportCreatorV2 = true;
+  target = new QuestionTextModel("q3");
+  page.dragDropStart(q1, target);
+  page.dragDropMoveTo(q3, true);
+  page.dragDropFinish();
+  settings.supportCreatorV2 = false;
+
+  assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging, Creator V2");
 });

@@ -190,3 +190,18 @@ QUnit.test("remove last selected item", function (assert) {
   dropdownListModel.removeLastSelectedItem();
   assert.equal(question.value.length, 0);
 });
+
+QUnit.test("filterStringPlaceholder", (assert) => {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  question.defaultValue = ["item1"];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.deepEqual(dropdownListModel.filterStringPlaceholder, undefined);
+
+  dropdownListModel.onClear(new Event("click"));
+  assert.deepEqual(dropdownListModel.filterStringPlaceholder, "Select...");
+
+  list.onItemClick(list.actions[3]);
+  assert.deepEqual(dropdownListModel.filterStringPlaceholder, undefined);
+});

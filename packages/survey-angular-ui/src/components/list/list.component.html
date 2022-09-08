@@ -1,12 +1,12 @@
 <ng-template #template>
     <div [class]="model.cssClasses.root">
-        <div *ngIf="model.needFilter" [class]="model.cssClasses.filter">
+        <div *ngIf="model.showFilter" [class]="model.cssClasses.filter">
             <div [class]="model.cssClasses.filterIcon">
                 <svg [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
             </div>
-            <input type="text" [class]="model.cssClasses.filterInput" [(ngModel)]="model.filteredText"
-                [attr.aria-label]="model.filteredTextPlaceholder || ''"
-                [attr.placeholder]="model.filteredTextPlaceholder || ''" 
+            <input type="text" [class]="model.cssClasses.filterInput" [(ngModel)]="model.filterString"
+                [attr.aria-label]="model.filterStringPlaceholder || ''"
+                [attr.placeholder]="model.filterStringPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
         </div>
         <div *ngIf="model.isEmpty" [class]="model.cssClasses.emptyContainer">

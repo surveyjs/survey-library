@@ -1,5 +1,6 @@
 import { Action, IAction } from "../src/actions/action";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
+import { createIActionArray } from "./utilstests";
 
 export default QUnit.module("Multi select list model");
 
@@ -90,4 +91,39 @@ QUnit.test("MultiSelectListModel isSelectedItem", function (assert) {
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[1]), true);
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[2]), true);
   assert.equal(multiSelectList.isItemSelected(multiSelectList.renderedActions[3]), false);
+});
+
+QUnit.test("selectFocusedItem", function (assert) {
+  const items = createIActionArray(12);
+  const list = new MultiSelectListModel(items, () => { }, true);
+  list.filterString = "1";
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+  assert.equal(list.selectedItems.length, 0);
+
+  list.selectFocusedItem();
+  assert.equal(list.selectedItems.length, 1);
+  assert.ok(list.focusedItem === list.actions[1]);
+});
+
+QUnit.test("selectFocusedItem & hideSelectedItems", function (assert) {
+  const items = createIActionArray(12);
+  const list = new MultiSelectListModel(items, () => { }, true);
+  list.hideSelectedItems = true;
+  list.filterString = "1";
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+  assert.equal(list.selectedItems.length, 0);
+
+  list.selectFocusedItem();
+  assert.equal(list.selectedItems.length, 1);
+  assert.ok(list.focusedItem === list.actions[10]);
+});
+
+QUnit.test("focusNextVisibleItem item if there is selected items", function (assert) {
+  const items = createIActionArray(12);
+  const list = new MultiSelectListModel(items, () => { }, true, [items[2]]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[2]);
 });

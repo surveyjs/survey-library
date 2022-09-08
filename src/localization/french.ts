@@ -76,7 +76,7 @@ export var frenchSurveyStrings = {
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
   emptyRowsText: "Il n'y a pas de lignes.",
-  filteredTextPlaceholder: "Tapez pour rechercher...",
+  filterStringPlaceholder: "Tapez pour rechercher...",
   indexText: "{0} sur {1}",
   minError: "La valeur ne doit pas être inférieure à {0}",
   maxError: "La valeur ne doit pas être supérieure à {0}",

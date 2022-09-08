@@ -22,9 +22,17 @@
 }
 .sd-input--disabled {
   background-color: $background-for-editors;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .sd-input::placeholder {
   color: $foreground-light;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .sd-input--disabled,
 .sd-input--disabled::placeholder {

@@ -1,16 +1,29 @@
 import { Action, IAction } from "./actions/action";
 import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
+import { property } from "./jsonobject";
 import { MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
+  @property({ defaultValue: "" }) filterStringPlaceholder: string;
+
+  private syncFilterStringPlacholder(actions?: Array<Action>) {
+    const selectedActions = actions || this.getSelectedActions();
+    if(selectedActions.length) {
+      this.filterStringPlaceholder = undefined;
+    } else {
+      this.filterStringPlaceholder = this.question.placeholder;
+    }
+  }
   private getSelectedActions(visibleItems?: Array<Action>) {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
   private syncSelectedItemsFromQuestion() {
+    const selectedActions = this.getSelectedActions();
     (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
+    this.syncFilterStringPlacholder(selectedActions);
   }
   private popupTargetModified() {
     setTimeout(() => {
@@ -23,6 +36,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     let _onSelectionChanged = this.onSelectionChanged;
     if(!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction, status: string) => {
+        this.resetFilterString();
         if(item.id === "selectall") {
           this.selectAllItems();
         } else if(status === "added" && item.id == "none") {
@@ -66,9 +80,23 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     (<MultiSelectListModel>this.listModel).hideSelectedItems = newValue;
     this.syncSelectedItemsFromQuestion();
   }
+  public removeLastSelectedItem() {
+    this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
+  }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
+    this.syncFilterStringPlacholder();
+  }
+
+  public inputKeyUpHandler(event: any): void {
+    if(event.keyCode === 8) {
+      this.removeLastSelectedItem();
+      event.preventDefault();
+      event.stopPropagation();
+    } else {
+      super.inputKeyUpHandler(event);
+    }
   }
 }

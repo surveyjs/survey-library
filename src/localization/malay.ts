@@ -81,7 +81,7 @@ export var malaySurveyStrings = {
   questionTitlePatternText: "Tajuk Soalan",
   modalCancelButtonText: "Batal",
   modalApplyButtonText: "Guna",
-  filteredTextPlaceholder: "Taip untuk membuat carian...",
+  filterStringPlaceholder: "Taip untuk membuat carian...",
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri."
 };
 

@@ -10,6 +10,7 @@ export let defaultListCss = {
   itemSelected: "sv-list__item--selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
+  itemFocused: "sv-list__item--focused",
   itemIcon: "sv-list__item-icon",
   itemsContainer: "sv-list",
   filter: "sv-list__filter",
@@ -23,7 +24,7 @@ export interface IListModel {
   onSelectionChanged: (item: Action, ...params: any[]) => void;
   allowSelection?: boolean;
   selectedItem?: IAction;
-  onFilteredTextChangedCallback?: (text: string) => void;
+  onFilterStringChangedCallback?: (text: string) => void;
 }
 export class ListModel extends ActionContainer {
   @property({
@@ -32,7 +33,7 @@ export class ListModel extends ActionContainer {
       target.onSet();
     }
   }) searchEnabled: boolean;
-  @property({ defaultValue: false }) needFilter: boolean;
+  @property({ defaultValue: false }) showFilter: boolean;
   @property({ defaultValue: false }) isEmpty: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({
@@ -40,33 +41,35 @@ export class ListModel extends ActionContainer {
       target.updateItemActiveState();
     }
   }) selectedItem: IAction;
+  @property() focusedItem: Action;
   @property({
     onSet: (_, target: ListModel) => {
-      target.onFilteredTextChanged(target.filteredText);
+      target.onFilterStringChanged(target.filterString);
     }
-  }) filteredText: string;
+  }) filterString: string;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
 
-  private hasText(item: Action, filteredTextInLow: string): boolean {
-    if (!filteredTextInLow) return true;
+  private hasText(item: Action, filterStringInLow: string): boolean {
+    if (!filterStringInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
-    return textInLow.indexOf(filteredTextInLow.toLocaleLowerCase()) > -1;
+    return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
-  public isItemVisible(item: Action) {
-    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filteredText));
+  public isItemVisible(item: Action): boolean {
+    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
+  }
+  public get visibleItems(): Array<Action> {
+    return this.visibleActions.filter(item => this.isItemVisible(item));
   }
   private get shouldProcessFilter(): boolean {
-    return this.needFilter && !this.onFilteredTextChangedCallback;
+    return !this.onFilterStringChangedCallback;
   }
-  private onFilteredTextChanged(text: string) {
-    if (!this.needFilter) return;
-
+  private onFilterStringChanged(text: string) {
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
 
-    if (!!this.onFilteredTextChangedCallback) {
-      this.onFilteredTextChangedCallback(text);
+    if (!!this.onFilterStringChangedCallback) {
+      this.onFilterStringChangedCallback(text);
     }
   }
 
@@ -75,7 +78,7 @@ export class ListModel extends ActionContainer {
     public onSelectionChanged: (item: Action, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilteredTextChangedCallback?: (text: string) => void
+    private onFilterStringChangedCallback?: (text: string) => void
   ) {
     super();
     this.setItems(items);
@@ -83,7 +86,7 @@ export class ListModel extends ActionContainer {
   }
 
   protected onSet(): void {
-    this.needFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
   }
   protected getDefaultCssClasses() {
@@ -116,11 +119,16 @@ export class ListModel extends ActionContainer {
     return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
+  public isItemFocused: (itemValue: Action) => boolean = (itemValue: Action) => {
+    return !!this.focusedItem && this.focusedItem.id == itemValue.id;
+  };
+
   public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
+      .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
       .toString();
   };
@@ -130,8 +138,8 @@ export class ListModel extends ActionContainer {
     return (level + 1) * ListModel.INDENT + "px";
   };
 
-  public get filteredTextPlaceholder(): string {
-    return this.getLocalizationString("filteredTextPlaceholder");
+  public get filterStringPlaceholder(): string {
+    return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
     return this.getLocalizationString("emptyMessage");
@@ -155,7 +163,52 @@ export class ListModel extends ActionContainer {
     }
   }
   public onPointerDown(event: PointerEvent, item: any) { }
-  public refresh() {
-    this.filteredText = "";
+  public refresh(): void { // used in popup
+    this.filterString = "";
+    this.focusedItem = undefined;
+  }
+  public focusFirstVisibleItem(): void {
+    this.focusedItem = this.visibleItems[0];
+  }
+  public focusLastVisibleItem(): void {
+    this.focusedItem = this.visibleItems[this.visibleItems.length - 1];
+  }
+  public initFocusedItem() {
+    if(!!this.selectedItem) {
+      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItem.id)[0];
+    } else {
+      this.focusFirstVisibleItem();
+    }
+  }
+  public focusNextVisibleItem(): void {
+    if(!this.focusedItem) {
+      this.initFocusedItem();
+    } else {
+      const items = this.visibleItems;
+      const currentFocusedItemIndex = items.indexOf(this.focusedItem);
+      const nextItem = items[currentFocusedItemIndex + 1];
+      if(nextItem) {
+        this.focusedItem = nextItem;
+      } else {
+        this.focusFirstVisibleItem();
+      }
+    }
+  }
+  public focusPrevVisibleItem(): void {
+    if(!this.focusedItem) {
+      this.initFocusedItem();
+    } else {
+      const items = this.visibleItems;
+      const currentFocusedItemIndex = items.indexOf(this.focusedItem);
+      const prevItem = items[currentFocusedItemIndex - 1];
+      if(prevItem) {
+        this.focusedItem = prevItem;
+      } else {
+        this.focusLastVisibleItem();
+      }
+    }
+  }
+  public selectFocusedItem(): void {
+    this.onItemClick(this.focusedItem);
   }
 }

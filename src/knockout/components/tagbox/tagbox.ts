@@ -1,5 +1,6 @@
 import * as ko from "knockout";
-import { DropdownMultiSelectListModel, ItemValue } from "survey-core";
+import { ImplementorBase } from "src/knockout/kobase";
+import { DropdownMultiSelectListModel } from "survey-core";
 
 const template = require("./tagbox.html");
 
@@ -21,10 +22,14 @@ ko.components.register("sv-tagbox", {
       const blur = (_: any, e: any) => {
         q.dropdownListModel?.onBlur(e);
       };
+      const inputKeyUp = (_: any, e: any) => {
+        q.dropdownListModel?.inputKeyUpHandler(e);
+      };
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownMultiSelectListModel(q);
       }
-      return { question: q, popupModel: q?.dropdownListModel?.popupModel, click: click, clear: clear, keyup: keyup, blur: blur };
+      new ImplementorBase(q.dropdownListModel);
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur, inputKeyUp: inputKeyUp };
     },
   },
   template: template,

@@ -81,7 +81,7 @@ export var germanSurveyStrings = {
   questionTitlePatternText: "Fragentitel",
   ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
   emptyRowsText: "Es gibt keine Reihen.",
-  filteredTextPlaceholder: "Tippe um zu suchen...",
+  filterStringPlaceholder: "Tippe um zu suchen...",
   indexText: "{0} von {1}",
   minError: "Der Wert sollte nicht kleiner als {0} sein",
   maxError: "Der Wert sollte nicht größer als {0} sein",

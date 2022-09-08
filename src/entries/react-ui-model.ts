@@ -29,6 +29,7 @@ export {
   SurveyQuestionRanking,
   SurveyQuestionRankingItem,
 } from "../react/reactquestion_ranking";
+export { TagboxFilterString } from "../react/tagbox-filter";
 export { SurveyQuestionOptionItem } from "../react/dropdown-item";
 export { SurveyQuestionDropdownBase } from "../react/dropdown-base";
 export { SurveyQuestionDropdown } from "../react/reactquestion_dropdown";

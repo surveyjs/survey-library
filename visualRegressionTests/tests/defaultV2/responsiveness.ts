@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, checkElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, checkElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -51,7 +51,7 @@ frameworks.forEach(framework => {
       ]
     },);
     const rowSelector = Selector(".sd-row");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("responsiveness-multiple-row.png", rowSelector, t);
   });
   const panelDynamicJSON = {
@@ -234,7 +234,7 @@ frameworks.forEach(framework => {
     await t.typeText(inputSelector.nth(0), "Jon Snow")
       .typeText(inputSelector.nth(2), "jon@snow.com")
       .typeText(inputSelector.nth(4), "1234-56789");
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("responsiveness-multipletext.png", Selector(".sd-question"), t);
   });
   test("Check multicolumn checkbox question on small screen", async (t) => {
@@ -251,7 +251,7 @@ frameworks.forEach(framework => {
         },
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t);
   });
 

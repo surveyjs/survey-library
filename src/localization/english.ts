@@ -89,7 +89,7 @@ export var englishStrings = {
   questionTitlePatternText: "Question Title",
   modalCancelButtonText: "Cancel",
   modalApplyButtonText: "Apply",
-  filteredTextPlaceholder: "Type to search...",
+  filterStringPlaceholder: "Type to search...",
   emptyMessage: "No data to display",
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   more: "More"

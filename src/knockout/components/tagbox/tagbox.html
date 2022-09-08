@@ -6,7 +6,7 @@
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
-      tabindex: question.isInputReadOnly ? undefined : 0,
+      tabindex: (question.isInputReadOnly || model.searchEnabled) ? undefined : 0,
       disabled: question.isInputReadOnly,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
@@ -14,17 +14,16 @@
       'aria-invalid': question.ariaInvalid, 
       'aria-describedby': question.ariaDescribedBy 
     },">
-    <!-- ko if: question.isEmpty() -->
-    <div data-bind="text: question.placeholder, css: question.koCss().controlValue"></div>
-    <!-- /ko -->
-    <!-- ko if: !question.isEmpty() -->
-    <ul data-bind="css: question.cssClasses.controlValue">
+    <div data-bind="css: question.cssClasses.controlValue">
       <!-- ko foreach: question.renderedValue -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
-    </ul>
-    <!-- /ko -->
+      <input type="text" autocomplete="off" data-bind="textInput: model.filterString, 
+       css: question.cssClasses.filterStringInput, 
+       attr: { size: !model.filterString ? 1 : null, id: question.getInputId(), placeholder: model.filterStringPlaceholder, readonly: !model.searchEnabled },
+       event: { keyup: inputKeyUp, blur: blur }"></input>
+    </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.cleanButtonCaption } } -->
@@ -32,7 +31,7 @@
     </div>
     <!-- /ko -->
   </div>
-  <!-- ko component: { name: "sv-popup", params: { model: popupModel }} -->
+  <!-- ko component: { name: "sv-popup", params: { model: model.popupModel }} -->
   <!-- /ko -->
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->

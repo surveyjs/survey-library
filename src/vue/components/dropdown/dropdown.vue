@@ -1,11 +1,10 @@
 <template>
   <div :class="question.cssClasses.selectWrapper">
     <div
-      tabindex="0"
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
+      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
       @click="click"
       @keyup="keyUp"
       @blur="blur"
@@ -17,7 +16,20 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div :class="question.cssClasses.controlValue">{{ question.readOnlyText }}</div>
+      <div :class="question.cssClasses.controlValue">
+        <input
+          type="text"
+          ref="inputElement"
+          v-bind:class="question.cssClasses.filterStringInput"
+          autocomplete="off"
+          :id="question.getInputId()"
+          :readonly="!model.searchEnabled ? true : null"
+          :placeholder="question.readOnlyText"
+          @change="inputChange"
+          @keyup="inputKeyUp"
+          @blur="blur"
+        />
+      </div>
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
@@ -44,28 +56,62 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Question, DropdownListModel } from "survey-core";
+import { Question, DropdownListModel, Helpers } from "survey-core";
 import BaseVue from "src/vue/base";
 
 @Component
 export class DropdownComponent extends BaseVue {
   @Prop() question: Question;
+  inputElement: any;
+
+  get model() {
+    return this.question.dropdownListModel;
+  }
+  getModel() {
+    return this.model;
+  }
+
+  inputChange(event: any) {
+    this.model.filterString = event.target.value;
+  }
+  inputKeyUp(event: any) {
+    this.model.filterString = event.target.value;
+    this.model.inputKeyUpHandler(event);
+  }
 
   public click(event: any) {
-    this.question.dropdownListModel?.onClick(event);
+    this.model?.onClick(event);
   }
   public clear(event: any) {
-    this.question.dropdownListModel?.onClear(event);
+    this.model?.onClear(event);
   }
   public keyUp(event: any) {
-    this.question.dropdownListModel?.onKeyUp(event);
+    this.model?.onKeyUp(event);
   }
   public blur(event: any) {
-    this.question.dropdownListModel?.onBlur(event);
+    this.model?.onBlur(event);
   }
+
   protected onCreated() {
     if (!this.question.dropdownListModel) {
       this.question.dropdownListModel = new DropdownListModel(this.question);
+    }
+  }
+
+  protected onMounted() {
+    this.inputElement = this.$refs["inputElement"];
+    this.updateInputDomElement();
+  }
+  protected onUpdated() {
+    this.updateInputDomElement();
+  }
+  updateInputDomElement() {
+    if (!!this.inputElement) {
+      const control: any = this.inputElement;
+      const newValue = this.model.filterString;
+      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+        control.value = this.model.filterString;
+      }
     }
   }
 }

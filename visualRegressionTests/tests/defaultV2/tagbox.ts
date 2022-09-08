@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { getListItemByText } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";
 
@@ -65,6 +65,7 @@ frameworks.forEach(framework => {
 
       const questionTagbox = Selector(".sd-input.sd-tagbox");
       const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await resetFocusToBody();
       await takeElementScreenshot("tagbox-question.png", questionTagbox, t, comparer);
 
       await t
@@ -108,6 +109,7 @@ frameworks.forEach(framework => {
       });
 
       const questionTagbox = Selector(".sd-input.sd-tagbox");
+      await resetFocusToBody();
       await takeElementScreenshot("tagbox-question-without-clear-button.png", questionTagbox, t, comparer);
     });
   });

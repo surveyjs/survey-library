@@ -86,7 +86,6 @@ QUnit.test("Test dropdown renderAs select", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       choices: [
@@ -127,14 +126,14 @@ QUnit.test("Test dropdown renderAs select", assert => {
   assert.ok(question.popupModel.contentComponentData.model instanceof ListModel);
 
   const listModel = question.popupModel.contentComponentData.model as ListModel;
-  assert.equal(listModel.needFilter, true);
+  assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, true);
 });
 
 QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const json = {
     questions: [{
       type: "dropdown",
-      // renderAs: "select",
       name: "question1",
       hasOther: "true",
       searchEnabled: false,
@@ -172,10 +171,12 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const listModel = question.popupModel.contentComponentData.model as ListModel;
-  assert.equal(listModel.needFilter, false);
+  assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, false);
 
   question.searchEnabled = true;
-  assert.equal(listModel.needFilter, true);
+  assert.equal(listModel.showFilter, false);
+  assert.equal(question.dropdownListModel.searchEnabled, true);
 });
 
 QUnit.test("add placeholder & allowClear", assert => {
@@ -337,9 +338,9 @@ QUnit.test("ListModel localization", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const listModel = question.popupModel.contentComponentData.model as ListModel;
-  assert.equal(listModel.filteredTextPlaceholder, "Type to search...", "filtered text in en");
+  assert.equal(listModel.filterStringPlaceholder, "Type to search...", "filtered text in en");
   survey.locale = "de";
-  assert.equal(listModel.filteredTextPlaceholder, "Tippe um zu suchen...", "filtered text in de");
+  assert.equal(listModel.filterStringPlaceholder, "Tippe um zu suchen...", "filtered text in de");
   survey.locale = "";
 });
 QUnit.test("readOnlyText", assert => {

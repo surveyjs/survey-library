@@ -1,10 +1,9 @@
 import * as React from "react";
-import { QuestionTagboxModel } from "survey-core";
+import { QuestionTagboxModel, DropdownListModel, DropdownMultiSelectListModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
-import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { SurveyModel } from "../survey";
+import { TagboxFilterString } from "./tagbox-filter";
 
 export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTagboxModel> {
   constructor(props: any) {
@@ -19,29 +18,22 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         item={item}
       />
     );
-    const survey = this.question.survey as SurveyModel;
-    let wrappedItem: JSX.Element | null = null;
-    if(!!survey) {
-      wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
-    }
-    return wrappedItem ?? renderedItem;
+    return renderedItem;
   }
 
-  protected renderInput(): JSX.Element {
-    const isEmpty = this.question.selectedItems.length === 0;
+  protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
+    const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedItems.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={this.question.isInputReadOnly ? undefined : 0}
+        tabIndex={(this.question.isInputReadOnly || dropdownMultiSelectListModel.searchEnabled) ? undefined : 0}
         onClick={this.click}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         disabled={this.question.isInputReadOnly}
         required={this.question.isRequired}
-        onChange={this.updateValueOnEvent}
-        onInput={this.updateValueOnEvent}
         onKeyUp={this.keyup}
         onBlur={this.blur}
         role={this.question.ariaRole}
@@ -50,12 +42,10 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
       >
-        { isEmpty ?
-          (<div className={this.question.cssClasses.controlValue}>{this.question.placeholder}</div>) :
-          (<ul className={this.question.cssClasses.controlValue}>
-            {items}
-          </ul>)
-        }
+        <div className={this.question.cssClasses.controlValue}>
+          {items}
+          <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
+        </div>
         {this.createClearButton()}
       </div>);
   }

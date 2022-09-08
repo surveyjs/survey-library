@@ -1,9 +1,9 @@
 <template>
   <div :class="question.cssClasses.selectWrapper">
     <div
-      tabindex="0"
       v-if="!question.isReadOnly"
       :id="question.inputId"
+      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @click="click"
@@ -17,15 +17,15 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div v-if="question.isEmpty()" :class="question.cssClasses.controlValue">{{ question.placeholder }}</div>
-      <ul v-if="!question.isEmpty()" :class="question.cssClasses.controlValue">
+      <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
           v-for="(item, index) in question.selectedItems"
           :item="item"
           :question="question"
           :key="'item' + index"
         ></sv-tagbox-item>
-      </ul>
+        <sv-tagbox-filter :model="model" :question="question"></sv-tagbox-filter>
+      </div>
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
@@ -41,10 +41,7 @@
         </sv-svg-icon>
       </div>
     </div>
-    <sv-popup
-      v-if="!question.isReadOnly"
-      :model="question.dropdownListModel.popupModel"
-    ></sv-popup>
+    <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
   </div>
 </template>
@@ -58,6 +55,20 @@ import BaseVue from "src/vue/base";
 @Component
 export class TagboxComponent extends BaseVue {
   @Prop() question: Question;
+
+  get model() {
+    return this.question.dropdownListModel;
+  }
+  getModel() {
+    return this.model;
+  }
+  inputChange(event: any) {
+    this.model.filterString = event.target.value;
+  }
+  inputKeyUp(event: any) {
+    this.model.filterString = event.target.value;
+    this.model.inputKeyUpHandler(event);
+  }
 
   public click(event: any) {
     this.question.dropdownListModel?.onClick(event);

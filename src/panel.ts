@@ -1234,11 +1234,6 @@ export class PanelModelBase extends SurveyElement
   protected isContinueNumbering() {
     return true;
   }
-  /**
-   * Returns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
-   * @see SurveyModel.model
-   * @see readOnly
-   */
   public get isReadOnly(): boolean {
     var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;

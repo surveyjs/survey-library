@@ -21,7 +21,7 @@ import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 /**
- * Base class of SurveyJS Elements and Survey.
+ * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
 export abstract class SurveyElementCore extends Base implements ILocalizableOwner {
   constructor() {
@@ -32,9 +32,11 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     return this.createLocalizableString("title", this, true);
   }
   /**
-   * Question, Panel, Page and Survey title. If page and panel is empty then they are not rendered.
-   * Question renders question name if the title is empty. Use survey questionTitleTemplate property to change the title question rendering.
-   * @see SurveyModel.questionTitleTemplate
+   * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
+   *
+   * Empty pages and panels do not display their titles or names.
+   *
+   * @see [Configure Question Titles](https://surveyjs.io/form-library/documentation/design-survey-question-titles)
   */
   public get title(): string {
     return this.getLocalizableStringText("title", this.getDefaultTitleValue());
@@ -47,11 +49,14 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   protected getDefaultTitleValue(): string { return undefined; }
   /**
-   * Question, Panel and Page description. It renders under element title by using smaller font. Unlike the question title, description can be empty.
-   * Please note, this property is hidden for questions without input, for example html question.
-   * @see title
+   * Returns `true` if the survey element has a description.
+   * @see description
   */
   @property() hasDescription: boolean;
+  /**
+   * Explanatory text displayed under the title.
+   * @see hasDescription
+   */
   @property({ localizable: true, onSet: (newDescription, self) => {
     self.updateDescriptionVisibility(self, newDescription);
   }
@@ -106,7 +111,7 @@ export enum DragTypeOverMeEnum {
 }
 
 /**
- * Base class of SurveyJS Elements.
+ * A base class for all survey elements.
  */
 export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   stateChangedCallback: () => void;
@@ -222,7 +227,18 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.getSkeletonComponentNameCore();
   }
   /**
-   * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
+   * Gets and sets the survey element's expand state.
+   *
+   * Possible values:
+   *
+   * - `"collapsed"` - The survey element displays only `title` and `description`.
+   * - `"expanded"` - The survey element is displayed in full.
+   *
+   * @see toggleState
+   * @see collapse
+   * @see expand
+   * @see isCollapsed
+   * @see isExpanded
    */
   public get state(): string {
     return this.getPropertyValue("state");
@@ -237,9 +253,11 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
   }
   /**
-   * Returns true if the Element is in the collapsed state
+   * Returns `true` if the survey element is collapsed.
    * @see state
+   * @see toggleState
    * @see collapse
+   * @see expand
    * @see isExpanded
    */
   public get isCollapsed() {
@@ -247,8 +265,10 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.state === "collapsed";
   }
   /**
-   * Returns true if the Element is in the expanded state
+   * Returns `true` if the survey element is expanded.
    * @see state
+   * @see toggleState
+   * @see collapse
    * @see expand
    * @see isCollapsed
    */
@@ -256,23 +276,39 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.state === "expanded";
   }
   /**
-   * Collapse the Element
+   * Collapses the survey element.
+   *
+   * In collapsed state, the element displays only `title` and `description`.
+   * @see title
+   * @see description
    * @see state
+   * @see toggleState
+   * @see expand
+   * @see isCollapsed
+   * @see isExpanded
    */
   public collapse() {
     if (this.isDesignMode) return;
     this.state = "collapsed";
   }
   /**
-   * Expand the Element
+   * Expands the survey element.
    * @see state
+   * @see toggleState
+   * @see collapse
+   * @see isCollapsed
+   * @see isExpanded
    */
   public expand() {
     this.state = "expanded";
   }
   /**
-   * Toggle element's state
+   * Toggles the survey element's `state` between collapsed and expanded.
    * @see state
+   * @see collapse
+   * @see expand
+   * @see isCollapsed
+   * @see isExpanded
    */
   public toggleState(): boolean {
     if (this.isCollapsed) {
@@ -414,14 +450,18 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public get isVisible(): boolean {
     return true;
   }
+  /**
+   * Returns `true` if the survey element or its parent element is read-only.
+   * @see readOnly
+   * @see [Conditional Logic and Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic)
+   */
   public get isReadOnly(): boolean {
     return false;
   }
   /**
-   * Set it to true to make an element question/panel/page readonly.
-   * Please note, this property is hidden for question without input, for example html question.
-   * @see enableIf
+   * Makes the survey element read-only.
    * @see isReadOnly
+   * @see [Conditional Logic and Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic)
    */
   public get readOnly(): boolean {
     return this.getPropertyValue("readOnly", false);
@@ -449,11 +489,13 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
   }
   /**
-   * Returns all css classes that used for rendering the question, panel or page.
-   * You can use survey.onUpdateQuestionCssClasses event to override css classes for a question, survey.onUpdatePanelCssClasses event for a panel and survey.onUpdatePageCssClasses for a page.
-   * @see SurveyModel.updateQuestionCssClasses
-   * @see SurveyModel.updatePanelCssClasses
-   * @see SurveyModel.updatePageCssClasses
+   * Returns an object in which keys are UI elements and values are CSS classes applied to them.
+   *
+   * Use the following events of the [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) object to override CSS classes:
+   *
+   * - [`onUpdatePageCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePageCssClasses)
+   * - [`onUpdatePanelCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePanelCssClasses)
+   * - [`onUpdateQuestionCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdateQuestionCssClasses)
    */
   public get cssClasses(): any {
     if (!this.survey) return this.calcCssClasses(this.css);
@@ -474,8 +516,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return this.survey ? this.survey.isLoadingFromJson : false;
   }
   /**
-   * This is the identifier of a survey element - question or panel.
-   * @see valueName
+   * A survey element identifier.
    */
   public get name(): string {
     return this.getPropertyValue("name", "");
@@ -500,8 +541,8 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
   }
   /**
-   * The list of errors. It is created by callig hasErrors functions
-   * @see hasErrors
+   * Validation errors. Call the `hasErrors()` method to validate survey element data.
+   * @see containsErrors
    */
   public get errors(): Array<SurveyError> {
     return this.getPropertyValue("errors");
@@ -518,8 +559,10 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.hasVisibleErrors = counter > 0;
   }
   /**
-   * Returns true if a question or a container (panel/page) or their chidren have an error.
-   * The value can be out of date. hasErrors function should be called to get the correct value.
+   * Returns `true` if the survey element or its child elements have a validation error.
+   *
+   * This property contains the result of the most recent validation. This result may be outdated. Call the `hasErrors` method to get an up-to-date value.
+   * @see errors
    */
   public get containsErrors(): boolean {
     return this.getPropertyValue("containsErrors", false);
@@ -555,19 +598,22 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return 0;
   }
   /**
-   * Returns true if it is a page.
+   * Returns `true` if the survey element is a page.
+   * @see Base.getType
    */
   public get isPage() {
     return false;
   }
   /**
-   * Returns true if it is a panel.
+   * Returns `true` if the survey element is a panel.
+   * @see Base.getType
    */
   public get isPanel() {
     return false;
   }
   /**
-   * Returns true if it is a question.
+   * Returns `true` if the survey element is a question.
+   * @see Base.getType
    */
   public get isQuestion() {
     return false;
@@ -576,8 +622,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   //ILocalizableOwner
   locOwner: ILocalizableOwner;
   /**
-   * Returns the current survey locale
-   * @see SurveyModel.locale
+   * Returns the survey's [locale](https://surveyjs.io/form-library/documentation/surveymodel#locale).
+   *
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization)
    */
   public getLocale(): string {
     return this.survey
@@ -702,7 +749,11 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
 
   /**
-   * A survey element width in CSS values.
+   * Sets survey element width in CSS values.
+   *
+   * Default value: ""
+   * @see minWidth
+   * @see maxWidth
   */
   public get width(): string {
     return this.getPropertyValue("width", "");
@@ -711,7 +762,12 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.setPropertyValue("width", val);
   }
   /**
-   * Use it to set the specific minWidth constraint to the survey element like css style (%, px, em etc).
+   * Gets or sets minimum survey element width in CSS values.
+   *
+   * Default value: "300px" (taken from [`settings.minWidth`](https://surveyjs.io/form-library/documentation/settings#minWidth))
+   * @see maxWidth
+   * @see renderWidth
+   * @see width
    */
   public get minWidth(): string {
     return this.getPropertyValue("minWidth");
@@ -720,7 +776,12 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.setPropertyValue("minWidth", val);
   }
   /**
-   * Use it to set the specific maxWidth constraint to the survey element like css style (%, px, em etc).
+   * Gets or sets maximum survey element width in CSS values.
+   *
+   * Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form-library/documentation/settings#maxWidth))
+   * @see minWidth
+   * @see renderWidth
+   * @see width
    */
   public get maxWidth(): string {
     return this.getPropertyValue("maxWidth");
@@ -730,8 +791,11 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
 
   /**
-   * The rendered width of the question.
-  */
+   * Returns a calculated width of the rendered survey element in CSS values.
+   * @see width
+   * @see minWidth
+   * @see maxWidth
+   */
   public get renderWidth(): string {
     return this.getPropertyValue("renderWidth", "");
   }
@@ -740,8 +804,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
 
   /**
-   * The left indent. Set this property to increase the survey element left indent.
-  */
+   * Increases or decreases indent of the survey element content from the left edge. Accepts positive integer values and 0.
+   * @see rightIndent
+   */
   public get indent(): number {
     return this.getPropertyValue("indent");
   }
@@ -749,8 +814,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.setPropertyValue("indent", val);
   }
   /**
-   * The right indent. Set it different from 0 to increase the right padding.
-  */
+   * Increases or decreases indent of the survey element content from the right edge. Accepts positive integer values and 0.
+   * @see indent
+   */
   public get rightIndent(): number {
     return this.getPropertyValue("rightIndent", 0);
   }

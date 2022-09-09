@@ -21,6 +21,7 @@
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"
+          v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
           :id="question.getInputId()"
           :readonly="!model.searchEnabled ? true : null"

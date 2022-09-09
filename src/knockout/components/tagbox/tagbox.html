@@ -21,7 +21,13 @@
       <!-- /ko -->
       <input type="text" autocomplete="off" data-bind="textInput: model.filterString, 
        css: question.cssClasses.filterStringInput, 
-       attr: { size: !model.filterString ? 1 : null, id: question.getInputId(), placeholder: model.filterStringPlaceholder, readonly: !model.searchEnabled },
+       attr: { 
+        size: !model.filterString ? 1 : null, 
+        id: question.getInputId(), 
+        placeholder: model.filterStringPlaceholder, 
+        disabled: question.isInputReadOnly,
+        readonly: !model.searchEnabled 
+      },
        event: { keyup: inputKeyUp, blur: blur }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->

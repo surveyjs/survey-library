@@ -67,7 +67,7 @@ registerMarkupTests(
       snapshot: "dropdown-other"
     },
     {
-      name: "Test Dropdown question markup Read only",
+      name: "Test Dropdown question renderAs select markup Read only",
       json: {
         mode: "display",
         questions: [
@@ -85,10 +85,10 @@ registerMarkupTests(
           }
         ]
       },
-      snapshot: "dropdown-readonly"
+      snapshot: "dropdown-renderAs-select-readonly"
     },
     {
-      name: "Test Dropdown question Readonly selected",
+      name: "Test Dropdown question renderAs select Readonly selected",
       json: {
         mode: "display",
         questions: [
@@ -107,7 +107,27 @@ registerMarkupTests(
           }
         ]
       },
-      snapshot: "dropdown-readonly-selected"
+      snapshot: "dropdown-renderAs-select-readonly-selected"
+    },
+    {
+      name: "Test Dropdown question markup Read only",
+      json: {
+        mode: "display",
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "dropdown-readonly"
     },
     {
       name: "Test Dropdown Select question markup",

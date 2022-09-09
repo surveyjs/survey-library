@@ -58,6 +58,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       id={this.question.getInputId()}
       ref={(element) => (this.inputElement = element)}
       className={ this.question.cssClasses.filterStringInput }
+      disabled={ this.question.isInputReadOnly }
       readOnly={ !this.model.searchEnabled ? true : undefined }
       size={ !this.model.filterString ? 1 : undefined }
       placeholder={ this.model.filterStringPlaceholder }

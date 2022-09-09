@@ -492,6 +492,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The event is fired on downloading a file in QuestionFile. Use this event to pass the file to a preview.
    *- `sender` - the survey object that fires the event.
+   *- `question` - the question instance.
    *- `options.name` - the question name.
    *- `options.content` - the file content.
    *- `options.fileValue` - single file question value.
@@ -4577,14 +4578,16 @@ export class SurveyModel extends SurveyElementCore
    * @param callback a call back function to get the status on downloading the file and the downloaded file content
    */
   public downloadFile(
+    question: IQuestion,
     questionName: string,
     fileValue: any,
     callback: (status: string, data: any) => any
-  ) {
+  ): void {
     if (this.onDownloadFile.isEmpty) {
       !!callback && callback("success", fileValue.content || fileValue);
     }
     this.onDownloadFile.fire(this, {
+      question: question,
       name: questionName,
       content: fileValue.content || fileValue,
       fileValue: fileValue,

@@ -17,7 +17,8 @@ export class DynamicComponentDirective implements OnChanges {
   private componentInstance: any;
   ngOnChanges(changes: SimpleChanges): void {
     const componentChanges = changes["component"];
-    if(componentChanges.currentValue.name !== componentChanges.previousValue?.name) {
+    if(componentChanges.currentValue.name !== componentChanges.previousValue?.name ||
+      (componentChanges.currentValue.name === undefined && componentChanges.previousValue === undefined && !this.componentInstance)) {
       this.createComponent();
     } else {
       this.updateComponentData();
@@ -29,6 +30,9 @@ export class DynamicComponentDirective implements OnChanges {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.name).instance;
     } else if (this.component.default) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.default).instance;
+    }
+    if(!this.componentInstance) {
+      throw new Error(`Can't create component with name: ${this.component.name} and default: ${this.component.default}`);
     }
     this.updateComponentData();
   }

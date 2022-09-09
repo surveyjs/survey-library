@@ -214,7 +214,7 @@ export class Base {
       return value.trim();
     return value;
   }
-  protected IsPropertyEmpty(value: any): boolean {
+  protected isPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
   }
 
@@ -439,12 +439,12 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueCore(this.propertyHash, name);
-    if (this.IsPropertyEmpty(res)) {
+    if (this.isPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
       const prop = Serializer.findProperty(this.getType(), name);
       if (!!prop && (!prop.isCustom || !this.isCreating)) {
         if (
-          !this.IsPropertyEmpty(prop.defaultValue) &&
+          !this.isPropertyEmpty(prop.defaultValue) &&
           !Array.isArray(prop.defaultValue)
         )
           return prop.defaultValue;
@@ -513,6 +513,12 @@ export class Base {
    * @see checkAndSetPropertyValue
    */
   public setPropertyValue(name: string, val: any): void {
+    if(!this.isLoadingFromJson) {
+      const prop = this.getPropertyByName(name);
+      if(!!prop) {
+        val = prop.settingValue(this, val);
+      }
+    }
     var oldValue = this.getPropertyValue(name);
     if (
       oldValue &&

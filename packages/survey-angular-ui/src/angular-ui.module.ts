@@ -91,9 +91,10 @@ import { BrandInfoComponent } from "./components/brand-info/brand-info.component
 import { CustomQuestionComponent } from "./questions/custom.component";
 import { CompositeQuestionComponent } from "./questions/composite.component";
 import { SurveyContentComponent } from "./survey-content.component";
+import { TemplateRendererComponent } from "./template-renderer.component";
 @NgModule({
   declarations: [
-    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
+    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
@@ -112,7 +113,7 @@ import { SurveyContentComponent } from "./survey-content.component";
     CommonModule, FormsModule
   ],
   exports: [
-    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent,
+    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,

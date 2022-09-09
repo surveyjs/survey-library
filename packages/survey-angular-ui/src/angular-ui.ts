@@ -75,6 +75,7 @@ export * from "./components/paneldynamic-actions/paneldynamic-progress-text.comp
 export * from "./questions/paneldynamic.component";
 export * from "./embedded-view-content.component";
 export * from "./element.component";
+export * from "./template-renderer.component";
 export * from "./questions/customwidget.component";
 export * from "./questions/matrixcell.component";
 export * from "./questions/matrixtable.component";

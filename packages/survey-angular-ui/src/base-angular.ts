@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
-import { ArrayChanges, Base } from "survey-core";
+import { ArrayChanges, Base, ISurvey, SurveyModel } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 
 @Component({
@@ -9,7 +9,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
   }
-
+  protected get surveyModel(): ISurvey {
+    return this.getModel().getSurvey();
+  }
   protected abstract getModel(): T;
   protected previousModel?: T;
   private isModelSubsribed: boolean = false;

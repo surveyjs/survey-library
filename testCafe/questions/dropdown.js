@@ -4,6 +4,7 @@ const title = "dropdown";
 
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
+const questionValueText = Selector(".sv_q_dropdown__value input");
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -349,7 +350,6 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
-          // renderAs: "select",
           choices: [
             "Ford",
             "Vauxhall",
@@ -367,7 +367,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const questionText = Selector(".sv_q_dropdown__value");
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     await t
       .expect(popupContainer.visible).notOk()
@@ -379,7 +378,7 @@ frameworks.forEach((framework) => {
       .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
       .expect(popupContainer.visible).notOk()
 
-      .click(questionText)
+      .click(questionValueText)
       .expect(popupContainer.visible).ok()
       .expect(popupContainer.offsetWidth).gte(900);
   });
@@ -486,7 +485,6 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
-          // renderAs: "select",
           choices: [
             "Ford",
             "Vauxhall",
@@ -526,7 +524,6 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
-          // renderAs: "select",
           name: "cars",
           title: "Dropdown",
           itemComponent: "new-item",
@@ -549,7 +546,7 @@ frameworks.forEach((framework) => {
 
     const myListItems = Selector(".my-list-item");
     await t
-      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Select...")
+      .expect(questionValueText.getAttribute("placeholder")).eql("Select...")
 
       .click(questionDropdownSelect)
       .expect(myListItems.count).eql(10)
@@ -557,7 +554,7 @@ frameworks.forEach((framework) => {
 
       .click(myListItems.nth(3))
 
-      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan");
+      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan");
   });
 
   test("Check dropdown key press", async (t) => {
@@ -565,7 +562,6 @@ frameworks.forEach((framework) => {
       questions: [
         {
           type: "dropdown",
-          // renderAs: "select",
           name: "cars",
           title: "Dropdown",
           colCount: 0,
@@ -584,7 +580,6 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          // renderAs: "select",
           name: "DropdownRenderAsSelect",
           colCount: 0,
           choices: [
@@ -627,15 +622,87 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(Selector(".sv_q_dropdown__value").textContent).eql("Nissan")
+      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
 
-      .pressKey("tab enter")
+      .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
+      .pressKey("enter")
+      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item20");
+  });
+
+  test("Check dropdown search", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .expect(listItems.count).eql(27)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .pressKey("2")
+      .expect(popupContainer.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+
+      .pressKey("backspace")
+      .expect(listItems.filterVisible().count).eql(10)
+
+      .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(Selector(".sv_q_dropdown__value").nth(1).textContent).eql("item20");
+      .expect(questionValueText.getAttribute("placeholder")).eql("item25")
+      .expect(popupContainer.visible).notOk()
+
+      .pressKey("down")
+      .expect(popupContainer.visible).ok()
+      .expect(listItems.filterVisible().count).eql(27)
+      .expect(Selector(".sv-list__item.sv-list__item--selected").textContent).contains("item25")
+
+      .pressKey("down")
+      .pressKey("esc")
+      .expect(questionValueText.getAttribute("placeholder")).eql("item25");
   });
 
   test("Check dropdown clear value by keyboard", async (t) => {
@@ -679,21 +746,21 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const newDropdown = Selector(".sv_q_dropdown_control .sv_q_dropdown__value");
+    const newDropdown = questionValueText;
     const oldDropdown = Selector(".sv_q_dropdown_control").nth(1);
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .expect(newDropdown.textContent).eql("Volkswagen")
+      .expect(newDropdown.getAttribute("placeholder")).eql("Volkswagen")
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("delete")
-      .expect(newDropdown.textContent).eql("Select...")
+      .expect(newDropdown.getAttribute("placeholder")).eql("Select...")
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("tab")
       .pressKey("delete")
-      .expect(newDropdown.textContent).eql("Select...")
+      .expect(newDropdown.getAttribute("placeholder")).eql("Select...")
       .expect(oldDropdown.value).eql("");
   });
 
@@ -713,16 +780,16 @@ frameworks.forEach((framework) => {
       ]
     };
     const ratingAsDropdownPlaceHolder = "Tap to rate here...";
-    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
+    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value input");
     await initSurvey(framework, jsonWithDropDown);
 
     await t
       .click(ratingAsDropdown)
       .click(getListItemByText("2"))
-      .expect(ratingAsDropdown.textContent).contains("2")
+      .expect(ratingAsDropdown.getAttribute("placeholder")).contains("2")
 
       .pressKey("delete")
-      .expect(ratingAsDropdown.textContent).contains(ratingAsDropdownPlaceHolder);
+      .expect(ratingAsDropdown.getAttribute("placeholder")).contains(ratingAsDropdownPlaceHolder);
   });
   test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
     await applyTheme(theme);

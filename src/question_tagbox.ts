@@ -19,7 +19,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public get readOnlyText() {
-    return this.placeholder;
+    return this.displayValue || this.placeholder;
   }
 
   public onSurveyLoad() {
@@ -44,6 +44,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       }
     }
   }) searchEnabled: boolean;
+  /**
+   * The name of a component used to render drop-down menu items.
+   */
+  @property() itemComponent: string;
 
   @property({
     defaultValue: false,
@@ -98,6 +102,13 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if (this.popupModel) {
       this.dropdownListModel.updateItems();
     }
+  }
+
+  protected getFirstInputElementId(): string {
+    return this.inputId + (this.searchEnabled ? "_0" : "");
+  }
+  public getInputId() {
+    return this.inputId + "_0";
   }
 }
 

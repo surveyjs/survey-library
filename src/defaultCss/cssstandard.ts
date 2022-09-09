@@ -166,6 +166,7 @@ export var defaultStandardCss = {
     cleanButtonSvg: "sv_q_dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv_q_dropdown__value",
+    filterStringInput: "sv_q_dropdown__filter-string-input"
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },
@@ -352,6 +353,8 @@ export var defaultStandardCss = {
     control: "sv_q_input sv_q_tagbox sv_q_dropdown_control",
     controlValue: "sv_q_tagbox__value sv_q_dropdown__value",
     controlEmpty: "sv_q_dropdown--empty sv_q_tagbox--empty",
+    placeholderInput: "sv_q_tagbox__placeholder",
+    filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input"
   },
 };
 

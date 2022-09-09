@@ -1,15 +1,15 @@
 <template>
   <div v-bind:class="model.cssClasses.root">
-    <div v-bind:class="model.cssClasses.filter" v-if="model.needFilter">
+    <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
       <div v-bind:class="model.cssClasses.filterIcon">
         <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
       </div>
       <input
         type="text"
         v-bind:class="model.cssClasses.filterInput"
-        :aria-label="model.filteredTextPlaceholder"
-        :placeholder="model.filteredTextPlaceholder"
-        :value="model.filteredText"
+        :aria-label="model.filterStringPlaceholder"
+        :placeholder="model.filterStringPlaceholder"
+        :value="model.filterString"
         @change="change"
         @keyup="keyup"
       />
@@ -60,10 +60,10 @@ export class List extends BaseVue {
     return this.model;
   }
   change(event: any) {
-    this.model.filteredText = event.target.value;
+    this.model.filterString = event.target.value;
   }
   keyup(event: any) {
-    this.model.filteredText = event.target.value;
+    this.model.filterString = event.target.value;
     this.model.goToItems(event);
   }
 }

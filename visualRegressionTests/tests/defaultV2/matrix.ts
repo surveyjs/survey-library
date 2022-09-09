@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, resetFocusToBody } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -183,7 +183,7 @@ frameworks.forEach(framework => {
     await checkElementScreenshot("question-matrix-alternate-rows.png", rowElement, t);
 
     await t.click(Selector(".sd-navigation__complete-btn"));
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("question-matrix-alternate-rows-invalid-value.png", rowElement, t);
 
     await ClientFunction(()=>{

@@ -83,7 +83,7 @@ export var italianSurveyStrings = {
   questionTitlePatternText: "Titolo della domanda",
   ratingOptionsCaption: "Tocca qui per valutare...",
   emptyRowsText: "Non ci sono righe.",
-  filteredTextPlaceholder: "Digita per cercare...",
+  filterStringPlaceholder: "Digita per cercare...",
   indexText: "{0} da {1}",
   minError: "Il valore non deve essere inferiore a {0}",
   maxError: "Il valore non deve essere maggiore di {0}",

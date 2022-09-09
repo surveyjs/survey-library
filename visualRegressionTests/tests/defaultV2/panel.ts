@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const panelRoot = Selector(".sd-panel");
     await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await takeScreenshot("panel-invisible.png", panelRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())
@@ -192,7 +192,7 @@ frameworks.forEach(framework => {
     const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
     const rowRoot = Selector(".sd-row");
     await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
-    await ClientFunction(()=>{ document.body.focus(); })();
+    await resetFocusToBody();
     await takeScreenshot("panel-in-row.png", rowRoot, screenshotComparerOptions);
     await t
       .expect(compareResults.isValid())

@@ -80,7 +80,7 @@ export var polishSurveyStrings = {
   questionTitlePatternText: "Tytuł pytania",
   ratingOptionsCaption: "Kliknij tutaj, aby ocenić...",
   emptyRowsText: "Nie ma rzędów.",
-  filteredTextPlaceholder: "Wpisz aby wyszukać...",
+  filterStringPlaceholder: "Wpisz aby wyszukać...",
   indexText: "{0} od {1}",
   minError: "Wartość nie powinna być mniejsza niż {0}",
   maxError: "Wartość nie powinna być większa niż {0}",

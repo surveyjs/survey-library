@@ -52,15 +52,15 @@
         },
         {
           "Name": "design-survey-question-titles",
-          "Title": "How To: Configure Question Titles"
+          "Title": "Configure Question Titles"
         },
         {
           "Name": "design-survey-predefine-answers",
-          "Title": "How To: Predefine Answers"
+          "Title": "Populate Form Fields"
         },
         {
           "Name": "design-survey-merge-question-values",
-          "Title": "How To: Merge Question Values"
+          "Title": "Merge Question Values"
         }
       ]
     },

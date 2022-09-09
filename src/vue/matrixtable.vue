@@ -2,15 +2,23 @@
   <table :class="question.getTableCss()">
     <thead v-if="table.showHeader">
       <tr>
-        <th
-          :class="cell.className"
-          v-for="cell in table.headerRow.cells"
-          :key="'header_' + cell.id"
-          :style="{ minWidth: cell.minWidth, width: cell.width }"
-        >
-          <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-          <survey-matrixheaderrequired v-if="!!cell.column" :column="cell.column" :question="question"></survey-matrixheaderrequired>
-        </th>
+        <template v-for="cell in table.headerRow.cells">
+          <th
+            v-if="cell.hasTitle"
+            :class="cell.className"
+            :key="'header_' + cell.id"
+            :style="{ minWidth: cell.minWidth, width: cell.width }"
+          >
+            <survey-string :locString="cell.locTitle" />
+            <survey-matrixheaderrequired v-if="!!cell.column" :column="cell.column" :question="question"></survey-matrixheaderrequired>
+          </th>
+          <td
+            v-if="!cell.hasTitle"
+            :class="cell.className"
+            :key="'header_' + cell.id"
+            :style="{ minWidth: cell.minWidth, width: cell.width }"
+          ></td>
+        </template>
       </tr>
     </thead>
     <tbody>

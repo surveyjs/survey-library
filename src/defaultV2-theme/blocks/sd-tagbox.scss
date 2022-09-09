@@ -1,4 +1,4 @@
-.sd-input.sd-tagbox:not(.sd-tagbox--empty) {
+.sd-input.sd-tagbox:not(.sd-tagbox--empty):not(.sd-input--disabled) {
   height: auto;
   padding: calcSize(0.5);
   padding-right: calcSize(6);
@@ -8,6 +8,10 @@
   height: calcSize(3);
   padding: calcSize(1);
   margin: auto 0;
+}
+
+.sd-input.sd-tagbox:focus-within {
+  box-shadow: 0 0 0 2px $primary, inset 0px 1px 2px $border-inside;
 }
 
 .sv-tagbox__item {
@@ -45,10 +49,30 @@
   fill: $primary-foreground;
 }
 .sd-tagbox__value.sd-dropdown__value {
+  position: relative;
   gap: calcSize(0.5);
   display: flex;
   flex-wrap: wrap;
+  flex-grow: 1;
   padding-inline: unset;
   margin-inline: unset;
   margin-block: unset;
+}
+
+.sd-tagbox__filter-string-input {
+  width: auto;
+  display: flex;
+  flex-grow: 1;
+}
+.sd-tagbox__placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  width: auto;
+  height: 100%;
+  text-align: left;
+  cursor: text;
+  pointer-events: none;
+  color: $foreground-light;
 }

@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { DropdownListModel, PopupModel } from "survey-core";
+import { DropdownListModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
@@ -9,8 +9,8 @@ export class DropdownComponent implements OnDestroy, OnInit {
     @Input() model: any;
     private dropdownListModel!: DropdownListModel;
 
-    get popupModel(): PopupModel {
-      return this.dropdownListModel.popupModel;
+    get dropdownModel(): DropdownListModel {
+      return this.dropdownListModel;
     }
 
     ngOnInit(): void {

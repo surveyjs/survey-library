@@ -1,16 +1,9 @@
 import { Action, IAction } from "../src/actions/action";
 import { ListModel } from "../src/list";
+import { createIActionArray } from "./utilstests";
 
 export default QUnit.module("List Model");
 const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
-
-function createIActionArray(count: number,) {
-  let result: Array<IAction> = [];
-  for (let index = 0; index < count; ++index) {
-    result.push(<IAction>{ id: "test" + index, title: "test" + index });
-  }
-  return result;
-}
 
 QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
@@ -19,7 +12,7 @@ QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) 
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
-  assert.notOk(list.needFilter);
+  assert.notOk(list.showFilter);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
@@ -32,13 +25,13 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
 
   assert.equal(list.renderedActions.length, 8);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
-  assert.ok(list.needFilter);
+  assert.ok(list.showFilter);
 
-  list.filteredText = "test";
+  list.filterString = "test";
   assert.equal(list.renderedActions.length, 8);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
 
-  list.filteredText = "1";
+  list.filterString = "1";
   assert.equal(list.renderedActions.length, 8);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
 
@@ -52,13 +45,13 @@ QUnit.test("ListModel reassign items", function (assert) {
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
-  assert.notOk(list.needFilter);
+  assert.notOk(list.showFilter);
 
   list.setItems(createIActionArray(7));
 
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
-  assert.ok(list.needFilter);
+  assert.ok(list.showFilter);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
@@ -101,23 +94,23 @@ QUnit.test("ListModel custom onFilter", assert => {
 
   assert.equal(list.renderedActions.length, 7, "initial list.renderedActions");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "initial list.renderedActions.filter(item => item.visible)");
-  assert.ok(list.needFilter, "initial list.filterableListItems");
+  assert.ok(list.showFilter, "initial list.filterableListItems");
 
-  list.filteredText = "test";
-  assert.equal(list.renderedActions.length, 7, "items filteredText = test");
-  assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filteredText = test");
-  assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filteredText = test");
-  assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filteredText = test");
+  list.filterString = "test";
+  assert.equal(list.renderedActions.length, 7, "items filterString = test");
+  assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = test");
+  assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = test");
+  assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = test");
 
-  list.filteredText = "1";
-  assert.equal(list.renderedActions.length, 7, "items filteredText = 1");
-  assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filteredText = 1");
-  assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filteredText = 1");
-  assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filteredText = 1");
+  list.filterString = "1";
+  assert.equal(list.renderedActions.length, 7, "items filterString = 1");
+  assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = 1");
+  assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = 1");
+  assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = 1");
 
   list.setItems(items);
-  list.refresh(); // if popup is visible
-  assert.equal(list.filteredText, "", "filteredText is reset");
+  list.refresh();
+  assert.equal(list.filterString, "", "filterString is reset");
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
@@ -130,7 +123,97 @@ QUnit.test("ListModel shows placeholder if there are no visible elements", funct
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
   assert.notOk(list.isEmpty, "!isEmpty");
 
-  list.filteredText = "item";
+  list.filterString = "item";
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
   assert.ok(list.isEmpty, "isEmpty");
+});
+
+QUnit.test("ListModel focus item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+
+  assert.equal(list.renderedActions.length, 12);
+  assert.equal(list.focusedItem, undefined);
+
+  list.focusNextVisibleItem();
+  assert.equal(list.focusedItem, list.actions[0]);
+
+  list.focusNextVisibleItem();
+  assert.equal(list.focusedItem, list.actions[1]);
+
+  list.focusPrevVisibleItem();
+  assert.equal(list.focusedItem, list.actions[0]);
+});
+
+QUnit.test("focusNextVisibleItem item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.focusedItem = list.actions[list.actions.length - 1];
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[0]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+});
+
+QUnit.test("focusNextVisibleItem item + filtration", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+
+  assert.equal(list.visibleItems.length, 3);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[10]);
+});
+
+QUnit.test("focusPrevVisibleItem item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.focusedItem = list.actions[0];
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 2]);
+});
+QUnit.test("focusPrevVisibleItem item + filtration", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+  assert.equal(list.visibleItems.length, 3);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 1]);
+
+  list.focusPrevVisibleItem();
+  assert.ok(list.focusedItem === list.actions[list.actions.length - 2]);
+});
+
+QUnit.test("focusNextVisibleItem item if there is selected item", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true, items[2]);
+
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[2]);
+});
+
+QUnit.test("selectFocusedItem", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+  assert.ok(list.selectedItem === undefined);
+
+  list.selectFocusedItem();
+  assert.ok(list.selectedItem === list.actions[1]);
 });

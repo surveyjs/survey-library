@@ -81,7 +81,7 @@ export var latvianSurveyStrings = {
   questionTitlePatternText: "Jautājuma nosaukums",
   ratingOptionsCaption: "Nospiediet šeit, lai novērtētu...",
   emptyRowsText: "Nav rindu.",
-  filteredTextPlaceholder: "Ierakstiet, lai meklētu...",
+  filterStringPlaceholder: "Ierakstiet, lai meklētu...",
   indexText: "{0} no {1}",
   minError: "Vērtība nedrīkst būt mazāka par {0}",
   maxError: "Vērtība nedrīkst būt lielāka par {0}",

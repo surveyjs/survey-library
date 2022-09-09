@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey } from "../helper";
-import { ClientFunction, fixture, test } from "testcafe";
+import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "page";
@@ -117,5 +117,32 @@ frameworks.forEach(framework => {
     assert.equal(await isDescriptionExists(), false);
     await setSurveyInDesignMode();
     assert.equal(await isDescriptionExists(), true);
+  });
+  test("render page description on changig locale when description is empty for default locale", async t => {
+    var json = {
+      pages: [
+        {
+          description: {
+            de: "Page description"
+          },
+          questions: [
+            {
+              titleLocation: "hidden",
+              type: "text",
+              name: "simple text"
+            }
+          ]
+        }
+      ]
+    };
+
+    await initSurvey(framework, json);
+    const changeLocale = ClientFunction(
+      () => (window["survey"].locale = "de")
+    );
+    const descSelector = Selector("span").withText("Page description");
+    await t.expect(descSelector.exists).notOk();
+    await changeLocale();
+    await t.expect(descSelector.exists).ok();
   });
 });

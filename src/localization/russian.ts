@@ -81,7 +81,7 @@ export var russianSurveyStrings = {
   questionTitlePatternText: "Название вопроса",
   ratingOptionsCaption: "Нажмите здесь, чтобы оценить...",
   emptyRowsText: "Рядов нет.",
-  filteredTextPlaceholder: "Введите для поиска...",
+  filterStringPlaceholder: "Введите для поиска...",
   indexText: "{0} из {1}",
   minError: "Значение не должно быть меньше {0}.",
   maxError: "Значение не должно превышать {0}.",

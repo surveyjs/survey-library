@@ -94,4 +94,49 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.offsetTop).gt(constant)
       .resizeWindow(1920, 1080);
   });
+
+  test.before(async (t) => {
+    await initSurvey(framework, json);
+  })("tagbox search", async (t) => {
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .expect(listItems.count).eql(28)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .pressKey("2")
+      .expect(popupContainer.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+
+      .pressKey("enter")
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("2")
+      .pressKey("down")
+      .pressKey("down")
+      .expect(listItems.filterVisible().count).eql(10)
+
+      .pressKey("enter")
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(selectedItems.nth(1).textContent).contains("item25")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("backspace")
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23");
+  });
 });

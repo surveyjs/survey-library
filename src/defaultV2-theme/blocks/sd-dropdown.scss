@@ -24,10 +24,15 @@
   font-size: calcSize(2);
 }
 .sd-dropdown__value {
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: $font-family;
+  font-size: calcSize(2);
+  color: $foreground;
 }
+
 .sd-dropdown_clean-button {
   padding: 0 calcSize(1);
 }
@@ -38,8 +43,44 @@
 .sd-dropdown use {
   fill: $foreground-light;
 }
-.sd-dropdown__value {
+
+.sd-input.sd-dropdown:focus-within {
+  box-shadow: 0 0 0 2px $primary, inset 0px 1px 2px $border-inside;
+}
+.sd-input.sd-dropdown:focus-within {
+  .sd-dropdown__filter-string-input {
+    z-index: 2000;
+  }
+}
+.sd-dropdown__filter-string-input {
+  border: none;
+  outline: none;
+  padding: 0;
+  font-family: $font-family;
+  font-size: calcSize(2);
+  background-color: transparent;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: calcSize(3);
+  appearance: none;
+}
+.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
+  color: $foreground-light;
+}
+.sd-dropdown__filter-string-input::placeholder {
   font-family: $font-family;
   font-size: calcSize(2);
   color: $foreground;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: calcSize(3);
+  appearance: none;
 }

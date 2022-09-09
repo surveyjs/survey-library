@@ -139,7 +139,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     },
     listOptions.allowSelection,
     listOptions.selectedItem,
-    listOptions.onFilteredTextChangedCallback
+    listOptions.onFilterStringChangedCallback
   );
   listModel.locOwner = locOwner;
   const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);

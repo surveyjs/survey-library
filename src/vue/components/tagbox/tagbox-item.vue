@@ -1,5 +1,5 @@
 <template>
-  <li class="sv-tagbox__item" :key="item.key">
+  <div class="sv-tagbox__item" :key="item.key">
     <div class="sv-tagbox__item-text">
       <survey-string :locString="item.locText" />
     </div>
@@ -10,7 +10,7 @@
         :size="16"
       ></sv-svg-icon>
     </div>
-  </li>
+  </div>
 </template>
 
 <script lang="ts">

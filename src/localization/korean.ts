@@ -83,7 +83,7 @@ export var koreanStrings = {
   questionTitlePatternText: "질문 제목",
   modalCancelButtonText: "취소",
   modalApplyButtonText: "적용",
-  filteredTextPlaceholder: "검색 유형...",
+  filterStringPlaceholder: "검색 유형...",
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
   more: "더보기"
 };

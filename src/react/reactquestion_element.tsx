@@ -115,9 +115,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   protected renderLocString(
     locStr: LocalizableString,
-    style: any = null
+    style: any = null,
+    key?: string
   ): JSX.Element {
-    return SurveyElementBase.renderLocString(locStr, style);
+    return SurveyElementBase.renderLocString(locStr, style, key);
   }
   private canMakeReact(stateElement: Base): boolean {
     return !!stateElement && !!stateElement.iteratePropertiesHash;

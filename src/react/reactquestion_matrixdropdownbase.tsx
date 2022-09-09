@@ -96,15 +96,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         columnStyle.minWidth = cell.minWidth;
       }
       var cellContent = this.renderCellContent(cell, "column-header", {});
-      headers.push(
-        <th
-          className={cell.className}
-          key={key}
-          style={columnStyle}
-        >
-          {cellContent}
-        </th>
-      );
+      const header = cell.hasTitle ?
+        <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
+        : <td className={cell.className} key={key} style={columnStyle}></td>;
+      headers.push(header);
     }
     return (
       <thead>

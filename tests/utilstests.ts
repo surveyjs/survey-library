@@ -1,3 +1,4 @@
+import { IAction } from "../src/actions/action";
 import { Question } from "../src/question";
 import { sanitizeEditableContent } from "../src/utils/utils";
 
@@ -51,3 +52,10 @@ QUnit.test(
   }
 );
 
+export function createIActionArray(count: number): Array<IAction> {
+  let result: Array<IAction> = [];
+  for (let index = 0; index < count; ++index) {
+    result.push(<IAction>{ id: "test" + index, title: "test" + index });
+  }
+  return result;
+}

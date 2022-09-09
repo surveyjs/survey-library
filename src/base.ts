@@ -170,7 +170,7 @@ export class ComputedUpdater<T = any> {
 }
 
 /**
- * The base class for SurveyJS objects.
+ * A base class for all SurveyJS objects.
  */
 export class Base {
   private static currentDependencis: Dependencies = undefined;
@@ -198,10 +198,10 @@ export class Base {
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
-   * Returns true if a value undefined, null, empty string or empty array.
+   * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
-   * @param value
-   * @param trimString a boolean parameter, default value true. If true then it trims the string and functions returns true for a string that contains white spaces only.
+   * @param value A value to be checked.
+   * @param trimString (Optional) When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
    */
   public isValueEmpty(value: any, trimString: boolean = true): boolean {
     if (trimString) {
@@ -233,21 +233,26 @@ export class Base {
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
   /**
-   * Event that raise on property change of the sender object
-   * sender - the object that owns the property
-   * options.name - the property name that has been changed
-   * options.oldValue - old value. Please note, it equals to options.newValue if property is an array
-   * options.newValue - new value.
+   * An event that is raised when a property of this SurveyJS object has changed.
+   *
+   * Parameters:
+   *
+   * - `sender` - A SurveyJS object whose property has changed.
+   * - `options.name` - The name of the changed property.
+   * - `options.oldValue` - An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
+   * - `options.newValue` - A new value for the property.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
-   * Event that raised on changing property of the ItemValue object.
-   * sender - the object that owns the property
-   * options.propertyName - the property name to which ItemValue array is belong. It can be "choices" for dropdown question
-   * options.obj - the instance of ItemValue object which property has been changed
-   * options.name - the property of ItemObject that has been changed
-   * options.oldValue - old value
-   * options.newValue - new value
+   * An event that is raised when an [ItemValue](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
+   *
+   * Parameters:
+   *
+   * - `sender` - A SurveyJS object whose property contains an array of `ItemValue` objects.
+   * - `options.obj` - An `ItemValue` object.
+   * - `options.propertyName` - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+   * - `options.name` - The name of the changed property: `"text"` or `"value"`.
+   * - `options.newValue` - A new value for the property.
    */
   public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,
@@ -289,15 +294,16 @@ export class Base {
   }
   protected onBaseCreating() { }
   /**
-   * Returns the class type as it is used in the JSON schema.
+   * Returns the object type as it is used in the JSON schema.
    */
   public getType(): string {
     return "base";
   }
   /**
-   * Use this method to find out if the current instance is of the given `typeName` or inherited from it.
-   * @param `typeName` One of the values listed in the [getType()](https://surveyjs.io/Documentation/Library?id=surveymodel#getType) description.
-   * @returns true if the current instance is of the given `typeName` or inherited from it
+   * Use this method to find out if the current object is of a given `typeName` or inherited from it.
+   *
+   * @param typeName One of the values listed in the [getType()](https://surveyjs.io/form-library/documentation/question#getType) description.
+   * @returns `true` if the current object is of a given `typeName` or inherited from it.
    * @see getType
    */
   public isDescendantOf(typeName: string): boolean {
@@ -307,14 +313,16 @@ export class Base {
     return null;
   }
   /**
-   * Returns true if the question in design mode right now.
+   * Returns `true` if the survey is being designed in Survey Creator.
    */
   public get isDesignMode(): boolean {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
   /**
-   * Returns true if the object is inluded into survey, otherwise returns false.
+   * Returns `true` if the object is included in a survey.
+   *
+   * This method may return `false`, for example, when you [create a survey model dynamically](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#create-or-change-a-survey-model-dynamically).
    */
   public get inSurvey(): boolean {
     return !!this.getSurvey(true);
@@ -330,15 +338,11 @@ export class Base {
     }
   }
   protected updateBindingValue(valueName: string, value: any) { }
-  /**
-   * Returns the element template name without prefix. Typically it equals to getType().
-   * @see getType
-   */
   public getTemplate(): string {
     return this.getType();
   }
   /**
-   * Returns true if the object is loading from Json at the current moment.
+   * Returns `true` if the object configuration is being loaded from JSON.
    */
   public get isLoadingFromJson(): boolean {
     return this.isLoadingFromJsonValue || this.getIsLoadingFromJson();
@@ -355,15 +359,18 @@ export class Base {
     this.isLoadingFromJsonValue = false;
   }
   /**
-   * Deserialized the current object into JSON
+   * Returns a JSON object that corresponds to the current SurveyJS object.
    * @see fromJSON
    */
   public toJSON(): any {
     return new JsonObject().toJsonObject(this);
   }
   /**
-   * Load object properties and elements. It doesn't reset properties that was changed before and they are not defined in the json parameter.
-   * @param json the object JSON definition
+   * Assigns a new configuration to the current SurveyJS object. This configuration is taken from a passed JSON object.
+   *
+   * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
+   *
+   * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
    * @see toJSON
    */
   public fromJSON(json: any): void {
@@ -372,7 +379,7 @@ export class Base {
   }
   public onSurveyLoad() { }
   /**
-   * Make a clone of the existing object. Create a new object of the same type and load all properties into it.
+   * Creates a new object that has the same type and properties as the current SurveyJS object.
    */
   public clone(): Base {
     var clonedObj = <Base>Serializer.createClass(this.getType());
@@ -380,9 +387,10 @@ export class Base {
     return clonedObj;
   }
   /**
-   * Returns the serializable property that belongs to this instance by property name. It returns null if the property is not exists.
-   * @param propName property name
-   * @returns
+   * Returns a `JsonObjectProperty` object with metadata about a serializable property that belongs to the current SurveyJS object.
+   *
+   * If the property is not found, this method returns `null`.
+   * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
     return Serializer.findProperty(this.getType(), propName);
@@ -422,8 +430,12 @@ export class Base {
     }
   }
   /**
-   * Returns the property value by name
-   * @param name property name
+   * Returns the value of a property with a specified name.
+   *
+   * If the property is not found or does not have a value, this method returns either `undefined`, `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
+   *
+   * @param name A property name.
+   * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueCore(this.propertyHash, name);
@@ -481,9 +493,24 @@ export class Base {
     keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
-   * set property value
+   * set property value and before check if new property value is correct by calling JsonProperty onSettingValue function
+   * If onSettingValue is not set in declaration, then this function works as `setPropertyValue`.
    * @param name property name
    * @param val new property value
+   * @see setPropertyValue
+   */
+  public checkAndSetPropertyValue(name: string, val: any): void {
+    const prop = !this.isLoadingFromJson ? this.getPropertyByName(name) : undefined;
+    if(!!prop) {
+      val = prop.settingValue(this, val);
+    }
+    this.setPropertyValue(name, val);
+  }
+  /**
+   * Assigns a new value to a specified property.
+   * @param name A property name.
+   * @param val A new value for the property.
+   * @see checkAndSetPropertyValue
    */
   public setPropertyValue(name: string, val: any): void {
     if(!this.isLoadingFromJson) {

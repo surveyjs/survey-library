@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler } from "../../helper";
+import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, resetFocusToBody } from "../../helper";
 
 const title = "Selectbase Screenshot";
 
@@ -34,7 +34,7 @@ frameworks.forEach(framework => {
         },
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("checkbox-col-count-1.png", Selector(".sd-question"), t);
     await ClientFunction(() => { (<any>window).survey.getQuestionByName("checkbox_question").colCount = 2; })();
     await checkElementScreenshot("checkbox-col-count-2.png", Selector(".sd-question"), t);
@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
         }
       ]
     });
-    await ClientFunction(() => { document.body.focus(); })();
+    await resetFocusToBody();
     await checkElementScreenshot("radiogroup-col-count-0.png", Selector(".sd-question"), t);
     await ClientFunction(() => { (<any>window).survey.getQuestionByName("car").colCount = 4; })();
     await checkElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t);

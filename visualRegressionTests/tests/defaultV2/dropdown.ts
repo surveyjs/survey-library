@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { getListItemByText } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
 
@@ -39,7 +39,7 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(() => { document.body.focus(); })();
+      await resetFocusToBody();
       await takeElementScreenshot("dropdown-question.png", questionRoot, t, comparer);
 
       await ClientFunction(() => { (<any>window).survey.getQuestionByName("dropdown_question").value = "Greece"; })();
@@ -60,13 +60,13 @@ frameworks.forEach(framework => {
             optionsCaption: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
-          // renderAs: "select"
           },
         ]
       });
 
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(() => { document.body.focus(); })();
+      await resetFocusToBody();
+      //
       await takeElementScreenshot("dropdown-select-question.png", questionRoot, t, comparer);
 
       await ClientFunction(() => { (<any>window).survey.getQuestionByName("dropdown_question").value = "Greece"; })();
@@ -82,7 +82,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question1",
             hasOther: "true",
             choices: [
@@ -114,35 +113,13 @@ frameworks.forEach(framework => {
               "item26",
               "item27"
             ]
-          },
-          {
-            type: "dropdown",
-            // renderAs: "select",
-            name: "question12",
-            hasOther: "true",
-            choices: [
-              "item1",
-              "item2",
-              "item3",
-              "item4",
-              "item5",
-              "item6",
-              "item7"
-            ]
           }
         ]
       });
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       const popupContainer = Selector(".sv-popup__container").filterVisible();
-      await t
-        .click(questionDropdownSelect)
-        .pressKey("tab tab");
-      await takeElementScreenshot("dropdown-select-question-popup-with-search.png", popupContainer, t, comparer);
-
-      await t
-        .pressKey("esc")
-        .click(questionDropdownSelect.nth(1));
+      await t.click(questionDropdownSelect);
       await takeElementScreenshot("dropdown-select-question-popup.png", popupContainer, t, comparer);
     });
   });
@@ -154,7 +131,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question12",
             hasOther: "true",
             defaultValue: "item1",
@@ -184,7 +160,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "question1",
             defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
             choices: [
@@ -198,7 +173,6 @@ frameworks.forEach(framework => {
             ]
           }, {
             type: "dropdown",
-            // renderAs: "select",
             allowClear: false,
             name: "question2",
             defaultValue: "item1_longlonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglonglong",
@@ -214,11 +188,11 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
+      await resetFocusToBody();
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect, t, comparer);
-
       await takeElementScreenshot("dropdown-select-question-and-long-text.png", questionDropdownSelect.nth(1), t, comparer);
+
+      await takeElementScreenshot("dropdown-select-question-with-clear-button-and-long-text.png", questionDropdownSelect.nth(0), t, comparer);
     });
   });
 
@@ -230,7 +204,6 @@ frameworks.forEach(framework => {
         questions: [
           {
             type: "dropdown",
-            // renderAs: "select",
             name: "DropdownRenderAsSelect",
             hasOther: "true",
             searchEnabled: false,
@@ -295,22 +268,6 @@ frameworks.forEach(framework => {
             type: "dropdown",
             name: "question1",
             hasOther: "true",
-            hasNone: "true",
-            hasSelectAll: "true",
-            choices: [
-              "item1",
-              "item2",
-              "item3",
-              "item4",
-              "item5",
-              "item6",
-              "item7"
-            ]
-          },
-          {
-            type: "dropdown",
-            name: "question2",
-            hasOther: "true",
             choices: [
               "item1",
               "item2",
@@ -345,23 +302,14 @@ frameworks.forEach(framework => {
       });
       const popupContainer = Selector(".sv-popup__container").filterVisible();
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-      const questionDropdownWithoutSearch = questionDropdownSelect.nth(0);
-      const questionDropdownWithSearch = questionDropdownSelect.nth(1);
-      await t.click(questionDropdownWithSearch);
-      await takeElementScreenshot("dropdown-question-with-search-empty-value.png", popupContainer, t, comparer);
-
-      await t.click(getListItemByText("item21"));
-      await t.click(questionDropdownWithSearch);
-      await takeElementScreenshot("dropdown-question-with-search-noempty-value.png", popupContainer, t, comparer);
 
       await t
-        .pressKey("esc")
-        .click(questionDropdownWithoutSearch);
-      await takeElementScreenshot("dropdown-question-without-search-empty-value.png", popupContainer, t, comparer);
+        .click(questionDropdownSelect);
+      await takeElementScreenshot("dropdown-question-empty-value.png", popupContainer, t, comparer);
 
       await t.click(getListItemByText("item7"));
-      await t.click(questionDropdownWithoutSearch);
-      await takeElementScreenshot("dropdown-question-without-search-noempty-value.png", popupContainer, t, comparer);
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("dropdown-question-noempty-value.png", popupContainer, t, comparer);
 
       await t.resizeWindow(1280, 1100);
     });
@@ -410,11 +358,9 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       const popupContainer = Selector(".sv-list__empty-container").filterVisible();
       await t
-        .click(questionDropdownSelect)
-        .typeText(".sv-list__input", "test")
+        .typeText(".sd-dropdown__filter-string-input", "test")
         .wait(100);
       await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
     });

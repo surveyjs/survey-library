@@ -14,8 +14,8 @@ export class MultiSelectListModel extends ListModel {
     });
   }
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilteredTextChangedCallback?: (text: string) => void) {
-    super(items, onSelectionChanged, allowSelection, undefined, onFilteredTextChangedCallback);
+  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void) {
+    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback);
     this.setSelectedItems(selectedItems || []);
   }
 
@@ -41,5 +41,20 @@ export class MultiSelectListModel extends ListModel {
   public setSelectedItems(newItems: Array<IAction>) : void {
     this.selectedItems = newItems;
     this.updateItemState();
+  }
+
+  public initFocusedItem() {
+    if(this.hideSelectedItems || !this.selectedItems.length) {
+      this.focusFirstVisibleItem();
+    } else if(!!this.selectedItems.length) {
+      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItems[0].id)[0];
+    }
+  }
+
+  public selectFocusedItem(): void {
+    super.selectFocusedItem();
+    if(this.hideSelectedItems) {
+      this.focusNextVisibleItem();
+    }
   }
 }

@@ -10,6 +10,7 @@ import { PopupComponent } from "./components/popup/popup.component";
 import { PopupContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
+import { TagboxFilterComponent } from "./components/tagbox/tagbox-filter.component";
 import { TagboxItemComponent } from "./components/tagbox/tagbox-item.component";
 import { TagboxComponent } from "./components/tagbox/tagbox.component";
 import { DropdownOptionItemComponent } from "./components/renderAs/dropdown-select/dropdown-option-item.component";
@@ -98,7 +99,7 @@ import { SurveyContentComponent } from "./survey-content.component";
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
     ListComponent, ListItemComponent,
-    TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
+    TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
@@ -117,7 +118,7 @@ import { SurveyContentComponent } from "./survey-content.component";
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupContainerComponent,
     ListComponent, ListItemComponent,
-    TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
+    TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,

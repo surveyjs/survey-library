@@ -991,11 +991,6 @@ export class Question extends SurveyElement
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
   }
-  /**
-   * Returns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
-   * @see SurveyModel.model
-   * @see readOnly
-   */
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;

@@ -18,7 +18,12 @@
       <input type="text" autocomplete="off" data-bind="
       textInput: model.filterString, 
       css: question.cssClasses.filterStringInput, 
-      attr: { placeholder: question.readOnlyText, readonly: !model.searchEnabled, id: question.getInputId() },
+      attr: { 
+        placeholder: question.readOnlyText, 
+        readonly: !model.searchEnabled, 
+        disabled: question.isInputReadOnly,
+        id: question.getInputId() 
+      },
       event: { keyup: inputKeyUp, blur: blur }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->

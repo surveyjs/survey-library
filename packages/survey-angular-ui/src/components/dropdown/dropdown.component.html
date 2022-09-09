@@ -7,6 +7,7 @@
         <div [class]="model.cssClasses.controlValue">
             <input type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.id]="model.getInputId()"
+            [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (keyup)="dropdownModel.inputKeyUpHandler($event)" (blur)="blur($event)" />
         </div>

@@ -86,6 +86,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            className={ this.question.cssClasses.filterStringInput }
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
+           disabled={this.question.isInputReadOnly}
            onKeyUp={(e) => { onInputKeyUp(e); }}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}

@@ -5,6 +5,7 @@
     v-model="model.filterString"
     v-bind:class="question.cssClasses.filterStringInput"
     v-bind:placeholder="model.filterStringPlaceholder"
+    v-bind:disabled="question.isInputReadOnly"
     :id="question.getInputId()"
     :readonly="!model.searchEnabled ? true : null"
     :size="!model.filterString ? 1 : null"

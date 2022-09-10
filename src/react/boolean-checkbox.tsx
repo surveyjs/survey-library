@@ -9,45 +9,47 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   }
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
-    const itemClass = this.question.getItemCss();
+    const itemClass = this.question.getCheckboxItemCss();
     return (
-      <div className={cssClasses.root}>
-        <label className={itemClass}>
-          <input
-            ref={this.checkRef}
-            type="checkbox"
-            name={this.question.name}
-            value={
-              this.question.checkedValue === null
-                ? ""
-                : this.question.checkedValue
-            }
-            id={this.question.inputId}
-            className={cssClasses.controlCheckbox}
-            disabled={this.isDisplayMode}
-            checked={this.question.checkedValue || false}
-            onChange={this.handleOnChange}
-            aria-required={this.question.ariaRequired}
-            aria-label={this.question.ariaLabel}
-            aria-invalid={this.question.ariaInvalid}
-            aria-describedby={this.question.ariaDescribedBy}
-          />
-          <span className={cssClasses.materialDecorator}>
-            { this.question.svgIcon ?
-              <svg
-                className={cssClasses.itemDecorator}
-              >
-                <use xlinkHref={this.question.svgIcon}></use>
-              </svg>:null
-            }
-            <span className="check" />
-          </span>
-          {this.question.titleLocation === "hidden" && (
-            <span className={this.question.getLabelCss(false)}>
-              {this.renderLocString(this.question.locDisplayLabel)}
+      <div className={cssClasses.rootCheckbox}>
+        <div className={itemClass}>
+          <label className={cssClasses.checkboxLabel}>
+            <input
+              ref={this.checkRef}
+              type="checkbox"
+              name={this.question.name}
+              value={
+                this.question.checkedValue === null
+                  ? ""
+                  : this.question.checkedValue
+              }
+              id={this.question.inputId}
+              className={cssClasses.controlCheckbox}
+              disabled={this.isDisplayMode}
+              checked={this.question.checkedValue || false}
+              onChange={this.handleOnChange}
+              aria-required={this.question.ariaRequired}
+              aria-label={this.question.ariaLabel}
+              aria-invalid={this.question.ariaInvalid}
+              aria-describedby={this.question.ariaDescribedBy}
+            />
+            <span className={cssClasses.checkboxMaterialDecorator}>
+              { this.question.svgIcon ?
+                <svg
+                  className={cssClasses.checkboxItemDecorator}
+                >
+                  <use xlinkHref={this.question.svgIcon}></use>
+                </svg>:null
+              }
+              <span className="check" />
             </span>
-          )}
-        </label>
+            {this.question.titleLocation === "hidden" && (
+              <span className={cssClasses.checkboxControlLabel}>
+                {this.renderLocString(this.question.locDisplayLabel)}
+              </span>
+            )}
+          </label>
+        </div>
       </div>
     );
   }

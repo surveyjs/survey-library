@@ -379,7 +379,7 @@ export class QuestionFileModel extends Question {
       newValues.forEach((value) => {
         var content = value.content || value;
         if (this.survey) {
-          this.survey.downloadFile(this.name, value, (status, data) => {
+          this.survey.downloadFile(this, this.name, value, (status, data) => {
             if (status === "success") {
               this.previewValue = this.previewValue.concat([
                 {

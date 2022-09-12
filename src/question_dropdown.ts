@@ -140,7 +140,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() itemComponent: string;
   /**
-   * Specifies whether to display a search bar in the drop-down menu.
+   * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
     defaultValue: true,

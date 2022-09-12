@@ -23,6 +23,7 @@ module.exports = function(config) {
     mime: {
       "text/x-typescript": ["ts", "tsx"]
     },
+    captureTimeout: 210000,
     browserDisconnectTimeout: 100000,
     browserDisconnectTolerance: 3,
     browserNoActivityTimeout: 100000,

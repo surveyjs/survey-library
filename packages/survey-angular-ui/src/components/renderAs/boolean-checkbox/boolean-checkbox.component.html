@@ -1,18 +1,20 @@
-<div [class]="model.cssClasses.root">
-  <label [class]="model.getItemCss()">
-    <input
-      type="checkbox"
-      [value]="model.checkedValue" [class]="model.cssClasses.controlCheckbox" 
-      [attr.name]="model.name" [id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
-      [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [(ngModel)]="model.checkedValue" [value]="model.checkedValue"
-      [disabled]="model.isInputReadOnly" [indeterminate]="model.isIndeterminate"
-    />
-    <span [class]="model.cssClasses.materialDecorator">
-      <svg *ngIf="!!model.svgIcon" [class]="model.cssClasses.itemDecorator">
-        <use [attr.xlink:href]="model.svgIcon"></use>
-      </svg>
-      <span class="check"></span>
-    </span>
-    <span *ngIf="model.titleLocation === 'hidden'" [class]="model.cssClasses.label" [model]="model.locDisplayLabel" sv-ng-string></span>
-  </label>
+<div [class]="model.cssClasses.rootCheckbox">
+  <div [class]="model.getCheckboxItemCss()">
+    <label [class]="model.cssClasses.checkboxLabel">
+      <input
+        type="checkbox"
+        [value]="model.checkedValue" [class]="model.cssClasses.controlCheckbox" 
+        [attr.name]="model.name" [id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
+        [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [(ngModel)]="model.checkedValue" [value]="model.checkedValue"
+        [disabled]="model.isInputReadOnly" [indeterminate]="model.isIndeterminate"
+      />
+      <span [class]="model.cssClasses.checkboxMaterialDecorator">
+        <svg *ngIf="!!model.svgIcon" [class]="model.cssClasses.checkboxItemDecorator">
+          <use [attr.xlink:href]="model.svgIcon"></use>
+        </svg>
+        <span class="check"></span>
+      </span>
+      <span *ngIf="model.titleLocation === 'hidden'" [class]="model.cssClasses.checkboxControlLabel" [model]="model.locDisplayLabel" sv-ng-string></span>
+    </label>
+  </div>
 </div>

@@ -58,6 +58,24 @@ registerMarkupTests(
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",
+          defaultValue: "true",
+          renderAs: "checkbox"
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "boolean-checkbox-defaultV2",
+  },
+  {
+    name: "Test Boolean Checkbox defaultV2",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
           renderAs: "checkbox"
         }
       ]

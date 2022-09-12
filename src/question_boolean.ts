@@ -157,15 +157,29 @@ export class QuestionBooleanModel extends Question {
     if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
     return this.locLabelFalse.textOrHtml;
   }
+  private getItemCssValue(css: any): string {
+    return new CssClassBuilder()
+      .append(css.item)
+      .append(css.itemOnError, this.errors.length > 0)
+      .append(css.itemDisabled, this.isReadOnly)
+      .append(css.itemChecked, !!this.checkedValue)
+      .append(css.itemIndeterminate, this.checkedValue === null)
+      .toString();
+  }
 
   public getItemCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0)
-      .append(this.cssClasses.itemDisabled, this.isReadOnly)
-      .append(this.cssClasses.itemChecked, !!this.checkedValue)
-      .append(this.cssClasses.itemIndeterminate, this.checkedValue === null)
-      .toString();
+    return this.getItemCssValue(this.cssClasses);
+  }
+  public getCheckboxItemCss() {
+    return this.getItemCssValue(
+      {
+        item: this.cssClasses.checkboxItem,
+        itemOnError: this.cssClasses.checkboxItemOnError,
+        itemDisabled: this.cssClasses.checkboxItemDisabled,
+        itemChecked: this.cssClasses.checkboxItemChecked,
+        itemIndeterminate: this.cssClasses.checkboxItemIndeterminate
+      }
+    );
   }
 
   public getLabelCss(checked: boolean): string {

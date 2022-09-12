@@ -8,7 +8,7 @@
         :checked="value === question.value"
         :aria-describedby="question.ariaDescribedBy"
         :disabled="question.isInputReadOnly"
-        :class="question.cssClasses.itemControl"
+        :class="question.cssClasses.itemRadioControl"
         @change="handleChange"
       />
       <span

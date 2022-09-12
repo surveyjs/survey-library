@@ -91,6 +91,7 @@ export class DropdownComponent extends BaseVue {
   }
   public blur(event: any) {
     this.model?.onBlur(event);
+    this.updateInputDomElement();
   }
 
   protected onCreated() {

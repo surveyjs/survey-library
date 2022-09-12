@@ -20,6 +20,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    };
    blur = (event: any) => {
      this.question.dropdownListModel?.onBlur(event);
+     this.updateInputDomElement();
    };
 
    protected setValueCore(newValue: any) {
@@ -69,8 +70,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        // @ts-ignore
        disabled={this.question.isInputReadOnly}
        required={this.question.isRequired}
-       onChange={this.updateValueOnEvent}
-       onInput={this.updateValueOnEvent}
        onKeyUp={this.keyup}
        onBlur={this.blur}
        role={this.question.ariaRole}

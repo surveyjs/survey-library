@@ -5,11 +5,11 @@
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
         <div [class]="model.cssClasses.controlValue">
-            <input type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
+            <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.id]="model.getInputId()"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (keyup)="dropdownModel.inputKeyUpHandler($event)" (blur)="blur($event)" />
+            (change)="inputChange($event)" (keyup)="inputKeyUp($event)" (blur)="blur($event)" />
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

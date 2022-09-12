@@ -53,13 +53,13 @@ ReactElementFactory.Instance.registerElement("sv-progress-questions", props => {
   return React.createElement(SurveyProgress, props);
 });
 ReactElementFactory.Instance.registerElement(
-  "sv-progress-correctQuestions",
+  "sv-progress-correctquestions",
   props => {
     return React.createElement(SurveyProgress, props);
   }
 );
 ReactElementFactory.Instance.registerElement(
-  "sv-progress-requiredQuestions",
+  "sv-progress-requiredquestions",
   props => {
     return React.createElement(SurveyProgress, props);
   }

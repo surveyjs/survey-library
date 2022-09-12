@@ -1,23 +1,31 @@
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { DropdownListModel } from "survey-core";
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { DropdownListModel, Helpers } from "survey-core";
+import { BaseAngular } from "../../base-angular";
 
 @Component({
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
 })
-export class DropdownComponent implements OnDestroy, OnInit {
+export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit {
     @Input() model: any;
+    @ViewChild("inputElement") inputElementRef!: ElementRef<HTMLDivElement>;
+
     private dropdownListModel!: DropdownListModel;
 
     get dropdownModel(): DropdownListModel {
       return this.dropdownListModel;
     }
+    protected getModel() {
+      return this.model;
+    }
 
-    ngOnInit(): void {
+    override ngOnInit(): void {
+      super.ngOnInit();
       this.dropdownListModel = this.model.dropdownListModel || new DropdownListModel(this.model);
     }
 
-    ngOnDestroy() {
+    override ngOnDestroy() {
+      super.ngOnDestroy();
       this.dropdownListModel?.dispose();
     }
 
@@ -32,5 +40,22 @@ export class DropdownComponent implements OnDestroy, OnInit {
     }
     blur(event: any) {
       this.dropdownListModel?.onBlur(event);
+      this.updateInputDomElement();
+    }
+    inputChange(event: any) {
+      this.detectChanges();
+    }
+    inputKeyUp(event: any) {
+      this.dropdownModel.inputKeyUpHandler(event);
+      this.detectChanges();
+    }
+    updateInputDomElement() {
+      if (!!this.inputElementRef?.nativeElement) {
+        const control: any = this.inputElementRef.nativeElement;
+        const newValue = this.model.filterString;
+        if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+          control.value = this.model.filterString || "";
+        }
+      }
     }
 }

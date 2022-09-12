@@ -5,6 +5,7 @@ const title = "dropdown";
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
 const questionValueText = Selector(".sv_q_dropdown__value input");
+const clearButton = Selector(".sv_q_dropdown_clean-button");
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -502,7 +503,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const clearButton = Selector(".sv_q_dropdown_clean-button");
     await t
       .expect(clearButton.exists).ok()
       .expect(clearButton.visible).notOk()
@@ -703,6 +703,65 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("esc")
       .expect(questionValueText.getAttribute("placeholder")).eql("item25");
+  });
+
+  test("Check dropdown reset filter string", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .expect(listItems.count).eql(27)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .pressKey("2")
+      .expect(clearButton.visible).notOk()
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+
+      .pressKey("tab")
+      .expect(questionValueText.value).eql("")
+      .expect(popupContainer.visible).notOk()
+      .expect(clearButton.visible).notOk();
   });
 
   test("Check dropdown clear value by keyboard", async (t) => {

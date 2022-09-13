@@ -31,7 +31,7 @@ import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { PanelModelBase, QuestionRowModel } from "./panel";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
 import {
   HtmlConditionItem,
   UrlConditionItem,
@@ -4874,13 +4874,13 @@ export class SurveyModel extends SurveyElementCore
   public getPanelByName(
     name: string,
     caseInsensitive: boolean = false
-  ): IPanel {
+  ): PanelModel {
     var panels = this.getAllPanels();
     if (caseInsensitive) name = name.toLowerCase();
     for (var i: number = 0; i < panels.length; i++) {
       var panelName = panels[i].name;
       if (caseInsensitive) panelName = panelName.toLowerCase();
-      if (panelName == name) return panels[i];
+      if (panelName == name) return <PanelModel>panels[i];
     }
     return null;
   }

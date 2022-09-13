@@ -152,6 +152,9 @@ export class ListModel extends ActionContainer {
       event.preventDefault();
     }
   }
+  public onMouseMove(event: MouseEvent): void {
+    this.resetFocusedItem();
+  }
   public onKeyDown(event: KeyboardEvent): void {
     const currentElement = <Element>event.target;
     if (event.key === "ArrowDown" || event.keyCode === 40) {
@@ -165,6 +168,9 @@ export class ListModel extends ActionContainer {
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh(): void { // used in popup
     this.filterString = "";
+    this.resetFocusedItem();
+  }
+  public resetFocusedItem(): void {
     this.focusedItem = undefined;
   }
   public focusFirstVisibleItem(): void {

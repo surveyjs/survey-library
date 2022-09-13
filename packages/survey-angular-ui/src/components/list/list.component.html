@@ -12,7 +12,7 @@
         <div *ngIf="model.isEmpty" [class]="model.cssClasses.emptyContainer">
             <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
-        <ul [class]="model.cssClasses.itemsContainer" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)">
+        <ul [class]="model.cssClasses.itemsContainer" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">
             <sv-ng-list-item *ngFor="let item of model.renderedActions" [listModel]="model" [model]="item"></sv-ng-list-item>
             <!--ko foreach: model.renderedActions -->
             <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->

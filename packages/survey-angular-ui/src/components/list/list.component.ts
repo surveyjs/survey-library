@@ -22,6 +22,9 @@ export class ListComponent extends BaseAngular {
   onKeyDown(event: Event): void {
     this.model.onKeyDown(event);
   }
+  onMouseMove(event: Event): void {
+    this.model.onMouseMove(event);
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-list", ListComponent);

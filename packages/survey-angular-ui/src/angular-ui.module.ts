@@ -92,6 +92,7 @@ import { CustomQuestionComponent } from "./questions/custom.component";
 import { CompositeQuestionComponent } from "./questions/composite.component";
 import { SurveyContentComponent } from "./survey-content.component";
 import { TemplateRendererComponent } from "./template-renderer.component";
+import { ModalComponent } from "./components/popup/modal-container.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
@@ -107,7 +108,7 @@ import { TemplateRendererComponent } from "./template-renderer.component";
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
-    CustomQuestionComponent, CompositeQuestionComponent
+    CustomQuestionComponent, CompositeQuestionComponent, ModalComponent
   ],
   imports: [
     CommonModule, FormsModule

@@ -14,7 +14,7 @@
   </div>
   <!-- /ko -->
   <ul role="listbox"
-    data-bind="css: model.cssClasses.itemsContainer, event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; } }">
+    data-bind="css: model.cssClasses.itemsContainer, event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; }, mousemove: function(data, e) { $data.model.onMouseMove(event); return true; } }">
     <!--ko foreach: model.renderedActions -->
     <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->
     <!-- /ko -->

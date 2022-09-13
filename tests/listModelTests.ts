@@ -217,3 +217,13 @@ QUnit.test("selectFocusedItem", function (assert) {
   list.selectFocusedItem();
   assert.ok(list.selectedItem === list.actions[1]);
 });
+QUnit.test("onMouseMove", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "1";
+  list.focusNextVisibleItem();
+  assert.ok(list.focusedItem === list.actions[1]);
+
+  list.onMouseMove(new MouseEvent("mouseMove"));
+  assert.equal(list.focusedItem, undefined);
+});

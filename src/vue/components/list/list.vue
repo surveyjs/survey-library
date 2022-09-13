@@ -25,6 +25,7 @@
           event.preventDefault();
         }
       "
+      @mousemove="mouseMove"
       v-on:keydown="
         (event) => {
           model.onKeyDown(event);
@@ -65,6 +66,9 @@ export class List extends BaseVue {
   keyup(event: any) {
     this.model.filterString = event.target.value;
     this.model.goToItems(event);
+  }
+  mouseMove(event: any) {
+    this.model.onMouseMove(event);
   }
 }
 

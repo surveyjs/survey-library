@@ -619,13 +619,13 @@ Serializer.addClass(
   "matrix",
   [
     {
-      name: "columns:itemvalue[]",
+      name: "columns:itemvalue[]", uniqueProperty: "value",
       baseValue: function() {
         return surveyLocalization.getString("matrix_column");
       },
     },
     {
-      name: "rows:itemvalue[]",
+      name: "rows:itemvalue[]", uniqueProperty: "value",
       baseValue: function() {
         return surveyLocalization.getString("matrix_row");
       },

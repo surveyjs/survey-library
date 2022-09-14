@@ -147,7 +147,7 @@ export class DropdownListModel extends Base {
       this.scrollToFocusedItem();
       event.preventDefault();
       event.stopPropagation();
-    } else if(this.popupModel.isVisible && event.keyCode === 13) {
+    } else if(this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       this.listModel.selectFocusedItem();
       event.preventDefault();
       event.stopPropagation();

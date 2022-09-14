@@ -1,12 +1,13 @@
 <div [class]="model.cssClasses.selectWrapper">
     <div *ngIf="!model.isReadOnly" [attr.tabindex]="(model.isInputReadOnly || dropdownModel.searchEnabled) ? null : 0" [class]="model.getControlClass()"
         [attr.disabled]="model.isInputReadOnly ? true : null" (click)="click($event)" (blur)="blur($event)"
-        (keyup)="keyup($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
+        (keydown)="keyup($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
         <div [class]="model.cssClasses.controlValue">
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.id]="model.getInputId()"
+            [attr.tabindex]="(model.isInputReadOnly || dropdownModel.searchEnabled) ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (change)="inputChange($event)" (keyup)="inputKeyUp($event)" (blur)="blur($event)" />

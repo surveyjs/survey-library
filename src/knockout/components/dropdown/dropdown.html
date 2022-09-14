@@ -2,7 +2,7 @@
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
     click: click, 
-    event: { keyup: keyup, blur: blur },
+    event: { keydown: keyup, blur: blur },
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
@@ -21,6 +21,7 @@
       attr: { 
         placeholder: question.readOnlyText, 
         readonly: !model.searchEnabled, 
+        tabindex: (question.isInputReadOnly || model.searchEnabled) ? undefined : -1,
         disabled: question.isInputReadOnly,
         id: question.getInputId() 
       },

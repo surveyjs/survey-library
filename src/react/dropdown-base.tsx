@@ -70,7 +70,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        // @ts-ignore
        disabled={this.question.isInputReadOnly}
        required={this.question.isRequired}
-       onKeyUp={this.keyup}
+       onKeyDown={this.keyup}
        onBlur={this.blur}
        role={this.question.ariaRole}
        aria-required={this.question.ariaRequired}
@@ -85,6 +85,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            className={ this.question.cssClasses.filterStringInput }
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
+           tabIndex={ this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
            onKeyUp={(e) => { onInputKeyUp(e); }}
            onChange={(e) => { onInputChange(e); }}

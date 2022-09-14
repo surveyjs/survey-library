@@ -185,7 +185,7 @@ Serializer.addClass(
   "matrixdropdown",
   [
     {
-      name: "rows:itemvalue[]",
+      name: "rows:itemvalue[]", uniqueProperty: "value"
     },
     "rowsVisibleIf:condition",
     "rowTitleWidth",

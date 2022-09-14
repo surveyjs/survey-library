@@ -10,6 +10,7 @@ import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -2881,4 +2882,12 @@ QUnit.test("Custom survey serialization, onSerializingProperty", function (asser
     { pages: [{ name: "page1", elements: [{ type: "text", name: "q1", visible: false }] }] },
     { sections: [{ name: "page1", Questions: [{ type: "text", name: "q1", IsHidden: true }] }] }, "visible => isHidden (opposite)");
   Serializer.onSerializingProperty = undefined;
+});
+QUnit.test("return correct uniquePropertyName", function (assert) {
+  const rowsMatrixDropdownProp = Serializer.findProperty("matrixdropdown", "rows");
+  assert.equal(rowsMatrixDropdownProp.uniquePropertyName, "value", "matrixdropdown.rows");
+  const rowsMatrixProp = Serializer.findProperty("matrix", "rows");
+  assert.equal(rowsMatrixProp.uniquePropertyName, "value", "matrix.rows");
+  const columnsMatrixProp = Serializer.findProperty("matrix", "columns");
+  assert.equal(columnsMatrixProp.uniquePropertyName, "value", "matrix.columns");
 });

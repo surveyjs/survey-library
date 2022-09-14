@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { SurveyModel, StylesManager, ActionContainer, Action, PopupModel, ListModel } from "survey-core";
+import { SurveyModel, StylesManager, ActionContainer, Action, PopupModel, ListModel, settings } from "survey-core";
 const json = require("../../../assets/survey.json");
 
 @Component({
@@ -11,7 +11,6 @@ export class ExampleComponent {
   title = "angular-ui";
 
   model: SurveyModel;
-  actionBar: ActionContainer;
 
   private getActions() {
     const itemModalPopupModel = new PopupModel("sv-action",
@@ -20,14 +19,19 @@ export class ExampleComponent {
 
     var actions = [
       new Action({
-        component: "sv-action-bar-item-dropdown",
-        title: "Modal popup",
-        id: "4",
+        id: "fefe",
+        component: "sv-action-bar-item",
+        title: "Click",
         showTitle: true,
         action: () => {
-          itemModalPopupModel.toggleVisibility();
-        },
-        popupModel: itemModalPopupModel
+          const model = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+          model.focusFirstQuestionAutomatic = false;
+          const opt: any = {
+            model: model,
+            survey: model
+          };
+          settings.showModal("survey", opt, <any>undefined, undefined);
+        }
       })
     ];
 
@@ -41,9 +45,5 @@ export class ExampleComponent {
       opt.titleActions = this.getActions();
     });
     (<any>window).survey = this.model;
-  }
-
-  ngOnInit() {
-    this.actionBar.setItems(this.getActions());
   }
 }

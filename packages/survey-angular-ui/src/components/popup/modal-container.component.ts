@@ -55,7 +55,7 @@ export class ModalComponent {
   }
   ngOnDestroy() {
     if(this.functionDefined) {
-      settings.showModal = undefined;
+      settings.showModal = <any>undefined;
     }
   }
 }

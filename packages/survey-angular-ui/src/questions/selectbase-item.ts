@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { ItemValue } from "survey-core";
+import { AngularComponentFactory } from "../component-factory";
 
 @Component({
   selector: "['sv-ng-selectbase-item'], sv-ng-selebase-item",
@@ -16,3 +17,5 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> {
     return this.model;
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-ng-selectbase-item", SelectBaseItemComponent);

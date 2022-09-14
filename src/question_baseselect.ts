@@ -591,7 +591,7 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("otherText");
   }
   /**
-   *  Enable this property to display the "Select All", "None", and "Other" choices on individual rows.
+   *  Displays the "Select All", "None", and "Other" choices on individual rows.
    */
   @property({ defaultValue: false }) separateSpecialChoices: boolean;
   /**

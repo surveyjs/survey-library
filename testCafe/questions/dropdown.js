@@ -1066,7 +1066,7 @@ frameworks.forEach((framework) => {
 
       .pressKey("up")
       .expect(focusedItem.textContent).eql("item27")
-      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(300)
+      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(100)
 
       .pressKey("tab")
       .pressKey("space")
@@ -1078,7 +1078,7 @@ frameworks.forEach((framework) => {
 
       .pressKey("up")
       .expect(focusedItem.textContent).eql("item30")
-      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).gt(300);
+      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).gt(100);
   });
 
   const theme = "defaultV2";

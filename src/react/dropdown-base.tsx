@@ -58,9 +58,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
          dropdownListModel.filterString = e.target.value;
        }
      };
-     const onInputKeyUp = (e: any) => {
-       dropdownListModel.inputKeyUpHandler(e);
-     };
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}
@@ -87,7 +84,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            tabIndex={ this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
-           onKeyUp={(e) => { onInputKeyUp(e); }}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}
          ></input>

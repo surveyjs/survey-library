@@ -10,7 +10,7 @@
             [attr.tabindex]="(model.isInputReadOnly || dropdownModel.searchEnabled) ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (change)="inputChange($event)" (keyup)="inputKeyUp($event)" (blur)="blur($event)" />
+            (change)="inputChange($event)" (blur)="blur($event)" />
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

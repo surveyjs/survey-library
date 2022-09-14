@@ -45,10 +45,6 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
     inputChange(event: any) {
       this.detectChanges();
     }
-    inputKeyUp(event: any) {
-      this.dropdownModel.inputKeyUpHandler(event);
-      this.detectChanges();
-    }
     updateInputDomElement() {
       if (!!this.inputElementRef?.nativeElement) {
         const control: any = this.inputElementRef.nativeElement;

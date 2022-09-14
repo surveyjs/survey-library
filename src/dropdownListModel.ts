@@ -134,7 +134,7 @@ export class DropdownListModel extends Base {
 
   onKeyUp(event: any): void {
     const char: number = event.which || event.keyCode;
-    if(event.keyCode === 38) {
+    if(this.popupModel.isVisible && event.keyCode === 38) {
       this.listModel.focusPrevVisibleItem();
       this.scrollToFocusedItem();
       event.preventDefault();
@@ -156,7 +156,7 @@ export class DropdownListModel extends Base {
     } else if(event.keyCode === 27) {
       this.popupModel.isVisible = false;
     } else {
-      if(event.keyCode !== 9) {
+      if(event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -179,13 +179,12 @@ export class DropdownListModel extends Base {
         }
       });
 
+      if(!visiblePopup) return;
+
       const item = visiblePopup.querySelector("." + defaultListCss.itemFocused);
     if(item) {
       item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
     }
     }, 0);
-  }
-
-  public inputKeyUpHandler(event: any): void {
   }
 }

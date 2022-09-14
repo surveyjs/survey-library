@@ -25,7 +25,7 @@
         disabled: question.isInputReadOnly,
         id: question.getInputId() 
       },
-      event: { keyup: inputKeyUp, blur: blur }"></input>
+      event: { blur: blur }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">

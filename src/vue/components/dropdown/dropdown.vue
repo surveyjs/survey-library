@@ -78,7 +78,6 @@ export class DropdownComponent extends BaseVue {
   }
   inputKeyUp(event: any) {
     this.model.filterString = event.target.value;
-    this.model.inputKeyUpHandler(event);
   }
 
   public click(event: any) {

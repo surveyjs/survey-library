@@ -182,9 +182,9 @@ export class DropdownListModel extends Base {
       if(!visiblePopup) return;
 
       const item = visiblePopup.querySelector("." + defaultListCss.itemFocused);
-    if(item) {
-      item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-    }
+      if(item) {
+        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }
     }, 0);
   }
 }

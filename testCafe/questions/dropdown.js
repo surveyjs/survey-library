@@ -1057,6 +1057,8 @@ frameworks.forEach((framework) => {
     const focusedItem = Selector(".sv-list__item--focused span");
 
     await t
+      .resizeWindow(1280, 600)
+
       .pressKey("enter")
       .expect(focusedItem.exists).ok()
       .expect(focusedItem.textContent).eql("item1")
@@ -1066,7 +1068,7 @@ frameworks.forEach((framework) => {
 
       .pressKey("up")
       .expect(focusedItem.textContent).eql("item27")
-      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(100)
+      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(400)
 
       .pressKey("tab")
       .pressKey("space")
@@ -1078,7 +1080,9 @@ frameworks.forEach((framework) => {
 
       .pressKey("up")
       .expect(focusedItem.textContent).eql("item30")
-      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).gt(100);
+      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).gt(400)
+
+      .resizeWindow(1280, 1100);
   });
 
   const theme = "defaultV2";

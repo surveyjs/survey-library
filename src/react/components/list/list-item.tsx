@@ -51,19 +51,26 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id }));
     }
 
+    const contentWrap =
+      attachKey2click(
+        <div
+          style={style}
+          className={className}
+          role="option"
+          onClick={(event: any) => {
+            this.model.onItemClick(this.item);
+            event.stopPropagation();
+          }}
+          onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
+        >
+          {content}
+        </div>
+      );
+    const separator = this.item.needSeparator ? <div className = {this.model.cssClasses.itemSeparator}/>:null;
     return attachKey2click(
-      <li
-        style={style}
-        className={className}
-        role="option"
-        aria-selected={this.model.isItemSelected(this.item)}
-        onClick={(event: any) => {
-          this.model.onItemClick(this.item);
-          event.stopPropagation();
-        }}
-        onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
-      >
-        {content}
+      <li aria-selected={this.model.isItemSelected(this.item)}>
+        {separator}
+        {contentWrap}
       </li>
     );
   }

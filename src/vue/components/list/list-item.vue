@@ -4,20 +4,28 @@
     role="option"
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
-    :style="{ paddingLeft: model.getItemIndent(item) }"
-    :key="item.id"
-    v-bind:class="model.getItemClass(item)"
-    v-on:click="click"
-    v-on:keyup="keyUp"
   >
-    <sv-svg-icon
-      v-if="item.iconName && !item.component"
-      v-bind:class="model.cssClasses.itemIcon"
-      :iconName="item.iconName"
-      :size="24"
-    ></sv-svg-icon>
-    <survey-string v-if="!item.component" :locString="item.locTitle" />
-    <component v-if="item.component" :is="item.component" :item="item"> </component>
+    <div 
+      v-if="item.needSeparator"
+      v-bind:class="model.cssClasses.itemSeparator"
+      />
+
+    <div
+      :style="{ paddingLeft: model.getItemIndent(item) }"
+      :key="item.id"
+      v-bind:class="model.getItemClass(item)"
+      v-on:click="click"
+      v-on:keyup="keyUp"
+    >
+      <sv-svg-icon
+        v-if="item.iconName && !item.component"
+        v-bind:class="model.cssClasses.itemIcon"
+        :iconName="item.iconName"
+        :size="24"
+      ></sv-svg-icon>
+      <survey-string v-if="!item.component" :locString="item.locTitle" />
+      <component v-if="item.component" :is="item.component" :item="item"> </component>
+    </div>
   </li>
 </template>
 

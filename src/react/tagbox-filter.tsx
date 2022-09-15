@@ -62,7 +62,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       readOnly={ !this.model.searchEnabled ? true : undefined }
       size={ !this.model.filterString ? 1 : undefined }
       placeholder={ this.model.filterStringPlaceholder }
-      onKeyUp={(e) => { this.onKeyUp(e); }}
+      onKeyDown={(e) => { this.onKeyUp(e); }}
       onChange={(e) => { this.onChange(e); }}
       onBlur={(e) => { this.onBlur(e); }}
     ></input>);

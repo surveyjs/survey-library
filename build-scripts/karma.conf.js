@@ -45,7 +45,7 @@ module.exports = function (config) {
       ])
     },
     reporters: ["progress", "dots", "junit"],
-    browsers: ["ChromeHeadless", "ChromeHeadlessNoSandbox"],
+    browsers: ["ChromeHeadlessNoSandbox"],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',

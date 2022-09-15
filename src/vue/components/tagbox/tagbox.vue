@@ -7,7 +7,7 @@
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @click="click"
-      @keyup="keyUp"
+      @keydown="keyUp"
       @blur="blur"
       :class="question.getControlClass()"
       :role="question.ariaRole"

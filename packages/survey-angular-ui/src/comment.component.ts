@@ -13,7 +13,4 @@ export class SurveyCommentComponent {
     if(!this.question.comment) return "";
     return this.question.comment;
   }
-  public set comment(val: string) {
-    this.question.comment = val;
-  }
 }

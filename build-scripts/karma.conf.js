@@ -3,9 +3,9 @@ var webpack = require("webpack");
 var webpackConfigCreator = require("./webpack.common");
 var packageJson = require("../package.json");
 var webpackConfig = webpackConfigCreator({
-    platform: "knockout",
-    buildType: "dev",
-  },
+  platform: "knockout",
+  buildType: "dev",
+},
   packageJson
 );
 
@@ -14,7 +14,7 @@ process.env.CHROME_BIN = require("puppeteer").executablePath();
 /*setup ts config file for tests ("noImplicitAny": false)*/
 webpackConfig.module.rules[0].options.configFile = "build-scripts/tsconfig.tests.json";
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     basePath: "../",
     frameworks: ["qunit"],
@@ -50,19 +50,19 @@ module.exports = function(config) {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
         flags: [
-                '--no-sandbox',
-                '--disable-gpu',
-                '--enable-logging',
-                '--no-default-browser-check',
-                '--no-first-run',
-                '--disable-default-apps',
-                '--disable-popup-blocking',
-                '--disable-translate',
-                '--disable-background-timer-throttling',
-                '--disable-renderer-backgrounding',
-                '--disable-device-discovery-notifications',
-                '--remote-debugging-port=9222',
-                '--disable-web-security'
+          '--no-sandbox',
+          '--disable-gpu',
+          '--enable-logging',
+          '--no-default-browser-check',
+          '--no-first-run',
+          '--disable-default-apps',
+          '--disable-popup-blocking',
+          '--disable-translate',
+          '--disable-background-timer-throttling',
+          '--disable-renderer-backgrounding',
+          '--disable-device-discovery-notifications',
+          '--remote-debugging-port=9222',
+          '--disable-web-security'
         ]
       }
     },

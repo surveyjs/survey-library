@@ -75,9 +75,12 @@ $base-unit: var(--base-unit, 8px);
   outline: none;
 }
 
-.sv-list__item--with-icon {
-  padding-top: calcSize(1.5);
-  padding-bottom: calcSize(1.5);
+.sv-list__item--with-icon.sv-list__item--with-icon {
+  padding: 0;
+  .sv-list__item-body {
+    padding-top: calcSize(1.5);
+    padding-bottom: calcSize(1.5);
+  }
 }
 .sv-list__item-icon {
   float: left;

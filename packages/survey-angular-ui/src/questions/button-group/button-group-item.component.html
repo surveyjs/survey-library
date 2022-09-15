@@ -1,0 +1,11 @@
+<ng-template #template>
+  <label role="radio" [class]="model.css.label" [attr.title]="model.caption.renderedHtml">
+    <input type="radio"
+      [attr.name]="model.name" [attr.id]="model.id" [attr.aria-required]="model.isRequired" [attr.aria-label]="model.caption.renderedHtml" role="radio" [attr.aria-invalid]="model.hasErrors" [attr.aria-describedby]="model.describedBy" [disabled]="model.readOnly" [class]="model.css.control" [(ngModel)]="question.renderedValue" [attr.value]="model.value" [value]="model.value"/>
+    <div data-bind="css: model.css.decorator">
+      <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [class]="model.css.icon" sv-ng-svg-icon></svg>
+      <span [class]="model.css.caption" *ngIf="model.showCaption" [attr.title]="model.caption.renderedHtml" sv-ng-string [model]="model.caption">
+      </span>
+    </div>
+  </label>
+</ng-template>

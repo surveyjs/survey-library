@@ -5,6 +5,7 @@ const title = "dropdown";
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
 const questionValueText = Selector(".sv_q_dropdown__value input");
+const clearButton = Selector(".sv_q_dropdown_clean-button");
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
@@ -502,7 +503,6 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
 
-    const clearButton = Selector(".sv_q_dropdown_clean-button");
     await t
       .expect(clearButton.exists).ok()
       .expect(clearButton.visible).notOk()
@@ -557,12 +557,12 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.getAttribute("placeholder")).eql("Nissan");
   });
 
-  test("Check dropdown key press", async (t) => {
+  test("Check dropdown key press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
       questions: [
         {
           type: "dropdown",
-          name: "cars",
+          name: "DropdownSearchEnabledFalse",
           title: "Dropdown",
           colCount: 0,
           choices: [
@@ -580,7 +580,7 @@ frameworks.forEach((framework) => {
         },
         {
           type: "dropdown",
-          name: "DropdownRenderAsSelect",
+          name: "cars",
           colCount: 0,
           choices: [
             "item1",
@@ -614,6 +614,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
     await initSurvey(framework, jsonWithDropDown);
 
     await t
@@ -624,12 +625,108 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
 
+      .pressKey("space")
+      .expect(popupContainer.visible).ok()
+      .pressKey("up")
+      .pressKey("space")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueText.getAttribute("placeholder")).eql("Volkswagen")
+
       .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
+      .pressKey("space")
+      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item20")
+
+      .pressKey("down")
+      .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item20");
+      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item21");
+  });
+
+  test("Check dropdown key press without searchEnabled", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "DropdownSearchEnabledFalse",
+          searchEnabled: false,
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          name: "cars",
+          searchEnabled: false,
+          colCount: 0,
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("enter")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("enter")
+      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
+
+      .pressKey("space")
+      .expect(popupContainer.visible).ok()
+      .pressKey("up")
+      .pressKey("space")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueText.getAttribute("placeholder")).eql("Volkswagen")
+
+      .pressKey("tab")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("enter")
+      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item2");
   });
 
   test("Check dropdown search", async (t) => {
@@ -705,6 +802,122 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.getAttribute("placeholder")).eql("item25");
   });
 
+  test("Check reset focused item", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+    const focusedItem = Selector(".sv-list__item--focused");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .expect(listItems.count).eql(27)
+      .expect(focusedItem.exists).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).ok()
+      .expect(listItems.count).eql(27)
+      .expect(focusedItem.exists).ok()
+
+      .hover(listItems.nth(2))
+      .expect(focusedItem.exists).notOk();
+  });
+
+  test("Check dropdown reset filter string", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .expect(listItems.count).eql(27)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .pressKey("2")
+      .expect(clearButton.visible).notOk()
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+
+      .pressKey("tab")
+      .expect(questionValueText.value).eql("")
+      .expect(popupContainer.visible).notOk()
+      .expect(clearButton.visible).notOk();
+  });
+
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
       questions: [
@@ -762,6 +975,114 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(newDropdown.getAttribute("placeholder")).eql("Select...")
       .expect(oldDropdown.value).eql("");
+  });
+
+  test("Check popup scroll", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        },
+        {
+          type: "dropdown",
+          name: "Dropdown2",
+          searchEnabled: false,
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27",
+            "item28",
+            "item29",
+            "item30",
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container");
+    const focusedItem = Selector(".sv-list__item--focused span");
+
+    await t
+      .resizeWindow(1280, 600)
+
+      .pressKey("enter")
+      .expect(focusedItem.exists).ok()
+      .expect(focusedItem.textContent).eql("item1")
+      .expect(popupContainer.nth(0).visible).ok()
+      .expect(popupContainer.nth(0).find(".sv-list__item").count).eql(27)
+      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).eql(0)
+
+      .pressKey("up")
+      .expect(focusedItem.textContent).eql("item27")
+      .expect(popupContainer.nth(0).find(".sv-list").scrollTop).gt(400)
+
+      .pressKey("tab")
+      .pressKey("space")
+      .expect(focusedItem.exists).ok()
+      .expect(focusedItem.textContent).eql("item1")
+      .expect(popupContainer.nth(1).visible).ok()
+      .expect(popupContainer.nth(1).find(".sv-list__item").count).eql(30)
+      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).eql(0)
+
+      .pressKey("up")
+      .expect(focusedItem.textContent).eql("item30")
+      .expect(popupContainer.nth(1).find(".sv-list").scrollTop).gt(400)
+
+      .resizeWindow(1280, 1100);
   });
 
   const theme = "defaultV2";

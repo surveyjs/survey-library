@@ -34,7 +34,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({ defaultValue: true }) allowClear: boolean;
   /**
-   * Specifies whether to display a search bar in the drop-down menu.
+   * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
     defaultValue: true,
@@ -49,6 +49,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property() itemComponent: string;
 
+  /**
+   * Specifies whether to remove selected items from the drop-down list.
+   */
   @property({
     defaultValue: false,
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {

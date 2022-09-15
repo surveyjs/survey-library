@@ -25,6 +25,7 @@ export * from "./questions/rating.component";
 export * from "./questions/boolean.component";
 export * from "./questions/imagepicker-item.component";
 export * from "./questions/imagepicker.component";
+export * from "./questions/button-group/button-group.component";
 export * from "./question";
 
 export * from "./components/action-bar/action-bar.component";
@@ -49,6 +50,7 @@ export * from "./components/renderAs/boolean-radio/boolean-radio-item.component"
 export * from "./components/progress/default/progress.component";
 export * from "./components/progress/buttons/progress.component";
 export * from "./panel.component";
+export * from "./components/popup/modal-container.component";
 export * from "./components/popup/popup.service";
 export * from "./components/survey-actions/survey-nav-btn.component";
 export * from "./questions/matrix.component";

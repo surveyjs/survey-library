@@ -10,7 +10,7 @@
     :readonly="!model.searchEnabled ? true : null"
     :size="!model.filterString ? 1 : null"
     @change="inputChange"
-    @keyup="inputKeyUp"
+    @keydown="inputKeyUp"
     @blur="blur"
   />
 </template>

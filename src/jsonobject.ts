@@ -185,6 +185,7 @@ export class JsonObjectProperty implements IObject {
     "isCustom",
     "isBindable",
     "isUnique",
+    "uniquePropertyName",
     "isDynamicChoices",
     "isLocalizableValue",
     "className",
@@ -219,6 +220,7 @@ export class JsonObjectProperty implements IObject {
   private baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
+  private uniquePropertyValue: string
   private readOnlyValue: boolean | null;
   private visibleValue: boolean | null;
   private isLocalizableValue: boolean | null;
@@ -287,11 +289,17 @@ export class JsonObjectProperty implements IObject {
   public set isRequired(val: boolean) {
     this.isRequiredValue = val;
   }
-  public get isUnique() {
+  public get isUnique(): boolean {
     return this.isUniqueValue;
   }
   public set isUnique(val: boolean) {
     this.isUniqueValue = val;
+  }
+  public get uniquePropertyName(): string {
+    return this.uniquePropertyValue;
+  }
+  public set uniquePropertyName(val: string) {
+    this.uniquePropertyValue = val;
   }
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
@@ -720,6 +728,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isUnique)) {
         prop.isUnique = propInfo.isUnique;
+      }
+      if (!Helpers.isValueEmpty(propInfo.uniqueProperty)) {
+        prop.uniquePropertyName = propInfo.uniqueProperty;
       }
       if (!Helpers.isValueEmpty(propInfo.isArray)) {
         prop.isArray = propInfo.isArray;

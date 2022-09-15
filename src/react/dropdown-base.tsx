@@ -20,6 +20,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    };
    blur = (event: any) => {
      this.question.dropdownListModel?.onBlur(event);
+     this.updateInputDomElement();
    };
 
    protected setValueCore(newValue: any) {
@@ -57,9 +58,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
          dropdownListModel.filterString = e.target.value;
        }
      };
-     const onInputKeyUp = (e: any) => {
-       dropdownListModel.inputKeyUpHandler(e);
-     };
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}
@@ -69,9 +67,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        // @ts-ignore
        disabled={this.question.isInputReadOnly}
        required={this.question.isRequired}
-       onChange={this.updateValueOnEvent}
-       onInput={this.updateValueOnEvent}
-       onKeyUp={this.keyup}
+       onKeyDown={this.keyup}
        onBlur={this.blur}
        role={this.question.ariaRole}
        aria-required={this.question.ariaRequired}
@@ -86,8 +82,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            className={ this.question.cssClasses.filterStringInput }
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
+           tabIndex={ this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
-           onKeyUp={(e) => { onInputKeyUp(e); }}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}
          ></input>

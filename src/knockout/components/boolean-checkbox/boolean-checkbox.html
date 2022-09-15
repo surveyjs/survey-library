@@ -1,22 +1,24 @@
-<div data-bind="css: question.koCss().root">
-  <label data-bind="css: question.getItemCss()">
-    <input
-      type="checkbox"
-      data-bind="value: question.checkedValue, css: question.koCss().controlCheckbox, attr: {name: question.name, id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
-    />
-    <span data-bind="css: question.koCss().materialDecorator">
-      <!-- ko if: question.svgIcon -->
-      <svg data-bind="css:question.koCss().itemDecorator">
-        <use data-bind="attr:{'xlink:href':question.svgIcon}" xlink:href=''></use>
-      </svg>
-      <!-- /ko -->
-      <span class="check"></span>
-    </span>
-    <span
-      data-bind="if: question.titleLocation === 'hidden', css: question.koCss().label"
-    >
-      <!-- ko template: { name: 'survey-string', data: question.locDisplayLabel } -->
-      <!-- /ko -->
-    </span>
-  </label>
+<div data-bind="css: question.koCss().rootCheckbox">
+  <div data-bind="css: question.getCheckboxItemCss()">
+    <label data-bind="css: question.koCss().checkboxLabel">
+      <input
+        type="checkbox"
+        data-bind="value: question.checkedValue, css: question.koCss().controlCheckbox, attr: {name: question.name, id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
+      />
+      <span data-bind="css: question.koCss().checkboxMaterialDecorator">
+        <!-- ko if: question.svgIcon -->
+        <svg data-bind="css:question.koCss().checkboxItemDecorator">
+          <use data-bind="attr:{'xlink:href':question.svgIcon}" xlink:href=''></use>
+        </svg>
+        <!-- /ko -->
+        <span class="check"></span>
+      </span>
+      <span
+        data-bind="if: question.titleLocation === 'hidden', css: question.koCss().checkboxControlLabel"
+      >
+        <!-- ko template: { name: 'survey-string', data: question.locDisplayLabel } -->
+        <!-- /ko -->
+      </span>
+    </label>
+  </div>
 </div>

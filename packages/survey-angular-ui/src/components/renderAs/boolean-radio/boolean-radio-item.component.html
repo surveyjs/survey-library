@@ -3,7 +3,7 @@
     <input
       type="radio"
       [attr.name]="question.name" [attr.aria-describedby]="question.ariaDescribedBy" [value]="value" [(ngModel)]="question.value"
-      [disabled]="question.isInputReadOnly" [class]="question.cssClasses.itemControl || ''"
+      [disabled]="question.isInputReadOnly" [class]="question.cssClasses.itemRadioControl || ''"
     />
     <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator"></span>
     <span [class]="question.cssClasses.radioControlLabel" [model]="locText" sv-ng-string>

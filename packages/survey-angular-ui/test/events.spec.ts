@@ -1,8 +1,15 @@
 import { TestBed } from "@angular/core/testing";
+import { SurveyAngularModule } from "src/angular-ui.module";
 import { SurveyComponent } from "src/survey.component";
 import { SurveyModel } from "survey-core";
 
 describe("event tests", () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [SurveyAngularModule],
+    }).compileComponents();
+    TestBed;
+  });
   it("Check that that surveyAfterRender is called", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;

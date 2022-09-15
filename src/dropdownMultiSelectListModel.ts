@@ -96,7 +96,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   public inputKeyUpHandler(event: any): void {
-    if(event.keyCode === 8) {
+    if(event.keyCode === 8 && !this.filterString) {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();

@@ -2,6 +2,7 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { SurveyModel, SvgRegistry } from "survey-core";
 import { BaseAngular } from "./base-angular";
+import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey-content",
   templateUrl: "./survey-content.component.html"
@@ -31,3 +32,5 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     this.model.afterRenderSurvey(this.rootEl.nativeElement);
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("survey", SurveyContentComponent);

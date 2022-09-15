@@ -10,7 +10,7 @@
   }
 }
 .sd-table--alternate-rows {
-  .sd-table__row:nth-child(odd) {
+  .sd-table__row:nth-of-type(odd) {
     &> td, td:first-of-type {
       background-color: $background-dim-light;
       .sd-input {
@@ -124,8 +124,8 @@
 .sd-table__cell--actions:not(.sd-table__cell--vertical),
 .sd-table__cell--empty,
 .sd-table__cell--row-text,
-.sd-matrix__cell:first-child,
-.sd-matrix tr > td:first-child {
+.sd-matrix__cell:first-of-type,
+.sd-matrix tr > td:first-of-type {
   position: sticky;
   background: $background;
   z-index: 12;
@@ -211,7 +211,7 @@
       margin-left: calcSize(1);
       text-align: left;
     }
-    &:first-child {
+    &:first-of-type {
       padding-top: calcSize(2);
       padding-bottom: calcSize(1);
     }

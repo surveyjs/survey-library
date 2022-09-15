@@ -17,7 +17,7 @@
   background-color: $primary-light;
   padding: calcSize(2);
 }
-.sd-matrix__cell:first-child {
+.sd-matrix__cell:first-of-type {
   font-weight: 600;
   text-align: left;
 }

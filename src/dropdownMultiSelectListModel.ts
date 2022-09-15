@@ -95,8 +95,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();
-    } else {
-      super.inputKeyUpHandler(event);
     }
   }
 }

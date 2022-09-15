@@ -14,7 +14,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
   private onkeydown (evt: any) {
     doKey2ClickDown(evt, this.options);
   }
-  private onkeyup (evt: any) {
+  private onkeyup = (evt: any) => {
     evt.preventDefault();
     evt.stopPropagation();
     doKey2ClickUp(evt, this.options);

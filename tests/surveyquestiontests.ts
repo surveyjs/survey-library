@@ -3765,13 +3765,23 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
           { name: "item3", title: "Item 3" },
         ],
       },
+      {
+        type: "imagepicker",
+        name: "q5",
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" },
+          { value: 3, text: "three" },
+        ],
+      },
     ],
   });
-  survey.data = { q1: 1, q2: [1, 2] };
+  survey.data = { q1: 1, q2: [1, 2], q5: [1, 2] };
   var q1 = survey.getQuestionByName("q1");
   var q2 = survey.getQuestionByName("q2");
   var q3 = survey.getQuestionByName("q3");
   var q4 = survey.getQuestionByName("q4");
+  var q5 = survey.getQuestionByName("q5");
   assert.equal(q1.getDisplayValue(true), "one", "radigroup displayvalue works");
   assert.equal(
     q1.getDisplayValue(true, 2),
@@ -3808,6 +3818,9 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
     { "Item 1": "value1", "Item 3": "value3" },
     "multiple text displayvalue"
   );
+  assert.equal(q5.getDisplayValue(true), "one, two", "imagepicker displayvalue works, array");
+  q5.value = 2;
+  assert.equal(q5.getDisplayValue(true), "two", "imagepicker displayvalue works, single value");
 });
 
 QUnit.test(

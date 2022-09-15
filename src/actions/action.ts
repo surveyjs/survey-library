@@ -37,7 +37,7 @@ export interface IAction {
    * The action item's tooltip.
    */
   tooltip?: string;
-  locToolTipName?: string;
+  locTooltipName?: string;
   /**
    * Specifies whether users can interact with the action item.
    * @see active
@@ -194,7 +194,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property() tooltip: string;
   @property({ onSet: (_, target: Action) => {
     target.locTooltipChanged();
-  } }) locToolTipName?: string;
+  } }) locTooltipName?: string;
   @property() enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
@@ -245,8 +245,8 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.setPropertyValue("title", !!val ? val : undefined);
   }
   private locTooltipChanged(): void {
-    if(!this.locToolTipName) return;
-    this.tooltip = surveyLocalization.getString(this.locToolTipName, this.locTitle.locale);
+    if(!this.locTooltipName) return;
+    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
   }
   private cssClassesValue: any;
 

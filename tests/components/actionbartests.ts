@@ -154,7 +154,7 @@ QUnit.test("Action title", (assert) => {
   const action1 = survey.addNavigationItem({
     id: "action1",
     locTitleName: "selectAllItemText",
-    locToolTipName: "previewText"
+    locTooltipName: "previewText"
   });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");

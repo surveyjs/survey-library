@@ -127,6 +127,10 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.nth(1).textContent).contains("item25")
       .expect(popupContainer.visible).ok()
 
+      .pressKey("4")
+      .pressKey("5")
+      .pressKey("backspace")
+      .pressKey("backspace")
       .pressKey("backspace")
       .expect(selectedItems.count).eql(1)
       .expect(selectedItems.nth(0).textContent).contains("item23")

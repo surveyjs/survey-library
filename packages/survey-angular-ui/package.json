@@ -61,7 +61,7 @@
     "serve:example": "ng serve",
     "build:example": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test survey-angular-ui",
-    "test:single": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox survey-angular-ui",
+    "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
     "release": "standard-version --message \"Release: %s [skip ci]\" "
   }
 }

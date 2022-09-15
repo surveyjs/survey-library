@@ -52,7 +52,6 @@ module.exports = function (config) {
         flags: [
           '--no-sandbox',
           '--disable-gpu',
-          '--enable-logging',
           '--no-default-browser-check',
           '--no-first-run',
           '--disable-default-apps',
@@ -61,7 +60,6 @@ module.exports = function (config) {
           '--disable-background-timer-throttling',
           '--disable-renderer-backgrounding',
           '--disable-device-discovery-notifications',
-          '--remote-debugging-port=9222',
           '--disable-web-security'
         ]
       }

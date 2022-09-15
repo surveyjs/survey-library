@@ -1,5 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "survey-core";
 import { Base } from "../base";
+import { surveyLocalization } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -31,10 +32,12 @@ export interface IAction {
    */
   title?: string;
   locTitle?: LocalizableString;
+  locTitleName?: string;
   /**
    * The action item's tooltip.
    */
   tooltip?: string;
+  locToolTipName?: string;
   /**
    * Specifies whether users can interact with the action item.
    * @see active
@@ -189,6 +192,9 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     }
   }) visible: boolean;
   @property() tooltip: string;
+  @property({ onSet: (_, target: Action) => {
+    target.locTooltipChanged();
+  } }) locToolTipName?: string;
   @property() enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
@@ -224,9 +230,23 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.locTitleValue.onStringChanged.add(this.locTitleChanged);
     this.locTitleChanged();
   }
+  public get locTitleName(): string {
+    return this.locTitle.localizationName;
+  }
+  public set locTitleName(val: string) {
+    this.locTitle.localizationName = val;
+  }
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.locTooltipChanged();
+  }
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;
     this.setPropertyValue("title", !!val ? val : undefined);
+  }
+  private locTooltipChanged(): void {
+    if(!this.locToolTipName) return;
+    this.tooltip = surveyLocalization.getString(this.locToolTipName, this.locTitle.locale);
   }
   private cssClassesValue: any;
 

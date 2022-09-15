@@ -7,6 +7,7 @@ import { settings } from "../../src/settings";
 import { getIconNameFromProxy } from "../../src/utils/utils";
 import { PageModel } from "../../src/page";
 import { ComputedUpdater } from "../../src/base";
+import { SurveyModel } from "../../src/survey";
 
 QUnit.test("Check that items are wrapped after set", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -147,4 +148,18 @@ QUnit.test("Action title", (assert) => {
 QUnit.test("Empty action title", (assert) => {
   const action = new Action({ id: "1" });
   assert.strictEqual(action.title, undefined, "title is undefined");
+});
+QUnit.test("Action title", (assert) => {
+  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const action1 = survey.addNavigationItem({
+    id: "action1",
+    locTitleName: "selectAllItemText",
+    locToolTipName: "previewText"
+  });
+  assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
+  assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
+  survey.locale = "de";
+  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
+  assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
+  survey.locale = "";
 });

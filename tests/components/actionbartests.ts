@@ -157,9 +157,11 @@ QUnit.test("Action title", (assert) => {
     locTooltipName: "previewText"
   });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
+  assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
   assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
+  assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
   survey.locale = "";
 });

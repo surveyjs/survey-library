@@ -177,6 +177,9 @@ export class Action extends Base implements IAction, ILocalizableOwner {
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }
+    if(!!this.locTitleName) {
+      this.locTitleChanged();
+    }
   }
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);

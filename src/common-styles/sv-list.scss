@@ -48,6 +48,16 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   align-items: center;
   box-sizing: border-box;
+  color: $foreground;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sv-list__item-body {
+  width: 100%;
+  align-items: center;
+  box-sizing: border-box;
   padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
   color: $foreground;
   cursor: pointer;
@@ -59,7 +69,9 @@ $base-unit: var(--base-unit, 8px);
 .sv-list__item.sv-list__item--focused,
 .sv-list__item:hover,
 .sv-list__item:focus {
-  background-color: $background-dim;
+  .sv-list__item-body {
+    background-color: $background-dim;
+  }
   outline: none;
 }
 
@@ -86,9 +98,10 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-list__item.sv-list__item--selected {
-  background-color: $primary;
-  color: $background;
-
+  .sv-list__item-body {
+    background-color: $primary;
+    color: $background;
+  }
   .sv-list__item-icon use {
     fill: $background;
   }
@@ -96,13 +109,17 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 .sv-list__item.sv-list__item--selected:hover,
-.sv-list__item.sv-list__item--selected:focus {
-  background-color: $primary;
-  color: $primary-foreground;
+li:focus .sv-list__item.sv-list__item--selected {
+  .sv-list__item-body {
+    background-color: $primary;
+    color: $primary-foreground;
+  }
 }
 .sv-list__item.sv-list__item--disabled {
-  cursor: default;
-  color: $foreground-light;
+  .sv-list__item-body {
+    cursor: default;
+    color: $foreground-light;
+  }
 }
 
 .sv-list__item span {

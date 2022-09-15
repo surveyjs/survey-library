@@ -4,6 +4,10 @@
     role="option"
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
+    :key="item.id"
+    v-bind:class="model.getItemClass(item)"
+    v-on:click="click"
+    v-on:keyup="keyUp"
   >
     <div 
       v-if="item.needSeparator"
@@ -12,10 +16,7 @@
 
     <div
       :style="{ paddingLeft: model.getItemIndent(item) }"
-      :key="item.id"
-      v-bind:class="model.getItemClass(item)"
-      v-on:click="click"
-      v-on:keyup="keyUp"
+      v-bind:class="model.cssClasses.itemBody"
     >
       <sv-svg-icon
         v-if="item.iconName && !item.component"

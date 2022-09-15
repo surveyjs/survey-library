@@ -52,23 +52,23 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     }
 
     const contentWrap =
-      attachKey2click(
         <div
           style={style}
-          className={className}
-          role="option"
-          onClick={(event: any) => {
-            this.model.onItemClick(this.item);
-            event.stopPropagation();
-          }}
-          onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}
+          className={this.model.cssClasses.itemBody}
         >
           {content}
-        </div>
-      );
+        </div>;
     const separator = this.item.needSeparator ? <div className = {this.model.cssClasses.itemSeparator}/>:null;
     return attachKey2click(
-      <li aria-selected={this.model.isItemSelected(this.item)}>
+      <li
+        className={className}
+        role="option"
+        aria-selected={this.model.isItemSelected(this.item)}
+        onClick={(event: any) => {
+          this.model.onItemClick(this.item);
+          event.stopPropagation();
+        }}
+        onPointerDown={(event: any) => this.model.onPointerDown(event, this.item)}>
         {separator}
         {contentWrap}
       </li>

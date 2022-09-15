@@ -49,7 +49,7 @@ frameworks.forEach((framework) => {
   );
   test("multiple columns", async (t) => {
     const baseSelectorFunc = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-of-type(${values[1]})`;
+      return `tbody > tr:nth-of-type(${values[0]}) > td:nth-of-type(${values[1]})`;
     };
 
     await t.expect(Selector("th").withText("Strongly disagree").exists).ok();
@@ -82,7 +82,7 @@ frameworks.forEach((framework) => {
 
   test("multiple columns and hasOther", async (t) => {
     const baseSelectorFunc = function (strings, ...values) {
-      return `tbody > tr:nth-child(${values[0]}) > td:nth-of-type(${values[1]})`;
+      return `tbody > tr:nth-of-type(${values[0]}) > td:nth-of-type(${values[1]})`;
     };
 
     await updateColumn();

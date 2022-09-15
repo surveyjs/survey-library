@@ -1,0 +1,6 @@
+<ng-template #template>
+  <svg *ngIf="question.iconDragElement" [class]="question.cssClasses.dragElementDecorator">
+    <use [attr.xlink:href]="question.iconDragElement"></use>
+  </svg>
+  <span *ngIf="!question.iconDragElement" data-bind="css: question.cssClasses.iconDrag"></span>
+</ng-template>

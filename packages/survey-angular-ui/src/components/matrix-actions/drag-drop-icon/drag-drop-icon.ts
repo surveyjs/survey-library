@@ -1,21 +1,18 @@
 import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
-import { Action } from "survey-core";
-import { Base } from "survey-core";
+import { IAction } from "survey-core";
+import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
 
 @Component({
-  template: "<span [class]='question.cssClasses.iconDrag'></span>",
-  selector: "sv-ng-drag-drop-icon"
+  templateUrl: "drag-drop-icon.component.html",
+  selector: "sv-ng-matrix-drag-drop-icon",
+  styleUrls: ["../../../hide-host.scss"]
 })
-export class MatrixDynamicDragDropIconComponent {
-  @Input() public model!: Action;
+export class MatrixDynamicDragDropIconComponent extends EmbeddedViewContentComponent {
+  @Input() public model!: IAction;
 
   get question() {
     return this.model.data.question;
-  }
-
-  getModel(): Base {
-    return this.model;
   }
 }
 

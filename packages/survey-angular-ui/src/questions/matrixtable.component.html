@@ -15,13 +15,9 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let row of table.rows; trackBy: trackRowBy" [class]="row.className">
-      <sv-ng-matrix-cell
-        [cell]="cell"
-        [question]="question"
-        *ngFor="let cell of row.cells; trackBy: trackCellBy"
-      ></sv-ng-matrix-cell>
-    </tr>
+    <ng-container *ngFor="let row of table.rows; trackBy: trackRowBy">
+      <sv-ng-matrix-row [model]="row" [question]="question"></sv-ng-matrix-row>
+    </ng-container>
   </tbody>
   <tfoot *ngIf="table.showFooter">
     <tr>

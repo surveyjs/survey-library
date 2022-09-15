@@ -1,5 +1,6 @@
 <ng-template #template>
   <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" [title]="cell.getTitle()" [style]="getCellStyle()" [attr.colspan]="cell.colSpans" #cellContainer>
+    <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell" [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>
     <sv-action-bar *ngIf="cell.isActionsCell" [model]="cell.item.getData()" [handleClick]="false"></sv-action-bar>
     <sv-ng-panel *ngIf="cell.hasPanel" [model]="cell.panel"></sv-ng-panel>
     <div *ngIf="cell.hasQuestion" [class]="question.cssClasses.cellQuestionWrapper" [visible]="cell.question.isVisible">

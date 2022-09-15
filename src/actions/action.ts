@@ -242,6 +242,17 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.locTooltipChanged();
+    if (!!this.popupModel && !!this.popupModel.contentComponentData && !!this.popupModel.contentComponentData.model) {
+      const model = this.popupModel.contentComponentData.model;
+      if(Array.isArray(model.actions)) {
+        const actions: Array<any> = model.actions;
+        actions.forEach(item => {
+          if (!!(<any>item).locStrsChanged) {
+            (<any>item).locStrsChanged();
+          }
+        });
+      }
+    }
   }
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;

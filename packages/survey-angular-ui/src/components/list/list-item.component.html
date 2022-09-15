@@ -1,9 +1,9 @@
 <ng-template #template>
   <li role="option" [visible]="listModel.isItemVisible(model)" [attr.aria-selected]="ariaSelected">
     <ng-container *ngIf="!model.needSeparator">
-    <div [class]="listModel.cssClasses.itemSeparator">
+    <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
-    <div role="option" [key2click] [class]="class" [style.paddingLeft]="paddingLeft" (click)="click($event)" (pointerdown)="pointerdown($event)">
+    <div [key2click] [class]="class" [style.paddingLeft]="paddingLeft" (click)="click($event)" (pointerdown)="pointerdown($event)">
     <ng-container *ngIf="!model.component">
       <svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="24"
         sv-ng-svg-icon></svg>

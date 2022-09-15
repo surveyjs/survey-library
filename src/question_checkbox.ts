@@ -103,7 +103,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasNone) allItemCount--;
     if (this.hasSelectAll) allItemCount--;
     var selectedCount = val.length;
-    if (this.isItemSelected(this.otherItem)) selectedCount--;
+    if (this.isOtherSelected) selectedCount--;
     return selectedCount === allItemCount;
   }
   public set isAllSelected(val: boolean) {
@@ -142,7 +142,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Returns true if item is checked
    * @param item checkbox item value
    */
-  public isItemSelected(item: ItemValue): boolean {
+  public isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;

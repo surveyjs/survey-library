@@ -1145,6 +1145,10 @@ export class QuestionSelectBase extends Question {
    * @param item checkbox or radio item value
    */
   public isItemSelected(item: ItemValue): boolean {
+    if(item === this.otherItem) return this.isOtherSelected;
+    return this.isItemSelectedCore(item);
+  }
+  protected isItemSelectedCore(item: ItemValue): boolean {
     return item.value === this.value;
   }
   private clearDisabledValues() {

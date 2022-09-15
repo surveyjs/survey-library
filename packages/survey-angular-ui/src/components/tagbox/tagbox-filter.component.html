@@ -3,6 +3,6 @@
         [class]="question.cssClasses.filterStringInput" [attr.readonly]="!model.searchEnabled ? true : null"
         [attr.disabled]="question.isInputReadOnly ? true : null"
         [attr.size]="!model.filterString ? 1 : null"
-        [attr.placeholder]="model.filterStringPlaceholder" (keyup)="model.inputKeyUpHandler($event)"
+        [attr.placeholder]="model.filterStringPlaceholder" (keydown)="model.inputKeyUpHandler($event)"
         (blur)="model.onBlur($event)" />
 </ng-template>

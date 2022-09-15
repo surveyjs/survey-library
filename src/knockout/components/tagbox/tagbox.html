@@ -2,7 +2,7 @@
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
     click: click, 
-    event: { keyup: keyup, blur: blur },
+    event: { keydown: keyup, blur: blur },
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
@@ -28,7 +28,7 @@
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 
       },
-       event: { keyup: inputKeyUp, blur: blur }"></input>
+       event: { keydown: inputKeyUp, blur: blur }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">

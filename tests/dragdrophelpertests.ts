@@ -500,3 +500,63 @@ QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic", function (
 
   assert.equal(ddHelper["calcTargetRowMultiple"](), true);
 });
+
+QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic 2", function (
+  assert
+) {
+  const json = {
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question2",
+            "title": "paneldynamic",
+            "templateElements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "rating",
+                    "name": "question3"
+                  },
+                  {
+                    "type": "rating",
+                    "name": "question4",
+                    "startWithNewLine": false
+                  }
+                ],
+                "title": "panel"
+              }
+            ]
+          },
+          {
+            "type": "rating",
+            "name": "question1"
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+
+  const paneldynamic = survey.getQuestionByName("question2");
+  const question3 = paneldynamic.template.elements[0].elements[0];
+  const question1 = survey.getQuestionByName("question1");
+
+  question3.__page = survey.pages[0];
+
+  const ddHelper: any = new DragDropSurveyElements(<any>survey);
+  ddHelper.isEdge = true;
+  ddHelper.draggedElement = question1;
+  ddHelper.dropTarget = question3;
+
+  //debugger;
+
+  ddHelper["calcTargetRowMultiple"]();
+
+  assert.ok(ddHelper.dropTarget.__page);
+});

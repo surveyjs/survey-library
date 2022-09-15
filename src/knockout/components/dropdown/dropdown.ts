@@ -18,18 +18,16 @@ ko.components.register("sv-dropdown", {
       };
       const keyup = (_: any, e: any) => {
         q.dropdownListModel?.onKeyUp(e);
+        return true;
       };
       const blur = (_: any, e: any) => {
         q.dropdownListModel?.onBlur(e);
-      };
-      const inputKeyUp = (_: any, e: any) => {
-        q.dropdownListModel?.inputKeyUpHandler(e);
       };
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownListModel(params.question);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur, inputKeyUp: inputKeyUp };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur };
     },
   },
   template: template,

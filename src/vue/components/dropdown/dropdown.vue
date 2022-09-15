@@ -6,7 +6,7 @@
       v-bind:disabled="question.isInputReadOnly"
       :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
       @click="click"
-      @keyup="keyUp"
+      @keydown="keydown"
       @blur="blur"
       :class="question.getControlClass()"
       :role="question.ariaRole"
@@ -24,6 +24,7 @@
           v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
           :id="question.getInputId()"
+          :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"
           :placeholder="question.readOnlyText"
           @change="inputChange"
@@ -77,7 +78,6 @@ export class DropdownComponent extends BaseVue {
   }
   inputKeyUp(event: any) {
     this.model.filterString = event.target.value;
-    this.model.inputKeyUpHandler(event);
   }
 
   public click(event: any) {
@@ -86,7 +86,7 @@ export class DropdownComponent extends BaseVue {
   public clear(event: any) {
     this.model?.onClear(event);
   }
-  public keyUp(event: any) {
+  public keydown(event: any) {
     this.model?.onKeyUp(event);
   }
   public blur(event: any) {

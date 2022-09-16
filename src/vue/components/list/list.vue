@@ -14,7 +14,7 @@
         @keyup="keyup"
       />
     </div>
-    <div v-bind:class="model.cssClasses.emptyContainer" v-if="model.isEmpty">
+    <div v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div v-bind:class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
     </div>
     <ul

@@ -8,11 +8,9 @@
       data-bind="css: model.cssClasses.filterInput, textInput: model.filterString, attr: { placeholder: model.filterStringPlaceholder, 'aria-label': model.filterStringPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
   </div>
   <!-- /ko -->
-  <!-- ko if: $data.model.isEmpty -->
-  <div data-bind="css: model.cssClasses.emptyContainer">
+  <div data-bind="css: model.cssClasses.emptyContainer, visible: $data.model.isEmpty">
     <div data-bind="css: model.cssClasses.emptyText, text: model.emptyMessage, attr: { 'aria-label': model.emptyMessage }"></div>
   </div>
-  <!-- /ko -->
   <ul role="listbox"
     data-bind="css: model.cssClasses.itemsContainer, event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; }, mousemove: function(data, e) { $data.model.onMouseMove(event); return true; } }">
     <!--ko foreach: model.renderedActions -->

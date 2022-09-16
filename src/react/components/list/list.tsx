@@ -97,12 +97,13 @@ export class List extends SurveyElementBase<IListProps, any> {
     }
   }
   emptyContent() {
-    if (!this.model.isEmpty) return null;
-    else {
-      return (<div className={this.model.cssClasses.emptyContainer}>
-        <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
-      </div>);
-    }
+    const style = {
+      display: this.model.isEmpty ? null : "none",
+    };
+
+    return (<div className={this.model.cssClasses.emptyContainer} style={style}>
+      <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
+    </div>);
   }
 }
 

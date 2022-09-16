@@ -41,6 +41,7 @@ export class MultiSelectListModel extends ListModel {
   public setSelectedItems(newItems: Array<IAction>) : void {
     this.selectedItems = newItems;
     this.updateItemState();
+    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
 
   public initFocusedItem() {

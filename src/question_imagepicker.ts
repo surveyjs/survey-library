@@ -142,7 +142,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if(!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
-    return value;
+    return this.getDisplayArrayValue(keysAsText, value);
   }
 
   /**

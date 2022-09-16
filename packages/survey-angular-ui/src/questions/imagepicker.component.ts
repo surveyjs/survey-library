@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
+import { ImageItemValue, ItemValue, QuestionImagePickerModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -8,10 +8,10 @@ import { AngularComponentFactory } from "../component-factory";
   templateUrl: "./imagepicker.component.html"
 })
 export class ImagePickerQuestionComponent extends QuestionAngular<QuestionImagePickerModel> {
-  public getItemValueComponentName(item: ImageItemValue): string {
+  public getItemValueComponentName(item: ItemValue): string {
     return this.model.getItemValueWrapperComponentName(item) || "sv-ng-imagepicker-item";
   }
-  public getItemValueComponentData(item: ImageItemValue): any {
+  public getItemValueComponentData(item: ItemValue): any {
     return {
       componentName: "sv-ng-imagepicker-item",
       componentData: {

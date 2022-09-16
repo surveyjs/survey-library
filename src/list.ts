@@ -12,6 +12,8 @@ export let defaultListCss = {
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
   itemIcon: "sv-list__item-icon",
+  itemSeparator: "sv-list__item-separator",
+  itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
   filter: "sv-list__filter",
   filterIcon: "sv-list__filter-icon",

@@ -41,6 +41,26 @@ function addDropdownActions(_, opt) {
   opt.titleActions = [dropdownWithSearch, dropdownWithSearchAction];
 }
 
+function addDropdownActionsWithSeparators(_, opt) {
+  const getItems = (count: number, startIndex = 0) => {
+    const list = [];
+    for (let index = startIndex; index < count; index++) {
+      list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
+    }
+    return list;
+  };
+  const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+    { title: "Long List", showTitle: true },
+    { items: getItems(40), showPointer: true }
+  );
+
+  const dropdownWithSearch = window["Survey"].createDropdownActionModel(
+    { title: "Short List", showTitle: true },
+    { items: getItems(3, 1), showPointer: true }
+  );
+  opt.titleActions = [dropdownWithSearch, dropdownWithSearchAction];
+}
+
 function addDropdownActionsWithIcons(_, opt) {
   const getItemWithIconList = () => {
     return [new window["Survey"].Action({ title: "item1", iconName: "icon-search" }), new window["Survey"].Action({ title: "item2", iconName: "icon-search" })];
@@ -192,6 +212,17 @@ frameworks.forEach(framework => {
       .click(clickButton.withText("Short List"));
     await checkElementScreenshot("popup-dropdown-short-list.png", popupSelector, t);
   });
+
+  test("Dropdown popup styles with separators", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithSeparators });
+    await t
+      .wait(1000)
+      .resizeWindow(1000, 600)
+      .wait(1000)
+      .click(clickButton.withText("Long List"));
+    await checkElementScreenshot("popup-dropdown-separators-long-list.png", popupSelector, t);
+  });
+
   test("Dropdown popup styles with icons", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithIcons });
     await t

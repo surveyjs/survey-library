@@ -773,7 +773,6 @@ export class QuestionSelectBase extends Question {
     onGetValueCallback?: (index: number)=> any): string {
     var items = this.visibleChoices;
     var strs = [];
-    const valuePropName = this.valuePropertyName;
     for (var i = 0; i < value.length; i++) {
       let val = !onGetValueCallback ? value[i] : onGetValueCallback(i);
       let valStr = this.getChoicesDisplayValue(items, val);

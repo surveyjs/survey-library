@@ -132,7 +132,7 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
 
-  onKeyUp(event: any): void {
+  keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
     if(this.popupModel.isVisible && event.keyCode === 38) {
       this.listModel.focusPrevVisibleItem();

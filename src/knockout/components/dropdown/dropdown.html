@@ -2,7 +2,7 @@
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
     click: click, 
-    event: { keydown: keyup, blur: blur },
+    event: { keydown: keyhandler, blur: blur },
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 

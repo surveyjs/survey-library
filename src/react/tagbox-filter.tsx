@@ -35,15 +35,15 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       }
     }
   }
-  onChange (e: any) {
+  onChange(e: any) {
     if (e.target === document.activeElement) {
       this.model.filterString = e.target.value;
     }
   }
-  onKeyUp (e: any) {
-    this.model.inputKeyUpHandler(e);
+  keyhandler(e: any) {
+    this.model.inputKeyHandler(e);
   }
-  onBlur (e: any) {
+  onBlur(e: any) {
     this.model.onBlur(e);
   }
 
@@ -57,12 +57,12 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     return (<input type="text" autoComplete="off"
       id={this.question.getInputId()}
       ref={(element) => (this.inputElement = element)}
-      className={ this.question.cssClasses.filterStringInput }
-      disabled={ this.question.isInputReadOnly }
-      readOnly={ !this.model.searchEnabled ? true : undefined }
-      size={ !this.model.filterString ? 1 : undefined }
-      placeholder={ this.model.filterStringPlaceholder }
-      onKeyDown={(e) => { this.onKeyUp(e); }}
+      className={this.question.cssClasses.filterStringInput}
+      disabled={this.question.isInputReadOnly}
+      readOnly={!this.model.searchEnabled ? true : undefined}
+      size={!this.model.filterString ? 1 : undefined}
+      placeholder={this.model.filterStringPlaceholder}
+      onKeyDown={(e) => { this.keyhandler(e); }}
       onChange={(e) => { this.onChange(e); }}
       onBlur={(e) => { this.onBlur(e); }}
     ></input>);

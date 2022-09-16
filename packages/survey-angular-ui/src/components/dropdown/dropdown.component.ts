@@ -35,8 +35,8 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
     clear(event: any) {
       this.dropdownListModel?.onClear(event);
     }
-    keyup(event: any) {
-      this.dropdownListModel?.onKeyUp(event);
+    keyhandler(event: any) {
+      this.dropdownListModel?.keyHandler(event);
     }
     blur(event: any) {
       this.dropdownListModel?.onBlur(event);

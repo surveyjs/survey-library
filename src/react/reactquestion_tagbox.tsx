@@ -34,7 +34,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         // @ts-ignore
         disabled={this.question.isInputReadOnly}
         required={this.question.isRequired}
-        onKeyDown={this.keyup}
+        onKeyDown={this.keyhandler}
         onBlur={this.blur}
         role={this.question.ariaRole}
         aria-required={this.question.ariaRequired}

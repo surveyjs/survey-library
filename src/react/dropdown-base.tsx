@@ -15,8 +15,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    clear = (event: any) => {
      this.question.dropdownListModel?.onClear(event);
    };
-   keyup = (event: any) => {
-     this.question.dropdownListModel?.onKeyUp(event);
+   keyhandler = (event: any) => {
+     this.question.dropdownListModel?.keyHandler(event);
    };
    blur = (event: any) => {
      this.question.dropdownListModel?.onBlur(event);
@@ -67,7 +67,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        // @ts-ignore
        disabled={this.question.isInputReadOnly}
        required={this.question.isRequired}
-       onKeyDown={this.keyup}
+       onKeyDown={this.keyhandler}
        onBlur={this.blur}
        role={this.question.ariaRole}
        aria-required={this.question.ariaRequired}

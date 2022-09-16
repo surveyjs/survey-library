@@ -140,6 +140,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       super.clearIncorrectValues();
     }
   }
+  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if(!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
+    return this.getDisplayArrayValue(keysAsText, value);
+  }
 
   /**
    * Show label under the image.

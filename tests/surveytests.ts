@@ -9099,7 +9099,7 @@ QUnit.test("question.getPlainData - select base - multiple", function (assert) {
   });
   assert.equal(plainData.score, 3);
   assert.deepEqual(plainData.value, ["giraffe", "panda"]);
-  assert.deepEqual(plainData.displayValue, ["giraffe", "panda"]);
+  assert.deepEqual(plainData.displayValue, "giraffe22, panda");
   assert.equal(plainData.isNode, true);
   assert.equal(plainData.data[0].score, 2);
   assert.deepEqual(plainData.data[0].value, "giraffe");

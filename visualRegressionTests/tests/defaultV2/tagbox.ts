@@ -30,6 +30,7 @@ frameworks.forEach(framework => {
             type: "tagbox",
             name: "question1",
             hasOther: "true",
+            closeOnSelect: "false",
             choices: [
               "item1",
               "item2",
@@ -79,7 +80,6 @@ frameworks.forEach(framework => {
         .pressKey("esc")
         .hover(Selector(".sv-tagbox__item"));
       await takeElementScreenshot("tagbox-question-item-hover.png", Selector(".sv-tagbox__item"), t, comparer);
-
     });
   });
 

@@ -19,7 +19,7 @@
   <ng-container *ngIf="model.hasFootItems">
     <sv-ng-selectbase-item *ngFor="let item of model.footItems" [question]="model" [model]="item" [inputType]="inputType"></sv-ng-selectbase-item>
   </ng-container>
-  <div *ngIf="model.hasOther && model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
+  <div *ngIf="model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
   <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"

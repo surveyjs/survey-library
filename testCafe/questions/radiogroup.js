@@ -178,6 +178,28 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
+  test("choose other and storeOthersAsComment=false", async t => {
+    const setSurveyOptions = ClientFunction(() => {
+      window["survey"].storeOthersAsComment = false;
+    });
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]);
+
+    await setOptions("car", { hasOther: true });
+
+    const radiogroup = Selector("[role=\"radiogroup\"]");
+    const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
+    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
+
+    await setSurveyOptions();
+    await t
+      .click(otherText)
+      .typeText(getOtherInput, "New_Producer")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.car, "New_Producer");
+  });
 
   test("checked class", async t => {
     const isCheckedClassExistsByIndex = ClientFunction(index =>

@@ -31,7 +31,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}
         {this.getFooter()}
-        {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther() : null}
+        {this.question.isOtherSelected ? this.renderOther() : null}
       </fieldset>
     );
   }

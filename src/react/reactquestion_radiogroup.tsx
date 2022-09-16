@@ -40,7 +40,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}
         {this.getFooter()}
-        {this.question.hasOther && this.question.isItemSelected(this.question.otherItem) ? this.renderOther(cssClasses) : null}
+        {this.question.isOtherSelected ? this.renderOther(cssClasses) : null}
         {clearButton}
       </fieldset>
     );

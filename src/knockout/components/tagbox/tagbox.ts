@@ -18,12 +18,14 @@ ko.components.register("sv-tagbox", {
       };
       const keyup = (_: any, e: any) => {
         q.dropdownListModel?.onKeyUp(e);
+        return true;
       };
       const blur = (_: any, e: any) => {
         q.dropdownListModel?.onBlur(e);
       };
       const inputKeyUp = (_: any, e: any) => {
         q.dropdownListModel?.inputKeyUpHandler(e);
+        return true;
       };
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownMultiSelectListModel(q);

@@ -103,7 +103,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasNone) allItemCount--;
     if (this.hasSelectAll) allItemCount--;
     var selectedCount = val.length;
-    if (this.isItemSelected(this.otherItem)) selectedCount--;
+    if (this.isOtherSelected) selectedCount--;
     return selectedCount === allItemCount;
   }
   public set isAllSelected(val: boolean) {
@@ -142,7 +142,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Returns true if item is checked
    * @param item checkbox item value
    */
-  public isItemSelected(item: ItemValue): boolean {
+  public isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
@@ -317,26 +317,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
       return super.getDisplayValueCore(keysAsText, value);
-    var items = this.visibleChoices;
-    var str = "";
     const valuePropName = this.valuePropertyName;
-    for (var i = 0; i < value.length; i++) {
-      let val = value[i];
+    const onGetValueCallback = (index: number): any => {
+      let val = value[index];
       if(!!valuePropName && !!val[valuePropName]) {
         val = val[valuePropName];
       }
-      let valStr = this.getChoicesDisplayValue(items, val);
-      if (valStr) {
-        if (str) str += ", ";
-        str += valStr;
-      }
-    }
-    return str;
+      return val;
+    };
+    return this.getDisplayArrayValue(keysAsText, value, onGetValueCallback);
   }
-  protected clearIncorrectValuesCore() {
+  protected clearIncorrectValuesCore(): void {
     this.clearIncorrectAndDisabledValues(false);
   }
-  protected clearDisabledValuesCore() {
+  protected clearDisabledValuesCore(): void {
     this.clearIncorrectAndDisabledValues(true);
   }
   private isChangingValueOnClearIncorrect: boolean = false;

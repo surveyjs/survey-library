@@ -9,4 +9,8 @@ export class SurveyCommentComponent {
   @Input() question!: Question;
   constructor() {
   }
+  public get comment(): string {
+    if(!this.question.comment) return "";
+    return this.question.comment;
+  }
 }

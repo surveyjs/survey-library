@@ -6,6 +6,7 @@ $background-dim: var(--background-dim, #f3f3f3);
 $foreground-light: var(--foreground-light, #909090);
 //todo: discuss this variable
 $foreground: var(--foreground, #161616);
+$border: var(--border, #d6d6d6);
 $border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
 $font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
@@ -47,6 +48,16 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   align-items: center;
   box-sizing: border-box;
+  color: $foreground;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sv-list__item-body {
+  width: 100%;
+  align-items: center;
+  box-sizing: border-box;
   padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
   color: $foreground;
   cursor: pointer;
@@ -58,13 +69,18 @@ $base-unit: var(--base-unit, 8px);
 .sv-list__item.sv-list__item--focused,
 .sv-list__item:hover,
 .sv-list__item:focus {
-  background-color: $background-dim;
+  .sv-list__item-body {
+    background-color: $background-dim;
+  }
   outline: none;
 }
 
-.sv-list__item--with-icon {
-  padding-top: calcSize(1.5);
-  padding-bottom: calcSize(1.5);
+.sv-list__item--with-icon.sv-list__item--with-icon {
+  padding: 0;
+  .sv-list__item-body {
+    padding-top: calcSize(1.5);
+    padding-bottom: calcSize(1.5);
+  }
 }
 .sv-list__item-icon {
   float: left;
@@ -78,11 +94,17 @@ $base-unit: var(--base-unit, 8px);
   }
   margin-right: calcSize(2);
 }
+.sv-list__item-separator {
+  margin: calcSize(1) 0;
+  height: 1px;
+  background-color: $border;
+}
 
 .sv-list__item.sv-list__item--selected {
-  background-color: $primary;
-  color: $background;
-
+  .sv-list__item-body {
+    background-color: $primary;
+    color: $background;
+  }
   .sv-list__item-icon use {
     fill: $background;
   }
@@ -90,13 +112,17 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,
 .sv-list__item.sv-list__item--selected:hover,
-.sv-list__item.sv-list__item--selected:focus {
-  background-color: $primary;
-  color: $primary-foreground;
+li:focus .sv-list__item.sv-list__item--selected {
+  .sv-list__item-body {
+    background-color: $primary;
+    color: $primary-foreground;
+  }
 }
 .sv-list__item.sv-list__item--disabled {
-  cursor: default;
-  color: $foreground-light;
+  .sv-list__item-body {
+    cursor: default;
+    color: $foreground-light;
+  }
 }
 
 .sv-list__item span {

@@ -8,6 +8,7 @@ import { Question } from "./question";
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
+  @property({ defaultValue: true }) closeOnSelect: boolean;
 
   private syncFilterStringPlacholder(actions?: Array<Action>) {
     const selectedActions = actions || this.getSelectedActions();
@@ -47,6 +48,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
           this.deselectItem(item.id);
         }
         this.popupTargetModified();
+        if(this.closeOnSelect) {
+          this.popupModel.isVisible = false;
+        }
       };
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
@@ -88,10 +92,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
     this.syncFilterStringPlacholder();
+    this.closeOnSelect = question.closeOnSelect;
   }
 
   public inputKeyUpHandler(event: any): void {
-    if(event.keyCode === 8) {
+    if(event.keyCode === 8 && !this.filterString) {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();

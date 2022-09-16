@@ -77,9 +77,6 @@ frameworks.forEach(async framework => {
     await t.resizeWindow(800, 600);
   });
 
-  //todo
-  const skipModalTests = framework == "angular";
-
   test("check ordinary popup behavior", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
 
@@ -136,7 +133,7 @@ frameworks.forEach(async framework => {
 
   });
 
-  (skipModalTests ? test.skip : test)("check survey in showModal", async t => {
+  test("check survey in showModal", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     await t
@@ -165,7 +162,7 @@ frameworks.forEach(async framework => {
       .expect(popupModalSelector.exists).notOk();
   });
 
-  (skipModalTests ? test.skip : test)("check focus trap", async t => {
+  test("check focus trap", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     const inputInPopup = Selector(".sv-popup .sv_q_text_root");
@@ -185,7 +182,7 @@ frameworks.forEach(async framework => {
       .expect(popupButtonSelector.withText("Apply").focused).ok();
   });
 
-  (skipModalTests ? test.skip : test)("check focus safekeeping", async t => {
+  test("check focus safekeeping", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addModalPopupTitleAction });
 
     const inputInPopup = Selector(".sv-popup .sv_q_text_root");
@@ -221,7 +218,7 @@ frameworks.forEach(async framework => {
       .expect(popupSelector.visible).notOk();
   });
 
-  (skipModalTests ? test.skip : test)("not hide modal popup after scroll", async t => {
+  test("not hide modal popup after scroll", async t => {
     let choices = [];
     for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;

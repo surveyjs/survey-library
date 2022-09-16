@@ -6,12 +6,15 @@
 }
 
 .sd-list__item.sd-list__item {
-  padding-top: calcSize(1.5);
-  padding-bottom: calcSize(1.5);
-  border-radius: 3px;
+  padding: 0;
+  .sd-list__item-body {
+    padding-top: calcSize(1.5);
+    padding-bottom: calcSize(1.5);
+    border-radius: 3px;
+  }
 }
 
-.sd-list__item--selected.sd-list__item--selected {
+.sd-list__item--selected.sd-list__item--selected .sd-list__item-body {
   background-color: $primary-light;
   color: $foreground;
 }
@@ -20,7 +23,9 @@
 
   &:hover,
   &:focus {
-    background-color: $primary;
-    color: $primary-foreground;
+    .sd-list__item-body {
+      background-color: $primary;
+      color: $primary-foreground;
+    }
   }
 }

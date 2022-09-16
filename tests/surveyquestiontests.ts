@@ -1249,11 +1249,13 @@ QUnit.test("SelectBase store others value not in comment", function (assert) {
 
   question.value = null;
   assert.equal(question.isOtherSelected, false, "Others is not selected");
+  assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, {}, "There is no data in survey");
 
   question.value = "A";
   question.comment = "test";
   assert.equal(question.isOtherSelected, false, "Others is not selected");
+  assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, { q: "A" }, "'A' is set");
 
   question.comment = null;
@@ -1263,6 +1265,7 @@ QUnit.test("SelectBase store others value not in comment", function (assert) {
     true,
     "Any other value that is not from choices is other"
   );
+  assert.equal(question.isItemSelected(question.otherItem), true, "Others is selected, isItemSelected");
   assert.deepEqual(
     survey.data,
     { q: question.otherItem.value },
@@ -1306,11 +1309,13 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
 
   question.value = null;
   assert.equal(question.isOtherSelected, false, "Others is not selected");
+  assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, {}, "There is no data in survey");
 
   question.value = ["A"];
   question.comment = "test";
   assert.equal(question.isOtherSelected, false, "Others is not selected");
+  assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, { q: ["A"] }, "'A' is set");
 
   question.comment = null;
@@ -1320,6 +1325,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
     true,
     "Any other value that is not from choices is other"
   );
+  assert.equal(question.isItemSelected(question.otherItem), true, "Others is selected, isItemSelected");
   assert.deepEqual(
     survey.data,
     { q: ["A", question.otherItem.value] },
@@ -3765,13 +3771,23 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
           { name: "item3", title: "Item 3" },
         ],
       },
+      {
+        type: "imagepicker",
+        name: "q5",
+        choices: [
+          { value: 1, text: "one" },
+          { value: 2, text: "two" },
+          { value: 3, text: "three" },
+        ],
+      },
     ],
   });
-  survey.data = { q1: 1, q2: [1, 2] };
+  survey.data = { q1: 1, q2: [1, 2], q5: [1, 2] };
   var q1 = survey.getQuestionByName("q1");
   var q2 = survey.getQuestionByName("q2");
   var q3 = survey.getQuestionByName("q3");
   var q4 = survey.getQuestionByName("q4");
+  var q5 = survey.getQuestionByName("q5");
   assert.equal(q1.getDisplayValue(true), "one", "radigroup displayvalue works");
   assert.equal(
     q1.getDisplayValue(true, 2),
@@ -3808,6 +3824,9 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
     { "Item 1": "value1", "Item 3": "value3" },
     "multiple text displayvalue"
   );
+  assert.equal(q5.getDisplayValue(true), "one, two", "imagepicker displayvalue works, array");
+  q5.value = 2;
+  assert.equal(q5.getDisplayValue(true), "two", "imagepicker displayvalue works, single value");
 });
 
 QUnit.test(
@@ -6005,4 +6024,37 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   assert.equal(q1.isMinMaxType, false);
   q1.inputType = "datetime";
   assert.equal(q1.isMinMaxType, true);
+});
+QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasOther: true,
+        choices: [1, 2, 3]
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        hasOther: true,
+        choices: [1, 2, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.renderedValue = 2;
+  q2.renderedValue = [2, 3];
+  assert.equal(q1.isOtherSelected, false, "isOtherSelected - false, radiogroup");
+  assert.equal(q1.isItemSelected(q1.otherItem), false, "isItemSelected - false, radiogroup");
+  assert.equal(q2.isOtherSelected, false, "isOtherSelected - false, checkbox");
+  assert.equal(q2.isItemSelected(q2.otherItem), false, "isItemSelected - false, checkbox");
+  q1.renderedValue = "hello";
+  q2.renderedValue = [1, "hello"];
+  assert.equal(q1.isOtherSelected, true, "isOtherSelected - true, radiogroup");
+  assert.equal(q1.isItemSelected(q1.otherItem), true, "isItemSelected - true, radiogroup");
+  assert.equal(q2.isOtherSelected, true, "isOtherSelected - true, checkbox");
+  assert.equal(q2.isItemSelected(q2.otherItem), true, "isItemSelected - true, checkbox");
 });

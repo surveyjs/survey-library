@@ -21,6 +21,9 @@ export class MatrixCellComponent extends BaseAngular<Question> {
   getModel() {
     return this.cell.question;
   }
+  public get row() {
+    return this.cell.row;
+  }
 
   getComponentName(element: Question) {
     if (element.customWidget) {

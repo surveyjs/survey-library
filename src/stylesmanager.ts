@@ -412,14 +412,14 @@ export class StylesManager {
     //list
     ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",
     ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
-    ".sv-list__item":
-      "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__item": "width: 100%; box-sizing: border-box; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__item-body": "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
-    ".sv-list__item:not(.sv-list__item--selected):hover": "background-color: var(--background-dim, #f3f3f3);",
-    ".sv-list__item.sv-list__item--focused": "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__item:not(.sv-list__item--selected):hover .sv-list__item-body": "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__item.sv-list__item--focused .sv-list__item-body": "background-color: var(--background-dim, #f3f3f3);",
     // ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
     ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",

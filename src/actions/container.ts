@@ -57,6 +57,10 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
   public locOwner: ILocalizableOwner;
   @property({ defaultValue: false }) isEmpty: boolean;
 
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.actions.forEach(item => item.locStrsChanged());
+  }
   protected raiseUpdate(isResetInitialized: boolean) {
     this.isEmpty = !this.actions.some((action) => action.visible);
     this.updateCallback && this.updateCallback(isResetInitialized);

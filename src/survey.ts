@@ -1113,6 +1113,7 @@ export class SurveyModel extends SurveyElementCore
       this.rebuildQuestionChoices();
     };
     this.navigationBarValue = this.createNavigationBar();
+    this.navigationBar.locOwner = this;
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1777,7 +1778,7 @@ export class SurveyModel extends SurveyElementCore
   getLocale() {
     return this.locale;
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
     this.updateProgressText();
@@ -1789,6 +1790,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < visPages.length; i++) {
       visPages[i].navigationLocStrChanged();
     }
+    this.navigationBar.locStrsChanged();
   }
 
   public getMarkdownHtml(text: string, name: string): string {

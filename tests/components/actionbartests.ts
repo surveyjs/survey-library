@@ -3,6 +3,7 @@ import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
 import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
+import { ListModel } from "../../src/list";
 import { settings } from "../../src/settings";
 import { getIconNameFromProxy } from "../../src/utils/utils";
 import { PageModel } from "../../src/page";
@@ -156,6 +157,25 @@ QUnit.test("Action title", (assert) => {
     locTitleName: "selectAllItemText",
     locTooltipName: "previewText"
   });
+  assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
+  assert.equal(action1.title, "Select All", "Update action title en localization");
+  assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
+  survey.locale = "de";
+  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
+  assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
+  assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
+  survey.locale = "";
+});
+QUnit.test("Action title in list model", (assert) => {
+  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const action1 = survey.addNavigationItem({
+    id: "action1",
+    locTitleName: "selectAllItemText",
+    locTooltipName: "previewText"
+  });
+  const list = new ListModel([action1], () => {}, true);
+  const popupModel = new PopupModel("sv-list", list, "bottom", "center");
+  survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
   assert.equal(action1.title, "Select All", "Update action title en localization");
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");

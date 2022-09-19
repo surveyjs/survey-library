@@ -5,7 +5,7 @@
         *ngFor="let cell of table.headerRow.cells; trackBy: trackCellBy"
       >
             <th *ngIf="cell.hasTitle" [class]="cell.className" [style]="{ minWidth: cell.minWidth, width: cell.width }">
-              <ng-template [component]="{ name: question.getColumnHeaderWrapperComponentName(cell), data: { componentData: question.getColumnHeaderWrapperComponentData(cell) } }">
+              <ng-template [component]="{ name: question.getColumnHeaderWrapperComponentName($any(cell)), data: { componentData: question.getColumnHeaderWrapperComponentData($any(cell)) } }">
                 <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
                 <sv-ng-matrixheaderrequired *ngIf="!!cell.column" [column]="cell.column" [question]="question">
                 </sv-ng-matrixheaderrequired>

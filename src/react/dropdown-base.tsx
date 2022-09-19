@@ -15,8 +15,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    clear = (event: any) => {
      this.question.dropdownListModel?.onClear(event);
    };
-   keyup = (event: any) => {
-     this.question.dropdownListModel?.onKeyUp(event);
+   keyhandler = (event: any) => {
+     this.question.dropdownListModel?.keyHandler(event);
    };
    blur = (event: any) => {
      this.question.dropdownListModel?.onBlur(event);
@@ -61,13 +61,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}
-       tabIndex={this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : 0}
+       tabIndex={ dropdownListModel.inputReadOnly ? undefined : 0}
        onClick={this.click}
        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
        // @ts-ignore
        disabled={this.question.isInputReadOnly}
        required={this.question.isRequired}
-       onKeyDown={this.keyup}
+       onKeyDown={this.keyhandler}
        onBlur={this.blur}
        role={this.question.ariaRole}
        aria-required={this.question.ariaRequired}
@@ -82,7 +82,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            className={ this.question.cssClasses.filterStringInput }
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
-           tabIndex={ this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : -1 }
+           tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}

@@ -16,8 +16,8 @@ ko.components.register("sv-dropdown", {
       const clear = (_: any, e: any) => {
         q.dropdownListModel?.onClear(e);
       };
-      const keyup = (_: any, e: any) => {
-        q.dropdownListModel?.onKeyUp(e);
+      const keyhandler = (_: any, e: any) => {
+        q.dropdownListModel?.keyHandler(e);
         return true;
       };
       const blur = (_: any, e: any) => {
@@ -27,7 +27,7 @@ ko.components.register("sv-dropdown", {
         q.dropdownListModel = new DropdownListModel(params.question);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyup: keyup, blur: blur };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur };
     },
   },
   template: template,

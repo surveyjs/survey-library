@@ -28,13 +28,13 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={(this.question.isInputReadOnly || dropdownMultiSelectListModel.searchEnabled) ? undefined : 0}
+        tabIndex={ dropdownListModel.inputReadOnly ? undefined : 0}
         onClick={this.click}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         disabled={this.question.isInputReadOnly}
         required={this.question.isRequired}
-        onKeyDown={this.keyup}
+        onKeyDown={this.keyhandler}
         onBlur={this.blur}
         role={this.question.ariaRole}
         aria-required={this.question.ariaRequired}

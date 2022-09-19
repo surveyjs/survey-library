@@ -4,9 +4,9 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
-      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
+      :tabindex="model.inputReadOnly ? undefined : 0"
       @click="click"
-      @keydown="keydown"
+      @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
       :role="question.ariaRole"
@@ -24,11 +24,11 @@
           v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
           :id="question.getInputId()"
-          :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : -1"
+          :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"
           :placeholder="question.readOnlyText"
           @change="inputChange"
-          @keyup="inputKeyUp"
+          @keyup="inputKeyHandler"
           @blur="blur"
         />
       </div>
@@ -76,7 +76,7 @@ export class DropdownComponent extends BaseVue {
   inputChange(event: any) {
     this.model.filterString = event.target.value;
   }
-  inputKeyUp(event: any) {
+  inputKeyHandler(event: any) {
     this.model.filterString = event.target.value;
   }
 
@@ -86,8 +86,8 @@ export class DropdownComponent extends BaseVue {
   public clear(event: any) {
     this.model?.onClear(event);
   }
-  public keydown(event: any) {
-    this.model?.onKeyUp(event);
+  public keyhandler(event: any) {
+    this.model?.keyHandler(event);
   }
   public blur(event: any) {
     this.model?.onBlur(event);

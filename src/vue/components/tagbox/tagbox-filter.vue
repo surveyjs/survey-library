@@ -10,7 +10,7 @@
     :readonly="!model.searchEnabled ? true : null"
     :size="!model.filterString ? 1 : null"
     @change="inputChange"
-    @keydown="inputKeyUp"
+    @keydown="inputKeyHandler"
     @blur="blur"
   />
 </template>
@@ -33,9 +33,9 @@ export class TagboxFilterComponent extends BaseVue {
   inputChange(event: any) {
     this.model.filterString = event.target.value;
   }
-  inputKeyUp(event: any) {
+  inputKeyHandler(event: any) {
     this.model.filterString = event.target.value;
-    this.model.inputKeyUpHandler(event);
+    this.model.inputKeyHandler(event);
   }
   public blur(event: any) {
     this.model.onBlur(event);

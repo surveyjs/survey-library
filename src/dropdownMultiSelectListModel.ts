@@ -95,7 +95,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.closeOnSelect = question.closeOnSelect;
   }
 
-  public inputKeyUpHandler(event: any): void {
+  public inputKeyHandler(event: any): void {
     if(event.keyCode === 8 && !this.filterString) {
       this.removeLastSelectedItem();
       event.preventDefault();

@@ -3,11 +3,11 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
+      :tabindex="model.inputReadOnly ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @click="click"
-      @keydown="keyUp"
+      @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
       :role="question.ariaRole"
@@ -65,10 +65,6 @@ export class TagboxComponent extends BaseVue {
   inputChange(event: any) {
     this.model.filterString = event.target.value;
   }
-  inputKeyUp(event: any) {
-    this.model.filterString = event.target.value;
-    this.model.inputKeyUpHandler(event);
-  }
 
   public click(event: any) {
     this.question.dropdownListModel?.onClick(event);
@@ -76,8 +72,8 @@ export class TagboxComponent extends BaseVue {
   public clear(event: any) {
     this.question.dropdownListModel?.onClear(event);
   }
-  public keyUp(event: any) {
-    this.question.dropdownListModel?.onKeyUp(event);
+  public keyhandler(event: any) {
+    this.question.dropdownListModel?.keyHandler(event);
   }
   public blur(event: any) {
     this.question.dropdownListModel?.onBlur(event);

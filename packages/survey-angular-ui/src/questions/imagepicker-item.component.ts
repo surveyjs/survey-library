@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, Input } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import { ImageItemValue, QuestionImagePickerModel } from "survey-core";
+import { AngularComponentFactory } from "../component-factory";
 @Component({
   selector: "sv-ng-imagepicker-item",
   templateUrl: "./imagepicker-item.component.html",
@@ -35,3 +36,5 @@ export class ImagePickerItemComponent extends BaseAngular<ImageItemValue> implem
     this.model.locImageLink.onChanged = () => {};
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-ng-imagepicker-item", ImagePickerItemComponent);

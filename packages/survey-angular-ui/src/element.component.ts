@@ -11,21 +11,31 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> {
   protected getModel(): PanelModel | Question {
     return this.model;
   }
+  protected get elementComponentName(): string {
+    return this.model.isPanel ? "panel": "question";
+  }
   public get componentName(): string {
     const survey = this.surveyModel as SurveyModel;
     if(!!survey) {
-      return survey.getElementWrapperComponentName(this.model);
+      const name = survey.getElementWrapperComponentName(this.model);
+      if(!!name) {
+        return name;
+      }
     }
-    return this.model.isPanel ? "panel": "question";
+    return this.elementComponentName;
   }
   public get componentData(): any {
     const survey = this.surveyModel as SurveyModel;
+    let data: any;
     if(!!survey) {
-      return {
-        model: this.model,
-        componentData: survey.getElementWrapperComponentData(this.model)
-      };
+      data = survey.getElementWrapperComponentData(this.model);
     }
-    return { model: this.model };
+    return {
+      componentName: this.elementComponentName,
+      componentData: {
+        model: this.model,
+        data: data
+      }
+    };
   }
 }

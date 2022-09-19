@@ -64,10 +64,13 @@ export class Question extends SurveyElement
   private commentElement: HTMLElement;
 
   /**
-   * The event is fired when isReady property of question is changed.
-   * options.question - the question
-   * options.isReady - current value of isReady
-   * options.oldIsReady - old value of isReady
+   * An event that is raised when the question's ready state has changed (`choicesByUrl` are loaded, expressions are evaluated, etc.).
+   *
+   * Parameters:
+   *
+   * - `sender` - A survey that contains the question whose ready state has changed.
+   * - `options.isReady` - A Boolean value that indicates whether the question is ready.
+   * - `options.oldIsReady` - A Boolean value that indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
@@ -150,12 +153,9 @@ export class Question extends SurveyElement
     return this.name;
   }
   /**
-   * Use this property if you want to store the question result in the name different from the question name.
-   * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
-   * The library set the value automatically if the question.name property is not valid. For example, if it contains the period '.' symbol.
-   * In this case if you set the question.name property to 'x.y' then the valueName becomes 'x y'.
-   * Please note, this property is hidden for questions without input, for example html question.
-   * @see name
+   * Specifies an object property that should store the question value.
+   *
+   * Refer to the [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey-merge-question-values) help topic for more information.
    */
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
@@ -186,10 +186,6 @@ export class Question extends SurveyElement
   public get isReady(): boolean {
     return this.isReadyValue;
   }
-
-  /**
-   * A11Y properties
-   */
   public get ariaRequired() {
     return this.isRequired ? "true" : "false";
   }
@@ -200,12 +196,9 @@ export class Question extends SurveyElement
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
 
-  /**
-   * Get is question ready to use
-   */
   public choicesLoaded(): void { }
   /**
-   * Get/set the page where the question is located.
+   * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
   public get page(): IPage {
     return this.getPage(this.parent);
@@ -232,7 +225,10 @@ export class Question extends SurveyElement
     return layoutType !== "flow";
   }
   /**
-   * Use it to get/set the question visibility.
+   * Gets or sets question visibility.
+   *
+   * If you want to display or hide a question based on a condition, specify the [`visibleIf`](https://surveyjs.io/form-library/documentation/question#visibleIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see isVisible
    * @see visibleIf
    */
   public get visible(): boolean {
@@ -251,8 +247,11 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * Use it to choose how other question values will be rendered in title if referenced in {}.
-   * Please note, this property is hidden for question without input, for example html question.
+   * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
+   *
+   * This property is useful when interpolated question values have a `value` and a `text`.
+   *
+   * Default value: `true`
    */
   public get useDisplayValuesInTitle(): boolean {
     return this.getPropertyValue("useDisplayValuesInTitle");
@@ -262,8 +261,13 @@ export class Question extends SurveyElement
   }
   protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
   /**
-   * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+   * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see visible
+   * @see isVisible
    */
   public get visibleIf(): string {
     return this.getPropertyValue("visibleIf", "");
@@ -272,7 +276,12 @@ export class Question extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   /**
-   * Returns true if the question is visible or survey is in design mode right now.
+   * Returns `true` if the question visible or the survey is being in design mode.
+   *
+   * If you want to display or hide a question based on a condition, specify the [`visibleIf`](https://surveyjs.io/form-library/documentation/question#visibleIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see visibleIf
+   * @see visible
+   * @see isParentVisible
    */
   public get isVisible(): boolean {
     if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
@@ -289,9 +298,10 @@ export class Question extends SurveyElement
     return this.getPropertyValue("visibleIndex", -1);
   }
   /**
-   * Set hideNumber to true to stop showing the number for this question. The question will not be counter
-   * @see visibleIndex
-   * @see titleLocation
+   * Hides the question number from the title and excludes the question from numbering.
+   *
+   * If you want to disable question numbering in the entire survey, set the SurveyModel's `showQuestionNumbers` property to `false`.
+   * @see SurveyModel.showQuestionNumbers
    */
   public get hideNumber(): boolean {
     return this.getPropertyValue("hideNumber");
@@ -301,7 +311,10 @@ export class Question extends SurveyElement
     this.notifySurveyVisibilityChanged();
   }
   /**
-   * Returns true if the question may have a title located on the left
+   * Returns `true` if the question can display its title to the left of the input field.
+   * @see titleLocation
+   * @see getTitleLocation
+   * @see hasTitle
    */
   public get isAllowTitleLeft(): boolean {
     return true;
@@ -336,12 +349,6 @@ export class Question extends SurveyElement
   public get isQuestion(): boolean {
     return true;
   }
-  /**
-   * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
-   * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel
-   * @param container Page or Panel to where a question is relocated.
-   * @param insertBefore Use it if you want to set the question to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
-   */
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
   }
@@ -374,7 +381,7 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * A parent element. It can be panel or page.
+   * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
    */
   public get parent(): IPanel {
     return this.getPropertyValue("parent", null);
@@ -388,8 +395,9 @@ export class Question extends SurveyElement
   }
   private parentQuestionValue: Question = null;
   /**
-   * A parent question. It can be a dynamic panel or dynamic/dropdown matrices. If the value is a matrix, it means that question is a cell question.
-   * This property is null for a stand alone question.
+   * A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
+   *
+   * This property is `null` for standalone questions.
    */
   public get parentQuestion(): Question {
     return this.parentQuestionValue;
@@ -401,16 +409,30 @@ export class Question extends SurveyElement
   protected onParentQuestionChanged(): void { }
   protected onParentChanged(): void { }
   /**
-   * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"
+   * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
+   *
+   * If the `title` property is `undefined` or set to an empty string, the `hasTitle` property returns `true`, because the question uses its `name` as a title in this case.
+   * @see title
    * @see titleLocation
    */
   public get hasTitle(): boolean {
     return this.getTitleLocation() !== "hidden";
   }
   /**
-   * Set this property different from "default" to set the specific question title location for this panel/page.
-   * Please note, this property is hidden for questions without input, for example html question.
+   * Sets question title location relative to the input field. Overrides the `questionTitleLocation` property specified for the question's container (survey, page, or panel).
+   *
+   * Possible values:
+   *
+   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"top"` - Displays the title above the input field.
+   * - `"bottom"` - Displays the title below the input field.
+   * - `"left"` - Displays the title to the left of the input field.
+   * - `"hidden"` - Hides the question title.
+   *
+   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    * @see SurveyModel.questionTitleLocation
+   * @see getTitleLocation
+   * @see isAllowTitleLeft
    */
   public get titleLocation(): string {
     return this.getPropertyValue("titleLocation");
@@ -438,10 +460,9 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * Return the title location based on question titleLocation property and QuestionTitleLocation of it's parents
+   * Returns title location calculated based on the question's `titleLocation` property and the `questionTitleLocation` property of the question's containers (survey, page, or panel).
    * @see titleLocation
-   * @see PanelModelBase.QuestionTitleLocation
-   * @see SurveyModel.QuestionTitleLocation
+   * @see SurveyModel.questionTitleLocation
    */
   public getTitleLocation(): string {
     if (this.isFlowLayout) return "hidden";
@@ -473,14 +494,14 @@ export class Question extends SurveyElement
     return this.survey ? this.survey.questionErrorLocation : "top";
   }
   /**
-   * Returns false if the question doesn't have an input element, for example: QuestionHtmlModel
+   * Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel), and similar question types).
    * @see hasSingleInput
    */
   public get hasInput(): boolean {
     return true;
   }
   /**
-   * Returns false if the question doesn't have an input element or have multiple inputs: matrices or panel dynamic
+   * Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)) or has multiple input fields ([Matrix](https://surveyjs.io/form-library/documentation/questionmatrixmodel), [Multiple Text](https://surveyjs.io/form-library/documentation/questionmultipletextmodel)).
    * @see hasInput
    */
   public get hasSingleInput(): boolean {
@@ -494,10 +515,15 @@ export class Question extends SurveyElement
     return settings.titleTags.question;
   }
   /**
-   * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property
-   * You may change it to "underInput" to render it under question input or "underTitle" to rendered it under title.
+   * Specifies where to display the question description.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the Survey's [`questionDescriptionLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionDescriptionLocation) property.
+   * - `"underTitle"` - Displays the description under the question title.
+   * - `"underInput"` - Displays the description under the interactive area.
    * @see description
-   * @see Survey.questionDescriptionLocation
+   * @see hasDescription
    */
   public get descriptionLocation(): string {
     return this.getPropertyValue("descriptionLocation");
@@ -529,8 +555,8 @@ export class Question extends SurveyElement
     return true;
   }
   /**
-   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
-   * Please note, this property is hidden for question without input, for example html question.
+   * Specifies a custom error message for a required form field.
+   * @see isRequired
    */
   public get requiredErrorText(): string {
     return this.getLocalizableStringText("requiredErrorText");
@@ -542,7 +568,9 @@ export class Question extends SurveyElement
     return this.getLocalizableString("requiredErrorText");
   }
   /**
-   * Use it to get or set the comment value.
+   * Specifies a caption displayed above the comment area. Applies when the `hasComment` property is `true`.
+   * @see hasComment
+   * @see comment
    */
   public get commentText(): string {
     return this.getLocalizableStringText("commentText");
@@ -554,16 +582,16 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
-   *  Use this property to set the place holder text for comment field  .
+   * A placeholder for the comment area. Applies when the `hasComment` property is `true`.
+   * @see hasComment
+   * @see comment
+   * @see commentText
    */
   @property({ localizable: true }) commentPlaceHolder: string;
   public get commentOrOtherPlaceHolder(): string {
     return this.otherPlaceHolder || this.commentPlaceHolder;
   }
 
-  /**
-   * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
-   */
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
@@ -573,9 +601,6 @@ export class Question extends SurveyElement
     }
     return null;
   }
-  /**
-   * The link to the custom widget.
-   */
   public get customWidget(): QuestionCustomWidget {
     if (!this.isCustomWidgetRequested && !this.customWidgetValue) {
       this.isCustomWidgetRequested = true;
@@ -640,8 +665,8 @@ export class Question extends SurveyElement
     return res ? res : this.name;
   }
   /**
-   * Returns the title after processing the question template.
-   * @see SurveyModel.questionTitleTemplate
+   * Returns the question title with an applied [`questionTitlePattern`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitlePattern).
+   * @see title
    */
   public get fullTitle(): string {
     return this.locTitle.renderedHtml;
@@ -659,7 +684,7 @@ export class Question extends SurveyElement
     return this.isRequired && this.titlePattern == "numTitleRequire" && this.requiredText !== "";
   }
   /**
-   * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
+   * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
    */
   public get startWithNewLine(): boolean {
     return this.getPropertyValue("startWithNewLine");
@@ -870,8 +895,8 @@ export class Question extends SurveyElement
     return indent * this.cssClasses.indent + "px";
   }
   /**
-   * Move the focus to the input of this question.
-   * @param onError set this parameter to true, to focus the input with the first error, other wise the first input will be focused.
+   * Moves focus to the input field of this question.
+   * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
   public focus(onError: boolean = false): void {
     if (this.isDesignMode) return;
@@ -922,8 +947,9 @@ export class Question extends SurveyElement
     return false;
   }
   /**
-   * Set this property to true, to make the question a required. If a user doesn't answer the question then a validation error will be generated.
-   * Please note, this property is hidden for question without input, for example html question.
+   * Makes the question required. If a respondent skips a required question, the survey displays a validation error.
+   * @see requiredIf
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get isRequired(): boolean {
     return this.getPropertyValue("isRequired");
@@ -932,10 +958,11 @@ export class Question extends SurveyElement
     this.setPropertyValue("isRequired", val);
   }
   /**
-   * An expression that returns true or false. If it returns true the Question becomes required and an end-user has to answer it.
-   * If it returns false the Question then an end-user may not answer it the Question maybe empty.
-   * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
-   * Please note, this property is hidden for question without input, for example html question.
+   * A Boolean expression. If it evaluates to `true`, this question becomes required.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -945,7 +972,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("requiredIf", val);
   }
   /**
-   * Set it to true, to add a comment for the question.
+   * Specifies whether to display a comment area. Incompatible with the `hasOther` property.
+   * @see comment
+   * @see commentText
+   * @see hasOther
    */
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment", false);
@@ -956,7 +986,7 @@ export class Question extends SurveyElement
     if (this.hasComment) this.hasOther = false;
   }
   /**
-   * The unique identificator. It is generated automatically.
+   * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
    */
   public get id(): string {
     return this.getPropertyValue("id");
@@ -971,11 +1001,12 @@ export class Question extends SurveyElement
     return "textbox";
   }
   /**
-   * Specifies whether to display the "Other" choice item.
+   * Specifies whether to display the "Other" choice item. Incompatible with the `hasComment` property.
    *
    * @see otherText
    * @see otherItem
    * @see otherErrorText
+   * @see hasComment
    */
   public get hasOther(): boolean {
     return this.getPropertyValue("hasOther", false);
@@ -1012,8 +1043,11 @@ export class Question extends SurveyElement
     super.onReadOnlyChanged();
   }
   /**
-   * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
-   * Please note, this property is hidden for question without input, for example html question.
+   * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see readOnly
    * @see isReadOnly
    */
@@ -1024,14 +1058,6 @@ export class Question extends SurveyElement
     this.setPropertyValue("enableIf", val);
   }
   public surveyChoiceItemVisibilityChange(): void { }
-  /**
-   * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.
-   * @param values Typically survey results
-   * @see visible
-   * @see visibleIf
-   * @see readOnly
-   * @see enableIf
-   */
   public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     if (this.isDesignMode) return;
     if (!properties) properties = {};
@@ -1043,8 +1069,9 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * The property returns the question number. If question is invisible then it returns empty string.
-   * If visibleIndex is 1, then no is 2, or 'B' if survey.questionStartIndex is 'A'.
+   * A question number or letter (depends on the SurveyModel's `questionStartIndex` property).
+   *
+   * For invisible questions, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
    */
   public get no(): string {
@@ -1117,9 +1144,9 @@ export class Question extends SurveyElement
     this.fireCallback(this.commentChangedCallback);
   }
   /**
-   * Get/Set the question value.
-   * @see SurveyMode.setValue
-   * @see SurveyMode.getValue
+   * Gets or sets the question value.
+   * @see SurveyModel.setValue
+   * @see SurveyModel.getValue
    */
   public get value(): any {
     return this.getValueCore();
@@ -1134,7 +1161,9 @@ export class Question extends SurveyElement
     return this.value;
   }
   /**
-   * Clear the question value. It clears the question comment as well.
+   * Sets the question's `value` and `comment` properties to `undefined`.
+   * @see value
+   * @see comment
    */
   public clearValue(): void {
     if (this.value !== undefined) {
@@ -1167,7 +1196,7 @@ export class Question extends SurveyElement
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }
   /**
-   * Return true if there is a parent (page or panel) and it is visible
+   * Returns `true` if a parent element (page or panel) is visible.
    */
   public get isParentVisible(): boolean {
     var parent = this.parent;
@@ -1189,17 +1218,17 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * Gets or sets a value that specifies how invisible question clears the value. By default the behavior is define by Survey "clearInvisibleValues" property.
+   * Specifies when to clear the question value if the question becomes invisible.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `default` (default) - Survey "clearInvisibleValues" property defines the behavior.
-   * - `none` - do not clear invisible value.
-   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * - `onComplete` - clear invisible question value on survey complete.
+   * - `"default"` (default) - Inherits the setting from the Survey's [`clearInvisibleValues`](https://surveyjs.io/form-library/documentation/surveymodel#clearInvisibleValues) property.
+   * - `"onHidden"` - Clears the value when the question becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
+   * - `"onComplete"` - Clears the value when the survey is complete.
+   * - `"none"` - Never clears the value of an invisible question.
    * @see SurveyModel.clearInvisibleValues
-   * @see Question.visible
-   * @see onComplete
+   * @see visible
+   * @see SurveyModel.onComplete
    */
   public get clearIfInvisible(): string {
     return this.getPropertyValue("clearIfInvisible");
@@ -1212,9 +1241,9 @@ export class Question extends SurveyElement
     return this.getDisplayValue(true);
   }
   /**
-   * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.
-   * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
-   * @param value use this parameter, if you want to get display value for this value and not question.value. It is undefined by default.
+   * Returns a display text that corresponds to the question value. For example, if you call this method for a Dropdown question, it returns an item text instead of an item value.
+   * @param keysAsText Applies when the question value is an object (in Matrix, Multiple Text, and similar questions). Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
+   * @param value Specify this parameter to get a display text for a specific value, not for the current question value. If the question value is an object, this parameter should be a similar object.
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
@@ -1236,7 +1265,7 @@ export class Question extends SurveyElement
     return "";
   }
   /**
-   * A default value for the question. Ignored for question types that cannot have a [value](https://surveyjs.io/Documentation/Library?id=Question#value) (for example, HTML).
+   * A default value for the question. Ignored for question types that cannot have a [value](https://surveyjs.io/form-library/documentation/question#value) (for example, HTML).
    *
    * The default value is used as a question value in the following cases:
    *
@@ -1257,9 +1286,9 @@ export class Question extends SurveyElement
     this.updateValueWithDefaults();
   }
   /**
-   * An expression used to calculate the [defaultValue](https://surveyjs.io/Documentation/Library?id=Question#defaultValue).
+   * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
    *
-   * This expression applies until the question [value](https://surveyjs.io/Documentation/Library?id=Question#value) is specified by an end user or programmatically.
+   * This expression applies until the question [value](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
    *
    * An expression can reference other questions as follows:
    *
@@ -1267,7 +1296,7 @@ export class Question extends SurveyElement
    * - `{panel.other_question_name}` (to access questions inside the same dynamic panel)
    * - `{row.other_question_name}` (to access questions inside the same dynamic matrix or multi-column dropdown)
    *
-   * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Use Functions in Expressions](https://surveyjs.io/Documentation/Library#conditions-functions).
+   * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Built-In Functions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#built-in-functions).
    * @see defaultValue
    */
   public get defaultValueExpression(): any {
@@ -1282,9 +1311,11 @@ export class Question extends SurveyElement
     return this.autoGrowComment ? "none" : "both";
   }
   /**
-   * Returns question answer data as a plain object: with question title, name, value and displayValue.
-   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
-   * set options.includeEmpty to false if you want to skip empty answers
+   * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.
+   *
+   * If the question can have more than one value (Matrix, Multiple Text), the object enables that `isNode` flag and stores details about the values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
+   *
+   * Pass an object with the `includeEmpty` property set to `false` if you want to skip empty answers.
    */
   public getPlainData(
     options?: {
@@ -1336,8 +1367,7 @@ export class Question extends SurveyElement
     return undefined;
   }
   /**
-   * The correct answer on the question. Set this value if you are doing a quiz.
-   * Please note, this property is hidden for question without input, for example html question.
+   * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see SurveyModel.getCorrectAnswerCount
    * @see SurveyModel.getInCorrectAnswerCount
    */
@@ -1351,8 +1381,10 @@ export class Question extends SurveyElement
     return val;
   }
   /**
-   * Returns questions count: 1 for the non-matrix questions and all inner visible questions that has input(s) widgets for question of matrix types.
-   * @see getQuizQuestions
+   * The number of quiz questions. A question counts if it is visible, has an input field, and specifies a `correctAnswer`.
+   * @see [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)
+   * @see correctAnswer
+   * @see SurveyModel.getQuizQuestions
    */
   public get quizQuestionCount(): number {
     if (
@@ -1465,7 +1497,9 @@ export class Question extends SurveyElement
     return true;
   }
   /**
-   * The question comment value.
+   * A comment to the selected question value. Enable the `hasComment` property to allow users to leave comments.
+   * @see hasComment
+   * @see commentText
    */
   public get comment(): string {
     return this.getQuestionComment();
@@ -1491,7 +1525,7 @@ export class Question extends SurveyElement
     this.setNewComment(newValue);
   }
   /**
-   * Returns true if the question value is empty
+   * Returns `true` the question value is an empty string, array, or object or if it equals to `undefined` or `null`.
    */
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
@@ -1513,8 +1547,8 @@ export class Question extends SurveyElement
     return !this.isEmpty();
   }
   /**
-   * The list of question validators.
-   * Please note, this property is hidden for question without input, for example html question.
+   * Question validators.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get validators(): Array<SurveyValidator> {
     return this.getPropertyValue("validators");
@@ -1578,25 +1612,19 @@ export class Question extends SurveyElement
     }
     return errors.length > 0;
   }
-  /**
-   * Returns the validation errors count.
-   */
   public get currentErrorCount(): number {
     return this.errors.length;
   }
   /**
-   * Returns the char/string for a required question.
+   * Returns a character or text string that indicates a required question.
    * @see SurveyModel.requiredText
+   * @see isRequired
    */
   public get requiredText(): string {
     return this.survey != null && this.isRequired
       ? this.survey.requiredText
       : "";
   }
-  /**
-   * Add error into the question error list.
-   * @param error
-   */
   public addError(error: SurveyError | string): void {
     if (!error) return;
     let newError: SurveyError = null;
@@ -1607,10 +1635,6 @@ export class Question extends SurveyElement
     }
     this.errors.push(newError);
   }
-  /**
-   * Remove a particular error from the question error list.
-   * @param error
-   */
   public removeError(error: SurveyError): void {
     var errors = this.errors;
     var index = errors.indexOf(error);
@@ -1810,13 +1834,19 @@ export class Question extends SurveyElement
     return true;
   }
   /**
-   * Call this function to remove values from the current question, that end-user will not be able to enter.
-   * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
+   * Removes values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
+   *
+   * Call this method after you assign new question values in code to ensure that they are acceptable.
+   *
+   * > NOTE: This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate the newly assigned values.
+   *
+   * @see hasErrors
    */
   public clearIncorrectValues(): void { }
   public clearOnDeletingContainer(): void { }
   /**
-   * Call this function to clear all errors in the question
+   * Empties the `errors` array.
+   * @see errors
    */
   public clearErrors(): void {
     this.errors = [];

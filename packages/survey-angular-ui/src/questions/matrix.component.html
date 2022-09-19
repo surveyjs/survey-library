@@ -7,8 +7,10 @@
           <tr>
             <td [visible]="model.hasRows"></td>
             <th
-              *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell" 
-              [model]="column.locText" sv-ng-string>
+              *ngFor="let column of model.visibleColumns" [class]="model.cssClasses.headerCell">
+              <ng-template [component]="{ name: model.getColumnHeaderWrapperComponentName(column), data: { componentData: model.getColumnHeaderWrapperComponentData(column) } }">
+                <sv-ng-string [model]="column.locText"></sv-ng-string>
+              </ng-template>
             </th>
           </tr>
         </thead>

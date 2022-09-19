@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, OnChanges, SimpleChanges, ViewContainerRef } from "@angular/core";
+import { Directive, ElementRef, Input, OnChanges, SimpleChanges, TemplateRef, ViewContainerRef } from "@angular/core";
 import { AngularComponentFactory } from "../component-factory";
 
 interface IDynamicComponent {
@@ -12,7 +12,7 @@ interface IDynamicComponent {
 })
 
 export class DynamicComponentDirective implements OnChanges {
-  constructor(private containerRef: ViewContainerRef) { }
+  constructor(private containerRef: ViewContainerRef, private templateRef: TemplateRef<unknown>) { }
   @Input() component!: IDynamicComponent;
   private componentInstance: any;
   ngOnChanges(changes: SimpleChanges): void {
@@ -33,11 +33,12 @@ export class DynamicComponentDirective implements OnChanges {
     }
     if(!this.componentInstance) {
       throw new Error(`Can't create component with name: ${this.component.name} and default: ${this.component.default}`);
+    } else {
+      this.componentInstance.contentTempl = this.templateRef;
     }
     this.updateComponentData();
   }
   updateComponentData(): void {
-    if(!this.componentInstance) return;
     const data = this.component.data;
     Object.keys(data).forEach((key) => {
       this.componentInstance[key] = data[key];

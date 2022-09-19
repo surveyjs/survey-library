@@ -86,6 +86,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   public removeLastSelectedItem() {
     this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
+    this.popupTargetModified();
   }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {

@@ -9,7 +9,7 @@
                 [attr.placeholder]="model.filterStringPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
         </div>
-        <div *ngIf="model.isEmpty" [class]="model.cssClasses.emptyContainer">
+        <div [class]="model.cssClasses.emptyContainer" [visible]="model.isEmpty">
             <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
         <ul [class]="model.cssClasses.itemsContainer" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">

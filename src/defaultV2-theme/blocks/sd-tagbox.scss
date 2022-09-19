@@ -25,6 +25,8 @@
 
 .sv-tagbox__item-text {
   color: $primary-foreground;
+  min-width: calcSize(5.5);
+  text-align: center;
 }
 
 .sv-tagbox__item:hover,

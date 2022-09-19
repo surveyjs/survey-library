@@ -127,3 +127,17 @@ QUnit.test("focusNextVisibleItem item if there is selected items", function (ass
   list.focusNextVisibleItem();
   assert.ok(list.focusedItem === list.actions[2]);
 });
+
+QUnit.test("isEmpty & hideSelectedItems", function (assert) {
+  const items = createIActionArray(2);
+  const multiSelectList = new MultiSelectListModel(items, () => { }, true);
+  multiSelectList.hideSelectedItems = true;
+
+  assert.equal(multiSelectList.selectedItems.length, 0, "selectedItems count 1");
+  assert.notOk(multiSelectList.isEmpty, "isEmpty 1");
+
+  multiSelectList.setSelectedItems(multiSelectList.renderedActions);
+
+  assert.equal(multiSelectList.selectedItems.length, 2, "selectedItems count 2");
+  assert.ok(multiSelectList.isEmpty, "isEmpty 2");
+});

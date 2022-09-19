@@ -36,7 +36,6 @@ export class ListModel extends ActionContainer {
     }
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) showFilter: boolean;
-  @property({ defaultValue: false }) isEmpty: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({
     onSet: (newValue: boolean, target: ListModel) => {

@@ -61,7 +61,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      return (<div
        id={this.question.inputId}
        className={this.question.getControlClass()}
-       tabIndex={this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : 0}
+       tabIndex={ dropdownListModel.inputReadOnly ? undefined : 0}
        onClick={this.click}
        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
        // @ts-ignore
@@ -82,7 +82,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            className={ this.question.cssClasses.filterStringInput }
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
-           tabIndex={ this.question.isInputReadOnly || dropdownListModel.searchEnabled ? undefined : -1 }
+           tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}

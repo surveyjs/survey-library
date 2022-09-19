@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="question.isInputReadOnly || model.searchEnabled ? undefined : 0"
+      :tabindex="model.inputReadOnly ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @click="click"

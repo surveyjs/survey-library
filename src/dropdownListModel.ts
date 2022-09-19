@@ -102,6 +102,9 @@ export class DropdownListModel extends Base {
   get popupModel(): PopupModel {
     return this._popupModel;
   }
+  public get inputReadOnly(): boolean {
+    return this.question.isInputReadOnly || this.searchEnabled;
+  }
 
   public setSearchEnabled(newValue: boolean) {
     this.listModel.searchEnabled = false;

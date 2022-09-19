@@ -6,7 +6,7 @@
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
-      tabindex: (question.isInputReadOnly || model.searchEnabled) ? undefined : 0,
+      tabindex: model.inputReadOnly ? undefined : 0,
       disabled: question.isInputReadOnly,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
@@ -21,7 +21,7 @@
       attr: { 
         placeholder: question.readOnlyText, 
         readonly: !model.searchEnabled, 
-        tabindex: (question.isInputReadOnly || model.searchEnabled) ? undefined : -1,
+        tabindex: model.inputReadOnly ? undefined : -1,
         disabled: question.isInputReadOnly,
         id: question.getInputId() 
       },

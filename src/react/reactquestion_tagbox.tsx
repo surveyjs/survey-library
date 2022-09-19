@@ -28,7 +28,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={(this.question.isInputReadOnly || dropdownMultiSelectListModel.searchEnabled) ? undefined : 0}
+        tabIndex={ dropdownListModel.inputReadOnly ? undefined : 0}
         onClick={this.click}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

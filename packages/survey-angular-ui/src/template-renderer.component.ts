@@ -6,7 +6,8 @@ import { EmbeddedViewContentComponent } from "./embedded-view-content.component"
 
 @Component({
   selector: "sv-template-renderer",
-  templateUrl: "./template-renderer.component.html"
+  templateUrl: "./template-renderer.component.html",
+  styleUrls: ["./hide-host.scss"]
 })
 export class TemplateRendererComponent extends EmbeddedViewContentComponent {
   @Input() componentName!: string;

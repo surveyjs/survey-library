@@ -1,6 +1,6 @@
 import { surveyLocalization } from "survey-core";
 
-export var hindiStrings = {
+export var teluguStrings = {
   pagePrevText: "వెనకటి",
   pageNextText: "తరువాయ",
   completeText: "పూర్తి చేయండి",

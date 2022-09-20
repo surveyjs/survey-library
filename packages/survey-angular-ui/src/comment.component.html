@@ -1,4 +1,4 @@
-<textarea *ngIf="!question.isReadOnlyRenderDiv()" [attr.max-length]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.placeholder]="question.commentOrOtherPlaceHolder" 
+<textarea *ngIf="!question.isReadOnlyRenderDiv()" [attr.max-length]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.placeholder]="question.commentOrOtherPlaceholder" 
   [value]="comment"
   [style.resize]="question.resizeStyle"
   [disabled]="question.isInputReadOnly"

@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { BaseAngular } from "../base-angular";
 import {
   Question,
+  QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedCell
 } from "survey-core";
 
@@ -11,7 +12,7 @@ import {
   styles: [":host { display: none; }"]
 })
 export class MatrixCellComponent extends BaseAngular<Question> {
-  @Input() question!: Question;
+  @Input() question!: QuestionMatrixDropdownModelBase;
   @Input() cell!: QuestionMatrixDropdownRenderedCell;
 
   @ViewChild("cellContainer") cellContainer!: ElementRef<HTMLElement>;

@@ -5,7 +5,9 @@
     <!-- /ko -->
     <div *ngIf="!model.isCollapsed" [style.paddingLeft]="model.innerPaddingLeft" [class]="model.cssClasses.panel.content" [attr.id]="model.contentId">
       <ng-container *ngFor="let row of model.rows; trackBy: trackRowBy">
-        <sv-ng-row [row]="row" style="display: contents;"></sv-ng-row>
+        <ng-template [component]="{ name: $any(model.survey).getRowWrapperComponentName(row), data: { componentData: $any(model.survey).getRowWrapperComponentData(row) } }">
+          <sv-ng-row [row]="row"></sv-ng-row>
+        </ng-template>
       </ng-container>
       <sv-ng-action-bar [model]="model.getFooterToolbar()"></sv-ng-action-bar>
     </div>

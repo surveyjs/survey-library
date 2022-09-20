@@ -5,7 +5,11 @@
     <sv-ng-panel *ngIf="cell.hasPanel" [model]="cell.panel"></sv-ng-panel>
     <div *ngIf="cell.hasQuestion" [class]="question.cssClasses.cellQuestionWrapper" [visible]="cell.question.isVisible">
       <div *ngIf="cell.showErrorOnTop && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
-      <ng-template *ngIf="!cell.isChoice && cell.question.isDefaultRendering()" [component]="{ name: getComponentName(cell.question), data: { model: cell.question } }"></ng-template>
+      <ng-container *ngIf="!cell.isChoice && cell.question.isDefaultRendering()">
+          <ng-template [component]="{ name: question.getCellWrapperComponentName(cell.cell), data: { componentData: question.getCellWrapperComponentData(cell.cell)} }">
+            <ng-template  [component]="{ name: getComponentName(cell.question), data: { model: cell.question } }"></ng-template>
+          </ng-template>
+      </ng-container>
       <ng-template *ngIf="!cell.isChoice && !cell.question.isDefaultRendering()" [component]="{ name: cell.question.getComponentName(), data: { model: cell.question } }">
       </ng-template>
       <sv-ng-selebase-item

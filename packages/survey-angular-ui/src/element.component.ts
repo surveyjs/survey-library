@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
-import { ButtonGroupItemModel, PanelModel, Question, SurveyModel } from "survey-core";
+import { Component, Input } from "@angular/core";
+import { PanelModel, Question, SurveyModel } from "survey-core";
 import { BaseAngular } from "./base-angular";
 
 @Component({
   selector: "sv-ng-element",
-  templateUrl: "./element.component.html"
+  templateUrl: "./element.component.html",
+  styleUrls: ["./hide-host.scss"]
 })
 export class ElementComponent extends BaseAngular<PanelModel | Question> {
   @Input() model!: PanelModel | Question;

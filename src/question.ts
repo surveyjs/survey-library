@@ -657,17 +657,10 @@ export class Question extends SurveyElement
     this.checkForResponsiveness(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void { }
-  /**
-   * Returns the rendred question title.
-   */
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;
   }
-  /**
-   * Returns the question title with an applied [`questionTitlePattern`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitlePattern).
-   * @see title
-   */
   public get fullTitle(): string {
     return this.locTitle.renderedHtml;
   }

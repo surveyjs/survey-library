@@ -454,7 +454,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   /**
    * Returns `true` if the survey element or its parent element is read-only.
    *
-   * If you want to switch a survey element into read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
    */
   public get isReadOnly(): boolean {
@@ -463,7 +463,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   /**
    * Makes the survey element read-only.
    *
-   * If you want to switch a survey element into read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isReadOnly
    */
   public get readOnly(): boolean {

@@ -64,7 +64,7 @@ export class Question extends SurveyElement
   private commentElement: HTMLElement;
 
   /**
-   * An event that is raised when the question's ready state has changed (`choicesByUrl` are loaded, expressions are evaluated, etc.).
+   * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
    *
    * Parameters:
    *
@@ -249,7 +249,7 @@ export class Question extends SurveyElement
   /**
    * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
    *
-   * This property is useful when interpolated question values have a `value` and a `text`.
+   * This property is useful when interpolated question values have both the `value` and `text` properties.
    *
    * Default value: `true`
    */
@@ -276,7 +276,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   /**
-   * Returns `true` if the question visible or the survey is being in design mode.
+   * Returns `true` if the question is visible or the survey is currently in design mode.
    *
    * If you want to display or hide a question based on a condition, specify the [`visibleIf`](https://surveyjs.io/form-library/documentation/question#visibleIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visibleIf
@@ -300,7 +300,7 @@ export class Question extends SurveyElement
   /**
    * Hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set the SurveyModel's `showQuestionNumbers` property to `false`.
+   * If you want to disable question numbering in the entire survey, set SurveyModel's `showQuestionNumbers` property to `false`.
    * @see SurveyModel.showQuestionNumbers
    */
   public get hideNumber(): boolean {
@@ -515,7 +515,7 @@ export class Question extends SurveyElement
     return settings.titleTags.question;
   }
   /**
-   * Specifies where to display the question description.
+   * Specifies where to display a question description.
    *
    * Possible values:
    *
@@ -1062,7 +1062,7 @@ export class Question extends SurveyElement
     }
   }
   /**
-   * A question number or letter (depends on the SurveyModel's `questionStartIndex` property).
+   * A question number or letter (depends on SurveyModel's `questionStartIndex` property).
    *
    * For invisible questions, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
@@ -1306,7 +1306,7 @@ export class Question extends SurveyElement
   /**
    * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.
    *
-   * If the question can have more than one value (Matrix, Multiple Text), the object enables that `isNode` flag and stores details about the values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
+   * If the question can have more than one value (Matrix, Multiple Text), the object enables the `isNode` flag and stores information about these values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
    *
    * Pass an object with the `includeEmpty` property set to `false` if you want to skip empty answers.
    */
@@ -1374,7 +1374,7 @@ export class Question extends SurveyElement
     return val;
   }
   /**
-   * The number of quiz questions. A question counts if it is visible, has an input field, and specifies a `correctAnswer`.
+   * The number of quiz questions. A question counts if it is visible, has an input field, and specifies `correctAnswer`.
    * @see [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)
    * @see correctAnswer
    * @see SurveyModel.getQuizQuestions
@@ -1518,7 +1518,7 @@ export class Question extends SurveyElement
     this.setNewComment(newValue);
   }
   /**
-   * Returns `true` the question value is an empty string, array, or object or if it equals to `undefined` or `null`.
+   * Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.
    */
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
@@ -1831,7 +1831,7 @@ export class Question extends SurveyElement
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > NOTE: This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate the newly assigned values.
+   * > NOTE: This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
    *
    * @see hasErrors
    */

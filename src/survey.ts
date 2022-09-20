@@ -2599,9 +2599,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns survey results as an array of objects in which the question name, title, value, and other parameters are stored as individual properties.
    *
-   * If a question can have more than one value (Matrix, Multiple Text), its object enables that `isNode` flag and stores details about the values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
+   * If a question can have more than one value (Matrix, Multiple Text), its object enables the `isNode` flag and stores information about these values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
    *
-   * Pass an object with the `includeEmpty` property set to `false` if you want to skip empty answers.
+   * If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
    */
   public getPlainData(
     options?: {

@@ -69,6 +69,7 @@ export class LocalizableString implements ILocalizableString {
       this.renderedText = undefined;
       this.calculatedTextValue = undefined;
     }
+    this.htmlValues = {};
     this.onChanged();
     this.onStringChanged.fire(this, {});
   }
@@ -283,11 +284,12 @@ export class LocalizableString implements ILocalizableString {
   protected onCreating() {}
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
+    var loc = this.locale;
+    if (!loc) loc = settings.defaultLocaleName;
+    if((<any>this).htmlValues[loc]) return true;
     var renderedText = this.calculatedText;
     if (!renderedText) return false;
     if(!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) return false;
-    var loc = this.locale;
-    if (!loc) loc = settings.defaultLocaleName;
     (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText, this.name);
     return (<any>this).htmlValues[loc] ? true : false;
   }

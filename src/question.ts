@@ -556,9 +556,17 @@ export class Question extends SurveyElement
   /**
    *  Use this property to set the place holder text for comment field  .
    */
-  @property({ localizable: true }) commentPlaceHolder: string;
+  @property({ localizable: true }) commentPlaceholder: string;
+
+  public get commentPlaceHolder(): string {
+    return this.commentPlaceholder;
+  }
+  public set commentPlaceHolder(newValue: string) {
+    this.commentPlaceholder = newValue;
+  }
+
   public get commentOrOtherPlaceHolder(): string {
-    return this.otherPlaceHolder || this.commentPlaceHolder;
+    return this.otherPlaceHolder || this.commentPlaceholder;
   }
 
   /**

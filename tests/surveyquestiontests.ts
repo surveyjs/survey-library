@@ -5880,10 +5880,12 @@ QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
   assert.equal(survey.locale, "", "default locale");
   assert.equal(question.getLocale(), "", "default locale");
   assert.equal(question.commentPlaceHolder, "Write your reason here...", "default placeholder");
+  assert.equal(question.commentPlaceholder, "Write your reason here...", "default placeholder");
   survey.locale = "da";
   assert.equal(survey.locale, "da", "da locale");
   assert.equal(question.getLocale(), "da", "da locale");
   assert.equal(question.commentPlaceHolder, "Skriv din begrundelse her...", "da placeholder");
+  assert.equal(question.commentPlaceholder, "Skriv din begrundelse her...", "da placeholder");
   survey.locale = "";
 });
 QUnit.test("Dropdown optionsCaption localization", function (assert) {

@@ -15,6 +15,7 @@ export class ResponsivityManager {
   private separatorSize = 17;
   private separatorAddConst = 1;
   private paddingSizeConst = 8;
+  private dotsSizeConst = 48;
   protected recalcMinDimensionConst = true;
 
   public getComputedStyle: (
@@ -25,9 +26,8 @@ export class ResponsivityManager {
     protected container: HTMLDivElement,
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
-    private dotsItemSize: number = 48,
+    private dotsItemSize: number = null,
   ) {
-
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if(isResetInitialized)
         this.isInitialized = false;
@@ -77,9 +77,12 @@ export class ResponsivityManager {
       .querySelectorAll(this.itemsSelector)
       .forEach((item: HTMLDivElement, index: number) => {
         let currentAction = actions[index];
-        currentAction.maxDimension = this.calcItemSize(item);
-        currentAction.minDimension = this.calcMinDimension(currentAction);
+        this.calcActionDimensions(currentAction, item);
       });
+  }
+  protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
+    currentAction.maxDimension = this.calcItemSize(item);
+    currentAction.minDimension = this.calcMinDimension(currentAction);
   }
   private get isContainerVisible(): boolean {
     return isContainerVisible(this.container);
@@ -91,7 +94,12 @@ export class ResponsivityManager {
         this.calcItemsSizes();
         this.isInitialized = true;
       }
-      this.model.fit(this.getAvailableSpace(), this.dotsItemSize);
+      let dotsItemSize = this.dotsItemSize;
+      if (!this.dotsItemSize) {
+        const dotsItemElement: HTMLDivElement = this.container?.querySelector(".sv-dots");
+        dotsItemSize = dotsItemElement && this.calcItemSize(dotsItemElement) || this.dotsSizeConst;
+      }
+      this.model.fit(this.getAvailableSpace(), dotsItemSize);
     }
   }
 
@@ -134,5 +142,9 @@ export class VerticalResponsivityManager extends ResponsivityManager {
 
   protected calcItemSize(item: HTMLDivElement): number {
     return item.offsetHeight;
+  }
+  protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
+    currentAction.maxDimension = this.calcItemSize(item);
+    currentAction.minDimension = this.calcItemSize(item);
   }
 }

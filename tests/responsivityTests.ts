@@ -17,11 +17,13 @@ class SimpleContainer {
   getClientRects() {
     return this.clientRects;
   }
-  querySelectorAll() {
+  querySelector(query: string) {
+
+  }
+  querySelectorAll(query: string) {
 
   }
 }
-
 class ResizeObserver {
   observe() { }
   disconnect() { }
@@ -294,6 +296,37 @@ QUnit.test("ResponsivityManager - vertical",
     assert.equal(manager["calcMinDimension"](newAction), 40);
   }
 );
+
+QUnit.test("ResponsivityManager - vertical process", function (assert) {
+  const itemSmallWidth = 48;
+  const container: SimpleContainer = new SimpleContainer({
+    offsetHeight: 100,
+    querySelector: (query: string) => {
+      if(query == ".sv-dots") return { offsetWidth: 20, offsetHeight: 30 };
+    },
+    querySelectorAll: (query: string) => {
+      if(query == ".sv-action") {
+        let items = [];
+        for(var i = 0; i < 10; i++) items.push(<any>{ offsetWidth: 20, offsetHeight: 20 });
+        return items;
+      }
+    }
+  });
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  for(var i = 0; i < 10; i++) {
+    model.actions.push(new Action(<any>{}));
+  }
+  const manager: VerticalResponsivityManager = new VerticalResponsivityManager(
+    <any>container,
+    <any>model,
+    ".sv-action"
+  );
+  (<any>manager.getComputedStyle) = () => {
+    return { boxSizing: "border-box", paddingTop: 5, paddingBottom: 5 };
+  };
+  manager["process"]();
+  assert.equal(model.hiddenItemsListModel.actions.length, 7);
+});
 
 QUnit.test("isResponsivenessDisabled", function (assert) {
   const itemSmallWidth = 48;

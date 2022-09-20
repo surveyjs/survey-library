@@ -597,7 +597,14 @@ export class QuestionSelectBase extends Question {
   /**
    *  Use this property to set the place holder text for other or comment field  .
    */
-  @property({ localizable: true }) otherPlaceHolder: string;
+  @property({ localizable: true }) otherPlaceholder: string;
+
+  public get otherPlaceHolder(): string {
+    return this.otherPlaceholder;
+  }
+  public set otherPlaceHolder(newValue: string) {
+    this.otherPlaceholder = newValue;
+  }
   /**
    * The text that shows when the other item is choosed by the other input is empty.
    */
@@ -1500,8 +1507,9 @@ Serializer.addClass(
     "hasOther:boolean",
     "hasNone:boolean",
     {
-      name: "otherPlaceHolder",
-      serializationProperty: "locOtherPlaceHolder",
+      name: "otherPlaceholder",
+      alternativeName: "otherPlaceHolder",
+      serializationProperty: "locOtherPlaceholder",
       dependsOn: "hasOther",
       visibleIf: function (obj: any) {
         return obj.hasOther;

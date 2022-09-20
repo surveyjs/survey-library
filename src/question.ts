@@ -566,7 +566,7 @@ export class Question extends SurveyElement
   }
 
   public get commentOrOtherPlaceHolder(): string {
-    return this.otherPlaceHolder || this.commentPlaceholder;
+    return this.otherPlaceholder || this.commentPlaceholder;
   }
 
   /**

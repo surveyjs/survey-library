@@ -638,7 +638,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       ? this.survey.getSurveyMarkdownHtml(this, text, name)
       : this.locOwner
         ? this.locOwner.getMarkdownHtml(text, name)
-        : null;
+        : undefined;
   }
   public getRenderer(name: string): string {
     return this.survey && typeof this.survey.getRendererForString === "function"

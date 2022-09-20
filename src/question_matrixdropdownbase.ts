@@ -552,7 +552,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     return this.data ? this.data.getLocale() : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
-    return this.data ? this.data.getMarkdownHtml(text, name) : null;
+    return this.data ? this.data.getMarkdownHtml(text, name) : undefined;
   }
   public getRenderer(name: string): string {
     return this.data ? this.data.getRenderer(name) : null;

@@ -5364,16 +5364,21 @@ QUnit.test("Survey Markdown - question title calls count", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("Page1");
   const q1 = <Question>page.addNewQuestion("text", "q1");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
   let counter = 0;
   survey.onTextMarkdown.add((survey, options) => {
     counter ++;
-    options.html = options.text + "!";
+    if(options.element.name == "q1") {
+      options.html = options.text + "!";
+    }
   });
   for(var i = 0; i < 10; i ++) {
     assert.equal(q1.title, "q1");
     assert.equal(q1.locTitle.renderedHtml, "q1!");
+    assert.equal(q2.title, "q2");
+    assert.equal(q2.locTitle.renderedHtml, "q2");
   }
-  assert.equal(counter, 1, "onTextMarkdown is called one time");
+  assert.equal(counter, 2, "onTextMarkdown is called two times");
 });
 QUnit.test("Survey Markdown + processed text", function (assert) {
   const survey = new SurveyModel();

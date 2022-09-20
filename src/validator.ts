@@ -65,7 +65,7 @@ export class SurveyValidator extends Base {
   getMarkdownHtml(text: string, name: string): string {
     return !!this.errorOwner
       ? this.errorOwner.getMarkdownHtml(text, name)
-      : null;
+      : undefined;
   }
   getRenderer(name: string): string {
     return !!this.errorOwner ? this.errorOwner.getRenderer(name) : null;

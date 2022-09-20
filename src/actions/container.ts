@@ -19,7 +19,7 @@ export let defaultActionBarCss = {
 
 export class ActionContainer<T extends Action = Action> extends Base implements ILocalizableOwner {
   public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : null;
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

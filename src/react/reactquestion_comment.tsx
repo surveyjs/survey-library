@@ -69,7 +69,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         value={comment}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
-        placeholder={question.commentOrOtherPlaceHolder}
+        placeholder={question.commentOrOtherPlaceholder}
         onChange={handleOnChange}
         onBlur={(e) => { question.onCommentChange(e); handleOnChange(e); } }
         onInput={(e) => question.onCommentInput(e)}

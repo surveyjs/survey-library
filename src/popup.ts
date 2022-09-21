@@ -150,8 +150,15 @@ export function createPopupModalViewModel(options: IDialogOptions) {
 const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private isAutoScroll = true;
   private prevActiveElement: HTMLElement;
-  private scrollEventCallBack = () => this.hidePopup();
+  private scrollEventCallBack = () => {
+    if(!this.isAutoScroll) {
+      this.hidePopup();
+    } else {
+      this.isAutoScroll = false;
+    }
+  }
 
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -166,6 +173,7 @@ export class PopupBaseViewModel extends Base {
 
   private hidePopup() {
     this.model.isVisible = false;
+    this.isAutoScroll = true;
   }
   private setupModel(model: PopupModel) {
     if (!!this.model) {

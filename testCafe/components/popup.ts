@@ -217,7 +217,7 @@ frameworks.forEach(async framework => {
       .scroll(0, 500)
       .expect(popupSelector.visible).ok()
 
-      .scroll(0, 500)
+      .scroll(0, 1000)
       .expect(popupSelector.visible).notOk();
   });
 

@@ -214,7 +214,10 @@ frameworks.forEach(async framework => {
       .click(clickButton)
       .expect(popupSelector.visible).ok()
 
-      .scroll(0, 1000)
+      .scroll(0, 500)
+      .expect(popupSelector.visible).ok()
+
+      .scroll(0, 500)
       .expect(popupSelector.visible).notOk();
   });
 

@@ -90,8 +90,8 @@ export class Survey extends SurveyElementBase<any, any>
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
     const style: any = {};
-    if(!!this.survey.width) {
-      style.width = this.survey.width;
+    if(!!this.survey.renderedWidth) {
+      style.width = this.survey.renderedWidth;
     }
 
     return (

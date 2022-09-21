@@ -6296,6 +6296,10 @@ export class SurveyModel extends SurveyElementCore
   public set width(val: string) {
     this.setPropertyValue("width", val);
   }
+  public get renderedWidth(): string {
+    return this.getPropertyValue("calculatedWidthMode") == "static" && this.getPropertyValue("width") || undefined;
+  }
+
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);

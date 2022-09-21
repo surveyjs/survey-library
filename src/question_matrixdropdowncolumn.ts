@@ -415,7 +415,7 @@ export class MatrixDropdownColumn extends Base
     return this.colOwner ? this.colOwner.getLocale() : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
-    return this.colOwner ? this.colOwner.getMarkdownHtml(text, name) : null;
+    return this.colOwner ? this.colOwner.getMarkdownHtml(text, name) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.colOwner ? this.colOwner.getRenderer(name) : null;

@@ -21,7 +21,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   [index: string]: any;
 
   public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : null;
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

@@ -5312,61 +5312,87 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   );
 });
 
-QUnit.test(
-  "Survey Markdown - question title, if title is empty and question is required",
-  function (assert) {
-    var survey = new SurveyModel();
-    survey.setValue("q1", "q1-Value");
-    var page = survey.addNewPage("Page 1");
-    var q1 = <Question>page.addNewQuestion("text", "q1");
-    var q2 = <Question>page.addNewQuestion("text", "q2");
-    var q3 = <Question>page.addNewQuestion("text", "q3");
-    survey.onTextMarkdown.add(function (survey, options) {
-      assert.equal(
-        options.name,
-        "title",
-        "question title markdown preprocessing"
-      );
-      options.html = options.text + "!";
-    });
-    q1.isRequired = true;
-    q2.isRequired = true;
-    q2.title = "Q2";
-    q3.isRequired = true;
-    q3.title = "*Q3 {q1}";
+QUnit.test("Survey Markdown - question title, if title is empty and question is required", function (assert) {
+  var survey = new SurveyModel();
+  survey.setValue("q1", "q1-Value");
+  var page = survey.addNewPage("Page 1");
+  var q1 = <Question>page.addNewQuestion("text", "q1");
+  var q2 = <Question>page.addNewQuestion("text", "q2");
+  var q3 = <Question>page.addNewQuestion("text", "q3");
+  survey.onTextMarkdown.add((survey, options) => {
+    assert.equal(options.name, "title", "question title markdown preprocessing");
+    options.html = options.text + "!";
+  });
+  q1.isRequired = true;
+  q2.isRequired = true;
+  q2.title = "Q2";
+  q3.isRequired = true;
+  q3.title = "*Q3 {q1}";
 
-    assert.equal(
-      q1.locTitle.renderedHtml,
-      "q1!",
-      "q1.title, use markdown for requried text, title is empty"
-    );
-    assert.equal(
-      q1.locTitle.hasHtml,
-      true,
-      "q1.title, use markdown for requried text - hasHtml, title is empty"
-    );
-    assert.equal(
-      q2.locTitle.renderedHtml,
-      "Q2!",
-      "q2.title, use markdown for requried text, has title"
-    );
-    assert.equal(
-      q2.locTitle.hasHtml,
-      true,
-      "q2.title, use markdown for requried text - hasHtml, has title"
-    );
-    assert.equal(
-      q3.locTitle.renderedHtml,
-      "*Q3 q1-Value!",
-      "q3.title, use markdown for requried text and inside title and process text"
-    );
-    assert.equal(
-      q3.locTitle.hasHtml,
-      true,
-      "q3.title, use markdown for requried text and inside title and process text, hasHtml"
-    );
+  assert.equal(
+    q1.locTitle.renderedHtml,
+    "q1!",
+    "q1.title, use markdown for requried text, title is empty"
+  );
+  assert.equal(
+    q1.locTitle.hasHtml,
+    true,
+    "q1.title, use markdown for requried text - hasHtml, title is empty"
+  );
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "Q2!",
+    "q2.title, use markdown for requried text, has title"
+  );
+  assert.equal(
+    q2.locTitle.hasHtml,
+    true,
+    "q2.title, use markdown for requried text - hasHtml, has title"
+  );
+  assert.equal(
+    q3.locTitle.renderedHtml,
+    "*Q3 q1-Value!",
+    "q3.title, use markdown for requried text and inside title and process text"
+  );
+  assert.equal(
+    q3.locTitle.hasHtml,
+    true,
+    "q3.title, use markdown for requried text and inside title and process text, hasHtml"
+  );
+});
+QUnit.test("Survey Markdown - question title calls count", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page1");
+  const q1 = <Question>page.addNewQuestion("text", "q1");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
+  let counter = 0;
+  survey.onTextMarkdown.add((survey, options) => {
+    counter ++;
+    if(options.element.name == "q1") {
+      options.html = options.text + "!";
+    }
+  });
+  for(var i = 0; i < 10; i ++) {
+    assert.equal(q1.title, "q1");
+    assert.equal(q1.locTitle.renderedHtml, "q1!");
+    assert.equal(q2.title, "q2");
+    assert.equal(q2.locTitle.renderedHtml, "q2");
   }
-);
+  assert.equal(counter, 2, "onTextMarkdown is called two times");
+});
+QUnit.test("Survey Markdown + processed text", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page1");
+  const q1 = <Question>page.addNewQuestion("text", "q1");
+  q1.title = "Q1 {val}";
+  survey.setValue("val", "test1");
+  survey.onTextMarkdown.add((survey, options) => {
+    options.html = options.text + "!";
+  });
+  assert.equal(q1.locTitle.renderedHtml, "Q1 test1!", "Initial value");
+  survey.setValue("val", "test2");
+  assert.equal(q1.locTitle.renderedHtml, "Q1 test2!", "Change the value");
+});
 
 QUnit.test("required question title test", function (assert) {
   var survey = new SurveyModel();

@@ -320,7 +320,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
-  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name): text; }
+  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name): undefined; }
   getProcessedText(text: string): string { return this.owner ? this.owner.getProcessedText(text) : text; }
   getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }

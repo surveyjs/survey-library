@@ -25,7 +25,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
   public getMarkdownHtml(text: string): string {
     if (text.indexOf("markdown") > -1)
       return LocalizableOwnerTester.MarkdownText;
-    return null;
+    return undefined;
   }
   public getRenderer(name: string): string {
     return undefined;
@@ -249,7 +249,7 @@ class BaseItemValueArrayTester extends Base implements ILocalizableOwner {
   public getMarkdownHtml(text: string): string {
     if (text.indexOf("markdown") > -1)
       return LocalizableOwnerTester.MarkdownText;
-    return null as any;
+    return undefined as any;
   }
   public getRenderer(name: string): string {
     return undefined as any;

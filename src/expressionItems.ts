@@ -37,7 +37,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
   public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : null;
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;

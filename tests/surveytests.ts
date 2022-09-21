@@ -15069,6 +15069,54 @@ QUnit.test("Check survey calculated width mode observability",
   }
 );
 
+QUnit.test("Check survey width for different width modes",
+  function (assert) {
+    const json = {
+      "pages": [
+        {
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            },
+            {
+              "type": "text",
+              "name": "q2"
+            },
+            {
+              "type": "text",
+              "name": "q3"
+            },
+            {
+              "type": "text",
+              "name": "q4"
+            }
+          ]
+        }
+      ]
+    };
+    const model = new SurveyModel(json);
+
+    assert.equal(model.widthMode, "auto");
+    assert.equal(model.calculatedWidthMode, "static");
+    assert.equal(model.renderedWidth, undefined, "auto static width undefined");
+
+    model.width = "700px";
+    assert.equal(model.calculatedWidthMode, "static");
+    assert.equal(model.renderedWidth, "700px", "auto static width 700px");
+
+    model.getAllQuestions()[1].startWithNewLine = false;
+    assert.equal(model.calculatedWidthMode, "responsive");
+    assert.equal(model.renderedWidth, undefined, "auto responsive width undefined");
+
+    model.widthMode = "static";
+    assert.equal(model.renderedWidth, "700px", "static width 700px");
+
+    model.widthMode = "responsive";
+    assert.equal(model.renderedWidth, undefined, "responsive width undefined");
+  }
+);
+
 QUnit.test("Survey Localization - check errors update after locale changed", function (assert) {
   const survey = new SurveyModel({
     elements: [

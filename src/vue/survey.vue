@@ -1,5 +1,5 @@
 <template>
-  <div :class="survey.getRootCss()" :style="{width: survey.width}">
+  <div :class="survey.getRootCss()" :style="{width: survey.renderedWidth}">
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">

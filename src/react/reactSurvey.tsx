@@ -89,17 +89,19 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
-    const style: any = {};
-    if(!!this.survey.renderedWidth) {
-      style.width = this.survey.renderedWidth;
-    }
+
+    var topProgress = this.survey.isShowProgressBarOnTop && !this.survey.isShowStartingPage
+      ? this.renderProgress(true)
+      : null;
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={style}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>
             {header}
+            {this.renderTimerPanel("top")}
+            {topProgress}
             {renderResult}
           </div>
         </form>
@@ -174,9 +176,7 @@ export class Survey extends SurveyElementBase<any, any>
       : null;
     const isStaring = this.survey.isShowStartingPage;
     var pageId = this.survey.activePage ? this.survey.activePage.id : "";
-    var topProgress = this.survey.isShowProgressBarOnTop && !isStaring
-      ? this.renderProgress(true)
-      : null;
+
     var bottomProgress = this.survey.isShowProgressBarOnBottom && !isStaring
       ? this.renderProgress(false)
       : null;
@@ -185,13 +185,17 @@ export class Survey extends SurveyElementBase<any, any>
       className = this.css.bodyEmpty;
       activePage = this.renderEmptySurvey();
     }
+    const style: any = {};
+    if(!!this.survey.renderedWidth) {
+      style.width = this.survey.renderedWidth;
+      style.maxWidth = this.survey.renderedWidth;
+    }
     return (
       <div
         id={pageId}
         className={className}
+        style={style}
       >
-        {topProgress}
-        {this.renderTimerPanel("top")}
         {this.renderNavigation("top")}
         {activePage}
         {this.renderTimerPanel("bottom")}

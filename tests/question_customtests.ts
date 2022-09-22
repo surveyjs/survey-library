@@ -1756,3 +1756,26 @@ QUnit.test("Composite: in matrices cells", function (assert) {
   assert.equal(q.contentPanel.getQuestionByName("lastName").value, "Snow", "row 1, lastname");
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Single: isContentElement property", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.isContentElement,
+    false,
+    "Design is available for root"
+  );
+  assert.equal(
+    q.contentQuestion.isContentElement,
+    true,
+    "Design is disabled for contentQuestion"
+  );
+  ComponentCollection.Instance.clear();
+});

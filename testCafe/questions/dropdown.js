@@ -1102,15 +1102,16 @@ frameworks.forEach((framework) => {
     };
     const ratingAsDropdownPlaceHolder = "Tap to rate here...";
     const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
+    const ratingAsDropdownText = ratingAsDropdown.find("input");
     await initSurvey(framework, jsonWithDropDown);
 
     await t
       .click(ratingAsDropdown)
       .click(getListItemByText("2"))
-      .expect(ratingAsDropdown.find(".sv-string-viewer").textContent).contains("2")
+      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql("2")
 
       .pressKey("delete")
-      .expect(ratingAsDropdown.find("input").getAttribute("placeholder")).contains(ratingAsDropdownPlaceHolder);
+      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
   test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
     await applyTheme(theme);

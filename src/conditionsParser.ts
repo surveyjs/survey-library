@@ -14,7 +14,6 @@ export class ConditionsParser {
       .replace(/=>/g, ">=")
       .replace(/=</g, "<=")
       .replace(/<>/g, "!=")
-      .replace(/==/g, "= ")
       .replace(/equals/g, "equal ")
       .replace(/notequals/g, "notequal ");
   }

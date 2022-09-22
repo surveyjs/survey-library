@@ -1410,3 +1410,10 @@ QUnit.test("string contancts without brackets", function(assert) {
   assert.equal(expression.run({ a: "abcd" }), false, "#3");
   assert.equal(expression.run({ a: "ab_cd" }), true, "#4");
 });
+QUnit.test("Expression string as ==", function(assert) {
+  const node = <Const>new ConditionsParser().parseExpression("'=='");
+  assert.equal(node.getType(), "const");
+  assert.equal(node.correctValue, "==");
+  assert.equal(new ExpressionRunner("'=='").run({}), "==");
+  assert.equal(new ExpressionRunner("'aa' + '=='").run({}), "aa==");
+});

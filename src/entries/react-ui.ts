@@ -4,4 +4,4 @@ export { SurveyModel as Model } from "survey-core";
 
 import { checkLibraryVersion } from "survey-core";
 
-checkLibraryVersion(`${process.env.VERSION}`, "survey-knockout-ui");
+checkLibraryVersion(`${process.env.VERSION}`, "survey-react-ui");

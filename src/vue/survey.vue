@@ -18,7 +18,7 @@
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth, width: survey.renderedWidth}>
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth, width: survey.renderedWidth}">
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"

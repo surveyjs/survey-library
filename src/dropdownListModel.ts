@@ -79,15 +79,18 @@ export class DropdownListModel extends Base {
       this.filterString = undefined;
     }
   }
+  protected onSetFilterString(): void {
+    if(!!this.filterString && !this.popupModel.isVisible) {
+      this.popupModel.isVisible = true;
+    }
+    this.setFilter(this.filterString);
+  }
 
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     defaultValue: "",
     onSet: (_, target: DropdownListModel) => {
-      if(!!target.filterString && !target.popupModel.isVisible) {
-        target.popupModel.isVisible = true;
-      }
-      target.setFilter(target.filterString);
+      target.onSetFilterString();
     }
   }) filterString: string;
 

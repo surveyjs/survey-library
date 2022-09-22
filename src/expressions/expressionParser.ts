@@ -69,7 +69,9 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
+        // eslint-disable-next-line no-control-regex
         .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
+        // eslint-disable-next-line no-control-regex
         .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
     }
 
@@ -83,7 +85,9 @@ export class SyntaxError extends Error {
         .replace(/\t/g, "\\t")
         .replace(/\n/g, "\\n")
         .replace(/\r/g, "\\r")
+        // eslint-disable-next-line no-control-regex
         .replace(/[\x00-\x0F]/g, (ch) => "\\x0" + hex(ch))
+        // eslint-disable-next-line no-control-regex
         .replace(/[\x10-\x1F\x7F-\x9F]/g, (ch) => "\\x" + hex(ch));
     }
 

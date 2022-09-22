@@ -45,7 +45,11 @@
   background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
 }
 .sd-tagbox-item_clean-button-svg {
-  margin: calcSize(0.5);
+  padding: calcSize(0.5);
+}
+.sd-tagbox-item_clean-button-svg:hover {
+  border-radius: 100px;
+  background: $primary-foreground-disabled;
 }
 .sd-tagbox-item_clean-button-svg use {
   fill: $primary-foreground;

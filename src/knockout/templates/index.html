@@ -4,22 +4,22 @@
 </script>
 
 <script type="text/html" id="survey-content-template">
-  <div data-bind="css: rootCss, style:{width: renderedWidth}">
+  <div data-bind="css: rootCss">
       <form onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
-              <div data-bind="css: bodyCss">
-                  <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
-                  <!-- ko template: { name: 'survey-timerpanel' } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
-                  <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
-                  <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
+              <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
+              <!-- ko template: { name: 'survey-timerpanel' } -->
+              <!-- /ko -->
+              <!-- /ko -->
+              <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
+              <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
+              <!-- /ko -->
+              <!-- /ko -->
+              <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth, width: renderedWidth}">
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
                     <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->

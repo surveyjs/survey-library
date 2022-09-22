@@ -1,24 +1,24 @@
 <template>
-  <div :class="survey.getRootCss()" :style="{width: survey.renderedWidth}">
+  <div :class="survey.getRootCss()">
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
+          <component
+                v-if="vueSurvey.isShowProgressBarOnTop && !vueSurvey.isShowStartingPage"
+                :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
+                :survey="vueSurvey"
+                :css="css"
+              />
+          <survey-timerpanel
+            v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
+            :timerModel="vueSurvey.timerModel"
+            :css="css"
+          />
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss">
-            <component
-              v-if="vueSurvey.isShowProgressBarOnTop && !vueSurvey.isShowStartingPage"
-              :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
-              :survey="vueSurvey"
-              :css="css"
-            />
-            <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
-              :timerModel="vueSurvey.timerModel"
-              :css="css"
-            />
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth, width: survey.renderedWidth}">
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"

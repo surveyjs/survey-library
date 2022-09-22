@@ -17,6 +17,10 @@
       :required="question.isRequired"
     >
       <div :class="question.cssClasses.controlValue">
+        <survey-string
+          v-if="question.selectedItemLocText && !question.inputHasValue"
+          :locString="question.selectedItemLocText"
+        />
         <input
           type="text"
           ref="inputElement"

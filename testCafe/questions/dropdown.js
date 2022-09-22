@@ -4,7 +4,8 @@ const title = "dropdown";
 
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
-const questionValueText = Selector(".sv_q_dropdown__value input");
+const questionValueInput = Selector(".sv_q_dropdown__value input");
+const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
 frameworks.forEach((framework) => {
@@ -546,7 +547,7 @@ frameworks.forEach((framework) => {
 
     const myListItems = Selector(".my-list-item");
     await t
-      .expect(questionValueText.getAttribute("placeholder")).eql("Select...")
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
 
       .click(questionDropdownSelect)
       .expect(myListItems.count).eql(10)
@@ -554,7 +555,7 @@ frameworks.forEach((framework) => {
 
       .click(myListItems.nth(3))
 
-      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan");
+      .expect(questionValueText.textContent).eql("Nissan");
   });
 
   test("Check dropdown key press with searchEnabled", async (t) => {
@@ -623,26 +624,26 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
+      .expect(questionValueText.textContent).eql("Nissan")
 
       .pressKey("space")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
       .pressKey("space")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.getAttribute("placeholder")).eql("Volkswagen")
+      .expect(questionValueText.textContent).eql("Volkswagen")
 
       .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
       .pressKey("space")
-      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item20")
+      .expect(questionValueText.nth(1).textContent).eql("item20")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item21");
+      .expect(questionValueText.nth(1).textContent).eql("item21");
   });
 
   test("Check dropdown key press without searchEnabled", async (t) => {
@@ -713,20 +714,20 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.getAttribute("placeholder")).eql("Nissan")
+      .expect(questionValueText.textContent).eql("Nissan")
 
       .pressKey("space")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
       .pressKey("space")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.getAttribute("placeholder")).eql("Volkswagen")
+      .expect(questionValueText.textContent).eql("Volkswagen")
 
       .pressKey("tab")
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.nth(1).getAttribute("placeholder")).eql("item2");
+      .expect(questionValueText.nth(1).textContent).eql("item2");
   });
 
   test("Check dropdown search", async (t) => {
@@ -789,7 +790,7 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.getAttribute("placeholder")).eql("item25")
+      .expect(questionValueText.textContent).eql("item25")
       .expect(popupContainer.visible).notOk()
 
       .pressKey("down")
@@ -799,7 +800,7 @@ frameworks.forEach((framework) => {
 
       .pressKey("down")
       .pressKey("esc")
-      .expect(questionValueText.getAttribute("placeholder")).eql("item25");
+      .expect(questionValueText.textContent).eql("item25");
   });
 
   test("Check reset focused item", async (t) => {
@@ -913,7 +914,7 @@ frameworks.forEach((framework) => {
       .expect(listItems.filterVisible().count).eql(1)
 
       .pressKey("tab")
-      .expect(questionValueText.value).eql("")
+      .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
       .expect(clearButton.visible).notOk();
   });
@@ -959,21 +960,20 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const newDropdown = questionValueText;
     const oldDropdown = Selector(".sv_q_dropdown_control").nth(1);
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .expect(newDropdown.getAttribute("placeholder")).eql("Volkswagen")
+      .expect(questionValueText.textContent).eql("Volkswagen")
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("delete")
-      .expect(newDropdown.getAttribute("placeholder")).eql("Select...")
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
       .expect(oldDropdown.value).eql("Mercedes-Benz")
 
       .pressKey("tab")
       .pressKey("delete")
-      .expect(newDropdown.getAttribute("placeholder")).eql("Select...")
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
       .expect(oldDropdown.value).eql("");
   });
 
@@ -1101,16 +1101,17 @@ frameworks.forEach((framework) => {
       ]
     };
     const ratingAsDropdownPlaceHolder = "Tap to rate here...";
-    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value input");
+    const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
+    const ratingAsDropdownText = ratingAsDropdown.find("input");
     await initSurvey(framework, jsonWithDropDown);
 
     await t
       .click(ratingAsDropdown)
       .click(getListItemByText("2"))
-      .expect(ratingAsDropdown.getAttribute("placeholder")).contains("2")
+      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql("2")
 
       .pressKey("delete")
-      .expect(ratingAsDropdown.getAttribute("placeholder")).contains(ratingAsDropdownPlaceHolder);
+      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
   test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
     await applyTheme(theme);

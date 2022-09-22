@@ -161,25 +161,25 @@ frameworks.forEach((framework) => {
 
       .click(ageDropdown)
       .click(getListItemByText("72"))
-      .expect(ageDropdown.find("input").getAttribute("placeholder")).eql("72")
+      .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("72")
 
       .click(".sv-paneldynamic__next-btn")
       .click("input[value=\"Yes\"]")
 
       .click(ageDropdown)
       .click(getListItemByText("65"))
-      .expect(ageDropdown.find("input").getAttribute("placeholder")).eql("65")
+      .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("65")
 
       .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
 
       .click(relativeTypeDropdown)
       .click(getListItemByText("sister"))
-      .expect(relativeTypeDropdown.find("input").getAttribute("placeholder")).eql("sister")
+      .expect(relativeTypeDropdown.find(".sv-string-viewer").textContent).eql("sister")
       .click("input[value=\"No\"]")
 
       .click(deceasedAgeDropdown)
       .click(getListItemByText("42"))
-      .expect(deceasedAgeDropdown.find("input").getAttribute("placeholder")).eql("42")
+      .expect(deceasedAgeDropdown.find(".sv-string-viewer").textContent).eql("42")
       .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
       .click(".sv-paneldynamic__prev-btn")
       .click(".sv-paneldynamic__prev-btn")
@@ -188,7 +188,7 @@ frameworks.forEach((framework) => {
 
       .click(relativeillnessDropdown)
       .click(getListItemByText("Diabetes"))
-      .expect(relativeillnessDropdown.find("input").getAttribute("placeholder")).eql("Diabetes")
+      .expect(relativeillnessDropdown.find(".sv-string-viewer").textContent).eql("Diabetes")
       .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
 
       .click(".sv-paneldynamic__next-btn")

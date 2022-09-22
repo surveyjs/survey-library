@@ -5,6 +5,7 @@
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
         <div [class]="model.cssClasses.controlValue">
+            <sv-ng-string *ngIf="model.selectedItemLocText && !model.inputHasValue" [model]="model.selectedItemLocText"></sv-ng-string>
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.id]="model.getInputId()"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"

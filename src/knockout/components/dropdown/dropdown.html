@@ -15,6 +15,10 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.koCss().controlValue">
+      <!-- ko if: question.selectedItemLocText && !question.inputHasValue -->
+      <!-- ko template: { name: 'survey-string', data: question.selectedItemLocText } -->
+      <!-- /ko -->
+      <!-- /ko -->
       <input type="text" autocomplete="off" data-bind="
       textInput: model.filterString, 
       css: question.cssClasses.filterStringInput, 

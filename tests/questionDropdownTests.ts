@@ -363,5 +363,7 @@ QUnit.test("readOnlyText", assert => {
   question.value = "other";
   assert.equal(question.readOnlyText, "Other (describe)", "use other");
   question.value = 2;
+  assert.equal(question.readOnlyText, "", "use choice text");
+  question.renderAs = "select";
   assert.equal(question.readOnlyText, "item 2", "use choice text");
 });

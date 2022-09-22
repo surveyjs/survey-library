@@ -365,4 +365,46 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
     });
   });
+
+  test("Check dropdown with markdown", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "q1",
+            defaultValue: "cat",
+            choices: [
+              {
+                "value": "dog",
+                "text": "Dog: ![A dog](https://surveyjs.io/Content/Images/examples/markdown/dog.svg =14x14)"
+              }, {
+                "value": "cat",
+                "text": "Cat: ![A cat](https://surveyjs.io/Content/Images/examples/markdown/cat.svg =14x14)"
+              }, {
+                "value": "parrot",
+                "text": "Parrot ![A parrot](https://surveyjs.io/Content/Images/examples/markdown/parrot.svg =14x14)"
+              }
+            ]
+          }
+        ]
+      }, { "onTextMarkdown": (sender, options) => {
+        var converter = new window["showdown"].Converter();
+        var str = converter.makeHtml(options.text);
+        str = str.substring(3);
+        str = str.substring(0, str.length - 4);
+        options.html = str;
+      }
+      });
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      await takeElementScreenshot("dropdown-with-markdown.png", questionDropdownSelect, t, comparer);
+
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("dropdown-with-markdown-popup.png", popupContainer, t, comparer);
+    });
+  });
 });

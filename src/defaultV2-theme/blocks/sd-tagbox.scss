@@ -74,6 +74,7 @@
   display: flex;
   flex-grow: 1;
   height: calcSize(5);
+  position: initial;
 }
 .sd-tagbox__placeholder {
   position: absolute;

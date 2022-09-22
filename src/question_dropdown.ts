@@ -154,6 +154,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * The clean files button caption.
    */
   @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+  @property({ defaultValue: false }) inputHasValue: boolean;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -163,8 +164,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
+  public get selectedItemLocText() {
+    const item = this.selectedItem;
+    return item?.locText;
+  }
   public get readOnlyText() {
-    return this.hasOther && this.isOtherSelected ? this.otherText : (this.selectedItemText || this.placeholder);
+    if(this.hasOther && this.isOtherSelected) {
+      return this.otherText;
+    } else if(!!this.selectedItem) {
+      return this.renderAs == "select" ? this.selectedItemText : "";
+    }
+    return this.placeholder;
   }
   private get selectedItemText(): string {
     const item = this.selectedItem;

@@ -542,9 +542,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
         this.initElement(res);
       }
     }
-    if (!!res && !res.name) {
-      res.name = "question";
+    if (!!res) {
+      res.isContentElement = true;
+      if (!res.name) {
+        res.name = "question";
+      }
     }
+
     return res;
   }
   public onSurveyLoad() {

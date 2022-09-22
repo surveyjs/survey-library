@@ -36,6 +36,7 @@ LogicAnd
 ComparableOperators
   = ("<=" / "lessorequal"i)             { return "lessorequal"; }
   / (">=" / "greaterorequal"i)          { return "greaterorequal"; }
+  / ("==" / "equal"i)                   { return "equal"; }
   / ("=" / "equal"i)                    { return "equal"; }
   / ("!=" / "notequal"i)                { return "notequal"; }
   / ("<" / "less"i)                     { return "less"; }

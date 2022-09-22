@@ -169,5 +169,32 @@ registerMarkupTests(
       },
       snapshot: "dropdown-select-clear-button",
     },
+    {
+      name: "Test Dropdown question with markdown markup",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "defaultValue": "cat",
+            "choices": [
+              {
+                "value": "dog",
+                "text": "Dog: ![A dog](https://surveyjs.io/Content/Images/examples/markdown/dog.svg =14x14)"
+              }, {
+                "value": "cat",
+                "text": "Cat: ![A cat](https://surveyjs.io/Content/Images/examples/markdown/cat.svg =14x14)"
+              }, {
+                "value": "parrot",
+                "text": "Parrot ![A parrot](https://surveyjs.io/Content/Images/examples/markdown/parrot.svg =14x14)"
+              }
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      snapshot: "dropdown-with-markdown",
+    },
   ]
 );

@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey, getSurveyResult, getListItemByText } from "../helper";
-import { Selector, ClientFunction } from "testcafe";
+import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
+import { Selector } from "testcafe";
 const title = "Test survey width";
 
 const json = {
@@ -46,12 +46,12 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.question1).eql([2]);
   });
   test("Check Text Markdown on dropdown", async (t) => {
-    const questionValueText = Selector(".sv_q_dropdown__value input");
+    const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
 
     await t
       .click(Selector(".sv_q_dropdown_control"))
       .click(Selector(".markdownclass").withText("*choice 3*"))
-      .expect(questionValueText.getAttribute("placeholder")).eql("|choice 3|")
+      .expect(questionValueText.textContent).eql("*choice 3*")
       .click(Selector(".sv_q_dropdown_control"))
       .click(Selector(".markdownclass").withText("*choice 2*"))
       .click("input[value=Complete]");

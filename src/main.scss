@@ -93,6 +93,7 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    position: relative;
   }
   .sv_q_dropdown_clean-button {
     margin: auto 2em;
@@ -113,6 +114,13 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+    position: absolute;
+    left: 0;
+    background-color: transparent;
+  }
+
+  .sv_q_tagbox__filter-string-input {
+    position: initial;
   }
 
   .sv_q_tagbox__placeholder {

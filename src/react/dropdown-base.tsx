@@ -53,6 +53,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    }
 
    protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
+     const text = (this.question.selectedItemLocText && !this.question.inputHasValue) ? this.renderLocString(this.question.selectedItemLocText) : "";
+
      const onInputChange = (e: any) => {
        if (e.target === document.activeElement) {
          dropdownListModel.filterString = e.target.value;
@@ -76,6 +78,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        aria-describedby={this.question.ariaDescribedBy}
      >
        <div className={this.question.cssClasses.controlValue}>
+         {text}
          <input type="text" autoComplete="off"
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}

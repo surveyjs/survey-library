@@ -46,6 +46,7 @@
   font-family: $font-family;
   font-size: inherit;
   color: $text-color;
+  position: relative;
 }
 .sv-dropdown_clean-button {
   padding: 3px 12px;
@@ -73,6 +74,8 @@
   white-space: nowrap;
   display: inline-block;
   appearance: none;
+  position: absolute;
+  left: 0;
 }
 .sv-dropdown--empty:not(.sv-input--disabled) .sv-dropdown__filter-string-input::placeholder {
   font-family: $font-family;

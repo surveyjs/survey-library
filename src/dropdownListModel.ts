@@ -43,6 +43,7 @@ export class DropdownListModel extends Base {
     if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
+    this.setInputHasValue(!!newValue);
   }
 
   protected onHidePopup(): void {
@@ -84,6 +85,10 @@ export class DropdownListModel extends Base {
       this.popupModel.isVisible = true;
     }
     this.setFilter(this.filterString);
+  }
+  
+  setInputHasValue(newValue: boolean): void {
+    this.question.inputHasValue = newValue;
   }
 
   @property({ defaultValue: true }) searchEnabled: boolean;
@@ -173,6 +178,7 @@ export class DropdownListModel extends Base {
   onBlur(event: any): void {
     this.resetFilterString();
     this._popupModel.isVisible = false;
+    this.setInputHasValue(false);
     doKey2ClickBlur(event);
   }
   scrollToFocusedItem(): void {

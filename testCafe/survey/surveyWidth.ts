@@ -3,7 +3,7 @@ import { Selector } from "testcafe";
 const title = "Test survey width";
 
 const json = {
-  width: "255px",
+  width: "455px",
   elements: [
     {
       type: "text",
@@ -21,6 +21,7 @@ frameworks.forEach((framework) => {
 
   test("Check survey width", async (t) => {
     await t
-      .expect(Selector(".sv_main.sv_default_css").clientWidth).eql(255);
+      .expect(Selector(".sv_body").getStyleProperty("width")).eql("455px")
+      .expect(Selector(".sv_body").getStyleProperty("maxWidth")).eql("455px");
   });
 });

@@ -1,5 +1,5 @@
 <template>
-  <div :class="survey.getRootCss()" :style="{width: survey.renderedWidth}">
+  <div :class="survey.getRootCss()">
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
@@ -18,7 +18,7 @@
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss">
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth, width: survey.renderedWidth}>
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"

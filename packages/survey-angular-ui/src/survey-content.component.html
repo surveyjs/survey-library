@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style.width]="model.renderedWidth">
+  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()">
     <form onsubmit="return false;">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
@@ -7,7 +7,7 @@
         <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
           <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
         </ng-container>
-        <div *ngIf="model.isShowingPage" [class]="model.bodyCss">
+        <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.width]="model.renderedWidth" [style.maxWidth]="model.renderedWidth">
           <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
           <!-- ko template: { name: 'survey-timerpanel' } -->
           <!-- /ko -->

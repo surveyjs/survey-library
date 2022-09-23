@@ -86,7 +86,7 @@ export class DropdownListModel extends Base {
     }
     this.setFilter(this.filterString);
   }
-  
+
   setInputHasValue(newValue: boolean): void {
     this.question.inputHasValue = newValue;
   }

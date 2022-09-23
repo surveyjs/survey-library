@@ -799,15 +799,20 @@ export class Base {
     name: string,
     defaultStr: string = ""
   ): string {
+    Base.collectDependency(this, name);
     var locStr = this.getLocalizableString(name);
     if (!locStr) return "";
     var res = locStr.text;
     return res ? res : defaultStr;
   }
   public setLocalizableStringText(name: string, value: string) {
-    var locStr = this.getLocalizableString(name);
+    let locStr = this.getLocalizableString(name);
     if (!locStr) return;
-    locStr.text = value;
+    let oldValue = locStr.text;
+    if(oldValue != value) {
+      locStr.text = value;
+      // this.propertyValueChanged(name, oldValue, value);
+    }
   }
   public addUsedLocales(locales: Array<string>) {
     if (!!this.localizableStrings) {

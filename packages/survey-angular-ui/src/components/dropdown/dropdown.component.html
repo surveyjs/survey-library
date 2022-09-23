@@ -22,5 +22,8 @@
         </div>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="dropdownModel.popupModel"></sv-ng-popup>
-    <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
+    <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
+        <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
+        <div>{{ model.readOnlyText }}</div>
+    </div>
 </div>

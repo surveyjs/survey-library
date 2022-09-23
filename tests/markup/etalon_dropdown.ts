@@ -130,6 +130,27 @@ registerMarkupTests(
       snapshot: "dropdown-readonly"
     },
     {
+      name: "Test Dropdown question markup Read only with value",
+      json: {
+        mode: "display",
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            defaultValue: "item1",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "dropdown-readonly-with-value"
+    },
+    {
       name: "Test Dropdown Select question markup",
       json: {
         questions: [

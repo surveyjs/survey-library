@@ -32,9 +32,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    protected renderSelect(cssClasses: any): JSX.Element {
      let selectElement: JSX.Element | null = null;
      if (this.question.isReadOnly) {
+       const text = (this.question.selectedItemLocText) ? this.renderLocString(this.question.selectedItemLocText) : "";
        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
        // @ts-ignore
-       selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{this.question.readOnlyText}</div>;
+       selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
+         {text}
+         <div>{this.question.readOnlyText}</div>
+       </div>;
      } else {
        if (!(this.question as any).hasOwnProperty("dropdownListModel")) {
          (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);

@@ -41,8 +41,8 @@
   <!-- /ko -->
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->
-  <div disabled
-    data-bind="text: question.readOnlyText, css: question.getControlClass(), attr: { id: question.inputId }, ">
+  <div disabled data-bind="css: question.getControlClass(), attr: { id: question.inputId }, ">
+    <div data-bind="text: question.readOnlyText"></div>
   </div>
   <!-- /ko -->
 </div>

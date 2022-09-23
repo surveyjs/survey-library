@@ -113,12 +113,16 @@ export class SurveyModel extends SurveyElementCore
   public onCompleting: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired after a user clicks the 'Complete' button and finishes a survey. Use this event to send the survey data to your web server.
-   *- `sender` - the survey object that fires the event.
-   *- `options.showDataSaving(text)` - call this method to show that the survey is saving survey data on your server. The `text` is an optional parameter to show a custom message instead of default.
-   *- `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
-   *- `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
-   *- `options.showDataSavingClear` - call this method to hide the text about the saving progress.
-   *- `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
+   *
+   * - `sender` - the survey object that fires the event.
+   * - `options.showDataSaving(text)` - call this method to show that the survey is saving survey data on your server. The `text` is an optional parameter to show a custom message instead of default.
+   * - `options.showDataSavingError(text)` - call this method to show that an error occurred while saving the data on your server. If you want to show a custom error, use an optional `text` parameter.
+   * - `options.showDataSavingSuccess(text)` - call this method to show that the data was successfully saved on the server.
+   * - `options.showDataSavingClear` - call this method to hide the text about the saving progress.
+   * - `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
+   *
+   * > NOTE: Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods described above. This is required because the UI that indicates data saving progress is integrated into the Complete page. If you hide the Complete page, the UI also becomes invisible.
+   *
    * @see data
    * @see clearInvisibleValues
    * @see completeLastPage

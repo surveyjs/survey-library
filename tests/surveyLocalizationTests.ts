@@ -8,6 +8,8 @@ import "../src/localization/finnish";
 import "../src/localization/german";
 import "../src/localization/swedish";
 import "../src/localization/czech";
+import "../src/localization/portuguese";
+import "../src/localization/portuguese-br";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
 
 export default QUnit.module("LocalizationsTests");
@@ -253,3 +255,8 @@ QUnit.test(
     surveyLocalization.defaultLocale = "en";
   }
 );
+
+QUnit.test("Support language dialect", function(assert) {
+  assert.equal(surveyLocalization.getString("pagePrevText", "pt-br"), "Anterior", "get from pt");
+  assert.equal(surveyLocalization.getString("loadingFile", "pt-br"), "Carregando...", "get from pt-br");
+});

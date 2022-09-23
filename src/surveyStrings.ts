@@ -30,8 +30,12 @@ export var surveyLocalization = {
     return loc;
   },
   getString: function (strName: string, locale: string = null) {
+    locale = locale || this.currentLocale || this.defaultLocale;
     var loc = this.getCurrentStrings(locale);
-    if (!loc[strName]) loc = this.locales[this.defaultLocale];
+    if (!!loc[strName]) return loc[strName];
+    const index = !!locale ? locale.indexOf("-") : -1;
+    if(index > -1) return this.getString(strName, locale.substring(0, index));
+    loc = this.locales[this.defaultLocale];
     var result = loc[strName];
     if (result === undefined) {
       result = this.locales["en"][strName];

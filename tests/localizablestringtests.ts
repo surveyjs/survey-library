@@ -688,3 +688,46 @@ QUnit.test("External localization string name", function(assert) {
   owner.locale = "de";
   assert.equal(locString.text, "ExternalStr-de", "Deutsch ExternalStr");
 });
+QUnit.test("Get/set language dialect", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.setJson({
+    default: "Default",
+    en: "English",
+    "en-UK": "English UK",
+    pt: "Portuguese"
+  });
+  assert.equal(locString.renderedHtml, "Default", "default locale");
+  owner.locale = "en";
+  assert.equal(locString.renderedHtml, "English", "en locale");
+  owner.locale = "en-UK";
+  assert.equal(locString.renderedHtml, "English UK", "en-UK locale");
+  owner.locale = "pt";
+  assert.equal(locString.renderedHtml, "Portuguese", "pt locale");
+  owner.locale = "pt-BR";
+  assert.equal(locString.renderedHtml, "Portuguese", "pt-BR locale");
+  locString.text = "Portuguese BR";
+  owner.locale = "en-UK";
+  locString.text = "English";
+  assert.deepEqual(locString.getJson(), {
+    default: "Default",
+    en: "English",
+    pt: "Portuguese",
+    "pt-BR": "Portuguese BR"
+  }, "Remove en-UK");
+  owner.locale = "en";
+  locString.text = "Default";
+  assert.deepEqual(locString.getJson(), {
+    default: "Default",
+    pt: "Portuguese",
+    "pt-BR": "Portuguese BR"
+  }, "Remove en");
+  owner.locale = "en-UK";
+  locString.text = "English UK";
+  assert.deepEqual(locString.getJson(), {
+    default: "Default",
+    "en-UK": "English UK",
+    pt: "Portuguese",
+    "pt-BR": "Portuguese BR"
+  }, "Add en-UK");
+});

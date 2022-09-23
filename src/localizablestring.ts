@@ -102,13 +102,19 @@ export class LocalizableString implements ILocalizableString {
   }
   public get pureText() {
     var loc = this.locale;
-    if (!loc) loc = settings.defaultLocaleName;
+    if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
-    if (!res && loc == settings.defaultLocaleName) {
+    if (!res && loc === this.defaultLoc) {
       res = this.getValue(surveyLocalization.defaultLocale);
     }
-    if (!res && loc !== settings.defaultLocaleName) {
-      res = this.getValue(settings.defaultLocaleName);
+    if(!res) {
+      const dialect = this.getRootDialect(loc);
+      if(!!dialect) {
+        res = this.getValue(dialect);
+      }
+    }
+    if (!res && loc !== this.defaultLoc) {
+      res = this.getValue(this.defaultLoc);
     }
     if (!res && !!this.getLocalizationName()) {
       res = this.getLocalizationStr();
@@ -118,6 +124,11 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!res) res = "";
     return res;
+  }
+  private getRootDialect(loc: string): string {
+    if(!loc) return loc;
+    const index = loc.indexOf("-");
+    return index > -1 ? loc.substring(0, index) : "";
   }
   private getLocalizationName(): string {
     return !!this.sharedData ? this.sharedData.localizationName : this.localizationName;
@@ -143,7 +154,7 @@ export class LocalizableString implements ILocalizableString {
     return this.textOrHtml;
   }
   public getLocaleText(loc: string): string {
-    if (!loc) loc = settings.defaultLocaleName;
+    if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
     return res ? res : "";
   }
@@ -154,9 +165,9 @@ export class LocalizableString implements ILocalizableString {
     }
     return res;
   }
-  public setLocaleText(loc: string, value: string) {
+  public setLocaleText(loc: string, value: string): void {
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
-      if(!!value || !!loc && loc !== settings.defaultLocaleName) return;
+      if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);
       if(!!dl && !!oldValue) {
@@ -168,34 +179,42 @@ export class LocalizableString implements ILocalizableString {
     if (
       value &&
       loc &&
-      loc != settings.defaultLocaleName &&
+      loc != this.defaultLoc &&
       !this.getValue(loc) &&
-      value == this.getLocaleText(settings.defaultLocaleName)
+      value == this.getLocaleText(this.defaultLoc)
     )
       return;
     var curLoc = this.locale;
-    if (!loc) loc = settings.defaultLocaleName;
-    if (!curLoc) curLoc = settings.defaultLocaleName;
+    if (!loc) loc = this.defaultLoc;
+    if (!curLoc) curLoc = this.defaultLoc;
     var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
     delete (<any>this).htmlValues[loc];
     if (!value) {
       if (this.getValue(loc)) this.deleteValue(loc);
     } else {
       if (typeof value === "string") {
-        if (
-          loc != settings.defaultLocaleName &&
-          value == this.getLocaleText(settings.defaultLocaleName)
-        ) {
+        if (this.canRemoveLocValue(loc, value)) {
           this.setLocaleText(loc, null);
         } else {
           this.setValue(loc, value);
-          if (loc == settings.defaultLocaleName) {
+          if (loc == this.defaultLoc) {
             this.deleteValuesEqualsToDefault(value);
           }
         }
       }
     }
     this.fireStrChanged(oldValue, value);
+  }
+  private canRemoveLocValue(loc: string, val: string): boolean {
+    if(loc === this.defaultLoc) return false;
+    const dialect = this.getRootDialect(loc);
+    if(!!dialect) {
+      const dialectVal = this.getLocaleText(dialect);
+      if(!!dialectVal) return dialectVal == val;
+      return this.canRemoveLocValue(dialect, val);
+    } else {
+      return val == this.getLocaleText(this.defaultLoc);
+    }
   }
   private fireStrChanged(oldValue: string, value: string) {
     this.strChanged();
@@ -206,7 +225,7 @@ export class LocalizableString implements ILocalizableString {
   public hasNonDefaultText(): boolean {
     var keys = this.getValuesKeys();
     if (keys.length == 0) return false;
-    return keys.length > 1 || keys[0] != settings.defaultLocaleName;
+    return keys.length > 1 || keys[0] != this.defaultLoc;
   }
   public getLocales(): Array<string> {
     var keys = this.getValuesKeys();
@@ -225,7 +244,7 @@ export class LocalizableString implements ILocalizableString {
       return (<any>this).values[keys[0]];
     return this.values;
   }
-  public setJson(value: any) {
+  public setJson(value: any): void {
     if (!!this.sharedData) {
       this.sharedData.setJson(value);
       return;
@@ -284,7 +303,7 @@ export class LocalizableString implements ILocalizableString {
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
     var loc = this.locale;
-    if (!loc) loc = settings.defaultLocaleName;
+    if (!loc) loc = this.defaultLoc;
     if((<any>this).htmlValues[loc] !== undefined) return !!(<any>this).htmlValues[loc];
     var renderedText = this.calculatedText;
     if (!renderedText) return false;
@@ -295,13 +314,13 @@ export class LocalizableString implements ILocalizableString {
   }
   public getHtmlValue(): string {
     var loc = this.locale;
-    if (!loc) loc = settings.defaultLocaleName;
+    if (!loc) loc = this.defaultLoc;
     return (<any>this).htmlValues[loc];
   }
   private deleteValuesEqualsToDefault(defaultValue: string) {
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
-      if (keys[i] == settings.defaultLocaleName) continue;
+      if (keys[i] == this.defaultLoc) continue;
       if (this.getValue(keys[i]) == defaultValue) {
         this.deleteValue(keys[i]);
       }
@@ -322,6 +341,9 @@ export class LocalizableString implements ILocalizableString {
   private getValuesKeys(): string[] {
     if (!!this.sharedData) return this.sharedData.getValuesKeys();
     return Object.keys(this.values);
+  }
+  private get defaultLoc(): string {
+    return settings.defaultLocaleName;
   }
 }
 /**

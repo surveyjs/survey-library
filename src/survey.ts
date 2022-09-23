@@ -46,7 +46,7 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
- * The `Survey` object contains information about the survey, Pages, Questions, flow logic and etc.
+ * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
  */
 export class SurveyModel extends SurveyElementCore
   implements
@@ -2242,11 +2242,6 @@ export class SurveyModel extends SurveyElementCore
     });
     return res;
   }
-  /**
-   * Gets or sets a question title template. Obsolete, please use questionTitlePattern
-   * @see QuestionModel.title
-   * @see questionTitlePattern
-   */
   public get questionTitleTemplate(): string {
     return this.getLocalizableStringText("questionTitleTemplate");
   }
@@ -2430,15 +2425,11 @@ export class SurveyModel extends SurveyElementCore
     return this.locTitle.renderedHtml;
   }
   /**
-   * Gets or sets the question title location.
+   * Gets or sets question title location relative to the input field: `"top"`, `"bottom"`, or `"left"`.
    *
-   * The following options are available:
+   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    *
-   * - `bottom` - show a question title to bottom
-   * - `left` - show a question title to left
-   * - `top` - show a question title to top.
-   *
-   * > Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed to the top.
+   * You can override this setting if you specify the `questionTitleLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionTitleLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionTitleLocation) or set the `titleLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#titleLocation).
    */
   public get questionTitleLocation(): string {
     return this.getPropertyValue("questionTitleLocation");
@@ -2606,11 +2597,11 @@ export class SurveyModel extends SurveyElementCore
     return this.data;
   }
   /**
-   * Returns survey result data as an array of plain objects: with question `title`, `name`, `value`, and `displayValue`.
+   * Returns survey results as an array of objects in which the question name, title, value, and other parameters are stored as individual properties.
    *
-   * For complex questions (like matrix, etc.) `isNode` flag is set to `true` and data contains array of nested objects (rows).
+   * If a question can have more than one value (Matrix, Multiple Text), its object enables the `isNode` flag and stores information about these values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
    *
-   * Set `options.includeEmpty` to `false` if you want to skip empty answers.
+   * If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
    */
   public getPlainData(
     options?: {

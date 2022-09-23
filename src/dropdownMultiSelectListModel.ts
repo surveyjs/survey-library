@@ -55,6 +55,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
   }
+  protected onSetFilterString(): void {
+    super.onSetFilterString();
+    this.popupTargetModified();
+  }
 
   public selectAllItems(): void {
     this.question.toggleSelectAll();

@@ -188,6 +188,10 @@ QUnit.test("Dynamic Matrix, bind rowCount", function (assert) {
   assert.equal(survey.getValue("q1"), 6, "We added two rows");
   matrix.removeRow(0);
   assert.equal(survey.getValue("q1"), 5, "We removed one row");
+  survey.clearValue("q1");
+  assert.equal(matrix.rowCount, 0, "bindable question value is cleared");
+  survey.setValue("q1", 6);
+  assert.equal(matrix.rowCount, 6, "bindable question value is 4");
 });
 
 QUnit.test("BindingsTester, getNames()", function (assert) {

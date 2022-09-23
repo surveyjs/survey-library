@@ -55,7 +55,13 @@
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
     ></sv-popup>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+      <survey-string
+        v-if="question.selectedItemLocText"
+        :locString="question.selectedItemLocText"
+      />
+      <div>{{ question.readOnlyText }}</div>
+    </div>
   </div>
 </template>
 

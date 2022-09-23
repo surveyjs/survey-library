@@ -322,7 +322,7 @@ export class Base {
   /**
    * Returns `true` if the object is included in a survey.
    *
-   * This method may return `false`, for example, when you [create a survey model dynamically](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#create-or-change-a-survey-model-dynamically).
+   * This property may return `false`, for example, when you [create a survey model dynamically](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#create-or-change-a-survey-model-dynamically).
    */
   public get inSurvey(): boolean {
     return !!this.getSurvey(true);
@@ -493,24 +493,9 @@ export class Base {
     keys.forEach((key) => func(this.propertyHash, key));
   }
   /**
-   * set property value and before check if new property value is correct by calling JsonProperty onSettingValue function
-   * If onSettingValue is not set in declaration, then this function works as `setPropertyValue`.
-   * @param name property name
-   * @param val new property value
-   * @see setPropertyValue
-   */
-  public checkAndSetPropertyValue(name: string, val: any): void {
-    const prop = !this.isLoadingFromJson ? this.getPropertyByName(name) : undefined;
-    if(!!prop) {
-      val = prop.settingValue(this, val);
-    }
-    this.setPropertyValue(name, val);
-  }
-  /**
    * Assigns a new value to a specified property.
    * @param name A property name.
    * @param val A new value for the property.
-   * @see checkAndSetPropertyValue
    */
   public setPropertyValue(name: string, val: any): void {
     if(!this.isLoadingFromJson) {
@@ -799,15 +784,20 @@ export class Base {
     name: string,
     defaultStr: string = ""
   ): string {
+    Base.collectDependency(this, name);
     var locStr = this.getLocalizableString(name);
     if (!locStr) return "";
     var res = locStr.text;
     return res ? res : defaultStr;
   }
   public setLocalizableStringText(name: string, value: string) {
-    var locStr = this.getLocalizableString(name);
+    let locStr = this.getLocalizableString(name);
     if (!locStr) return;
-    locStr.text = value;
+    let oldValue = locStr.text;
+    if(oldValue != value) {
+      locStr.text = value;
+      // this.propertyValueChanged(name, oldValue, value);
+    }
   }
   public addUsedLocales(locales: Array<string>) {
     if (!!this.localizableStrings) {

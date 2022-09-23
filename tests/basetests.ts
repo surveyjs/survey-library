@@ -514,6 +514,11 @@ class BaseTester2 extends Base {
 class BaseTester3 extends Base {
   @property() propC: number;
 }
+class BaseTester4 extends Base {
+  getMarkdownHtml = (val) => val;
+  @property() propC: string;
+  @property({ localizable: true }) propL: string;
+}
 QUnit.test("Collect dependencies", function (assert) {
   const base1 = new BaseTester1();
   const base2 = new BaseTester2();
@@ -672,4 +677,19 @@ QUnit.test("findParentByClassNames function", function (assert) {
 
   assert.equal(findParentByClassNames(element, ["class1", "class2", ""]), element);
   assert.equal(findParentByClassNames(element, ["class1", "class22", ""]), parentElement);
+});
+QUnit.test("Subscribe localizable property", function (assert) {
+  const base4 = new BaseTester4();
+  let updaterCallCount1 = 0;
+  base4.propC = <any>new ComputedUpdater(() => {
+    updaterCallCount1++;
+    return base4.propL;
+  });
+
+  assert.equal(base4.propC, "", "initial empty string");
+  assert.equal(updaterCallCount1, 1, "first time calculation - static");
+
+  base4.propL = "localizable value";
+  assert.equal(base4.propC, "localizable value");
+  assert.equal(updaterCallCount1, 2, "update called - localizable value");
 });

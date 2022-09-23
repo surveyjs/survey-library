@@ -231,8 +231,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
    *
    * Possible values:
    *
-   * - `"collapsed"` - The survey element displays only `title` and `description`.
-   * - `"expanded"` - The survey element is displayed in full.
+   * - `"default"` (default) - The survey element is displayed in full and cannot be collapsed in the UI.
+   * - `"expanded"` - The survey element is displayed in full and can be collapsed in the UI.
+   * - `"collapsed"` - The survey element displays only `title` and `description` and can be expanded in the UI.
    *
    * @see toggleState
    * @see collapse
@@ -452,16 +453,18 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
   /**
    * Returns `true` if the survey element or its parent element is read-only.
+   *
+   * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
-   * @see [Conditional Logic and Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic)
    */
   public get isReadOnly(): boolean {
     return false;
   }
   /**
    * Makes the survey element read-only.
+   *
+   * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isReadOnly
-   * @see [Conditional Logic and Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic)
    */
   public get readOnly(): boolean {
     return this.getPropertyValue("readOnly", false);
@@ -542,7 +545,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   }
   /**
    * Validation errors. Call the `hasErrors()` method to validate survey element data.
-   * @see containsErrors
+   * @see hasErrors
    */
   public get errors(): Array<SurveyError> {
     return this.getPropertyValue("errors");
@@ -559,7 +562,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.hasVisibleErrors = counter > 0;
   }
   /**
-   * Returns `true` if the survey element or its child elements have a validation error.
+   * Returns `true` if the survey element or its child elements have validation errors.
    *
    * This property contains the result of the most recent validation. This result may be outdated. Call the `hasErrors` method to get an up-to-date value.
    * @see errors
@@ -623,6 +626,13 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   locOwner: ILocalizableOwner;
   /**
    * Returns the survey's [locale](https://surveyjs.io/form-library/documentation/surveymodel#locale).
+   *
+   * If a default locale is used, this method returns an empty string. To get the applied locale in this case, use the following code:
+   *
+   * ```js
+   * import { surveyLocalization } from 'survey-core';
+   * const defaultLocale = surveyLocalization.defaultLocale;
+   * ```
    *
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization)
    */

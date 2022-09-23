@@ -240,3 +240,54 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.teachersRate.length).eql(3);
   });
 });
+
+const json2 = {
+  elements: [
+    {
+      type: "dropdown",
+      name: "q1",
+      choicesMin: 1,
+      choicesMax: 10,
+    },
+    {
+      type: "matrixdynamic",
+      name: "q2",
+      bindings: {
+        rowCount: "q1",
+      },
+      columns: [
+        {
+          name: "name",
+        },
+      ],
+      cellType: "text",
+      allowAddRows: false,
+      allowRemoveRows: false,
+      rowCount: 0,
+    },
+  ],
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json2);
+    }
+  );
+  test("bindings rowCount", async (t) => {
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const clearButton = Selector(".sv_q_dropdown_clean-button");
+
+    await t.resizeWindow(1920, 1080);
+    await t
+      .expect(Selector(".sv_matrix_row").count).eql(0)
+      .click(questionDropdownSelect)
+      .click(Selector(".sv-list__item span").withText("3").filterVisible())
+      .expect(Selector(".sv_matrix_row").count).eql(3)
+      .click(clearButton)
+      .expect(Selector(".sv_matrix_row").count).eql(0)
+      .click(questionDropdownSelect)
+      .click(Selector(".sv-list__item span").withText("5").filterVisible())
+      .expect(Selector(".sv_matrix_row").count).eql(5);
+  });
+});

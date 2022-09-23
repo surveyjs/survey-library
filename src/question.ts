@@ -1858,7 +1858,11 @@ export class Question extends SurveyElement
     if (this.bindings.isEmpty() || !this.data) return;
     var props = this.bindings.getPropertiesByValueName(valueName);
     for (var i = 0; i < props.length; i++) {
-      this[props[i]] = value;
+      const propName = props[i];
+      if(this.isValueEmpty(value) && Helpers.isNumber(this[propName])) {
+        value = 0;
+      }
+      this[propName] = value;
     }
   }
   public getComponentName(): string {

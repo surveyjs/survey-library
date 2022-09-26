@@ -4087,6 +4087,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = true;
   }
   canBeCompleted(): void {
+    if(!settings.changeNavigationButtonsOnCompleteTrigger) return;
     if(!this.canBeCompletedByTrigger) {
       this.canBeCompletedByTrigger = true;
       this.updateButtonsVisibility();

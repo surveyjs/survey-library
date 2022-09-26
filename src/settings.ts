@@ -113,6 +113,10 @@ export var settings = {
    */
   executeCompleteTriggerOnValueChanged: false,
   /**
+   * Set this property to false to stop showing "Compete" button when the complete trigger is going to be executed.
+   */
+  changeNavigationButtonsOnCompleteTrigger: true,
+  /**
    * Set this property to false to execute the skip trigger on next page instead of on value change.
    */
   executeSkipTriggerOnValueChanged: true,

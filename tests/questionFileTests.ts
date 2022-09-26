@@ -744,3 +744,53 @@ QUnit.test("Question File responsive", (assert) => {
   q1.clear();
   assert.equal(q1.mobileFileNavigatorVisible, false);
 });
+
+QUnit.test("QuestionFile inside a panel set value", async function(assert) {
+  let done = assert.async(1);
+  var json = {
+    "name": "page1",
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "question15",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "file",
+            "name": "question16",
+            "storeDataAsText": false,
+          }
+        ]
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var panel: any = <any>survey.getQuestionByName("question15");
+  var q: QuestionFileModel = <any>panel.panels[0].questions[0];
+  let downloadCallCount = 0;
+  const downloadedFile = {
+    content: "data:image/jpeg;base64,FILECONTENT1",
+    name: "name.png",
+    type: "image/png"
+  };
+  survey.onDownloadFile.add((survey, options) => {
+    downloadCallCount++;
+    setTimeout(() => {
+      options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
+    }, 10);
+  });
+
+  q.value = [{
+    content: "https://api.surveyjs.io/public/v1/Survey/file?filePath=dcc81e2a-586f-45dd-b734-ee86bcbad8db.png",
+    name: "name.png",
+    type: "image/png"
+  }];
+
+  setTimeout(() => {
+    assert.equal(downloadCallCount, 2);
+    assert.equal(q.previewValue.length, 1);
+    assert.deepEqual(q.previewValue, [downloadedFile]);
+    done();
+  }, 25);
+});

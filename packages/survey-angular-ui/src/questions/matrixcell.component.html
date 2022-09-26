@@ -2,7 +2,9 @@
   <td [class]="cell.className" [attr.data-responsive-title]="getHeaders()" [title]="cell.getTitle()" [style]="getCellStyle()" [attr.colspan]="cell.colSpans" #cellContainer>
     <sv-ng-matrix-drag-drop-icon *ngIf="cell.isDragHandlerCell" [model]="$any({ data: { row: row, question: question } })"></sv-ng-matrix-drag-drop-icon>
     <sv-action-bar *ngIf="cell.isActionsCell" [model]="cell.item.getData()" [handleClick]="false"></sv-action-bar>
-    <sv-ng-panel *ngIf="cell.hasPanel" [model]="cell.panel"></sv-ng-panel>
+    <ng-container *ngIf="cell.hasPanel">
+      <ng-template [component]="{ name: panelComponentName, data: panelComponentData }"></ng-template>
+    </ng-container>
     <div *ngIf="cell.hasQuestion" [class]="question.cssClasses.cellQuestionWrapper" [visible]="cell.question.isVisible">
       <div *ngIf="cell.showErrorOnTop && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
       <ng-container *ngIf="!cell.isChoice && cell.question.isDefaultRendering()">
@@ -23,7 +25,11 @@
       <div *ngIf="cell.showErrorOnBottom && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
       <div *ngIf="cell.question.isErrorsModeTooltip && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'tooltip'" sv-ng-errors></div>
     </div>
-    <sv-ng-string *ngIf="cell.hasTitle" [model]="cell.locTitle"></sv-ng-string>
-    <span *ngIf="!!cell.requiredText" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+    <ng-container *ngIf="cell.hasTitle">
+      <ng-template [component]="{ name: question.getCellWrapperComponentName($any(cell)), data: { componentData: question.getCellWrapperComponentData($any(cell))} }">
+        <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
+        <span *ngIf="!!cell.requiredText" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>  
+      </ng-template>
+    </ng-container>
 </td>
 </ng-template>

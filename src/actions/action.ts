@@ -7,7 +7,7 @@ import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
-export type actionModeType = "large" | "small" | "popup" | "test";
+export type actionModeType = "large" | "small" | "popup";
 
 /**
  * An action item.

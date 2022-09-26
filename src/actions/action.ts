@@ -7,6 +7,7 @@ import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
+export type actionModeType1 = "large" | "small" | "popup";
 export type actionModeType = "large" | "small" | "popup";
 
 /**
@@ -138,7 +139,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.items,
     (item: Action) => {
       listOptions.onSelectionChanged(item),
-      innerPopupModel.toggleVisibility();
+        innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
     listOptions.selectedItem,
@@ -177,7 +178,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }
-    if(!!this.locTitleName) {
+    if (!!this.locTitleName) {
       this.locTitleChanged();
     }
     this.locStrChangedInPopupModel();
@@ -196,9 +197,11 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     }
   }) visible: boolean;
   @property() tooltip: string;
-  @property({ onSet: (_, target: Action) => {
-    target.locTooltipChanged();
-  } }) locTooltipName?: string;
+  @property({
+    onSet: (_, target: Action) => {
+      target.locTooltipChanged();
+    }
+  }) locTooltipName?: string;
   @property() enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
@@ -218,16 +221,18 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property() disableShrink: boolean;
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
-  @property({ onSet: (val, target) => {
-    if(target.locTitleValue.text === val) return;
-    target.locTitleValue.text = val;
-  } }) title: string;
+  @property({
+    onSet: (val, target) => {
+      if (target.locTitleValue.text === val) return;
+      target.locTitleValue.text = val;
+    }
+  }) title: string;
   public get locTitle(): LocalizableString { return this.locTitleValue; }
   public set locTitle(val: LocalizableString) {
-    if(!val && !this.locTitleValue) {
+    if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
     }
-    if(!!this.locTitleValue) {
+    if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
     this.locTitleValue = val;
@@ -246,9 +251,9 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.locStrChangedInPopupModel();
   }
   private locStrChangedInPopupModel(): void {
-    if(!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
+    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
     const model = this.popupModel.contentComponentData.model;
-    if(Array.isArray(model.actions)) {
+    if (Array.isArray(model.actions)) {
       const actions: Array<any> = model.actions;
       actions.forEach(item => {
         if (!!(<any>item).locStrsChanged) {
@@ -262,7 +267,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.setPropertyValue("title", !!val ? val : undefined);
   }
   private locTooltipChanged(): void {
-    if(!this.locTooltipName) return;
+    if (!this.locTooltipName) return;
     this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
   }
   private cssClassesValue: any;
@@ -320,7 +325,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
-  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name): undefined; }
+  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name) : undefined; }
   getProcessedText(text: string): string { return this.owner ? this.owner.getProcessedText(text) : text; }
   getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
@@ -337,9 +342,9 @@ export class ActionDropdownViewModel {
   }
   private setupPopupCallbacks() {
     const popupModel = this.popupModel = this.item.popupModel;
-    if(!popupModel) return;
+    if (!popupModel) return;
     popupModel.registerFunctionOnPropertyValueChanged("isVisible", () => {
-      if(!popupModel.isVisible) {
+      if (!popupModel.isVisible) {
         this.item.pressed = false;
       } else {
         this.item.pressed = true;
@@ -347,7 +352,7 @@ export class ActionDropdownViewModel {
     }, this.funcKey);
   }
   private removePopupCallbacks() {
-    if(!!this.popupModel) {
+    if (!!this.popupModel) {
       this.popupModel.unRegisterFunctionOnPropertyValueChanged("isVisible", this.funcKey);
     }
   }

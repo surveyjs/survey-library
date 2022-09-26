@@ -40,6 +40,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         self.updateReadOnlyText();
       }
     });
+    this.locPlaceholder.onStrChanged = (oldValue: string, newValue: string) => {
+      self.updateReadOnlyText();
+    };
     this.updateReadOnlyText();
   }
   public get showOptionsCaption(): boolean {

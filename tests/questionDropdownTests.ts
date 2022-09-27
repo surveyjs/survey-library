@@ -371,3 +371,23 @@ QUnit.test("readOnlyText", assert => {
   question.placeholder = "Placeholder test";
   assert.equal(question.readOnlyText, "Placeholder test", "use placeholder");
 });
+QUnit.test("readOnlyText on changing locale", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.readOnlyText, "Select...", "english locale");
+  survey.locale = "de";
+  assert.equal(question.readOnlyText, "Bitte auswählen...", "de locale");
+  survey.locale = "";
+  assert.equal(new QuestionDropdownModel("q1").readOnlyText, "Select...", "English by default");
+});

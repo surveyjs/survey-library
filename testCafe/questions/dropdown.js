@@ -1009,6 +1009,17 @@ frameworks.forEach((framework) => {
       .expect(oldDropdown.value).eql("");
   });
 
+  test("test locale", async (t) => {
+    const json = { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] };
+    await initSurvey(framework, json);
+    const changeLocale = ClientFunction(() => {
+      window["survey"].locale = "de";
+    });
+    await t.expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
+    await changeLocale();
+    await t.expect(questionValueInput.getAttribute("placeholder")).eql("Bitte auswählen...");
+  });
+
   test("Check popup scroll", async (t) => {
     const jsonWithDropDown = {
       questions: [

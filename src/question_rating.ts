@@ -223,7 +223,9 @@ export class QuestionRatingModel extends Question {
 
   /**
   * Specifies how a Rating question displays rate values.
+  *
   * Possible values:
+  *
   * - `"buttons"` - Displays rate values as buttons in a row.
   * - `"dropdown"` - Displays rate values as items in a drop-down list.
   * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.

@@ -43,7 +43,7 @@ export {
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
-export { SurveyQuestionRadiogroup } from "../react/reactquestion_radiogroup";
+export { SurveyQuestionRadiogroup, SurveyQuestionRadioItem } from "../react/reactquestion_radiogroup";
 export { SurveyQuestionText } from "../react/reactquestion_text";
 export { SurveyQuestionBoolean } from "../react/boolean";
 export { SurveyQuestionBooleanCheckbox } from "../react/boolean-checkbox";

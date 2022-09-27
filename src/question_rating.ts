@@ -222,10 +222,13 @@ export class QuestionRatingModel extends Question {
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
   /**
-  * Specifies whether a Rating question displays rate values as buttons in a row or using the drop-down.
-  * With the default `auto` mode, the Rating question mode is automatically calculated based on the available width. 
-  * When the width is not sufficient to display rate values as buttons in a row, the Rating question displays rate values in the drop-down.
-  * Set this property to `dropdown` | `buttons` to enforce the Rating question to always use one particular mode.
+  * Specifies how a Rating question displays rate values.
+  *
+  * Possible values:
+  *
+  * - `"buttons"` - Displays rate values as buttons in a row.
+  * - `"dropdown"` - Displays rate values as items in a drop-down list.
+  * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.
   */
   @property({ defaultValue: "auto", onSet: (val, target) => { } }) displayMode: "dropdown" | "buttons" | "auto";
 

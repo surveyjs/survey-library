@@ -220,7 +220,7 @@ export class QuestionRatingModel extends Question {
   * @see rateMax
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
-  
+
   /**
   * Specifies how a Rating question displays rate values.
   * Possible values:

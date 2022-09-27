@@ -166,28 +166,28 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
 });
-QUnit.test("check rating useDropdown", (assert) => {
+QUnit.test("check rating displayMode", (assert) => {
   var json = {
     questions: [
       {
         type: "rating",
         name: "q1",
-        useDropdown: "never"
+        displayMode: "buttons"
       },
     ],
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1["processResponsiveness"](500, 600);
-  assert.equal(q1.renderAs, "default", "useDropdown=never, big size, default");
+  assert.equal(q1.renderAs, "default", "displayMode=buttons, big size, default");
   q1["processResponsiveness"](600, 500);
-  assert.equal(q1.renderAs, "default", "useDropdown=never, small size, default");
+  assert.equal(q1.renderAs, "default", "displayMode=buttons, small size, default");
 
-  q1.useDropdown = "always";
+  q1.displayMode = "dropdown";
   q1["processResponsiveness"](500, 600);
-  assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
+  assert.equal(q1.renderAs, "dropdown", "displayMode=dropdown, big size, dropdown");
   q1["processResponsiveness"](600, 500);
-  assert.equal(q1.renderAs, "dropdown", "useDropdown=always, big size, dropdown");
+  assert.equal(q1.renderAs, "dropdown", "displayMode=dropdown, big size, dropdown");
 });
 QUnit.test("do not process reponsiveness when required width differs from avalailable less then 2px: #4554", (assert) => {
   var json = {

@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
             type: "rating",
             name: "satisfaction",
             title: "Rating",
-            useDropdown: "never",
+            displayMode: "buttons",
             rateMax: 30,
             width: "708px"
           }

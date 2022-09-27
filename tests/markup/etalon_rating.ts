@@ -118,7 +118,7 @@ registerMarkupTests(
           type: "rating",
           title: "Question title",
           titleLocation: "hidden",
-          useDropdown: "never",
+          displayMode: "buttons",
           rateMax: 4,
         }
       ]

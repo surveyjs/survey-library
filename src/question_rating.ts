@@ -221,7 +221,16 @@ export class QuestionRatingModel extends Question {
   */
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
-  @property({ defaultValue: "auto", onSet: (val, target) => { } }) useDropdown: "always" | "never" | "auto";
+  /**
+  * Specifies how a Rating question displays rate values.
+  *
+  * Possible values:
+  *
+  * - `"buttons"` - Displays rate values as buttons in a row.
+  * - `"dropdown"` - Displays rate values as items in a drop-down list.
+  * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.
+  */
+  @property({ defaultValue: "auto", onSet: (val, target) => { } }) displayMode: "dropdown" | "buttons" | "auto";
 
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
@@ -242,7 +251,7 @@ export class QuestionRatingModel extends Question {
   }
 
   public get ratingRootCss(): string {
-    return ((this.useDropdown == "never" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+    return ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
@@ -299,7 +308,7 @@ export class QuestionRatingModel extends Question {
     const rateStep = this.getPropertyValue("rateStep");
     const rateMax = this.getPropertyValue("rateMax");
     const rateMin = this.getPropertyValue("rateMin");
-    return this.useDropdown != "always" && !!(this.hasMinRateDescription ||
+    return this.displayMode != "dropdown" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
       rateValues.length > 0 ||
       (rateStep && (rateMax - rateMin) / rateStep > 9));
@@ -310,10 +319,10 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   protected getCompactRenderAs(): string {
-    return (this.useDropdown == "never") ? "default" : "dropdown";
+    return (this.displayMode == "buttons") ? "default" : "dropdown";
   }
   protected getDesktopRenderAs(): string {
-    return (this.useDropdown == "always") ? "dropdown" : "default";
+    return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
 }
 Serializer.addClass(
@@ -374,9 +383,9 @@ Serializer.addClass(
     },
     { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
     {
-      name: "useDropdown",
+      name: "displayMode",
       default: "auto",
-      choices: ["auto", "never", "always"],
+      choices: ["auto", "buttons", "dropdown"],
     }
   ],
   function () {

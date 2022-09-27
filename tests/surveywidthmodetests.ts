@@ -158,7 +158,7 @@ QUnit.test("Survey widthMode property for rating questions", function (assert) {
   q.minRateDescription = "desc_min";
   assert.equal(survey3.calculateWidthMode(), "responsive", "both descriptions rating widthMode is responsive");
 
-  q.useDropdown = "always";
+  q.displayMode = "dropdown";
   assert.equal(survey3.calculateWidthMode(), "static", "dropdown rating widthMode is static");
 
   survey3.fromJSON({

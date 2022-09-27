@@ -5,7 +5,6 @@ import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
-import { ListModel } from "./list";
 import { EventBase } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
@@ -16,16 +15,35 @@ import { settings } from "./settings";
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModel: DropdownListModel;
 
+  updateReadOnlyText(): void {
+    let result = this.placeholder;
+    if(this.hasOther && this.isOtherSelected) {
+      result = this.otherText;
+    } else if(!!this.selectedItem) {
+      result = this.renderAs == "select" ? this.selectedItemText : "";
+    }
+    this.readOnlyText = result;
+  }
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
     var self = this;
-    this.registerFunctionOnPropertiesValueChanged(
-      ["choicesMin", "choicesMax", "choicesStep"],
-      function () {
-        self.onVisibleChoicesChanged();
+    this.registerFunctionOnPropertiesValueChanged(["choicesMin", "choicesMax", "choicesStep"], () => {
+      self.onVisibleChoicesChanged();
+    });
+    this.registerFunctionOnPropertiesValueChanged(["value", "renderAs", "hasOther", "otherText"], () => {
+      self.updateReadOnlyText();
+    });
+    this.locPlaceholder.onStringChanged.add((sender, options) => {
+      if(sender.name === "placeholder") {
+        self.updateReadOnlyText();
       }
-    );
+    });
+    this.locPlaceholder.onStrChanged = (oldValue: string, newValue: string) => {
+      self.updateReadOnlyText();
+    };
+    this.updateReadOnlyText();
   }
   public get showOptionsCaption(): boolean {
     return this.allowClear;
@@ -47,6 +65,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
+    this.updateReadOnlyText();
   }
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
@@ -155,6 +174,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
   @property({ defaultValue: false }) inputHasValue: boolean;
+  @property({ defaultValue: "" }) readOnlyText: string;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -168,14 +188,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     const item = this.selectedItem;
     return item?.locText;
   }
-  public get readOnlyText() {
-    if(this.hasOther && this.isOtherSelected) {
-      return this.otherText;
-    } else if(!!this.selectedItem) {
-      return this.renderAs == "select" ? this.selectedItemText : "";
-    }
-    return this.placeholder;
-  }
+
   private get selectedItemText(): string {
     const item = this.selectedItem;
     return !!item ? item.text : "";

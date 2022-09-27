@@ -344,6 +344,38 @@ frameworks.forEach((framework) => {
       .click(questionDropdownSelect.nth(1))
       .expect(Selector(".sv-list__item span").nth(10).textContent).eql(newOtherText);
   });
+
+  test("placeholder changed", async t => {
+    const currentJson = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+      ]
+    };
+    const oldPlaceholder = "Select...";
+    const newPlaceholder = "New placeholder";
+    await initSurvey(framework, currentJson);
+
+    await t.expect(questionValueInput.getAttribute("placeholder")).eql(oldPlaceholder);
+    await setOptions("cars", { placeholder: newPlaceholder });
+    await t.expect(questionValueInput.getAttribute("placeholder")).eql(newPlaceholder);
+  });
+
   test("Check dropdown popup width", async (t) => {
     await t.resizeWindow(1280, 1100);
     const jsonWithDropDown = {

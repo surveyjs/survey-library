@@ -366,4 +366,8 @@ QUnit.test("readOnlyText", assert => {
   assert.equal(question.readOnlyText, "", "use choice text");
   question.renderAs = "select";
   assert.equal(question.readOnlyText, "item 2", "use choice text");
+  question.clearValue();
+  assert.equal(question.readOnlyText, "click", "use placeholder");
+  question.placeholder = "Placeholder test";
+  assert.equal(question.readOnlyText, "Placeholder test", "use placeholder");
 });

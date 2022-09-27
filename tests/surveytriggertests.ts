@@ -5,6 +5,7 @@ import {
   SurveyTriggerSetValue,
 } from "../src/trigger";
 import { SurveyModel } from "../src/survey";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Triggers");
 
@@ -257,4 +258,9 @@ QUnit.test("Show complete button instead of next if complete trigger is going to
   survey.clear();
   assert.equal(survey.isShowNextButton, true, "#6-next");
   assert.equal(survey.isCompleteButtonVisible, false, "#6-complete");
+  settings.changeNavigationButtonsOnCompleteTrigger = false;
+  survey.setValue("q1", 3);
+  assert.equal(survey.isShowNextButton, true, "#7-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#7-complete");
+  settings.changeNavigationButtonsOnCompleteTrigger = true;
 });

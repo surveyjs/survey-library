@@ -131,6 +131,10 @@
           "Title": "Dropdown"
         },
         {
+          "Name": "questiontagboxmodel",
+          "Title": "Tag Box"
+        },
+        {
           "Name": "questioncommentmodel",
           "Title": "Comment"
         },

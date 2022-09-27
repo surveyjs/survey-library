@@ -345,8 +345,7 @@ export class QuestionFileModel extends Question {
   public canPreviewImage(fileItem: any): boolean {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
-    super.setQuestionValue(newValue, updateIsAnswered);
+  protected loadPreview(newValue: any): void {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
@@ -376,30 +375,25 @@ export class QuestionFileModel extends Question {
       });
       if (state === "loading") this.stateChanged("loaded");
     } else {
-      newValues.forEach((value) => {
-        var content = value.content || value;
-        if (this.survey) {
-          this.survey.downloadFile(this, this.name, value, (status, data) => {
-            if (status === "success") {
-              this.previewValue = this.previewValue.concat([
-                {
-                  content: data,
-                  name: value.name,
-                  type: value.type,
-                },
-              ]);
-              if (this.previewValue.length === newValues.length) {
-                this.stateChanged("loaded");
-              }
-            } else {
-              this.stateChanged("error");
-            }
-          });
+      if(!!this._previewLoader) {
+        this._previewLoader.dispose();
+      }
+      this._previewLoader = new FileLoader(this, (status, loaded) => {
+        if(status === "loaded") {
+          this.previewValue = loaded;
         }
+        this.stateChanged("loaded");
+        this._previewLoader.dispose();
+        this._previewLoader = undefined;
       });
+      this._previewLoader.load(newValues);
     }
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
+  }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    this.loadPreview(newValue);
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -623,3 +617,36 @@ Serializer.addClass(
 QuestionFactory.Instance.registerQuestion("file", (name) => {
   return new QuestionFileModel(name);
 });
+
+export class FileLoader {
+  constructor(private fileQuestion: QuestionFileModel, private callback: (status: string, files: any[]) => void) {
+  }
+  loaded: any[] = [];
+  load(files: Array<any>): void {
+    files.forEach((value) => {
+      if (this.fileQuestion.survey) {
+        this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
+          if(!this.fileQuestion || !this.callback) {
+            return;
+          }
+          if (status === "success") {
+            this.loaded.push({
+              content: data,
+              name: value.name,
+              type: value.type,
+            });
+            if (this.loaded.length === files.length) {
+              this.callback("loaded", this.loaded);
+            }
+          } else {
+            this.callback("error", this.loaded);
+          }
+        });
+      }
+    });
+  }
+  dispose(): void {
+    this.fileQuestion = undefined;
+    this.callback = undefined;
+  }
+}

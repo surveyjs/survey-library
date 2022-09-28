@@ -16,7 +16,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.itemComponent = undefined;
+    this.itemComponent = "";
   }
 
   public get readOnlyText() {
@@ -45,10 +45,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       }
     }
   }) searchEnabled: boolean;
-  /**
-   * The name of a component used to render drop-down menu items.
-   */
-  @property() itemComponent: string;
 
   /**
    * Specifies whether to remove selected items from the drop-down list.

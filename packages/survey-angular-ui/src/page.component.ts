@@ -6,16 +6,16 @@ import { BaseAngular } from "./base-angular";
   templateUrl: "./page.component.html",
   styleUrls: ["./page.component.scss"]
 })
-export class PageComponent extends BaseAngular<PageModel> implements AfterViewInit, OnChanges {
+export class PageComponent extends BaseAngular<PageModel> {
   @Input() model!: PageModel;
   @Input() survey?: SurveyModel;
   @ViewChild("pageContainer", { static: false, read: ElementRef }) pageContainerRef!: ElementRef<HTMLDivElement>;
   protected getModel(): PageModel {
     return this.model;
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    if(changes["model"].previousValue !== undefined) {
-      this.model.survey.afterRenderPage(this.pageContainerRef?.nativeElement);
+  protected override onModelChanged(): void {
+    if(!!this.pageContainerRef && this.pageContainerRef.nativeElement) {
+      this.model.survey.afterRenderPage(this.pageContainerRef.nativeElement);
     }
   }
   ngAfterViewInit(): void {

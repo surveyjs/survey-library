@@ -11,6 +11,7 @@ export var settings = {
     trimStrings: true,
     caseSensitive: false
   },
+  expressionDisableConversionChar: "#",
   /**
    * Set this value to false, if you want to have UTC fuctions, for example setUTCHours inside our functions, like today.
    * By default it uses setHours function, with local date

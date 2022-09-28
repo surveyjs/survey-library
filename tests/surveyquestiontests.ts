@@ -6062,3 +6062,13 @@ QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) 
   assert.equal(q2.isOtherSelected, true, "isOtherSelected - true, checkbox");
   assert.equal(q2.isItemSelected(q2.otherItem), true, "isItemSelected - true, checkbox");
 });
+QUnit.test("Do not allow question to start with #", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "$q1" }] });
+  const questions = survey.pages[0].questions;
+  assert.equal(questions[1].name, "$q1", "$q1");
+  questions[0].name = "#q2";
+  assert.equal(questions[0].name, "q2", "change #q2 to q2");
+  questions[1].valueName = "#q3";
+  assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
+});

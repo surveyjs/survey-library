@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
 import { ProcessValue } from "../conditionProcessValue";
+import { settings } from "../settings";
 
 export abstract class Operand {
   public toString(func: (op: Operand) => string = undefined): string {
@@ -278,7 +279,8 @@ export class Const extends Operand {
 }
 
 export class Variable extends Const {
-  static DisableConversionChar = "#";
+  public static get DisableConversionChar(): string { return settings.expressionDisableConversionChar; }
+  public static set DisableConversionChar(val: string) { settings.expressionDisableConversionChar = val; }
   private valueInfo: any = {};
   private useValueAsItIs: boolean = false;
   constructor(private variableName: string) {

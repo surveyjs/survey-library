@@ -125,7 +125,7 @@ body {
 
 .sv-popup.sv-popup--dropdown {
   .sv-popup__shadow {
-    filter: drop-shadow(0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1));
+    box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
   }
 
   .sv-popup__body-content {

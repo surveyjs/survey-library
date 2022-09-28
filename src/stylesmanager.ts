@@ -368,7 +368,7 @@ export class StylesManager {
     //popup
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none; z-index: 1500;",
-    ".sv-popup__container": "filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1)); position: absolute; padding: 0;",
+    ".sv-popup__container": "box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); position: absolute; padding: 0;",
     ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
     ".sv-popup--modal .sv-list__filter": "padding-top: 8px;",
     ".sv-popup--modal .sv-list__filter-icon": "top: 20px;",

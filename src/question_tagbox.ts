@@ -16,6 +16,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
+    this.itemComponent = undefined;
   }
 
   public get readOnlyText() {
@@ -122,8 +123,7 @@ Serializer.addClass(
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: true, visible: false },
-    { name: "itemComponent", visible: false }
+    { name: "closeOnSelect:boolean", default: true, visible: false }
   ],
   function () {
     return new QuestionTagboxModel("");

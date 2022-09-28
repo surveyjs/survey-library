@@ -1415,7 +1415,6 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
-    this.itemComponent = "survey-checkbox-item";
   }
   /**
    * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.
@@ -1573,7 +1572,7 @@ Serializer.addClass(
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
       layout: "row",
-    },
+    }
   ],
   null,
   "selectbase"

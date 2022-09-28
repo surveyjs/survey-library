@@ -19,6 +19,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private invisibleOldValues: any = {};
   constructor(name: string) {
     super(name);
+    this.itemComponent = "survey-checkbox-item";
     var selectAllItemText = this.createLocalizableString(
       "selectAllText", this, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
@@ -509,7 +510,8 @@ Serializer.addClass(
     {
       name: "valuePropertyName",
       category: "data"
-    }
+    },
+    { name: "itemComponent", visible: false, default: "survey-checkbox-item" }
   ],
   function () {
     return new QuestionCheckboxModel("");

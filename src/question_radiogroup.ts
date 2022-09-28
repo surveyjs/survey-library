@@ -77,7 +77,8 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false },
-    { name: "separateSpecialChoices", visible: true }],
+    { name: "separateSpecialChoices", visible: true },
+    { name: "itemComponent", visible: false, default: "survey-radiogroup-item" }],
   function () {
     return new QuestionRadiogroupModel("");
   },

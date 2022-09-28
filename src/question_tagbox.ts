@@ -123,7 +123,8 @@ Serializer.addClass(
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: true, visible: false }
+    { name: "closeOnSelect:boolean", default: true, visible: false },
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionTagboxModel("");

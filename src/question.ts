@@ -100,32 +100,30 @@ export class Question extends SurveyElement
     };
     this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("width", () => {
+    this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
         this.parent.elementWidthChanged(this);
       }
     });
-    this.registerFunctionOnPropertyValueChanged("isRequired", () => {
+    this.registerPropertyChangedHandlers(["isRequired"], () => {
       this.locTitle.strChanged();
       this.clearCssClasses();
     });
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["indent", "rightIndent"],
       () => {
         this.onIndentChanged();
       }
     );
 
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["hasComment", "hasOther"],
       () => {
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("isMobile", () => {
-      this.onMobileChanged();
-    });
+    this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
@@ -1904,11 +1902,11 @@ export class Question extends SurveyElement
     return false;
   }
   //responsiveness methods
-  protected supportResponsiveness() {
+  protected supportResponsiveness(): boolean {
     return false;
   }
 
-  protected needResponsiveness() {
+  protected needResponsiveness(): boolean {
     return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
   }
 
@@ -1918,10 +1916,10 @@ export class Question extends SurveyElement
         const onStateChanged = () => {
           if(this.isExpanded) {
             this.initResponsiveness(el);
-            this.unRegisterFunctionOnPropertyValueChanged("state", "for-responsiveness");
+            this.unregisterPropertyChangedHandlers(["state"], "for-responsiveness");
           }
         };
-        this.registerFunctionOnPropertyValueChanged("state", onStateChanged, "for-responsiveness");
+        this.registerPropertyChangedHandlers(["state"], onStateChanged, "for-responsiveness");
       } else {
         this.initResponsiveness(el);
       }

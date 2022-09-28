@@ -177,7 +177,7 @@ export class PopupBaseViewModel extends Base {
   }
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
+      this.model.registerPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
     }
     this._model = model;
     const onIsVisibleChangedHandler = () => {
@@ -186,7 +186,7 @@ export class PopupBaseViewModel extends Base {
       }
       this.isVisible = model.isVisible;
     };
-    model.registerFunctionOnPropertyValueChanged("isVisible", onIsVisibleChangedHandler, "PopupBaseViewModel");
+    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel");
     onIsVisibleChangedHandler();
   }
 

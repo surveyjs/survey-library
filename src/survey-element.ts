@@ -200,15 +200,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     this.name = name;
     this.createNewArray("errors");
     this.createNewArray("titleActions");
-    this.registerFunctionOnPropertyValueChanged("isReadOnly", () => {
-      this.onReadOnlyChanged();
-    });
-    this.registerFunctionOnPropertyValueChanged("errors", () => {
-      this.updateVisibleErrors();
-    });
-    this.registerFunctionOnPropertyValueChanged("isSingleInRow", () => {
-      this.updateElementCss(false);
-    });
+    this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
+    this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
+    this.registerPropertyChangedHandlers(["isSingleInRow"], () => { this.updateElementCss(false); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);

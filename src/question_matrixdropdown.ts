@@ -39,14 +39,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   constructor(name: string) {
     super(name);
     this.createLocalizableString("totalText", this, true);
-    this.registerFunctionOnPropertyValueChanged("rows", () => {
+    this.registerPropertyChangedHandlers(["rows"], () => {
       this.clearGeneratedRows();
       this.resetRenderedTable();
       if (!this.filterItems()) {
         this.onRowsChanged();
       }
     });
-    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", () => {
+    this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();
     });
   }

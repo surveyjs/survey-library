@@ -30,12 +30,11 @@ export class QuestionRatingModel extends Question {
   constructor(name: string) {
     super(name);
     this.createItemValues("rateValues");
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("rateValues", function () {
-      self.fireCallback(self.rateValuesChangedCallback);
+    this.registerPropertyChangedHandlers(["rateValues"], () => {
+      this.fireCallback(this.rateValuesChangedCallback);
     });
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.onPropertyChanged.add(function (sender: any, options: any) {
+    this.onPropertyChanged.add((sender: any, options: any) => {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
@@ -45,7 +44,7 @@ export class QuestionRatingModel extends Question {
         options.name == "displayRateDescriptionsAsExtremeItems" ||
         options.name == "value"
       ) {
-        self.fireCallback(self.rateValuesChangedCallback);
+        this.fireCallback(this.rateValuesChangedCallback);
       }
     });
 

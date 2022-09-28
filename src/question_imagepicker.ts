@@ -58,12 +58,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.registerFunctionOnPropertiesValueChanged(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
+    this.registerPropertyChangedHandlers(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
       if (!!this._width) {
         this.processResponsiveness(0, this._width);
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(["imageWidth", "imageHeight"], () => {
+    this.registerPropertyChangedHandlers(["imageWidth", "imageHeight"], () => {
       this.calcIsResponsive();
     });
     this.calcIsResponsive();

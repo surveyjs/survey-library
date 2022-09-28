@@ -46,7 +46,7 @@ QUnit.test("Change templateQuestion on changing cellType faster reacting onPrope
   const column = new MatrixDropdownColumn("col1");
   assert.equal(column.cellType, "default");
   assert.equal(column.templateQuestion.getType(), "dropdown");
-  column.registerFunctionOnPropertyValueChanged("cellType", () => {
+  column.registerPropertyChangedHandlers(["cellType"], () => {
     assert.equal(column.cellType, "text");
     assert.equal(column.templateQuestion.getType(), "text");
   });

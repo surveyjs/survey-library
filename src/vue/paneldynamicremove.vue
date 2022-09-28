@@ -26,17 +26,12 @@ export class PanelDynamicRemove extends Vue {
 
   mounted() {
     this.isCollapsed = this.panel.isCollapsed;
-    var self = this;
-    this.panel.registerFunctionOnPropertyValueChanged(
-      "state",
-      function(val: any) {
-        self.isCollapsed = self.panel.isCollapsed;
-      },
-      "button"
-    );
+    this.panel.registerPropertyChangedHandlers(["state"], (val: any) => {
+      this.isCollapsed = this.panel.isCollapsed;
+    }, "button");
   }
   beforeDestroy() {
-    this.panel.unRegisterFunctionOnPropertyValueChanged("state", "button");
+    this.panel.unregisterPropertyChangedHandlers(["state"], "button");
   }
   removePanelClick(panel: any) {
     if (!this.question.isInputReadOnly) {

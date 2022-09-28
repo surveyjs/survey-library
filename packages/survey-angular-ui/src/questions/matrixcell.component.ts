@@ -3,7 +3,8 @@ import { BaseAngular } from "../base-angular";
 import {
   Question,
   QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedCell
+  QuestionMatrixDropdownRenderedCell,
+  SurveyModel
 } from "survey-core";
 
 @Component({
@@ -24,6 +25,32 @@ export class MatrixCellComponent extends BaseAngular<Question> {
   }
   public get row() {
     return this.cell.row;
+  }
+  public get panelComponentName(): string {
+    const panel = this.cell.panel;
+    const survey = <SurveyModel>panel.survey;
+    if(!!survey) {
+      const name = survey.getElementWrapperComponentName(panel);
+      if(!!name) {
+        return name;
+      }
+    }
+    return "panel";
+  }
+  public get panelComponentData(): any {
+    const panel = this.cell.panel;
+    const survey = <SurveyModel>panel.survey;
+    let data: any;
+    if(!!survey) {
+      data = survey.getElementWrapperComponentData(panel);
+    }
+    return {
+      componentName: "panel",
+      componentData: {
+        model: panel,
+        data: data
+      }
+    };
   }
 
   getComponentName(element: Question) {

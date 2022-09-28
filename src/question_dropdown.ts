@@ -28,21 +28,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    var self = this;
     this.registerFunctionOnPropertiesValueChanged(["choicesMin", "choicesMax", "choicesStep"], () => {
-      self.onVisibleChoicesChanged();
+      this.onVisibleChoicesChanged();
     });
-    this.registerFunctionOnPropertiesValueChanged(["value", "renderAs", "hasOther", "otherText"], () => {
-      self.updateReadOnlyText();
+    this.registerFunctionOnPropertiesValueChanged(["value", "renderAs", "hasOther", "otherText", "placeholder"], () => {
+      this.updateReadOnlyText();
     });
-    this.locPlaceholder.onStringChanged.add((sender, options) => {
-      if(sender.name === "placeholder") {
-        self.updateReadOnlyText();
-      }
-    });
-    this.locPlaceholder.onStrChanged = (oldValue: string, newValue: string) => {
-      self.updateReadOnlyText();
-    };
+    this.updateReadOnlyText();
+  }
+  public locStrsChanged(): void {
+    super.locStrsChanged();
     this.updateReadOnlyText();
   }
   public get showOptionsCaption(): boolean {
@@ -65,7 +60,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
-    this.updateReadOnlyText();
   }
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");

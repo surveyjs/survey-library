@@ -25,10 +25,8 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   }
   render(): JSX.Element {
     if (!this.item) return null;
-    const isVisible = this.model.isItemVisible(this.item);
-    const style = {
-      paddingLeft: this.model.getItemIndent(this.item),
-      display: isVisible ? null : "none",
+    const contentWrapStyle = {
+      paddingLeft: this.model.getItemIndent(this.item)
     };
     const className = this.model.getItemClass(this.item);
     const content: Array<JSX.Element> = [];
@@ -53,16 +51,21 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
 
     const contentWrap =
         <div
-          style={style}
+          style={contentWrapStyle}
           className={this.model.cssClasses.itemBody}
         >
           {content}
         </div>;
     const separator = this.item.needSeparator ? <div className = {this.model.cssClasses.itemSeparator}/>:null;
+    const isVisible = this.model.isItemVisible(this.item);
+    const style = {
+      display: isVisible ? null : "none"
+    };
     return attachKey2click(
       <li
         className={className}
         role="option"
+        style={style}
         aria-selected={this.model.isItemSelected(this.item)}
         onClick={(event: any) => {
           this.model.onItemClick(this.item);

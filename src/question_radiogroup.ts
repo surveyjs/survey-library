@@ -12,6 +12,7 @@ import { ComputedUpdater } from "./base";
 export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
+    this.itemComponent = "survey-radiogroup-item";
   }
   public getType(): string {
     return "radiogroup";

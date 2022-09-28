@@ -1403,6 +1403,10 @@ export class QuestionSelectBase extends Question {
     }
     this.prevIsOtherSelected = this.isOtherSelected;
   }
+  /**
+   * The name of a component used to render items.
+   */
+   @property() itemComponent: string;
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.
@@ -1411,6 +1415,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
+    this.itemComponent = "survey-checkbox-item";
   }
   /**
    * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.

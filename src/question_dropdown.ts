@@ -155,10 +155,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({ defaultValue: true }) allowClear: boolean;
   /**
-   * The name of a component used to render drop-down menu items.
-   */
-  @property() itemComponent: string;
-  /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({

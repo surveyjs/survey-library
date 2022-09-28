@@ -827,8 +827,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.detailPanel.renderWidth = "100%";
     this.detailPanel.isInteractiveDesignElement = false;
     this.detailPanel.showTitle = false;
-    this.registerPropertyChangedHandlers(["columns"], (newColumns: any) => { this.updateColumnsAndRows(); });
-    this.registerPropertyChangedHandlers(["cellType"], () => { this.updateColumnsAndRows(); });
+    this.registerPropertyChangedHandlers(["columns", "cellType"], () => { this.updateColumnsAndRows(); });
     this.registerPropertyChangedHandlers(
       ["placeholder", "columnColCount", "rowTitleWidth", "choices"],
       () => {

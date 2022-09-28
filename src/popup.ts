@@ -177,7 +177,7 @@ export class PopupBaseViewModel extends Base {
   }
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.registerPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
     }
     this._model = model;
     const onIsVisibleChangedHandler = () => {

@@ -250,6 +250,7 @@ export var modernCss = {
     cleanButtonIconId: "icon-clear_16x16",
     filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
+    controlInputFieldComponent: "sv_dropdown_control__input-field-component",
   },
   tagbox: {
     root: "",

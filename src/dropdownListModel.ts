@@ -143,6 +143,14 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
 
+  public getSelectedAction(): Action {
+    if(!!this.question.selectedItem) {
+      return this.listModel.actions.filter(action => (this.question.selectedItem.value === action.id))[0];
+    } else {
+      return null;
+    }
+  }
+
   keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
     if(this.popupModel.isVisible && event.keyCode === 38) {

@@ -277,6 +277,7 @@ export var defaultV2Css = {
     cleanButtonSvg: "sd-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear",
     control: "sd-input sd-dropdown",
+    controlInputFieldComponent: "sd-dropdown__input-field-component",
     controlValue: "sd-dropdown__value",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",

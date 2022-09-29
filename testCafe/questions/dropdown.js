@@ -587,7 +587,7 @@ frameworks.forEach((framework) => {
 
       .click(myListItems.nth(3))
 
-      .expect(questionValueText.textContent).eql("Nissan");
+      .expect(Selector(".sv_q_dropdown__value").find(".sv-svg-icon").count).eql(1);
   });
 
   test("Check dropdown key press with searchEnabled", async (t) => {

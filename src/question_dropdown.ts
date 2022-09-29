@@ -176,13 +176,22 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.errors.length > 0)
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
+      .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }
   public get selectedItemLocText() {
     const item = this.selectedItem;
     return item?.locText;
   }
-
+  public get inputFieldComponentName(): string {
+    return this.inputFieldComponent || this.itemComponent;
+  }
+  public get showSelectedItemLocText(): boolean {
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText;
+  }
+  public get showInputFieldComponent(): boolean {
+    return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
+  }
   private get selectedItemText(): string {
     const item = this.selectedItem;
     return !!item ? item.text : "";
@@ -238,6 +247,7 @@ Serializer.addClass(
     { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false },
   ],
   function () {

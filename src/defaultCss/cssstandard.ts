@@ -164,6 +164,7 @@ export var defaultStandardCss = {
   dropdown: {
     root: "",
     control: "sv_q_dropdown_control",
+    controlInputFieldComponent: "sv_q_dropdown_control__input-field-component",
     selectWrapper: "sv_select_wrapper",
     other: "sv_q_dd_other",
     cleanButton: "sv_q_dropdown_clean-button",

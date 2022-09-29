@@ -15,7 +15,11 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.koCss().controlValue">
-      <!-- ko if: question.selectedItemLocText && !question.inputHasValue -->
+      <!-- ko if: question.showInputFieldComponent -->
+      <!-- ko component: { name: question.inputFieldComponentName, params: { item: model.getSelectedAction(), question: question } } -->
+      <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.showSelectedItemLocText -->
       <!-- ko template: { name: 'survey-string', data: question.selectedItemLocText } -->
       <!-- /ko -->
       <!-- /ko -->

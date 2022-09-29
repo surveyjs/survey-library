@@ -48,8 +48,12 @@
   color: $text-color;
   position: relative;
 }
+.sv_dropdown_control__input-field-component {
+  height: auto;
+}
 .sv-dropdown_clean-button {
   padding: 3px 12px;
+  margin: auto 0;
 }
 .sv-dropdown_clean-button-svg {
   width: 12px;
@@ -76,6 +80,8 @@
   appearance: none;
   position: absolute;
   left: 0;
+  top: 0;
+  height: 100%;
 }
 .sv-dropdown--empty:not(.sv-input--disabled) .sv-dropdown__filter-string-input::placeholder {
   font-family: $font-family;

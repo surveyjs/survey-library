@@ -95,6 +95,9 @@ body {
     width: 100%;
     position: relative;
   }
+  .sv_q_dropdown_control__input-field-component {
+    height: auto;
+  }
   .sv_q_dropdown_clean-button {
     margin: auto 2em;
   }
@@ -104,6 +107,12 @@ body {
   }
 
   .sv_q_dropdown__filter-string-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
     border: none;
     outline: none;
     padding: 0px;
@@ -114,8 +123,6 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
-    position: absolute;
-    left: 0;
     background-color: transparent;
   }
 
@@ -501,6 +508,10 @@ body {
       input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
       select {
         height: calc(#{$base-line-height} + 1px);
+      }
+
+      .sv_q_dropdown_control__input-field-component {
+        height: auto;
       }
 
       div.sv_q_text_root,

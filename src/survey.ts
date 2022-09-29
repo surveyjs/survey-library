@@ -1065,28 +1065,28 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray("navigateToUrlOnCondition", (value: any) => {
       value.locOwner = this;
     });
-    this.registerFunctionOnPropertyValueChanged("locale", () => {
+    this.registerPropertyChangedHandlers(["locale"], () => {
       this.onSurveyLocaleChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("firstPageIsStarted", () => {
+    this.registerPropertyChangedHandlers(["firstPageIsStarted"], () => {
       this.onFirstPageIsStartedChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("mode", () => {
+    this.registerPropertyChangedHandlers(["mode"], () => {
       this.onModeChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("progressBarType", () => {
+    this.registerPropertyChangedHandlers(["progressBarType"], () => {
       this.updateProgressText();
     });
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["questionStartIndex", "requiredText", "questionTitlePattern"],
       () => {
         this.resetVisibleIndexes();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
       () => { this.updateState(); });
-    this.registerFunctionOnPropertiesValueChanged(["state", "currentPage", "showPreviewBeforeComplete"],
+    this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {

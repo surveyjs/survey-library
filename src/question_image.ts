@@ -29,7 +29,7 @@ export class QuestionImageModel extends QuestionNonValue {
       return getCorrectImageLink(text);
     };
     this.createLocalizableString("text", this, false);
-    this.registerFunctionOnPropertiesValueChanged(["contentMode", "imageLink"], () => this.calculateRenderedMode());
+    this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {
     return "image";

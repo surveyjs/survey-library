@@ -338,7 +338,7 @@ export class ActionDropdownViewModel {
   private setupPopupCallbacks() {
     const popupModel = this.popupModel = this.item.popupModel;
     if(!popupModel) return;
-    popupModel.registerFunctionOnPropertyValueChanged("isVisible", () => {
+    popupModel.registerPropertyChangedHandlers(["isVisible"], () => {
       if(!popupModel.isVisible) {
         this.item.pressed = false;
       } else {
@@ -348,7 +348,7 @@ export class ActionDropdownViewModel {
   }
   private removePopupCallbacks() {
     if(!!this.popupModel) {
-      this.popupModel.unRegisterFunctionOnPropertyValueChanged("isVisible", this.funcKey);
+      this.popupModel.unregisterPropertyChangedHandlers(["isVisible"], this.funcKey);
     }
   }
   public dispose(): void {

@@ -619,7 +619,7 @@ QUnit.test("Rubric Matrix Question cells load from JSON", function (assert) {
 QUnit.test("Rubric Matrix Question cells get/set cell text", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   let counter = 0;
-  matrix.registerFunctionOnPropertyValueChanged("cells", () => {
+  matrix.registerPropertyChangedHandlers(["cells"], () => {
     counter++;
   });
   matrix.rows = ["row1", "row2"];
@@ -1196,10 +1196,10 @@ QUnit.test("Question callbacks test", function (assert) {
   question.commentChangedCallback = function () {
     commentChanged++;
   };
-  question.registerFunctionOnPropertyValueChanged("visible", function () {
+  question.registerPropertyChangedHandlers(["visible"], function () {
     visibleChanged++;
   });
-  question.registerFunctionOnPropertyValueChanged("visibleIndex", function () {
+  question.registerPropertyChangedHandlers(["visibleIndex"], function () {
     visibleIndexChanged++;
   });
   question.value = "test";

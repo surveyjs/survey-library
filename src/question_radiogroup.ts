@@ -12,7 +12,9 @@ import { ComputedUpdater } from "./base";
 export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
-    this.itemComponent = "survey-radiogroup-item";
+  }
+  protected getDefaultItemComponent(): string {
+    return "survey-radiogroup-item";
   }
   public getType(): string {
     return "radiogroup";
@@ -78,12 +80,14 @@ Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false },
     { name: "separateSpecialChoices", visible: true },
-    { name: "itemComponent", visible: false, default: "survey-radiogroup-item" }],
+  ],
   function () {
     return new QuestionRadiogroupModel("");
   },
   "checkboxbase"
 );
+
+Serializer.addProperty("radiogroup", { name: "itemComponent", visible: false, default: "survey-radiogroup-item" });
 
 QuestionFactory.Instance.registerQuestion("radiogroup", (name) => {
   var q = new QuestionRadiogroupModel(name);

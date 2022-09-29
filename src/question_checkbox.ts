@@ -19,7 +19,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private invisibleOldValues: any = {};
   constructor(name: string) {
     super(name);
-    this.itemComponent = "survey-checkbox-item";
     var selectAllItemText = this.createLocalizableString(
       "selectAllText", this, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
@@ -31,6 +30,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         this.onVisibleChoicesChanged();
       }
     );
+  }
+  protected getDefaultItemComponent(): string {
+    return "survey-checkbox-item";
   }
   public get ariaRole(): string {
     return "listbox";

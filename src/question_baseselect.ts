@@ -1403,10 +1403,19 @@ export class QuestionSelectBase extends Question {
     }
     this.prevIsOtherSelected = this.isOtherSelected;
   }
+  protected getDefaultItemComponent(): string {
+    return "";
+  }
   /**
    * The name of a component used to render items.
    */
-   @property() itemComponent: string;
+  public get itemComponent(): string {
+    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("itemComponent", value);
+  }
+
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.

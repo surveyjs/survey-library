@@ -16,7 +16,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.itemComponent = "";
+  }
+
+  protected getDefaultItemComponent(): string {
+    return "";
   }
 
   public get readOnlyText() {

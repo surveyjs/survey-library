@@ -148,6 +148,6 @@ export class QuestionImplementor extends ImplementorBase {
       this.question[this.callBackFunctions[i]] = undefined;
     }
     this.callBackFunctions = [];
-    this.question.unRegisterFunctionOnPropertyValueChanged("visibleIndex");
+    this.question.unregisterPropertyChangedHandlers(["visibleIndex"]);
   }
 }

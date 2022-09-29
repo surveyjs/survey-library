@@ -827,22 +827,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.detailPanel.renderWidth = "100%";
     this.detailPanel.isInteractiveDesignElement = false;
     this.detailPanel.showTitle = false;
-    this.registerFunctionOnPropertyValueChanged(
-      "columns",
-      (newColumns: any) => {
-        this.updateColumnsAndRows();
-      }
-    );
-    this.registerFunctionOnPropertyValueChanged("cellType", () => {
-      this.updateColumnsAndRows();
-    });
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(["columns", "cellType"], () => { this.updateColumnsAndRows(); });
+    this.registerPropertyChangedHandlers(
       ["placeholder", "columnColCount", "rowTitleWidth", "choices"],
       () => {
         this.clearRowsAndResetRenderedTable();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       [
         "columnLayout",
         "addRowLocation",
@@ -857,10 +849,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       () => {
         this.resetRenderedTable();
       });
-    this.registerFunctionOnPropertiesValueChanged(
-      [
-        "isMobile"
-      ],
+    this.registerPropertyChangedHandlers(["isMobile"],
       () => {
         if (this.columnLayout === "vertical") {
           this.resetRenderedTable();

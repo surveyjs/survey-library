@@ -2395,8 +2395,7 @@ QUnit.test("Override invisible property by making it visible", function (
 QUnit.test("ItemValue value changed notifications", function (assert) {
   var itemValue = new ItemValue("item");
   var valueChangedCount = 0;
-  itemValue.registerFunctionOnPropertyValueChanged(
-    "value",
+  itemValue.registerPropertyChangedHandlers(["value"],
     () => {
       valueChangedCount++;
     },
@@ -2404,7 +2403,7 @@ QUnit.test("ItemValue value changed notifications", function (assert) {
   );
   itemValue.value = "Test";
   assert.equal(valueChangedCount, 1, "changed notification has been fired");
-  itemValue.unRegisterFunctionOnPropertyValueChanged("value", "val_changed");
+  itemValue.unregisterPropertyChangedHandlers(["value"], "val_changed");
 });
 QUnit.test("property.displayName", function (assert) {
   assert.equal(

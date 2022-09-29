@@ -16,9 +16,8 @@ export class FlowPanelModel extends PanelModel {
   constructor(name: string = "") {
     super(name);
     this.createLocalizableString("content", this, true);
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("content", function () {
-      self.onContentChanged();
+    this.registerPropertyChangedHandlers(["content"], () => {
+      this.onContentChanged();
     });
   }
   public getType(): string {

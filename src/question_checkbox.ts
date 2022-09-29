@@ -24,7 +24,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.selectAllItem.locOwner = this;
     this.selectAllItem.setLocText(selectAllItemText);
 
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["hasSelectAll", "selectAllText"],
       () => {
         this.onVisibleChoicesChanged();

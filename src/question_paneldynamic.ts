@@ -247,10 +247,10 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
-    this.registerFunctionOnPropertyValueChanged("panelsState", () => {
+    this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerFunctionOnPropertiesValueChanged(["isMobile"], ()=>{
+    this.registerPropertyChangedHandlers(["isMobile"], ()=>{
       this.updateFooterActions();
     });
   }

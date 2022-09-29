@@ -14,12 +14,12 @@ export class QuestionExpressionModel extends Question {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("format", this);
-    this.registerFunctionOnPropertyValueChanged("expression", () => {
+    this.registerPropertyChangedHandlers(["expression"], () => {
       if (this.expressionRunner) {
         this.expressionRunner = new ExpressionRunner(this.expression);
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(["format", "currency", "displayStyle"], () => {
+    this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
       this.updateFormatedValue();
     });
   }

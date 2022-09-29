@@ -620,7 +620,7 @@ QUnit.test("Rubric Matrix Question cells load from JSON", function (assert) {
 QUnit.test("Rubric Matrix Question cells get/set cell text", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   let counter = 0;
-  matrix.registerFunctionOnPropertyValueChanged("cells", () => {
+  matrix.registerPropertyChangedHandlers(["cells"], () => {
     counter++;
   });
   matrix.rows = ["row1", "row2"];
@@ -1197,10 +1197,10 @@ QUnit.test("Question callbacks test", function (assert) {
   question.commentChangedCallback = function () {
     commentChanged++;
   };
-  question.registerFunctionOnPropertyValueChanged("visible", function () {
+  question.registerPropertyChangedHandlers(["visible"], function () {
     visibleChanged++;
   });
-  question.registerFunctionOnPropertyValueChanged("visibleIndex", function () {
+  question.registerPropertyChangedHandlers(["visibleIndex"], function () {
     visibleIndexChanged++;
   });
   question.value = "test";
@@ -6109,4 +6109,14 @@ QUnit.test("itemComponent default values and de/serialization", function (assert
   assert.equal(json4.itemComponent, undefined, "tagbox item default");
   const json5 = q5.toJSON();
   assert.equal(json5.itemComponent, undefined, "dropdown item default");
+});
+QUnit.test("Do not allow question to start with #", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "$q1" }] });
+  const questions = survey.pages[0].questions;
+  assert.equal(questions[1].name, "$q1", "$q1");
+  questions[0].name = "#q2";
+  assert.equal(questions[0].name, "q2", "change #q2 to q2");
+  questions[1].valueName = "#q3";
+  assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
 });

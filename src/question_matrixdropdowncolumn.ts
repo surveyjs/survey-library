@@ -127,15 +127,9 @@ export class MatrixDropdownColumn extends Base
 
   constructor(name: string, title: string = null) {
     super();
-    var self = this;
     this.createLocalizableString("totalFormat", this);
     this.createLocalizableString("cellHint", this);
-    this.registerFunctionOnPropertyValueChanged(
-      "showInMultipleColumns",
-      function () {
-        self.doShowInMultipleColumnsChanged();
-      }
-    );
+    this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
     this.updateTemplateQuestion();
     this.name = name;
     if (title) {

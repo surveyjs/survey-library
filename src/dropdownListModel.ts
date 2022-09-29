@@ -23,7 +23,7 @@ export class DropdownListModel extends Base {
     this._popupModel.isFocusedContent = false;
     this._popupModel.setWidthByTarget = true;
     this.updatePopupFocusFirstInputSelector();
-    this.listModel.registerFunctionOnPropertyValueChanged("showFilter", () => {
+    this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
     this._popupModel.cssClass = this.popupCssClasses;

@@ -40,18 +40,18 @@ export class QuestionSelectBase extends Question {
     this.noneItemValue.setLocText(noneItemText);
 
     this.createItemValues("choices");
-    this.registerFunctionOnPropertyValueChanged("choices", () => {
+    this.registerPropertyChangedHandlers(["choices"], () => {
       if (!this.filterItems()) {
         this.onVisibleChoicesChanged();
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["choicesFromQuestion", "choicesFromQuestionMode", "hasNone"],
       () => {
         this.onVisibleChoicesChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("hideIfChoicesEmpty", () => {
+    this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
       this.updateVisibilityBasedOnChoices();
     });
     this.createNewArray("visibleChoices");

@@ -24,13 +24,13 @@ export class QuestionTextModel extends QuestionTextBase {
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
     };
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {
         this.setRenderedMinMax();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["inputType", "size"], () => {
+    this.registerPropertyChangedHandlers(["inputType", "size"], () => {
       this.updateInputSize();
       this.calcRenderedPlaceholder();
     });

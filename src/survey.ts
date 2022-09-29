@@ -1604,12 +1604,15 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Gets or ses whether a user can navigate the next page automatically after answering all the questions on a page without pressing the "Next" button.
+   * Gets or ses whether user proceeds to the next page without pressing the "Next" button after answering all page questions.
    * The available options:
    *
-   * - `true` - navigate the next page and submit survey data automatically.
-   * - `autogonext` - navigate the next page automatically but do not submit survey data.
-   * - `false` - do not navigate the next page and do not submit survey data automatically.
+   * - `true` - navigate to the next page and submit survey data automatically.
+   * - `autogonext` - navigate to the next page automatically but do not submit survey data.
+   * - `false` - do not navigate to the next page and do not submit survey data automatically.
+   * 
+   * > NOTE: If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.   
+   *
    * @see showNavigationButtons
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {

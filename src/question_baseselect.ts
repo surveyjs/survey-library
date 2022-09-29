@@ -1567,7 +1567,7 @@ Serializer.addClass(
       choices: ["default", true, false],
       visible: false,
     },
-    { name: "itemComponent", visible: false }
+    // { name: "itemComponent", visible: false }
   ],
   null,
   "question"

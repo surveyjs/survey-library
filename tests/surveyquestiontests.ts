@@ -6,6 +6,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
 import {
   MultipleTextItemModel,
@@ -6061,4 +6062,51 @@ QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) 
   assert.equal(q1.isItemSelected(q1.otherItem), true, "isItemSelected - true, radiogroup");
   assert.equal(q2.isOtherSelected, true, "isOtherSelected - true, checkbox");
   assert.equal(q2.isItemSelected(q2.otherItem), true, "isItemSelected - true, checkbox");
+});
+QUnit.test("itemComponent default values and de/serialization", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+      },
+      {
+        type: "ranking",
+        name: "q3",
+      },
+      {
+        type: "tagbox",
+        name: "q4",
+      },
+      {
+        type: "dropdown",
+        name: "q5",
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionRankingModel>survey.getQuestionByName("q3");
+  const q4 = <QuestionTagboxModel>survey.getQuestionByName("q4");
+  const q5 = <QuestionDropdownModel>survey.getQuestionByName("q5");
+  assert.equal(q1.itemComponent, "survey-radiogroup-item", "radiogroup item");
+  assert.equal(q2.itemComponent, "survey-checkbox-item", "checkbox item");
+  assert.equal(q3.itemComponent, "", "ranking item");
+  assert.equal(q4.itemComponent, "", "tagbox item");
+  assert.equal(q5.itemComponent, "", "dropdown item");
+
+  const json1 = q1.toJSON();
+  assert.equal(json1.itemComponent, undefined, "radiogroup item default");
+  const json2 = q2.toJSON();
+  assert.equal(json2.itemComponent, undefined, "checkbox item default");
+  const json3 = q3.toJSON();
+  assert.equal(json3.itemComponent, undefined, "ranking item default");
+  const json4 = q4.toJSON();
+  assert.equal(json4.itemComponent, undefined, "tagbox item default");
+  const json5 = q5.toJSON();
+  assert.equal(json5.itemComponent, undefined, "dropdown item default");
 });

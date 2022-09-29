@@ -234,6 +234,7 @@ Serializer.addClass(
     { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionDropdownModel("");

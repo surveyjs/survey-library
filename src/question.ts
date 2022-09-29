@@ -2000,8 +2000,12 @@ export class Question extends SurveyElement
     this.destroyResizeObserver();
   }
 }
+function removeConverChar(str: string): string {
+  if(!!str && str[0] === settings.expressionDisableConversionChar) return str.substring(1);
+  return str;
+}
 Serializer.addClass("question", [
-  "!name",
+  { name: "!name", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
   {
     name: "state",
     default: "default",
@@ -2078,7 +2082,7 @@ Serializer.addClass("question", [
       );
     },
   },
-  "valueName",
+  { name: "valueName", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
   "enableIf:condition",
   "defaultValue:value",
   {

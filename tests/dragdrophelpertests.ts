@@ -433,7 +433,7 @@ QUnit.test("LongTap", function (assert) {
   let dndRanking: any = new DragDropRankingChoices(null);
   dndRanking.parentElement = survey.getQuestionByName("q");
 
-  dndRanking.parentElement.registerFunctionOnPropertyValueChanged("rankingChoices", () => { count++; });
+  dndRanking.parentElement.registerPropertyChangedHandlers(["rankingChoices"], () => { count++; });
   dndRanking.doClear();
 
   assert.equal(count, 2);

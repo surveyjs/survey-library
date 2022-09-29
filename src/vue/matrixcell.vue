@@ -101,9 +101,8 @@ export class MatrixCell extends Vue {
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     this.onVisibilityChanged();
-    var self = this;
-    this.cell.question.registerFunctionOnPropertyValueChanged("isVisible", function () {
-      self.onVisibilityChanged();
+    this.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
+      this.onVisibilityChanged();
     });
     var options = {
       cell: this.cell.cell,

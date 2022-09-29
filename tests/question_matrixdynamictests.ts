@@ -2986,8 +2986,8 @@ QUnit.test(
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     var question = matrix.visibleRows[0].cells[0].question;
     var counter = 0;
-    question.registerFunctionOnPropertyValueChanged(
-      "visibleChoices",
+    question.registerPropertyChangedHandlers(
+      ["visibleChoices"],
       function () {
         counter++;
       }
@@ -5272,7 +5272,7 @@ QUnit.test("column should call property changed on custom property", function (
   var column = matrix.addColumn("col1");
   column.cellType = "text";
   var counter = 0;
-  column.registerFunctionOnPropertyValueChanged("prop1", () => {
+  column.registerPropertyChangedHandlers(["prop1"], () => {
     counter++;
   });
   column["prop1"] = 3;

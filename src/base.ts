@@ -132,12 +132,12 @@ export class Dependencies {
       prop: property,
       id: this.id
     });
-    target.registerFunctionOnPropertiesValueChanged([property], this.currentDependency, this.id);
+    target.registerPropertyChangedHandlers([property], this.currentDependency, this.id);
 
   }
   dispose(): void {
     this.dependencies.forEach(dependency => {
-      dependency.obj.unRegisterFunctionOnPropertiesValueChanged([dependency.prop], dependency.id);
+      dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
   }
 }
@@ -671,16 +671,27 @@ export class Base {
     info.runner.run(values, properties);
   }
   /**
-   * Register a function that will be called on a property value changed.
-   * @param name the property name
-   * @param func the function with no parameters that will be called on property changed.
+   * Register a function that will be called on a property value changed from the propertyNames list.
+   * @param propertyNames the list of properties names
+   * @param handler the function with no parameters that will be called on property changed.
    * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
    */
-  public registerFunctionOnPropertyValueChanged(
-    name: string,
-    func: any,
-    key: string = null
-  ) {
+  public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
+    for (var i = 0; i < propertyNames.length; i++) {
+      this.registerFunctionOnPropertyValueChanged(propertyNames[i], handler, key);
+    }
+  }
+  /**
+   * Unregister notification on property value changed for all properties in the propetyNames list.
+   * @param propetyNames the list of properties names
+   * @param key the key with which you have registered the notification for this property. It can be null.
+   */
+  public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {
+    for (var i = 0; i < propertyNames.length; i++) {
+      this.unRegisterFunctionOnPropertyValueChanged(propertyNames[i], key);
+    }
+  }
+  public registerFunctionOnPropertyValueChanged(name: string, func: any, key: string = null): void {
     if (!this.onPropChangeFunctions) {
       this.onPropChangeFunctions = [];
     }
@@ -695,30 +706,10 @@ export class Base {
     }
     this.onPropChangeFunctions.push({ name: name, func: func, key: key });
   }
-  /**
-   * Register a function that will be called on a property value changed from the names list.
-   * @param names the list of properties names
-   * @param func the function with no parameters that will be called on property changed.
-   * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
-   */
-  public registerFunctionOnPropertiesValueChanged(
-    names: Array<string>,
-    func: any,
-    key: string = null
-  ) {
-    for (var i = 0; i < names.length; i++) {
-      this.registerFunctionOnPropertyValueChanged(names[i], func, key);
-    }
+  public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null): void {
+    this.registerPropertyChangedHandlers(names, func, key);
   }
-  /**
-   * Unregister notification on property value changed
-   * @param name the property name
-   * @param key the key with which you have registered the notification for this property. It can be null.
-   */
-  public unRegisterFunctionOnPropertyValueChanged(
-    name: string,
-    key: string = null
-  ) {
+  public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): void {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       var item = this.onPropChangeFunctions[i];
@@ -728,18 +719,8 @@ export class Base {
       }
     }
   }
-  /**
-   * Unregister notification on property value changed for all properties in the names list.
-   * @param names the list of properties names
-   * @param key the key with which you have registered the notification for this property. It can be null.
-   */
-  public unRegisterFunctionOnPropertiesValueChanged(
-    names: Array<string>,
-    key: string = null
-  ) {
-    for (var i = 0; i < names.length; i++) {
-      this.unRegisterFunctionOnPropertyValueChanged(names[i], key);
-    }
+  public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
+    this.unregisterPropertyChangedHandlers(names, key);
   }
   public createCustomLocalizableObj(name: string) {
     var locStr = this.getLocalizableString(name);

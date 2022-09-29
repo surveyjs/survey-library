@@ -289,15 +289,10 @@ export class QuestionMultipleTextModel extends Question
     this.createNewArray("items", (item: any) => {
       item.setData(this);
     });
-    this.registerFunctionOnPropertyValueChanged("items", () => {
+    this.registerPropertyChangedHandlers(["items", "colCount"], () => {
       this.fireCallback(this.colCountChangedCallback);
     });
-    this.registerFunctionOnPropertyValueChanged("colCount", () => {
-      this.fireCallback(this.colCountChangedCallback);
-    });
-    this.registerFunctionOnPropertyValueChanged("itemSize", () => {
-      this.updateItemsSize();
-    });
+    this.registerPropertyChangedHandlers(["itemSize"], () => { this.updateItemsSize(); });
   }
   public getType(): string {
     return "multipletext";

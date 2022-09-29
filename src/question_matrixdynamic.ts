@@ -67,15 +67,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
     this.createLocalizableString("emptyRowsText", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["hideColumnsIfEmpty", "allowAddRows"],
       () => {
         this.updateShowTableAndAddRow();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("allowRowsDragAndDrop", () => {
-      this.clearRowsAndResetRenderedTable();
-    });
+    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop"], () => { this.clearRowsAndResetRenderedTable(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 

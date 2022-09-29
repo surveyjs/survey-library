@@ -288,11 +288,11 @@ export class PanelModelBase extends SurveyElement
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("questionTitleLocation", () => {
+    this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
     });
-    this.registerFunctionOnPropertiesValueChanged(
+    this.registerPropertyChangedHandlers(
       ["questionStartIndex", "showQuestionNumbers"],
       () => {
         this.updateVisibleIndexes();
@@ -993,29 +993,20 @@ export class PanelModelBase extends SurveyElement
     }
     if (!!this.addElementCallback) this.addElementCallback(element);
     var self = this;
-    (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
-      ["visible", "isVisible"],
-      function () {
-        self.onElementVisibilityChanged(element);
+    (<Base>(<any>element)).registerPropertyChangedHandlers(
+      ["visible", "isVisible"], () => {
+        this.onElementVisibilityChanged(element);
       },
       this.id
     );
-    (<Base>(<any>element)).registerFunctionOnPropertyValueChanged(
-      "startWithNewLine",
-      function () {
-        self.onElementStartWithNewLineChanged(element);
-      },
-      this.id
-    );
+    (<Base>(<any>element)).registerPropertyChangedHandlers(["startWithNewLine"], () => {
+      this.onElementStartWithNewLineChanged(element); }, this.id);
     this.onElementVisibilityChanged(this);
   }
   protected onRemoveElement(element: IElement) {
     element.parent = null;
     this.markQuestionListDirty();
-    (<Base>(<any>element)).unRegisterFunctionOnPropertiesValueChanged(
-      ["visible", "isVisible", "startWithNewLine"],
-      this.id
-    );
+    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
     this.updateRowsOnElementRemoved(element);
     if (this.isRandomizing) return;
     if (!element.isPanel) {
@@ -1618,19 +1609,14 @@ export class PanelModelBase extends SurveyElement
 export class PanelModel extends PanelModelBase implements IElement {
   constructor(name: string = "") {
     super(name);
-    var self = this;
     this.createNewArray("footerActions");
-    this.registerFunctionOnPropertyValueChanged("width", function () {
-      if (!!self.parent) {
-        self.parent.elementWidthChanged(self);
+    this.registerPropertyChangedHandlers(["width"], () => {
+      if (!!this.parent) {
+        this.parent.elementWidthChanged(this);
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(
-      ["indent", "innerIndent", "rightIndent"],
-      function () {
-        self.onIndentChanged();
-      }
-    );
+    this.registerPropertyChangedHandlers(
+      ["indent", "innerIndent", "rightIndent"], () => { this.onIndentChanged(); });
   }
   public getType(): string {
     return "panel";

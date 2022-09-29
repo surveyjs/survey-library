@@ -58,16 +58,10 @@ export class Trigger extends Base {
   constructor() {
     super();
     this.usedNames = [];
-    var self = this;
-    this.registerFunctionOnPropertiesValueChanged(
-      ["operator", "value", "name"],
-      function() {
-        self.oldPropertiesChanged();
-      }
-    );
-    this.registerFunctionOnPropertyValueChanged("expression", function() {
-      self.onExpressionChanged();
+    this.registerPropertyChangedHandlers(["operator", "value", "name"], () => {
+      this.oldPropertiesChanged();
     });
+    this.registerPropertyChangedHandlers(["expression"], () => { this.onExpressionChanged(); });
   }
   public getType(): string {
     return "triggerbase";

@@ -37,7 +37,7 @@ export class MatrixRowModel extends Base {
     this.cellClick = (column: any) => {
       this.value = column.value;
     };
-    this.registerFunctionOnPropertyValueChanged("value", () => {
+    this.registerPropertyChangedHandlers(["value"], () => {
       if (this.data) this.data.onMatrixRowChanged(this);
     });
   }
@@ -212,15 +212,15 @@ export class QuestionMatrixModel
       this.updateHasCellText();
       this.propertyValueChanged("cells", this.cells, this.cells);
     };
-    this.registerFunctionOnPropertyValueChanged("columns", () => {
+    this.registerPropertyChangedHandlers(["columns"], () => {
       this.onColumnsChanged();
     });
-    this.registerFunctionOnPropertyValueChanged("rows", () => {
+    this.registerPropertyChangedHandlers(["rows"], () => {
       if (!this.filterItems()) {
         this.onRowsChanged();
       }
     });
-    this.registerFunctionOnPropertyValueChanged("hideIfRowsEmpty", () => {
+    this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();
     });
   }

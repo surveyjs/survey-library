@@ -111,8 +111,10 @@ export class StylesManager {
     ".sv_q_dd_clean-button": "margin: 0.15em 3em;",
     ".sv_q_dd_clean-button-svg": "width: 1em; height: 1em;",
     ".sv_q_dd_control": "display: flex; justify-content: space-between; appearance: none;",
+    ".sv_q_dd_value": "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative;",
     ".sv_q_dd_root": "position: relative;",
     ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; right: 0; top: 0;",
+    ".sv_q_dd_filter-string-input": "outline: none; border: none; background-color: transparent; position: absolute; left: 0;",
 
     ".sv_q_dropdown_clean-button": "margin: auto 2em;",
     ".sv_q_tagbox__placeholder": "position: absolute; top: 0; left: 1em; max-width: 100%; width: auto; height: 100%; text-align: left; cursor: text; pointer-events: none;",

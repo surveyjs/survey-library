@@ -1471,10 +1471,7 @@ export class Question extends SurveyElement
     }
   }
   private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
-    if (val instanceof Date) {
-      val = Helpers.getDateString(val);
-    }
-    setFunc(val);
+    setFunc(Helpers.convertValToQuestionVal(val));
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {

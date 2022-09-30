@@ -287,8 +287,18 @@ export class Helpers {
     }
     return res;
   }
-  public static getDateString(date: Date): string {
-    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+  public static convertDateToString(date: Date): string {
+    const toStr = (val: number): string => {
+      if(val < 10) return "0" + val.toString();
+      return val.toString();
+    };
+    return date.getFullYear() + "-" + toStr(date.getMonth() + 1) + "-" + toStr(date.getDate());
+  }
+  public static convertValToQuestionVal(val: any): any {
+    if (val instanceof Date) {
+      return Helpers.convertDateToString(val);
+    }
+    return val;
   }
 }
 if (!(<any>String.prototype)["format"]) {

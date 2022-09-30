@@ -3987,7 +3987,7 @@ QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
   assert.equal(question.renderedMax, 3, "max is set to 3");
 });
 function getDateStr(date: Date): string {
-  return Helpers.getDateString(date);
+  return Helpers.convertDateToString(date);
 }
 QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var survey = new SurveyModel({

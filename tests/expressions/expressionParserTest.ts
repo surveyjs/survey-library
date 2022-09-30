@@ -357,7 +357,7 @@ QUnit.test("Run currentYear() function", function(assert) {
   assert.equal(runner.run({}), new Date().getFullYear());
 });
 function getDateStr(date: Date): string {
-  return Helpers.getDateString(date);
+  return Helpers.convertDateToString(date);
 }
 QUnit.test("Run today function", function(assert) {
   var runner = new ExpressionRunner("today()");

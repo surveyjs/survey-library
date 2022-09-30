@@ -13,6 +13,7 @@ export * from "./components/tagbox/tagbox-item.component";
 export * from "./components/tagbox/tagbox.component";
 export * from "./components/renderAs/dropdown-select/dropdown-option-item.component";
 export * from "./components/renderAs/dropdown-select/dropdown-select.component";
+export * from "./components/survey-header/logo-image.component";
 export * from "./questions/text.component";
 export * from "./questions/html.component";
 export * from "./questions/radiogroup.component";

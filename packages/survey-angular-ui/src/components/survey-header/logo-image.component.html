@@ -1,0 +1,10 @@
+<ng-template #template>
+  <img
+  [class]="survey.css.logoImage"
+  [attr.src]="survey.locLogo.renderedHtml | safeUrl"
+  [attr.width]="survey.logoWidth ? survey.logoWidth : undefined"
+  [attr.height]="survey.logoHeight ? survey.logoHeight : undefined"
+  [attr.alt]="survey.locTitle.renderedHtml"
+  [style.objectFit]="survey.logoFit"
+  />
+</ng-template>

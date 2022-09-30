@@ -20,7 +20,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     var selectAllItemText = this.createLocalizableString(
-      "selectAllText", this, true, "selectAllItemText");
+      "selectAllText", this.selectAllItem, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
     this.selectAllItem.setLocText(selectAllItemText);
 
@@ -59,9 +59,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.setPropertyValue("valuePropertyName", val);
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
-    if(!!name && name === this.valuePropertyName) {
+    if (!!name && name === this.valuePropertyName) {
       const v = this.value;
-      if(Array.isArray(v) && index < v.length) return this;
+      if (Array.isArray(v) && index < v.length) return this;
     }
     return null;
   }
@@ -155,7 +155,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return false;
   }
   private getRealValue(val: any): any {
-    if(!val) return val;
+    if (!val) return val;
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
   /**
@@ -323,7 +323,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const valuePropName = this.valuePropertyName;
     const onGetValueCallback = (index: number): any => {
       let val = value[index];
-      if(!!valuePropName && !!val[valuePropName]) {
+      if (!!valuePropName && !!val[valuePropName]) {
         val = val[valuePropName];
       }
       return val;
@@ -438,13 +438,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.convertValueToObject(val);
   }
   protected convertValueFromObject(val: any): any {
-    if(!this.valuePropertyName) return val;
+    if (!this.valuePropertyName) return val;
     return Helpers.convertArrayObjectToValue(val, this.valuePropertyName);
   }
   protected convertValueToObject(val: any): any {
-    if(!this.valuePropertyName) return val;
+    if (!this.valuePropertyName) return val;
     let dest = undefined;
-    if(!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) {
+    if (!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) {
       dest = this.data.getValue(this.getValueName());
     }
     return Helpers.convertArrayValueToObject(val, this.valuePropertyName, dest);
@@ -479,14 +479,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected selectOtherValueFromComment(val: boolean): void {
     var newVal = [];
     const rendVal = this.renderedValue;
-    if(Array.isArray(rendVal)) {
-      for(var i = 0; i < rendVal.length; i ++) {
-        if(rendVal[i] !== this.otherItem.value) {
+    if (Array.isArray(rendVal)) {
+      for (var i = 0; i < rendVal.length; i++) {
+        if (rendVal[i] !== this.otherItem.value) {
           newVal.push(rendVal[i]);
         }
       }
     }
-    if(val) {
+    if (val) {
       newVal.push(this.otherItem.value);
     }
     this.value = newVal;

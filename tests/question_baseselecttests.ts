@@ -336,7 +336,7 @@ QUnit.test("check focus comment of other select", (assert) => {
   let counter = 0;
   const q = survey.getQuestionByName("q1");
   q["focusOtherComment"] = () => {
-    counter ++;
+    counter++;
   };
   assert.equal(counter, 0);
   q.value = ["other"];
@@ -443,19 +443,27 @@ QUnit.test("checkbox valuePropertyName and shared data vs panel dynamic ", (asse
   assert.equal(q2.panelCount, 2, "#1, Panel count is changed");
   q2.panels[0].getQuestionByName("name").value = "text1";
   q2.panels[1].getQuestionByName("name").value = "text2";
-  assert.deepEqual(survey.data, { data: [
-    { fruit: "apple", name: "text1" },
-    { fruit: "orange", name: "text2" }] }, "#2, combine results");
+  assert.deepEqual(survey.data, {
+    data: [
+      { fruit: "apple", name: "text1" },
+      { fruit: "orange", name: "text2" }]
+  }, "#2, combine results");
   q1.renderedValue = ["apple"];
-  assert.deepEqual(survey.data, { data: [
-    { fruit: "apple", name: "text1" }] }, "#3, keep results");
+  assert.deepEqual(survey.data, {
+    data: [
+      { fruit: "apple", name: "text1" }]
+  }, "#3, keep results");
   q1.renderedValue = ["apple", "orange"];
-  assert.deepEqual(survey.data, { data: [
-    { fruit: "apple", name: "text1" },
-    { fruit: "orange" }] }, "#4, add new value");
+  assert.deepEqual(survey.data, {
+    data: [
+      { fruit: "apple", name: "text1" },
+      { fruit: "orange" }]
+  }, "#4, add new value");
   q2.removePanel(0);
-  assert.deepEqual(survey.data, { data: [
-    { fruit: "orange" }] }, "#5, remove panel, data");
+  assert.deepEqual(survey.data, {
+    data: [
+      { fruit: "orange" }]
+  }, "#5, remove panel, data");
   assert.deepEqual(q1.renderedValue, ["orange"], "#6, remove panel, renderedValue");
 });
 QUnit.test("checkbox vs valuePropertyName, check selectAll and none", (assert) => {
@@ -720,4 +728,14 @@ QUnit.test("autoOtherMode property, checkbox", (assert) => {
   question.comment = "";
   assert.deepEqual(question.value, [1, 3], "other is not selected by resetting comment, value + storeOthersAsComment");
   assert.deepEqual(survey.data, { q1: [1, 3] }, "survey: other is not selected by resetting comment, value + storeOthersAsComment");
+});
+QUnit.test("check locOwner for items", (assert) => {
+  const question = new QuestionCheckboxModel("q1");
+  question.choices = [1, 2, 3];
+  question.autoOtherMode = true;
+  assert.equal(question.noneItem.locText.owner, question.noneItem, "none text owner is none item");
+  assert.equal(question.otherItem.locText.owner, question.otherItem, "other text owner is other item");
+  assert.equal(question.selectAllItem.locText.owner, question.selectAllItem, "selectAll text owner is selectAll item");
+
+  assert.equal(question.choices[0].locText.owner, question.choices[0], "item1 text owner is item1");
 });

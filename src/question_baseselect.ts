@@ -35,7 +35,7 @@ export class QuestionSelectBase extends Question {
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   constructor(name: string) {
     super(name);
-    var noneItemText = this.createLocalizableString("noneText", this, true, "noneItemText");
+    var noneItemText = this.createLocalizableString("noneText", this.noneItemValue, true, "noneItemText");
     this.noneItemValue.locOwner = this;
     this.noneItemValue.setLocText(noneItemText);
 
@@ -56,7 +56,7 @@ export class QuestionSelectBase extends Question {
     });
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
-    var locOtherText = this.createLocalizableString("otherText", this, true, "otherItemText");
+    var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
@@ -346,10 +346,10 @@ export class QuestionSelectBase extends Question {
   }
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
-    if(this.autoOtherMode) {
+    if (this.autoOtherMode) {
       this.prevCommentValue = undefined;
       const isSelected = this.isOtherSelected;
-      if(!isSelected && !!newValue || isSelected && !newValue) {
+      if (!isSelected && !!newValue || isSelected && !newValue) {
         this.selectOtherValueFromComment(!!newValue);
       }
     }
@@ -777,7 +777,7 @@ export class QuestionSelectBase extends Question {
     return str == "" && val ? val : str;
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
-    onGetValueCallback?: (index: number)=> any): string {
+    onGetValueCallback?: (index: number) => any): string {
     var items = this.visibleChoices;
     var strs = [];
     for (var i = 0; i < value.length; i++) {
@@ -1165,7 +1165,7 @@ export class QuestionSelectBase extends Question {
    * @param item checkbox or radio item value
    */
   public isItemSelected(item: ItemValue): boolean {
-    if(item === this.otherItem) return this.isOtherSelected;
+    if (item === this.otherItem) return this.isOtherSelected;
     return this.isItemSelectedCore(item);
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
@@ -1252,18 +1252,18 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
       .toString() || undefined;
   }
-  get headItems():ItemValue[] {
-    return (this.separateSpecialChoices || this.isDesignMode)?
-      this.visibleChoices.filter(choice => this.isHeadChoice(choice, this)) :[];
+  get headItems(): ItemValue[] {
+    return (this.separateSpecialChoices || this.isDesignMode) ?
+      this.visibleChoices.filter(choice => this.isHeadChoice(choice, this)) : [];
   }
-  get footItems():ItemValue[] {
-    return (this.separateSpecialChoices || this.isDesignMode)?
-      this.visibleChoices.filter(choice => this.isFootChoice(choice, this)) :[];
+  get footItems(): ItemValue[] {
+    return (this.separateSpecialChoices || this.isDesignMode) ?
+      this.visibleChoices.filter(choice => this.isFootChoice(choice, this)) : [];
   }
-  get dataChoices():ItemValue[] {
+  get dataChoices(): ItemValue[] {
     return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));
   }
-  get bodyItems():ItemValue[] {
+  get bodyItems(): ItemValue[] {
     return (this.hasHeadItems || this.hasFootItems) ? this.dataChoices : this.visibleChoices;
   }
   get hasHeadItems(): boolean {
@@ -1312,7 +1312,7 @@ export class QuestionSelectBase extends Question {
   }
   get hasColumns() {
     return !this.isMobile &&
-    (this.getCurrentColCount() > 1);
+      (this.getCurrentColCount() > 1);
   }
   get rowLayout() {
     return this.getCurrentColCount() == 0 && !(this.hasFootItems || this.hasHeadItems);
@@ -1334,7 +1334,7 @@ export class QuestionSelectBase extends Question {
     if (this.survey) {
       this.survey.loadedChoicesFromServer(this);
     }
-    if(this.loadedChoicesFromServerCallback) {
+    if (this.loadedChoicesFromServerCallback) {
       this.loadedChoicesFromServerCallback();
     }
   }
@@ -1386,7 +1386,7 @@ export class QuestionSelectBase extends Question {
     this.rootElement = el;
   }
   private focusOtherComment() {
-    if(!!this.rootElement) {
+    if (!!this.rootElement) {
       setTimeout(() => {
         const commentEl = this.rootElement.querySelector("textarea");
         if (!!commentEl) {
@@ -1398,7 +1398,7 @@ export class QuestionSelectBase extends Question {
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {
     super.onValueChanged();
-    if(!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
       this.focusOtherComment();
     }
     this.prevIsOtherSelected = this.isOtherSelected;

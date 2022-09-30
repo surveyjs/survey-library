@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
+import { PanelModel, QuestionPanelDynamicModel, SurveyModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -39,7 +39,30 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
     this.model.renderModeChangedCallback = () => {};
     super.ngOnDestroy();
   }
-
+  public getPanelComponentName(panel: PanelModel): string {
+    const survey = this.surveyModel as SurveyModel;
+    if(!!survey) {
+      const name = survey.getElementWrapperComponentName(panel);
+      if(!!name) {
+        return name;
+      }
+    }
+    return "panel";
+  }
+  public getPanelComponentData(panel: PanelModel): any {
+    const survey = this.surveyModel as SurveyModel;
+    let data: any;
+    if(!!survey) {
+      data = survey.getElementWrapperComponentData(panel);
+    }
+    return {
+      componentName: "panel",
+      componentData: {
+        model: panel,
+        data: data
+      }
+    };
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("paneldynamic-question", PanelDynamicQuestionComponent);

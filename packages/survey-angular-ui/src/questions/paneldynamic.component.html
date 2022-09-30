@@ -14,7 +14,7 @@
   <!-- add track by [key]="panel.id" -->
   <ng-container *ngFor="let panel of renderedPanels; index as index"> 
     <div [class]="model.getPanelWrapperCss()">
-      <sv-ng-panel [model]="panel"></sv-ng-panel>
+      <ng-template [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
       <ng-container *ngTemplateOutlet="removeBtn; context: { panel }"></ng-container>
     </div>
     <!-- add track by [key]="'separator' + panel.id" -->

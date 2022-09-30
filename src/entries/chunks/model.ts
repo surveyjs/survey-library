@@ -178,7 +178,10 @@ export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
 export { MultiSelectListModel } from "../../multiSelectListModel";
 export { PopupModel, createDialogOptions, IDialogOptions } from "../../popup";
-export { PopupBaseViewModel, createPopupModalViewModel } from "../../popup-view-model";
+export { PopupBaseViewModel } from "../../popup-view-model";
+export { PopupDropdownViewModel } from "../../popup-dropdown-view-model";
+export { PopupModalViewModel } from "../../popup-modal-view-model";
+export { createPopupViewModel, createPopupModalViewModel } from "../../popup-utils";
 export { DropdownListModel } from "../../dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../dropdownMultiSelectListModel";
 export {

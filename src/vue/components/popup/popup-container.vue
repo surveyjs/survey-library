@@ -27,18 +27,13 @@
       v-on:click="clickInside"
     >
       <div class="sv-popup__shadow">
-        <span
-          class="sv-popup__pointer"
-          v-show="model.showPointer"
-          v-bind:style="{
-            left: model.pointerTarget.left,
-            top: model.pointerTarget.top,
-          }"
-        ></span>
+        <component
+          v-show="model.showHeader"
+          :is="model.popupHeaderTemplate"
+          :model="model"
+        ></component>
         <div class="sv-popup__body-content">
-          <div class="sv-popup__body-header" v-show="!!this.model.title">
-            {{ this.model.title }}
-          </div>
+          <div class="sv-popup__body-header" v-show="!!model.title">{{ model.title }}</div>
           <div class="sv-popup__scrolling-content">
             <div class="sv-popup__content">
               <component
@@ -61,7 +56,7 @@
             </button>
             <button
               class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
-              v-if="model.isModal"
+              v-if="!!model.applyButtonText"
               type="button"
               v-on:click="
                 () => {

@@ -3,8 +3,9 @@
   <div class="sv-popup__container"
     data-bind="style: { left: left, top: top, height: height, minWidth: minWidth, width: width }, click: function() { return true; }, clickBubble: false">
     <div class="sv-popup__shadow">
-      <!-- ko if: showPointer -->
-      <span class="sv-popup__pointer" data-bind="style: {left: pointerTarget.left, top: pointerTarget.top }"></span>
+      <!-- ko if: $data.showHeader -->
+      <!-- ko template: { name: $data.popupHeaderTemplate, data: $data } -->
+      <!-- /ko -->
       <!-- /ko -->
       <div class="sv-popup__body-content">
         <!-- ko if: !!title  -->
@@ -18,7 +19,7 @@
         <div class="sv-popup__body-footer">
           <button type="button" class="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
             data-bind="click: cancel, text: cancelButtonText"> Cancel </button>
-          <!-- ko if: isModal  -->
+          <!-- ko if: $data.applyButtonText  -->
           <button type="button" class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
             data-bind="click: apply, text: applyButtonText"> Apply </button>
           <!-- /ko -->

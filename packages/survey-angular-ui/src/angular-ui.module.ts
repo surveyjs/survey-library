@@ -6,8 +6,9 @@ import { PopupSurveyComponent } from "./popup.survey.component";
 import { PageComponent } from "./page.component";
 import { QuestionComponent } from "./question.component";
 import { StringViewerComponent } from "./string-viewer.component";
+import { PopupPointerComponent } from "./components/popup/popup-pointer.component";
 import { PopupComponent } from "./components/popup/popup.component";
-import { PopupContainerComponent } from "./components/popup/popup-container.component";
+import { PopupBaseContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
 import { TagboxFilterComponent } from "./components/tagbox/tagbox-filter.component";
@@ -102,7 +103,7 @@ import { MatrixRowComponent } from "./questions/matrix-row.component";
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
-    PopupComponent, PopupContainerComponent,
+    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
     ListComponent, ListItemComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
@@ -121,7 +122,7 @@ import { MatrixRowComponent } from "./questions/matrix-row.component";
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
-    PopupComponent, PopupContainerComponent,
+    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
     ListComponent, ListItemComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,

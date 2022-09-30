@@ -1,8 +1,9 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, PopupModalViewModel, PopupDropdownViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { Base } from "../../../base";
 
 interface IPopupProps {
   model: PopupModel;
@@ -19,19 +20,22 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   get model(): PopupModel {
     return this.props.model;
   }
-  protected getStateElement() {
+  protected getStateElement(): Base {
     return this.model;
   }
   private createModel(): void {
-    this.popup = new PopupBaseViewModel(this.props.model);
+    this.popup = createPopupViewModel(this.props.model, undefined);
     this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
-    if(!!this.containerRef.current) {
-      this.popup.targetElement = this.containerRef.current.parentElement;
+    if(!!this.containerRef.current && !this.popup.isModal) {
+      const popupDropdownModel = this.popup as PopupDropdownViewModel;
+      if(!popupDropdownModel) return;
+
+      popupDropdownModel.targetElement = this.containerRef.current.parentElement;
     }
   }
-  componentDidMount() {
+  componentDidMount(): void {
     super.componentDidMount();
     this.popup.initializePopupContainer();
     this.setTargetElement();
@@ -40,7 +44,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     super.componentDidUpdate(prevProps, prevState);
     this.setTargetElement();
   }
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     this.popup.unmountPopupContainer();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
@@ -52,12 +56,14 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     }
     return isNeedUpdate;
   }
-  render() {
+  render(): JSX.Element {
     this.popup.model = this.model;
-    const popupContainer = ReactDOM.createPortal(
-      <PopupContainer model={this.popup}></PopupContainer>,
-      this.popup.container
-    );
+    let popupContainer;
+    if(this.model.isModal) {
+      popupContainer = ReactDOM.createPortal(<PopupModalContainer model={this.popup}></PopupModalContainer>, this.popup.container);
+    } else {
+      popupContainer = ReactDOM.createPortal(<PopupDropdownContainer model={this.popup}></PopupDropdownContainer>, this.popup.container);
+    }
     return <div ref={this.containerRef}>{popupContainer}</div>;
   }
 }
@@ -80,7 +86,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   get model(): PopupBaseViewModel {
     return this.props.model;
   }
-  protected getStateElement() {
+  protected getStateElement(): Base {
     return this.model;
   }
   clickInside = (ev: any) => {
@@ -93,96 +99,77 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     }
     this.prevIsVisible = this.model.isVisible;
   }
-  renderContainer() {
-    const pointer = this.model.showPointer ? this.renderPointer() : null;
-    const header = !!this.model.title ? this.renderHeader() : null;
+  renderContainer(PopupBaseViewModel: PopupBaseViewModel): JSX.Element {
+    const headerPopup = PopupBaseViewModel.showHeader ? this.renderHeaderPopup(PopupBaseViewModel) : null;
+    const headerContent = !!PopupBaseViewModel.title ? this.renderHeaderContent() : null;
     const content = this.renderContent();
-    const footer = this.model.showFooter ? this.renderFooter() : null;
+    const footerContent = PopupBaseViewModel.showFooter ? this.renderFooter(this.model) : null;
     return (
       <div
         className="sv-popup__container"
         style={{
-          left: this.model.left,
-          top: this.model.top,
-          height: this.model.height,
-          width: this.model.width,
-          minWidth: this.model.minWidth,
+          left: PopupBaseViewModel.left,
+          top: PopupBaseViewModel.top,
+          height: PopupBaseViewModel.height,
+          width: PopupBaseViewModel.width,
+          minWidth: PopupBaseViewModel.minWidth,
         }}
         onClick={(ev: any) => {
           this.clickInside(ev);
         }}
       >
         <div className="sv-popup__shadow">
-          {pointer}
+          {headerPopup}
           <div className="sv-popup__body-content">
-            {header}
+            {headerContent}
             <div className="sv-popup__scrolling-content">
               {content}
             </div>
-            {footer}
+            {footerContent}
           </div>
         </div>
       </div>
     );
   }
-  renderPointer() {
-    return (
-      <span
-        style={{
-          left: this.model.pointerTarget.left,
-          top: this.model.pointerTarget.top,
-        }}
-        className="sv-popup__pointer"
-      ></span>
-    );
-  }
-  renderHeader() {
+  renderHeaderContent(): JSX.Element {
     return <div className="sv-popup__body-header">{this.model.title}</div>;
   }
-  renderContent() {
+  renderContent(): JSX.Element {
     const contentComponent = ReactElementFactory.Instance.createElement(
       this.model.contentComponentName,
       this.model.contentComponentData
     );
     return <div className="sv-popup__content">{contentComponent}</div>;
   }
-  renderCancelButton() {
+  renderCancelButton(popuModel: PopupBaseViewModel): JSX.Element| null {
     return (
       <button
         type="button"
         className="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
         onClick={() => {
-          this.model.cancel();
+          popuModel.cancel();
         }}
       >
-        {this.model.cancelButtonText}
+        {popuModel.cancelButtonText}
       </button>
     );
   }
-  renderApplyButton() {
-    return (
-      <button
-        type="button"
-        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
-        onClick={() => {
-          this.model.apply();
-        }}
-      >
-        {this.model.applyButtonText}
-      </button>
-    );
+  protected renderHeaderPopup(popupModel: PopupBaseViewModel): JSX.Element | null {
+    return null;
   }
-  renderFooter() {
+  protected renderFooter(popuModel: PopupBaseViewModel): JSX.Element | null {
     return (
       <div className="sv-popup__body-footer">
-        {this.renderCancelButton()}
-        {this.model.isModal ? this.renderApplyButton() : null}
+        {this.renderCancelButton(popuModel)}
       </div>
     );
   }
-  render() {
-    const container = this.renderContainer();
-    const className = new CssClassBuilder().append("sv-popup").append(this.model.styleClass).toString();
+  render(): JSX.Element {
+    const container = this.renderContainer(this.model);
+    const className = new CssClassBuilder()
+      .append("sv-popup")
+      .append(this.model.styleClass)
+      .toString();
     const style = { display: this.model.isVisible ? "" : "none", };
     return (
       <div
@@ -197,6 +184,51 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       >
         {container}
       </div>
+    );
+  }
+}
+export class PopupDropdownContainer extends PopupContainer {
+
+  protected renderHeaderPopup(popupModel: PopupBaseViewModel): JSX.Element | null {
+    const popupDropdownModel = popupModel as PopupDropdownViewModel;
+    if(!popupDropdownModel) return null;
+
+    return (
+      <span
+        style={{
+          left: popupDropdownModel.pointerTarget.left,
+          top: popupDropdownModel.pointerTarget.top,
+        }}
+        className="sv-popup__pointer"
+      ></span>
+    );
+  }
+}
+export class PopupModalContainer extends PopupContainer {
+
+  protected renderFooter(popuModel: PopupBaseViewModel): JSX.Element | null {
+    const popupModalModel = popuModel as PopupModalViewModel;
+    if(!popupModalModel) return null;
+
+    return (
+      <div className="sv-popup__body-footer">
+        {this.renderCancelButton(popupModalModel)}
+        {this.renderApplyButton(popupModalModel)}
+      </div>
+    );
+  }
+
+  renderApplyButton(popupModalModel: PopupModalViewModel): JSX.Element {
+    return (
+      <button
+        type="button"
+        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
+        onClick={() => {
+          popupModalModel.apply();
+        }}
+      >
+        {popupModalModel.applyButtonText}
+      </button>
     );
   }
 }
@@ -230,7 +262,7 @@ export function showDialog(dialogOptions: IDialogOptions) {
     popupViewModel.unmountPopupContainer();
   } };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
-  ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
+  ReactDOM.render(<PopupModalContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;
 }

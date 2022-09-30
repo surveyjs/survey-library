@@ -13,6 +13,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
   }
+  protected getDefaultItemComponent(): string {
+    return "survey-radiogroup-item";
+  }
   public getType(): string {
     return "radiogroup";
   }
@@ -76,7 +79,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false },
-    { name: "separateSpecialChoices", visible: true }],
+    { name: "separateSpecialChoices", visible: true },
+    { name: "itemComponent", visible: false, default: "survey-radiogroup-item" }
+  ],
   function () {
     return new QuestionRadiogroupModel("");
   },

@@ -149,10 +149,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({ defaultValue: true }) allowClear: boolean;
   /**
-   * The name of a component used to render drop-down menu items.
-   */
-  @property() itemComponent: string;
-  /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
@@ -238,7 +234,7 @@ Serializer.addClass(
     { name: "autoComplete", dataList: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
-    { name: "itemComponent", visible: false },
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionDropdownModel("");

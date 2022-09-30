@@ -151,6 +151,7 @@ export var defaultBootstrapMaterialCss = {
     root: "sv_q_dd_root",
     selectWrapper: "sv_q_dd_select_wrapper",
     control: "form-control sv_q_dd_control",
+    controlValue: "sv_q_dd_value",
     other: "sv_q_dd_other form-control",
     cleanButton: "sv_q_dd_clean-button",
     cleanButtonSvg: "sv_q_dd_clean-button-svg",

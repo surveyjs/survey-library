@@ -17,7 +17,7 @@
         <tbody>
           <tr *ngFor="let row of model.visibleRows; trackBy: trackRowByFn " [class]="row.rowClasses || undefined">
            <td [class]="model.cssClasses.rowTextCell" *ngIf="model.hasRows">
-              <ng-template [component]="{ name: model.getRowHeaderWrapperComponentName(row), data: { componentData: model.getRowHeaderWrapperComponentData(row) } }">
+              <ng-template [component]="{ name: model.getRowHeaderWrapperComponentName($any(row)), data: { componentData: model.getRowHeaderWrapperComponentData($any(row)) } }">
                 <sv-ng-string [model]="row.locText"></sv-ng-string>
               </ng-template>
             </td>

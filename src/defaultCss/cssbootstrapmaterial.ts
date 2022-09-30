@@ -155,6 +155,7 @@ export var defaultBootstrapMaterialCss = {
     cleanButton: "sv_q_dd_clean-button",
     cleanButtonSvg: "sv_q_dd_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
+    filterStringInput: "sv_q_dd_filter-string-input",
   },
   tagbox: {
     root: "sv_q_dd_root",
@@ -164,6 +165,7 @@ export var defaultBootstrapMaterialCss = {
     cleanButton: "sv_q_dd_clean-button",
     cleanButtonSvg: "sv_q_dd_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
+    filterStringInput: "sv_q_dd_filter-string-input",
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },

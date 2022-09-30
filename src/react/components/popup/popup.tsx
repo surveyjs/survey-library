@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, CssClassBuilder, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 
@@ -23,7 +23,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     return this.model;
   }
   private createModel(): void {
-    this.popup = new PopupBaseViewModel(this.props.model);
+    this.popup = createPopupViewModel(this.props.model);
     this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {

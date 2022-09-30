@@ -4,7 +4,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, PopupModel } from "survey-core";
+import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
 import { PopupContainer } from "./popup-container.vue";
 import { BaseVue } from "../../base";
 @Component
@@ -17,15 +17,10 @@ export class Popup extends BaseVue {
     return this.model;
   }
   onMounted() {
-    this.popupViewModel = new PopupBaseViewModel(
-      this.model,
-      this.$el.parentElement
-    );
+    this.popupViewModel = createPopupViewModel(this.model, this.$el.parentElement);
     this.popupViewModel.initializePopupContainer();
     this.popupContainer = new PopupContainer({
-      el: this.popupViewModel.container.appendChild(
-        document.createElement("div")
-      ),
+      el: this.popupViewModel.container.appendChild(document.createElement("div")),
       propsData: { model: this.popupViewModel },
     });
   }

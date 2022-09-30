@@ -1472,7 +1472,7 @@ export class Question extends SurveyElement
   }
   private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
     if (val instanceof Date) {
-      val = val.toISOString().slice(0, 10);
+      val = Helpers.getDateString(val);
     }
     setFunc(val);
   }

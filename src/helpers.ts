@@ -287,6 +287,9 @@ export class Helpers {
     }
     return res;
   }
+  public static getDateString(date: Date): string {
+    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+  }
 }
 if (!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {

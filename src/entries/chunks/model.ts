@@ -177,7 +177,8 @@ export {
 export { StylesManager } from "../../stylesmanager";
 export { ListModel } from "../../list";
 export { MultiSelectListModel } from "../../multiSelectListModel";
-export { PopupModel, PopupBaseViewModel, createPopupModalViewModel, createDialogOptions, IDialogOptions } from "../../popup";
+export { PopupModel, createDialogOptions, IDialogOptions } from "../../popup";
+export { PopupBaseViewModel, createPopupModalViewModel } from "../../popup-view-model";
 export { DropdownListModel } from "../../dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../dropdownMultiSelectListModel";
 export {

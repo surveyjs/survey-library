@@ -1,6 +1,6 @@
 import { PopupUtils } from "../../src/utils/popup";
 import { PopupModel } from "../../src/popup";
-import { PopupBaseViewModel } from "../../src/popup";
+import { PopupBaseViewModel } from "../../src/popup-view-model";
 import { surveyLocalization } from "../../src/surveyStrings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");

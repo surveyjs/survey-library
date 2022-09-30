@@ -391,3 +391,73 @@ QUnit.test("readOnlyText on changing locale", assert => {
   survey.locale = "";
   assert.equal(new QuestionDropdownModel("q1").readOnlyText, "Select...", "English by default");
 });
+QUnit.test("inputFieldComponent", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "itemComponent": "my-item",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const itemTemplate = "my-item";
+  const newInputFieldComponent = "my-inputFieldComponentName";
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.itemComponent, itemTemplate);
+  assert.equal(question.inputFieldComponent, undefined);
+  assert.equal(question.inputFieldComponentName, itemTemplate);
+
+  question.inputFieldComponent = newInputFieldComponent;
+  assert.equal(question.itemComponent, itemTemplate);
+  assert.equal(question.inputFieldComponent, newInputFieldComponent);
+  assert.equal(question.inputFieldComponentName, newInputFieldComponent);
+});
+QUnit.test("showSelectedItemLocText", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.showSelectedItemLocText, false);
+
+  question.value = 1;
+  assert.equal(question.showSelectedItemLocText, true);
+
+  question.itemComponent = "my-item";
+  assert.equal(question.showSelectedItemLocText, false);
+});
+QUnit.test("showInputFieldComponent", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.showInputFieldComponent, false);
+
+  question.itemComponent = "my-item";
+  assert.equal(question.showInputFieldComponent, false);
+
+  question.value = 1;
+  assert.equal(question.showInputFieldComponent, true);
+});

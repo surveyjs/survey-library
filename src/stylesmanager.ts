@@ -864,6 +864,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_text_root":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_dropdown_control": "color: $text-input-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_dropdown_control__input-field-component": "height: auto;",
     ".sv_default_css input[type='text']":
       "color: $text-color; -webkit-text-fill-color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css select":
@@ -879,7 +880,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none; padding: 0px; width: auto; display: flex; flex-grow: 1;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; position: absolute; left: 0; background-color: transparent;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none; padding: 0px; width: auto; display: flex; flex-grow: 1;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; position: absolute; left: 0; top: 0; height: 100%; background-color: transparent;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value.sv_q_tagbox__value .sv_q_dropdown__filter-string-input.sv_q_tagbox__filter-string-input": "position: initial;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
     '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':

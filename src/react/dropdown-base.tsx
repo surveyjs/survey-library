@@ -3,6 +3,7 @@ import { Question, DropdownListModel } from "survey-core";
 import { Helpers } from "../helpers";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { ReactElementFactory } from "./element-factory";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 
@@ -56,8 +57,17 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      );
    }
 
+   renderValueElement(dropdownListModel: DropdownListModel): JSX.Element | null {
+     if(this.question.showInputFieldComponent) {
+       return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
+     } else if(this.question.showSelectedItemLocText) {
+       return this.renderLocString(this.question.selectedItemLocText);
+     }
+     return null;
+   }
+
    protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
-     const text = (this.question.selectedItemLocText && !this.question.inputHasValue) ? this.renderLocString(this.question.selectedItemLocText) : "";
+     let valueElement: JSX.Element | null = this.renderValueElement(dropdownListModel);
 
      const onInputChange = (e: any) => {
        if (e.target === document.activeElement) {
@@ -82,7 +92,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        aria-describedby={this.question.ariaDescribedBy}
      >
        <div className={this.question.cssClasses.controlValue}>
-         {text}
+         {valueElement}
          <input type="text" autoComplete="off"
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}

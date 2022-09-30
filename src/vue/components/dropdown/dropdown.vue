@@ -18,9 +18,17 @@
     >
       <div :class="question.cssClasses.controlValue">
         <survey-string
-          v-if="question.selectedItemLocText && !question.inputHasValue"
+          v-if="question.showSelectedItemLocText"
           :locString="question.selectedItemLocText"
         />
+        <component
+          v-if="question.showInputFieldComponent"
+          :is="question.inputFieldComponentName"
+          :item="model.getSelectedAction()"
+          :question="question"
+        >
+        </component>
+
         <input
           type="text"
           ref="inputElement"

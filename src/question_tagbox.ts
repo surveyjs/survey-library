@@ -18,6 +18,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.createLocalizableString("placeholder", this, false, true);
   }
 
+  protected getDefaultItemComponent(): string {
+    return "";
+  }
+
   public get readOnlyText() {
     return this.displayValue || this.placeholder;
   }
@@ -44,10 +48,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       }
     }
   }) searchEnabled: boolean;
-  /**
-   * The name of a component used to render drop-down menu items.
-   */
-  @property() itemComponent: string;
 
   /**
    * Specifies whether to remove selected items from the drop-down list.
@@ -123,7 +123,7 @@ Serializer.addClass(
     { name: "searchEnabled:boolean", default: true },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean", default: true, visible: false },
-    { name: "itemComponent", visible: false }
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionTagboxModel("");

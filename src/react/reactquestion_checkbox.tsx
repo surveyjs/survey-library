@@ -127,7 +127,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     cssClasses: any,
     index: string
   ): JSX.Element {
-    const renderedItem = ReactElementFactory.Instance.createElement("survey-checkbox-item", {
+    const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       key: key,
       question: this.question,
       cssClasses: cssClasses,

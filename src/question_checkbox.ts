@@ -31,6 +31,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  protected getDefaultItemComponent(): string {
+    return "survey-checkbox-item";
+  }
   public get ariaRole(): string {
     return "listbox";
   }
@@ -509,7 +512,8 @@ Serializer.addClass(
     {
       name: "valuePropertyName",
       category: "data"
-    }
+    },
+    { name: "itemComponent", visible: false, default: "survey-checkbox-item" }
   ],
   function () {
     return new QuestionCheckboxModel("");

@@ -681,7 +681,7 @@ export class JsonMetadataClass {
       if (propInfo.type) {
         prop.type = propInfo.type;
       }
-      if (!Helpers.isValueEmpty(propInfo.default)) {
+      if (propInfo.default !== undefined) {
         prop.defaultValue = propInfo.default;
       }
       if (!Helpers.isValueEmpty(propInfo.isSerializable)) {

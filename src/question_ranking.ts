@@ -20,6 +20,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.createNewArray("rankingChoices");
   }
 
+  protected getDefaultItemComponent(): string {
+    return "";
+  }
+
   public getType(): string {
     return "ranking";
   }
@@ -346,6 +350,7 @@ Serializer.addClass(
       visible: false,
       isSerializable: false,
     },
+    { name: "itemComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionRankingModel("");

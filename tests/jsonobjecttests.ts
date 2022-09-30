@@ -2890,3 +2890,9 @@ QUnit.test("return correct uniquePropertyName", function (assert) {
   const columnsMatrixProp = Serializer.findProperty("matrix", "columns");
   assert.equal(columnsMatrixProp.uniquePropertyName, "value", "matrix.columns");
 });
+QUnit.test("default value inheritance", function (assert) {
+  const checkboxProp = Serializer.findProperty("checkbox", "itemComponent");
+  const rankingProp = Serializer.findProperty("ranking", "itemComponent");
+  assert.equal(checkboxProp.defaultValue, "survey-checkbox-item", "survey-checkbox-item default");
+  assert.equal(rankingProp.defaultValue, "", "ranking default is empty");
+});

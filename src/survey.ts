@@ -1788,7 +1788,9 @@ export class SurveyModel extends SurveyElementCore
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
-    this.updateProgressText();
+    if(!this.isShowStartingPage) {
+      this.updateProgressText();
+    }
     var page = this.activePage;
     if (!!page) {
       page.locStrsChanged();

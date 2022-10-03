@@ -12989,6 +12989,32 @@ QUnit.test("Peform triggers on value changed manually", function (assert) {
     "Triggers run successful"
   );
 });
+QUnit.test("Run expression for date", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+      },
+      {
+        name: "q2",
+        type: "text",
+        inputType: "date"
+      }
+    ],
+    triggers: [
+      {
+        type: "runexpression",
+        expression: "{q1} notempty",
+        setToName: "q2",
+        runExpression: "today()",
+      }
+    ],
+  });
+  const val = Helpers.convertDateToString(new Date());
+  survey.setValue("q1", 1);
+  assert.equal(survey.getValue("q2"), val, "Set correct date on trigger");
+});
 
 QUnit.test("Update progressText on changing locale, Bug#2453", function (
   assert

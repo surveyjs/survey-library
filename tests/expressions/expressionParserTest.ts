@@ -20,6 +20,7 @@ import { ProcessValue } from "../../src/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { values } from "lodash";
 import { settings } from "../../src/settings";
+import { Helpers } from "../../src/helpers";
 
 export default QUnit.module("Expressions");
 
@@ -355,20 +356,16 @@ QUnit.test("Run currentYear() function", function(assert) {
   var runner = new ExpressionRunner("currentYear()");
   assert.equal(runner.run({}), new Date().getFullYear());
 });
-
+function getDateStr(date: Date): string {
+  return Helpers.convertDateToString(date);
+}
 QUnit.test("Run today function", function(assert) {
   var runner = new ExpressionRunner("today()");
   const date = new Date();
   date.setHours(0, 0, 0, 0);
-  var todayStr = date.toISOString().slice(0, 10);
-  assert.equal(
-    runner
-      .run({})
-      .toISOString()
-      .slice(0, 10),
-    todayStr,
-    "check today"
-  );
+  var todayStr = getDateStr(date).slice(0, 10);
+  const runVal = runner.run({});
+  assert.equal(getDateStr(runVal), todayStr, "check today");
 });
 
 QUnit.test("Compare date with today", function(assert) {

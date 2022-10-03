@@ -515,6 +515,8 @@ export class QuestionSelectBase extends Question {
    * }
    * ```
    *
+   * Refer to the following help topic for information on how to add custom properties so that they are serialized into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
+   *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl
    * @see choicesFromQuestion

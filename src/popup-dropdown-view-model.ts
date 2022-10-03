@@ -100,6 +100,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super.hidePopup();
     this.isAutoScroll = true;
   }
+
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)

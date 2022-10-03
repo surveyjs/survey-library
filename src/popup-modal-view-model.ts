@@ -3,6 +3,7 @@ import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
+
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--modal", !this.isOverlay);

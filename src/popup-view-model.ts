@@ -96,6 +96,7 @@ export class PopupBaseViewModel extends Base {
   public get cancelButtonText(): string {
     return this.getLocalizationString("modalCancelButtonText");
   }
+
   public onKeyDown(event: any): void {
     if (event.key === "Tab" || event.keyCode === 9) {
       this.trapFocus(event);

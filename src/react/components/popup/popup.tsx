@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, PopupModalViewModel, PopupDropdownViewModel, CssClassBuilder, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { Base } from "../../../base";

@@ -236,7 +236,7 @@ export class JsonObjectProperty implements IObject {
   public classNamePart: string;
   public baseClassName: string;
   public defaultValueValue: any;
-  public serializationProperty: string ;
+  public serializationProperty: string;
   public displayName: string;
   public category: string = "";
   public categoryIndex: number = -1;
@@ -345,7 +345,7 @@ export class JsonObjectProperty implements IObject {
     return this.onSetValue || this.serializationProperty;
   }
   public settingValue(obj: any, value: any): any {
-    if(!this.onSettingValue || obj.isLoadingFromJson) return value;
+    if (!this.onSettingValue || obj.isLoadingFromJson) return value;
     return this.onSettingValue(obj, value);
   }
   public setValue(obj: any, value: any, jsonConv: JsonObject) {
@@ -534,8 +534,8 @@ export class CustomPropertiesCollection {
     }
   }
   private static createPropertyInObj(obj: any, prop: JsonObjectProperty) {
-    if(CustomPropertiesCollection.checkIsPropertyExists(obj, prop.name)) return;
-    if(!!prop.serializationProperty && CustomPropertiesCollection.checkIsPropertyExists(obj, prop.serializationProperty)) return;
+    if (CustomPropertiesCollection.checkIsPropertyExists(obj, prop.name)) return;
+    if (!!prop.serializationProperty && CustomPropertiesCollection.checkIsPropertyExists(obj, prop.serializationProperty)) return;
     if (
       prop.isLocalizable &&
       prop.serializationProperty &&
@@ -599,8 +599,8 @@ export class CustomPropertiesCollection {
         Object.defineProperty(obj, prop.name, desc);
       }
     }
-    if(prop.type === "condition" || prop.type === "expression") {
-      if(!!prop.onExecuteExpression) {
+    if (prop.type === "condition" || prop.type === "expression") {
+      if (!!prop.onExecuteExpression) {
         obj.addExpressionProperty(prop.name, prop.onExecuteExpression);
       }
     }
@@ -626,7 +626,7 @@ export class JsonMetadataClass {
     if (this.parentName) {
       this.parentName = this.parentName.toLowerCase();
       CustomPropertiesCollection.addClass(name, this.parentName);
-      if(!!creator) {
+      if (!!creator) {
         this.makeParentRegularClass();
       }
     }
@@ -646,18 +646,18 @@ export class JsonMetadataClass {
     return !!this.parentName && !!Serializer.findProperty(this.parentName, propName);
   }
   private hasRegularChildClass(): void {
-    if(!this.isCustom) return;
+    if (!this.isCustom) return;
     this.isCustomValue = false;
-    for(var i = 0; i < this.properties.length; i ++) {
+    for (var i = 0; i < this.properties.length; i++) {
       this.properties[i].isCustom = false;
     }
     CustomPropertiesCollection.removeAllProperties(this.name);
     this.makeParentRegularClass();
   }
   private makeParentRegularClass(): void {
-    if(!this.parentName) return;
+    if (!this.parentName) return;
     const parent = Serializer.findClass(this.parentName);
-    if(!!parent) {
+    if (!!parent) {
       parent.hasRegularChildClass();
     }
   }
@@ -766,7 +766,7 @@ export class JsonMetadataClass {
       if (propInfo.onSetValue) {
         prop.onSetValue = propInfo.onSetValue;
       }
-      if(propInfo.onSettingValue) {
+      if (propInfo.onSettingValue) {
         prop.onSettingValue = propInfo.onSettingValue;
       }
       if (propInfo.isLocalizable) {
@@ -805,7 +805,7 @@ export class JsonMetadataClass {
       }
     }
     this.properties.push(prop);
-    if(isCustom && !this.isOverridedProp(prop.name)) {
+    if (isCustom && !this.isOverridedProp(prop.name)) {
       prop.isCustom = true;
       CustomPropertiesCollection.addProperty(this.name, prop);
     }
@@ -866,9 +866,9 @@ export class JsonMetadata {
     if (!!obj[name] && !!obj[name].setJson) {
       obj[name].setJson(val);
     } else {
-      if(Array.isArray(val)) {
+      if (Array.isArray(val)) {
         const newVal = [];
-        for(var i = 0; i < val.length; i ++) newVal.push(val[i]);
+        for (var i = 0; i < val.length; i++) newVal.push(val[i]);
         val = newVal;
       }
       obj[name] = val;
@@ -1015,7 +1015,7 @@ export class JsonMetadata {
     if (!prop) return prop;
     const classInfo = this.findClass(className);
     if (prop.classInfo === classInfo) return prop;
-    const newProp = new JsonObjectProperty(classInfo, propertyName, prop.isRequired);
+    const newProp = new JsonObjectProperty(classInfo, prop.name, prop.isRequired);
     newProp.mergeWith(prop);
     newProp.isArray = prop.isArray;
     classInfo.properties.push(newProp);
@@ -1306,6 +1306,7 @@ export class JsonMetadata {
       var prop = metaDataClass.properties[i];
       this.addPropertyCore(prop, list, hash);
       hash[prop.name] = prop;
+      if (prop.alternativeName) hash[prop.alternativeName] = prop;
     }
   }
   private addPropertyCore(
@@ -1552,7 +1553,7 @@ export class JsonObject {
       typeof obj["getPropertyValue"] === "function" &&
       obj["getPropertyValue"](property.name, null) !== null;
     if ((storeDefaults && hasValue) || !property.isDefaultValue(value)) {
-      if(!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
+      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
         result[property.name] = value;
       }
     }
@@ -1656,7 +1657,7 @@ export class JsonObject {
     if (!Array.isArray(requiredProperties)) return null;
     for (var i = 0; i < requiredProperties.length; i++) {
       const prop = Serializer.findProperty(className, requiredProperties[i]);
-      if(!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
+      if (!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
       if (!jsonValue[prop.name]) {
         return new JsonRequiredPropertyError(prop.name, className);
       }
@@ -1675,7 +1676,7 @@ export class JsonObject {
     key: any,
     property: JsonObjectProperty
   ) {
-    if(obj[key] && !this.isValueArray(obj[key]))
+    if (obj[key] && !this.isValueArray(obj[key]))
       return;
     if (obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
     var valueRes = obj[key] ? obj[key] : [];

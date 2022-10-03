@@ -860,11 +860,13 @@ QUnit.test(
     let jsObj = new JsonObject().toJsonObject(list);
     assert.deepEqual(
       jsObj,
-      { "items": [{ "value": 7, "text": "Item 1" },
+      {
+        "items": [{ "value": 7, "text": "Item 1" },
         { "value": 5, text: "5" },
         { "value": "item", text: "item" },
         { "value": "A", text: "A" },
-        { "value": "a", text: "A" }] },
+        { "value": "a", text: "A" }]
+      },
       "serialize ItemValueListOwner with text"
     );
     settings.itemValueAlwaysSerializeText = false;
@@ -884,8 +886,10 @@ QUnit.test(
     let jsObj = new JsonObject().toJsonObject(list);
     assert.deepEqual(
       jsObj,
-      { "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
-        { val: 1, text: "Item1" }] }, "Do not serialize objects");
+      {
+        "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
+        { val: 1, text: "Item1" }]
+      }, "Do not serialize objects");
     settings.itemValueAlwaysSerializeText = false;
   });
 
@@ -2550,7 +2554,6 @@ QUnit.test("Serializer.getProperty()", function (assert) {
 });
 QUnit.test("Serializer.getProperty For not-arrays and arrays", function (assert) {
   Serializer.addClass("new_selectbase", [], null, "selectbase");
-
   let hasOtherFind = Serializer.findProperty("new_selectbase", "hasOther");
   assert.equal(hasOtherFind.isArray, false, "Find hasOther for new_selectbase is not array");
   let hasOtherGet = Serializer.getProperty("new_selectbase", "hasOther");
@@ -2691,7 +2694,7 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
   Serializer.addClass("coloritemvalue", [
     { name: "text", visible: false },
     { name: "color", type: "color" }],
-  null, "itemvalue");
+    null, "itemvalue");
   Serializer.addProperty("car", {
     name: "colors",
     default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
@@ -2722,7 +2725,8 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
   Serializer.removeClass("coloritemvalue");
 });
 QUnit.test("Add condition custom property", function (assert) {
-  const newProp = Serializer.addProperty("matrix", { name: "showHeaderIf:condition", category: "logic",
+  const newProp = Serializer.addProperty("matrix", {
+    name: "showHeaderIf:condition", category: "logic",
     onExecuteExpression: (obj: Base, res: any) => { (<any>obj).showHeader = res === true; }
   });
   assert.ok(newProp.onExecuteExpression, "onExecuteExpression function is set");
@@ -2749,7 +2753,8 @@ QUnit.test("Add condition custom property", function (assert) {
   Serializer.removeProperty("matrix", "showHeaderIf");
 });
 QUnit.test("Add condition custom property into survey", function (assert) {
-  const newProp = Serializer.addProperty("survey", { name: "showTitleIf:condition", category: "logic",
+  const newProp = Serializer.addProperty("survey", {
+    name: "showTitleIf:condition", category: "logic",
     onExecuteExpression: (obj: Base, res: any) => { (<any>obj).showTitle = res === true; }
   });
   const survey = new SurveyModel({
@@ -2836,28 +2841,28 @@ QUnit.test("Find out are properties addingin in addClass are custom or not", fun
   assert.equal(Serializer.findProperty("car", "name").isCustom, false, "car properties are not custom");
 });
 QUnit.test("Custom survey serialization, onSerializingProperty", function (assert) {
-  const mapping : any = {
+  const mapping: any = {
     base: { elements: "Questions", visible: { name: "IsHidden", converter: (obj: Base, value: any): any => { return !value; } } },
     question: { choices: "AnswerOptions" },
     survey: { title: "Name", pages: "sections" }
   };
-  const getMappedObj = function(type: string, name: string): string {
+  const getMappedObj = function (type: string, name: string): string {
     const typeMap = mapping[type];
     return !!typeMap ? typeMap[name] : undefined;
   };
   Serializer.onSerializingProperty = (obj: Base, prop: JsonObjectProperty, value: any, json: any): boolean => {
     let typesList = new Array<string>();
     typesList.push(obj.getType());
-    if(obj.isDescendantOf("question")) {
+    if (obj.isDescendantOf("question")) {
       typesList.push("question");
     }
     typesList.push("base");
 
-    for(var i = 0; i < typesList.length; i ++) {
+    for (var i = 0; i < typesList.length; i++) {
       let mapObj = <any>getMappedObj(typesList[i], prop.name);
-      if(!mapObj) continue;
+      if (!mapObj) continue;
       const name = typeof mapObj === "string" ? mapObj : mapObj.name;
-      if(typeof mapObj !== "string" && mapObj.converter) {
+      if (typeof mapObj !== "string" && mapObj.converter) {
         value = mapObj.converter(obj, value);
       }
       json[name] = value;
@@ -2865,7 +2870,7 @@ QUnit.test("Custom survey serialization, onSerializingProperty", function (asser
     }
     return false;
   };
-  const checkJSON = function(origionalJSON: any, expectedJSON: any, attempt: string) {
+  const checkJSON = function (origionalJSON: any, expectedJSON: any, attempt: string) {
     const survey = new SurveyModel(origionalJSON);
     assert.deepEqual(survey.toJSON(), expectedJSON, "Failed attempt: " + attempt);
   };

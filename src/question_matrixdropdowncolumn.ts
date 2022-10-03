@@ -428,7 +428,7 @@ export class MatrixDropdownColumn extends Base
   }
   startLoadingFromJson(json?: any) {
     super.startLoadingFromJson(json);
-    if(!!json && !json.cellType && !!json.choices) {
+    if (!!json && !json.cellType && !!json.choices) {
       json.cellType = this.colOwner.getCellType();
     }
   }
@@ -550,11 +550,11 @@ export class MatrixDropdownColumn extends Base
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
-    if(name === "isRequired") {
+    if (name === "isRequired") {
       this.updateIsRenderedRequired(newValue);
     }
     if (!this.colOwner || this.isLoadingFromJson) return;
-    if(this.isShowInMultipleColumns && ["visibleChoices", "choices"].indexOf(name) > -1) {
+    if (this.isShowInMultipleColumns && ["visibleChoices", "choices"].indexOf(name) > -1) {
       this.colOwner.onShowInMultipleColumnsChanged(this);
     }
     if (!Serializer.hasOriginalProperty(this, name)) return;
@@ -584,7 +584,7 @@ export class MatrixDropdownColumn extends Base
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onShowInMultipleColumnsChanged(this);
     }
-    if(this.templateQuestion) {
+    if (this.templateQuestion) {
       this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
     }
   }
@@ -609,6 +609,9 @@ export class MatrixDropdownColumn extends Base
       this.addProperty(question, prop.name, false);
       if (prop.serializationProperty) {
         this.addProperty(question, prop.serializationProperty, true);
+      }
+      if (prop.alternativeName) {
+        this.addProperty(question, prop.alternativeName, false);
       }
     }
   }
@@ -636,9 +639,10 @@ Serializer.addClass(
   "matrixdropdowncolumn",
   [
     { name: "!name", isUnique: true },
-    { name: "title", serializationProperty: "locTitle", dependsOn: "name",
-      onPropertyEditorUpdate: function(obj: any, editor: any) {
-        if(!!obj && !!editor) {
+    {
+      name: "title", serializationProperty: "locTitle", dependsOn: "name",
+      onPropertyEditorUpdate: function (obj: any, editor: any) {
+        if (!!obj && !!editor) {
           editor.placeholder = obj.name;
         }
       }

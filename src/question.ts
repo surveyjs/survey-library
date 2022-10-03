@@ -118,7 +118,7 @@ export class Question extends SurveyElement
     );
 
     this.registerPropertyChangedHandlers(
-      ["hasComment", "hasOther"],
+      ["showCommentArea", "showOtherItem"],
       () => {
         this.initCommentFromSurvey();
       }
@@ -546,7 +546,7 @@ export class Question extends SurveyElement
   }
   protected processTitleClick() {
     super.processTitleClick();
-    if(this.isCollapsed) return;
+    if (this.isCollapsed) return;
     setTimeout(() => {
       this.focus();
     }, 1);
@@ -619,7 +619,7 @@ export class Question extends SurveyElement
   }
   public localeChanged() {
     super.localeChanged();
-    if(!!this.localeChangedCallback) {
+    if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
   }
@@ -786,7 +786,7 @@ export class Question extends SurveyElement
     return super.getIsErrorsModeTooltip() && !this.customWidget;
   }
 
-  public showErrorOnCore(location: string) :boolean {
+  public showErrorOnCore(location: string): boolean {
     return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
   }
 
@@ -971,19 +971,27 @@ export class Question extends SurveyElement
     this.setPropertyValue("requiredIf", val);
   }
   /**
-   * Specifies whether to display a comment area. Incompatible with the `hasOther` property.
+   * Specifies whether to display a comment area. Incompatible with the `showOtherItem` property.
    * @see comment
    * @see commentText
-   * @see hasOther
+   * @see showOtherItem
    */
+  public get showCommentArea(): boolean {
+    return this.getPropertyValue("showCommentArea", false);
+  }
+  public set showCommentArea(val: boolean) {
+    if (!this.supportComment()) return;
+    this.setPropertyValue("showCommentArea", val);
+    if (this.showCommentArea) this.hasOther = false;
+  }
+
   public get hasComment(): boolean {
-    return this.getPropertyValue("hasComment", false);
+    return this.showCommentArea;
   }
   public set hasComment(val: boolean) {
-    if (!this.supportComment()) return;
-    this.setPropertyValue("hasComment", val);
-    if (this.hasComment) this.hasOther = false;
+    this.showCommentArea = val;
   }
+
   /**
    * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
    */
@@ -1007,14 +1015,21 @@ export class Question extends SurveyElement
    * @see otherErrorText
    * @see hasComment
    */
+  public get showOtherItem(): boolean {
+    return this.getPropertyValue("showOtherItem", false);
+  }
+  public set showOtherItem(val: boolean) {
+    if (!this.supportOther() || this.showOtherItem == val) return;
+    this.setPropertyValue("showOtherItem", val);
+    if (this.showOtherItem) this.hasComment = false;
+    this.hasOtherChanged();
+  }
+
   public get hasOther(): boolean {
-    return this.getPropertyValue("hasOther", false);
+    return this.showOtherItem;
   }
   public set hasOther(val: boolean) {
-    if (!this.supportOther() || this.hasOther == val) return;
-    this.setPropertyValue("hasOther", val);
-    if (this.hasOther) this.hasComment = false;
-    this.hasOtherChanged();
+    this.showOtherItem = val;
   }
 
   protected hasOtherChanged(): void { }
@@ -1168,7 +1183,7 @@ export class Question extends SurveyElement
     if (this.value !== undefined) {
       this.value = undefined;
     }
-    if(!!this.comment) {
+    if (!!this.comment) {
       this.comment = undefined;
     }
   }
@@ -1433,10 +1448,10 @@ export class Question extends SurveyElement
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
   }
   protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
-    if(!runner && !!expression) {
+    if (!runner && !!expression) {
       runner = new ExpressionRunner(expression);
     }
-    if(!!runner) {
+    if (!!runner) {
       runner.expression = expression;
     }
     return runner;
@@ -1774,7 +1789,7 @@ export class Question extends SurveyElement
   }
   protected onValueChanged(): void { }
   protected setNewComment(newValue: string): void {
-    if(this.questionComment === newValue) return;
+    if (this.questionComment === newValue) return;
     this.questionComment = newValue;
     if (this.data != null) {
       this.data.setComment(
@@ -1857,7 +1872,7 @@ export class Question extends SurveyElement
     var props = this.bindings.getPropertiesByValueName(valueName);
     for (var i = 0; i < props.length; i++) {
       const propName = props[i];
-      if(this.isValueEmpty(value) && Helpers.isNumber(this[propName])) {
+      if (this.isValueEmpty(value) && Helpers.isNumber(this[propName])) {
         value = 0;
       }
       this[propName] = value;
@@ -1896,8 +1911,8 @@ export class Question extends SurveyElement
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
-  public transformToMobileView(): void {}
-  public transformToDesktopView(): void {}
+  public transformToMobileView(): void { }
+  public transformToDesktopView(): void { }
   public needResponsiveWidth() {
     return false;
   }
@@ -1911,10 +1926,10 @@ export class Question extends SurveyElement
   }
 
   protected checkForResponsiveness(el: HTMLElement): void {
-    if(this.needResponsiveness()) {
-      if(this.isCollapsed) {
+    if (this.needResponsiveness()) {
+      if (this.isCollapsed) {
         const onStateChanged = () => {
-          if(this.isExpanded) {
+          if (this.isExpanded) {
             this.initResponsiveness(el);
             this.unregisterPropertyChangedHandlers(["state"], "for-responsiveness");
           }
@@ -1939,19 +1954,19 @@ export class Question extends SurveyElement
 
   private initResponsiveness(el: HTMLElement) {
     this.destroyResizeObserver();
-    if(!!el && this.isDefaultRendering()) {
+    if (!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();
-      if(!scrollableSelector) return;
+      if (!scrollableSelector) return;
       const defaultRootEl = el.querySelector(scrollableSelector);
-      if(!defaultRootEl) return;
+      if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
       this.resizeObserver = new ResizeObserver(() => {
         const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-        if(!requiredWidth && this.isDefaultRendering()) {
+        if (!requiredWidth && this.isDefaultRendering()) {
           requiredWidth = rootEl.scrollWidth;
         }
-        if(isProcessed || !isContainerVisible(rootEl)) {
+        if (isProcessed || !isContainerVisible(rootEl)) {
           isProcessed = false;
         } else {
           isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
@@ -1986,7 +2001,7 @@ export class Question extends SurveyElement
     return false;
   }
   private destroyResizeObserver() {
-    if(!!this.resizeObserver) {
+    if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
       this.onMobileChangedCallback = undefined;
@@ -1999,7 +2014,7 @@ export class Question extends SurveyElement
   }
 }
 function removeConverChar(str: string): string {
-  if(!!str && str[0] === settings.expressionDisableConversionChar) return str.substring(1);
+  if (!!str && str[0] === settings.expressionDisableConversionChar) return str.substring(1);
   return str;
 }
 Serializer.addClass("question", [
@@ -2033,9 +2048,10 @@ Serializer.addClass("question", [
         : [];
     },
   },
-  { name: "title:text", serializationProperty: "locTitle", layout: "row", dependsOn: "name",
-    onPropertyEditorUpdate: function(obj: any, editor: any) {
-      if(!!obj && !!editor) {
+  {
+    name: "title:text", serializationProperty: "locTitle", layout: "row", dependsOn: "name",
+    onPropertyEditorUpdate: function (obj: any, editor: any) {
+      if (!!obj && !!editor) {
         editor.placeholder = obj.name;
       }
     }
@@ -2113,5 +2129,6 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
+  { name: "showCommentArea", default: false, alternativeName: "hasComment" }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

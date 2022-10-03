@@ -15343,3 +15343,59 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
 });
+QUnit.test("progress is not changed on the start page", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "checkbox",
+            name: "q1",
+            choices: ["1"]
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "checkbox",
+            name: "q2",
+            choices: ["1", "2", "3"]
+          },
+          {
+            type: "checkbox",
+            name: "q3",
+            visibleIf: "{q2} == ['1']",
+            choices: ["1", "2", "3"]
+          },
+        ]
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "comment",
+            name: "q4",
+          }
+        ]
+      }
+    ],
+
+    showProgressBar: "bottom",
+    firstPageIsStarted: true,
+    questionsOnPageMode: "questionPerPage",
+    widthMode: "static"
+  });
+  const question = survey.pages[0].elements[0] as any;
+  let progressChangeCount = 0;
+  survey.onPropertyChanged.add((s, o) => {
+    if(o.name === "progressText") {
+      progressChangeCount++;
+    }
+  });
+  assert.equal(progressChangeCount, 0, "Initial progress call count");
+  question.value = ["1"];
+  assert.equal(progressChangeCount, 0, "Progress hasn't been called");
+});

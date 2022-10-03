@@ -1320,7 +1320,7 @@ export class JsonMetadata {
     }
     var index = -1;
     for (var i = 0; i < list.length; i++) {
-      if (list[i].name == property.name) {
+      if (list[i].name == property.name || list[i].alternativeName == property.name) {
         index = i;
         break;
       }

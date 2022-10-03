@@ -15317,3 +15317,33 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
 });
+QUnit.test("Test survey with custom type", function (assert) {
+  JsonObject.metaData.addClass(
+    "sortablelist",
+    [
+      { name: "hasOther", visible: false },
+      { name: "storeOthersAsComment", visible: false },
+      { name: "hasNone", visible: false },
+      { name: "renderAs", visible: false },
+      { name: "checkboxClass", visible: false },
+      { name: "hasSelectAll", visible: false },
+      { name: "noneText", visible: false },
+      { name: "selectAllText", visible: false },
+    ],
+    null,
+    "checkbox"
+  );
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "sortablelist",
+        name: "lifepriopity",
+        title: "Life Priorities ",
+        isRequired: true,
+        colCount: 0,
+        choices: ["family", "work", "pets", "travels", "games"],
+      },
+    ],
+  });
+  assert.equal(survey.getAllQuestions().length, 1);
+});

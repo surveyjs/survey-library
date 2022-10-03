@@ -1,16 +1,24 @@
 import { Component } from "@angular/core";
-import { QuestionAngular } from "../question";
 import { ItemValue, QuestionRankingModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
+import { SelectBaseComponent } from "./selectbase.component";
 
 @Component({
   selector: "sv-ng-ranking-question",
   templateUrl: "./ranking.component.html",
 })
-export class RankingQuestionComponent extends QuestionAngular<QuestionRankingModel> {
+export class RankingQuestionComponent extends SelectBaseComponent<QuestionRankingModel> {
+  public override inputType: string = "";
   trackItemBy = (index: number, item: ItemValue): string => {
     return item.value + "-" + index + "-item";
   }
+  public override getDefaultComponentName(): string {
+    return "sv-ng-ranking-item";
+  }
+  public override getItemValueComponentData(item: ItemValue, index?: number): any {
+    const res = super.getItemValueComponentData(item);
+    res.componentData.index = index;
+    return res;
+  }
 }
-
 AngularComponentFactory.Instance.registerComponent("ranking-question", RankingQuestionComponent);

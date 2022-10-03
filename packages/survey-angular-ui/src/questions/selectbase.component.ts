@@ -13,12 +13,17 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
 
   public inputType: string = "checkbox";
   public showLegend: boolean = true;
+
+  public getDefaultComponentName(): string {
+    return "sv-ng-selectbase-item";
+  }
+
   public getItemValueComponentName(item: ItemValue): string {
-    return this.model.getItemValueWrapperComponentName(item) || "sv-ng-selectbase-item";
+    return this.model.getItemValueWrapperComponentName(item) || this.getDefaultComponentName();
   }
   public getItemValueComponentData(item: ItemValue): any {
     return {
-      componentName: "sv-ng-selectbase-item",
+      componentName: this.getDefaultComponentName(),
       componentData: {
         question: this.model,
         model: item,

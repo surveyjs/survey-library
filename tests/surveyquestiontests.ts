@@ -34,6 +34,7 @@ import { ArrayChanges } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { PanelModel } from "../src/panel";
+import { Helpers } from "../src/helpers";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3986,6 +3987,9 @@ QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
   assert.equal(question.renderedMin, 1, "min is set to 1");
   assert.equal(question.renderedMax, 3, "max is set to 3");
 });
+function getDateStr(date: Date): string {
+  return Helpers.convertDateToString(date);
+}
 QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var survey = new SurveyModel({
     questions: [{ type: "text", name: "q", max: "=today()" }],
@@ -3993,7 +3997,7 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
   date.setHours(0, 0, 0, 0);
-  var todayStr = date.toISOString().slice(0, 10);
+  var todayStr = getDateStr(date).slice(0, 10);
   assert.equal(question.renderedMax, todayStr, "today in format yyyy-mm-dd");
 });
 QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
@@ -4003,7 +4007,7 @@ QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
   date.setHours(0, 0, 0, 0);
-  var todayStr = date.toISOString().slice(0, 10);
+  var todayStr = getDateStr(date).slice(0, 10);
   assert.equal(
     question.renderedMax,
     todayStr,
@@ -4017,11 +4021,11 @@ QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", functi
   const question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
   date.setHours(0, 0, 0, 0);
-  var todayStr = date.toISOString().slice(0, 10);
+  var todayStr = getDateStr(date).slice(0, 10);
   var maxDate = new Date();
   maxDate.setHours(0, 0, 0, 0);
   maxDate.setDate(maxDate.getDate() + 10);
-  var todayPlus10DaysStr = maxDate.toISOString().slice(0, 10);
+  var todayPlus10DaysStr = getDateStr(maxDate).slice(0, 10);
   assert.equal(
     question.renderedMin,
     todayStr,
@@ -4046,7 +4050,7 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
   assert.notOk(question.min, "min value becomes empty");
   const date = new Date();
   date.setHours(0, 0, 0, 0);
-  var todayStr = date.toISOString().slice(0, 10);
+  var todayStr = getDateStr(date).slice(0, 10);
   assert.equal(
     question.renderedMin,
     todayStr,

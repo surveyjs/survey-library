@@ -5367,12 +5367,12 @@ QUnit.test("Survey Markdown - question title calls count", function (assert) {
   const q2 = <Question>page.addNewQuestion("text", "q2");
   let counter = 0;
   survey.onTextMarkdown.add((survey, options) => {
-    counter ++;
-    if(options.element.name == "q1") {
+    counter++;
+    if (options.element.name == "q1") {
       options.html = options.text + "!";
     }
   });
-  for(var i = 0; i < 10; i ++) {
+  for (var i = 0; i < 10; i++) {
     assert.equal(q1.title, "q1");
     assert.equal(q1.locTitle.renderedHtml, "q1!");
     assert.equal(q2.title, "q2");
@@ -12989,6 +12989,32 @@ QUnit.test("Peform triggers on value changed manually", function (assert) {
     "Triggers run successful"
   );
 });
+QUnit.test("Run expression for date", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+      },
+      {
+        name: "q2",
+        type: "text",
+        inputType: "date"
+      }
+    ],
+    triggers: [
+      {
+        type: "runexpression",
+        expression: "{q1} notempty",
+        setToName: "q2",
+        runExpression: "today()",
+      }
+    ],
+  });
+  const val = Helpers.convertDateToString(new Date());
+  survey.setValue("q1", 1);
+  assert.equal(survey.getValue("q2"), val, "Set correct date on trigger");
+});
 
 QUnit.test("Update progressText on changing locale, Bug#2453", function (
   assert
@@ -15073,7 +15099,7 @@ QUnit.test("Check survey calculated width mode observability",
       ]
     };
     const model = new SurveyModel(json);
-    model.css.body="css-body";
+    model.css.body = "css-body";
 
     assert.equal(model.calculatedWidthMode, "static");
     assert.equal(model.bodyCss, "css-body css-body--static");
@@ -15275,7 +15301,8 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
         type: "radiogroup",
         name: "question1",
         choices: [1, 2]
-      }] },
+      }]
+    },
     {
       name: "page2",
       elements: [{
@@ -15346,4 +15373,60 @@ QUnit.test("Test survey with custom type", function (assert) {
     ],
   });
   assert.equal(survey.getAllQuestions().length, 1);
+});
+QUnit.test("progress is not changed on the start page", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "checkbox",
+            name: "q1",
+            choices: ["1"]
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "checkbox",
+            name: "q2",
+            choices: ["1", "2", "3"]
+          },
+          {
+            type: "checkbox",
+            name: "q3",
+            visibleIf: "{q2} == ['1']",
+            choices: ["1", "2", "3"]
+          },
+        ]
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "comment",
+            name: "q4",
+          }
+        ]
+      }
+    ],
+
+    showProgressBar: "bottom",
+    firstPageIsStarted: true,
+    questionsOnPageMode: "questionPerPage",
+    widthMode: "static"
+  });
+  const question = survey.pages[0].elements[0] as any;
+  let progressChangeCount = 0;
+  survey.onPropertyChanged.add((s, o) => {
+    if (o.name === "progressText") {
+      progressChangeCount++;
+    }
+  });
+  assert.equal(progressChangeCount, 0, "Initial progress call count");
+  question.value = ["1"];
+  assert.equal(progressChangeCount, 0, "Progress hasn't been called");
 });

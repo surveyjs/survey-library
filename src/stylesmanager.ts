@@ -381,7 +381,7 @@ export class StylesManager {
     ".sv-popup--modal .sv-popup__body-content": "padding: calc(4 * var(--base-unit, 8px));",
     ".sv-popup--overlay": "width: 100%;",
     ".sv-popup--overlay .sv-popup__container": "background: rgba(144, 144, 144, 0.5); max-width: 100vw; max-height: calc(100vh - 1 * var(--base-unit, 8px)); height: calc(100vh - 1 * var(--base-unit, 8px)); width: 100%; padding-top: calc(2 * var(--base-unit, 8px)); border: unset;",
-    ".sv-popup__shadow": "width: 100%; height: 100%;",
+    ".sv-popup__shadow": "width: 100%; height: 100%; border-radius: calc(1 * var(--base-unit, 8px));",
     ".sv-popup--overlay .sv-popup__body-content": "border-radius: calc(2 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) 0px 0px; background: var(--background, #fff); box-shadow: 0px calc(1 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) rgba(0, 0, 0, 0.1); padding: calc(3 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)) calc(2 * var(--base-unit, 8px)); height: calc(100% - calc(1 * var(--base-unit, 8px))); max-height: 100vh; max-width: 100vw;",
     ".sv-popup--overlay .sv-popup__scrolling-content": "height: calc(100% - (10 * var(--base-unit, 8px)));",
     ".sv-popup--overlay .sv-popup__body-footer": "margin-top: calc(2 * var(--base-unit, 8px));",

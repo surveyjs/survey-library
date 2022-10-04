@@ -6,7 +6,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
-  private prevActiveElement: HTMLElement;
+  protected prevActiveElement: HTMLElement;
 
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -129,7 +129,18 @@ export class PopupBaseViewModel extends Base {
 
   public updateOnShowing(): void {
     this.prevActiveElement = <HTMLElement>document.activeElement;
+
+    if (this.isOverlay) {
+      this.top = null;
+      this.left = null;
+      this.height = null;
+      this.width = null;
+      this.minWidth = null;
+    }
+
+    this.switchFocus();
   }
+
   public updateOnHiding(): void {
     this.prevActiveElement && this.prevActiveElement.focus();
   }

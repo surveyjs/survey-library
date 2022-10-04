@@ -125,7 +125,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updateOnShowing(): void {
-    super.updateOnShowing();
+    this.prevActiveElement = <HTMLElement>document.activeElement;
 
     if (this.isOverlay) {
       this.top = null;

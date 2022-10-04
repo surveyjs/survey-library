@@ -240,7 +240,7 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    { name: "autoComplete", dataList: settings.questions.dataList, },
+    { name: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "inputFieldComponent", visible: false },

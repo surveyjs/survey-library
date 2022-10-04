@@ -14,7 +14,7 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     return this.model;
   }
   ngAfterViewInit(): void {
-    if(!!this.rootEl?.nativeElement) {
+    if (!!this.rootEl?.nativeElement) {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
@@ -24,6 +24,18 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
       return this.model.getTemplate() + "-question";
     }
     return this.model.getComponentName();
+  }
+  public getQuestionContentWrapperComponentName(): string {
+    return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model) || this.getComponentName();
+  }
+  public getQuestionContentWrapperComponentData(): any {
+    return {
+      componentName: this.getComponentName(),
+      componentData: {
+        model: this.model,
+        data: (<any>this.model.survey).getElementWrapperComponentData(this.model)
+      }
+    };
   }
 }
 

@@ -4,7 +4,8 @@
     <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
     <div [class]="model.cssContent" role="presentation" [visible]="!model.isCollapsed">
       <div *ngIf="model.showErrorOnTop && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
-      <ng-template [component]="{ name: getComponentName(), data: { model }, default: 'skeleton-question' }" ></ng-template>
+      <ng-template [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData(), default: 'skeleton-question' }">
+      </ng-template>
       <div *ngIf="model.hasComment" [class]="model.cssClasses.formGroup">
         <div>{{ model.commentText }}</div>
         <div [question]="model" sv-ng-comment></div>

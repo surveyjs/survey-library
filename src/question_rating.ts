@@ -1,6 +1,6 @@
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
@@ -30,6 +30,7 @@ export class QuestionRatingModel extends Question {
   constructor(name: string) {
     super(name);
     this.createItemValues("rateValues");
+    this.createRenderedRateItems();
     this.registerPropertyChangedHandlers(["rateValues"], () => {
       this.fireCallback(this.rateValuesChangedCallback);
     });
@@ -44,6 +45,7 @@ export class QuestionRatingModel extends Question {
         options.name == "displayRateDescriptionsAsExtremeItems" ||
         options.name == "value"
       ) {
+        this.createRenderedRateItems();
         this.fireCallback(this.rateValuesChangedCallback);
       }
     });
@@ -63,6 +65,7 @@ export class QuestionRatingModel extends Question {
     super.endLoadingFromJson();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
+    this.createRenderedRateItems();
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
@@ -79,6 +82,7 @@ export class QuestionRatingModel extends Question {
   }
   public set rateValues(val: Array<any>) {
     this.setPropertyValue("rateValues", val);
+    this.createRenderedRateItems();
   }
   /**
    * This property is used to generate rate values if rateValues array is empty. It is the first value in the rating. The default value is 1.
@@ -121,24 +125,42 @@ export class QuestionRatingModel extends Question {
     return !!res ? res : value;
   }
   get visibleRateValues(): ItemValue[] {
-    if (this.rateValues.length > 0) return this.rateValues;
-    var res = [];
-    var value = this.rateMin;
-    var step = this.rateStep;
-    while (
-      value <= this.rateMax &&
-      res.length < settings.ratingMaximumRateValueCount
-    ) {
-      let item = new ItemValue(value);
-      item.locOwner = this;
-      item.ownerPropertyName = "rateValues";
-      res.push(item);
-      value = this.correctValue(value + step, step);
-    }
-    return res;
+    return this.renderedRateItems.map(i => i.itemValue);
   }
-  get renderedRateItems(): RenderedRatingItem[] {
-    return this.visibleRateValues.map((v, i) => {
+
+  public itemValuePropertyChanged(
+    item: ItemValue,
+    name: string,
+    oldValue: any,
+    newValue: any
+  ) {
+    if (this.rateValues.length === 0 && newValue !== undefined) this.setPropertyValue("rateValues", this.visibleRateValues);
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+  }
+  private createRenderedRateItems() {
+    let rateValues = [];
+    if (this.rateValues.length > 0) {
+      rateValues = this.rateValues;
+    }
+    else {
+      var res = [];
+      var value = this.rateMin;
+      var step = this.rateStep;
+      while (
+        value <= this.rateMax &&
+        res.length < settings.ratingMaximumRateValueCount
+      ) {
+        let item = new ItemValue(value);
+        item.locOwner = this;
+        item.ownerPropertyName = "rateValues";
+        res.push(item);
+        value = this.correctValue(value + step, step);
+      }
+      rateValues = res;
+    }
+
+
+    this.renderedRateItems = rateValues.map((v, i) => {
       if (this.displayRateDescriptionsAsExtremeItems) {
         if (i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
         if (i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
@@ -146,6 +168,8 @@ export class QuestionRatingModel extends Question {
       return new RenderedRatingItem(v);
     });
   }
+  @propertyArray() renderedRateItems: Array<RenderedRatingItem>;
+
   private correctValue(value: number, step: number): number {
     if (!value) return value;
     if (Math.round(value) == value) return value;

@@ -1858,7 +1858,7 @@ export class SurveyModel extends SurveyElementCore
     return options.text;
   }
   /**
-   * Returns the text that is displayed when there are no any visible pages and questiona.
+   * Returns the text displayed when a survey has no visible pages and questions.
    */
   public get emptySurveyText(): string {
     return this.getLocalizationString("emptySurvey");

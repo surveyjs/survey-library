@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, checkElementScreenshot, applyTheme, explicitErrorHandler } from "../../helper";
+import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, explicitErrorHandler, wrapVisualTest } from "../../helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -198,95 +198,111 @@ frameworks.forEach(framework => {
       await applyTheme(theme);
     });
 
-  test("Dropdown popup styles", async t => {
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActions });
-    await t
-      .wait(1000)
-      .resizeWindow(1000, 600)
-      .wait(1000)
-      .click(clickButton.withText("Long List"));
-    await checkElementScreenshot("popup-dropdown-long-list.png", popupSelector, t);
+  test("Dropdown popup styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActions });
+      await t
+        .wait(1000)
+        .resizeWindow(1000, 600)
+        .wait(1000)
+        .click(clickButton.withText("Long List"));
+      await takeElementScreenshot("popup-dropdown-long-list.png", popupSelector, t, comparer);
 
-    await t
-      .click(clickButton.withText("Long List"))
-      .click(clickButton.withText("Short List"));
-    await checkElementScreenshot("popup-dropdown-short-list.png", popupSelector, t);
+      await t
+        .click(clickButton.withText("Long List"))
+        .click(clickButton.withText("Short List"));
+      await takeElementScreenshot("popup-dropdown-short-list.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Dropdown popup styles with separators", async t => {
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithSeparators });
-    await t
-      .wait(1000)
-      .resizeWindow(1000, 600)
-      .wait(1000)
-      .click(clickButton.withText("Long List"));
-    await checkElementScreenshot("popup-dropdown-separators-long-list.png", popupSelector, t);
+  test("Dropdown popup styles with separators", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithSeparators });
+      await t
+        .wait(1000)
+        .resizeWindow(1000, 600)
+        .wait(1000)
+        .click(clickButton.withText("Long List"));
+      await takeElementScreenshot("popup-dropdown-separators-long-list.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Dropdown popup styles with icons", async t => {
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithIcons });
-    await t
-      .wait(1000)
-      .resizeWindow(1000, 600)
-      .wait(1000)
-      .click(clickButton.withText("List Icons"));
-    await checkElementScreenshot("popup-dropdown-list-with-icons.png", popupSelector, t);
+  test("Dropdown popup styles with icons", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownActionsWithIcons });
+      await t
+        .wait(1000)
+        .resizeWindow(1000, 600)
+        .wait(1000)
+        .click(clickButton.withText("List Icons"));
+      await takeElementScreenshot("popup-dropdown-list-with-icons.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Modal popup with long list styles", async t => {
-    await t.resizeWindow(1000, 600);
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupLongList });
-    await t.click(clickButton.withText("Modal"));
-    await checkElementScreenshot("popup-modal-long-list.png", popupSelector, t);
+  test("Modal popup with long list styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupLongList });
+      await t.click(clickButton.withText("Modal"));
+      await takeElementScreenshot("popup-modal-long-list.png", popupSelector, t, comparer);
 
-    await t
-      .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-      .click(clickButton.withText("Modal with title"));
-    await checkElementScreenshot("popup-modal-long-list-with-title.png", popupSelector, t);
+      await t
+        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
+        .click(clickButton.withText("Modal with title"));
+      await takeElementScreenshot("popup-modal-long-list-with-title.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Modal popup with wide list styles", async t => {
-    await t.resizeWindow(1000, 1000);
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupWideList });
+  test("Modal popup with wide list styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 1000);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupWideList });
 
-    await t
-      .click(clickButton.withText("Modal with title"));
-    await checkElementScreenshot("popup-modal-wide-list-with-title.png", popupSelector, t);
+      await t
+        .click(clickButton.withText("Modal with title"));
+      await takeElementScreenshot("popup-modal-wide-list-with-title.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Modal popup with short list styles", async t => {
-    await t.resizeWindow(1000, 600);
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupShortList });
-    await t.click(clickButton.withText("Modal"));
-    await checkElementScreenshot("popup-modal-short-list.png", popupSelector, t);
+  test("Modal popup with short list styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupShortList });
+      await t.click(clickButton.withText("Modal"));
+      await takeElementScreenshot("popup-modal-short-list.png", popupSelector, t, comparer);
 
-    await t
-      .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-      .click(clickButton.withText("Modal with title"));
-    await checkElementScreenshot("popup-modal-short-list-with-title.png", popupSelector, t);
+      await t
+        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
+        .click(clickButton.withText("Modal with title"));
+      await takeElementScreenshot("popup-modal-short-list-with-title.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Overlay popup with short list styles", async t => {
-    await t.resizeWindow(1000, 600);
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
-    await t.click(clickButton.withText("Overlay"));
-    await checkElementScreenshot("popup-overlay-short-list.png", popupSelector, t);
+  test("Overlay popup with short list styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
+      await t.click(clickButton.withText("Overlay"));
+      await takeElementScreenshot("popup-overlay-short-list.png", popupSelector, t, comparer);
 
-    await t
-      .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-      .click(clickButton.withText("Overlay with title"));
-    await checkElementScreenshot("popup-overlay-short-list-with-title.png", popupSelector, t);
+      await t
+        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
+        .click(clickButton.withText("Overlay with title"));
+      await takeElementScreenshot("popup-overlay-short-list-with-title.png", popupSelector, t, comparer);
+    });
   });
 
-  test("Overlay popup with long list styles", async t => {
-    await t.resizeWindow(1000, 600);
-    await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
-    await t.click(clickButton.withText("Overlay"));
-    await checkElementScreenshot("popup-overlay-long-list.png", popupSelector, t);
+  test("Overlay popup with long list styles", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
+      await t.click(clickButton.withText("Overlay"));
+      await takeElementScreenshot("popup-overlay-long-list.png", popupSelector, t, comparer);
 
-    await t
-      .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
-      .click(clickButton.withText("Overlay with title"));
-    await checkElementScreenshot("popup-overlay-long-list-with-title.png", popupSelector, t);
+      await t
+        .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
+        .click(clickButton.withText("Overlay with title"));
+      await takeElementScreenshot("popup-overlay-long-list-with-title.png", popupSelector, t, comparer);
+    });
   });
 });

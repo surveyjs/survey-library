@@ -27,6 +27,7 @@ export var surveyLocalization = {
     let loc = locale && this.locales[locale];
     if (!loc) loc = this.currentLocale ? this.locales[this.currentLocale] : this.locales[this.defaultLocale];
     if (!loc) loc = this.locales[this.defaultLocale];
+    if (!loc) loc = this.locales["en"];
     return loc;
   },
   getString: function (strName: string, locale: string = null) {

@@ -388,7 +388,7 @@ export class StylesManager {
     ".sv-popup--overlay .sv-popup__body-footer .sv-action": "width: 100%;",
     ".sv-popup--overlay .sv-popup__body-footer .sv-action-bar": "width: 100%;",
     ".sv-popup--overlay .sv-popup__body-footer-item": "width: 100%;",
-    ".sv-popup--overlay .sv-popup__button--cancel": "background-color: var(--primary, #19b394); border: 2px solid var(--primary, #19b394); color: var(--primary-foreground, #fff);",
+    ".sv-popup--overlay .sv-popup__button": "background-color: var(--primary, #19b394); border: 2px solid var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-popup__scrolling-content": "height: 100%; overflow: auto; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",

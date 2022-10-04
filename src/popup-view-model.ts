@@ -2,11 +2,14 @@ import { Base } from "./base";
 import { property } from "./jsonobject";
 import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { ActionContainer } from "./actions/container";
+import { IAction } from "./actions/action";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
   protected prevActiveElement: HTMLElement;
+  protected footerToolbarValue: ActionContainer;
 
   @property({ defaultValue: "0px" }) top: string;
   @property({ defaultValue: "0px" }) left: string;
@@ -33,6 +36,17 @@ export class PopupBaseViewModel extends Base {
   }
   protected getPopupHeaderTemplate(): string {
     return undefined;
+  }
+  protected createFooterActionBar(): void {
+    this.footerToolbarValue = new ActionContainer();
+
+    this.footerToolbarValue.addAction(<IAction>{
+      id: "cancel",
+      title: this.cancelButtonText,
+      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel",
+      action: () => { this.cancel(); }
+    });
+    this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
   }
 
   private setupModel(model: PopupModel) {
@@ -95,6 +109,12 @@ export class PopupBaseViewModel extends Base {
   }
   public get cancelButtonText(): string {
     return this.getLocalizationString("modalCancelButtonText");
+  }
+  public get footerToolbar(): ActionContainer {
+    if(!this.footerToolbarValue) {
+      this.createFooterActionBar();
+    }
+    return this.footerToolbarValue;
   }
 
   public onKeyDown(event: any): void {

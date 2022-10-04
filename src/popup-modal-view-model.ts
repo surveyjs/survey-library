@@ -1,6 +1,7 @@
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
+import { IAction } from "./actions/action";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
 
@@ -10,6 +11,17 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
   protected getShowFooter(): boolean {
     return true;
+  }
+  protected createFooterActionBar(): void {
+    super.createFooterActionBar();
+
+    this.footerToolbarValue.addAction(<IAction>{
+      id: "apply",
+      title: this.applyButtonText,
+      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--apply",
+      action: () => { this.apply(); }
+    });
+    this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
   }
 
   constructor(model: PopupModel) {

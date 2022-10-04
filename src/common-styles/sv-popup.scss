@@ -102,6 +102,14 @@ sv-popup {
     margin-top: calcSize(2);
   }
 
+  .sv-popup__body-footer .sv-action-bar {
+    width: 100%;
+  }
+
+  .sv-popup__body-footer .sv-action {
+    width: 100%;
+  }
+
   .sv-popup__body-footer-item {
     width: 100%;
   }
@@ -195,12 +203,10 @@ sv-popup {
   display: flex;
   margin-top: calcSize(4);
 }
-.sv-popup__body-footer-item:first-child {
-  margin-left: auto;
+.sv-popup__body-footer .sv-action-bar {
+  gap: calcSize(1);
 }
-.sv-popup__body-footer-item + .sv-popup__body-footer-item {
-  margin-left: calcSize(1);
-}
+
 .sv-popup__button {
   padding: calcSize(2) calcSize(6);
   background: $background;

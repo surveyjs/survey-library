@@ -12,10 +12,7 @@
                     </div>
                 </div>
                 <div *ngIf="model.showFooter" class="sv-popup__body-footer">
-                    <button type="button" (click)="model.cancel()"
-                        class="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel">{{ model.cancelButtonText }}</button>
-                    <button type="button" *ngIf="applyButtonText" (click)="apply()" 
-                    class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply">{{ applyButtonText }}</button>
+                    <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
                 </div>
             </div>
         </div>

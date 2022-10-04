@@ -1,9 +1,10 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
+import { PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { Base } from "../../../base";
+import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface IPopupProps {
   model: PopupModel;
@@ -60,7 +61,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup.model = this.model;
     let popupContainer;
     if(this.model.isModal) {
-      popupContainer = ReactDOM.createPortal(<PopupModalContainer model={this.popup}></PopupModalContainer>, this.popup.container);
+      popupContainer = ReactDOM.createPortal(<PopupContainer model={this.popup}></PopupContainer>, this.popup.container);
     } else {
       popupContainer = ReactDOM.createPortal(<PopupDropdownContainer model={this.popup}></PopupDropdownContainer>, this.popup.container);
     }
@@ -141,26 +142,14 @@ export class PopupContainer extends SurveyElementBase<any, any> {
     );
     return <div className="sv-popup__content">{contentComponent}</div>;
   }
-  renderCancelButton(popuModel: PopupBaseViewModel): JSX.Element| null {
-    return (
-      <button
-        type="button"
-        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
-        onClick={() => {
-          popuModel.cancel();
-        }}
-      >
-        {popuModel.cancelButtonText}
-      </button>
-    );
-  }
+
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): JSX.Element | null {
     return null;
   }
   protected renderFooter(popuModel: PopupBaseViewModel): JSX.Element | null {
     return (
       <div className="sv-popup__body-footer">
-        {this.renderCancelButton(popuModel)}
+        <SurveyActionBar model={popuModel.footerToolbar}></SurveyActionBar>
       </div>
     );
   }
@@ -204,34 +193,6 @@ export class PopupDropdownContainer extends PopupContainer {
     );
   }
 }
-export class PopupModalContainer extends PopupContainer {
-
-  protected renderFooter(popuModel: PopupBaseViewModel): JSX.Element | null {
-    const popupModalModel = popuModel as PopupModalViewModel;
-    if(!popupModalModel) return null;
-
-    return (
-      <div className="sv-popup__body-footer">
-        {this.renderCancelButton(popupModalModel)}
-        {this.renderApplyButton(popupModalModel)}
-      </div>
-    );
-  }
-
-  renderApplyButton(popupModalModel: PopupModalViewModel): JSX.Element {
-    return (
-      <button
-        type="button"
-        className="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
-        onClick={() => {
-          popupModalModel.apply();
-        }}
-      >
-        {popupModalModel.applyButtonText}
-      </button>
-    );
-  }
-}
 
 // replace to showDialog then delete
 export function showModal(
@@ -262,7 +223,7 @@ export function showDialog(dialogOptions: IDialogOptions) {
     popupViewModel.unmountPopupContainer();
   } };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
-  ReactDOM.render(<PopupModalContainer model={popupViewModel} />, popupViewModel.container);
+  ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;
 }

@@ -43,29 +43,7 @@
             </div>
           </div>
           <div v-if="model.showFooter" class="sv-popup__body-footer">
-            <button
-              class="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
-              type="button"
-              v-on:click="
-                () => {
-                  model.cancel();
-                }
-              "
-            >
-              {{ model.cancelButtonText }}
-            </button>
-            <button
-              class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
-              v-if="!!model.applyButtonText"
-              type="button"
-              v-on:click="
-                () => {
-                  model.apply();
-                }
-              "
-            >
-              {{ model.applyButtonText }}
-            </button>
+            <sv-action-bar :model="model.footerToolbar" />
           </div>
         </div>
       </div>

@@ -17,11 +17,7 @@
         </div>
         <!-- ko if: showFooter  -->
         <div class="sv-popup__body-footer">
-          <button type="button" class="sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel"
-            data-bind="click: cancel, text: cancelButtonText"> Cancel </button>
-          <!-- ko if: $data.applyButtonText  -->
-          <button type="button" class="sv-popup__body-footer-item sv-popup__button sv-popup__button--apply"
-            data-bind="click: apply, text: applyButtonText"> Apply </button>
+          <!-- ko component: { name: "sv-action-bar", params: { model: $data.footerToolbar } } -->
           <!-- /ko -->
         </div>
         <!-- /ko -->

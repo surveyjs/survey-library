@@ -105,6 +105,9 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement.tagName, "BODY");
 
+  assert.equal(viewModel.footerToolbar.actions.length, 1);
+  assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
+
   viewModel.dispose();
 });
 
@@ -138,6 +141,9 @@ QUnit.test("PopupModalViewModel defaults", (assert) => {
 
   assert.equal(viewModel.applyButtonText, "Apply");
   assert.equal(viewModel.cancelButtonText, "Cancel");
+  assert.equal(viewModel.footerToolbar.actions.length, 2);
+  assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
+  assert.equal(viewModel.footerToolbar.actions[1].title, viewModel.applyButtonText);
 
   viewModel.dispose();
 });

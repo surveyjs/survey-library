@@ -1,11 +1,11 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "checkboxes";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "checkbox",
       name: "car",
@@ -408,5 +408,31 @@ frameworks.forEach((framework) => {
   test("check other comment is focused after other item is selected ", async (t) => {
     await ClientFunction(() => { window["survey"].setDesignMode(false); })();
     await t.click("input[value='other']").expect(Selector("textarea").focused).ok();
+  });
+});
+frameworks.forEach((framework) => {
+  const themeName = "defaultV2";
+  fixture`${framework} ${title}`
+    .page`${url_test}${themeName}/${framework}.html`
+    .beforeEach(async (t) => {
+      await applyTheme(themeName);
+      await initSurvey(framework, json);
+    });
+  test("maxSelectedChoices", async (t) => {
+    const setSurveyOptions = ClientFunction(() => {
+      window["survey"].questionsOnPageMode = "questionPerPage";
+      window["survey"].getAllQuestions()[0].maxSelectedChoices = 2;
+    });
+    await setSurveyOptions();
+    await t
+      .click(Selector(".sd-item__control-label").withText("Nissan"))
+      .click(Selector(".sd-item__control-label").withText("Audi"))
+      .click(Selector(".sd-item__control-label").withText("Ford"))
+      .click(Selector(".sd-item__control-label").withText("Audi"))
+      .click(Selector(".sd-item__control-label").withText("BMW"))
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.car).eql(["Nissan", "BMW"]);
   });
 });

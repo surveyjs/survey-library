@@ -3803,8 +3803,8 @@ export class SurveyModel extends SurveyElementCore
         page.setSurveyImpl(this);
         res.push(page);
         var json = new JsonObject().toJsonObject(originalElement);
-        new JsonObject().toObject(json, element);
         page.addElement(element);
+        new JsonObject().toObject(json, element);
         for (var k = 0; k < page.questions.length; k++) {
           this.questionHashesAdded(page.questions[k]);
         }

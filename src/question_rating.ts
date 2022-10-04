@@ -159,7 +159,6 @@ export class QuestionRatingModel extends Question {
       rateValues = res;
     }
 
-
     this.renderedRateItems = rateValues.map((v, i) => {
       if (this.displayRateDescriptionsAsExtremeItems) {
         if (i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);

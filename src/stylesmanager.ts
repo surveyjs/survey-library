@@ -403,7 +403,7 @@ export class StylesManager {
     ".sv-popup__pointer:after": "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * var(--base-unit, 8px)) solid transparent; border-right: calc(1 * var(--base-unit, 8px)) solid transparent; border-bottom: calc(1 * var(--base-unit, 8px)) solid var(--background, #fff); align-self: center;",
     ".sv-popup__body-header": "font-family: Open Sans; font-size: calc(3 * var(--base-unit, 8px)); line-height: calc(4 * var(--base-unit, 8px)); font-style: normal; font-weight: 700; margin-bottom: calc(2 * var(--base-unit, 8px)); color: var(--foreground, #161616);",
     ".sv-popup__body-footer": "display: flex; margin-top: calc(4 * var(--base-unit, 8px));",
-    ".sv-popup__body-footer .sv-action-bar": "gap: calc(1 * var(--base-unit, 8px));",
+    ".sv-popup__body-footer .sv-action-bar": "gap: calc(2 * var(--base-unit, 8px));",
     ".sv-popup__button": "padding: calc(2 * var(--base-unit, 8px)) calc(6 * var(--base-unit, 8px)); background: var(--background, #fff); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; margin: 2px; cursor: pointer; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); text-align: center; color: var(--primary, #19b394); border: none; outline: none;",
     ".sv-popup__button:hover": "box-shadow: 0 0 0 2px var(--primary, #19b394);",
     ".sv-popup__button:disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default;",

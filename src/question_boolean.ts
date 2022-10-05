@@ -7,7 +7,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 
 /**
- * A Model for a boolean question.
+ * A class that describes the Boolean question type.
  */
 export class QuestionBooleanModel extends Question {
   constructor(name: string) {
@@ -24,9 +24,6 @@ export class QuestionBooleanModel extends Question {
   supportGoNextPageAutomatic() {
     return this.renderAs !== "checkbox";
   }
-  /**
-   * Returns true if the question check will be rendered in indeterminate mode. value is empty.
-   */
   public get isIndeterminate(): boolean {
     return this.isEmpty();
   }
@@ -34,7 +31,9 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   /**
-   * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
+   * Gets or sets the question value as a Boolean value.
+   *
+   * If you set the `valueTrue` and `valueFalse` properties, the `value` property contains their values instead of Boolean values. This may be inconvenient when you operate the question value in code. To access the standard Boolean values, use the `checkedValue` property.
    * @see valueTrue
    * @see valueFalse
    */
@@ -55,9 +54,6 @@ export class QuestionBooleanModel extends Question {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
     }
   }
-  /**
-   * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
-   */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
   }
@@ -80,11 +76,7 @@ export class QuestionBooleanModel extends Question {
       ? this.getLocalizableString("title")
       : this.locLabel;
   }
-  /**
-   * The checkbox label. If it is empty and showTitle is false then title is rendered
-   * @see showTitle
-   * @see title
-   */
+
   @property({ localizable: true })
   label: string;
 
@@ -94,7 +86,11 @@ export class QuestionBooleanModel extends Question {
   }
 
   /**
-   * Set this property, if you want to have a different label for state when check is set.
+   * Gets or sets a text label that corresponds to a positive answer.
+   *
+   * Default value: "Yes"
+   * @see valueTrue
+   * @see valueFalse
    */
   public get labelTrue(): any {
     return this.getLocalizableStringText("labelTrue");
@@ -110,7 +106,11 @@ export class QuestionBooleanModel extends Question {
   }
 
   /**
-   * Set this property, if you want to have a different label for state when check is unset.
+   * Gets or sets a text label that corresponds to a negative answer.
+   *
+   * Default value: "No"
+   * @see valueTrue
+   * @see valueFalse
    */
   public get labelFalse(): any {
     return this.getLocalizableStringText("labelFalse");
@@ -122,19 +122,24 @@ export class QuestionBooleanModel extends Question {
     return this.getLocalizableString("labelFalse");
   }
 
-  /**
-   * Set this property to true to show the question title. It is hidden by default.
-   */
   @property()
   showTitle: boolean;
 
   /**
-   * Set this property, if you want to have a different value from true when check is set.
+   * A value to save in survey results when respondents give a positive answer.
+   *
+   * Default value: `true`
+   * @see labelTrue
+   * @see labelFalse
    */
   @property()
   valueTrue: any;
   /**
-   * Set this property, if you want to have a different value from false when check is unset.
+   * A value to save in survey results when respondents give a negative answer.
+   *
+   * Default value: `false`
+   * @see labelTrue
+   * @see labelFalse
    */
   @property()
   valueFalse: any;

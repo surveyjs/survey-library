@@ -1470,7 +1470,7 @@ Serializer.addClass(
     },
     "choicesFromQuestion:question_selectbase",
     {
-      name: "choices:itemvalue[]",
+      name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },

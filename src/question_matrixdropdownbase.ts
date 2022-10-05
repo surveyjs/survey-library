@@ -2301,7 +2301,7 @@ Serializer.addClass(
     },
     "horizontalScroll:boolean",
     {
-      name: "choices:itemvalue[]",
+      name: "choices:itemvalue[]", uniqueProperty: "value",
     },
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
     {

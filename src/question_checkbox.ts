@@ -141,11 +141,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     this.renderedValue = val;
   }
-  /**
-   * Returns true if item is checked
-   * @param item checkbox item value
-   */
-  public isItemSelectedCore(item: ItemValue): boolean {
+  protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;

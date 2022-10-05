@@ -4,6 +4,7 @@ export * from "./popup.survey.component";
 export * from "./page.component";
 export * from "./question.component";
 export * from "./string-viewer.component";
+export * from "./components/popup/popup-pointer.component";
 export * from "./components/popup/popup.component";
 export * from "./components/popup/popup-container.component";
 export * from "./components/skeleton.component";

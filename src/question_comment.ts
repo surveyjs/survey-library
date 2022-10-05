@@ -6,12 +6,15 @@ import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
 
 /**
- * A Model for a comment question
+ * A class that describes the Comment question type.
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
   /**
-   * The html rows attribute.
+   * Specifies the visible height of the comment area, measured in lines.
+   *
+   * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
+   * @see cols
    */
   public get rows(): number {
     return this.getPropertyValue("rows");
@@ -20,7 +23,10 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("rows", val);
   }
   /**
-   * The html cols attribute.
+   * Specifies the visible width of the comment area, measured in average character width.
+   *
+   * The value of this property is passed on to the `cols` attribute of the underlying `<textarea>` element.
+   * @see rows
    */
   public get cols(): number {
     return this.getPropertyValue("cols");
@@ -29,7 +35,9 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("cols", val);
   }
   /**
-   * Accepts pressing the Enter key by end-users and accepts carriage return symbols - \n - in the question value assigned.
+   * Specifies whether the question allows line breaks.
+   *
+   * When this property is enabled, a user can press Enter to insert line breaks. They are saved as `\n` in survey results. The Comment question also recognizes and interprets the `\n` sequence as a line break when you set the question `value` in code.
    */
   public get acceptCarriageReturn(): boolean {
     return this.getPropertyValue("acceptCarriageReturn");
@@ -38,9 +46,9 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("acceptCarriageReturn", val);
   }
   /**
-   * Specifies whether the question's text area automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
-   * Default value is false.
-   * @see SurveyModel.autoGrowComment
+   * Specifies whether the comment area automatically increases its height to accomodate multi-line content.
+   *
+   * Default value: `false` (inherited from the `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
    */
   public get autoGrow(): boolean {
     return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);

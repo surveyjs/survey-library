@@ -42,8 +42,8 @@ export class QuestionRatingModel extends Question {
         options.name == "minRateDescription" ||
         options.name == "maxRateDescription" ||
         options.name == "rateStep" ||
-        options.name == "displayRateDescriptionsAsExtremeItems" ||
-        options.name == "value"
+        options.name == "displayRateDescriptionsAsExtremeItems"/* ||
+        options.name == "value"*/
       ) {
         this.createRenderedRateItems();
         this.fireCallback(this.rateValuesChangedCallback);
@@ -162,7 +162,7 @@ export class QuestionRatingModel extends Question {
     this.renderedRateItems = rateValues.map((v, i) => {
       if (this.displayRateDescriptionsAsExtremeItems) {
         if (i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
-        if (i == this.visibleRateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
+        if (i == rateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
       }
       return new RenderedRatingItem(v);
     });

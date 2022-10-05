@@ -735,5 +735,3 @@ const surveyJson = {
   }]
 }
 ```
-
----

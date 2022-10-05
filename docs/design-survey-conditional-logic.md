@@ -700,7 +700,7 @@ If the `expression` is `true`, the trigger runs another expression specified by 
 
 Jumps to the target question's page and activates the question when `expression` evaluates to true. The `gotoName` property specifies the target question.
 
-In the following code, a trigger navigates to the `"additionalInfoPage"` page and activates the `"additionalInfo"` question if the `"sameAsBilling"` question is `True`:
+In the following code, a trigger navigates to the `"additionalInfoPage"` page and activates the `"additionalInfo"` question if the `"sameAsBilling"` question is `true`:
 
 ```js
 const surveyJson = {

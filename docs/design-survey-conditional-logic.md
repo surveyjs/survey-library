@@ -708,9 +708,9 @@ const surveyJson = {
   {
    "name": "billingAddressPage",
    "elements": [
-    {
-     "type": "text",
-     "name": "billingAddress"     
+    {     
+     "name": "billingAddress",
+     // ...     
     }
    ]
   },
@@ -721,20 +721,19 @@ const surveyJson = {
      "type": "boolean",
      "name": "sameAsBilling"     
     },
-    {
-     "type": "text",
+    {     
      "name": "shippingAddress",
-     "visibleIf": "{sameAsBilling} = false"
+     "visibleIf": "{sameAsBilling} = false",
+     // ...
     }
    ]
   },
   {
    "name": "additionalInfoPage",
    "elements": [
-    {
-     "type": "text",
+    {     
      "name": "additionalInfo",
-     "title": "additionalInfo"
+     // ...
     }
    ]
   }

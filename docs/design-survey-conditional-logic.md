@@ -704,47 +704,35 @@ In the following code, a trigger navigates to the `"additionalInfoPage"` and foc
 
 ```js
 const surveyJson = {
- "pages": [
-  {
+ "pages": [{
    "name": "billingAddressPage",
-   "elements": [
-    {     
+   "elements": [{
      "name": "billingAddress",
-     // ...     
-    }
-   ]
-  },
-  {
-   "name": "shippingAddressPage",
-   "elements": [
-    {
-     "type": "boolean",
-     "name": "sameAsBilling"     
-    },
-    {     
-     "name": "shippingAddress",
-     "visibleIf": "{sameAsBilling} = false",
      // ...
-    }
-   ]
-  },
-  {
+    }]
+  }, {
+   "name": "shippingAddressPage",
+   "elements": [{
+      "name": "sameAsBilling",
+      "choices": [ "Yes", "No" ]
+      // ...
+  }, {     
+     "name": "shippingAddress",
+     "visibleIf": "{sameAsBilling} = 'No'",
+     // ...
+    }]
+  }, {
    "name": "additionalInfoPage",
-   "elements": [
-    {     
+   "elements": [{
      "name": "additionalInfo",
      // ...
-    }
-   ]
-  }
- ],
- "triggers": [
-  {
+    }]
+  }],
+ "triggers": [{
    "type": "skip",
-   "expression": "{sameAsBilling} = true",
+   "expression": "{sameAsBilling} = 'Yes'",
    "gotoName": "additionalInfo"
-  }
- ]
+  }]
 }
 ```
 

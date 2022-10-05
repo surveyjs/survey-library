@@ -15169,6 +15169,20 @@ QUnit.test("Check survey width for different width modes",
   }
 );
 
+QUnit.test("Add px to numeric survey width",
+  function (assert) {
+    const model = new SurveyModel();
+
+    assert.equal(model.widthMode, "auto");
+    assert.equal(model.calculatedWidthMode, "static");
+    assert.equal(model.renderedWidth, undefined, "auto static width undefined");
+
+    model.width = "700";
+    assert.equal(model.calculatedWidthMode, "static");
+    assert.equal(model.renderedWidth, "700px", "auto add px 700px");
+  }
+);
+
 QUnit.test("Survey Localization - check errors update after locale changed", function (assert) {
   const survey = new SurveyModel({
     elements: [

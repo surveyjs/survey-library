@@ -1,7 +1,7 @@
 
 
 
-<div tabindex="0" [attr.data-sv-drop-target-ranking-item]="index" 
+<div [tabindex]="question.getItemTabIndex(model)" [attr.data-sv-drop-target-ranking-item]="index" 
     [class]="question.getItemClass(model)"
     (keydown)="question.handleKeydown($event, model)"
     (pointerdown)="question.handlePointerDown($event, model, $any($event.currentTarget))">

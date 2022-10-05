@@ -1,24 +1,18 @@
 <template>
-  <span style="position: static">
-    <span
-      class="sv-string-editor"
-      contenteditable="true"
-      style="position: static"
-      v-if="locString.hasHtml"
-      v-html="locString.renderedHtml"
-      @blur="onInput"
-      @click="onClick"
-    ></span>
-    <span
-      class="sv-string-editor"
-      contenteditable="true"
-      style="position: static"
-      v-else
-      @blur="onInput"
-      @click="onClick"
-      >{{ locString.renderedHtml }}</span
-    >
-  </span>
+  <span class="sv-string-editor" contenteditable="true"
+    v-if="locString.hasHtml"
+    v-html="locString.renderedHtml"
+    @blur="onInput"
+    @click="onClick"
+  ></span>
+  <span
+    class="sv-string-editor"
+    contenteditable="true"
+    v-else
+    @blur="onInput"
+    @click="onClick"
+    >{{ locString.renderedHtml }}</span
+  >
 </template>
 
 <script lang="ts">

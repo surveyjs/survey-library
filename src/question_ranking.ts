@@ -28,6 +28,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
 
+  public getItemTabIndex(item: ItemValue) {
+    return this.isDesignMode ? undefined : 0;
+  }
+
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -199,14 +203,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
-    const key: any = event.key;
-    const index = this.rankingChoices.indexOf(choice);
+    if (!this.isDesignMode) {
+      const key: any = event.key;
+      const index = this.rankingChoices.indexOf(choice);
 
-    if (key === "ArrowUp" && index) {
-      this.handleArrowUp(index, choice);
-    }
-    if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
-      this.handleArrowDown(index, choice);
+      if (key === "ArrowUp" && index) {
+        this.handleArrowUp(index, choice);
+      }
+      if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
+        this.handleArrowDown(index, choice);
+      }
+      event.preventDefault();
     }
   };
 

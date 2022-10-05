@@ -605,6 +605,7 @@ The following triggers are available:
 - [`setvalue`](#setvalue)
 - [`copyvalue`](#copyvalue)
 - [`runexpression`](#runexpression)
+- [`skip`](#skip)
   
 ---
 

@@ -5367,12 +5367,12 @@ QUnit.test("Survey Markdown - question title calls count", function (assert) {
   const q2 = <Question>page.addNewQuestion("text", "q2");
   let counter = 0;
   survey.onTextMarkdown.add((survey, options) => {
-    counter ++;
-    if(options.element.name == "q1") {
+    counter++;
+    if (options.element.name == "q1") {
       options.html = options.text + "!";
     }
   });
-  for(var i = 0; i < 10; i ++) {
+  for (var i = 0; i < 10; i++) {
     assert.equal(q1.title, "q1");
     assert.equal(q1.locTitle.renderedHtml, "q1!");
     assert.equal(q2.title, "q2");
@@ -15099,7 +15099,7 @@ QUnit.test("Check survey calculated width mode observability",
       ]
     };
     const model = new SurveyModel(json);
-    model.css.body="css-body";
+    model.css.body = "css-body";
 
     assert.equal(model.calculatedWidthMode, "static");
     assert.equal(model.bodyCss, "css-body css-body--static");
@@ -15301,7 +15301,8 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
         type: "radiogroup",
         name: "question1",
         choices: [1, 2]
-      }] },
+      }]
+    },
     {
       name: "page2",
       elements: [{
@@ -15342,6 +15343,36 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(page.hasDescription, true, "Page description is shown for 'de'");
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
+});
+QUnit.test("Test survey with custom type", function (assert) {
+  JsonObject.metaData.addClass(
+    "sortablelist",
+    [
+      { name: "hasOther", visible: false },
+      { name: "storeOthersAsComment", visible: false },
+      { name: "hasNone", visible: false },
+      { name: "renderAs", visible: false },
+      { name: "checkboxClass", visible: false },
+      { name: "hasSelectAll", visible: false },
+      { name: "noneText", visible: false },
+      { name: "selectAllText", visible: false },
+    ],
+    null,
+    "checkbox"
+  );
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "sortablelist",
+        name: "lifepriopity",
+        title: "Life Priorities ",
+        isRequired: true,
+        colCount: 0,
+        choices: ["family", "work", "pets", "travels", "games"],
+      },
+    ],
+  });
+  assert.equal(survey.getAllQuestions().length, 1);
 });
 QUnit.test("progress is not changed on the start page", function (assert) {
   const survey = new SurveyModel({
@@ -15391,7 +15422,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
   const question = survey.pages[0].elements[0] as any;
   let progressChangeCount = 0;
   survey.onPropertyChanged.add((s, o) => {
-    if(o.name === "progressText") {
+    if (o.name === "progressText") {
       progressChangeCount++;
     }
   });

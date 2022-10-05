@@ -327,10 +327,10 @@ export class QuestionRatingModel extends Question {
 Serializer.addClass(
   "rating",
   [
-    { name: "hasComment:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row" },
     {
       name: "commentText",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -341,7 +341,7 @@ Serializer.addClass(
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -352,17 +352,20 @@ Serializer.addClass(
         return surveyLocalization.getString("choices_Item");
       },
     },
-    { name: "rateMin:number", default: 1,
+    {
+      name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
-        return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep: val;
+        return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
       }
     },
-    { name: "rateMax:number", default: 5,
+    {
+      name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
-        return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep: val;
+        return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
       }
     },
-    { name: "rateStep:number", default: 1, minValue: 0.1,
+    {
+      name: "rateStep:number", default: 1, minValue: 0.1,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) val = 1;
         if (val > obj.rateMax - obj.rateMin)

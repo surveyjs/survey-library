@@ -46,7 +46,7 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "hasNone"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "showNoneItem"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -130,11 +130,17 @@ export class QuestionSelectBase extends Question {
   /**
    * Set this property to true, to show the "None" item on the bottom. If end-user checks this item, all other items would be unchecked.
    */
+  public get showNoneItem(): boolean {
+    return this.getPropertyValue("showNoneItem", false);
+  }
+  public set showNoneItem(val: boolean) {
+    this.setPropertyValue("showNoneItem", val);
+  }
   public get hasNone(): boolean {
-    return this.getPropertyValue("hasNone", false);
+    return this.showNoneItem;
   }
   public set hasNone(val: boolean) {
-    this.setPropertyValue("hasNone", val);
+    this.showNoneItem = val;
   }
   /**
    * Returns the none item. By using this property, you may change programmatically it's value and text.
@@ -871,10 +877,10 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return this.isSupportProperty("hasOther");
+    return this.isSupportProperty("showOtherItem");
   }
   public supportNone(): boolean {
-    return this.isSupportProperty("hasNone");
+    return this.isSupportProperty("showNoneItem");
   }
   protected isSupportProperty(propName: string): boolean {
     return (
@@ -1452,10 +1458,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "hasComment:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row" },
     {
       name: "commentText",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -1517,13 +1523,13 @@ Serializer.addClass(
       },
     },
     { name: "separateSpecialChoices:boolean", visible: false },
-    "hasOther:boolean",
-    "hasNone:boolean",
+    { name: "showOtherItem:boolean", alternativeName: "hasOther" },
+    { name: "showNoneItem:boolean", alternativeName: "hasNone" },
     {
       name: "otherPlaceholder",
       alternativeName: "otherPlaceHolder",
       serializationProperty: "locOtherPlaceholder",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },
@@ -1532,7 +1538,7 @@ Serializer.addClass(
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -1540,7 +1546,7 @@ Serializer.addClass(
     {
       name: "noneText",
       serializationProperty: "locNoneText",
-      dependsOn: "hasNone",
+      dependsOn: "showNoneItem",
       visibleIf: function (obj: any) {
         return obj.hasNone;
       },
@@ -1548,7 +1554,7 @@ Serializer.addClass(
     {
       name: "otherText",
       serializationProperty: "locOtherText",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },
@@ -1556,7 +1562,7 @@ Serializer.addClass(
     {
       name: "otherErrorText",
       serializationProperty: "locOtherErrorText",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },

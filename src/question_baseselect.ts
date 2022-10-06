@@ -1458,7 +1458,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "showCommentArea:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
       dependsOn: "showCommentArea",

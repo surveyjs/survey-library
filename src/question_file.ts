@@ -576,7 +576,7 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "showCommentArea:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
       dependsOn: "showCommentArea",

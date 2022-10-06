@@ -468,7 +468,7 @@ Serializer.addClass(
     },
     {
       name: "autoComplete",
-      dataList: settings.questions.dataList,
+      choices: settings.questions.dataList,
     },
     {
       name: "min",

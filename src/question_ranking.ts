@@ -257,7 +257,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     const res = super.getChoicesFromQuestion(question);
-    if(this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
       res.push(new ItemValue(question.otherItem.value, question.comment));
     }
     return res;
@@ -334,13 +334,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 Serializer.addClass(
   "ranking",
   [
-    { name: "hasOther", visible: false, isSerializable: false },
+    { name: "showOtherItem", visible: false, isSerializable: false },
     { name: "otherText", visible: false, isSerializable: false },
     { name: "otherErrorText", visible: false, isSerializable: false },
     { name: "storeOthersAsComment", visible: false, isSerializable: false },
-    { name: "hasNone", visible: false, isSerializable: false },
+    { name: "showNoneItem", visible: false, isSerializable: false },
     { name: "noneText", visible: false, isSerializable: false },
-    { name: "hasSelectAll", visible: false, isSerializable: false },
+    { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },

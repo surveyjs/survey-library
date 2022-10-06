@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { createPopupModalViewModel, PopupBaseViewModel, settings, IDialogOptions, createDialogOptions } from "survey-core";
+import { createPopupModalViewModel, PopupBaseViewModel, settings, IDialogOptions, createDialogOptions, createPopupViewModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
@@ -32,7 +32,7 @@ export function showModal(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
-) {
+): void {
   const options = createDialogOptions(
     componentName,
     data,
@@ -58,7 +58,7 @@ settings.showModal = showModal;
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const viewModel = new PopupBaseViewModel(
+      const viewModel = createPopupViewModel(
         ko.unwrap(params.model),
         componentInfo.element.parentElement
       );

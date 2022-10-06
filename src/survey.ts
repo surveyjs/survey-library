@@ -1858,7 +1858,7 @@ export class SurveyModel extends SurveyElementCore
     return options.text;
   }
   /**
-   * Returns the text that is displayed when there are no any visible pages and questiona.
+   * Returns the text displayed when a survey has no visible pages and questions.
    */
   public get emptySurveyText(): string {
     return this.getLocalizationString("emptySurvey");
@@ -3803,8 +3803,8 @@ export class SurveyModel extends SurveyElementCore
         page.setSurveyImpl(this);
         res.push(page);
         var json = new JsonObject().toJsonObject(originalElement);
-        new JsonObject().toObject(json, element);
         page.addElement(element);
+        new JsonObject().toObject(json, element);
         for (var k = 0; k < page.questions.length; k++) {
           this.questionHashesAdded(page.questions[k]);
         }
@@ -6298,7 +6298,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("width", val);
   }
   public get renderedWidth(): string {
-    return this.getPropertyValue("calculatedWidthMode") == "static" && this.getPropertyValue("width") || undefined;
+    let width = this.getPropertyValue("width");
+    if (width && !isNaN(width)) width = width + "px";
+    return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
 
   public get timerInfoText(): string {

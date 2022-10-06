@@ -1,23 +1,37 @@
 import { ChangeDetectorRef, Component, Input } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
-import { PopupBaseViewModel } from "survey-core";
+import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-popup-container, '[sv-ng-popup-container]'",
   templateUrl: "./popup-container.component.html"
 })
 
-export class PopupContainerComponent extends BaseAngular<PopupBaseViewModel> {
+export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
   private prevIsVisible: boolean = false;
   isShow: boolean = false;
-  @Input() model!: PopupBaseViewModel;
+  @Input() model!: T;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
     this.changeDetectorRef.detach();
   }
-  protected getModel(): PopupBaseViewModel {
+  protected getModel(): T {
     return this.model;
+  }
+
+  get applyButtonText(): string | null {
+    const popupModalModel = this.model as any as PopupModalViewModel;
+    if(!popupModalModel) return null;
+
+    return popupModalModel.applyButtonText;
+  }
+
+  apply(): void {
+    const popupModalModel = this.model as any as PopupModalViewModel;
+    if(!popupModalModel) return;
+
+    popupModalModel.apply();
   }
 
   protected override onModelChanged(): void {

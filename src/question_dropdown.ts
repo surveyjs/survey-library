@@ -17,9 +17,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   updateReadOnlyText(): void {
     let result = this.placeholder;
-    if(this.hasOther && this.isOtherSelected) {
+    if (this.hasOther && this.isOtherSelected) {
       result = this.otherText;
-    } else if(!!this.selectedItem) {
+    } else if (!!this.selectedItem) {
       result = this.renderAs == "select" ? this.selectedItemText : "";
     }
     this.readOnlyText = result;
@@ -31,7 +31,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "hasOther", "otherText", "placeholder"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();
@@ -240,7 +240,7 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    { name: "autoComplete", dataList: settings.questions.dataList, },
+    { name: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "inputFieldComponent", visible: false },

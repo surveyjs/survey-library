@@ -2,6 +2,7 @@
  <input
     v-if="item.visible"
     type="button"
+    :disabled="item.disabled"
     :value="item.title"
     :class="item.innerCss"
     @mousedown="buttonMouseDown"

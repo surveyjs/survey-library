@@ -1,7 +1,10 @@
 import { PopupUtils } from "../../src/utils/popup";
 import { PopupModel } from "../../src/popup";
-import { PopupBaseViewModel } from "../../src/popup";
+import { PopupBaseViewModel } from "../../src/popup-view-model";
+import { createPopupViewModel } from "../../src/popup-utils";
 import { surveyLocalization } from "../../src/surveyStrings";
+import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
+import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -63,16 +66,13 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(trace, "->onToggleVisibility");
 });
 
-QUnit.test("PopupViewModel defaults", (assert) => {
+QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   surveyLocalization.currentLocale = "";
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -80,7 +80,7 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   assert.equal(viewModel.contentComponentData, data);
   assert.equal(viewModel.model.verticalPosition, "bottom");
   assert.equal(viewModel.model.horizontalPosition, "left");
-  assert.equal(viewModel.showPointer, true);
+  assert.equal(viewModel.showHeader, true);
   assert.equal(viewModel.isModal, false);
   assert.equal(typeof viewModel.model.onCancel, "function");
   assert.equal(typeof viewModel.model.onApply, "function");
@@ -105,8 +105,45 @@ QUnit.test("PopupViewModel defaults", (assert) => {
   assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement.tagName, "BODY");
 
+  assert.equal(viewModel.footerToolbar.actions.length, 1);
+  assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
+
+  viewModel.dispose();
+});
+
+QUnit.test("PopupModalViewModel defaults", (assert) => {
+  surveyLocalization.currentLocale = "";
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data);
+  model.isModal = true;
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.contentComponentName, "sv-list");
+  assert.equal(viewModel.contentComponentData, data);
+  assert.equal(viewModel.model.verticalPosition, "bottom");
+  assert.equal(viewModel.model.horizontalPosition, "left");
+  assert.equal(viewModel.isModal, true);
+  assert.equal(typeof viewModel.model.onCancel, "function");
+  assert.equal(typeof viewModel.model.onApply, "function");
+  assert.equal(typeof viewModel.model.onHide, "function");
+  assert.equal(typeof viewModel.model.onShow, "function");
+  assert.equal(viewModel.model.cssClass, "");
+  assert.equal(viewModel.isVisible, false);
+
+  const container: HTMLElement = viewModel.container;
+  assert.equal(!!container, true);
+  assert.equal(container.tagName, "DIV");
+  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+  assert.equal(container.parentElement.tagName, "BODY");
+
   assert.equal(viewModel.applyButtonText, "Apply");
   assert.equal(viewModel.cancelButtonText, "Cancel");
+  assert.equal(viewModel.footerToolbar.actions.length, 2);
+  assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
+  assert.equal(viewModel.footerToolbar.actions[1].title, viewModel.applyButtonText);
 
   viewModel.dispose();
 });
@@ -114,7 +151,7 @@ QUnit.test("PopupViewModel defaults", (assert) => {
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -134,10 +171,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
 QUnit.test("PopupViewModel isVisible", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -183,10 +217,8 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
 QUnit.test("PopupModel toggleVisibility", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -228,13 +260,10 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   viewModel.dispose();
 });
 
-QUnit.test("PopupModel clickOutside", (assert) => {
+QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -273,17 +302,32 @@ QUnit.test("PopupModel clickOutside", (assert) => {
   assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 
+  viewModel.dispose();
+});
+
+QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
   model.isModal = true;
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.isVisible, false);
+
+  let trace: String = "";
+  model.onHide = () => {
+    trace += "->onHide";
+  };
+  model.onShow = () => {
+    trace += "->onShow";
+  };
+
   model.toggleVisibility();
   trace = "";
   viewModel.clickOutside();
   assert.equal(trace, "");
   assert.equal(viewModel.isVisible, true);
-  assert.equal(viewModel.top, "0px");
-  assert.equal(viewModel.left, "0px");
-  assert.equal(viewModel.popupDirection, "left");
-  assert.equal(viewModel.pointerTarget.left, "0px");
-  assert.equal(viewModel.pointerTarget.top, "0px");
   trace = "";
 
   viewModel.dispose();
@@ -292,7 +336,7 @@ QUnit.test("PopupModel clickOutside", (assert) => {
 QUnit.test("PopupModel cancel", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+  const viewModel: PopupBaseViewModel = createPopupViewModel(
     model,
     targetElement
   );
@@ -337,11 +381,9 @@ QUnit.test("PopupModel cancel", (assert) => {
 
 QUnit.test("PopupModel apply", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
+  model.isModal = true;
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -384,11 +426,9 @@ QUnit.test("PopupModel apply", (assert) => {
 
 QUnit.test("PopupModel apply when not allow", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
+  model.isModal = true;
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -415,7 +455,7 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", data);
 
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+  const viewModel: PopupBaseViewModel = createPopupViewModel(
     model,
     targetElement
   );
@@ -449,7 +489,7 @@ QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", data);
 
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
+  const viewModel: PopupBaseViewModel = createPopupViewModel(
     model,
     targetElement
   );
@@ -950,25 +990,31 @@ QUnit.test("Check updateHorizontalDimensions positionMode is fixed", (assert) =>
   assert.equal(newHorizontalDimensions.left, 100, "updateHorizontalDimensions - center+fixed - without margin");
 });
 
-QUnit.test("PopupModel displayMode", (assert) => {
+QUnit.test("PopupModel dropdown displayMode", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
   assert.equal(viewModel.showFooter, false);
   assert.equal(viewModel.styleClass, "sv-popup--dropdown sv-popup--show-pointer sv-popup--left");
-  model.isModal = true;
-  assert.equal(viewModel.showFooter, true);
-  assert.equal(viewModel.styleClass, "sv-popup--modal");
-  model.isModal = false;
   model.displayMode = "overlay";
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
+
+  viewModel.dispose();
+});
+
+QUnit.test("PopupModel isModal displayMode", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
   model.isModal = true;
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.styleClass, "sv-popup--modal");
+  model.displayMode = "overlay";
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
   viewModel.dispose();
@@ -987,10 +1033,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
@@ -1020,10 +1063,7 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(
-    model,
-    targetElement
-  );
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
@@ -1055,7 +1095,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
@@ -1090,7 +1130,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
@@ -1125,7 +1165,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
@@ -1159,7 +1199,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
-  const viewModel: PopupBaseViewModel = new PopupBaseViewModel(model, targetElement);
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
   let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;

@@ -22,6 +22,16 @@ QUnit.test("get default strings", function(assert) {
   assert.equal(surveyLocalization.getString("pageNextText"), "Next");
   surveyLocalization.currentLocale = "";
 });
+QUnit.test("get default strings for unknown default locale", function(assert) {
+  surveyLocalization.defaultLocale = "unknown";
+  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
+  surveyLocalization.currentLocale = "en";
+  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
+  surveyLocalization.currentLocale = "unknown";
+  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
+  surveyLocalization.currentLocale = "";
+  surveyLocalization.defaultLocale = "en";
+});
 QUnit.test("add new localization", function(assert) {
   var newLoc = { pageNextText: "Mynext" };
   surveyLocalization.locales["myen"] = newLoc;

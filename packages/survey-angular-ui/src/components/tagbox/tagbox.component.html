@@ -6,7 +6,7 @@
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
         <div [class]="model.cssClasses.controlValue">
             <ng-container *ngIf="!model.isEmpty()">
-                <sv-ng-tagbox-item *ngFor="let item of model.selectedItems" [item]="item" [question]="model">
+                <sv-ng-tagbox-item *ngFor="let item of model.selectedChoices" [item]="item" [question]="model">
                 </sv-ng-tagbox-item>
             </ng-container>
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>

@@ -12,19 +12,19 @@
 <img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
 
-A free and open-source MIT-licensed JavaScript form builder library that allows designing dynamic, data-driven, multi-language survey forms and run them in your web applications.
+A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
 ## Features
 
 - Dynamic forms, surveys, polls, and quizzes for your JavaScript application
-- Integration for React.js, Angular, Vue.js, jQuery, and Knockout
+- Integration with React, Angular, Vue, jQuery, and Knockout
 - 20+ built-in question types and support for custom question types
-- Full Customization of CSS and built-in themes
+- Built-in themes and CSS customization
 - Answer validation
 - TypeScript support
 - Community-supported UI localization to 50+ languages
 - Integration with any backend framework (examples for PHP, NodeJS, and ASP.NET included)
-- Any server + database combination is fully compatible
+- Compatibility with any server + database combination
 - Third-party component integration
 
 ## Get Started

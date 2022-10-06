@@ -701,7 +701,7 @@ If the `expression` is `true`, the trigger runs another expression specified by 
 
 Switches the survey to a target question's page and focuses the question. The `gotoName` property specifies the target question.
 
-In the following code, a trigger navigates to the `"additionalInfoPage"` and focuses the `"additionalInfo"` question if the `"sameAsBilling"` question is `Yes`:
+In the following code, a trigger navigates to `"additionalInfoPage"` and focuses the `"additionalInfo"` question if the `"sameAsBilling"` question is `Yes`:
 
 ```js
 const surveyJson = {

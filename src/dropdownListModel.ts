@@ -228,21 +228,22 @@ export class DropdownListModel extends Base {
     doKey2ClickBlur(event);
   }
   scrollToFocusedItem(): void {
-    setTimeout(() => {
-      let visiblePopup: Element = undefined;
-      document.querySelectorAll(".sv-popup").forEach((el) => {
-        const style = window.getComputedStyle(el);
-        if((style.display !== "none") && (style.visibility !== "hidden")) {
-          visiblePopup = el;
-        }
-      });
+    this.listModel.scrollToFocusedItem();
+    // setTimeout(() => {
+    //   let visiblePopup: Element = undefined;
+    //   document.querySelectorAll(".sv-popup").forEach((el) => {
+    //     const style = window.getComputedStyle(el);
+    //     if((style.display !== "none") && (style.visibility !== "hidden")) {
+    //       visiblePopup = el;
+    //     }
+    //   });
 
-      if(!visiblePopup) return;
+    //   if(!visiblePopup) return;
 
-      const item = visiblePopup.querySelector("." + defaultListCss.itemFocused);
-      if(item) {
-        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-      }
-    }, 0);
+    //   const item = visiblePopup.querySelector("." + defaultListCss.itemFocused);
+    //   if(item) {
+    //     item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    //   }
+    // }, 0);
   }
 }

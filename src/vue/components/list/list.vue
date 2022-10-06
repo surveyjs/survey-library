@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="model.cssClasses.root">
+  <div v-bind:class="model.cssClasses.root" ref="listContainerElement">
     <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
       <div v-bind:class="model.cssClasses.filterIcon">
         <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
@@ -69,6 +69,10 @@ export class List extends BaseVue {
   }
   mouseMove(event: any) {
     this.model.onMouseMove(event);
+  }
+  mounted() {
+    super.mounted();
+    this.model.initListContainerHtmlElement(this.$refs["listContainerElement"]);
   }
 }
 

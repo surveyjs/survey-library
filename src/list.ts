@@ -29,6 +29,8 @@ export interface IListModel {
   onFilterStringChangedCallback?: (text: string) => void;
 }
 export class ListModel extends ActionContainer {
+  private listContainerHtmlElement: HTMLElement;
+
   @property({
     defaultValue: true,
     onSet: (newValue: boolean, target: ListModel) => {
@@ -48,6 +50,7 @@ export class ListModel extends ActionContainer {
       target.onFilterStringChanged(target.filterString);
     }
   }) filterString: string;
+  @property({ defaultValue: false }) hasVerticalScroller: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -217,5 +220,25 @@ export class ListModel extends ActionContainer {
   }
   public selectFocusedItem(): void {
     this.onItemClick(this.focusedItem);
+  }
+  public initListContainerHtmlElement(htmlElement: HTMLElement): void {
+    this.listContainerHtmlElement = htmlElement;
+  }
+  public scrollToFocusedItem(): void {
+    setTimeout(() => {
+      if(!this.listContainerHtmlElement) return;
+
+      const item = this.listContainerHtmlElement.querySelector("." + defaultListCss.itemFocused);
+      if(item) {
+        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }
+    }, 0);
+  }
+  public setItems(items: Array<IAction>, sortByVisibleIndex?: boolean): void {
+    super.setItems(items, sortByVisibleIndex);
+
+    if(!!this.listContainerHtmlElement) {
+      this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.listContainerHtmlElement);
+    }
   }
 }

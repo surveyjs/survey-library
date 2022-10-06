@@ -14,6 +14,7 @@ ko.components.register("sv-list", {
     createViewModel: (params: any, componentInfo: any) => {
       const model: ListModel = params.model;
       const _implementor: ImplementorBase = new ActionContainerImplementor(model);
+      model.initListContainerHtmlElement(componentInfo.element);
       return { model: model, dispose: () => { _implementor.dispose(); } };
     },
   },

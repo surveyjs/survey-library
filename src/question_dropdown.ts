@@ -198,9 +198,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
     return this.dropdownListModel?.popupModel;
   }
-  public get lazyLoading(): boolean {
-    return true;
-  }
+  // public get lazyLoading(): boolean {
+  //   return true;
+  // }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {

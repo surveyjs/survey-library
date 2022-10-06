@@ -176,7 +176,7 @@ export class LocalizableString implements ILocalizableString {
       }
       return;
     }
-    if (!settings.keepDuplicatedValuesForLocales &&
+    if (!settings.storeDuplicatedTranslations &&
       value &&
       loc &&
       loc != this.defaultLoc &&
@@ -206,7 +206,7 @@ export class LocalizableString implements ILocalizableString {
     this.fireStrChanged(oldValue, value);
   }
   private canRemoveLocValue(loc: string, val: string): boolean {
-    if(settings.keepDuplicatedValuesForLocales) return false;
+    if(settings.storeDuplicatedTranslations) return false;
     if(loc === this.defaultLoc) return false;
     const dialect = this.getRootDialect(loc);
     if(!!dialect) {

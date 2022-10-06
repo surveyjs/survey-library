@@ -732,7 +732,7 @@ QUnit.test("Get/set language dialect", function(assert) {
   }, "Add en-UK");
 });
 QUnit.test("Do not reset values in any locale", function(assert) {
-  settings.keepDuplicatedValuesForLocales = true;
+  settings.storeDuplicatedTranslations = true;
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
   locString.text = "default";
@@ -747,5 +747,5 @@ QUnit.test("Do not reset values in any locale", function(assert) {
     pt: "default-pt",
     "pt-br": "default-pt",
   }, "Do not reset any locale value");
-  settings.keepDuplicatedValuesForLocales = false;
+  settings.storeDuplicatedTranslations = false;
 });

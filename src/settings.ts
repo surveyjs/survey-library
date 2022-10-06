@@ -63,7 +63,7 @@ export var settings = {
   /**
    * By default we do not store a value for a locale if it equals to "default" locale value
    */
-  keepDuplicatedValuesForLocales: false,
+  storeDuplicatedTranslations: false,
   /**
    * Default row name for matrix (single choice)
    */

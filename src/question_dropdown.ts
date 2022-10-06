@@ -17,9 +17,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   updateReadOnlyText(): void {
     let result = this.placeholder;
-    if(this.hasOther && this.isOtherSelected) {
+    if (this.hasOther && this.isOtherSelected) {
       result = this.otherText;
-    } else if(!!this.selectedItem) {
+    } else if (!!this.selectedItem) {
       result = this.renderAs == "select" ? this.selectedItemText : "";
     }
     this.readOnlyText = result;
@@ -31,7 +31,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "hasOther", "otherText", "placeholder"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();

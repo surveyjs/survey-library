@@ -739,3 +739,44 @@ QUnit.test("check locOwner for items", (assert) => {
 
   assert.equal(question.choices[0].locText.owner, question.choices[0], "item1 text owner is item1");
 });
+
+QUnit.test("check renamed has... properties", (assert) => {
+  const question = new QuestionCheckboxModel("q1");
+  assert.notOk(question.hasNone);
+  assert.notOk(question.hasSelectAll);
+  assert.notOk(question.hasOther);
+  assert.notOk(question.hasComment);
+
+  assert.notOk(question.showNoneItem);
+  assert.notOk(question.showSelectAllItem);
+  assert.notOk(question.showOtherItem);
+  assert.notOk(question.showCommentArea);
+
+  question.showNoneItem = true;
+  assert.ok(question.showNoneItem);
+  assert.ok(question.hasNone);
+  question.hasNone = false;
+  assert.notOk(question.showNoneItem);
+  assert.notOk(question.hasNone);
+
+  question.showSelectAllItem = true;
+  assert.ok(question.showSelectAllItem);
+  assert.ok(question.hasSelectAll);
+  question.hasSelectAll = false;
+  assert.notOk(question.showSelectAllItem);
+  assert.notOk(question.hasSelectAll);
+
+  question.showOtherItem = true;
+  assert.ok(question.showOtherItem);
+  assert.ok(question.hasOther);
+  question.hasOther = false;
+  assert.notOk(question.showOtherItem);
+  assert.notOk(question.hasOther);
+
+  question.showCommentArea = true;
+  assert.ok(question.showCommentArea);
+  assert.ok(question.hasComment);
+  question.hasComment = false;
+  assert.notOk(question.showCommentArea);
+  assert.notOk(question.hasComment);
+});

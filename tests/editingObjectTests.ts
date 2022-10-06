@@ -19,7 +19,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 
 export default QUnit.module("Survey.editingObj Tests");
 
-QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue", function(
+QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue", function (
   assert
 ) {
   var question = new QuestionTextModel("q1");
@@ -67,7 +67,7 @@ QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue", function(
 
 QUnit.test(
   "Serializer.getObjPropertyValue/setObjPropertyValue for bindings",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMatrixDynamicModel("q1");
     Serializer.setObjPropertyValue(question, "bindings", {
       rowCount: "q2",
@@ -79,7 +79,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue for arrays", function(assert) {
+QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue for arrays", function (assert) {
   Serializer.addProperty("question", { name: "tagbox:set", choices: [1, 2, 3, 4] });
   const question = new QuestionTextModel("q1");
   const val = [1, 2];
@@ -91,7 +91,7 @@ QUnit.test("Serializer.getObjPropertyValue/setObjPropertyValue for arrays", func
 });
 QUnit.test(
   "Serializer.getObjPropertyValue doesn't work correctly for multipletext item",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMultipleTextModel("q1");
     question.addItem("item1");
     assert.equal(
@@ -103,7 +103,7 @@ QUnit.test(
 );
 QUnit.test(
   "Serializer.getObjPropertyValue doesn't work correctly for multipletext item + validators",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMultipleTextModel("q1");
     var item = question.addItem("item1");
     item.validators.push(new ExpressionValidator());
@@ -116,7 +116,7 @@ QUnit.test(
 );
 QUnit.test(
   "Serializer.getObjPropertyValue  for matrix dynamic columns",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMatrixDynamicModel("q1");
     question.addColumn("column1");
     assert.equal(
@@ -127,7 +127,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Edit object property using the survey", function(assert) {
+QUnit.test("Edit object property using the survey", function (assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel();
   survey.editingObj = question;
@@ -146,7 +146,7 @@ QUnit.test("Edit object property using the survey", function(assert) {
     "isRequired property is default again"
   );
 });
-QUnit.test("Expression based on object properties", function(assert) {
+QUnit.test("Expression based on object properties", function (assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel({
     elements: [
@@ -164,7 +164,7 @@ QUnit.test("Expression based on object properties", function(assert) {
     "min property should be visible by default"
   );
 });
-QUnit.test("React on property change", function(assert) {
+QUnit.test("React on property change", function (assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel({
     elements: [
@@ -185,7 +185,7 @@ QUnit.test("React on property change", function(assert) {
   question.inputType = "text";
   assert.equal(minQuestion.isVisible, true, "min property is visible again");
 });
-QUnit.test("property value is changed on set", function(assert) {
+QUnit.test("property value is changed on set", function (assert) {
   var question = new QuestionRatingModel("q1");
   question.rateMin = 3;
   var survey = new SurveyModel({
@@ -200,7 +200,7 @@ QUnit.test("property value is changed on set", function(assert) {
   assert.equal(question.rateMax, 4, "Do not set 1, revert to 4");
   assert.equal(rateMax.value, 4, "Change editor value as well");
 });
-QUnit.test("Edit question title property", function(assert) {
+QUnit.test("Edit question title property", function (assert) {
   var question = new QuestionTextModel("q1");
   var survey = new SurveyModel({
     elements: [
@@ -222,7 +222,7 @@ QUnit.test("Edit question title property", function(assert) {
     "Update text on changing locTitle.text"
   );
 });
-QUnit.test("Edit question title property, setup initial value", function(
+QUnit.test("Edit question title property, setup initial value", function (
   assert
 ) {
   var question = new QuestionTextModel("q1");
@@ -238,7 +238,7 @@ QUnit.test("Edit question title property, setup initial value", function(
   survey.clearValue("title");
   assert.equal(question.title, "q1", "Reset question title");
 });
-QUnit.test("Edit columns in matrix", function(assert) {
+QUnit.test("Edit columns in matrix", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   question.addColumn("col1");
   question.addColumn("col2", "Column 2");
@@ -286,7 +286,7 @@ QUnit.test("Edit columns in matrix", function(assert) {
     "column added with correct type"
   );
 });
-QUnit.test("Edit columns in matrix, check for empty titles", function(assert) {
+QUnit.test("Edit columns in matrix, check for empty titles", function (assert) {
   const question = new QuestionMatrixDynamicModel("q1");
   question.addColumn("col1");
   question.addColumn("col2");
@@ -326,7 +326,7 @@ QUnit.test("Edit columns in matrix, check for empty titles", function(assert) {
   assert.equal(survey.getQuestionByName("name").value, "col1", "column.name #5");
   assert.notOk(survey.getQuestionByName("title").value, "column.title #5");
 });
-QUnit.test("allowRowsDragAndDrop and editingObj", function(assert) {
+QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   question.addColumn("col1");
   question.addColumn("col2");
@@ -361,7 +361,7 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function(assert) {
 });
 QUnit.test(
   "Edit columns in matrix, where there is no columns from the beginning",
-  function(assert) {
+  function (assert) {
     var question = new QuestionMatrixDynamicModel("q1");
     var survey = new SurveyModel({
       elements: [
@@ -400,7 +400,7 @@ QUnit.test(
     assert.equal(question.columns[0].title, "title1", "Edit title correctly");
   }
 );
-QUnit.test("Edit columns in matrix, column isRequired and isUnique", function(
+QUnit.test("Edit columns in matrix, column isRequired and isUnique", function (
   assert
 ) {
   var question = new QuestionMatrixDynamicModel("q1");
@@ -463,7 +463,7 @@ QUnit.test("Edit columns in matrix, column isRequired and isUnique", function(
     "set name property into column"
   );
 });
-QUnit.test("Edit choices in matrix", function(assert) {
+QUnit.test("Edit choices in matrix", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
   var survey = new SurveyModel({
@@ -515,7 +515,7 @@ QUnit.test("Edit choices in matrix", function(assert) {
     "set text property from matrix"
   );
 });
-QUnit.test("Edit choices in matrix", function(assert) {
+QUnit.test("Edit choices in matrix", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
   var survey = new SurveyModel({
@@ -553,7 +553,7 @@ QUnit.test("Edit choices in matrix", function(assert) {
   );
 });
 
-QUnit.test("Edit choices in matrix with custom property", function(assert) {
+QUnit.test("Edit choices in matrix with custom property", function (assert) {
   Serializer.addProperty("itemvalue", "imageLink");
   var question = new QuestionMatrixDynamicModel("q1");
   var survey = new SurveyModel({
@@ -595,7 +595,7 @@ QUnit.test("Edit choices in matrix with custom property", function(assert) {
   );
   Serializer.removeProperty("itemvalue", "imageLink");
 });
-QUnit.test("Edit choices in matrix + detailPanel + hasError", function(assert) {
+QUnit.test("Edit choices in matrix + detailPanel + hasError", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   var survey = new SurveyModel({
     elements: [
@@ -627,7 +627,7 @@ QUnit.test("Edit choices in matrix + detailPanel + hasError", function(assert) {
   rows[0].cells[0].value = "item1";
   assert.equal(matrix.hasErrors(), false, "value is not null");
 });
-QUnit.test("Edit custom choices in matrix with custom property", function(
+QUnit.test("Edit custom choices in matrix with custom property", function (
   assert
 ) {
   Serializer.addClass("itemvalues_ex", [], null, "itemvalue");
@@ -680,7 +680,7 @@ QUnit.test("Edit custom choices in matrix with custom property", function(
   Serializer.removeClass("itemvalues_ex");
 });
 
-QUnit.test("Edit rateValues in matrix", function(assert) {
+QUnit.test("Edit rateValues in matrix", function (assert) {
   var question = new QuestionRatingModel("q1");
   var survey = new SurveyModel({
     elements: [
@@ -722,7 +722,7 @@ QUnit.test("Edit rateValues in matrix", function(assert) {
   );
 });
 
-QUnit.test("Edit validators in matrix", function(assert) {
+QUnit.test("Edit validators in matrix", function (assert) {
   var question = new QuestionTextModel("q1");
   //question.validators.push(new ExpressionValidator());
   var survey = new SurveyModel({
@@ -776,10 +776,10 @@ QUnit.test("Edit validators in matrix", function(assert) {
   );
 });
 
-QUnit.test("Composite: create from code", function(assert) {
+QUnit.test("Composite: create from code", function (assert) {
   var json = {
     name: "propertygrid_restful",
-    createElements: function(panel, question) {
+    createElements: function (panel, question) {
       panel.fromJSON({
         elements: [
           { type: "text", name: "url", title: question.title + "_url" },
@@ -792,7 +792,7 @@ QUnit.test("Composite: create from code", function(assert) {
     elements: [{ type: "propertygrid_restful", name: "choicesByUrl" }],
   });
   var counter = 0;
-  survey.onValueChanging.add(function(sender, options) {
+  survey.onValueChanging.add(function (sender, options) {
     counter++;
   });
   var question = new QuestionDropdownModel("q1");
@@ -816,7 +816,7 @@ QUnit.test("Composite: create from code", function(assert) {
   ComponentCollection.Instance.clear();
 });
 
-QUnit.test("simple validation, checkErrorsMode: onValueChanging", function(
+QUnit.test("simple validation, checkErrorsMode: onValueChanging", function (
   assert
 ) {
   var question = new QuestionDropdownModel("q1");
@@ -827,7 +827,7 @@ QUnit.test("simple validation, checkErrorsMode: onValueChanging", function(
       { type: "comment", name: "title" },
     ],
   });
-  survey.onValidateQuestion.add(function(sender, options) {
+  survey.onValidateQuestion.add(function (sender, options) {
     if (options.name !== "name") return;
     options.error = options.value.length != 3 ? "require3symbols" : null;
   });
@@ -841,7 +841,7 @@ QUnit.test("simple validation, checkErrorsMode: onValueChanging", function(
   assert.equal(question.name, "qq2", "We have new value");
   assert.equal(nameQuestion.errors.length, 0, "There is no errors");
 });
-QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function(
+QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function (
   assert
 ) {
   var question = new QuestionMatrixDynamicModel("q1");
@@ -860,7 +860,7 @@ QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function(
       },
     ],
   });
-  survey.onMatrixCellValidate.add(function(sender, options) {
+  survey.onMatrixCellValidate.add(function (sender, options) {
     if (options.columnName != "name") return;
     options.error = options.value.length != 4 ? "Error in name" : null;
   });
@@ -879,7 +879,7 @@ QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function(
   assert.equal(row.cells[0].question.errors.length, 0, "There is no errors");
   assert.equal(question.columns[0].name, "col3", "column name is changed");
 });
-QUnit.test("Edit question string[] property type", function(assert) {
+QUnit.test("Edit question string[] property type", function (assert) {
   var question = new QuestionTextModel("q1");
   question.dataList = ["item1", "item2"];
   var survey = new SurveyModel({
@@ -887,11 +887,11 @@ QUnit.test("Edit question string[] property type", function(assert) {
     elements: [{ type: "comment", name: "dataList" }],
   });
   var dataListQuestion = survey.getQuestionByName("dataList");
-  dataListQuestion.valueFromDataCallback = function(val: any): any {
+  dataListQuestion.valueFromDataCallback = function (val: any): any {
     if (!Array.isArray(val)) return "";
     return val.join("\n");
   };
-  dataListQuestion.valueToDataCallback = function(val: any): any {
+  dataListQuestion.valueToDataCallback = function (val: any): any {
     if (!val) return [];
     return val.split("\n");
   };
@@ -908,7 +908,7 @@ QUnit.test("Edit question string[] property type", function(assert) {
   question.locDataList.setLocaleText(null, "abc\ndef");
   assert.equal(dataListQuestion.value, "abc\ndef", "Update edited question correctly");
 });
-QUnit.test("Edit custom array that returns values onGetValue", function(
+QUnit.test("Edit custom array that returns values onGetValue", function (
   assert
 ) {
   Serializer.addProperty("page", {
@@ -916,10 +916,10 @@ QUnit.test("Edit custom array that returns values onGetValue", function(
     className: "page",
     category: "general",
     displayName: "Page order",
-    onGetValue: function(obj) {
+    onGetValue: function (obj) {
       return !!obj && !!obj.survey ? obj.survey.pages : [];
     },
-    onSetValue: function(obj) {
+    onSetValue: function (obj) {
       //Do nothing
     },
     isSerializable: false,
@@ -952,11 +952,11 @@ QUnit.test("Edit custom array that returns values onGetValue", function(
   assert.equal(rows.length, 3, "There are 3 pages");
   Serializer.removeProperty("page", "pages");
 });
-QUnit.test("Edit matrix dynamic column", function(assert) {
+QUnit.test("Edit matrix dynamic column", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   var column = question.addColumn("col1", "Column 1");
   column.cellType = "checkbox";
-  column["hasSelectAll"] = true;
+  column["showSelectAllItem"] = true;
   var survey = new SurveyModel({
     elements: [
       {
@@ -1001,7 +1001,7 @@ QUnit.test("Edit matrix dynamic column", function(assert) {
     "column hasSelectAll changed correctly"
   );
 });
-QUnit.test("Edit choices in matrix dynamic column", function(assert) {
+QUnit.test("Edit choices in matrix dynamic column", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   var column = question.addColumn("col1", "Column 1");
   column.cellType = "checkbox";
@@ -1027,7 +1027,7 @@ QUnit.test("Edit choices in matrix dynamic column", function(assert) {
   matrix.visibleRows[0].cells[0].value = "Item 1";
   assert.equal(column["choices"][0].value, "Item 1", "value changed in matrix");
 });
-QUnit.test("Edit question.page property", function(assert) {
+QUnit.test("Edit question.page property", function (assert) {
   var questionSurvey = new SurveyModel();
   questionSurvey.addNewPage("page1");
   questionSurvey.addNewPage("page2");
@@ -1054,7 +1054,7 @@ QUnit.test("Edit question.page property", function(assert) {
   pageQuestion.value = "page2";
   assert.equal(question.page.name, "page2", "Set question.page from survey");
 });
-QUnit.test("Dispose editing survey correctly", function(assert) {
+QUnit.test("Dispose editing survey correctly", function (assert) {
   var questionSurvey = new SurveyModel();
   questionSurvey.addNewPage("page1");
   var question = questionSurvey.pages[0].addNewQuestion("text", "q1");
@@ -1094,7 +1094,7 @@ QUnit.test("Dispose editing survey correctly", function(assert) {
     "react on changing in survey2"
   );
 });
-QUnit.test("Change locale", function(assert) {
+QUnit.test("Change locale", function (assert) {
   var localeSurvey = new SurveyModel();
   var json = {
     elements: [
@@ -1112,7 +1112,7 @@ QUnit.test("Change locale", function(assert) {
 });
 QUnit.test(
   "Do not call notification on changing properties that are not exists in Serialization",
-  function(assert) {
+  function (assert) {
     var questionSurvey = new SurveyModel({
       elements: [{ type: "text", name: "q1" }],
     });
@@ -1136,7 +1136,7 @@ QUnit.test(
     assert.equal(counter, 0, "Do not send any notifications");
   }
 );
-QUnit.test("Do not set directly array objects", function(assert) {
+QUnit.test("Do not set directly array objects", function (assert) {
   var editingSurvey = new SurveyModel();
   editingSurvey.addNewPage("page1");
   editingSurvey.addNewPage("page2");
@@ -1157,7 +1157,7 @@ QUnit.test("Do not set directly array objects", function(assert) {
   assert.equal(editingSurvey.pages.length, 1, "There is one page now");
 });
 
-QUnit.test("Do not break reactive array in original object", function(assert) {
+QUnit.test("Do not break reactive array in original object", function (assert) {
   var question = new QuestionMatrixModel("q1");
   question.addColumn("col1");
   question.addColumn("col2");
@@ -1216,7 +1216,7 @@ QUnit.test("Do not break reactive array in original object", function(assert) {
   assert.notOk(colCountOnChanged["value"], "We do not iterate by value");
 });
 
-QUnit.test("Value property editor test", function(assert) {
+QUnit.test("Value property editor test", function (assert) {
   var propertyGridValueJSON = {
     name: "propertygrid_value",
     showInToolbox: false,

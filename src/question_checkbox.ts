@@ -25,7 +25,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.selectAllItem.setLocText(selectAllItemText);
 
     this.registerPropertyChangedHandlers(
-      ["hasSelectAll", "selectAllText"],
+      ["showSelectAllItem", "selectAllText"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -92,11 +92,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see isAllSelected
    * @see separateSpecialChoices
    */
+  public get showSelectAllItem(): boolean {
+    return this.getPropertyValue("showSelectAllItem", false);
+  }
+  public set showSelectAllItem(val: boolean) {
+    this.setPropertyValue("showSelectAllItem", val);
+  }
+
   public get hasSelectAll(): boolean {
-    return this.getPropertyValue("hasSelectAll", false);
+    return this.showSelectAllItem;
   }
   public set hasSelectAll(val: boolean) {
-    this.setPropertyValue("hasSelectAll", val);
+    this.showSelectAllItem = val;
   }
   /**
    * Returns `true` if all choice items, except "Other" and "None", are selected.
@@ -144,11 +151,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     this.renderedValue = val;
   }
-  /**
-   * Returns true if item is checked
-   * @param item checkbox item value
-   */
-  public isItemSelectedCore(item: ItemValue): boolean {
+  protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
@@ -301,7 +304,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected supportSelectAll() {
-    return this.isSupportProperty("hasSelectAll");
+    return this.isSupportProperty("showSelectAllItem");
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (
@@ -504,13 +507,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "checkbox",
   [
-    "hasSelectAll:boolean",
+    { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",
-      dependsOn: "hasSelectAll",
+      dependsOn: "showSelectAllItem",
       visibleIf: function (obj: any) {
         return obj.hasSelectAll;
       }

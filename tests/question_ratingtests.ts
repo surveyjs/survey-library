@@ -226,3 +226,40 @@ QUnit.test("check getItemClass in display mode", (assert) => {
   const item = q1.visibleRateValues[0];
   assert.ok(q1.getItemClass(item).indexOf("sv_q_rating_hover") == -1);
 });
+QUnit.test("Check numeric item values recalculation", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleRateValues.length, 5);
+  q1.rateMax = 6;
+  assert.equal(q1.visibleRateValues.length, 6);
+  q1.rateStep = 2;
+  assert.equal(q1.visibleRateValues.length, 3);
+  q1.rateMin = 0;
+  assert.equal(q1.visibleRateValues.length, 4);
+});
+
+QUnit.test("Check rateValues on text change", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateValues.length, 0);
+  var oldRendered = q1.renderedRateValues;
+  q1.visibleRateValues[0].text = 'abc';
+  assert.equal(q1.rateValues.length, 5);
+  assert.equal(q1.renderedRateValues, oldRendered, "renderedRateValues is not cloned");
+});

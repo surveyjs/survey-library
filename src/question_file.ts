@@ -41,7 +41,7 @@ export class QuestionFileModel extends Question {
 
   constructor(name: string) {
     super(name);
-    this.fileIndexAction = new Action ({
+    this.fileIndexAction = new Action({
       id: "fileIndex",
       title: this.getFileIndexCaption(),
       enabled: false
@@ -49,7 +49,7 @@ export class QuestionFileModel extends Question {
     this.prevFileAction = new Action({
       id: "prevPage",
       iconSize: 16,
-      action: ()=>{
+      action: () => {
         this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.previewValue.length) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -57,7 +57,7 @@ export class QuestionFileModel extends Question {
     this.nextFileAction = new Action({
       id: "nextPage",
       iconSize: 16,
-      action: ()=>{
+      action: () => {
         this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -84,7 +84,7 @@ export class QuestionFileModel extends Question {
   }
   public clearOnDeletingContainer() {
     if (!this.survey) return;
-    this.survey.clearFiles(this, this.name, this.value, null, () => {});
+    this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
    * Set it to true, to show the preview for the image files.
@@ -349,7 +349,7 @@ export class QuestionFileModel extends Question {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-      (Array.isArray(newValue) && newValue.length > 0)
+        (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -375,11 +375,11 @@ export class QuestionFileModel extends Question {
       });
       if (state === "loading") this.stateChanged("loaded");
     } else {
-      if(!!this._previewLoader) {
+      if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if(status === "loaded") {
+        if (status === "loaded") {
           this.previewValue = loaded;
         }
         this.stateChanged("loaded");
@@ -576,11 +576,11 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "hasComment:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
-      dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      dependsOn: "showCommentArea",
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -590,8 +590,8 @@ Serializer.addClass(
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",
-      dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      dependsOn: "showCommentArea",
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
     },
@@ -609,7 +609,7 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
   ],
-  function() {
+  function () {
     return new QuestionFileModel("");
   },
   "question"
@@ -626,7 +626,7 @@ export class FileLoader {
     files.forEach((value) => {
       if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
-          if(!this.fileQuestion || !this.callback) {
+          if (!this.fileQuestion || !this.callback) {
             return;
           }
           if (status === "success") {

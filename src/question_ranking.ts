@@ -209,11 +209,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
       if (key === "ArrowUp" && index) {
         this.handleArrowUp(index, choice);
+        event.preventDefault();
       }
       if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
         this.handleArrowDown(index, choice);
+        event.preventDefault();
       }
-      event.preventDefault();
     }
   };
 

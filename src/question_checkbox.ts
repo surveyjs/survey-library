@@ -184,7 +184,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see visibleChoices
    * @see enabledChoices
    */
-  public get selectedItems(): Array<ItemValue> {
+  public get selectedChoices(): Array<ItemValue> {
     if (this.isEmpty()) return [];
     var val = this.renderedValue;
     var res = [];
@@ -193,6 +193,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return res;
   }
+  public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);

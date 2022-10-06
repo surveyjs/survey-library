@@ -19,7 +19,7 @@
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
-          v-for="(item, index) in question.selectedItems"
+          v-for="(item, index) in question.selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"

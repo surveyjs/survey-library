@@ -23,7 +23,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
 
   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
     const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
-    const items = this.question.selectedItems.map((choice, index) => { return this.renderItem("item" + index, choice); });
+    const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
       <div
         id={this.question.inputId}

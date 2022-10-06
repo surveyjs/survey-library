@@ -339,7 +339,7 @@ export class QuestionRatingModel extends Question {
 Serializer.addClass(
   "rating",
   [
-    { name: "showCommentArea:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
       dependsOn: "showCommentArea",

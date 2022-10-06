@@ -2126,6 +2126,6 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", default: false, alternativeName: "hasComment" }
+  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment" }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

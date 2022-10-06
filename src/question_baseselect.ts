@@ -530,7 +530,7 @@ export class QuestionSelectBase extends Question {
   /**
    * Inherits choice items from a specified question. Accepts a question name.
    *
-   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties does not apply because their values are inherited.
+   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are inherited.
    *
    * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to inherit all choice items.
    * @see choicesFromQuestionMode

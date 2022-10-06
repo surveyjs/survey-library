@@ -10,8 +10,42 @@ import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
+  private itemsSettings: {startIndex: number, pageSize: number, total: number } = { startIndex: 0, pageSize: 10, total: 0 };
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
+
+  private resetItemsSettings() {
+    this.itemsSettings.startIndex = 0;
+    this.itemsSettings.pageSize = 10;
+    this.itemsSettings.total = 0;
+  }
+
+  private updateListItems() {
+    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
+  }
+  private setItems(loaded: boolean, items: Array<any>, total: number) {
+    if(loaded) {
+      this.question.choices = items;
+      this.itemsSettings.total = total;
+      this.updateListItems();
+    }
+  }
+
+  private updateQuestionData(): void {
+    const isUpdate = (this.itemsSettings.startIndex + 1) < this.itemsSettings.total;
+    if(!this.itemsSettings.startIndex || isUpdate) {
+      this.question.survey.getQuestionData({
+        question: this.question,
+        filterString: this.filterString,
+        startIndex: this.itemsSettings.startIndex,
+        pageSize: this.itemsSettings.pageSize,
+        setItems: (loaded: boolean, items: Array<any>, total: number) => {
+          this.setItems(loaded, items, total);
+        }
+      });
+      this.itemsSettings.startIndex += this.itemsSettings.pageSize;
+    }
+  }
 
   private updatePopupFocusFirstInputSelector() {
     this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
@@ -28,12 +62,17 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+      if(option.isVisible) {
+        this.updateQuestionData();
+      }
+
       if (option.isVisible && !!this.question.onOpenedCallBack) {
         this.updatePopupFocusFirstInputSelector();
         this.question.onOpenedCallBack();
       }
       if(!option.isVisible) {
         this.onHidePopup();
+        this.resetItemsSettings();
       }
     });
   }
@@ -118,12 +157,11 @@ export class DropdownListModel extends Base {
     this.listModel.searchEnabled = false;
     this.searchEnabled = newValue;
   }
-  public updateItems() {
-    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
+  public updateItems(): void {
+    this.updateListItems();
   }
 
   public onClick(event: any): void {
-    if (this.question.visibleChoices.length === 0) return;
     this._popupModel.toggleVisibility();
     this.listModel.focusNextVisibleItem();
 

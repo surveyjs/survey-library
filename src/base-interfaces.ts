@@ -169,6 +169,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): IQuestion;
   canChangeChoiceItemsVisibility(): boolean;
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
+  getQuestionData(options: { question: IQuestion, filterString: string, startIndex: number, pageSize: number, setItems: (loaded: boolean, items: Array<any>, total: number) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixBeforeRowAdded(options: {
     question: IQuestion,

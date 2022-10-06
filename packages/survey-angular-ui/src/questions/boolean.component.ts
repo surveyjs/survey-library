@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class BooleanQuestionComponent extends QuestionAngular<QuestionBooleanModel> {
   onChange(event: any) {
-    this.model.checkedValue = event.target.value;
+    this.model.booleanValue = event.target.value;
   }
 }
 

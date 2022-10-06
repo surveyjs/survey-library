@@ -26,7 +26,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
   */
   private doCheck(value: boolean) {
-    this.question.checkedValue = value;
+    this.question.booleanValue = value;
   }
   handleOnChange(event: any) {
     this.doCheck(event.target.checked);
@@ -64,14 +64,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             type="checkbox"
             name={this.question.name}
             value={
-              this.question.checkedValue === null
+              this.question.booleanValue === null
                 ? ""
-                : this.question.checkedValue
+                : this.question.booleanValue
             }
             id={this.question.inputId}
             className={cssClasses.control}
             disabled={this.isDisplayMode}
-            checked={this.question.checkedValue || false}
+            checked={this.question.booleanValue || false}
             onChange={this.handleOnChange}
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}

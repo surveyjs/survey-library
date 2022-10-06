@@ -19,14 +19,14 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               type="checkbox"
               name={this.question.name}
               value={
-                this.question.checkedValue === null
+                this.question.booleanValue === null
                   ? ""
-                  : this.question.checkedValue
+                  : this.question.booleanValue
               }
               id={this.question.inputId}
               className={cssClasses.controlCheckbox}
               disabled={this.isDisplayMode}
-              checked={this.question.checkedValue || false}
+              checked={this.question.booleanValue || false}
               onChange={this.handleOnChange}
               aria-required={this.question.ariaRequired}
               aria-label={this.question.ariaLabel}

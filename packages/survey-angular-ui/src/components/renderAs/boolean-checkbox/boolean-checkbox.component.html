@@ -3,9 +3,9 @@
     <label [class]="model.cssClasses.checkboxLabel">
       <input
         type="checkbox"
-        [value]="model.checkedValue" [class]="model.cssClasses.controlCheckbox" 
+        [value]="model.booleanValue" [class]="model.cssClasses.controlCheckbox" 
         [attr.name]="model.name" [id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
-        [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [(ngModel)]="model.checkedValue" [value]="model.checkedValue"
+        [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [(ngModel)]="model.booleanValue" [value]="model.booleanValue"
         [disabled]="model.isInputReadOnly" [indeterminate]="model.isIndeterminate"
       />
       <span [class]="model.cssClasses.checkboxMaterialDecorator">

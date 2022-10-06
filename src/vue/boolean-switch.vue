@@ -4,8 +4,8 @@
       <input
         type="checkbox"
         :name="question.name"
-        :value="question.checkedValue"
-        v-model="question.checkedValue"
+        :value="question.booleanValue"
+        v-model="question.booleanValue"
         :class="question.cssClasses.control"
         :id="question.inputId"
         :indeterminate.prop="question.isIndeterminate"

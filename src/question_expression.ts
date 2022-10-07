@@ -32,7 +32,7 @@ export class QuestionExpressionModel extends Question {
     return false;
   }
   /**
-   * A string that formats the question value. Use `{0}` to reference the question value in the format string.
+   * A string that formats a question value. Use `{0}` to reference the question value in the format string.
    * @see displayStyle
    */
   public get format(): string {

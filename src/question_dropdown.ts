@@ -102,7 +102,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return res;
   }
   /**
-   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choices items: [10, 20, 30].
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
    * ```js
    * "choicesMin": 10,
@@ -119,7 +119,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesMin", val);
   }
   /**
-   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choices items: [10, 20, 30].
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
    * ```js
    * "choicesMin": 10,
@@ -136,7 +136,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesMax", val);
   }
   /**
-   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choices items: [10, 20, 30].
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
    * ```js
    * "choicesMin": 10,

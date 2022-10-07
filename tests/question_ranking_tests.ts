@@ -209,3 +209,38 @@ QUnit.test("Ranking: ReadOnlyMode ", function(assert) {
   survey.mode = "display";
   assert.equal(q["allowStartDrag"], false);
 });
+
+QUnit.test("Ranking: design mode", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+
+  var upCalled = 0, downCalled = 0, preventDefaultCalled = 0;
+  var q = <QuestionRankingModel>survey.getQuestionByName("q");
+  q["handleArrowUp"] = () => { upCalled++; };
+  q["handleArrowDown"] = () => { downCalled++; };
+  function preventDefault() { preventDefaultCalled++ };
+
+  q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
+  assert.equal(upCalled, 1);
+  assert.equal(downCalled, 0);
+  assert.equal(preventDefaultCalled, 1);
+
+  q.handleKeydown(<any>{ key: "ArrowDown", preventDefault: preventDefault }, q.choices[1]);
+  assert.equal(upCalled, 1);
+  assert.equal(downCalled, 1);
+  assert.equal(preventDefaultCalled, 2);
+
+  survey["_isDesignMode"] = true;
+  q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
+  q.handleKeydown(<any>{ key: "ArrowDown", preventDefault: preventDefault }, q.choices[1]);
+  assert.equal(upCalled, 1);
+  assert.equal(downCalled, 1);
+  assert.equal(preventDefaultCalled, 2);
+});

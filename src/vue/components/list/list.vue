@@ -70,8 +70,7 @@ export class List extends BaseVue {
   mouseMove(event: any) {
     this.model.onMouseMove(event);
   }
-  mounted() {
-    super.mounted();
+  protected onMounted() {
     const listContainerElement: any = this.$refs["listContainerElement"];
     this.model.initListContainerHtmlElement(listContainerElement);
   }

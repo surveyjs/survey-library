@@ -2,7 +2,7 @@ import { Action, IAction } from "./actions/action";
 import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
-import { defaultListCss, ListModel } from "./list";
+import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";

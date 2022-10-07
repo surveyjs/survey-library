@@ -7,6 +7,8 @@ import { increaseHeightByContent } from "./utils/utils";
 
 /**
  * A class that describes the Comment question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-comment/ (linkStyle))
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;

@@ -13,6 +13,8 @@ import { IQuestion } from "./base-interfaces";
 
 /**
  * A class that describes the Checkbox question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue = new ItemValue("selectall");

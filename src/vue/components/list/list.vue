@@ -72,7 +72,8 @@ export class List extends BaseVue {
   }
   mounted() {
     super.mounted();
-    this.model.initListContainerHtmlElement(this.$refs["listContainerElement"]);
+    const listContainerElement: any = this.$refs["listContainerElement"];
+    this.model.initListContainerHtmlElement(listContainerElement);
   }
 }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, DoCheck, Input, OnChanges, OnDestroy, SimpleChanges } from "@angular/core";
 import { LocalizableString } from "survey-core";
 import { AngularComponentFactory } from "./component-factory";
 
@@ -7,14 +7,20 @@ import { AngularComponentFactory } from "./component-factory";
   templateUrl: "./string-viewer.component.html",
   styleUrls: ["./string-viewer.component.scss"]
 })
-export class StringViewerComponent implements OnChanges, OnDestroy {
-  @Input() model: any;
+export class StringViewerComponent implements DoCheck {
+  @Input() model!: LocalizableString;
+  private previousModel: LocalizableString | undefined;
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
-  ngOnChanges(changes: SimpleChanges): void {
-    const currentValue = changes["model"].currentValue;
-    const previousValue = changes["model"].previousValue;
-    currentValue.onChanged = () => { this.changeDetectorRef.detectChanges(); };
-    !!previousValue && this.clearOnChanged(previousValue);
+  ngDoCheck(): void {
+    if(this.model !== this.previousModel) {
+      if(!!this.previousModel) {
+        this.clearOnChanged(this.previousModel);
+      }
+      if(!!this.model) {
+        this.model.onChanged = () => { this.changeDetectorRef.detectChanges(); };
+      }
+      this.previousModel = this.model;
+    }
   }
   clearOnChanged(model: LocalizableString) {
     model.onChanged = () => {};

@@ -8,6 +8,8 @@ import { preventDefaults } from "./utils/utils";
 
 /**
  * A class that describes the Boolean question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
 export class QuestionBooleanModel extends Question {
   constructor(name: string) {

@@ -317,3 +317,20 @@ QUnit.test("Incorrect default value in matrix dynamic", function (assert) {
   matrix.renderedTable;
   assert.ok(!!matrix["renderedTableValue"]);
 });
+QUnit.test("matrix dropdown getElementsInDesign", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }, { name: "col2" }]
+      },
+    ],
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  var elements = matrix.getElementsInDesign();
+  assert.equal(elements.length, 2);
+  assert.equal(elements[0], matrix.columns[0]);
+  assert.equal(elements[1], matrix.columns[1]);
+});

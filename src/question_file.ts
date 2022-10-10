@@ -263,12 +263,12 @@ export class QuestionFileModel extends Question {
     return this.imageWidth + "px";
   }
 
+  /**
+   * Remove file item programmatically.
+   */
   public removeFile(name: string) {
     this.removeFileByContent({ name });
   }
-  /**
- * Remove file item programmatically.
- */
   protected removeFileByContent(content: { name: string }) {
     if (!this.survey) return;
     this.survey.clearFiles(

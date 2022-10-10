@@ -6,7 +6,9 @@ import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
 
 /**
- * A Model for expression question. It is a read-only question. It calculates value based on epxression property.
+ * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-expression/ (linkStyle))
  */
 export class QuestionExpressionModel extends Question {
   private expressionIsRunning: boolean;
@@ -30,7 +32,8 @@ export class QuestionExpressionModel extends Question {
     return false;
   }
   /**
-   * Use this property to display the value in your own format. Make sure you have "{0}" substring in your string, to display the actual value.
+   * A string that formats a question value. Use `{0}` to reference the question value in the format string.
+   * @see displayStyle
    */
   public get format(): string {
     return this.getLocalizableStringText("format", "");
@@ -42,8 +45,9 @@ export class QuestionExpressionModel extends Question {
     return this.getLocalizableString("format");
   }
   /**
-   * The Expression that used to calculate the question value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
-   * Example: "({quantity} * {price}) * (100 - {discount}) / 100"
+   * An expression used to calculate the question value.
+   *
+   * Refer to the following help topic for more information: [Expressions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#expressions).
    */
   public get expression(): string {
     return this.getPropertyValue("expression", "");
@@ -84,7 +88,11 @@ export class QuestionExpressionModel extends Question {
     return false;
   }
   /**
-   * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
+   *
+   * Default value: -1
+   * @see displayStyle
+   * @see minimumFractionDigits
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits");
@@ -94,7 +102,11 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("maximumFractionDigits", val);
   }
   /**
-   * The minimum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The minimum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
+   *
+   * Default value: -1
+   * @see displayStyle
+   * @see maximumFractionDigits
    */
   public get minimumFractionDigits(): number {
     return this.getPropertyValue("minimumFractionDigits");
@@ -136,8 +148,21 @@ export class QuestionExpressionModel extends Question {
     return res;
   }
   /**
-   * You may set this property to "decimal", "currency", "percent" or "date". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
+   * Specifies a display style for the question value.
+   *
+   * Possible values:
+   *
+   * - `"decimal"`
+   * - `"currency"`
+   * - `"percent"`
+   * - `"date"`
+   * - `"none"` (default)
+   *
+   * If you use the `"currency"` display style, you can also set the `currency` property to specify a currency other than USD.
    * @see currency
+   * @see minimumFractionDigits
+   * @see maximumFractionDigits
+   * @see format
    */
   public get displayStyle(): string {
     return this.getPropertyValue("displayStyle");
@@ -146,8 +171,13 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("displayStyle", val);
   }
   /**
-   * Use it to display the value in the currency differen from USD. The displayStype should be set to "currency".
+   * A three-letter currency code. Applies only if the `displayStyle` property is set to `"currency"`.
+   *
+   * Default value: "USD".
    * @see displayStyle
+   * @see minimumFractionDigits
+   * @see maximumFractionDigits
+   * @see format
    */
   public get currency(): string {
     return this.getPropertyValue("currency");
@@ -157,7 +187,9 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("currency", val);
   }
   /**
-   * 	Determines whether to display grouping separators. The default value is true.
+   * Specifies whether to use grouping separators in number representation. Separators depend on the selected [locale](https://surveyjs.io/form-library/documentation/surveymodel#locale).
+   *
+   * Default value: `true`
    */
   public get useGrouping(): boolean {
     return this.getPropertyValue("useGrouping");

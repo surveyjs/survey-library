@@ -86,8 +86,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   private update() {
     if (this.getIsRendering()) return;
     this.beforeUpdate();
-    this.detectChanges();
-    this.afterUpdate();
+    queueMicrotask(() => {
+      this.detectChanges();
+      this.afterUpdate();
+    });
   }
 
   protected detectChanges() {

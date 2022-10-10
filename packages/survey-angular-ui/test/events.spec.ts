@@ -61,8 +61,10 @@ describe("event tests", () => {
     });
     fixture.autoDetectChanges(true);
     component.model.nextPage();
-    expect(callCount).toBe(2);
-    done();
+    setTimeout(() => {
+      expect(callCount).toBe(2);
+      done();
+    });
   });
   it("Check that after render panel is called correctly", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);

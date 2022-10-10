@@ -30,7 +30,7 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   font-family: $font-family;
   box-sizing: border-box;
-  padding: calcSize(6) calcSize(8);
+  padding: calcSize(1.5) calcSize(8);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

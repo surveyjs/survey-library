@@ -112,6 +112,11 @@ export class DropdownListModel extends Base {
     }
     const res = new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
     res.locOwner = this.question;
+    res.onPropertyChanged.add((sender: any, options: any) => {
+      if (options.name == "hasVerticalScroller") {
+        this.hasScroll = options.newValue;
+      }
+    });
     return res;
   }
   protected resetFilterString(): void {
@@ -137,6 +142,12 @@ export class DropdownListModel extends Base {
       target.onSetFilterString();
     }
   }) filterString: string;
+  @property({
+    defaultValue: false,
+    onSet: (newVal: boolean, target: DropdownListModel) => {
+      // addEventListener
+    }
+  }) hasScroll: boolean;
 
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
@@ -220,7 +231,10 @@ export class DropdownListModel extends Base {
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
   }
-
+  onScroll(event: Event):void {
+    const target = event.target;
+    // load next items
+  }
   onBlur(event: any): void {
     this.resetFilterString();
     this._popupModel.isVisible = false;
@@ -229,21 +243,5 @@ export class DropdownListModel extends Base {
   }
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();
-    // setTimeout(() => {
-    //   let visiblePopup: Element = undefined;
-    //   document.querySelectorAll(".sv-popup").forEach((el) => {
-    //     const style = window.getComputedStyle(el);
-    //     if((style.display !== "none") && (style.visibility !== "hidden")) {
-    //       visiblePopup = el;
-    //     }
-    //   });
-
-    //   if(!visiblePopup) return;
-
-    //   const item = visiblePopup.querySelector("." + defaultListCss.itemFocused);
-    //   if(item) {
-    //     item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-    //   }
-    // }, 0);
   }
 }

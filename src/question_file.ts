@@ -264,7 +264,7 @@ export class QuestionFileModel extends Question {
   }
 
   public removeFile(name: string) {
-    this.removeFileByContent({ name })
+    this.removeFileByContent({ name });
   }
   /**
  * Remove file item programmatically.
@@ -455,8 +455,8 @@ export class QuestionFileModel extends Question {
         propertyName: string,
       }>,
     } = {
-        includeEmpty: true,
-      }
+      includeEmpty: true,
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {

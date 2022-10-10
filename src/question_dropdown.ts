@@ -30,6 +30,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
+    this.createLocalizableString("cleanCaption", this, false, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
@@ -57,7 +58,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * A placeholder for the input field.
    */
-  public get placeholder() {
+  public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
   set placeholder(val: string) {
@@ -66,6 +67,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }
+
+  public get cleanCaption(): string {
+    return this.getLocalizableStringText("cleanCaption");
+  }
+  public set cleanCaption(value: string) {
+    this.setLocalizableStringText("cleanCaption", value);
+  }
+  get locCleanCaption(): LocalizableString {
+    return this.getLocalizableString("cleanCaption");
+  }
+
   public getType(): string {
     return "dropdown";
   }
@@ -180,10 +192,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     }
   }) searchEnabled: boolean;
-  /**
-   * The clean files button caption.
-   */
-  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
 

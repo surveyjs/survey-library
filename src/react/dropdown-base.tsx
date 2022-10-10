@@ -122,7 +122,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
          <SvgIcon
            className={this.question.cssClasses.cleanButtonSvg}
            iconName={this.question.cssClasses.cleanButtonIconId}
-           title={this.question.cleanButtonCaption}
+           title={this.question.cleanCaption}
            size={"auto"}
          ></SvgIcon>
        </div>

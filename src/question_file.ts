@@ -11,15 +11,20 @@ import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 
 /**
- * A Model for a file question
+ * A class that describes the File question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
   @property() isDragging: boolean = false;
   /**
-   * The event is fired after question state has been changed.
-   * sender the question object that fires the event
-   * options.state new question state value.
+   * An event that is raised after the upload state has changed.
+   *
+   * Parameters:
+   *
+   * - `sender` - A question instance that raised the event.
+   * - `options.state` - Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
@@ -87,7 +92,9 @@ export class QuestionFileModel extends Question {
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
-   * Set it to true, to show the preview for the image files.
+   * Specifies whether to show a preview of image files.
+   *
+   * Default value: `true`
    */
   public get showPreview() {
     return this.getPropertyValue("showPreview");
@@ -96,7 +103,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("showPreview", val);
   }
   /**
-   * Set it to true, to allow select multiple files.
+   * Specifies whether users can upload multiple files.
+   *
+   * Default value: `false`
    */
   public get allowMultiple() {
     return this.getPropertyValue("allowMultiple", false);
@@ -123,7 +132,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("imageWidth", val);
   }
   /**
-   * Accepted file types. Passed to the 'accept' attribute of the file input tag. See https://www.w3schools.com/tags/att_input_accept.asp for more details.
+   * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");
@@ -132,9 +141,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("acceptedTypes", val);
   }
   /**
-   * Set it to false if you do not want to serialize file content as text in the survey.data.
-   * In this case, you have to write the code onUploadFiles event to store the file content.
-   * @see SurveyModel.onUploadFiles
+   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) proeprty.
+   *
+   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler in which you should specify how to store file content.
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText");
@@ -143,7 +152,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("storeDataAsText", val);
   }
   /**
-   * Set it to true if you want to wait until files will be uploaded to your server.
+   * Enable this property if you want to wait until files are uploaded to complete the survey.
+   *
+   * Default value: `false`
    */
   public get waitForUpload(): boolean {
     return this.getPropertyValue("waitForUpload");
@@ -161,7 +172,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("allowImagesPreview", val);
   }
   /**
-   * Use this property to setup the maximum allowed file size.
+   * Maximum allowed file size, measured in bytes.
+   *
+   * Default value: 0 (unlimited)
    */
   public get maxSize(): number {
     return this.getPropertyValue("maxSize");
@@ -170,7 +183,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("maxSize", val);
   }
   /**
-   * Use this property to setup confirmation to remove file.
+   * Specifies whether users should confirm file deletion.
+   *
+   * Default value: `false`
    */
   public get needConfirmRemoveFile(): boolean {
     return this.getPropertyValue("needConfirmRemoveFile");
@@ -178,57 +193,24 @@ export class QuestionFileModel extends Question {
   public set needConfirmRemoveFile(val: boolean) {
     this.setPropertyValue("needConfirmRemoveFile", val);
   }
-  /**
-   * The remove file confirmation message.
-   */
   public getConfirmRemoveMessage(fileName: string): string {
     return (<any>this.confirmRemoveMessage).format(fileName);
   }
-  /**
-   * The remove file confirmation message template.
-   */
   @property({ localizable: { defaultStr: "confirmRemoveFile" } }) confirmRemoveMessage: string;
-  /**
-   * The remove all files confirmation message.
-   */
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
-  /**
-   * The no file chosen caption for modern theme.
-   */
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
-  /**
-   * The choose files button caption for modern theme.
-   */
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  /**
-   * The clean files button caption.
-   */
   @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
-  /**
-   * The remove file button caption.
-   */
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
-  /**
-   * The loading file input title.
-   */
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
-  /**
-  * The choose file input title.
-  */
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
 
-  /**
-   * The input title value.
-   */
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
     if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
-  /**
-   * Clear value programmatically.
-   */
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
     this.containsMultiplyFiles = false;
@@ -264,7 +246,7 @@ export class QuestionFileModel extends Question {
   }
 
   /**
-   * Remove file item programmatically.
+   * Removes a file with a specified name.
    */
   public removeFile(content: { name: string }) {
     if (!this.survey) return;
@@ -286,8 +268,8 @@ export class QuestionFileModel extends Question {
     );
   }
   /**
-   * Load multiple files programmatically.
-   * @param files
+   * Loads multiple files into the question.
+   * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
    */
   public loadFiles(files: File[]) {
     if (!this.survey) {

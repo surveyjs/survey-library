@@ -25,6 +25,14 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> {
     }
     return this.elementComponentName;
   }
+  public get rootStyle() {
+    //use this if to check if cssClassses are calculated and allowRootStyle flag was set
+    if(!!this.model.cssClasses) {
+      return this.model.rootStyle;
+    } else {
+      return {};
+    }
+  }
   public get componentData(): any {
     const survey = this.surveyModel as SurveyModel;
     let data: any;

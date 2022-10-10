@@ -10,9 +10,8 @@ This step-by-step tutorial will help you get started with the SurveyJS Library i
 As a result, you will create a survey displayed below:
 
 <p class="codepen" data-height="600" data-default-tab="js,result" data-slug-hash="qBPqyVV" data-user="romantsukanov" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-  <span>See the Pen <a href="https://codepen.io/romantsukanov/pen/qBPqyVV">
-  SurveyJS - Add a Survey to a Knockout Application</a> by RomanTsukanov (<a href="https://codepen.io/romantsukanov">@romantsukanov</a>)
-  on <a href="https://codepen.io">CodePen</a>.</span>
+  <span>See the Pen <a href="https://codepen.io/JaneGaid/pen/JjveKmB">
+  SurveyJS - Add a Survey to a Knockout Application</a>.</span>
 </p>
 <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
@@ -69,10 +68,10 @@ const surveyJson = {
 };
 ```
 
-To instantiate a model, pass the model schema to the [Survey.Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey.
+To instantiate a model, pass the model schema to the `SurveyKnockout.Survey` constructor as shown in the code below. The model instance will be later used to render the survey.
 
 ```js
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 ```
 
 <details>
@@ -118,7 +117,7 @@ const surveyJson = {
     }]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 ```
 </details> 
 
@@ -188,7 +187,7 @@ const surveyJson = {
     }]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 
 document.addEventListener("DOMContentLoaded", function() {
     survey.render("surveyContainer");
@@ -223,7 +222,7 @@ function saveSurveyResults(url, json) {
     request.send(JSON.stringify(json));
 }
 
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 
 survey.onComplete.add(surveyComplete);
 ```
@@ -236,7 +235,7 @@ function alertResults (sender) {
     alert(results);
 }
 
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 
 survey.onComplete.add(alertResults);
 ```
@@ -289,7 +288,7 @@ const surveyJson = {
     }]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new SurveyKnockout.Survey(surveyJson);
 
 function alertResults (sender) {
     const results = JSON.stringify(sender.data);

@@ -1,5 +1,5 @@
 <ng-template #template>
-    <div [class]="model.cssClasses.questionWrapper" [style]="model.rootStyle" (focusin)="model.focusIn()">
+    <div *ngIf="!!model" [class]="model.cssClasses.questionWrapper" [style]="model.rootStyle" (focusin)="model.focusIn()">
         <ng-template [component]="{ name: componentName, data: componentData }"></ng-template>
     </div>
 </ng-template>

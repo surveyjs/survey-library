@@ -263,10 +263,13 @@ export class QuestionFileModel extends Question {
     return this.imageWidth + "px";
   }
 
+  public removeFile(name: string) {
+    this.removeFileByContent({ name })
+  }
   /**
-   * Remove file item programmatically.
-   */
-  public removeFile(content: { name: string }) {
+ * Remove file item programmatically.
+ */
+  protected removeFileByContent(content: { name: string }) {
     if (!this.survey) return;
     this.survey.clearFiles(
       this,
@@ -452,8 +455,8 @@ export class QuestionFileModel extends Question {
         propertyName: string,
       }>,
     } = {
-      includeEmpty: true,
-    }
+        includeEmpty: true,
+      }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
@@ -563,7 +566,7 @@ export class QuestionFileModel extends Question {
       );
       if (!isConfirmed) return;
     }
-    this.removeFile(data);
+    this.removeFileByContent(data);
   }
   doDownloadFile = (event: any, data: any) => {
     if (detectIEOrEdge()) {

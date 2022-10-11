@@ -19,7 +19,7 @@
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
-          v-for="(item, index) in question.selectedItems"
+          v-for="(item, index) in question.selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
@@ -35,7 +35,7 @@
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
-          :title="question.cleanButtonCaption"
+          :title="question.cleanCaption"
           size="auto"
         >
         </sv-svg-icon>

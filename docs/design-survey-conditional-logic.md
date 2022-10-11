@@ -605,6 +605,7 @@ The following triggers are available:
 - [`setvalue`](#setvalue)
 - [`copyvalue`](#copyvalue)
 - [`runexpression`](#runexpression)
+- [`skip`](#skip)
   
 ---
 
@@ -693,3 +694,45 @@ const surveyJson = {
 If the `expression` is `true`, the trigger runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
 
 [View the "Run Expression Trigger" example](https://surveyjs.io/Examples/Library?id=trigger-runexpression (linkStyle))
+
+---
+
+### `skip`
+
+Switches the survey to a target question's page and focuses the question. The `gotoName` property specifies the target question.
+
+In the following code, a trigger navigates to the `"additionalInfoPage"` page and focuses the `"additionalInfo"` question if the `"sameAsBilling"` question is `Yes`:
+
+```js
+const surveyJson = {
+ "pages": [{
+   "name": "billingAddressPage",
+   "elements": [{
+     "name": "billingAddress",
+     // ...
+    }]
+  }, {
+   "name": "shippingAddressPage",
+   "elements": [{
+      "name": "sameAsBilling",
+      "choices": [ "Yes", "No" ]
+      // ...
+  }, {     
+     "name": "shippingAddress",
+     "visibleIf": "{sameAsBilling} = 'No'",
+     // ...
+    }]
+  }, {
+   "name": "additionalInfoPage",
+   "elements": [{
+     "name": "additionalInfo",
+     // ...
+    }]
+  }],
+ "triggers": [{
+   "type": "skip",
+   "expression": "{sameAsBilling} = 'Yes'",
+   "gotoName": "additionalInfo"
+  }]
+}
+```

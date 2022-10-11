@@ -731,3 +731,21 @@ QUnit.test("Get/set language dialect", function(assert) {
     "pt-BR": "Portuguese BR"
   }, "Add en-UK");
 });
+QUnit.test("Do not reset values in any locale", function(assert) {
+  settings.storeDuplicatedTranslations = true;
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.text = "default";
+  locString.setLocaleText("de", "default-de");
+  locString.setLocaleText("pt", "default-pt");
+  locString.setLocaleText("pt-br", "default-pt");
+  locString.setLocaleText("it", "default");
+  assert.deepEqual(locString.getJson(), {
+    default: "default",
+    de: "default-de",
+    it: "default",
+    pt: "default-pt",
+    "pt-br": "default-pt",
+  }, "Do not reset any locale value");
+  settings.storeDuplicatedTranslations = false;
+});

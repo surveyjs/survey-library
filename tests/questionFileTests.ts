@@ -322,12 +322,12 @@ QUnit.test("QuestionFile remove file", function(assert) {
     ],
   };
 
-  q1.removeFile({ name: "f1" });
+  q1.removeFile("f1");
   assert.deepEqual(survey.data, {
     image1: [{ name: "f2", content: "data" }],
   });
 
-  q1.removeFile({ name: "f2" });
+  q1.removeFile("f2");
   assert.deepEqual(survey.data, {});
 });
 

@@ -8,7 +8,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
 
@@ -1043,6 +1043,9 @@ export class Base {
   private getValueInLowCase(val: any): any {
     if (!!val && typeof val == "string") return val.toLowerCase();
     return val;
+  }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    return [];
   }
 }
 

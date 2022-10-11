@@ -570,9 +570,6 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   protected getContainsErrors(): boolean {
     return this.errors.length > 0;
   }
-  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
-    return [];
-  }
   public get selectedElementInDesign(): SurveyElement {
     return this.selectedElementInDesignValue;
   }

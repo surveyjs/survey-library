@@ -91,7 +91,7 @@ QUnit.test("Test boolean allowClick property", function (assert) {
   var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
 
   assert.equal(question.allowClick, true, "allowClick true is ok");
-  question.checkedValue = true;
+  question.booleanValue = true;
   assert.equal(question.allowClick, false, "allowClick false is ok");
 
   var surveyRO = new SurveyModel(json);
@@ -151,12 +151,12 @@ QUnit.test("Check boolean with valueTrue = 'true' and valueFalse = 'false'", fun
   var survey = new SurveyModel(json);
   var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
   assert.strictEqual(question.valueTrue, "true", "Deserialisation");
-  question.checkedValue = true;
+  question.booleanValue = true;
   assert.strictEqual(question.value, "true", "Check value");
-  assert.equal(question.checkedValue, true, "Check checkedValue");
-  question.checkedValue = false;
+  assert.equal(question.booleanValue, true, "Check booleanValue");
+  question.booleanValue = false;
   assert.strictEqual(question.value, "false", "Check value #2");
-  assert.equal(question.checkedValue, false, "Check checkedValue #2");
-  question.checkedValue = null;
+  assert.equal(question.booleanValue, false, "Check booleanValue #2");
+  question.booleanValue = null;
   assert.strictEqual(question.isEmpty(), true, "Check value is empty");
 });

@@ -16,7 +16,8 @@ export class SvgIcon extends React.Component<any, any> {
         this.props.width,
         this.props.height,
         this.props.iconName,
-        this.svgIconRef.current
+        this.svgIconRef.current,
+        this.props.title,
       );
   }
   componentDidUpdate() {

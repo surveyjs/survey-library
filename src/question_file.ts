@@ -266,7 +266,10 @@ export class QuestionFileModel extends Question {
   /**
    * Remove file item programmatically.
    */
-  public removeFile(content: { name: string }) {
+  public removeFile(name: string) {
+    this.removeFileByContent({ name });
+  }
+  protected removeFileByContent(content: { name: string }) {
     if (!this.survey) return;
     this.survey.clearFiles(
       this,
@@ -563,7 +566,7 @@ export class QuestionFileModel extends Question {
       );
       if (!isConfirmed) return;
     }
-    this.removeFile(data);
+    this.removeFileByContent(data);
   }
   doDownloadFile = (event: any, data: any) => {
     if (detectIEOrEdge()) {

@@ -1,4 +1,4 @@
-# SurveyJS Library
+# SurveyJS Form Library
 
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
@@ -12,19 +12,19 @@
 <img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
 
-SurveyJS Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application.
+A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
 ## Features
 
-- Dynamic forms, surveys, and quizzes for your JavaScript application
-- Angular, React, jQuery, Knockout, and Vue support
+- Dynamic forms, surveys, polls, and quizzes for your JavaScript application
+- Integration with React, Angular, Vue, jQuery, and Knockout
 - 20+ built-in question types and support for custom question types
+- Built-in themes and CSS customization
 - Answer validation
-- Modern, customizable UI themes
 - TypeScript support
 - Community-supported UI localization to 50+ languages
 - Integration with any backend framework (examples for PHP, NodeJS, and ASP.NET included)
-- Survey results can be stored in any database
+- Compatibility with any server + database combination
 - Third-party component integration
 
 ## Get Started

@@ -2108,9 +2108,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.visibleRows.indexOf(row);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
-    if (this.detailPanelMode == "none")
-      return super.getElementsInDesign(includeHidden);
-    return includeHidden ? [this.detailPanel] : this.detailElements;
+    let elements: Array<IElement>;
+    if (this.detailPanelMode == "none") {
+      elements = super.getElementsInDesign(includeHidden);
+    }
+    else {
+      elements = includeHidden ? [this.detailPanel] : this.detailElements;
+    }
+    return this.columns.concat(elements);
   }
   hasDetailPanel(row: MatrixDropdownRowModelBase): boolean {
     if (this.detailPanelMode == "none") return false;

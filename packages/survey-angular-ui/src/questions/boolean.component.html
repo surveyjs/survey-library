@@ -3,7 +3,7 @@
       <input
         type="checkbox"
         [attr.name]="model.name" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"
-        [class]="model.cssClasses.control" [disabled]="model.isInputReadOnly"  [indeterminate]="model.isIndeterminate" [value]="model.checkedValue" [(ngModel)]="model.checkedValue" />
+        [class]="model.cssClasses.control" [disabled]="model.isInputReadOnly"  [indeterminate]="model.isIndeterminate" [value]="model.booleanValue" [(ngModel)]="model.booleanValue" />
       <span [class]="model.getLabelCss(false)" (click)="model.onLabelClick($event, false)" [model]="model.locLabelFalse" sv-ng-string></span>
       <div [class]="model.cssClasses.switch" (click)="model.onSwitchClickModel($event)">
         <span [class]="model.cssClasses.slider">

@@ -46,11 +46,12 @@ export function showModal(
   );
   showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions) {
+export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => { viewModel.dispose(); };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
+  return popupViewModel;
 }
 
 settings.showModal = showModal;

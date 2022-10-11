@@ -92,7 +92,7 @@ QUnit.test("set swedish localization", function(assert) {
 QUnit.test("set swedish localization", function(assert) {
   var survey = new SurveyModel();
   survey.locale = "sv";
-  assert.equal(survey.completeText, "Färdig");
+  assert.equal(survey.completeText, "Slutför");
   surveyLocalization.currentLocale = "";
 });
 QUnit.test("Supported locales + removeDefaultLoc", function(assert) {

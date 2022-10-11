@@ -160,3 +160,16 @@ QUnit.test("Check boolean with valueTrue = 'true' and valueFalse = 'false'", fun
   question.booleanValue = null;
   assert.strictEqual(question.isEmpty(), true, "Check value is empty");
 });
+QUnit.test("test isLabelRendered read-only property", function (assert) {
+  const question = new QuestionBooleanModel("q1");
+  assert.equal(question.isLabelRendered, false, "It is hidden by default");
+  question.titleLocation = "hidden";
+  assert.equal(question.isLabelRendered, true, "Title is hidden");
+  question.labelRenderMode = "none";
+  assert.equal(question.isLabelRendered, false, "render mode is none");
+  question.titleLocation = "default";
+  question.labelRenderMode = "default";
+  assert.equal(question.isLabelRendered, false, "Default values again");
+  question.labelRenderMode = "always";
+  assert.equal(question.isLabelRendered, true, "render mode is always");
+});

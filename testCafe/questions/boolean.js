@@ -42,6 +42,36 @@ var jsonRadio = {
   ],
 };
 
+var jsonCheckbox2 = {
+  questions: [
+    {
+      type: "boolean",
+      name: "q1",
+      title: "q1 Title",
+      label: "q1 Label",
+      renderAs: "checkbox",
+      showTitle: true
+    },
+    {
+      type: "boolean",
+      name: "q2",
+      title: "q2 Title",
+      label: "q2 Label",
+      renderAs: "checkbox",
+      titleLocation: "hidden",
+      showTitle: true
+    },
+    {
+      type: "boolean",
+      name: "q3",
+      title: "q3 Title",
+      label: "q3 Label",
+      renderAs: "checkbox",
+      showTitle: true
+    },
+  ],
+};
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
@@ -202,6 +232,29 @@ frameworks.forEach((framework) => {
       .click(Selector(".sv-string-viewer").withText("Yes"))
       .expect(Selector("input[type=radio]").nth(0).checked).notOk()
       .expect(Selector("input[type=radio]").nth(1).checked).ok();
+  });
+
+});
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, jsonCheckbox2);
+    }
+  );
+  test("Check title and label", async (t) => {
+    const setLabelRenderMode = ClientFunction(() => {
+      window["survey"].getQuestionByName("q3").labelRenderMode = "always";
+    });
+
+    await setLabelRenderMode();
+
+    await t
+      .expect(Selector(".sv-string-viewer").withText("q1 Title").exists).ok()
+      .expect(Selector(".sv-string-viewer").withText("q1 Label").exists).notOk()
+      .expect(Selector(".sv-string-viewer").withText("q2 Title").exists).notOk()
+      .expect(Selector(".sv-string-viewer").withText("q2 Label").exists).ok()
+      .expect(Selector(".sv-string-viewer").withText("q3 Title").exists).ok()
+      .expect(Selector(".sv-string-viewer").withText("q3 Label").exists).ok();
   });
 
 });

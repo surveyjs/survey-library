@@ -92,7 +92,20 @@ export class QuestionBooleanModel extends Question {
     if (this.locLabel.text) return this.locLabel;
     return this.showTitle ? this.locLabel : this.locTitle;
   }
-
+  /**
+   * Get or set label rendering for "checkbox" render mode ("renderAs").
+   * Default value: `default`, render label if titleLocation equals to "hidden"
+   * Default value: `none`, do not render label
+   * Default value: `always`, always render the label
+   * @see label
+   * @see titleLocation
+   */
+  @property({ defaultValue: "default" }) labelRenderMode: string;
+  get isLabelRendered() : boolean {
+    if(this.labelRenderMode === "none") return false;
+    if(this.labelRenderMode === "always") return true;
+    return this.titleLocation === "hidden";
+  }
   /**
    * Gets or sets a text label that corresponds to a positive answer.
    *

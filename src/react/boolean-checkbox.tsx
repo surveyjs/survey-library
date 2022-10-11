@@ -43,7 +43,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               }
               <span className="check" />
             </span>
-            {this.question.titleLocation === "hidden" && (
+            {this.question.isLabelRendered && (
               <span className={cssClasses.checkboxControlLabel}>
                 {this.renderLocString(this.question.locDisplayLabel)}
               </span>

@@ -22,7 +22,8 @@ export class SvgIconComponent implements OnChanges {
         this.width,
         this.height,
         this.iconName,
-        this.viewContaierRef.element.nativeElement
+        this.viewContaierRef.element.nativeElement,
+        this.title
       );
     }
   }

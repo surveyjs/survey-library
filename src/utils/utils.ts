@@ -137,8 +137,9 @@ function createSvg(
   width: number,
   height: number,
   iconName: string,
-  svgElem: any
-) {
+  svgElem: any,
+  title: string
+): void {
   if (!svgElem) return;
   if (size !== "auto") {
     svgElem.style.width = (size || width || 16) + "px";
@@ -151,6 +152,18 @@ function createSvg(
     "xlink:href",
     "#" + realIconName
   );
+
+  let titleElement = svgElem.getElementsByTagName("title")[0];
+  if(!title) {
+    if(!!titleElement) {
+      svgElem.removeChild(titleElement);
+    }
+    return;
+  } else {
+    titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    svgElem.appendChild(titleElement);
+  }
+  titleElement.textContent = title;
 }
 
 export function unwrap<T>(value: T | (() => T)): T {

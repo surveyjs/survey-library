@@ -47,7 +47,8 @@ export class SvgIcon extends BaseVue {
       this.width,
       this.height,
       this.iconName,
-      this.svgIconElement
+      this.svgIconElement,
+      this.title
     );
   }
 

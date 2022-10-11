@@ -203,7 +203,7 @@ export function showModal(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
-) {
+): PopupBaseViewModel {
   const options = createDialogOptions(
     componentName,
     data,
@@ -215,9 +215,9 @@ export function showModal(
     title,
     displayMode
   );
-  showDialog(options);
+  return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions) {
+export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => { {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
     popupViewModel.unmountPopupContainer();
@@ -226,6 +226,7 @@ export function showDialog(dialogOptions: IDialogOptions) {
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;
+  return popupViewModel;
 }
 
 settings.showModal = showModal;

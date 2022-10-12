@@ -39,7 +39,7 @@ export class ModalComponent {
       cssClass?: string,
       title?: string,
       displayMode: "popup" | "overlay" = "popup"
-    ) => {
+    ): PopupBaseViewModel => {
       const options = createDialogOptions(
         componentName,
         data,

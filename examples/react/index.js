@@ -69,7 +69,7 @@ function init() {
         name: "cars",
         title: "Dropdown",
         isRequired: true,
-        hasNone: true,
+        showNoneItem: true,
         colCount: 4,
         choices: [
           "Ford",
@@ -89,9 +89,9 @@ function init() {
         name: "car",
         title: "Checkbox",
         isRequired: true,
-        hasNone: true,
+        showNoneItem: true,
         colCount: 4,
-        hasSelectAll: true,
+        showSelectAllItem: true,
         choices: [
           "Ford",
           "Vauxhall",

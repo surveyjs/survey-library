@@ -566,8 +566,8 @@ export class Question extends SurveyElement
     return this.getLocalizableString("requiredErrorText");
   }
   /**
-   * Specifies a caption displayed above the comment area. Applies when the `hasComment` property is `true`.
-   * @see hasComment
+   * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
+   * @see showCommentArea
    * @see comment
    */
   public get commentText(): string {
@@ -580,8 +580,8 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
-   * A placeholder for the comment area. Applies when the `hasComment` property is `true`.
-   * @see hasComment
+   * A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
+   * @see showCommentArea
    * @see comment
    * @see commentText
    */
@@ -1008,12 +1008,12 @@ export class Question extends SurveyElement
     return "textbox";
   }
   /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `hasComment` property.
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
    *
    * @see otherText
    * @see otherItem
    * @see otherErrorText
-   * @see hasComment
+   * @see showCommentArea
    */
   public get showOtherItem(): boolean {
     return this.getPropertyValue("showOtherItem", false);
@@ -1508,8 +1508,8 @@ export class Question extends SurveyElement
     return true;
   }
   /**
-   * A comment to the selected question value. Enable the `hasComment` property to allow users to leave comments.
-   * @see hasComment
+   * A comment to the selected question value. Enable the `showCommentArea` property to allow users to leave comments.
+   * @see showCommentArea
    * @see commentText
    */
   public get comment(): string {

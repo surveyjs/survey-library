@@ -15,6 +15,8 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
+  public lazyLoadingValue = false;
+
   dropdownListModel: DropdownListModel;
 
   updateReadOnlyText(): void {
@@ -228,9 +230,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
     return this.dropdownListModel?.popupModel;
   }
-  // public get lazyLoading(): boolean {
-  //   return true;
-  // }
+  public get lazyLoading(): boolean {
+    return this.lazyLoadingValue;
+  }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {

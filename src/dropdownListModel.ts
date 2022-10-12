@@ -4,20 +4,23 @@ import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
-import { Question } from "./question";
+import { QuestionSelectBase } from "./question_baseselect";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+
+const pageSize = 25;
 
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
-  private itemsSettings: {startIndex: number, pageSize: number, total: number } = { startIndex: 0, pageSize: 10, total: 0 };
+  private itemsSettings: {startIndex: number, pageSize: number, total: number, items: any[] } = { startIndex: 0, pageSize: pageSize, total: 0, items: [] };
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
 
   private resetItemsSettings() {
     this.itemsSettings.startIndex = 0;
-    this.itemsSettings.pageSize = 10;
+    this.itemsSettings.pageSize = pageSize;
     this.itemsSettings.total = 0;
+    this.itemsSettings.items = [];
   }
 
   private updateListItems() {
@@ -25,7 +28,8 @@ export class DropdownListModel extends Base {
   }
   private setItems(loaded: boolean, items: Array<any>, total: number) {
     if(loaded) {
-      this.question.choices = items;
+      this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
+      this.question.choices = this.itemsSettings.items;
       this.itemsSettings.total = total;
       this.updateListItems();
     }
@@ -62,7 +66,7 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      if(option.isVisible) {
+      if(option.isVisible && this.question.lazyLoading) {
         this.updateQuestionData();
       }
 
@@ -72,7 +76,11 @@ export class DropdownListModel extends Base {
       }
       if(!option.isVisible) {
         this.onHidePopup();
-        this.resetItemsSettings();
+
+        if(this.question.lazyLoading) {
+          this.resetItemsSettings();
+          this.question.choices = [];
+        }
       }
     });
   }
@@ -145,11 +153,15 @@ export class DropdownListModel extends Base {
   @property({
     defaultValue: false,
     onSet: (newVal: boolean, target: DropdownListModel) => {
-      // addEventListener
+      if(newVal) {
+        target.listModel.addScrollEventListener((e: any) => { target.onScroll(e); });
+      } else {
+        target.listModel.removeScrollEventListener();
+      }
     }
   }) hasScroll: boolean;
 
-  constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+  constructor(protected question: QuestionSelectBase, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();
     this.listModel.cssClasses = question.survey?.getCss().list;
@@ -231,9 +243,11 @@ export class DropdownListModel extends Base {
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
   }
-  onScroll(event: Event):void {
-    const target = event.target;
-    // load next items
+  onScroll(event: Event): void {
+    const target = event.target as HTMLElement;
+    if(target.scrollTop + target.offsetHeight === target.scrollHeight) {
+      this.updateQuestionData();
+    }
   }
   onBlur(event: any): void {
     this.resetFilterString();

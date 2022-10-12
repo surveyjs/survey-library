@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { ListModel } from "../src/list";
+import { createListContainerHtmlElement } from "./utilstests";
 
 export default QUnit.module("choicesRestful");
 
@@ -181,21 +182,6 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
 
 QUnit.test("add placeholder & allowClear", assert => {
   const json = {
-    // questions: [{
-    //   type: "dropdown",
-    //   // renderAs: "select",
-    //   name: "question1",
-    //   hasOther: "true",
-    //   dropdownWidthMode: "contentWidth",
-    //   choices: [
-    //     "item1",
-    //     "item2",
-    //     "item3",
-    //     "item4",
-    //     "item5"
-    //   ]
-    // }]
-
     questions: [
       {
         "type": "dropdown",
@@ -460,4 +446,173 @@ QUnit.test("showInputFieldComponent", assert => {
 
   question.value = 1;
   assert.equal(question.showInputFieldComponent, true);
+});
+
+QUnit.test("hasScroll property", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const element = createListContainerHtmlElement();
+  question.dropdownListModel["listModel"].initListContainerHtmlElement(element);
+
+  assert.equal(question.dropdownListModel.hasScroll, false);
+
+  question.dropdownListModel["listModel"].hasVerticalScroller = true;
+  assert.equal(question.dropdownListModel.hasScroll, true);
+
+  document.body.removeChild(element);
+});
+
+function getNumberArray(startIndex = 1, count = 25): Array<number> {
+  const result:Array<number> = [];
+  for(let index = startIndex; index < (startIndex + count); index++) {
+    result.push(index);
+  }
+  return result;
+}
+
+const callback = (_, opt) => {
+  if(opt.question.getType() === "dropdown") {
+    const total = 55;
+    setTimeout(() => {
+      if(opt.startIndex === 0) {
+        opt.setItems(true, getNumberArray(), total);
+      } else if(opt.startIndex === 25) {
+        opt.setItems(true, getNumberArray(26, 25), total);
+      } else {
+        opt.setItems(true, getNumberArray(51, 5), total);
+      }
+    }, 500);
+  }
+};
+
+QUnit.test("lazy loading: first loading", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1"
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onGetQuestionData.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  question.lazyLoadingValue = true;
+  assert.equal(question.lazyLoading, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+
+    question.dropdownListModel.popupModel.toggleVisibility();
+    done();
+  }, 550);
+});
+
+QUnit.test("lazy loading: several loading", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1"
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onGetQuestionData.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  question.lazyLoadingValue = true;
+  assert.equal(question.lazyLoading, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+
+    question.dropdownListModel["updateQuestionData"]();
+    setTimeout(() => {
+      assert.equal(question.choices.length, 50);
+      assert.equal(question.choices[0].value, 1);
+      assert.equal(question.choices[49].value, 50);
+
+      question.dropdownListModel["updateQuestionData"]();
+      setTimeout(() => {
+        assert.equal(question.choices.length, 55);
+        assert.equal(question.choices[0].value, 1);
+        assert.equal(question.choices[54].value, 55);
+
+        done3();
+      }, 550);
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
+});
+
+QUnit.test("itemsSettings property", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1"
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onGetQuestionData.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  question.lazyLoadingValue = true;
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+  assert.equal(itemsSettings.startIndex, 0);
+  assert.equal(itemsSettings.pageSize, 25);
+  assert.equal(itemsSettings.total, 0);
+  assert.equal(itemsSettings.items.length, 0);
+  assert.equal(question.choices.length, 0);
+
+  assert.equal(question.choices.length, 0);
+  question.dropdownListModel.popupModel.toggleVisibility();
+  assert.equal(question.choices.length, 25);
+
+  setTimeout(() => {
+    assert.equal(itemsSettings.startIndex, 25);
+    assert.equal(itemsSettings.pageSize, 25);
+    assert.equal(itemsSettings.total, 55);
+    assert.equal(itemsSettings.items.length, 25);
+
+    assert.equal(question.choices.length, 25);
+    question.dropdownListModel.popupModel.toggleVisibility();
+    assert.equal(question.choices.length, 0);
+
+    setTimeout(() => {
+      assert.equal(itemsSettings.startIndex, 0);
+      assert.equal(itemsSettings.pageSize, 25);
+      assert.equal(itemsSettings.total, 0);
+      assert.equal(itemsSettings.items.length, 0);
+      assert.equal(question.choices.length, 0);
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
 });

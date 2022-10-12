@@ -54,6 +54,7 @@ export class ListModel extends ActionContainer {
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
+  public scrollHandler: (e?: any) => void;
 
   private hasText(item: Action, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
@@ -241,5 +242,19 @@ export class ListModel extends ActionContainer {
         item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
       }
     }, 0);
+  }
+
+  public addScrollEventListener(handler: (e?: any) => void): void {
+    if(!!handler) {
+      this.scrollHandler = handler;
+    }
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.addEventListener("scroll", this.scrollHandler);
+    }
+  }
+  public removeScrollEventListener(): void {
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
+    }
   }
 }

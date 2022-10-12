@@ -42,6 +42,7 @@ export class PopupBaseViewModel extends Base {
 
     this.footerToolbarValue.addAction(<IAction>{
       id: "cancel",
+      visibleIndex: 10,
       title: this.cancelButtonText,
       innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel",
       action: () => { this.cancel(); }

@@ -31,6 +31,7 @@ export var surveyLocalization = {
     return loc;
   },
   getString: function (strName: string, locale: string = null) {
+    const originalLocale = locale;
     locale = locale || this.currentLocale || this.defaultLocale;
     var loc = this.getCurrentStrings(locale);
     if (!!loc[strName]) return loc[strName];
@@ -41,7 +42,7 @@ export var surveyLocalization = {
     if (result === undefined) {
       result = this.locales["en"][strName];
     }
-    if(result === undefined) return this.onGetExternalString(strName, locale);
+    if(result === undefined) return this.onGetExternalString(strName, originalLocale);
     return result;
   },
   getLocales: function (removeDefaultLoc: boolean = false): Array<string> {

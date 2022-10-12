@@ -141,9 +141,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("acceptedTypes", val);
   }
   /**
-   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) proeprty.
+   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
    *
-   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler in which you should specify how to store file content.
+   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText");

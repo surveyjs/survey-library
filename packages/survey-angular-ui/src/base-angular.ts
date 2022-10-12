@@ -4,7 +4,7 @@ import { EmbeddedViewContentComponent } from "./embedded-view-content.component"
 
 @Component({
   template: ""
-})
+  })
 export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewContentComponent implements DoCheck, OnDestroy {
   constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
@@ -38,8 +38,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     const model = this.getModel();
     return !!model && !!(<any>model).isRendering;
   }
-
+  private isDestroyed: boolean = false;
   ngOnDestroy() {
+    this.isDestroyed = true;
     this.unMakeBaseElementAngular(this.getModel());
   }
 
@@ -90,8 +91,11 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.detectChanges();
       this.afterUpdate();
     } else {
-      queueMicrotask(() => {
-        this.detectChanges();
+      ((<any>window)["__zone_symbol__queueMicrotask"]
+        ? (<any>window)["__zone_symbol__queueMicrotask"] : queueMicrotask)(() => {
+        if(!this.isDestroyed) {
+          this.detectChanges();
+        }
         this.afterUpdate();
       });
     }

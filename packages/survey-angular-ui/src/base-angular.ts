@@ -19,9 +19,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   public ngDoCheck(): void {
     if(this.previousModel !== this.getModel()) {
       this.unMakeBaseElementAngular(this.previousModel);
-      this.previousModel = this.getModel();
       this.makeBaseElementAngular(this.getModel());
       this.onModelChanged();
+      this.previousModel = this.getModel();
     }
     this.beforeUpdate();
   }
@@ -52,7 +52,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         if (Array.isArray(val)) {
           var val: any = val;
           val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-            this.update();
+            this.update(key);
           };
         }
       });
@@ -63,7 +63,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       ) => {
         if (hash[key] !== val) {
           hash[key] = val;
-          this.update();
+          this.update(key);
         }
       };
     }
@@ -83,13 +83,22 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
   }
 
-  private update() {
+  private update(key: string) {
     if (this.getIsRendering()) return;
     this.beforeUpdate();
-    this.detectChanges();
-    this.afterUpdate();
+    if(this.getPropertiesToUpdateSync().indexOf(key) > -1) {
+      this.detectChanges();
+      this.afterUpdate();
+    } else {
+      queueMicrotask(() => {
+        this.detectChanges();
+        this.afterUpdate();
+      });
+    }
   }
-
+  protected getPropertiesToUpdateSync(): Array<string> {
+    return [];
+  }
   protected detectChanges() {
     if(!!this.embeddedView) {
       this.embeddedView.detectChanges();

@@ -255,7 +255,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
    * @see expand
    * @see isExpanded
    */
-  public get isCollapsed() {
+  public get isCollapsed(): boolean {
     if (this.isDesignMode) return;
     return this.state === "collapsed";
   }
@@ -267,7 +267,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
    * @see expand
    * @see isCollapsed
    */
-  public get isExpanded() {
+  public get isExpanded(): boolean {
     return this.state === "expanded";
   }
   /**

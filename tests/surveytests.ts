@@ -15444,3 +15444,30 @@ QUnit.test("progress is not changed on the start page", function (assert) {
   question.value = ["1"];
   assert.equal(progressChangeCount, 0, "Progress hasn't been called");
 });
+QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "p1",
+        elements: [
+          {
+            type: "panel",
+            name: "p2",
+            elements: [
+              { type: "text", name: "q1" }
+            ]
+          }
+        ]
+      }
+    ],
+  });
+  const p1 = survey.getPanelByName("p1");
+  const p2 = survey.getPanelByName("p1");
+  const question = survey.getQuestionByName("q1");
+  p1.collapse();
+  p2.collapse();
+  question.focus();
+  assert.equal(p2.isExpanded, true, "Expand panel, p2");
+  assert.equal(p1.isExpanded, true, "Expand panel, p1");
+});

@@ -762,6 +762,7 @@ export class PanelModelBase extends SurveyElement
     }
   }
   getFirstQuestionToFocus(withError: boolean = false): Question {
+    if(!withError && this.isCollapsed) return null;
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];

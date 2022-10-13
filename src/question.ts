@@ -913,7 +913,9 @@ export class Question extends SurveyElement
   }
   private expandAllPanels(panel: IPanel) {
     if(!!panel && !!panel.parent) {
-      panel.expand();
+      if(panel.isCollapsed) {
+        panel.expand();
+      }
       this.expandAllPanels(panel.parent);
     }
   }

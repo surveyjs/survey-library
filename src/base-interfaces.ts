@@ -235,6 +235,10 @@ export interface ISurveyElement extends IShortcutText {
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
+  get isCollapsed(): boolean;
+  get isExpanded(): boolean;
+  expand(): void;
+  collapse(): void;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -294,7 +298,6 @@ export interface IPanel extends ISurveyElement, IParentElement {
   indexOf(el: IElement): number;
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
-  expand(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;

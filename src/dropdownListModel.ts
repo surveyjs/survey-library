@@ -4,7 +4,7 @@ import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
-import { QuestionSelectBase } from "./question_baseselect";
+import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 const pageSize = 25;
@@ -67,6 +67,7 @@ export class DropdownListModel extends Base {
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if(option.isVisible && this.question.lazyLoading) {
+        this.listModel.actions = [];
         this.updateQuestionData();
       }
 
@@ -79,7 +80,6 @@ export class DropdownListModel extends Base {
 
         if(this.question.lazyLoading) {
           this.resetItemsSettings();
-          this.question.choices = [];
         }
       }
     });
@@ -161,7 +161,7 @@ export class DropdownListModel extends Base {
     }
   }) hasScroll: boolean;
 
-  constructor(protected question: QuestionSelectBase, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+  constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();
     this.listModel.cssClasses = question.survey?.getCss().list;

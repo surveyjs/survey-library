@@ -3,7 +3,7 @@ import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { MultiSelectListModel } from "./multiSelectListModel";
-import { QuestionSelectBase } from "./question_baseselect";
+import { Question } from "./question";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
@@ -93,7 +93,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.popupTargetModified();
   }
 
-  constructor(question: QuestionSelectBase, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
+  constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
     this.syncFilterStringPlacholder();

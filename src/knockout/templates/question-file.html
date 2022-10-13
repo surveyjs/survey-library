@@ -63,8 +63,7 @@
   <button type="button" data-bind="css: showRemoveButton, enabled: !question.isInputReadOnly, click: question.doclean">
       <span data-bind="text: question.cleanButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->
-        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto' } } --><!-- /ko -->
-
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto', title: question.cleanButtonCaption } } --><!-- /ko -->
       <!-- /ko -->
   </button>
   <!-- /ko -->

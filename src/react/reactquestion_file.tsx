@@ -113,7 +113,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.cleanButtonCaption}</span>
-        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"}></SvgIcon>: null }
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.cleanButtonCaption}></SvgIcon>: null }
       </button>
     ) : null;
   }

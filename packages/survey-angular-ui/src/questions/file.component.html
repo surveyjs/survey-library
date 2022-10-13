@@ -55,7 +55,7 @@
       (click)="model.doClean($event)"
     >
       <span>{{ model.cleanButtonCaption }}</span>
-      <svg *ngIf="model.cssClasses.removeButtonIconId" [iconName]="model.cssClasses.removeButtonIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+      <svg *ngIf="model.cssClasses.removeButtonIconId" [iconName]="model.cssClasses.removeButtonIconId" [size]="'auto'" [title]="model.cleanButtonCaption" sv-ng-svg-icon></svg>
     </button>
     <div [class]="model.cssClasses.fileList || undefined" *ngIf="!model.isEmpty()">
       <span
@@ -110,7 +110,7 @@
       (click)="model.doClean($event)"
     >
       <span>{{ model.cleanButtonCaption }}</span>
-      <svg *ngIf="model.cssClasses.removeButtonIconId" [iconName]="model.cssClasses.removeButtonIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+      <svg *ngIf="model.cssClasses.removeButtonIconId" [iconName]="model.cssClasses.removeButtonIconId" [size]="'auto'" [title]="model.cleanButtonCaption" sv-ng-svg-icon></svg>
     </button>
     <sv-action-bar *ngIf="model.mobileFileNavigatorVisible" [model]="model.mobileFileNavigator"></sv-action-bar>
   </div>

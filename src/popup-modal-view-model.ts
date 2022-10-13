@@ -22,7 +22,6 @@ export class PopupModalViewModel extends PopupBaseViewModel {
       innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--apply",
       action: () => { this.apply(); }
     });
-    this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
   }
 
   constructor(model: PopupModel) {

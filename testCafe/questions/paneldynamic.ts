@@ -155,7 +155,7 @@ frameworks.forEach((framework) => {
     const deceasedAgeDropdown = Selector("div[data-name='deceasedage'] .sv_q_dropdown_control");
     const relativeillnessDropdown = Selector("div[data-name='relativeillness'] .sv_q_dropdown_control");
 
-    const addRowSelector = Selector("button").find("span").withText("Add row");
+    const addRowSelector = Selector("button").find("span").withText("Add Row");
 
     await t.click("input[value=\"Yes\"]")
 

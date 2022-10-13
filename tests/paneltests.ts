@@ -557,6 +557,23 @@ QUnit.test("Get first focused error question for panel dynamic question", functi
   page.hasErrors(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "question1", "The first question for focusing is in matrix dynamic");
 });
+QUnit.test("Get first focused question on collapsed panel", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        state: "collapsed",
+        elements: [{ type: "text", name: "q1", isRequired: true }],
+      },
+      { type: "text", name: "q2" }
+    ],
+  });
+  const page = survey.pages[0];
+  assert.equal(page.getFirstQuestionToFocus().name, "q2", "q1 is in collapsed panel");
+  page.hasErrors(true);
+  assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
+});
 QUnit.test("Flow Panel, add new element/remove element", function (assert) {
   const panel = new FlowPanelModel("p");
   panel.addNewQuestion("text", "q1");

@@ -59,11 +59,19 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div className={this.question.fileRootCss}>
         {fileInput}
-        {fileDecorator}
-        {clearButton}
-        {preview}
-        {clearButtonBottom}
-        {mobileFileNavigator}
+        <div
+          className={this.question.cssClasses.dragArea}
+          onDrop={this.question.onDrop}
+          onDragOver={this.question.onDragOver}
+          onDragLeave={this.question.onDragLeave}
+          onDragEnter={this.question.onDragEnter}
+        >
+          {fileDecorator}
+          {clearButton}
+          {preview}
+          {clearButtonBottom}
+          {mobileFileNavigator}
+        </div>
       </div>
     );
   }
@@ -92,9 +100,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div
         className={this.question.getFileDecoratorCss()}
-        onDrop={this.question.onDrop}
-        onDragOver={this.question.onDragOver}
-        onDragLeave={this.question.onDragLeave}
       >
         <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.question.dragAreaPlaceholder}</span>
         <div className={this.question.cssClasses.wrapper}>

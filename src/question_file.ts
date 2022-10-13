@@ -524,18 +524,31 @@ export class QuestionFileModel extends Question {
   }
   //#region
   // web-based methods
+  private rootElement: HTMLElement;
+  afterRender(el: HTMLElement) {
+    this.rootElement = el;
+    super.afterRender(el);
+  }
+  private dragCounter: number = 0;
+  onDragEnter = (event: any) => {
+    if (!this.isInputReadOnly) {
+      event.preventDefault();
+      this.isDragging = true;
+      this.dragCounter ++;
+    }
+  }
   onDragOver = (event: any) => {
     if (this.isInputReadOnly) {
       event.returnValue = false;
       return false;
     }
-    this.isDragging = true;
     event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   }
   onDrop = (event: any) => {
     if (!this.isInputReadOnly) {
       this.isDragging = false;
+      this.dragCounter = 0;
       event.preventDefault();
       let src = event.dataTransfer;
       this.onChange(src);
@@ -543,7 +556,10 @@ export class QuestionFileModel extends Question {
   }
   onDragLeave = (event: any) => {
     if (!this.isInputReadOnly) {
-      this.isDragging = false;
+      this.dragCounter --;
+      if(this.dragCounter === 0) {
+        this.isDragging = false;
+      }
     }
   }
   doChange = (event: any) => {
@@ -556,7 +572,9 @@ export class QuestionFileModel extends Question {
       var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
       if (!isConfirmed) return;
     }
-    src.parentElement.querySelectorAll("input")[0].value = "";
+    if(this.rootElement) {
+      this.rootElement.querySelectorAll("input")[0].value = "";
+    }
     this.clear();
   }
   doRemoveFile(data: any) {

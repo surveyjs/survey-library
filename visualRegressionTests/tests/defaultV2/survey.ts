@@ -190,4 +190,95 @@ frameworks.forEach(framework => {
     });
     await checkElementScreenshot("survey-title-with-logo.png", Selector(".sd-title"), t); // without title and progress
   });
+
+  test("Check survey navigation bar", async (t) => {
+    await t.resizeWindow(400, 1080);
+    const json = {
+      title: "Software developer survey.",
+      pages: [
+        {
+          "title": "What operating system do you use?",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "opSystem",
+              "title": "OS",
+              "hasOther": true,
+              "isRequired": true,
+              "choices": ["Windows", "Linux", "Macintosh OSX"]
+            }
+          ]
+        }, {
+          "title": "What language(s) are you currently using?",
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "langs",
+              "title": "Please select from the list",
+              "colCount": 4,
+              "isRequired": true,
+              "choices": [
+                "Javascript",
+                "Java",
+                "Python",
+                "CSS",
+                "PHP",
+                "Ruby",
+                "C++",
+                "C",
+                "Shell",
+                "C#",
+                "Objective-C",
+                "R",
+                "VimL",
+                "Go",
+                "Perl",
+                "CoffeeScript",
+                "TeX",
+                "Swift",
+                "Scala",
+                "Emacs Lisp",
+                "Haskell",
+                "Lua",
+                "Clojure",
+                "Matlab",
+                "Arduino",
+                "Makefile",
+                "Groovy",
+                "Puppet",
+                "Rust",
+                "PowerShell"
+              ]
+            }
+          ]
+        }, {
+          "title": "Please enter your name and e-mail",
+          "elements": [
+            {
+              "type": "text",
+              "name": "name",
+              "title": "Name:"
+            }, {
+              "type": "text",
+              "name": "email",
+              "title": "Your e-mail"
+            }
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    await ClientFunction(() => {
+      window["survey"].addNavigationItem({
+        id: "survey_clear_current_page", title: "Clear page", visibleIndex: 49, // "Complete" button has the visibleIndex 50.
+        action: () => { window["survey"].currentPage.questions.forEach(function (question) { question.value = undefined; }); }
+      });
+    })();
+    await t
+      .click(Selector(".sd-item__control-label").withText("Windows"))
+      .click(Selector(".sd-btn.sd-navigation__next-btn"));
+
+    await checkElementScreenshot("survey-navigation-bar.png", Selector(".sd-action-bar.sd-footer.sd-body__navigation"), t);
+    await t.resizeWindow(1920, 1080);
+  });
 });

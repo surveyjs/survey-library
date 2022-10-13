@@ -32,13 +32,11 @@
   }
 }
 
-.sd-body__navigation {
+.sd-body__navigation.sd-action-bar {
   box-sizing: border-box;
   padding: calcSize(2) calcSize(2);
-
-  .sv-action:not(.sv-action--hidden)~.sv-action:not(.sv-action--hidden) {
-    margin-left: calcSize(2);
-  }
+  flex-wrap: wrap;
+  gap: calcSize(2);
 }
 
 .sd-body__progress {

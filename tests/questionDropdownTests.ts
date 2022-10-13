@@ -511,13 +511,11 @@ QUnit.test("lazy loading: first loading", assert => {
   assert.equal(question.lazyLoading, true);
   assert.equal(question.choices.length, 0);
 
-  question.dropdownListModel.popupModel.toggleVisibility();
+  question.dropdownListModel.popupModel.isVisible = true;
   setTimeout(() => {
     assert.equal(question.choices.length, 25);
     assert.equal(question.choices[0].value, 1);
     assert.equal(question.choices[24].value, 25);
-
-    question.dropdownListModel.popupModel.toggleVisibility();
     done();
   }, 550);
 });
@@ -582,33 +580,34 @@ QUnit.test("itemsSettings property", assert => {
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   question.lazyLoadingValue = true;
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
   const itemsSettings = question.dropdownListModel["itemsSettings"];
   assert.equal(itemsSettings.startIndex, 0);
   assert.equal(itemsSettings.pageSize, 25);
   assert.equal(itemsSettings.total, 0);
   assert.equal(itemsSettings.items.length, 0);
-  assert.equal(question.choices.length, 0);
+  assert.equal(listModel.actions.length, 0);
 
-  assert.equal(question.choices.length, 0);
-  question.dropdownListModel.popupModel.toggleVisibility();
-  assert.equal(question.choices.length, 25);
+  question.dropdownListModel.popupModel.isVisible = true;
 
   setTimeout(() => {
+    assert.equal(listModel.actions.length, 25);
     assert.equal(itemsSettings.startIndex, 25);
     assert.equal(itemsSettings.pageSize, 25);
     assert.equal(itemsSettings.total, 55);
     assert.equal(itemsSettings.items.length, 25);
 
-    assert.equal(question.choices.length, 25);
-    question.dropdownListModel.popupModel.toggleVisibility();
-    assert.equal(question.choices.length, 0);
+    question.dropdownListModel.popupModel.isVisible = false;
 
     setTimeout(() => {
+      assert.equal(listModel.actions.length, 25);
       assert.equal(itemsSettings.startIndex, 0);
       assert.equal(itemsSettings.pageSize, 25);
       assert.equal(itemsSettings.total, 0);
       assert.equal(itemsSettings.items.length, 0);
-      assert.equal(question.choices.length, 0);
+
+      question.dropdownListModel.popupModel.isVisible = true;
+      assert.equal(listModel.actions.length, 0);
 
       done2();
     }, 550);

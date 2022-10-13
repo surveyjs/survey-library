@@ -59,7 +59,7 @@
   </div>
 </script>
 <script type="text/html" id="survey-question-file-clean-button">
-  <!-- ko if: $data.showRemoveButton-->
+  <!-- ko if: question.koHasValue() && !question.isReadOnly && $data.showRemoveButton-->
   <button type="button" data-bind="css: showRemoveButton, enabled: !question.isInputReadOnly, click: question.doclean">
       <span data-bind="text: question.cleanButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->

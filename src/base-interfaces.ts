@@ -294,6 +294,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   indexOf(el: IElement): number;
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
+  expand(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;

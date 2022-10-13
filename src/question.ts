@@ -901,6 +901,7 @@ export class Question extends SurveyElement
     if (this.isDesignMode) return;
 
     if (!!this.survey) {
+      this.expandAllPanels(this.parent);
       this.survey.scrollElementToTop(this, this, null, this.id);
     }
     var id = !onError
@@ -908,6 +909,12 @@ export class Question extends SurveyElement
       : this.getFirstErrorInputElementId();
     if (SurveyElement.FocusElement(id)) {
       this.fireCallback(this.focusCallback);
+    }
+  }
+  private expandAllPanels(panel: IPanel) {
+    if(!!panel && !!panel.parent) {
+      panel.expand();
+      this.expandAllPanels(panel.parent);
     }
   }
   public focusIn = () => {

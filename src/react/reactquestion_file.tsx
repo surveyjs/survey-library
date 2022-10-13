@@ -59,11 +59,19 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div className={this.question.fileRootCss}>
         {fileInput}
-        {fileDecorator}
-        {clearButton}
-        {preview}
-        {clearButtonBottom}
-        {mobileFileNavigator}
+        <div
+          className={this.question.cssClasses.dragArea}
+          onDrop={this.question.onDrop}
+          onDragOver={this.question.onDragOver}
+          onDragLeave={this.question.onDragLeave}
+          onDragEnter={this.question.onDragEnter}
+        >
+          {fileDecorator}
+          {clearButton}
+          {preview}
+          {clearButtonBottom}
+          {mobileFileNavigator}
+        </div>
       </div>
     );
   }
@@ -92,9 +100,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div
         className={this.question.getFileDecoratorCss()}
-        onDrop={this.question.onDrop}
-        onDragOver={this.question.onDragOver}
-        onDragLeave={this.question.onDragLeave}
       >
         <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.question.dragAreaPlaceholder}</span>
         <div className={this.question.cssClasses.wrapper}>
@@ -108,7 +113,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.cleanButtonCaption}</span>
-        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"}></SvgIcon>: null }
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.cleanButtonCaption}></SvgIcon>: null }
       </button>
     ) : null;
   }

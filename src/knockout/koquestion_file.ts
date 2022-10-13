@@ -40,6 +40,9 @@ class QuestionFileImplementor extends QuestionImplementor {
     this.setCallbackFunc("ondragover", (data: any, event: any) => {
       this.question.onDragOver(getOriginalEvent(event));
     });
+    this.setCallbackFunc("ondragenter", (data: any, event: any) => {
+      this.question.onDragEnter(getOriginalEvent(event));
+    });
     this.setCallbackFunc("ondragleave", (data: any, event: any) => {
       this.question.onDragLeave(getOriginalEvent(event));
     });

@@ -609,17 +609,32 @@ QUnit.test("check file d&d", (assert) => {
   let onChangeCalledCount = 0;
   q["onChange"] = () => { onChangeCalledCount++; };
   const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 1);
+  assert.equal(q.isDragging, true);
+
   q.onDragOver(event);
   assert.equal(event.dataTransfer.dropEffect, "copy");
   assert.equal(q.isDragging, true);
 
   q.onDragLeave(event);
+  assert.equal(q["dragCounter"], 0);
   assert.equal(q.isDragging, false);
 
-  q.onDragOver(event);
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 1);
+  assert.equal(q.isDragging, true);
+
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 2);
+  assert.equal(q.isDragging, true);
+  //prevent remove drag state when dragging on children
+  q.onDragLeave(event);
+  assert.equal(q["dragCounter"], 1);
   assert.equal(q.isDragging, true);
 
   q.onDrop(event);
+  assert.equal(q["dragCounter"], 0);
   assert.equal(q.isDragging, false);
   assert.equal(onChangeCalledCount, 1);
 });

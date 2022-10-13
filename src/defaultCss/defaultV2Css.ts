@@ -423,6 +423,8 @@ export var defaultV2Css = {
     fileSign: "",
     fileList: "sd-file__list",
     fileSignBottom: "sd-file__sign",
+    dragArea: "sd-file__drag-area",
+    dragAreaActive: "sd-file__drag-area--active",
     fileDecorator: "sd-file__decorator",
     onError: "sd-file__decorator--error",
     fileDecoratorDrag: "sd-file__decorator--drag",

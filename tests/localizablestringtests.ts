@@ -677,6 +677,7 @@ QUnit.test("External localization string name", function(assert) {
   surveyLocalization.onGetExternalString = (name: string, locale: string): string => {
     if(name === "ed.test") {
       if(locale === "de") return "ExternalStr-de";
+      if(locale === "en") return "ExternalStr-en";
       return "ExternalStr";
     }
     return "";
@@ -684,9 +685,12 @@ QUnit.test("External localization string name", function(assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner);
   locString.localizationName = "ed.test";
-  assert.equal(locString.text, "ExternalStr", "English ExternalStr");
+  owner.locale = "en";
+  assert.equal(locString.text, "ExternalStr-en", "English ExternalStr");
   owner.locale = "de";
   assert.equal(locString.text, "ExternalStr-de", "Deutsch ExternalStr");
+  owner.locale = "";
+  assert.equal(locString.text, "ExternalStr", "Default locale");
 });
 QUnit.test("Get/set language dialect", function(assert) {
   const owner = new LocalizableOwnerTester("");

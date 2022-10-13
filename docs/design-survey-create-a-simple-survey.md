@@ -318,7 +318,7 @@ $(function() {
 
 [View Pop-Up Survey example](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
 
-## Further Reading
+## See Also
 
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
 - [Create a Quiz](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-quiz)

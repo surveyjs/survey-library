@@ -215,7 +215,6 @@ frameworks.forEach(framework => {
               "type": "checkbox",
               "name": "langs",
               "title": "Please select from the list",
-              "colCount": 4,
               "isRequired": true,
               "choices": [
                 "Javascript",
@@ -228,26 +227,6 @@ frameworks.forEach(framework => {
                 "C",
                 "Shell",
                 "C#",
-                "Objective-C",
-                "R",
-                "VimL",
-                "Go",
-                "Perl",
-                "CoffeeScript",
-                "TeX",
-                "Swift",
-                "Scala",
-                "Emacs Lisp",
-                "Haskell",
-                "Lua",
-                "Clojure",
-                "Matlab",
-                "Arduino",
-                "Makefile",
-                "Groovy",
-                "Puppet",
-                "Rust",
-                "PowerShell"
               ]
             }
           ]
@@ -276,7 +255,8 @@ frameworks.forEach(framework => {
     })();
     await t
       .click(Selector(".sd-item__control-label").withText("Windows"))
-      .click(Selector(".sd-btn.sd-navigation__next-btn"));
+      .click(Selector(".sd-btn.sd-navigation__next-btn"))
+      .click(Selector(".sd-item__control-label").withText("Javascript"));
 
     await checkElementScreenshot("survey-navigation-bar.png", Selector(".sd-action-bar.sd-footer.sd-body__navigation"), t);
     await t.resizeWindow(1920, 1080);

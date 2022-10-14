@@ -671,10 +671,11 @@ export class Base {
     info.runner.run(values, properties);
   }
   /**
-   * Register a function that will be called on a property value changed from the propertyNames list.
-   * @param propertyNames the list of properties names
-   * @param handler the function with no parameters that will be called on property changed.
+   * Registers a function to call when a property value changes.
+   * @param propertyNames An array of one or multiple property names.
+   * @param handler A function to call when one of the listed properties change.
    * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
+   * @see unregisterPropertyChangedHandlers
    */
   public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
     for (var i = 0; i < propertyNames.length; i++) {
@@ -682,9 +683,10 @@ export class Base {
     }
   }
   /**
-   * Unregister notification on property value changed for all properties in the propetyNames list.
-   * @param propetyNames the list of properties names
+   * Unregisters value change event handlers for the specified properties.
+   * @param propertyNames An array of one or multiple property names.
    * @param key the key with which you have registered the notification for this property. It can be null.
+   * @see registerPropertyChangedHandlers
    */
   public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {
     for (var i = 0; i < propertyNames.length; i++) {

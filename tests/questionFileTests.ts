@@ -331,6 +331,31 @@ QUnit.test("QuestionFile remove file", function(assert) {
   assert.deepEqual(survey.data, {});
 });
 
+QUnit.test("QuestionFile remove files with the same name", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  const fileData1 = { name: "f1", content: "data1" };
+  const fileData2 = { name: "f1", content: "data2" };
+  survey.data = { image1: [fileData1, fileData2] };
+
+  q1.doRemoveFile(fileData2);
+  assert.deepEqual(survey.data, { image1: [{ name: "f1", content: "data1" }] });
+
+  q1.doRemoveFile(fileData1);
+  assert.deepEqual(survey.data, {});
+});
+
 QUnit.test(
   "QuestionFile upload files that exceed max size - https://surveyjs.answerdesk.io/ticket/details/T994",
   function(assert) {

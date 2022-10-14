@@ -9,6 +9,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
+import { Helpers } from "./helpers";
 
 /**
  * A class that describes the File question type.
@@ -249,9 +250,9 @@ export class QuestionFileModel extends Question {
    * Removes a file with a specified name.
    */
   public removeFile(name: string) {
-    this.removeFileByContent({ name });
+    this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
-  protected removeFileByContent(content: { name: string }) {
+  protected removeFileByContent(content: any) {
     if (!this.survey) return;
     this.survey.clearFiles(
       this,
@@ -262,7 +263,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => f.name !== content.name);
+            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true));
           } else {
             this.value = undefined;
           }

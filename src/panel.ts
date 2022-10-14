@@ -761,16 +761,14 @@ export class PanelModelBase extends SurveyElement
       }
     }
   }
-  getFirstQuestionToFocus(withError: boolean = false): Question {
-    if(!withError && this.isCollapsed) return null;
+  getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
+    if(!withError && !ignoreCollapseState && this.isCollapsed) return null;
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
       if (!el.isVisible) continue;
       if (el.isPanel) {
-        var res = (<PanelModelBase>(<any>el)).getFirstQuestionToFocus(
-          withError
-        );
+        var res = (<PanelModelBase>(<any>el)).getFirstQuestionToFocus(withError, ignoreCollapseState);
         if (!!res) return res;
       } else {
         const q = (<Question>el).getFirstQuestionToFocus(withError);

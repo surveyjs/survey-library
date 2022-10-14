@@ -571,6 +571,7 @@ QUnit.test("Get first focused question on collapsed panel", function (assert) {
   });
   const page = survey.pages[0];
   assert.equal(page.getFirstQuestionToFocus().name, "q2", "q1 is in collapsed panel");
+  assert.equal(page.getFirstQuestionToFocus(false, true).name, "q1", "ignore collapsed state");
   page.hasErrors(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
 });

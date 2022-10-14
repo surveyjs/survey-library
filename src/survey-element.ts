@@ -57,9 +57,10 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * Explanatory text displayed under the title.
    * @see hasDescription
    */
-  @property({ localizable: true, onSet: (newDescription, self) => {
-    self.updateDescriptionVisibility(self, newDescription);
-  }
+  @property({
+    localizable: true, onSet: (newDescription, self) => {
+      self.updateDescriptionVisibility(self, newDescription);
+    }
   }) description: string;
   public updateDescriptionVisibility(newDescription: any) {
     this.hasDescription = !!newDescription;
@@ -113,7 +114,7 @@ export enum DragTypeOverMeEnum {
 /**
  * A base class for all survey elements.
  */
-export class SurveyElement extends SurveyElementCore implements ISurveyElement {
+export class SurveyElement<E = any> extends SurveyElementCore implements ISurveyElement {
   stateChangedCallback: () => void;
 
   public static getProgressInfoByElements(
@@ -184,7 +185,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
-    if(!document) return false;
+    if (!document) return false;
     const el = document.getElementById(elementId);
     if (el && !(<any>el)["disabled"]) {
       el.focus();
@@ -217,6 +218,22 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
     return "";
   }
+
+  private parentQuestionValue: E = null;
+  /**
+   * A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
+   *
+   * This property is `null` for standalone questions.
+   */
+  public get parentQuestion(): E {
+    return this.parentQuestionValue;
+  }
+  setParentQuestion(val: E): void {
+    this.parentQuestionValue = val;
+    this.onParentQuestionChanged();
+  }
+  protected onParentQuestionChanged(): void { }
+
   public get skeletonComponentName(): string {
     return this.getSkeletonComponentNameCore();
   }
@@ -331,9 +348,9 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     }
     return this.titleToolbarValue;
   }
-  protected createActionContainer (allowAdaptiveActions?: boolean): ActionContainer {
-    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer(): new ActionContainer();
-    if(this.survey && !!this.survey.getCss().actionBar) {
+  protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
+    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+    if (this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
 
@@ -383,7 +400,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if(!!this.survey) {
+    if (!!this.survey) {
       this.clearCssClasses();
     }
   }
@@ -851,7 +868,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
     return style;
   }
   public get clickTitleFunction(): any {
-    if(this.needClickTitleFunction()) {
+    if (this.needClickTitleFunction()) {
       return () => {
         return this.processTitleClick();
       };
@@ -869,7 +886,7 @@ export class SurveyElement extends SurveyElementCore implements ISurveyElement {
   public localeChanged() {
     super.localeChanged();
     this.updateDescriptionVisibility(this.description);
-    if(this.errors.length > 0) {
+    if (this.errors.length > 0) {
       this.errors.forEach(err => {
         err.updateText();
       });

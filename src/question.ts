@@ -29,7 +29,7 @@ export interface IConditionObject {
 /**
  * A base class for all questions.
  */
-export class Question extends SurveyElement
+export class Question extends SurveyElement<Question>
   implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
@@ -391,20 +391,6 @@ export class Question extends SurveyElement
     this.updateQuestionCss();
     this.onParentChanged();
   }
-  private parentQuestionValue: Question = null;
-  /**
-   * A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
-   *
-   * This property is `null` for standalone questions.
-   */
-  public get parentQuestion(): Question {
-    return this.parentQuestionValue;
-  }
-  setParentQuestion(val: Question): void {
-    this.parentQuestionValue = val;
-    this.onParentQuestionChanged();
-  }
-  protected onParentQuestionChanged(): void { }
   protected onParentChanged(): void { }
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).

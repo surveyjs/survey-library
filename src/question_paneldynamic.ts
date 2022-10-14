@@ -1490,6 +1490,7 @@ export class QuestionPanelDynamicModel extends Question
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
     panel.isInteractiveDesignElement = false;
+    panel.setParentQuestion(this);
     var self = this;
     panel.onGetQuestionTitleLocation = function() {
       return self.getTemplateQuestionTitleLocation();

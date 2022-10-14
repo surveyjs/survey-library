@@ -32,6 +32,7 @@ QUnit.test("Create panels based on template on setting value", function(
     2,
     "There are two elements in the first panel"
   );
+  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel")
 });
 
 QUnit.test("Synhronize panelCount and value array length", function(assert) {

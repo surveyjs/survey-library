@@ -257,7 +257,7 @@ export class QuestionRowModel extends Base {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase extends SurveyElement
+export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {

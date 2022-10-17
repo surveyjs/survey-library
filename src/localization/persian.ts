@@ -69,7 +69,6 @@ export var persianSurveyStrings = {
     "شما مدت {0} از {1} در این صفحه و مدت {2} از {3} را در مجموع سپری کرده اید.",
   timerLimitPage: "شما مدت {0} از {1} را در این صفحه سپری کرده اید.",
   timerLimitSurvey: "شما مدت {0} از {1} را در مجموع سپری کرده اید.",
-  cleanCaption: "پاکسازی",
   clearCaption: "خالی کردن",
   chooseFileCaption: "انتخاب فایل",
   removeFileCaption: "حذف این فایل",

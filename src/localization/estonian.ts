@@ -69,7 +69,6 @@ export var estonianSurveyStrings = {
     "Oled kulutanud {0} võimalikust {1} sellel lehel ning {2} võimalikust {3} kokku.",
   timerLimitPage: "Oled kulutanud {0} võimalikust {1} sellel lehel.",
   timerLimitSurvey: "Oled kulutanud {0} võimalikust {1} koguajast.",
-  cleanCaption: "Puhasta",
   clearCaption: "Puhasta",
   chooseFileCaption: "Vali fail",
   removeFileCaption: "Eemalda see fail",

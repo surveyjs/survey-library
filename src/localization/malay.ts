@@ -69,7 +69,6 @@ export var malaySurveyStrings = {
   timerLimitAll: "Anda telah meluangkan {0} daripada {1} pada halaman ini dan {2} daripada {3} secara keseluruhan.",
   timerLimitPage: "Anda telah meluangkan {0} daripada {1} pada halaman ini.",
   timerLimitSurvey: "Anda telah meluangkan {0} daripada {1} secara keseluruhan.",
-  cleanCaption: "Kosongkan",
   clearCaption: "Kosongkan",
   signaturePlaceHolder: "Tandatangan di sini",
   chooseFileCaption: "Pilih fail",

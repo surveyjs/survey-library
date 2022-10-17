@@ -71,7 +71,6 @@ export var indonesianStrings = {
     "Anda telah menghabiskan {0} dari {1} pada halaman ini dan {2} dari {3} secara keseluruhan.",
   timerLimitPage: "Anda telah menghabiskan {0} dari {1} pada halaman ini.",
   timerLimitSurvey: "Anda telah menghabiskan {0} dari {1} secara keseluruhan.",
-  cleanCaption: "Bersihkan",
   clearCaption: "Bersihkan",
   chooseFileCaption: "Pilih File",
   removeFileCaption: "Hapus berkas ini",

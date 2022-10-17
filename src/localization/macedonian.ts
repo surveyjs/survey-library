@@ -73,7 +73,6 @@ export var macedonianSurveyStrings = {
     "Поминавте {0} од {1} на оваа страница и {2} од {3} вкупно.",
   timerLimitPage: "Поминавте {0} од {1} на оваа страница.",
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
-  cleanCaption: "Чисти",
   clearCaption: "Да расчисти",
   chooseFileCaption: "Изберете датотека",
   removeFileCaption: "Отстранете ја оваа датотека",

@@ -69,7 +69,6 @@ export var simplifiedChineseSurveyStrings = {
     "本页用时 {0} 共 {1}， 总计用时 {2} 共 {3} .",
   timerLimitPage: "本页用时 {0} 共 {1} .",
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
-  cleanCaption: "清理",
   clearCaption: "清除",
   chooseFileCaption: "选择文件",
   removeFileCaption: "移除文件",

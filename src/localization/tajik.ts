@@ -64,7 +64,6 @@ export var tajikSurveyStrings = {
     "Шумо {0} аз {1} дар ин саҳифа ва {2} аз {3} дар умум сарф кардед дар дохили ин тест.",
   timerLimitPage: "Шумо {0} аз {1} дар ин саҳифа сарф кардед.",
   timerLimitSurvey: "Шумо {0} аз {1} дар ҳамаи тест сарф кардед.",
-  cleanCaption: "Тоза кардан",
   clearCaption: "Тоза кардан",
   removeFileCaption: "Файлро нест кардан"
 };

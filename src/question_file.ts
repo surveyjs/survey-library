@@ -93,9 +93,10 @@ export class QuestionFileModel extends Question {
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
-   * Specifies whether to show a preview of image files.
+   * Disable this property only to implement a custom preview.
    *
-   * Default value: `true`
+   * [View "Custom Preview" Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
+   * @see allowImagesPreview
    */
   public get showPreview() {
     return this.getPropertyValue("showPreview");
@@ -164,7 +165,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
   /**
-   * Set it to false if you want to disable images preview.
+   * Specifies whether to show a preview of image files.
    */
   public get allowImagesPreview(): boolean {
     return this.getPropertyValue("allowImagesPreview");

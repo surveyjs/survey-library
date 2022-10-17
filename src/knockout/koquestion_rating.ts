@@ -13,10 +13,6 @@ export class QuestionRatingImplementor extends QuestionImplementor {
     super(question);
     this.onCreated();
   }
-  public dispose() {
-    (<QuestionRating>this.question).rateValuesChangedCallback = undefined;
-    super.dispose();
-  }
 }
 
 export class QuestionRating extends QuestionRatingModel {

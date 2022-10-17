@@ -677,6 +677,7 @@ QUnit.test("External localization string name", function(assert) {
   surveyLocalization.onGetExternalString = (name: string, locale: string): string => {
     if(name === "ed.test") {
       if(locale === "de") return "ExternalStr-de";
+      if(locale === "en") return "ExternalStr-en";
       return "ExternalStr";
     }
     return "";
@@ -684,9 +685,12 @@ QUnit.test("External localization string name", function(assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner);
   locString.localizationName = "ed.test";
-  assert.equal(locString.text, "ExternalStr", "English ExternalStr");
+  owner.locale = "en";
+  assert.equal(locString.text, "ExternalStr-en", "English ExternalStr");
   owner.locale = "de";
   assert.equal(locString.text, "ExternalStr-de", "Deutsch ExternalStr");
+  owner.locale = "";
+  assert.equal(locString.text, "ExternalStr", "Default locale");
 });
 QUnit.test("Get/set language dialect", function(assert) {
   const owner = new LocalizableOwnerTester("");
@@ -730,4 +734,22 @@ QUnit.test("Get/set language dialect", function(assert) {
     pt: "Portuguese",
     "pt-BR": "Portuguese BR"
   }, "Add en-UK");
+});
+QUnit.test("Do not reset values in any locale", function(assert) {
+  settings.storeDuplicatedTranslations = true;
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.text = "default";
+  locString.setLocaleText("de", "default-de");
+  locString.setLocaleText("pt", "default-pt");
+  locString.setLocaleText("pt-br", "default-pt");
+  locString.setLocaleText("it", "default");
+  assert.deepEqual(locString.getJson(), {
+    default: "default",
+    de: "default-de",
+    it: "default",
+    pt: "default-pt",
+    "pt-br": "default-pt",
+  }, "Do not reset any locale value");
+  settings.storeDuplicatedTranslations = false;
 });

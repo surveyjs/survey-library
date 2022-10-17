@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction, fixture, test } from "testcafe";
+import { ClientFunction, fixture, Selector, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "file";
@@ -61,6 +61,19 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.image.length, 2);
     assert.equal(surveyResult.image[0].name, "stub.txt");
     assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
+  });
+  test("check clean button", async t => {
+    await ClientFunction(()=>{
+      window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
+    })();
+    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
+    await t.setFilesToUpload(
+      "input[type=file]",
+      "../resources/small_Dashka.jpg"
+    );
+    const cleanButtonSelector = Selector("button").withText("Clean");
+    await t.click(cleanButtonSelector);
+    await t.expect(cleanButtonSelector.exists).notOk();
   });
 
   test("choose image", async t => {

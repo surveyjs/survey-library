@@ -347,6 +347,8 @@ export class QuestionMatrixModel
   protected sortVisibleRows(
     array: Array<MatrixRowModel>
   ): Array<MatrixRowModel> {
+    if (!!this.survey && this.survey.isDesignMode)
+      return array;
     var order = this.rowsOrder.toLowerCase();
     if (order === "random")
       return Helpers.randomizeArray<MatrixRowModel>(array);

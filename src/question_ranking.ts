@@ -28,6 +28,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "ranking";
   }
 
+  public getItemTabIndex(item: ItemValue) {
+    return this.isDesignMode ? undefined : 0;
+  }
+
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -199,14 +203,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
-    const key: any = event.key;
-    const index = this.rankingChoices.indexOf(choice);
+    if (!this.isDesignMode) {
+      const key: any = event.key;
+      const index = this.rankingChoices.indexOf(choice);
 
-    if (key === "ArrowUp" && index) {
-      this.handleArrowUp(index, choice);
-    }
-    if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
-      this.handleArrowDown(index, choice);
+      if (key === "ArrowUp" && index) {
+        this.handleArrowUp(index, choice);
+        event.preventDefault();
+      }
+      if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
+        this.handleArrowDown(index, choice);
+        event.preventDefault();
+      }
     }
   };
 
@@ -257,7 +265,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   protected getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     const res = super.getChoicesFromQuestion(question);
-    if(this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
       res.push(new ItemValue(question.otherItem.value, question.comment));
     }
     return res;
@@ -334,13 +342,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 Serializer.addClass(
   "ranking",
   [
-    { name: "hasOther", visible: false, isSerializable: false },
+    { name: "showOtherItem", visible: false, isSerializable: false },
     { name: "otherText", visible: false, isSerializable: false },
     { name: "otherErrorText", visible: false, isSerializable: false },
     { name: "storeOthersAsComment", visible: false, isSerializable: false },
-    { name: "hasNone", visible: false, isSerializable: false },
+    { name: "showNoneItem", visible: false, isSerializable: false },
     { name: "noneText", visible: false, isSerializable: false },
-    { name: "hasSelectAll", visible: false, isSerializable: false },
+    { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },

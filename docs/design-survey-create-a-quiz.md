@@ -352,17 +352,16 @@ const surveyJson = {
 
 Refer to the following platform-specific articles for information on how to render the quiz in your application:
 
-- [Render the Survey - Angular](https://surveyjs.io/Documentation/Library?id=get-started-angular#render-the-survey)
-- [Render the Survey - Vue](https://surveyjs.io/Documentation/Library?id=get-started-vue#render-the-survey)
-- [Render the Survey - React](https://surveyjs.io/Documentation/Library?id=get-started-react#render-the-survey)
-- [Render the Survey - Knockout](https://surveyjs.io/Documentation/Library?id=get-started-knockout#render-the-survey)
-- [Render the Survey - jQuery](https://surveyjs.io/Documentation/Library?id=get-started-jquery#render-the-survey)
+- [Render the Survey - Angular](https://surveyjs.io/form-library/documentation/get-started-angular#render-the-survey)
+- [Render the Survey - Vue](https://surveyjs.io/form-library/documentation/get-started-vue#render-the-survey)
+- [Render the Survey - React](https://surveyjs.io/form-library/documentation/get-started-react#render-the-survey)
+- [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
+- [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
 
 <a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">View full code on GitHub</a>
 
-## Further Reading
+## See Also
 
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
-- [Dynamic Text](https://surveyjs.io/Documentation/Library?id=design-survey-dynamic-text)
-- [Conditional Display](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-display)
-- [Survey States](https://surveyjs.io/Documentation/Library?id=handle-results-survey-states)
+- [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
+- [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)

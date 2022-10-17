@@ -318,10 +318,9 @@ $(function() {
 
 [View Pop-Up Survey example](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
 
-## Further Reading
+## See Also
 
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
 - [Create a Quiz](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-quiz)
-- [Dynamic Text](https://surveyjs.io/Documentation/Library?id=design-survey-dynamic-text)
-- [Conditional Display](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-display)
-- [Survey States](https://surveyjs.io/Documentation/Library?id=handle-results-survey-states)
+- [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
+- [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)

@@ -137,6 +137,21 @@ export class Survey extends SurveyModel {
   }
 }
 
+function ensureSurvey(survey: Survey) {
+  if (!survey.implementor) {
+    survey.implementor = new SurveyImplementor(survey);
+    survey.render = (element: any = null): void => {
+      survey.implementor.render(element);
+    };
+    survey.getHtmlTemplate = (): string => {
+      return koTemplate;
+    };
+    survey.makeReactive = (obj: Base): void => {
+      new ImplementorBase(obj);
+    };
+  }
+}
+
 LocalizableString.prototype["onCreating"] = function () {
   var self = this;
   this.koHasHtml = ko.observable(this.hasHtml);
@@ -157,6 +172,7 @@ ko.components.register("survey", {
   viewModel: {
     createViewModel: function (params: any, componentInfo: any) {
       var survey: Survey = ko.unwrap(params.survey);
+      ensureSurvey(survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");
         componentInfo.element.appendChild(surveyRoot);

@@ -9,17 +9,23 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
+import { Helpers } from "./helpers";
 
 /**
- * A Model for a file question
+ * A class that describes the File question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
   @property() isDragging: boolean = false;
   /**
-   * The event is fired after question state has been changed.
-   * sender the question object that fires the event
-   * options.state new question state value.
+   * An event that is raised after the upload state has changed.
+   *
+   * Parameters:
+   *
+   * - `sender` - A question instance that raised the event.
+   * - `options.state` - Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
@@ -41,7 +47,7 @@ export class QuestionFileModel extends Question {
 
   constructor(name: string) {
     super(name);
-    this.fileIndexAction = new Action ({
+    this.fileIndexAction = new Action({
       id: "fileIndex",
       title: this.getFileIndexCaption(),
       enabled: false
@@ -49,7 +55,7 @@ export class QuestionFileModel extends Question {
     this.prevFileAction = new Action({
       id: "prevPage",
       iconSize: 16,
-      action: ()=>{
+      action: () => {
         this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.previewValue.length) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -57,7 +63,7 @@ export class QuestionFileModel extends Question {
     this.nextFileAction = new Action({
       id: "nextPage",
       iconSize: 16,
-      action: ()=>{
+      action: () => {
         this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.previewValue.length) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -84,10 +90,12 @@ export class QuestionFileModel extends Question {
   }
   public clearOnDeletingContainer() {
     if (!this.survey) return;
-    this.survey.clearFiles(this, this.name, this.value, null, () => {});
+    this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
-   * Set it to true, to show the preview for the image files.
+   * Specifies whether to show a preview of image files.
+   *
+   * Default value: `true`
    */
   public get showPreview() {
     return this.getPropertyValue("showPreview");
@@ -96,7 +104,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("showPreview", val);
   }
   /**
-   * Set it to true, to allow select multiple files.
+   * Specifies whether users can upload multiple files.
+   *
+   * Default value: `false`
    */
   public get allowMultiple() {
     return this.getPropertyValue("allowMultiple", false);
@@ -123,7 +133,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("imageWidth", val);
   }
   /**
-   * Accepted file types. Passed to the 'accept' attribute of the file input tag. See https://www.w3schools.com/tags/att_input_accept.asp for more details.
+   * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");
@@ -132,9 +142,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("acceptedTypes", val);
   }
   /**
-   * Set it to false if you do not want to serialize file content as text in the survey.data.
-   * In this case, you have to write the code onUploadFiles event to store the file content.
-   * @see SurveyModel.onUploadFiles
+   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
+   *
+   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText");
@@ -143,7 +153,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("storeDataAsText", val);
   }
   /**
-   * Set it to true if you want to wait until files will be uploaded to your server.
+   * Enable this property if you want to wait until files are uploaded to complete the survey.
+   *
+   * Default value: `false`
    */
   public get waitForUpload(): boolean {
     return this.getPropertyValue("waitForUpload");
@@ -161,7 +173,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("allowImagesPreview", val);
   }
   /**
-   * Use this property to setup the maximum allowed file size.
+   * Maximum allowed file size, measured in bytes.
+   *
+   * Default value: 0 (unlimited)
    */
   public get maxSize(): number {
     return this.getPropertyValue("maxSize");
@@ -170,7 +184,9 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("maxSize", val);
   }
   /**
-   * Use this property to setup confirmation to remove file.
+   * Specifies whether users should confirm file deletion.
+   *
+   * Default value: `false`
    */
   public get needConfirmRemoveFile(): boolean {
     return this.getPropertyValue("needConfirmRemoveFile");
@@ -178,57 +194,24 @@ export class QuestionFileModel extends Question {
   public set needConfirmRemoveFile(val: boolean) {
     this.setPropertyValue("needConfirmRemoveFile", val);
   }
-  /**
-   * The remove file confirmation message.
-   */
   public getConfirmRemoveMessage(fileName: string): string {
     return (<any>this.confirmRemoveMessage).format(fileName);
   }
-  /**
-   * The remove file confirmation message template.
-   */
   @property({ localizable: { defaultStr: "confirmRemoveFile" } }) confirmRemoveMessage: string;
-  /**
-   * The remove all files confirmation message.
-   */
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
-  /**
-   * The no file chosen caption for modern theme.
-   */
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
-  /**
-   * The choose files button caption for modern theme.
-   */
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  /**
-   * The clean files button caption.
-   */
   @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
-  /**
-   * The remove file button caption.
-   */
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
-  /**
-   * The loading file input title.
-   */
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
-  /**
-  * The choose file input title.
-  */
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
 
-  /**
-   * The input title value.
-   */
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
     if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
-  /**
-   * Clear value programmatically.
-   */
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
     this.containsMultiplyFiles = false;
@@ -264,9 +247,12 @@ export class QuestionFileModel extends Question {
   }
 
   /**
-   * Remove file item programmatically.
+   * Removes a file with a specified name.
    */
-  public removeFile(content: { name: string }) {
+  public removeFile(name: string) {
+    this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
+  }
+  protected removeFileByContent(content: any) {
     if (!this.survey) return;
     this.survey.clearFiles(
       this,
@@ -277,7 +263,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => f.name !== content.name);
+            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true));
           } else {
             this.value = undefined;
           }
@@ -286,8 +272,8 @@ export class QuestionFileModel extends Question {
     );
   }
   /**
-   * Load multiple files programmatically.
-   * @param files
+   * Loads multiple files into the question.
+   * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
    */
   public loadFiles(files: File[]) {
     if (!this.survey) {
@@ -349,7 +335,7 @@ export class QuestionFileModel extends Question {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-      (Array.isArray(newValue) && newValue.length > 0)
+        (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -375,11 +361,11 @@ export class QuestionFileModel extends Question {
       });
       if (state === "loading") this.stateChanged("loaded");
     } else {
-      if(!!this._previewLoader) {
+      if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if(status === "loaded") {
+        if (status === "loaded") {
           this.previewValue = loaded;
         }
         this.stateChanged("loaded");
@@ -521,18 +507,31 @@ export class QuestionFileModel extends Question {
   }
   //#region
   // web-based methods
+  private rootElement: HTMLElement;
+  afterRender(el: HTMLElement) {
+    this.rootElement = el;
+    super.afterRender(el);
+  }
+  private dragCounter: number = 0;
+  onDragEnter = (event: any) => {
+    if (!this.isInputReadOnly) {
+      event.preventDefault();
+      this.isDragging = true;
+      this.dragCounter ++;
+    }
+  }
   onDragOver = (event: any) => {
     if (this.isInputReadOnly) {
       event.returnValue = false;
       return false;
     }
-    this.isDragging = true;
     event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
   }
   onDrop = (event: any) => {
     if (!this.isInputReadOnly) {
       this.isDragging = false;
+      this.dragCounter = 0;
       event.preventDefault();
       let src = event.dataTransfer;
       this.onChange(src);
@@ -540,7 +539,10 @@ export class QuestionFileModel extends Question {
   }
   onDragLeave = (event: any) => {
     if (!this.isInputReadOnly) {
-      this.isDragging = false;
+      this.dragCounter --;
+      if(this.dragCounter === 0) {
+        this.isDragging = false;
+      }
     }
   }
   doChange = (event: any) => {
@@ -553,7 +555,9 @@ export class QuestionFileModel extends Question {
       var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
       if (!isConfirmed) return;
     }
-    src.parentElement.querySelectorAll("input")[0].value = "";
+    if(this.rootElement) {
+      this.rootElement.querySelectorAll("input")[0].value = "";
+    }
     this.clear();
   }
   doRemoveFile(data: any) {
@@ -563,7 +567,7 @@ export class QuestionFileModel extends Question {
       );
       if (!isConfirmed) return;
     }
-    this.removeFile(data);
+    this.removeFileByContent(data);
   }
   doDownloadFile = (event: any, data: any) => {
     if (detectIEOrEdge()) {
@@ -576,11 +580,11 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "hasComment:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
-      dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      dependsOn: "showCommentArea",
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
       serializationProperty: "locCommentText",
@@ -590,8 +594,8 @@ Serializer.addClass(
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",
-      dependsOn: "hasComment",
-      visibleIf: function(obj: any) {
+      dependsOn: "showCommentArea",
+      visibleIf: function (obj: any) {
         return obj.hasComment;
       },
     },
@@ -609,7 +613,7 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
   ],
-  function() {
+  function () {
     return new QuestionFileModel("");
   },
   "question"
@@ -626,7 +630,7 @@ export class FileLoader {
     files.forEach((value) => {
       if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
-          if(!this.fileQuestion || !this.callback) {
+          if (!this.fileQuestion || !this.callback) {
             return;
           }
           if (status === "success") {

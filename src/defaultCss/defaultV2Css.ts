@@ -423,6 +423,8 @@ export var defaultV2Css = {
     fileSign: "",
     fileList: "sd-file__list",
     fileSignBottom: "sd-file__sign",
+    dragArea: "sd-file__drag-area",
+    dragAreaActive: "sd-file__drag-area--active",
     fileDecorator: "sd-file__decorator",
     onError: "sd-file__decorator--error",
     fileDecoratorDrag: "sd-file__decorator--drag",
@@ -558,7 +560,7 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-tagbox__filter-string-input sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-radio__decorator"
+    materialDecorator: "sd-item__decorator sd-checkbox__decorator"
   },
 };
 

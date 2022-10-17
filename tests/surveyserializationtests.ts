@@ -50,7 +50,7 @@ QUnit.test("Serialize two questions", function (assert) {
   var jsObj = new JsonObject().toJsonObject(page);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"Page1","elements":[{"type":"text","name":"textQuestion","isRequired":true},{"type":"checkbox","name":"checkboxQuestion","isRequired":true,"hasComment":true,"choices":["red","white"]}]}',
+    '{"name":"Page1","elements":[{"type":"text","name":"textQuestion","isRequired":true},{"type":"checkbox","name":"checkboxQuestion","isRequired":true,"showCommentArea":true,"choices":["red","white"]}]}',
     "serialize two questions"
   );
 });

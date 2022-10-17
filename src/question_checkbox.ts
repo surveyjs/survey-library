@@ -12,7 +12,9 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";
 
 /**
- * A Model for a checkbox question
+ * A class that describes the Checkbox question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
@@ -25,7 +27,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.selectAllItem.setLocText(selectAllItemText);
 
     this.registerPropertyChangedHandlers(
-      ["hasSelectAll", "selectAllText"],
+      ["showSelectAllItem", "selectAllText"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -49,8 +51,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.inputId + "_0";
   }
   /**
-   * Set this property if you want to store the checkbox value as array of objects instead of array of values
-   * For example: if "valuePropertyName" equals car, then instead of having ["Ford", "Tesla"], you will have [{car: "Ford"}, {car: "Tesla"}]
+   * Specifies a property name used to store selected values.
+   *
+   * Set this property if you want to store selected values in an array of objects instead of an array of primitive values. For example, if you set `valuePropertyName` to `"car"`, the `value` property will contain an array of objects `[{ car: "Ford" }, { car: "Tesla" }]`, not an array of string values `[ "Ford", "Tesla" ]`.
    */
   public get valuePropertyName(): string {
     return this.getPropertyValue("valuePropertyName");
@@ -66,14 +69,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return null;
   }
   /**
-   * Returns the select all item. By using this property, you may change programmatically it's value and text.
-   * @see hasSelectAll
+   * Returns the "Select All" choice item. Use this property to change the item's `value` or `text`.
+   * @see showSelectAllItem
    */
   public get selectAllItem(): ItemValue {
     return this.selectAllItemValue;
   }
   /**
-   * Use this property to set the different text for Select All item.
+   * Gets or sets a caption for the "Select All" choice item.
+   * @see showSelectAllItem
    */
   public get selectAllText(): string {
     return this.getLocalizableStringText("selectAllText");
@@ -85,17 +89,27 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getLocalizableString("selectAllText");
   }
   /**
-   * Set this property to true, to show the "Select All" item on the top. If end-user checks this item, then all items are checked.
+   * Enable this property to display a "Select All" item. When users select it, all other choice items, except "Other" and "None", also become selected.
+   * @see selectAll
+   * @see isAllSelected
+   * @see separateSpecialChoices
    */
+  public get showSelectAllItem(): boolean {
+    return this.getPropertyValue("showSelectAllItem", false);
+  }
+  public set showSelectAllItem(val: boolean) {
+    this.setPropertyValue("showSelectAllItem", val);
+  }
+
   public get hasSelectAll(): boolean {
-    return this.getPropertyValue("hasSelectAll", false);
+    return this.showSelectAllItem;
   }
   public set hasSelectAll(val: boolean) {
-    this.setPropertyValue("hasSelectAll", val);
+    this.showSelectAllItem = val;
   }
   /**
-   * Returns true if all items are selected
-   * @see toggleSelectAll
+   * Returns `true` if all choice items, except "Other" and "None", are selected.
+   * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
     var val = this.value;
@@ -116,16 +130,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.clearValue();
     }
   }
-  /**
-   * It will select all items, except other and none. If all items have been already selected then it will clear the value
-   * @see isAllSelected
-   * @see selectAll
-   */
   public toggleSelectAll() {
     this.isAllSelected = !this.isAllSelected;
   }
   /**
-   * Select all items, except other and none.
+   * Selects all choice items, except "Other" and "None".
+   *
+   * To clear selection, call the `clearValue()` method.
+   * @see clearValue
    */
   public selectAll(): void {
     var val: Array<any> = [];
@@ -155,7 +167,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
   /**
-   * Set this property different to 0 to limit the number of selected choices in the checkbox.
+   * Sets a limit on the number of selected choices.
+   *
+   * Default value: 0 (unlimited)
+   *
+   * > NOTE: This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
    */
   public get maxSelectedChoices(): number {
     return this.getPropertyValue("maxSelectedChoices");
@@ -166,9 +182,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.filterItems();
   }
   /**
-   * Return the selected items in the checkbox. Returns empty array if the value is empty
+   * An array of selected choice items. Includes the "Other" and "None" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
+   * @see visibleChoices
+   * @see enabledChoices
    */
-  public get selectedItems(): Array<ItemValue> {
+  public get selectedChoices(): Array<ItemValue> {
     if (this.isEmpty()) return [];
     var val = this.renderedValue;
     var res = [];
@@ -177,6 +195,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return res;
   }
+  public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
@@ -288,7 +307,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected supportSelectAll() {
-    return this.isSupportProperty("hasSelectAll");
+    return this.isSupportProperty("showSelectAllItem");
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (
@@ -306,9 +325,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       item === (<QuestionCheckboxBase>question).selectAllItem
     );
   }
-  /**
-   * For internal use in SurveyJS Creator V2.
-   */
   public isItemInList(item: ItemValue): boolean {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);
@@ -494,13 +510,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "checkbox",
   [
-    "hasSelectAll:boolean",
+    { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",
-      dependsOn: "hasSelectAll",
+      dependsOn: "showSelectAllItem",
       visibleIf: function (obj: any) {
         return obj.hasSelectAll;
       }

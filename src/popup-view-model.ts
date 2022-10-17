@@ -39,14 +39,16 @@ export class PopupBaseViewModel extends Base {
   }
   protected createFooterActionBar(): void {
     this.footerToolbarValue = new ActionContainer();
-
+    this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
+      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
+    };
     this.footerToolbarValue.addAction(<IAction>{
       id: "cancel",
+      visibleIndex: 10,
       title: this.cancelButtonText,
       innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel",
       action: () => { this.cancel(); }
     });
-    this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
   }
 
   private setupModel(model: PopupModel) {

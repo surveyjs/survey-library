@@ -322,12 +322,37 @@ QUnit.test("QuestionFile remove file", function(assert) {
     ],
   };
 
-  q1.removeFile({ name: "f1" });
+  q1.removeFile("f1");
   assert.deepEqual(survey.data, {
     image1: [{ name: "f2", content: "data" }],
   });
 
-  q1.removeFile({ name: "f2" });
+  q1.removeFile("f2");
+  assert.deepEqual(survey.data, {});
+});
+
+QUnit.test("QuestionFile remove files with the same name", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  const fileData1 = { name: "f1", content: "data1" };
+  const fileData2 = { name: "f1", content: "data2" };
+  survey.data = { image1: [fileData1, fileData2] };
+
+  q1.doRemoveFile(fileData2);
+  assert.deepEqual(survey.data, { image1: [{ name: "f1", content: "data1" }] });
+
+  q1.doRemoveFile(fileData1);
   assert.deepEqual(survey.data, {});
 });
 
@@ -609,17 +634,32 @@ QUnit.test("check file d&d", (assert) => {
   let onChangeCalledCount = 0;
   q["onChange"] = () => { onChangeCalledCount++; };
   const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 1);
+  assert.equal(q.isDragging, true);
+
   q.onDragOver(event);
   assert.equal(event.dataTransfer.dropEffect, "copy");
   assert.equal(q.isDragging, true);
 
   q.onDragLeave(event);
+  assert.equal(q["dragCounter"], 0);
   assert.equal(q.isDragging, false);
 
-  q.onDragOver(event);
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 1);
+  assert.equal(q.isDragging, true);
+
+  q.onDragEnter(event);
+  assert.equal(q["dragCounter"], 2);
+  assert.equal(q.isDragging, true);
+  //prevent remove drag state when dragging on children
+  q.onDragLeave(event);
+  assert.equal(q["dragCounter"], 1);
   assert.equal(q.isDragging, true);
 
   q.onDrop(event);
+  assert.equal(q["dragCounter"], 0);
   assert.equal(q.isDragging, false);
   assert.equal(onChangeCalledCount, 1);
 });

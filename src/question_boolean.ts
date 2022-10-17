@@ -7,7 +7,9 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
 
 /**
- * A Model for a boolean question.
+ * A class that describes the Boolean question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
 export class QuestionBooleanModel extends Question {
   constructor(name: string) {
@@ -24,9 +26,6 @@ export class QuestionBooleanModel extends Question {
   supportGoNextPageAutomatic() {
     return this.renderAs !== "checkbox";
   }
-  /**
-   * Returns true if the question check will be rendered in indeterminate mode. value is empty.
-   */
   public get isIndeterminate(): boolean {
     return this.isEmpty();
   }
@@ -34,30 +33,31 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   /**
-   * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
+   * Gets or sets the question value as a Boolean value.
+   *
+   * If you set the `valueTrue` and `valueFalse` properties, the `value` property contains their values instead of Boolean values. This may be inconvenient when you operate the question value in code. To access the standard Boolean values, use the `booleanValue` property.
    * @see valueTrue
    * @see valueFalse
    */
-  public get checkedValue(): any {
+  public get booleanValue(): any {
     if (this.isEmpty()) return null;
     return this.value == this.getValueTrue();
   }
-  public set checkedValue(val: any) {
+  public set booleanValue(val: any) {
     if (this.isReadOnly) {
       return;
     }
-    this.setCheckedValue(val);
+    this.setBooleanValue(val);
   }
-  private setCheckedValue(val: any) {
+  public get checkedValue(): any { return this.booleanValue; }
+  public set checkedValue(val: any) { this.booleanValue = val; }
+  private setBooleanValue(val: any) {
     if (this.isValueEmpty(val)) {
       this.value = null;
     } else {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
     }
   }
-  /**
-   * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
-   */
   public get defaultValue(): any {
     return this.getPropertyValue("defaultValue");
   }
@@ -80,11 +80,7 @@ export class QuestionBooleanModel extends Question {
       ? this.getLocalizableString("title")
       : this.locLabel;
   }
-  /**
-   * The checkbox label. If it is empty and showTitle is false then title is rendered
-   * @see showTitle
-   * @see title
-   */
+
   @property({ localizable: true })
   label: string;
 
@@ -94,7 +90,11 @@ export class QuestionBooleanModel extends Question {
   }
 
   /**
-   * Set this property, if you want to have a different label for state when check is set.
+   * Gets or sets a text label that corresponds to a positive answer.
+   *
+   * Default value: "Yes"
+   * @see valueTrue
+   * @see valueFalse
    */
   public get labelTrue(): any {
     return this.getLocalizableStringText("labelTrue");
@@ -106,11 +106,15 @@ export class QuestionBooleanModel extends Question {
     return this.getLocalizableString("labelTrue");
   }
   get isDeterminated() {
-    return this.checkedValue !== null;
+    return this.booleanValue !== null;
   }
 
   /**
-   * Set this property, if you want to have a different label for state when check is unset.
+   * Gets or sets a text label that corresponds to a negative answer.
+   *
+   * Default value: "No"
+   * @see valueTrue
+   * @see valueFalse
    */
   public get labelFalse(): any {
     return this.getLocalizableStringText("labelFalse");
@@ -122,19 +126,24 @@ export class QuestionBooleanModel extends Question {
     return this.getLocalizableString("labelFalse");
   }
 
-  /**
-   * Set this property to true to show the question title. It is hidden by default.
-   */
   @property()
   showTitle: boolean;
 
   /**
-   * Set this property, if you want to have a different value from true when check is set.
+   * A value to save in survey results when respondents give a positive answer.
+   *
+   * Default value: `true`
+   * @see labelTrue
+   * @see labelFalse
    */
   @property()
   valueTrue: any;
   /**
-   * Set this property, if you want to have a different value from false when check is unset.
+   * A value to save in survey results when respondents give a negative answer.
+   *
+   * Default value: `false`
+   * @see labelTrue
+   * @see labelFalse
    */
   @property()
   valueFalse: any;
@@ -146,9 +155,9 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
-    if (this.isDefaultValueSet("true", this.valueTrue)) this.setCheckedValue(true);
-    if (this.isDefaultValueSet("false", this.valueFalse)) this.setCheckedValue(false);
-    if (this.defaultValue == "indeterminate") this.setCheckedValue(null);
+    if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
+    if (this.isDefaultValueSet("false", this.valueFalse)) this.setBooleanValue(false);
+    if (this.defaultValue == "indeterminate") this.setBooleanValue(null);
   }
   private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any) : boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
@@ -162,8 +171,8 @@ export class QuestionBooleanModel extends Question {
       .append(css.item)
       .append(css.itemOnError, this.errors.length > 0)
       .append(css.itemDisabled, this.isReadOnly)
-      .append(css.itemChecked, !!this.checkedValue)
-      .append(css.itemIndeterminate, this.checkedValue === null)
+      .append(css.itemChecked, !!this.booleanValue)
+      .append(css.itemIndeterminate, this.booleanValue === null)
       .toString();
   }
 
@@ -185,14 +194,14 @@ export class QuestionBooleanModel extends Question {
   public getLabelCss(checked: boolean): string {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
-      .append(this.cssClasses.disabledLabel, this.checkedValue === !checked || this.isReadOnly)
+      .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
       .toString();
   }
 
   public get svgIcon(): string {
-    if(this.checkedValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
-    if(this.checkedValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
-    if(!this.checkedValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
+    if(this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
+    if(this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if(!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
 
@@ -201,9 +210,9 @@ export class QuestionBooleanModel extends Question {
   }
 
   public getCheckedLabel(): LocalizableString {
-    if (this.checkedValue === true) {
+    if (this.booleanValue === true) {
       return this.locLabelTrue;
-    } else if (this.checkedValue === false) {
+    } else if (this.booleanValue === false) {
       return this.locLabelFalse;
     }
   }
@@ -220,20 +229,20 @@ export class QuestionBooleanModel extends Question {
   public onLabelClick(event: any, value: boolean) {
     if (this.allowClick) {
       preventDefaults(event);
-      this.checkedValue = value;
+      this.booleanValue = value;
     }
     return true;
   }
-  private calculateCheckedValueByEvent(event: any, isRightClick: boolean) {
+  private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
     var isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
-    this.checkedValue = isRtl ? !isRightClick : isRightClick;
+    this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }
   public onSwitchClickModel(event: any) {
     if (this.allowClick) {
       preventDefaults(event);
       var isRightClick =
         event.offsetX / event.target.offsetWidth > 0.5;
-      this.calculateCheckedValueByEvent(event, isRightClick);
+      this.calculateBooleanValueByEvent(event, isRightClick);
       return;
     }
     return true;
@@ -241,7 +250,7 @@ export class QuestionBooleanModel extends Question {
   public onKeyDownCore(event: any): boolean {
     if(event.key === "ArrowLeft" || event.key === "ArrowRight") {
       preventDefaults(event);
-      this.calculateCheckedValueByEvent(event, event.key === "ArrowRight");
+      this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
       return;
     }
     return true;

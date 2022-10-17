@@ -22,17 +22,22 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private popupService: PopupService) {
     super(changeDetectorRef, viewContainerRef);
   }
-
-  override ngOnInit() {
+  protected override onModelChanged(): void {
+    this.destroyModel();
     this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement);
     this.model.initializePopupContainer();
     this.portalHost = this.popupService.createComponent(this.model);
   }
+  override ngOnInit() {
+    this.onModelChanged();
+  }
+  public destroyModel(): void {
+    this.portalHost?.detach();
+    this.model?.unmountPopupContainer();
+  }
 
   override ngOnDestroy() {
     super.ngOnDestroy();
-    this.portalHost.detach();
-    (<HTMLElement>this.model.container).remove();
-    this.model.unmountPopupContainer();
+    this.destroyModel();
   }
 }

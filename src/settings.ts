@@ -61,6 +61,10 @@ export var settings = {
    */
   defaultLocaleName: "default",
   /**
+   * By default we do not store a value for a locale if it equals to "default" locale value
+   */
+  storeDuplicatedTranslations: false,
+  /**
    * Default row name for matrix (single choice)
    */
   matrixDefaultRowName: "default",

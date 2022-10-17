@@ -11,6 +11,7 @@ This step-by-step tutorial will help you create a survey with multiple pages.
   - [Start Page](#start-page)
   - [Complete Page](#complete-page)
   - [Preview Page](#preview-page)
+- [Render the Survey](#render-the-survey)
 
 The survey below illustrates the result:
 
@@ -648,11 +649,20 @@ const surveyJson = {
 ```
 </details>
 
+## Render the Survey
+
+Refer to the following platform-specific articles for information on how to render the survey in your application:
+
+- [Render the Survey - Angular](https://surveyjs.io/form-library/documentation/get-started-angular#render-the-survey)
+- [Render the Survey - Vue](https://surveyjs.io/form-library/documentation/get-started-vue#render-the-survey)
+- [Render the Survey - React](https://surveyjs.io/form-library/documentation/get-started-react#render-the-survey)
+- [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
+- [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
+
 <a href="https://github.com/surveyjs/code-examples/tree/main/multi-page-survey" target="_blank">View full code on GitHub</a>
 
-## Further Reading
+## See Also
 
 - [Create a Quiz](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-quiz)
-- [Dynamic Text](https://surveyjs.io/Documentation/Library?id=design-survey-dynamic-text)
-- [Conditional Display](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-display)
-- [Survey States](https://surveyjs.io/Documentation/Library?id=handle-results-survey-states)
+- [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
+- [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)

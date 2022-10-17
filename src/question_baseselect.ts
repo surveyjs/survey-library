@@ -14,7 +14,7 @@ import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
- * It is a base class for checkbox, dropdown and radiogroup questions.
+ * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
@@ -46,7 +46,7 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "hasNone"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "showNoneItem"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -115,36 +115,48 @@ export class QuestionSelectBase extends Question {
     }
   }
   /**
-   * Returns the other item. By using this property, you may change programmatically it's value and text.
-   * @see hasOther
+   * Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
+   * @see showOtherItem
    */
   public get otherItem(): ItemValue {
     return this.otherItemValue;
   }
   /**
-   * Returns true if a user select the 'other' item.
+   * Returns `true` if the "Other" choice item is selected.
+   * @see showOtherItem
    */
   public get isOtherSelected(): boolean {
     return this.hasOther && this.getHasOther(this.renderedValue);
   }
   /**
-   * Set this property to true, to show the "None" item on the bottom. If end-user checks this item, all other items would be unchecked.
+   * Specifies whether to display the "None" choice item.
+   *
+   * When users select the "None" item in multi-select questions, all other items become unselected.
+   * @see noneItem
+   * @see noneText
    */
+  public get showNoneItem(): boolean {
+    return this.getPropertyValue("showNoneItem", false);
+  }
+  public set showNoneItem(val: boolean) {
+    this.setPropertyValue("showNoneItem", val);
+  }
   public get hasNone(): boolean {
-    return this.getPropertyValue("hasNone", false);
+    return this.showNoneItem;
   }
   public set hasNone(val: boolean) {
-    this.setPropertyValue("hasNone", val);
+    this.showNoneItem = val;
   }
   /**
-   * Returns the none item. By using this property, you may change programmatically it's value and text.
-   * @see hasNone
+   * Returns the "None" choice item. Use this property to change the item's `value` or `text`.
+   * @see showNoneItem
    */
   public get noneItem(): ItemValue {
     return this.noneItemValue;
   }
   /**
-   * Use this property to set the different text for none item.
+   * Gets or sets a caption for the "None" choice item.
+   * @see showNoneItem
    */
   public get noneText(): string {
     return this.getLocalizableStringText("noneText");
@@ -156,7 +168,13 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("noneText");
   }
   /**
-   * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
+   * A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current choice item in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visibleIf
    * @see choicesEnableIf
    */
@@ -168,7 +186,14 @@ export class QuestionSelectBase extends Question {
     this.filterItems();
   }
   /**
-   * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is enabled otherwise the item becomes disabled. Please use {item} to get the current item value in the expression.
+   * A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes read-only.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current choice item in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see enableIf
    * @see choicesVisibleIf
    */
   public get choicesEnableIf(): string {
@@ -471,10 +496,10 @@ export class QuestionSelectBase extends Question {
    */
   public clearIncorrectValuesCallback: () => void;
   /**
-   * Use this property to fill the choices from a RESTful service.
+   * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
+   *
+   * [View "Dropdown + RESTful" demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
    * @see choices
-   * @see ChoicesRestful
-   * @see [Example: RESTful Dropdown](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull)
    */
   public get choicesByUrl(): ChoicesRestful {
     return this.getPropertyValue("choicesByUrl");
@@ -485,7 +510,20 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.fromJSON(val.toJSON());
   }
   /**
-   * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
+   * Gets or sets choice items. This property accepts an array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   "value": any, // A value to be saved in the survey results
+   *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
+   *   "customProperty": any // Any property that you find useful
+   * }
+   * ```
+   *
+   * Refer to the following help topic for information on how to add custom properties so that they are serialized into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
+   *
+   * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl
    * @see choicesFromQuestion
    */
@@ -496,11 +534,13 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choices", newValue);
   }
   /**
-   * Set this property to get choices from the specified question instead of defining them in the current question. This avoids duplication of choices declaration in your survey definition.
-   * By setting this property, the "choices", "choicesVisibleIf", "choicesEnableIf" and "choicesOrder" properties become invisible, because these question characteristics depend on actions in another (specified) question.
-   * Use the `choicesFromQuestionMode` property to filter choices obtained from the specified question.
-   * @see choices
+   * Inherits choice items from a specified question. Accepts a question name.
+   *
+   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are inherited.
+   *
+   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to inherit all choice items.
    * @see choicesFromQuestionMode
+   * @see choices
    */
   public get choicesFromQuestion(): string {
     return this.getPropertyValue("choicesFromQuestion");
@@ -524,9 +564,17 @@ export class QuestionSelectBase extends Question {
     }
   }
   /**
-   * This property becomes visible when the `choicesFromQuestion` property is selected. The default value is "all" (all visible choices from another question are displayed as they are).
-   * You can set this property to "selected" or "unselected" to display only selected or unselected choices from the specified question.
+   * Specifies which choice items to inherit from another question. Applies only when the `choicesFromQuestion` property is specified.
+   *
+   * Possible values:
+   *
+   * - `"all"` (default) - Inherits all choice items.
+   * - `"selected"` - Inherits only selected choice items.
+   * - `"unselected"` - Inherits only unselected choice items.
+   *
+   * Use the `visibleChoices` property to access inherited choice items.
    * @see choicesFromQuestion
+   * @see visibleChoices
    */
   public get choicesFromQuestionMode(): string {
     return this.getPropertyValue("choicesFromQuestionMode");
@@ -535,7 +583,9 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choicesFromQuestionMode", val);
   }
   /**
-   * Set this property to true to hide the question if there is no visible choices.
+   * Specifies whether to hide the question if no choice items are visible.
+   *
+   * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
   public get hideIfChoicesEmpty(): boolean {
     return this.getPropertyValue("hideIfChoicesEmpty", false);
@@ -550,12 +600,6 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("keepIncorrectValues", val);
   }
 
-  /**
-   * Please use survey.storeOthersAsComment to change the behavior on the survey level. This property is depricated and invisible in Survey Creator.
-   * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
-   * Possible values are: "default", true, false
-   * @see SurveyModel.storeOthersAsComment
-   */
   public get storeOthersAsComment(): any {
     return this.getPropertyValue("storeOthersAsComment");
   }
@@ -566,7 +610,14 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
   }
   /**
-   * Use this property to render items in a specific order: "asc", "desc", "random". Default value is "none".
+   * Specifies the sort order of choice items.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default) - Preserves the original order of choice items.
+   * - `"asc"`- Sorts choice items in ascending order.
+   * - `"desc"`- Sorts choice items in ascending order.
+   * - `"random"` - Displays choice items in random order.
    */
   public get choicesOrder(): string {
     return this.getPropertyValue("choicesOrder");
@@ -578,7 +629,8 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
   }
   /**
-   * Use this property to set the different text for other item.
+   * Gets or sets a caption for the "Other" choice item.
+   * @see showOtherItem
    */
   public get otherText(): string {
     return this.getLocalizableStringText("otherText");
@@ -591,11 +643,15 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("otherText");
   }
   /**
-   *  Displays the "Select All", "None", and "Other" choices on individual rows.
+   * Displays the "Select All", "None", and "Other" choices on individual rows.
+   * @see showNoneItem
+   * @see showOtherItem
    */
   @property({ defaultValue: false }) separateSpecialChoices: boolean;
   /**
-   *  Use this property to set the place holder text for other or comment field  .
+   * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
+   * @see showOtherItem
+   * @see showCommentArea
    */
   @property({ localizable: true }) otherPlaceholder: string;
 
@@ -606,7 +662,8 @@ export class QuestionSelectBase extends Question {
     this.otherPlaceholder = newValue;
   }
   /**
-   * The text that shows when the other item is choosed by the other input is empty.
+   * Get or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
+   * @see showOtherItem
    */
   public get otherErrorText(): string {
     return this.getLocalizableStringText("otherErrorText");
@@ -618,18 +675,22 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("otherErrorText");
   }
   /**
-   * The list of items as they will be rendered. If needed items are sorted and the other item is added.
-   * @see hasOther
+   * An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
+   * @see showNoneItem
+   * @see showOtherItem
    * @see choicesOrder
+   * @see choices
    * @see enabledChoices
    */
   public get visibleChoices(): Array<ItemValue> {
     return this.getPropertyValue("visibleChoices");
   }
   /**
-   * The list of enabled items as they will be rendered. The disabled items are not included
-   * @see hasOther
+   * An array of choice items with which users can interact. Includes the "Select All", "Other", and "None" choice items if they are not disabled. Items are sorted according to the `choicesOrder` value.
+   * @see showNoneItem
+   * @see showOtherItem
    * @see choicesOrder
+   * @see choices
    * @see visibleChoices
    */
   public get enabledChoices(): Array<ItemValue> {
@@ -699,9 +760,6 @@ export class QuestionSelectBase extends Question {
     }
     return res;
   }
-  /**
-   * For internal use in SurveyJS Creator V2.
-   */
   public isItemInList(item: ItemValue): boolean {
     if (item === this.otherItem) return this.hasOther;
     if (item === this.noneItem) return this.hasNone;
@@ -760,10 +818,6 @@ export class QuestionSelectBase extends Question {
     }
     return questionPlainData;
   }
-
-  /**
-   * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
-   */
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }
@@ -871,10 +925,10 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   public supportOther(): boolean {
-    return this.isSupportProperty("hasOther");
+    return this.isSupportProperty("showOtherItem");
   }
   public supportNone(): boolean {
-    return this.isSupportProperty("hasNone");
+    return this.isSupportProperty("showNoneItem");
   }
   protected isSupportProperty(propName: string): boolean {
     return (
@@ -1161,8 +1215,13 @@ export class QuestionSelectBase extends Question {
     this.clearIncorrectValues();
   }
   /**
-   * Returns true if item is selected
-   * @param item checkbox or radio item value
+   * Returns `true` if a passed choice item is selected.
+   *
+   * To obtain a choice item to check, use the `noneItem` or `otherItem` property or the `choices` array.
+   * @param item A choice item.
+   * @see noneItem
+   * @see otherItem
+   * @see choices
    */
   public isItemSelected(item: ItemValue): boolean {
     if (item === this.otherItem) return this.isOtherSelected;
@@ -1418,7 +1477,7 @@ export class QuestionSelectBase extends Question {
 
 }
 /**
- * A base class for checkbox and radiogroup questions. It introduced a colCount property.
+ * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
@@ -1426,7 +1485,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     super(name);
   }
   /**
-   * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.
+   * Get or sets the number of columns used to arrange choice items.
+   *
+   * Set this property to 0 if you want to display all items in one line. The default value depends on the available width.
+   * @see separateSpecialChoices
    */
   public get colCount(): number {
     return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : 1);
@@ -1452,10 +1514,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "hasComment:switch", layout: "row" },
+    { name: "showCommentArea:switch", layout: "row", visible: true },
     {
       name: "commentText",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -1464,7 +1526,7 @@ Serializer.addClass(
     },
     "choicesFromQuestion:question_selectbase",
     {
-      name: "choices:itemvalue[]",
+      name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
@@ -1517,13 +1579,13 @@ Serializer.addClass(
       },
     },
     { name: "separateSpecialChoices:boolean", visible: false },
-    "hasOther:boolean",
-    "hasNone:boolean",
+    { name: "showOtherItem:boolean", alternativeName: "hasOther" },
+    { name: "showNoneItem:boolean", alternativeName: "hasNone" },
     {
       name: "otherPlaceholder",
       alternativeName: "otherPlaceHolder",
       serializationProperty: "locOtherPlaceholder",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },
@@ -1532,7 +1594,7 @@ Serializer.addClass(
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",
-      dependsOn: "hasComment",
+      dependsOn: "showCommentArea",
       visibleIf: function (obj: any) {
         return obj.hasComment;
       },
@@ -1540,7 +1602,7 @@ Serializer.addClass(
     {
       name: "noneText",
       serializationProperty: "locNoneText",
-      dependsOn: "hasNone",
+      dependsOn: "showNoneItem",
       visibleIf: function (obj: any) {
         return obj.hasNone;
       },
@@ -1548,7 +1610,7 @@ Serializer.addClass(
     {
       name: "otherText",
       serializationProperty: "locOtherText",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },
@@ -1556,7 +1618,7 @@ Serializer.addClass(
     {
       name: "otherErrorText",
       serializationProperty: "locOtherErrorText",
-      dependsOn: "hasOther",
+      dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
       },

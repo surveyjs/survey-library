@@ -68,12 +68,14 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     const text: JSX.Element = this.renderLocString(item.locText);
     const index = i;
     const indexText: string = this.question.getNumberByIndex(i);
+    const tabIndex: number = this.question.getItemTabIndex(item);
     const renderedItem = (
       <SurveyQuestionRankingItem
         key={key}
         text={text}
         index={index}
         indexText={indexText}
+        itemTabIndex={tabIndex}
         handleKeydown={handleKeydown}
         handlePointerDown={handlePointerDown}
         cssClasses={cssClasses}
@@ -112,6 +114,9 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected get itemClass(): string {
     return this.props.itemClass;
   }
+  protected get itemTabIndex(): number {
+    return this.props.itemTabIndex;
+  }
   protected get question(): any {
     return this.props.question;
   }
@@ -119,7 +124,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected renderElement(): JSX.Element {
     return (
       <div
-        tabIndex={0}
+        tabIndex={this.itemTabIndex}
         className={this.itemClass}
         onKeyDown={this.handleKeydown}
         onPointerDown={this.handlePointerDown}

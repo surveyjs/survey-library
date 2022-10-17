@@ -432,7 +432,7 @@ export class StylesManager {
     ".sv-list__input": "-webkit-appearance: none; -moz-appearance: none; appearance: none; display: block; box-sizing: border-box; width: 100%; line-height: 24px; padding-left: 56px; padding-right: 24px; padding-top: 12px; padding-bottom: 12px; outline: none; font-size: 1em; border: none",
     ".sv-list__filter-icon": "display: block; position: absolute; top: 12px; left: 16px;",
     ".sv-list__filter-icon .sv-svg-icon": "width: 24px; height: 24px;",
-    ".sv-list__empty-container": "width: 100%; box-sizing: border-box; padding: 48px 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__empty-container": "width: 100%; box-sizing: border-box; padding: 12px 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__empty-text": "line-height: 24px; font-size: 16px; font-weight: 400; text-align: center; color: var(--foreground-light, #909090);",
     //eo list
     ".sv-skeleton-element": "min-height: 50px;",
@@ -879,7 +879,7 @@ export class StylesManager {
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control": "background-color: $inputs-background-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control:focus-within": "border: 1px solid rgb(26, 179, 148);",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control:focus-within": "border: 1px solid $main-color;",
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus": "border-color: $main-color;",

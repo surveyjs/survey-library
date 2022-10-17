@@ -141,7 +141,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if(!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
+    if (!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
     return this.getDisplayArrayValue(keysAsText, value);
   }
 
@@ -376,9 +376,9 @@ Serializer.addClass(
 Serializer.addClass(
   "imagepicker",
   [
-    { name: "hasOther", visible: false },
+    { name: "showOtherItem", visible: false },
     { name: "otherText", visible: false },
-    { name: "hasNone", visible: false },
+    { name: "showNoneItem", visible: false },
     { name: "noneText", visible: false },
     { name: "optionsCaption", visible: false },
     { name: "otherErrorText", visible: false },

@@ -10,16 +10,18 @@ import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
 
 /**
- * A Model for a dropdown question
+ * A class that describes the Dropdown question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModel: DropdownListModel;
 
   updateReadOnlyText(): void {
     let result = this.placeholder;
-    if(this.hasOther && this.isOtherSelected) {
+    if (this.hasOther && this.isOtherSelected) {
       result = this.otherText;
-    } else if(!!this.selectedItem) {
+    } else if (!!this.selectedItem) {
       result = this.renderAs == "select" ? this.selectedItemText : "";
     }
     this.readOnlyText = result;
@@ -28,10 +30,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
+    this.createLocalizableString("cleanCaption", this, false, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "hasOther", "otherText", "placeholder"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();
@@ -53,9 +56,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.placeholder = val;
   }
   /**
-   * A text displayed in the input field when it doesn't have a value.
+   * A placeholder for the input field.
    */
-  public get placeholder() {
+  public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
   set placeholder(val: string) {
@@ -64,6 +67,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }
+
+  public get cleanCaption(): string {
+    return this.getLocalizableStringText("cleanCaption");
+  }
+  public set cleanCaption(value: string) {
+    this.setLocalizableStringText("cleanCaption", value);
+  }
+  get locCleanCaption(): LocalizableString {
+    return this.getLocalizableString("cleanCaption");
+  }
+
   public getType(): string {
     return "dropdown";
   }
@@ -100,7 +114,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return res;
   }
   /**
-   * Use this and choicesMax property to automatically add choices. For example choicesMin = 1 and choicesMax = 10 will generate ten additional choices from 1 to 10.
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
+   *
+   * ```js
+   * "choicesMin": 10,
+   * "choicesMax": 30
+   * "choicesStep": 10
+   * ```
    * @see choicesMax
    * @see choicesStep
    */
@@ -111,7 +131,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesMin", val);
   }
   /**
-   * Use this and choicesMax property to automatically add choices. For example choicesMin = 1 and choicesMax = 10 will generate ten additional choices from 1 to 10.
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
+   *
+   * ```js
+   * "choicesMin": 10,
+   * "choicesMax": 30
+   * "choicesStep": 10
+   * ```
    * @see choicesMin
    * @see choicesStep
    */
@@ -122,8 +148,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesMax", val);
   }
   /**
-   * The default value is 1. It tells the value of the iterator between choicesMin and choicesMax properties.
-   * If choicesMin = 10, choicesMax = 30 and choicesStep = 10 then you will have only three additional choices: [10, 20, 30].
+   * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
+   *
+   * ```js
+   * "choicesMin": 10,
+   * "choicesMax": 30
+   * "choicesStep": 10
+   * ```
+   *
+   * The default value of the `choicesStep` property is 1.
    * @see choicesMin
    * @see choicesMax
    */
@@ -135,7 +168,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesStep", val);
   }
   /**
-   * Dropdown auto complete
+   * An [autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute value for the underlying `<input>` element.
    */
   public get autoComplete(): string {
     return this.getPropertyValue("autoComplete", "");
@@ -159,10 +192,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       }
     }
   }) searchEnabled: boolean;
-  /**
-   * The clean files button caption.
-   */
-  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
 

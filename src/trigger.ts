@@ -318,6 +318,9 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   public getType(): string {
     return "setvaluetrigger";
   }
+  protected canBeExecuted(isOnNextPage: boolean): boolean {
+    return !isOnNextPage && !!this.setToName;
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name !== "setToName") return;
@@ -418,6 +421,9 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
 export class SurveyTriggerCopyValue extends SurveyTrigger {
   constructor() {
     super();
+  }
+  protected canBeExecuted(isOnNextPage: boolean): boolean {
+    return !isOnNextPage && !!this.setToName && !!this.fromName;
   }
   public get setToName(): string {
     return this.getPropertyValue("setToName", "");

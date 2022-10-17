@@ -17,7 +17,7 @@ export class ModalComponent {
 
   constructor(private popupService: PopupService) {
   }
-  showDialog(dialogOptions: IDialogOptions) {
+  showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
     this.model = createPopupModalViewModel(dialogOptions);
     this.model.initializePopupContainer();
     this.model.model.onHide = () => {
@@ -26,6 +26,7 @@ export class ModalComponent {
     };
     this.portalHost = this.popupService.createComponent(this.model);
     this.model.model.isVisible = true;
+    return this.model;
   }
   ngOnInit(): void {
     if(!!settings.showModal) return;
@@ -38,7 +39,7 @@ export class ModalComponent {
       cssClass?: string,
       title?: string,
       displayMode: "popup" | "overlay" = "popup"
-    ) => {
+    ): PopupBaseViewModel => {
       const options = createDialogOptions(
         componentName,
         data,
@@ -50,7 +51,7 @@ export class ModalComponent {
         title,
         displayMode
       );
-      this.showDialog(options);
+      return this.showDialog(options);
     };
   }
   ngOnDestroy() {

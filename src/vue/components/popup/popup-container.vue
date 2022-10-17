@@ -88,7 +88,7 @@ export function showModal(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
-) {
+): PopupBaseViewModel {
   const options = createDialogOptions(
     componentName,
     data,
@@ -100,9 +100,9 @@ export function showModal(
     title,
     displayMode
   );
-  showDialog(options);
+  return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions) {
+export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     {
       popup.$destroy();
@@ -115,6 +115,7 @@ export function showDialog(dialogOptions: IDialogOptions) {
     propsData: { model: popupViewModel },
   });
   popupViewModel.model.isVisible = true;
+  return popupViewModel;
 }
 settings.showModal = showModal;
 Vue.component("sv-popup-container", PopupContainer);

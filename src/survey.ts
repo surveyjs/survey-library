@@ -75,7 +75,7 @@ export class SurveyModel extends SurveyElementCore
    * You can display an additional field (comment field) for the most of questions; users can enter additional comments to their response.
    * The comment field input is saved as `'question name' + 'commentPrefix'`.
    * @see data
-   * @see Question.hasComment
+   * @see Question.showCommentArea
    */
   public get commentPrefix(): string {
     return settings.commentPrefix;
@@ -1592,8 +1592,8 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets the default maximum length for question comments and others
    *
    * The default value is `0`, that means that the question comments have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
-   * @see Question.hasComment
-   * @see Question.hasOther
+   * @see Question.showCommentArea
+   * @see Question.showOtherItem
    * @see maxTextLength
    */
   public get maxOthersLength(): number {
@@ -6298,7 +6298,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("width", val);
   }
   public get renderedWidth(): string {
-    return this.getPropertyValue("calculatedWidthMode") == "static" && this.getPropertyValue("width") || undefined;
+    let width = this.getPropertyValue("width");
+    if (width && !isNaN(width)) width = width + "px";
+    return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
 
   public get timerInfoText(): string {

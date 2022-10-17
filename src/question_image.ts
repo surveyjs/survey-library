@@ -28,7 +28,7 @@ export class QuestionImageModel extends QuestionNonValue {
     locImageLink.onGetTextCallback = (text: string): string => {
       return getCorrectImageLink(text);
     };
-    this.createLocalizableString("text", this, false);
+    this.createLocalizableString("altText", this, false);
     this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {
@@ -56,14 +56,14 @@ export class QuestionImageModel extends QuestionNonValue {
   /**
    * The image alt text.
    */
-  public get text(): string {
-    return this.getLocalizableStringText("text");
+  public get altText(): string {
+    return this.getLocalizableStringText("altText");
   }
-  public set text(val: string) {
-    this.setLocalizableStringText("text", val);
+  public set altText(val: string) {
+    this.setLocalizableStringText("altText", val);
   }
-  get locText(): LocalizableString {
-    return this.getLocalizableString("text");
+  get locAltText(): LocalizableString {
+    return this.getLocalizableString("altText");
   }
   /**
    * The image height.
@@ -174,7 +174,7 @@ Serializer.addClass(
   "image",
   [
     { name: "imageLink", serializationProperty: "locImageLink" },
-    { name: "text", serializationProperty: "locText" },
+    { name: "altText", serializationProperty: "locAltText", alternativeName: "text" },
     {
       name: "contentMode",
       default: "auto",

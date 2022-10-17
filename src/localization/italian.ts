@@ -72,7 +72,6 @@ export var italianSurveyStrings = {
     "Hai impiegato {0} di {1} su questa pagina e {2} di {3} in totale.",
   timerLimitPage: "Hai impiegato {0} di {1} su questa pagina.",
   timerLimitSurvey: "Hai impiegato {0} di {1} in totale.",
-  cleanCaption: "Pulisci",
   clearCaption: "Cancella",
   chooseFileCaption: "Scegliere il file",
   removeFileCaption: "Rimuovere questo file",

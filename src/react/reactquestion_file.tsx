@@ -112,8 +112,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected renderClearButton(className: string): JSX.Element {
     return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
-        <span>{this.question.cleanButtonCaption}</span>
-        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.cleanButtonCaption}></SvgIcon>: null }
+        <span>{this.question.clearButtonCaption}</span>
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon>: null }
       </button>
     ) : null;
   }

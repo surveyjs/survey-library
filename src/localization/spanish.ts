@@ -74,7 +74,6 @@ export var spanishSurveyStrings = {
     "Has gastado {0} de {1} en esta página y {2} de {3} en total.",
   timerLimitPage: "Has gastado {0} de {1} en esta página.",
   timerLimitSurvey: "Usted ha gastado {0} de {1} en total.",
-  cleanCaption: "Limpia",
   clearCaption: "Despejen",
   signaturePlaceHolder: "Firma aqui",
   chooseFileCaption: "Elija el archivo",

@@ -593,9 +593,9 @@ QUnit.test("Writable captions", function(assert) {
   /**
     * The clean files button caption.
     */
-  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption"), "The clean files button caption default");
-  q.cleanButtonCaption += "_new";
-  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption")+"_new", "The clean files button caption new");
+  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption"), "The clean files button caption default");
+  q.clearButtonCaption += "_new";
+  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption")+"_new", "The clean files button caption new");
   /**
     * The remove file button caption.
     */
@@ -701,7 +701,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   survey.setDesignMode(true);
   checkDD();
 });
-QUnit.test("file.cleanButtonCaption localization", (assert) => {
+QUnit.test("file.clearButtonCaption localization", (assert) => {
   const survey = new SurveyModel({
     questions: [
       {
@@ -711,9 +711,9 @@ QUnit.test("file.cleanButtonCaption localization", (assert) => {
     ],
   });
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
-  assert.equal(q.cleanButtonCaption, "Clean");
+  assert.equal(q.clearButtonCaption, "Clear");
   survey.locale = "fr";
-  assert.equal(q.cleanButtonCaption, "Nettoyer");
+  assert.equal(q.clearButtonCaption, "Vider");
   survey.locale = "";
 });
 

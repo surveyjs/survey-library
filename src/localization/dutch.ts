@@ -72,7 +72,6 @@ export var dutchSurveyStrings = {
         "U heeft {0} van {1} op deze pagina gespendeerd en {2} van {3} in totaal.",
   timerLimitPage: "U heeft {0} van {1} gespendeerd op deze pagina.",
   timerLimitSurvey: "U heeft {0} van {1} in het totaal.",
-  cleanCaption: "Kuis op",
   clearCaption: "Kuis op",
   signaturePlaceHolder: "Hier tekenen",
   chooseFileCaption: "Gekozen bestand",

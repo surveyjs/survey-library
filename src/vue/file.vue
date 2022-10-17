@@ -57,8 +57,8 @@
         :class="question.cssClasses.removeButton"
         @click="question.doClean"
       >
-        <span>{{ question.cleanButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.cleanButtonCaption"></sv-svg-icon>
+        <span>{{ question.clearButtonCaption }}</span>
+        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
       </button>
       <div :class="question.cssClasses.fileList || undefined" v-if="!question.isEmpty()">
         <span
@@ -113,8 +113,8 @@
         :class="question.showRemoveButtonBottom"
         @click="question.doClean"
       >
-        <span>{{ question.cleanButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.cleanButtonCaption"></sv-svg-icon>
+        <span>{{ question.clearButtonCaption }}</span>
+        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
       </button>
       <sv-action-bar v-if="question.mobileFileNavigatorVisible" :model="question.mobileFileNavigator"></sv-action-bar>
     </div>

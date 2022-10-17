@@ -71,7 +71,6 @@ export var koreanStrings = {
   timerLimitAll: "현재 페이지에서 {0}/{1}을 소요해 총 {2}/{3}이 걸렸습니다.",
   timerLimitPage: "현재 페이지에서 {0}/{1}이 걸렸습니다.",
   timerLimitSurvey: "총 {0}/{1}이 걸렸습니다.",
-  cleanCaption: "삭제",
   clearCaption: "지우기",
   signaturePlaceHolder: "서명하세요.",
   chooseFileCaption: "파일 선택",

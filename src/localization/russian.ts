@@ -70,7 +70,6 @@ export var russianSurveyStrings = {
     "Вы потратили {0} из {1} на этой странице и {2} из {3} для всего теста.",
   timerLimitPage: "Вы потратили {0} из {1} на этой странице.",
   timerLimitSurvey: "Вы потратили {0} из {1} для всего теста.",
-  cleanCaption: "Очистить",
   clearCaption: "Очистить",
   chooseFileCaption: "Выберите файл",
   removeFileCaption: "Удалить файл",

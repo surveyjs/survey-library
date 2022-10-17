@@ -16,7 +16,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("cleanCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
   }
 
   protected getDefaultItemComponent(): string {
@@ -76,14 +76,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.getLocalizableString("placeholder");
   }
 
-  public get cleanCaption(): string {
-    return this.getLocalizableStringText("cleanCaption");
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
   }
-  public set cleanCaption(value: string) {
-    this.setLocalizableStringText("cleanCaption", value);
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
   }
-  get locCleanCaption(): LocalizableString {
-    return this.getLocalizableString("cleanCaption");
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {

@@ -67,7 +67,6 @@ export var czechSurveyStrings = {
     "Na této stránce jste utratili {0} z {1} a celkem {2} z {3}.",
   timerLimitPage: "Na této stránce jste strávili {0} z {1}.",
   timerLimitSurvey: "Celkově jste utratili {0} z {1}.",
-  cleanCaption: "Čistý",
   clearCaption: "Průhledná",
   chooseFileCaption: "Vyberte soubor",
   removeFileCaption: "Odeberte tento soubor",

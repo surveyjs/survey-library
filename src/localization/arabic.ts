@@ -67,7 +67,6 @@ export var arabicSurveyStrings = {
     "لقد أنفقت {0} من {1} في هذه الصفحة و {2} من إجمالي {3}.",
   timerLimitPage: "لقد أنفقت {0} من {1} في هذه الصفحة.",
   timerLimitSurvey: "لقد أنفقت {0} من إجمالي {1}.",
-  cleanCaption: "نظيف",
   clearCaption: "واضح",
   chooseFileCaption: "اختر ملف",
   removeFileCaption: "قم بإزالة هذا الملف",

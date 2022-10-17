@@ -69,7 +69,6 @@ export var slovakSurveyStrings = {
   timerLimitAll: "Na tejto stránke ste strávili {0} z {1} a celkovo {2} z {3}.",
   timerLimitPage: "Na tejto stránke ste strávili {0} z {1}.",
   timerLimitSurvey: "Celkovo ste strávili {0} z {1}.",
-  cleanCaption: "Vyčistiť",
   clearCaption: "Vymazať",
   signaturePlaceHolder: "Podpísať tu",
   chooseFileCaption: "Vybrať súbor",

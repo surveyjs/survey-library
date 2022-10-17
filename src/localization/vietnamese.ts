@@ -70,7 +70,6 @@ export var vietnameseSurveyStrings = {
     "Bạn đã sử dụng {0} / {1} trên trang này và {2} / {3} trên toàn bộ.",
   timerLimitPage: "Bạn đã sử dụng {0} / {1} trên trang này.",
   timerLimitSurvey: "Bạn đã sử dụng {0} / {1} trên toàn bộ.",
-  cleanCaption: "Xóa tất cả",
   clearCaption: "Xóa",
   chooseFileCaption: "Chọn tập tin",
   removeFileCaption: "Xóa tập tin",

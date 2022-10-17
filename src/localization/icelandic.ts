@@ -69,7 +69,6 @@ export var icelandicSurveyStrings = {
     "Þú hefur eytt {0} af {1} á þessari síðu og {2} af {3} samtals.",
   timerLimitPage: "Þú hefur eytt {0} af {1} á þessari síðu.",
   timerLimitSurvey: "Þú hefur eytt {0} af {1} samtals.",
-  cleanCaption: "Hreint",
   clearCaption: "Hreinsa",
   chooseFileCaption: "Veldu skrá",
   removeFileCaption: "Fjarlægðu þessa skrá",

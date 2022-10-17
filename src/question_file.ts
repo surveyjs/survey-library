@@ -30,16 +30,16 @@ export class QuestionFileModel extends Question {
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
-  public previewValue: any[] = [];
+  @property() public previewValue: any[] = [];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
-  private prevFileAction: Action;
-  private nextFileAction: Action;
-  private fileIndexAction: Action;
+  protected prevFileAction: Action;
+  protected nextFileAction: Action;
+  protected fileIndexAction: Action;
 
   get mobileFileNavigatorVisible(): boolean {
     return this.isMobile && this.containsMultiplyFiles;
@@ -226,6 +226,8 @@ export class QuestionFileModel extends Question {
           this.value = undefined;
           this.errors = [];
           !!doneCallback && doneCallback();
+          this.indexToShow = 0;
+          this.fileIndexAction.title = this.getFileIndexCaption();
         }
       }
     );
@@ -375,6 +377,7 @@ export class QuestionFileModel extends Question {
       });
       this._previewLoader.load(newValues);
     }
+    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
   }

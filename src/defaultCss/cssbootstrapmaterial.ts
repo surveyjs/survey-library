@@ -70,7 +70,7 @@ export var defaultBootstrapMaterialCss = {
     hasError: "has-error",
     indent: 20,
     formGroup: "form-group bmd-form-group",
-    disabled: "sv_q_disabled",
+    disabled: "sv_q--disabled",
   },
   panel: {
     title: "sv_p_title",

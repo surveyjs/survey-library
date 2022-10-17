@@ -3,6 +3,7 @@ import { surveyCss } from "./cssstandard";
 export var defaultV2Css = {
   root: "sd-root-modern",
   rootMobile: "sd-root-modern--mobile",
+  rootReadOnly: "sd-root--readonly",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
@@ -31,6 +32,7 @@ export var defaultV2Css = {
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
+    titleDisabled: "sd-element__title--disabled",
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     titleBar: "sd-action-title-bar",
@@ -122,6 +124,7 @@ export var defaultV2Css = {
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
+    titleDisabled: "sd-element__title--disabled",
     titleBar: "sd-action-title-bar",
     requiredText: "sd-question__required-text",
     number: "sd-element__num",
@@ -140,6 +143,7 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     composite: "sd-element--complex",
+    disabled: "sd-question--disabled",
   },
   image: {
     mainRoot: "sd-question sd-question--image",

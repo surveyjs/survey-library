@@ -80,7 +80,7 @@ export var defaultStandardCss = {
     asCell: "sv_matrix_cell",
     icon: "sv_question_icon",
     iconExpanded: "sv_expanded",
-    disabled: "sv_q--disabled",
+    disabled: "sv_q_disabled",
   },
   panel: {
     title: "sv_p_title",

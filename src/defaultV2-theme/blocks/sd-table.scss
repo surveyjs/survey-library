@@ -31,6 +31,12 @@
   color: $foreground;
   text-align: center;
 }
+.sd-question--disabled .sd-table__cell {
+  opacity: 0.25;
+}
+.sd-root--readonly .sd-question--disabled .sd-table__cell {
+  opacity: 1;
+}
 .sd-table__cell--header {
   font-weight: 600;
   vertical-align: top;

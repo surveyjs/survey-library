@@ -29,7 +29,7 @@
               <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
               <div data-bind="css: question.cssClasses.imageWrapper">
                 <!-- ko if: question.canPreviewImage($data) -->
-                <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
+                <img data-bind="attr: { src: $data.content }, style : { height: question.imageHeight, width: question.imageWidth }" alt="File preview">
                 <!-- /ko -->
                 <!-- ko if: question.defaultImage($data) -->
                 <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->

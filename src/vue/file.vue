@@ -81,8 +81,7 @@
             <img
               v-if="question.canPreviewImage(val)"
               :src="val.content"
-              :height="question.imageHeight"
-              :width="question.imageWidth"
+              :style="{height: question.imageHeight, width: question.imageWidth}"
               alt="File preview"
             />
             <sv-svg-icon v-if="question.defaultImage(val)" 

@@ -150,8 +150,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             {this.question.canPreviewImage(val) ? (
               <img
                 src={val.content}
-                height={this.question.imageHeight}
-                width={this.question.imageWidth}
+                style={{height: this.question.imageHeight, width: this.question.imageWidth}}
                 alt="File preview"
               />
             ) : (this.question.cssClasses.defaultImage?(

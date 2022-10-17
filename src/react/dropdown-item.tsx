@@ -37,7 +37,7 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   }
   protected renderElement(): JSX.Element {
     return (
-      <option value={this.item.value} disabled={!this.item.isEnabled}>
+      <option value={this.item.value} disabled={!this.item.isEnabled} aria-label={this.item.text} aria-required={true}>
         {this.item.text}
       </option>
     );

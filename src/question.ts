@@ -100,6 +100,8 @@ export class Question extends SurveyElement<Question>
     };
     this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("requiredTextInfo", this);
+    this.createLocalizableString("ariaLabelInfo", this);
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -950,6 +952,15 @@ export class Question extends SurveyElement<Question>
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
+  }
+  public get requiredTextInfo(): string {
+    return this.getLocalizableStringText("requiredTextInfo", "");
+  }
+  public set requiredTextInfo(val: string) {
+    this.setLocalizableStringText("requiredTextInfo", val);
+  }
+  get locRequiredTextInfo(): LocalizableString {
+    return this.getLocalizableString("requiredTextInfo");
   }
   /**
    * A Boolean expression. If it evaluates to `true`, this question becomes required.
@@ -2121,6 +2132,8 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment" }
+  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment" },
+  { name: "requiredTextInfo:text", serializationProperty: "locRequiredTextInfo" },
+  { name: "ariaLabelInfo:text", serializationProperty: "locAriaLabelInfo" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

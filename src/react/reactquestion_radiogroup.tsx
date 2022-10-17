@@ -36,6 +36,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         role="presentation"
         ref={(fieldset) => (this.control = fieldset)}
       >
+        <legend>
+          {this.questionBase.title}
+        </legend>
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}

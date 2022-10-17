@@ -288,6 +288,8 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("requiredTextInfo", this);
+    this.createLocalizableString("ariaLabelInfo", this);
     this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
@@ -350,6 +352,15 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey != null && this.isRequired
       ? this.survey.requiredText
       : "";
+  }
+  public get requiredTextInfo(): string {
+    return this.getLocalizableStringText("requiredTextInfo", "");
+  }
+  public set requiredTextInfo(val: string) {
+    this.setLocalizableStringText("requiredTextInfo", val);
+  }
+  get locRequiredTextInfo(): LocalizableString {
+    return this.getLocalizableString("requiredTextInfo");
   }
   protected get titlePattern(): string {
     return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";

@@ -32,7 +32,7 @@ export class TitleContent extends React.Component<any, any> {
     };
     var spans = [];
     if (element.isRequireTextOnStart) {
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element, cssClasses, this.element.ariaLabelInfo));
       spans.push(getSpaceSpan("req-sp"));
     }
     var questionNumber = element.no;
@@ -51,7 +51,7 @@ export class TitleContent extends React.Component<any, any> {
       spans.push(getSpaceSpan("num-sp"));
     }
     if (element.isRequireTextBeforeTitle) {
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element, cssClasses, this.element.ariaLabelInfo));
       spans.push(getSpaceSpan("req-sp"));
     }
     spans.push(
@@ -59,20 +59,22 @@ export class TitleContent extends React.Component<any, any> {
     );
     if (element.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan("req-sp"));
-      spans.push(this.renderRequireText(element, cssClasses));
+      spans.push(this.renderRequireText(element, cssClasses, this.element.ariaLabelInfo));
     }
     return spans;
   }
 
   private renderRequireText(
     element: ITitleOwner,
-    cssClasses: any
+    cssClasses: any,
+    ariaLabel: any,
   ): JSX.Element {
     return (
       <span
         data-key={"req-text"}
         key={"req-text"}
         className={cssClasses.requiredText || cssClasses.panel.requiredText}
+        aria-label={ariaLabel}
         aria-hidden={true}
       >
         {element.requiredText}

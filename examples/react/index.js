@@ -29,7 +29,15 @@ function init() {
         name: "signature",
         type: "signaturepad",
         title: "Sign here",
-        isRequired: true
+        isRequired: true,
+        ariaLabelInfo: {
+          "default": "ariaLabelInfo-test",
+          "es": "es-ariaLabelInfo-test"
+        },
+        requiredTextInfo: {
+          "default": "info-test",
+          "es": "es-info-test"
+        }
       },
       {
         name: "name",
@@ -71,6 +79,10 @@ function init() {
         isRequired: true,
         showNoneItem: true,
         colCount: 4,
+        ariaLabelInfo: {
+          "default": "ariaLabelInfo-test",
+          "es": "es-ariaLabelInfo-test"
+        },
         choices: [
           "Ford",
           "Vauxhall",

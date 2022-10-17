@@ -219,10 +219,10 @@ export var settings = {
    */
   customIcons: {},
   titleTags: {
-    survey: "h3",
+    survey: "h1",
     page: "h4",
     panel: "h4",
-    question: "h5",
+    question: "span",
   },
   questions: {
     inputTypes: [

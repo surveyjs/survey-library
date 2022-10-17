@@ -69,6 +69,15 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
+  public get ariaLabelInfo(): string {
+    return this.getLocalizableStringText("ariaLabelInfo", "");
+  }
+  public set ariaLabelInfo(val: string) {
+    this.setLocalizableStringText("ariaLabelInfo", val);
+  }
+  get locAriaLabelInfo(): LocalizableString {
+    return this.getLocalizableString("ariaLabelInfo");
+  }
   public get titleTagName(): string {
     let titleTagName = this.getDefaultTitleTagName();
     const survey = this.getSurvey();

@@ -51,6 +51,37 @@ const surveyJson = {
 };
 ```
 
+Certain question types define values with the `value` and `text` properties. For example, Radiogroup, Dropdown, TagBox questions may have `choices` with the `text` and `value` properties.
+When referencing such questions in another question titles, the `{questionName}` placeholder is replaced with a value's `text` by default. If you wish to use `value`, disable the [useDisplayValuesInTitle](https://surveyjs.io/form-library/documentation/question#useDisplayValuesInTitle) option.
+
+The following example defines the Radiogroup and Text questions. The Radiogroup's choices have the `value` and `text` properties. Disable the `useDisplayValuesInTitle` option to replace `{feature}` with the `value` property of a selected Radiogroup item in a Text question's title.
+```json
+const surveyJson = {
+  "elements": [
+    {
+      "type": "radiogroup",
+      "name": "feature",
+      "title": "Which of the following features do you value the most?",
+      "description": "Please select the most valuable feature.",
+      "choices": [
+        { "value": "performance", "text": "Performance"},
+        { "value": "interface", "text": "User interface"},
+        { "value": "functionality", "text": "Complete functionality"},
+        { "value": "docs", "text": "Learning materials (documentation, demos, code examples"},
+        { "value": "support", "text": "Quality support"}
+      ]
+    }, 
+    {
+     "type": "text",
+     "name": "moreInfo",
+     "useDisplayValuesInTitle" : "false",
+     "title": "Please tell us more about {feature}"
+     }
+  ]
+};
+
+```
+
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
 | Question Type | Syntax |

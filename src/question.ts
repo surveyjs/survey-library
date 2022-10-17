@@ -796,11 +796,21 @@ export class Question extends SurveyElement
   public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
   }
+  protected getIsTooltipErrorSupportedByParent(): boolean {
+    if(this.parentQuestion) {
+      return this.parentQuestion.getIsTooltipErrorInsideSupported();
+    } else {
+      return super.getIsTooltipErrorSupportedByParent();
+    }
+  }
+  private get showErrorsOutsideQuestion(): boolean {
+    return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
+  }
   public get showErrorsAboveQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
   }
 
   public get cssError(): string {

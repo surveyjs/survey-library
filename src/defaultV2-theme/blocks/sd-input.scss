@@ -38,6 +38,10 @@
 .sd-input--disabled::placeholder {
   color: $foreground-disabled-for-editors;
 }
+.sd-root--readonly .sd-input--disabled,
+.sd-root--readonly .sd-input--disabled::placeholder {
+  color: $foreground;
+}
 .sd-input:focus {
   box-shadow: 0 0 0 2px $primary, inset 0px 1px 2px $border-inside;
 }

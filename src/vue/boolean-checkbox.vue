@@ -20,10 +20,10 @@
               :xlink:href="question.svgIcon"
             ></use>
           </svg><span class="check"></span></span><span
-          v-if="question.titleLocation === 'hidden'"
+          v-if="question.isLabelRendered"
           :class="question.cssClasses.checkboxControlLabel"
         >
-          <survey-string :locString="question.locDisplayLabel" />
+          <survey-string :locString="question.locTitle" />
         </span>
       </label>
     </div>

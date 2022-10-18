@@ -41,6 +41,9 @@
   }
 }
 
+.sv-ranking-item__text {
+  color: $foreground;
+}
 .sd-ranking--disabled {
   .sv-ranking-item__text {
     color: $foreground-disabled;

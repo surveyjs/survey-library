@@ -128,7 +128,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           }}
           title={val.name}
           download={val.name}
-          style={{ width: this.question.imageWidthRendered }}
+          style={{ width: this.question.imageWidth }}
         >
           {val.name}
         </a>

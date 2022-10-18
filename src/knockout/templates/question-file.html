@@ -71,7 +71,7 @@
 <script type="text/html" id="survey-question-file-sign">
   <!-- ko if: item.name && fileSignCss -->
   <div data-bind="css: fileSignCss">
-    <a data-bind="style: { width: question.imageWidthRendered }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
+    <a data-bind="style: { width: question.imageWidth }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
   </div>
   <!-- /ko -->
 </script>

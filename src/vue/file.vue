@@ -73,7 +73,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>
@@ -100,7 +100,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>

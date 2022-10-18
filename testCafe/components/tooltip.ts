@@ -17,18 +17,6 @@ var json = {
       rowCount: 1,
     },
     {
-      type: "paneldynamic",
-      name: "paneldynamic",
-      templateElements: [
-        {
-          type: "text",
-          isRequired: true,
-          name: "paneldynamic_question",
-        },
-      ],
-      panelCount: 1,
-    },
-    {
       type: "multipletext",
       name: "multipletext",
       items: [
@@ -58,27 +46,16 @@ frameworks.forEach((framework) => {
       return base + offset + 12 + "px";
     };
     const matrixCellSelector = Selector(".sd-table__cell:not(.sd-table__cell--header)");
-    const questionInPanelSelector = Selector(".sd-question__content .sd-question__content");
     const multipleTextCellSelector = Selector(".sd-multipletext__cell");
     const tooltipClass = ".sd-question__erbox--tooltip";
     await t
       .click(Selector("input[value='Complete']"));
     await focusBody();
-    const tooltipInPanel = questionInPanelSelector.find(tooltipClass);
     const tooltipInMatrix = matrixCellSelector.find(tooltipClass);
     const tooltipInMultipleText = multipleTextCellSelector.find(tooltipClass);
-    const questionInPanelClientRect = await questionInPanelSelector.boundingClientRect;
     const matrixCellClientRect = await matrixCellSelector.boundingClientRect;
     const multipleTextCellClientRect = await multipleTextCellSelector.boundingClientRect;
-    await t.expect(tooltipInPanel.visible).notOk()
-      .hover(questionInPanelSelector, { offsetX: 30, offsetY: 30 })
-      .expect(tooltipInPanel.visible).ok()
-      .expect(tooltipInPanel.getStyleProperty("left")).eql(getTooltipPosition(questionInPanelClientRect.left, 30))
-      .expect(tooltipInPanel.getStyleProperty("top")).eql(getTooltipPosition(questionInPanelClientRect.top, 30))
-      .hover(questionInPanelSelector, { offsetX: 40, offsetY: 40 })
-      .expect(tooltipInPanel.getStyleProperty("left")).eql(getTooltipPosition(questionInPanelClientRect.left, 40))
-      .expect(tooltipInPanel.getStyleProperty("top")).eql(getTooltipPosition(questionInPanelClientRect.top, 40))
-      .hover(matrixCellSelector, { offsetX: 10, offsetY: 10 })
+    await t.hover(matrixCellSelector, { offsetX: 10, offsetY: 10 })
       .expect(tooltipInMatrix.visible).ok()
       .expect(tooltipInMatrix.getStyleProperty("left")).eql(getTooltipPosition(matrixCellClientRect.left, 10))
       .expect(tooltipInMatrix.getStyleProperty("top")).eql(getTooltipPosition(matrixCellClientRect.top, 10))

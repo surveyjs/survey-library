@@ -72,7 +72,6 @@ export var finnishSurveyStrings = {
     "Olet käyttänyt tällä sivulla {0} / {1} ja yhteensä {2} / {3}.",
   timerLimitPage: "Olet käyttänyt {0} / {1} tällä sivulla.",
   timerLimitSurvey: "Olet käyttänyt yhteensä {0} / {1}.",
-  cleanCaption: "Pyyhi",
   clearCaption: "Tyhjennä",
   chooseFileCaption: "Valitse tiedosto",
   removeFileCaption: "Poista tämä tiedosto",

@@ -75,7 +75,6 @@ export var urduSurveyStrings = {
     "آپ نے اس صفحے پر {0} میں سے {1} اور مجموعی طور پر {2} میں سے {3} خرچ کیے ہیں۔",
   timerLimitPage: "آپ نے اس صفحے پر {0} میں سے {0} خرچ کیا ہے۔",
   timerLimitSurvey: "آپ نے کل {1} میں سے {1} خرچ کیا ہے۔",
-  cleanCaption: "صاف",
   clearCaption: "صاف",
   signaturePlaceHolder: "یہاں سائن کریں۔",
   chooseFileCaption: "فائل منتخب کریں",

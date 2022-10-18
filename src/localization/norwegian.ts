@@ -69,7 +69,6 @@ export var norwegianSurveyStrings = {
     "Du har tilbrakt {0} av {1} på denne siden og totalt {2} av {3}.",
   timerLimitPage: "Du har tilbrakt {0} av {1} på denne siden.",
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
-  cleanCaption: "Rens",
   clearCaption: "Klar",
   chooseFileCaption: "Velg Fil",
   removeFileCaption: "Fjern denne filen",

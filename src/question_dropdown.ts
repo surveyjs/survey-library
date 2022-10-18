@@ -30,7 +30,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("cleanCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
@@ -68,14 +68,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getLocalizableString("placeholder");
   }
 
-  public get cleanCaption(): string {
-    return this.getLocalizableStringText("cleanCaption");
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
   }
-  public set cleanCaption(value: string) {
-    this.setLocalizableStringText("cleanCaption", value);
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
   }
-  get locCleanCaption(): LocalizableString {
-    return this.getLocalizableString("cleanCaption");
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {
@@ -195,6 +195,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -273,6 +275,8 @@ Serializer.addClass(
     { name: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }
   ],

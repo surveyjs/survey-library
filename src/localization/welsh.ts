@@ -64,7 +64,6 @@ export var welshSurveyStrings = {
   timerLimitAll: "Rydych chi wedi treulio {0} o {1} ar y dudalen hon a {2} o {3} gyda’i gilydd.",
   timerLimitPage: "Rydych chi wedi treulio {0} o {1} ar y dudalen hon.",
   timerLimitSurvey: "Rydych chi wedi treulio {0} o {1} gyda’i gilydd.",
-  cleanCaption: "Glanhau",
   clearCaption: "Clirio",
   chooseFileCaption: "Dewiswch ffeil ",
   removeFileCaption: "Tynnu’r ffeil hon ",

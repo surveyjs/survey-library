@@ -61,9 +61,9 @@
 <script type="text/html" id="survey-question-file-clean-button">
   <!-- ko if: question.koHasValue() && !question.isReadOnly && $data.showRemoveButton-->
   <button type="button" data-bind="css: showRemoveButton, enabled: !question.isInputReadOnly, click: question.doclean">
-      <span data-bind="text: question.cleanButtonCaption"></span>
+      <span data-bind="text: question.clearButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->
-        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto', title: question.cleanButtonCaption } } --><!-- /ko -->
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto', title: question.clearButtonCaption } } --><!-- /ko -->
       <!-- /ko -->
   </button>
   <!-- /ko -->

@@ -64,7 +64,6 @@ export var kazakhStrings = {
   timerLimitAll: "Сіз бұл бетте {0} ден {1} кетірдіңіз және {2} ден {3} бүкіл сауалнама үшін.",
   timerLimitPage: "Сіз бұл бетте {0} ден {1} кетірдіңіз.",
   timerLimitSurvey: "Сіз бүкіл сауалнама үшін {0} ден {1} кетірдіңіз ",
-  cleanCaption: "Тазалау",
   clearCaption: "Тазалау",
   chooseFileCaption: "Файл таңдаңыз",
   removeFileCaption: "Файлды жойыңыз",

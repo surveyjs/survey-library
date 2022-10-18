@@ -69,7 +69,6 @@ export var croatianStrings = {
     "Vi ste proveli {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
   timerLimitPage: "Potrošio si {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Ukupno ste potrošili {0} od {1}.",
-  cleanCaption: "Očistiti",
   clearCaption: "Očistiti",
   chooseFileCaption: "Odaberite datoteku",
   removeFileCaption: "Uklonite ovu datoteku",

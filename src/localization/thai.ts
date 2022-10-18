@@ -68,7 +68,6 @@ export var thaiStrings = {
   timerLimitAll: "คุณใช้เวลา {0} ของ {1} บนหน้านี้และ {2} ของ {3} รวมทั้งหมด",
   timerLimitPage: "คุณใช้เวลา {0} ของ {1} บนหน้านี้",
   timerLimitSurvey: "คุณใช้เวลา {0} ของ {1} รวมทั้งหมด",
-  cleanCaption: "คลีน",
   clearCaption: "เคลียร์",
   chooseFileCaption: "เลือกไฟล์",
   removeFileCaption: "นำไฟล์นี้ออก",

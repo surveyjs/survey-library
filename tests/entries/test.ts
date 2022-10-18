@@ -36,7 +36,7 @@ export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
 export * from "../questionDropdownTests";
 export * from "../questionImagepicker";
-export * from "../questionBoolean";
+export * from "../questionBooleanTests";
 export * from "../question_baseselecttests";
 export * from "../question_imagetests";
 export * from "../question_ratingtests";

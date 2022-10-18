@@ -319,8 +319,11 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     }
     return res;
   }
-  public setData(value: any) {
+  public setData(value: any): void {
     if (Helpers.isValueEmpty(value)) return;
+    if(typeof value.value === "undefined" && typeof value.text !== "undefined" && Object.keys(value).length === 1) {
+      value.value = value.text;
+    }
     if (typeof value.value !== "undefined") {
       let json;
       if (typeof value.toJSON === "function") {

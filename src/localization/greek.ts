@@ -73,7 +73,6 @@ export var greekSurveyStrings = {
     "Έχετε δαπανήσει {0} από {1} σε αυτήν τη σελίδα και {2} από {3} συνολικά.",
   timerLimitPage: "Έχετε ξοδέψει {0} από {1} σε αυτήν τη σελίδα.",
   timerLimitSurvey: "Έχετε ξοδέψει {0} από {1} συνολικά.",
-  cleanCaption: "ΚΑΘΑΡΗ",
   clearCaption: "Σαφή",
   chooseFileCaption: "Επιλέξτε το αρχείο",
   removeFileCaption: "Καταργήστε αυτό το αρχείο",

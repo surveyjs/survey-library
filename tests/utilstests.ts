@@ -1,4 +1,5 @@
 import { IAction } from "../src/actions/action";
+import { defaultListCss } from "../src/list";
 import { Question } from "../src/question";
 import { sanitizeEditableContent } from "../src/utils/utils";
 
@@ -58,4 +59,23 @@ export function createIActionArray(count: number): Array<IAction> {
     result.push(<IAction>{ id: "test" + index, title: "test" + index });
   }
   return result;
+}
+
+export function createListContainerHtmlElement(): HTMLElement {
+  const element = document.createElement("div");
+  const innerElement = document.createElement("div");
+  innerElement.className = defaultListCss.itemsContainer;
+  innerElement.style.width = "200px";
+  innerElement.style.height = "100px";
+
+  const listContainerElement = document.createElement("div");
+  listContainerElement.style.width = "200px";
+  listContainerElement.style.height = "1000px";
+  listContainerElement.scrollTop = 0;
+  listContainerElement.scrollLeft = 0;
+
+  document.body.appendChild(element);
+  element.appendChild(innerElement);
+  innerElement.appendChild(listContainerElement);
+  return element;
 }

@@ -77,7 +77,11 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       </li>
     );
   }
+  componentDidMount() {
+    super.componentDidMount();
 
+    this.model.onLastItemRended(this.item);
+  }
 }
 
 ReactElementFactory.Instance.registerElement("sv-list-item", (props) => {

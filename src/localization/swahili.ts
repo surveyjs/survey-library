@@ -69,7 +69,6 @@ export var swahiliStrings = {
   timerLimitAll: "Umetumia {0} ya {1} kwenye ukurasa huu {2} wa {3} kwa jumla.",
   timerLimitPage: "Umetumia {0} ya {1} kwenye ukurasa huu.",
   timerLimitSurvey: "Umetumia {0} ya {1} kwa jumla.",
-  cleanCaption: "Safisha",
   clearCaption: "Ondoa",
   chooseFileCaption: "Chagua faili",
   removeFileCaption: "Ondoa faili",

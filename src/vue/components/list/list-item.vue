@@ -56,6 +56,9 @@ export class ListItem extends BaseVue {
     this.model.onItemClick(this.item as any);
     event.stopPropagation();
   }
+  protected onMounted() {
+    this.model.onLastItemRended(<any>this.item);
+  }
 }
 
 Vue.component("sv-list-item", ListItem);

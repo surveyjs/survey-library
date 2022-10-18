@@ -160,3 +160,16 @@ QUnit.test("Check boolean with valueTrue = 'true' and valueFalse = 'false'", fun
   question.booleanValue = null;
   assert.strictEqual(question.isEmpty(), true, "Check value is empty");
 });
+QUnit.test("Remove showTitle and label", function (assert) {
+  const createBoolean = (json: any) => {
+    const q = new QuestionBooleanModel("q1");
+    q.fromJSON(json);
+    return q;
+  };
+  let question = createBoolean({ "label": { default: "Label default", de: "Label de" } });
+  assert.deepEqual(question.toJSON(), { name: "q1", title: { default: "Label default", de: "Label de" } }, "Copy title to label");
+  question = createBoolean({ "title": "Title", "label": { default: "Label default", de: "Label de" } });
+  assert.deepEqual(question.toJSON(), { name: "q1", title: "Title" }, "Do not copy label");
+  question = createBoolean({ "title": "Title", "label": { default: "Label default", de: "Label de" }, titleLocation: "hidden" });
+  assert.deepEqual(question.toJSON(), { name: "q1", title: { default: "Label default", de: "Label de" }, titleLocation: "hidden" }, "Title location is hidden");
+});

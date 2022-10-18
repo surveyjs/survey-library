@@ -7,47 +7,43 @@ import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
-const pageSize = 25;
-
 export class DropdownListModel extends Base {
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
-  private itemsSettings: {startIndex: number, pageSize: number, total: number, items: any[] } = { startIndex: 0, pageSize: pageSize, total: 0, items: [] };
+  private itemsSettings: {skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
 
   private resetItemsSettings() {
-    this.itemsSettings.startIndex = 0;
-    this.itemsSettings.pageSize = pageSize;
-    this.itemsSettings.total = 0;
+    this.itemsSettings.skip = 0;
+    this.itemsSettings.take = this.question.choicesLazyLoadPageSize;
+    this.itemsSettings.totalCount = 0;
     this.itemsSettings.items = [];
   }
 
   private updateListItems() {
     this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
   }
-  private setItems(loaded: boolean, items: Array<any>, total: number) {
-    if(loaded) {
-      this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
-      this.question.choices = this.itemsSettings.items;
-      this.itemsSettings.total = total;
-      this.updateListItems();
-    }
+  private setItems(items: Array<any>, totalCount: number) {
+    this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
+    this.question.choices = this.itemsSettings.items;
+    this.itemsSettings.totalCount = totalCount;
+    this.updateListItems();
   }
 
-  private updateQuestionData(): void {
-    const isUpdate = (this.itemsSettings.startIndex + 1) < this.itemsSettings.total;
-    if(!this.itemsSettings.startIndex || isUpdate) {
-      this.question.survey.getQuestionData({
+  private updateQuestionChoices(): void {
+    const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
+    if(!this.itemsSettings.skip || isUpdate) {
+      this.question.survey.loadQuestionChoices({
         question: this.question,
-        filterString: this.filterString,
-        startIndex: this.itemsSettings.startIndex,
-        pageSize: this.itemsSettings.pageSize,
-        setItems: (loaded: boolean, items: Array<any>, total: number) => {
-          this.setItems(loaded, items, total);
+        filter: this.filterString,
+        skip: this.itemsSettings.skip,
+        take: this.itemsSettings.take,
+        setItems: (items: Array<any>, totalCount: number) => {
+          this.setItems(items, totalCount);
         }
       });
-      this.itemsSettings.startIndex += this.itemsSettings.pageSize;
+      this.itemsSettings.skip += this.itemsSettings.take;
     }
   }
 
@@ -66,9 +62,9 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      if(option.isVisible && this.question.lazyLoading) {
+      if(option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
-        this.updateQuestionData();
+        this.updateQuestionChoices();
       }
 
       if (option.isVisible && !!this.question.onOpenedCallBack) {
@@ -78,7 +74,7 @@ export class DropdownListModel extends Base {
       if(!option.isVisible) {
         this.onHidePopup();
 
-        if(this.question.lazyLoading) {
+        if(this.question.choicesLazyLoadEnabled) {
           this.resetItemsSettings();
         }
       }
@@ -167,6 +163,7 @@ export class DropdownListModel extends Base {
     this.listModel.cssClasses = question.survey?.getCss().list;
     this.setSearchEnabled(this.question.searchEnabled);
     this.createPopup();
+    this.resetItemsSettings();
   }
 
   get popupModel(): PopupModel {
@@ -246,7 +243,7 @@ export class DropdownListModel extends Base {
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
     if(target.scrollTop + target.offsetHeight === target.scrollHeight) {
-      this.updateQuestionData();
+      this.updateQuestionChoices();
     }
   }
   onBlur(event: any): void {

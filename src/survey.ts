@@ -673,7 +673,7 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
-  public onGetQuestionData: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
@@ -4339,8 +4339,8 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.fire(this, options);
     return options.visible;
   }
-  getQuestionData(options: { question: IQuestion, filterString: string, startIndex: number, pageSize: number, setItems: (loaded: boolean, items: Array<any>, total: number) => void }): void {
-    this.onGetQuestionData.fire(this, options);
+  loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
+    this.onChoicesLazyLoad.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);

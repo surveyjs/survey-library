@@ -15,8 +15,6 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  public lazyLoadingValue = false;
-
   dropdownListModel: DropdownListModel;
 
   updateReadOnlyText(): void {
@@ -197,6 +195,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -229,9 +229,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.dropdownListModel = new DropdownListModel(this);
     }
     return this.dropdownListModel?.popupModel;
-  }
-  public get lazyLoading(): boolean {
-    return this.lazyLoadingValue;
   }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
@@ -278,6 +275,8 @@ Serializer.addClass(
     { name: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }
   ],

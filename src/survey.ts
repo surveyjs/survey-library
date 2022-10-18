@@ -673,6 +673,8 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
+  public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
    *- `sender` - the survey object that fires the event
@@ -4341,6 +4343,9 @@ export class SurveyModel extends SurveyElementCore
     const options = { question: question, item: item, visible: val };
     this.onShowingChoiceItem.fire(this, options);
     return options.visible;
+  }
+  loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
+    this.onChoicesLazyLoad.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);

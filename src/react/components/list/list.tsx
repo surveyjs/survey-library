@@ -10,11 +10,14 @@ interface IListProps {
 }
 
 export class List extends SurveyElementBase<IListProps, any> {
+  private listContainerRef: React.RefObject<HTMLDivElement>;
+
   constructor(props: any) {
     super(props);
     this.state = {
       filterString: this.model.filterString || ""
     };
+    this.listContainerRef = React.createRef();
   }
   get model(): ListModel {
     return this.props.model;
@@ -28,10 +31,14 @@ export class List extends SurveyElementBase<IListProps, any> {
   getStateElement() {
     return this.model;
   }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.model.initListContainerHtmlElement(this.listContainerRef.current);
+  }
   renderElement() {
     const items = this.renderItems();
     return (
-      <div className={this.model.cssClasses.root}>
+      <div className={this.model.cssClasses.root} ref={this.listContainerRef}>
         {this.searchElementContent()}
         {this.emptyContent()}
         <ul

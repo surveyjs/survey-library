@@ -62,6 +62,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   })
   hideSelectedItems: boolean;
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -128,6 +130,8 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean", default: true, visible: false },
     { name: "itemComponent", visible: false, default: "" }

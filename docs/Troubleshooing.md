@@ -18,6 +18,5 @@ When you declare a survey JSON schema or load it from a file or a web server, en
 * **Survey does not contain visible elements**         
 Survey elements become invisible when their [visible](https://surveyjs.io/form-library/documentation/question#visible) property is set to `false` or their [visibleIf](https://surveyjs.io/form-library/documentation/question#visibleIf) expression evaluates to `false`. Ensure that the `visible` property is enabled and the `visibleIf` expressions evaluate to `true`.
 
-* **Survey uses an unregistered custom question component**       
-
+* **Survey uses an unregistered custom question component**        
 If you implement a custom question component, add it to the survey's `ComponentCollection`. For more information, refer to the following help topic: [Create Specialized Question Types](https://surveyjs.io/survey-creator/documentation/create-specialized-question-types).

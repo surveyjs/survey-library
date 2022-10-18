@@ -51,6 +51,7 @@ export class ListModel extends ActionContainer {
     }
   }) filterString: string;
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
+  @property({ defaultValue: true }) isAllDataLoaded: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -229,6 +230,8 @@ export class ListModel extends ActionContainer {
     this.listContainerHtmlElement = htmlElement;
   }
   public onLastItemRended(item: Action): void {
+    if(this.isAllDataLoaded) return;
+
     if(item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
       this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
     }

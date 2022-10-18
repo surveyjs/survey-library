@@ -256,3 +256,31 @@ QUnit.test("add/remove scrollHandler", function (assert) {
 
   document.body.removeChild(element);
 });
+QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  const element = createListContainerHtmlElement();
+  list.initListContainerHtmlElement(element);
+
+  assert.equal(list.hasVerticalScroller, false);
+
+  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  assert.equal(list.hasVerticalScroller, false);
+
+  document.body.removeChild(element);
+});
+
+QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  const element = createListContainerHtmlElement();
+  list.initListContainerHtmlElement(element);
+  list.isAllDataLoaded = false;
+
+  assert.equal(list.hasVerticalScroller, false);
+
+  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  assert.equal(list.hasVerticalScroller, true);
+
+  document.body.removeChild(element);
+});

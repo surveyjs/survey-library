@@ -69,7 +69,6 @@ export var portugueseSurveyStrings = {
   timerLimitAll: "Você gastou {0} de {1} nesta página e {2} de {3} no total.",
   timerLimitPage: "Você gastou {0} de {1} nesta página.",
   timerLimitSurvey: "Você gastou {0} de {1} no total.",
-  cleanCaption: "Limpar",
   clearCaption: "Limpar",
   chooseFileCaption: "Escolher ficheiro",
   removeFileCaption: "Remover este ficheiro",

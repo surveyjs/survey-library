@@ -70,7 +70,6 @@ export var latvianSurveyStrings = {
     "Šajā lapā esat iztērējis {0} no {1} un kopā {2} no {3}.",
   timerLimitPage: "Šajā lapā esat iztērējis {0} no {1}.",
   timerLimitSurvey: "Kopā esat iztērējis {0} no {1}.",
-  cleanCaption: "Notīrīt",
   clearCaption: "Iztīrīt",
   chooseFileCaption: "Izvēlēties failu",
   removeFileCaption: "Noņemiet šo failu",

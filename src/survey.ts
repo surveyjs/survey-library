@@ -2509,6 +2509,7 @@ export class SurveyModel extends SurveyElementCore
       page.setPropertyValue("isReadOnly", page.isReadOnly);
     }
     this.updateButtonsVisibility();
+    this.updateCss();
   }
   /**
    * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
@@ -4204,7 +4205,11 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() rootCss: string;
   public getRootCss(): string {
-    return new CssClassBuilder().append(this.css.root).append(this.css.rootMobile, this.isMobile).toString();
+    return new CssClassBuilder()
+      .append(this.css.root)
+      .append(this.css.rootMobile, this.isMobile)
+      .append(this.css.rootReadOnly, this.mode === "display")
+      .toString();
   }
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {

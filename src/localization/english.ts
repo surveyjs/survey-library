@@ -77,7 +77,6 @@ export var englishStrings = {
     "You have spent {0} of {1} on this page and {2} of {3} in total.",
   timerLimitPage: "You have spent {0} of {1} on this page.",
   timerLimitSurvey: "You have spent {0} of {1} in total.",
-  cleanCaption: "Clean",
   clearCaption: "Clear",
   signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Choose file",

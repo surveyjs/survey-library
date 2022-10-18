@@ -68,7 +68,6 @@ export var lithuaniaSurveyStrings = {
   timerLimitAll: "Praleidote {0} iš {1} šiame puslapyje ir {2} iš {3} iš viso.",
   timerLimitPage: "Praleidote {0} iš {1} šiame puslapyje.",
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
-  cleanCaption: "Išvalyti",
   clearCaption: "Valyti",
   chooseFileCaption: "Pasirinkti failą",
   removeFileCaption: "Ištrinti šį failą",

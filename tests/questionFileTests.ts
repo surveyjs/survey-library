@@ -593,9 +593,9 @@ QUnit.test("Writable captions", function(assert) {
   /**
     * The clean files button caption.
     */
-  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption"), "The clean files button caption default");
-  q.cleanButtonCaption += "_new";
-  assert.equal(q.cleanButtonCaption, surveyLocalization.getString("cleanCaption")+"_new", "The clean files button caption new");
+  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption"), "The clean files button caption default");
+  q.clearButtonCaption += "_new";
+  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption")+"_new", "The clean files button caption new");
   /**
     * The remove file button caption.
     */
@@ -701,7 +701,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   survey.setDesignMode(true);
   checkDD();
 });
-QUnit.test("file.cleanButtonCaption localization", (assert) => {
+QUnit.test("file.clearButtonCaption localization", (assert) => {
   const survey = new SurveyModel({
     questions: [
       {
@@ -711,9 +711,9 @@ QUnit.test("file.cleanButtonCaption localization", (assert) => {
     ],
   });
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
-  assert.equal(q.cleanButtonCaption, "Clean");
+  assert.equal(q.clearButtonCaption, "Clear");
   survey.locale = "fr";
-  assert.equal(q.cleanButtonCaption, "Nettoyer");
+  assert.equal(q.clearButtonCaption, "Vider");
   survey.locale = "";
 });
 
@@ -833,4 +833,38 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     assert.deepEqual(q.previewValue, [downloadedFile]);
     done();
   }, 25);
+});
+
+QUnit.test("preview item index on last file removed", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+        allowMultiple: true,
+      }
+    ],
+  });
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  q.value = [{
+    content: "file1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "file2",
+    name: "file2.png",
+    type: "image/png"
+  }, {
+    content: "file3",
+    name: "file3.png",
+    type: "image/png"
+  }];
+  assert.equal(q.indexToShow, 0, "Start from 0");
+  assert.equal(q["fileIndexAction"].title, "1 of 3", "Initial title");
+  q["prevFileAction"].action();
+  assert.equal(q.indexToShow, 2, "We're on 3rd image");
+  assert.equal(q["fileIndexAction"].title, "3 of 3", "We're on the last item");
+  q.doRemoveFile(q.value[2]);
+  assert.equal(q.indexToShow, 1, "We're on 2nd image");
+  assert.equal(q["fileIndexAction"].title, "2 of 2", "We're on the last item again");
 });

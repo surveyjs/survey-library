@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
-    const cleanButtonSelector = Selector("button").withText("Clean");
+    const cleanButtonSelector = Selector("button").withText("Clear");
     await t.click(cleanButtonSelector);
     await t.expect(cleanButtonSelector.exists).notOk();
   });

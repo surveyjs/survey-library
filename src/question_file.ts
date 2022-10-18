@@ -30,16 +30,16 @@ export class QuestionFileModel extends Question {
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
-  public previewValue: any[] = [];
+  @property() public previewValue: any[] = [];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
-  private prevFileAction: Action;
-  private nextFileAction: Action;
-  private fileIndexAction: Action;
+  protected prevFileAction: Action;
+  protected nextFileAction: Action;
+  protected fileIndexAction: Action;
 
   get mobileFileNavigatorVisible(): boolean {
     return this.isMobile && this.containsMultiplyFiles;
@@ -93,9 +93,10 @@ export class QuestionFileModel extends Question {
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
-   * Specifies whether to show a preview of image files.
+   * Disable this property only to implement a custom preview.
    *
-   * Default value: `true`
+   * [View "Custom Preview" Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
+   * @see allowImagesPreview
    */
   public get showPreview() {
     return this.getPropertyValue("showPreview");
@@ -164,7 +165,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
   /**
-   * Set it to false if you want to disable images preview.
+   * Specifies whether to show a preview of image files.
    */
   public get allowImagesPreview(): boolean {
     return this.getPropertyValue("allowImagesPreview");
@@ -201,7 +202,7 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+  @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
@@ -225,6 +226,8 @@ export class QuestionFileModel extends Question {
           this.value = undefined;
           this.errors = [];
           !!doneCallback && doneCallback();
+          this.indexToShow = 0;
+          this.fileIndexAction.title = this.getFileIndexCaption();
         }
       }
     );
@@ -374,6 +377,7 @@ export class QuestionFileModel extends Question {
       });
       this._previewLoader.load(newValues);
     }
+    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
   }

@@ -1,5 +1,3 @@
-
-
 .sd-body__navigation {
   .sd-btn {
     padding: calcSize(2) calcSize(8);
@@ -10,7 +8,11 @@
   .sd-btn {
     flex-grow: 1;
   }
+
   .sd-btn {
     padding: calcSize(2) calcSize(4);
   }
+}
+.sd-body__navigation .sv-action--hidden {
+  display: none;
 }

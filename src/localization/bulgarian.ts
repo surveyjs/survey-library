@@ -70,7 +70,6 @@ export var bulgarianStrings = {
     "Вие изпозвахте {0} от {1} на тази страница и общо {2} от {3}.",
   timerLimitPage: "Вие използвахте {0} от {1} на тази страница.",
   timerLimitSurvey: "Вие използвахте общо {0} от {1}.",
-  cleanCaption: "Изчистване",
   clearCaption: "Начално състояние",
   chooseFileCaption: "Изберете файл",
   removeFileCaption: "Премахване на файла",

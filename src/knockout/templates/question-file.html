@@ -6,63 +6,64 @@
       <!-- ko if: question.isReadOnly -->
       <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>
       <!-- /ko -->
-      <div data-bind="css: question.getFileDecoratorCss(), event: { dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">
-        <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
-        <div data-bind="css: question.koCss().wrapper">
-          <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
-            <span data-bind="text: question.chooseButtonCaption"></span>
-            <!-- ko if: question.cssClasses.chooseFileIconId -->
-                <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
+      <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
+        <div data-bind="css: question.getFileDecoratorCss()">
+          <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
+          <div data-bind="css: question.koCss().wrapper">
+            <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
+              <span data-bind="text: question.chooseButtonCaption"></span>
+              <!-- ko if: question.cssClasses.chooseFileIconId -->
+                  <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
+              <!-- /ko -->
+            </label>
+            <!-- ko if: !question.koHasValue() -->
+            <span data-bind="css: question.koCss().noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->
-          </label>
-          <!-- ko if: !question.koHasValue() -->
-          <span data-bind="css: question.koCss().noFileChosen, text: question.noFileChosenCaption"></span>
-          <!-- /ko -->
+          </div>
         </div>
-      </div>
-      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
-      <!-- ko if: question.showPreview -->
-      <!-- ko if: question.koHasValue -->
-      <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
-          <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
-            <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
-            <div data-bind="css: question.cssClasses.imageWrapper">
-              <!-- ko if: question.canPreviewImage($data) -->
-              <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
-              <!-- /ko -->
-              <!-- ko if: question.defaultImage($data) -->
-              <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
-              <!-- /ko -->
-              <!-- ko if: $data.name -->
-              <!-- ko ifnot: question.isReadOnly -->
-              <div data-bind="click: question.doremovefile, css: question.cssClasses.removeFileButton">
-                  <span data-bind="css: question.cssClasses.removeFile, text: question.removeFileCaption"></span>
-                  <!-- ko if: question.cssClasses.removeFileSvgIconId -->
-                    <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.removeFileSvg, title: question.removeFileCaption, iconName: question.cssClasses.removeFileSvgIconId, size: 'auto' } } --><!-- /ko -->
-                  <!-- /ko -->
+        <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
+        <!-- ko if: question.showPreview -->
+        <!-- ko if: question.koHasValue -->
+        <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
+            <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
+              <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
+              <div data-bind="css: question.cssClasses.imageWrapper">
+                <!-- ko if: question.canPreviewImage($data) -->
+                <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
+                <!-- /ko -->
+                <!-- ko if: question.defaultImage($data) -->
+                <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
+                <!-- /ko -->
+                <!-- ko if: $data.name -->
+                <!-- ko ifnot: question.isReadOnly -->
+                <div data-bind="click: question.doremovefile, css: question.cssClasses.removeFileButton">
+                    <span data-bind="css: question.cssClasses.removeFile, text: question.removeFileCaption"></span>
+                    <!-- ko if: question.cssClasses.removeFileSvgIconId -->
+                      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.removeFileSvg, title: question.removeFileCaption, iconName: question.cssClasses.removeFileSvgIconId, size: 'auto' } } --><!-- /ko -->
+                    <!-- /ko -->
+                </div>
+                <!-- /ko -->
+                <!-- /ko -->
               </div>
-              <!-- /ko -->
-              <!-- /ko -->
-            </div>
-            <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
-          </span>
+              <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
+            </span>
+        </div>
+        <!-- /ko -->
+        <!-- /ko -->
+        <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButtonBottom} } --><!-- /ko -->
+        <!-- ko if: question.mobileFileNavigatorVisible -->
+        <!-- ko component: { name: 'sv-action-bar', params: { model: question.mobileFileNavigator } } -->
+        <!-- /ko -->
+        <!-- /ko -->
       </div>
-      <!-- /ko -->
-      <!-- /ko -->
-      <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButtonBottom} } --><!-- /ko -->
-      <!-- ko if: question.mobileFileNavigatorVisible -->
-      <!-- ko component: { name: 'sv-action-bar', params: { model: question.mobileFileNavigator } } -->
-      <!-- /ko -->
-      <!-- /ko -->
   </div>
 </script>
 <script type="text/html" id="survey-question-file-clean-button">
-  <!-- ko if: $data.showRemoveButton-->
+  <!-- ko if: question.koHasValue() && !question.isReadOnly && $data.showRemoveButton-->
   <button type="button" data-bind="css: showRemoveButton, enabled: !question.isInputReadOnly, click: question.doclean">
-      <span data-bind="text: question.cleanButtonCaption"></span>
+      <span data-bind="text: question.clearButtonCaption"></span>
       <!-- ko if: question.cssClasses.removeButtonIconId -->
-        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto' } } --><!-- /ko -->
-
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.removeButtonIconId, size: 'auto', title: question.clearButtonCaption } } --><!-- /ko -->
       <!-- /ko -->
   </button>
   <!-- /ko -->

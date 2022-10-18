@@ -69,7 +69,6 @@ export var turkishSurveyStrings = {
     "Bu sayfaya {0} / {1} ve toplamda {2} / {3} harcadınız.",
   timerLimitPage: "Bu sayfaya {0} / {1} harcadınız.",
   timerLimitSurvey: "Toplamda {0} / {1} harcadınız.",
-  cleanCaption: "Temiz",
   clearCaption: "Açık",
   chooseFileCaption: "Dosya seçin",
   removeFileCaption: "Bu dosyayı kaldır",

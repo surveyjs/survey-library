@@ -32,7 +32,7 @@ export function showModal(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"
-): void {
+): PopupBaseViewModel {
   const options = createDialogOptions(
     componentName,
     data,
@@ -44,13 +44,14 @@ export function showModal(
     title,
     displayMode
   );
-  showDialog(options);
+  return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions) {
+export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => { viewModel.dispose(); };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
+  return popupViewModel;
 }
 
 settings.showModal = showModal;

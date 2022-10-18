@@ -29,7 +29,7 @@ export interface IConditionObject {
 /**
  * A base class for all questions.
  */
-export class Question extends SurveyElement
+export class Question extends SurveyElement<Question>
   implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
   private static TextPreprocessorValuesMap = {
@@ -391,20 +391,6 @@ export class Question extends SurveyElement
     this.updateQuestionCss();
     this.onParentChanged();
   }
-  private parentQuestionValue: Question = null;
-  /**
-   * A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
-   *
-   * This property is `null` for standalone questions.
-   */
-  public get parentQuestion(): Question {
-    return this.parentQuestionValue;
-  }
-  setParentQuestion(val: Question): void {
-    this.parentQuestionValue = val;
-    this.onParentQuestionChanged();
-  }
-  protected onParentQuestionChanged(): void { }
   protected onParentChanged(): void { }
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
@@ -566,8 +552,8 @@ export class Question extends SurveyElement
     return this.getLocalizableString("requiredErrorText");
   }
   /**
-   * Specifies a caption displayed above the comment area. Applies when the `hasComment` property is `true`.
-   * @see hasComment
+   * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
+   * @see showCommentArea
    * @see comment
    */
   public get commentText(): string {
@@ -580,8 +566,8 @@ export class Question extends SurveyElement
     return this.getLocalizableString("commentText");
   }
   /**
-   * A placeholder for the comment area. Applies when the `hasComment` property is `true`.
-   * @see hasComment
+   * A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
+   * @see showCommentArea
    * @see comment
    * @see commentText
    */
@@ -901,6 +887,7 @@ export class Question extends SurveyElement
     if (this.isDesignMode) return;
 
     if (!!this.survey) {
+      this.expandAllPanels(this.parent);
       this.survey.scrollElementToTop(this, this, null, this.id);
     }
     var id = !onError
@@ -908,6 +895,14 @@ export class Question extends SurveyElement
       : this.getFirstErrorInputElementId();
     if (SurveyElement.FocusElement(id)) {
       this.fireCallback(this.focusCallback);
+    }
+  }
+  private expandAllPanels(panel: IPanel) {
+    if(!!panel && !!panel.parent) {
+      if(panel.isCollapsed) {
+        panel.expand();
+      }
+      this.expandAllPanels(panel.parent);
     }
   }
   public focusIn = () => {
@@ -1008,12 +1003,12 @@ export class Question extends SurveyElement
     return "textbox";
   }
   /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `hasComment` property.
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
    *
    * @see otherText
    * @see otherItem
    * @see otherErrorText
-   * @see hasComment
+   * @see showCommentArea
    */
   public get showOtherItem(): boolean {
     return this.getPropertyValue("showOtherItem", false);
@@ -1508,8 +1503,8 @@ export class Question extends SurveyElement
     return true;
   }
   /**
-   * A comment to the selected question value. Enable the `hasComment` property to allow users to leave comments.
-   * @see hasComment
+   * A comment to the selected question value. Enable the `showCommentArea` property to allow users to leave comments.
+   * @see showCommentArea
    * @see commentText
    */
   public get comment(): string {

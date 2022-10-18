@@ -49,10 +49,6 @@ export class QuestionBooleanModel extends Question {
     }
     this.setBooleanValue(val);
   }
-  /**
-   * Obsolete, please use booleanValue property
-   * @see booleanValue
-   */
   public get checkedValue(): any { return this.booleanValue; }
   public set checkedValue(val: any) { this.booleanValue = val; }
   private setBooleanValue(val: any) {

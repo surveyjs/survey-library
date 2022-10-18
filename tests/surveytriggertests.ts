@@ -264,3 +264,39 @@ QUnit.test("Show complete button instead of next if complete trigger is going to
   assert.equal(survey.isCompleteButtonVisible, false, "#7-complete");
   settings.changeNavigationButtonsOnCompleteTrigger = true;
 });
+QUnit.test("Do not execute copy and set trigger on page changed", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "boolean", name: "q2", valueTrue: "yes", valueFalse: "no" },
+          { type: "text", name: "q3" },
+        ]
+      },
+      {
+        elements: [{ type: "text", name: "q4" }]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{q2} = 'yes' and {q1} notempty",
+        "fromName": "q1",
+        "setToName": "q3"
+      },
+      {
+        "type": "setvalue",
+        "expression": "{q2} = 'no'",
+        "setToName": "q3"
+      }
+    ],
+  });
+  const data = { q1: "abc", q2: "no", q3: "def" };
+  survey.data = data;
+  survey.nextPage();
+  survey.doComplete();
+  assert.deepEqual(survey.data, data, "We do not change anything");
+});

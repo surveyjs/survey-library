@@ -238,7 +238,7 @@ var json = {
         Selector("span").withText("file_question")
           .parent("[aria-labelledby]")
           .find("button")
-          .withText("Clean")
+          .withText("Clear")
           .filterVisible()
       );
 

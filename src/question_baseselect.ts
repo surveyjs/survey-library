@@ -116,14 +116,14 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
-   * @see hasOther
+   * @see showOtherItem
    */
   public get otherItem(): ItemValue {
     return this.otherItemValue;
   }
   /**
    * Returns `true` if the "Other" choice item is selected.
-   * @see hasOther
+   * @see showOtherItem
    */
   public get isOtherSelected(): boolean {
     return this.hasOther && this.getHasOther(this.renderedValue);
@@ -149,14 +149,14 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Returns the "None" choice item. Use this property to change the item's `value` or `text`.
-   * @see hasOther
+   * @see showNoneItem
    */
   public get noneItem(): ItemValue {
     return this.noneItemValue;
   }
   /**
    * Gets or sets a caption for the "None" choice item.
-   * @see hasNone
+   * @see showNoneItem
    */
   public get noneText(): string {
     return this.getLocalizableStringText("noneText");
@@ -630,7 +630,7 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Gets or sets a caption for the "Other" choice item.
-   * @see hasOther
+   * @see showOtherItem
    */
   public get otherText(): string {
     return this.getLocalizableStringText("otherText");
@@ -644,14 +644,14 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Displays the "Select All", "None", and "Other" choices on individual rows.
-   * @see hasNone
-   * @see hasOther
+   * @see showNoneItem
+   * @see showOtherItem
    */
   @property({ defaultValue: false }) separateSpecialChoices: boolean;
   /**
-   * A placeholder for the comment area. Applies when the `hasOther` or `hasComment` property is `true`.
-   * @see hasOther
-   * @see hasComment
+   * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
+   * @see showOtherItem
+   * @see showCommentArea
    */
   @property({ localizable: true }) otherPlaceholder: string;
 
@@ -663,7 +663,7 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Get or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
-   * @see hasOther
+   * @see showOtherItem
    */
   public get otherErrorText(): string {
     return this.getLocalizableStringText("otherErrorText");
@@ -676,8 +676,8 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
-   * @see hasNone
-   * @see hasOther
+   * @see showNoneItem
+   * @see showOtherItem
    * @see choicesOrder
    * @see choices
    * @see enabledChoices
@@ -687,8 +687,8 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * An array of choice items with which users can interact. Includes the "Select All", "Other", and "None" choice items if they are not disabled. Items are sorted according to the `choicesOrder` value.
-   * @see hasNone
-   * @see hasOther
+   * @see showNoneItem
+   * @see showOtherItem
    * @see choicesOrder
    * @see choices
    * @see visibleChoices

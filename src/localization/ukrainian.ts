@@ -69,7 +69,6 @@ export var ukrainianSurveyStrings = {
     "Ви витратили {0} з {1} на цій сторінці і {2} з {3} для всього тесту.",
   timerLimitPage: "Ви витратили {0} з {1} на цій сторінці.",
   timerLimitSurvey: "Ви витратили {0} з {1} для всього тесту.",
-  cleanCaption: "Очистити",
   clearCaption: "Очистити",
   chooseFileCaption: "Виберіть файл",
   removeFileCaption: "Видалити файл",

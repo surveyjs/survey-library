@@ -834,3 +834,37 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     done();
   }, 25);
 });
+
+QUnit.test("preview item index on last file removed", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+        allowMultiple: true,
+      }
+    ],
+  });
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  q.value = [{
+    content: "file1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "file2",
+    name: "file2.png",
+    type: "image/png"
+  }, {
+    content: "file3",
+    name: "file3.png",
+    type: "image/png"
+  }];
+  assert.equal(q.indexToShow, 0, "Start from 0");
+  assert.equal(q["fileIndexAction"].title, "1 of 3", "Initial title");
+  q["prevFileAction"].action();
+  assert.equal(q.indexToShow, 2, "We're on 3rd image");
+  assert.equal(q["fileIndexAction"].title, "3 of 3", "We're on the last item");
+  q.doRemoveFile(q.value[2]);
+  assert.equal(q.indexToShow, 1, "We're on 2nd image");
+  assert.equal(q["fileIndexAction"].title, "2 of 2", "We're on the last item again");
+});

@@ -21,12 +21,12 @@
   box-shadow: none;
 }
 .sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover:hover .sd-item__decorator {
+.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
   outline: none;
 }
 .sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover:hover .sd-item__decorator {
+.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   background: $background;
 }
 .sd-item--checked .sd-item__decorator {

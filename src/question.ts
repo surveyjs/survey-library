@@ -245,19 +245,25 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
-   *
-   * This property is useful when interpolated question values have both the `value` and `text` properties.
+   * Specifies whether to use display names for question values in placeholders. 
+   * This property is used for questions whose values define the `value` and `text` properties (for example, a Radiogroup `choice` option with `value` and `text`).
+   * 
+   * Question placeholders can be used in the following places:
+   * - Survey element titles and descriptions;
+   * - The `expression` property of the Expression question;
+   * - The `html` property of the HTML question.    
+   * 
+   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`.
    *
    * Default value: `true`
    */
-  public get useDisplayValuesInTitle(): boolean {
-    return this.getPropertyValue("useDisplayValuesInTitle");
+  public get useDisplayValueInPlaceholders(): boolean {
+    return this.getPropertyValue("useDisplayValueInPlaceholders");
   }
-  public set useDisplayValuesInTitle(val: boolean) {
-    this.setPropertyValue("useDisplayValuesInTitle", val);
+  public set useDisplayValueInPlaceholders(val: boolean) {
+    this.setPropertyValue("useDisplayValueInPlaceholders", val);
   }
-  protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
+  protected getUseDisplayValueInPlaceholders(): boolean { return this.useDisplayValueInPlaceholders; }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
    *
@@ -784,7 +790,7 @@ export class Question extends SurveyElement<Question>
     return this.showErrorOnCore("bottom");
   }
   protected getIsTooltipErrorSupportedByParent(): boolean {
-    if(this.parentQuestion) {
+    if (this.parentQuestion) {
       return this.parentQuestion.getIsTooltipErrorInsideSupported();
     } else {
       return super.getIsTooltipErrorSupportedByParent();
@@ -909,8 +915,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   private expandAllPanels(panel: IPanel) {
-    if(!!panel && !!panel.parent) {
-      if(panel.isCollapsed) {
+    if (!!panel && !!panel.parent) {
+      if (panel.isCollapsed) {
         panel.expand();
       }
       this.expandAllPanels(panel.parent);
@@ -2028,7 +2034,7 @@ Serializer.addClass("question", [
     choices: ["default", "collapsed", "expanded"],
   },
   { name: "visible:switch", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
+  { name: "useDisplayValueInPlaceholders:boolean", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", default: settings.minWidth },

@@ -8339,7 +8339,7 @@ QUnit.test("Survey get full title with values", function (assert) {
           { value: 1, text: "One" },
           { value: 2, text: "Two" },
         ],
-        useDisplayValuesInTitle: false,
+        useDisplayValueInPlaceholders: false,
       },
     ],
   };

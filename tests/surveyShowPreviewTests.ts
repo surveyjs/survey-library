@@ -4,7 +4,7 @@ import { PanelModel } from "../src/panel";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
-QUnit.test("Complete and Preview button visibility", function(assert) {
+QUnit.test("Complete and Preview button visibility", function (assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
   assert.equal(survey.currentPageNo, 0, "Init current page");
   assert.equal(survey.isShowPreviewBeforeComplete, false, "no preview");
@@ -76,7 +76,7 @@ QUnit.test("Complete and Preview button visibility", function(assert) {
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', do not show preview if there is an error",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -113,7 +113,7 @@ QUnit.test(
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', check currentPage on showing preview",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -159,7 +159,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', restore pages before onComplete",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -176,7 +176,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', and do noting onCompleting, options.allowComplete = false",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -201,7 +201,7 @@ QUnit.test(
 
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'singlePage'",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -225,7 +225,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'questionPerPage'",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -277,7 +277,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function(
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function (
   assert
 ) {
   var survey = new SurveyModel({
@@ -316,7 +316,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function(
 });
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', edit page",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -381,7 +381,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', edit page",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { name: "p1", elements: [{ type: "text", name: "q1" }] },
@@ -407,7 +407,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -421,7 +421,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', Bug#2190",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -448,7 +448,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2385",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -506,7 +506,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
@@ -528,7 +528,7 @@ QUnit.test(
 );
 QUnit.test(
   "onShowingPreview && onServerValidateQuestions events",
-  function(assert) {
+  function (assert) {
     const survey = new SurveyModel({
       elements: [
         {
@@ -540,11 +540,11 @@ QUnit.test(
     let counterPreview = 0;
     let counterServer = 0;
     survey.onServerValidateQuestions.add(function (sender, options) {
-      counterServer ++;
+      counterServer++;
       options.complete();
     });
     survey.onShowingPreview.add((sender, options) => {
-      counterPreview ++;
+      counterPreview++;
     });
     assert.equal(counterServer, 0, "We do not call Server validation yet");
     assert.equal(counterPreview, 0, "We do not call showing preview yet");
@@ -556,7 +556,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions' and invisible matrix dropdown, Bug#3176",
-  function(assert) {
+  function (assert) {
     var survey = new SurveyModel({
       showPreviewBeforeComplete: "showAnsweredQuestions",
       pages: [
@@ -576,7 +576,7 @@ QUnit.test(
             {
               type: "matrixdropdown",
               name: "question3",
-              useDisplayValuesInTitle: false,
+              useDisplayValueInPlaceholders: false,
               isRequired: true,
               defaultValue: { item1: { col1: "val1" } },
               columns: [{ cellType: "text", name: "col1" }],
@@ -595,7 +595,7 @@ QUnit.test(
 );
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions' and goNextPageAutomatic, Bug#3450",
-  function(assert) {
+  function (assert) {
     const survey = new SurveyModel({
       "pages": [
         {

@@ -38,7 +38,7 @@ export class QuestionNonValue extends Question {
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
-  ) {}
+  ) { }
   public getConditionJson(operator: string = null, path: string = null): any {
     return null;
   }
@@ -59,7 +59,7 @@ Serializer.addClass(
     { name: "requiredIf", visible: false },
     { name: "validators", visible: false },
     { name: "titleLocation", visible: false },
-    { name: "useDisplayValuesInTitle", visible: false },
+    { name: "useDisplayValueInPlaceholders", visible: false },
   ],
   function () {
     return new QuestionNonValue("");

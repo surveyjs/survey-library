@@ -3,6 +3,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
+import { connect } from "net";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -148,7 +149,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
     if (options.name == "image1" && options.question.name === "image1") {
-      assert.equal(q1.inputTitle, "Loading...");
+      assert.equal(q1.inputTitle, " ");
     }
     if (options.name == "image2" && options.question.name === "image2") {
       assert.equal(q2.inputTitle, " ");
@@ -436,7 +437,8 @@ QUnit.test("QuestionFile canPreviewImage", function(assert) {
 
 QUnit.test(
   "QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075",
-  function(assert) {
+  async function(assert) {
+    var done = assert.async(2);
     var json = {
       questions: [
         {
@@ -453,41 +455,54 @@ QUnit.test(
 
     var isSuccess = true;
     survey.onUploadFiles.add((survey, options) => {
-      if (isSuccess) {
-        options.callback(
-          "success",
-          options.files.map((file) => {
-            return { file: file, content: file.name + "_url" };
-          })
-        );
-      } else {
-        options.callback("error");
-      }
+      setTimeout(() => {
+        if (isSuccess) {
+          options.callback(
+            "success",
+            options.files.map((file) => {
+              return { file: file, content: file.name + "_url" };
+            })
+          );
+        } else {
+          options.callback("error");
+        }
+      }, 1);
     });
 
     var state = "";
-    q1.onStateChanged.add((_, options) => {
+    var stateSec = "";
+    q1.onUploadStateChanged.add((_, options) => {
       state = options.state;
+      stateSec += "->" + options.state;
     });
 
     assert.ok(q1.isEmpty());
     assert.equal(q1.value, undefined);
     assert.equal(state, "");
+    assert.equal(stateSec, "");
 
     isSuccess = false;
     q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
 
-    assert.ok(q1.isEmpty());
-    assert.equal(q1.value, undefined);
-    assert.equal(state, "error");
+    setTimeout(() => {
+      assert.ok(q1.isEmpty());
+      assert.equal(q1.value, undefined);
+      assert.equal(stateSec, "->loading->error");
+      assert.equal(state, "error");
+      done();
 
-    isSuccess = true;
-    q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
+      isSuccess = true;
+      q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
 
-    assert.notOk(q1.isEmpty());
-    assert.equal(q1.value.length, 1);
-    assert.equal(q1.value[0].content, "f2_url");
-    assert.equal(state, "loaded");
+      setTimeout(() => {
+        assert.notOk(q1.isEmpty());
+        assert.equal(q1.value.length, 1);
+        assert.equal(q1.value[0].content, "f2_url");
+        assert.equal(stateSec, "->loading->error->empty->loading->loaded");
+        assert.equal(state, "loaded");
+        done();
+      }, 10);
+    }, 10);
   }
 );
 
@@ -868,3 +883,54 @@ QUnit.test("preview item index on last file removed", (assert) => {
   assert.equal(q.indexToShow, 1, "We're on 2nd image");
   assert.equal(q["fileIndexAction"].title, "2 of 2", "We're on the last item again");
 });
+
+QUnit.test(
+  "QuestionFile upload state sequence",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "file",
+          name: "image1",
+          storeDataAsText: false,
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+    var isSuccess = true;
+    survey.onUploadFiles.add((survey, options) => {
+      if (isSuccess) {
+        options.callback(
+          "success",
+          options.files.map((file) => {
+            return { file: file, content: file.name + "_url" };
+          })
+        );
+      } else {
+        options.callback("error");
+      }
+    });
+
+    var state = "";
+    q1.onUploadStateChanged.add((_, options) => {
+      state += "->" + options.state;
+    });
+
+    assert.ok(q1.isEmpty());
+    assert.equal(q1.value, undefined);
+    assert.equal(state, "");
+
+    q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
+
+    assert.notOk(q1.isEmpty());
+    assert.equal(q1.value.length, 1);
+    assert.equal(q1.value[0].content, "f1_url");
+    assert.equal(state, "->loading->loaded");
+
+    q1.clear();
+    assert.equal(state, "->loading->loaded->empty");
+  }
+);

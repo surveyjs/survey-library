@@ -76,19 +76,17 @@ export class QuestionBooleanModel extends Question {
       : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
-    return this.showTitle || this.isValueEmpty(this.locLabel.text)
-      ? this.getLocalizableString("title")
-      : this.locLabel;
+    const original = this.getLocalizableString("title");
+    if(!this.isValueEmpty(this.locLabel.text) && (this.isValueEmpty(original.text) || this.isLabelRendered && !this.showTitle)) return this.locLabel;
+    return original;
   }
-
-  @property({ localizable: true })
-  label: string;
-
-  get locDisplayLabel(): LocalizableString {
-    if (this.locLabel.text) return this.locLabel;
-    return this.showTitle ? this.locLabel : this.locTitle;
+  //Obsolete
+  @property() showTitle: boolean;
+  //Obsolete, use title
+  @property({ localizable: true }) label: string;
+  get isLabelRendered() : boolean {
+    return this.titleLocation === "hidden";
   }
-
   /**
    * Gets or sets a text label that corresponds to a positive answer.
    *
@@ -125,10 +123,6 @@ export class QuestionBooleanModel extends Question {
   get locLabelFalse(): LocalizableString {
     return this.getLocalizableString("labelFalse");
   }
-
-  @property()
-  showTitle: boolean;
-
   /**
    * A value to save in survey results when respondents give a positive answer.
    *
@@ -279,7 +273,7 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
-    { name: "label:text", serializationProperty: "locLabel" },
+    { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
       name: "labelTrue:text",
       serializationProperty: "locLabelTrue",
@@ -288,7 +282,6 @@ Serializer.addClass(
       name: "labelFalse:text",
       serializationProperty: "locLabelFalse",
     },
-    "showTitle:boolean",
     "valueTrue",
     "valueFalse",
     { name: "renderAs", default: "default", visible: false },

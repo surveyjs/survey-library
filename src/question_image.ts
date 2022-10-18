@@ -174,7 +174,7 @@ Serializer.addClass(
   "image",
   [
     { name: "imageLink", serializationProperty: "locImageLink" },
-    { name: "altText", serializationProperty: "locAltText", alternativeName: "text" },
+    { name: "altText", serializationProperty: "locAltText", alternativeName: "text", category: "general" },
     {
       name: "contentMode",
       default: "auto",

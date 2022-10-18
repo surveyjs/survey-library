@@ -15121,6 +15121,45 @@ QUnit.test("Check survey calculated width mode observability",
   }
 );
 
+QUnit.test("Check survey calculated width mode observability with survey changing",
+  function (assert) {
+    settings.supportCreatorV2 = true;
+    const json = {
+      "pages": [
+        {
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            },
+            {
+              "type": "text",
+              "name": "q2"
+            }
+          ]
+        }
+      ]
+    };
+    const model = new SurveyModel({});
+    assert.equal(model.calculatedWidthMode, "static");
+    model.fromJSON(json);
+    assert.equal(model.calculatedWidthMode, "static");
+    model.getAllQuestions()[1].startWithNewLine = false;
+    assert.equal(model.calculatedWidthMode, "responsive");
+  }
+);
+
+QUnit.test("Check survey calculated width mode observability on question added",
+  function (assert) {
+    settings.supportCreatorV2 = true;
+    const model = new SurveyModel({});
+    assert.equal(model.calculatedWidthMode, "static");
+    model.addNewPage();
+    model.pages[0].addNewQuestion("matrix", "q1");
+    assert.equal(model.calculatedWidthMode, "responsive");
+  }
+);
+
 QUnit.test("Check survey width for different width modes",
   function (assert) {
     const json = {

@@ -245,9 +245,6 @@ export class QuestionFileModel extends Question {
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;
   }
-  get imageWidthRendered() {
-    return this.imageWidth + "px";
-  }
 
   /**
    * Removes a file with a specified name.

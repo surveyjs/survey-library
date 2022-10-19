@@ -133,8 +133,8 @@ frameworks.forEach(framework => {
     );
 
     await setOptions("image", {
-      imageHeight: 50,
-      imageWidth: 50
+      imageHeight: "50px",
+      imageWidth: "50px"
     });
 
     assert.equal(await getWidth(), 50);

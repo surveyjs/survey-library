@@ -69,7 +69,7 @@
             [attr.href]="val.content | safeUrl"
             [attr.title]="val.name"
             [attr.download]="val.name"
-            [attr.width]="model.imageWidth"
+            [style.width]="model.imageWidth"
             >{{ val.name }}</a
           >
         </div>
@@ -77,8 +77,8 @@
           <img
             *ngIf="model.canPreviewImage(val)"
             [attr.src]="val.content | safeUrl"
-            [attr.height]="model.imageHeight"
-            [attr.width]="model.imageWidth"
+            [style.height]="model.imageHeight"
+            [style.width]="model.imageWidth"
             alt="File preview"
           />
           <svg *ngIf="model.defaultImage(val)" 
@@ -97,7 +97,7 @@
             [attr.href]="val.content | safeUrl"
             [attr.title]="val.name"
             [attr.download]="val.name"
-            [attr.width]="model.imageWidth"
+            [style.width]="model.imageWidth"
             >{{ val.name }}</a
           >
         </div>

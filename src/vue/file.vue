@@ -73,7 +73,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>
@@ -81,8 +81,7 @@
             <img
               v-if="question.canPreviewImage(val)"
               :src="val.content"
-              :height="question.imageHeight"
-              :width="question.imageWidth"
+              :style="{height: question.imageHeight, width: question.imageWidth}"
               alt="File preview"
             />
             <sv-svg-icon v-if="question.defaultImage(val)" 
@@ -101,7 +100,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>

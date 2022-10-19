@@ -84,6 +84,9 @@
   height: calcSize(6);
   width: calcSize(6);
   margin: auto;
+  use {
+      fill: $foreground-light;
+    }
 }
 
 .sd-imagepicker__column {

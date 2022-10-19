@@ -12,7 +12,8 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
-    const description = this.question.isLabelRendered ? SurveyElementBase.renderQuestionDescription(this.question) : null;
+    const description = this.question.isLabelRendered && !!this.question.hasDescription ?
+      SurveyElementBase.renderQuestionDescription(this.question) : null;
     return (
       <div className={cssClasses.rootCheckbox}>
         <div className={itemClass}>

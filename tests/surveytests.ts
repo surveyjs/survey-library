@@ -3514,6 +3514,38 @@ QUnit.test("Several questions in one row - defaultV2", function (assert) {
   assert.equal(page.rows[0].elements[1].rightIndent, 0, "the second indent is 0");
 });
 
+QUnit.test("Several questions in complex questions row - defaultV2", function (assert) {
+
+  let survey = new SurveyModel({});
+  survey.css = defaultV2Css;
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "order",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "itemName",
+                "title": "Item Name"
+              },
+              {
+                "type": "text",
+                "name": "count",
+                "startWithNewLine": false,
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  assert.equal(survey.getAllQuestions()[0].templateElements[0].rightIndent, 0, "the first indent is 0");
+});
+
 QUnit.test(
   "Rendered width with setting width in the same row, using calc",
   function (assert) {

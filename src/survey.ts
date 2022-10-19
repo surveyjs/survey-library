@@ -673,6 +673,8 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
+  public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
    *- `sender` - the survey object that fires the event
@@ -1136,7 +1138,7 @@ export class SurveyModel extends SurveyElementCore
       this.render(renderedElement);
     }
     this.updateCss();
-    this.calculatedWidthMode = <any>new ComputedUpdater(() => this.calculateWidthMode());
+    this.setCalculatedWidthModeUpdater();
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -4342,6 +4344,9 @@ export class SurveyModel extends SurveyElementCore
     this.onShowingChoiceItem.fire(this, options);
     return options.visible;
   }
+  loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
+    this.onChoicesLazyLoad.fire(this, options);
+  }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
   }
@@ -5403,6 +5408,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
+    this.setCalculatedWidthModeUpdater();
   }
 
   private updateNavigationCss() {
@@ -5944,6 +5950,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
+    this.setCalculatedWidthModeUpdater();
     if (!this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2) {
       this.onQuestionAdded.fire(this, {
         question: question,
@@ -5953,7 +5960,6 @@ export class SurveyModel extends SurveyElementCore
         rootPanel: rootPanel,
       });
     }
-
   }
   questionRemoved(question: IQuestion) {
     this.questionHashesRemoved(
@@ -6278,6 +6284,12 @@ export class SurveyModel extends SurveyElementCore
   }
   public set widthMode(val: string) {
     this.setPropertyValue("widthMode", val);
+  }
+  private calculatedWidthModeUpdater: ComputedUpdater;
+  public setCalculatedWidthModeUpdater() {
+    if (this.calculatedWidthModeUpdater) this.calculatedWidthModeUpdater.dispose();
+    this.calculatedWidthModeUpdater = new ComputedUpdater(() => this.calculateWidthMode());
+    this.calculatedWidthMode = <any>this.calculatedWidthModeUpdater;
   }
   @property() calculatedWidthMode: string;
   public calculateWidthMode() {

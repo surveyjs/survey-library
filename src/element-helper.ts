@@ -23,4 +23,16 @@ export class ElementHelper {
       return this.getNextElementPostorder(result);
     }
   }
+  static hasHorizontalScroller(element: HTMLElement): boolean {
+    if (!!element) {
+      return element.scrollWidth > element.offsetWidth;
+    }
+    return false;
+  }
+  static hasVerticalScroller(element: HTMLElement): boolean {
+    if (!!element) {
+      return element.scrollHeight > element.offsetHeight;
+    }
+    return false;
+  }
 }

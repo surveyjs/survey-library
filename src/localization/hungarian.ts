@@ -13,7 +13,7 @@ export var hungarianSurveyStrings = {
   progressText: "{0}./{1} oldal",
   panelDynamicProgressText: "{0} / {1} rekord",
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
-  emptySurvey: "There is no visible page or question in the survey.",
+  emptySurvey: "The survey doesn't contain visible pages or questions.",
   completingSurvey: "Köszönjük, hogy kitöltötte felmérésünket!",
   completingSurveyBefore: "Már kitöltötte a felmérést.",
   loadingSurvey: "Felmérés betöltése...",

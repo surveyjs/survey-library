@@ -3,7 +3,6 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
-import { connect } from "net";
 
 export default QUnit.module("Survey_QuestionFile");
 

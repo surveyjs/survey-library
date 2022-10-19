@@ -27,6 +27,9 @@ export class QuestionFileModel extends Question {
    * - `sender` - A question instance that raised the event.
    * - `options.state` - Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
+  public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
+    QuestionFileModel
+  >();
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
@@ -284,9 +287,8 @@ export class QuestionFileModel extends Question {
       return;
     }
 
-    this.stateChanged("loading");
-
     var loadFilesProc = () => {
+      this.stateChanged("loading");
       var content = <Array<any>>[];
       if (this.storeDataAsText) {
         files.forEach((file) => {
@@ -333,14 +335,6 @@ export class QuestionFileModel extends Question {
   }
   protected loadPreview(newValue: any): void {
     this.previewValue = [];
-    var state =
-      (!Array.isArray(newValue) && !!newValue) ||
-        (Array.isArray(newValue) && newValue.length > 0)
-        ? this.showPreview
-          ? "loading"
-          : "loaded"
-        : "empty";
-    this.stateChanged(state);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -359,7 +353,6 @@ export class QuestionFileModel extends Question {
           },
         ]);
       });
-      if (state === "loading") this.stateChanged("loaded");
     } else {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
@@ -368,7 +361,6 @@ export class QuestionFileModel extends Question {
         if (status === "loaded") {
           this.previewValue = loaded;
         }
-        this.stateChanged("loaded");
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });
@@ -397,6 +389,9 @@ export class QuestionFileModel extends Question {
     }
   }
   protected stateChanged(state: string) {
+    if(this.currentState == state) {
+      return;
+    }
     if (state === "loading") {
       this.isUploading = true;
     }
@@ -408,6 +403,7 @@ export class QuestionFileModel extends Question {
     }
     this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
+    this.onUploadStateChanged.fire(this, { state: state });
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
@@ -506,6 +502,12 @@ export class QuestionFileModel extends Question {
     src.value = "";
     this.loadFiles(files);
   }
+
+  protected setNewValue(newValue: any): void {
+    super.setNewValue(newValue);
+    this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+  }
+
   //#region
   // web-based methods
   private rootElement: HTMLElement;

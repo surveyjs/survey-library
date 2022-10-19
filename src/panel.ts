@@ -167,7 +167,7 @@ export class QuestionRowModel extends Base {
           el.renderWidth = this.getRenderedWidthFromWidth(width);
           preSetWidthElements.push(el);
         }
-        el.rightIndent = counter < visCount - 1 ? 1 : 0;
+        if (!(el as any).isDefaultV2Theme) el.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
         el.renderWidth = "";

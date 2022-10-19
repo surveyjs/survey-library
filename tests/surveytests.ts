@@ -3499,6 +3499,21 @@ QUnit.test("Several questions in one row", function (assert) {
     assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
   }
 });
+
+QUnit.test("Several questions in one row - defaultV2", function (assert) {
+  let survey = new SurveyModel({});
+  survey.css = defaultV2Css;
+  let page = survey.addNewPage();
+  page.addNewQuestion("text", "q1");
+  const q2 = page.addNewQuestion("text", "q2");
+  q2.startWithNewLine = false;
+  assert.equal(page.rows.length, 1, "only one row");
+  assert.equal(page.rows[0].elements.length, 2, "two elements in row");
+
+  assert.equal(page.rows[0].elements[0].rightIndent, 0, "the first indent is 0");
+  assert.equal(page.rows[0].elements[1].rightIndent, 0, "the second indent is 0");
+});
+
 QUnit.test(
   "Rendered width with setting width in the same row, using calc",
   function (assert) {

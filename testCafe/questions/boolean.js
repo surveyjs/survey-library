@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getQuestionValue, getQuestionJson } from "../helper";
+import { frameworks, url, url_test, initSurvey, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -9,8 +9,7 @@ var json = {
     {
       type: "boolean",
       name: "bool",
-      title: "Response required.",
-      label: "Are you 21 or older?",
+      title: "Are you 21 or older?",
       isRequired: true,
     },
   ],
@@ -21,10 +20,20 @@ var jsonCheckbox = {
     {
       type: "boolean",
       name: "bool",
-      title: "Response required.",
-      label: "Are you 21 or older?",
+      title: "Are you 21 or older?",
       renderAs: "checkbox",
       isRequired: true,
+    },
+  ],
+};
+var jsonCheckbox2 = {
+  elements: [
+    {
+      type: "boolean",
+      name: "bool",
+      title: "Are you 21 or older?",
+      titleLocation: "hidden",
+      renderAs: "checkbox",
     },
   ],
 };
@@ -34,8 +43,7 @@ var jsonRadio = {
     {
       type: "boolean",
       name: "bool",
-      title: "Response required.",
-      label: "Are you 21 or older?",
+      title: "Are you 21 or older?",
       isRequired: true,
       renderAs: "radio"
     },
@@ -182,7 +190,33 @@ frameworks.forEach((framework) => {
     await ClientFunction(() => { document.querySelector(".sv_qbln input").click(); })();
     await t.expect(selector.checked).ok();
   });
-
+});
+frameworks.forEach((framework) => {
+  const theme = "defaultV2";
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`
+    .beforeEach(async t => {
+      await applyTheme(theme);
+      await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
+        options.titleActions = [
+          {
+            title: "Click me",
+            action: () => {
+              const q = options.question;
+              q.description = !q.description ? "Description!" : "";
+            },
+          }];
+      } });
+    });
+  test("Check actions", async (t) => {
+    await t
+      .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector("div").withText("Description!").exists).notOk();
+  });
 });
 
 frameworks.forEach((framework) => {

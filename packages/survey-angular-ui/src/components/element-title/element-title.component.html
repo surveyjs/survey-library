@@ -13,30 +13,30 @@
     </ng-container>
   </sv-ng-dynamic-head>
   <ng-template #elementTitleContent>
-    <sv-ng-string *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
-    <ng-container *ngIf="element.isTitleOwner">
+    <sv-ng-string *ngIf="element.isTitleRenderedAsString" [model]="element.locTitle"></sv-ng-string>
+    <ng-container *ngIf="!element.isTitleRenderedAsString">
       <span
-        *ngIf="element.isTitleOwner && element.isRequireTextOnStart"
+        *ngIf="element.isRequireTextOnStart"
         [class]="element.cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span>
       <span
-        *ngIf="element.isTitleOwner && element.no"
+        *ngIf="element.no"
         style="position: static"
         [class]="element.cssClasses.number"
         [attr.aria-hidden]="true"
         >{{ element.no }}</span>
-      <span *ngIf="element.isTitleOwner && element.no">&nbsp;</span>
+      <span *ngIf="element.no">&nbsp;</span>
       <span
-        *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle"
+        *ngIf="element.isRequireTextBeforeTitle"
         [class]="element.cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span>
-      <span *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
-      <sv-ng-string *ngIf="element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
-      <span *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
+      <span *ngIf="element.isRequireTextBeforeTitle">&nbsp;</span>
+      <sv-ng-string [model]="element.locTitle"></sv-ng-string>
+      <span *ngIf="element.isRequireTextAfterTitle">&nbsp;</span>
       <span
-        *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle"
+        *ngIf=" element.isRequireTextAfterTitle"
         [class]="element.cssClasses.requiredText"
         [attr.aria-hidden]="true"
         >{{ element.requiredText }}</span> 

@@ -20,6 +20,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       key: key,
     });
   }
+  public static renderQuestionDescription(question: Question): JSX.Element {
+    if(!question.description) return null;
+    var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
+    return <div className={question.cssDescription}>{descriptionText}</div>;
+  }
   private changedStatePropNameValue: string;
   constructor(props: any) {
     super(props);

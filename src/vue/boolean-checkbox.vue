@@ -23,9 +23,24 @@
           v-if="question.isLabelRendered"
           :class="question.cssClasses.checkboxControlLabel"
         >
-          <survey-string :locString="question.locTitle" />
+          <survey-element-title-content
+            v-if="!question.hasTitleActions"
+            :element="question"
+            :css="css"
+          ></survey-element-title-content>
+          <sv-title-actions
+            v-if="question.hasTitleActions"
+            :element="question"
+            :css="css"
+          ></sv-title-actions>
         </span>
       </label>
+    <div
+      v-if="question.hasDescriptionUnderTitle"
+      :class="question.cssDescription"
+    >
+      <survey-string :locString="question.locDescription" />
+    </div>
     </div>
   </div>
 </template>

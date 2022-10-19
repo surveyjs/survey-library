@@ -16,10 +16,9 @@ export class TitleContent extends React.Component<any, any> {
     return this.props.element;
   }
   render(): JSX.Element {
-    const titleOwner = this.element.getTitleOwner();
-    if(!titleOwner)
+    if(this.element.isTitleRenderedAsString)
       return SurveyElementBase.renderLocString(this.element.locTitle);
-    var spans = this.renderTitleSpans(titleOwner, this.cssClasses);
+    var spans = this.renderTitleSpans(this.element.getTitleOwner(), this.cssClasses);
     return <>{spans}</>;
   }
   protected renderTitleSpans(element: ITitleOwner, cssClasses: any): Array<JSX.Element> {

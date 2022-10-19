@@ -85,6 +85,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public getTitleToolbar(): AdaptiveActionContainer { return null; }
   public getTitleOwner(): ITitleOwner { return undefined; }
   public get isTitleOwner(): boolean { return !!this.getTitleOwner(); }
+  public get isTitleRenderedAsString(): boolean { return this.getIsTitleRenderedAsString(); }
   public toggleState(): boolean { return undefined; }
   public get cssClasses(): any { return {}; }
   public get cssTitle(): string { return ""; }
@@ -97,6 +98,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get titleAriaLabel(): string | null {
     return this.ariaLabel;
   }
+  protected getIsTitleRenderedAsString(): boolean { return !this.isTitleOwner; }
   //ILocalizableOwner
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;

@@ -196,10 +196,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderDescription(): JSX.Element {
-    var descriptionText = SurveyElementBase.renderLocString(
-      this.question.locDescription
-    );
-    return <div className={this.question.cssDescription}>{descriptionText}</div>;
+    return SurveyElementBase.renderQuestionDescription(this.question);
   }
   protected renderComment(cssClasses: any): JSX.Element {
     var commentText = SurveyElementBase.renderLocString(

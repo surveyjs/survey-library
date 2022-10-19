@@ -5,18 +5,20 @@ export const getSurveyJSFramework = ClientFunction(() => {
   return window["surveyJSFramework"];
 });
 
-export const explicitErrorHandler = ClientFunction(() => { window.addEventListener("error", e => {
-  if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
-    e.message === "ResizeObserver loop limit exceeded") {
-    e.stopImmediatePropagation();
-  } });
+export const explicitErrorHandler = ClientFunction(() => {
+  window.addEventListener("error", e => {
+    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+      e.message === "ResizeObserver loop limit exceeded") {
+      e.stopImmediatePropagation();
+    }
+  });
 });
 
 export const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
 
-export const resetFocusToBody = ClientFunction(()=>{ document.body.focus(); });
+export const resetFocusToBody = ClientFunction(() => { document.body.focus(); });
 
 export async function wrapVisualTest(t: TestController, fn: (t: TestController, comparer: ScreenshotsComparer) => Promise<any>): Promise<void> {
   const comparer = createScreenshotsComparer(t);
@@ -59,9 +61,9 @@ export const screenshotComparerOptions = {
   attemptTimeout: 500,
   looksSameComparisonOptions: {
     strict: false,
-    tolerance: 8,
+    tolerance: 1,
     ignoreAntialiasing: true,
-    antialiasingTolerance: 8,
+    antialiasingTolerance: 3,
     ignoreCaret: true,
   },
   textComparisonOptions: {

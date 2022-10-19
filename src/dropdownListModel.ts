@@ -29,6 +29,7 @@ export class DropdownListModel extends Base {
     this.question.choices = this.itemsSettings.items;
     this.itemsSettings.totalCount = totalCount;
     this.updateListItems();
+    this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.question.choices.length == this.itemsSettings.totalCount;
   }
 
   private updateQuestionChoices(): void {
@@ -121,6 +122,7 @@ export class DropdownListModel extends Base {
         this.hasScroll = options.newValue;
       }
     });
+    res.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
     return res;
   }
   protected resetFilterString(): void {

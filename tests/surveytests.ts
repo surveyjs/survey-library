@@ -62,6 +62,7 @@ import { getSize, increaseHeightByContent } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey");
 
@@ -3515,9 +3516,8 @@ QUnit.test("Several questions in one row - defaultV2", function (assert) {
 });
 
 QUnit.test("Several questions in complex questions row - defaultV2", function (assert) {
-
+  StylesManager.applyTheme("defaultV2");
   let survey = new SurveyModel({});
-  survey.css = defaultV2Css;
   survey.fromJSON({
     "pages": [
       {
@@ -3544,6 +3544,7 @@ QUnit.test("Several questions in complex questions row - defaultV2", function (a
     ]
   });
   assert.equal(survey.getAllQuestions()[0].templateElements[0].rightIndent, 0, "the first indent is 0");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test(

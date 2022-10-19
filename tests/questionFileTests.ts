@@ -934,3 +934,24 @@ QUnit.test(
     assert.equal(state, "->loading->loaded->empty");
   }
 );
+
+QUnit.test("Check assign data and upload state", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+      }
+    ],
+  });
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+
+  assert.equal(q.currentState, "empty", "Initial state is empty");
+
+  q.value = [{
+    content: "file1",
+    name: "file1.png",
+    type: "image/png"
+  }];
+  assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
+});

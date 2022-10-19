@@ -64,21 +64,21 @@ class QuestionFileImplementor extends QuestionImplementor {
 
 export class QuestionFile extends QuestionFileModel {
   private _implementor: QuestionFileImplementor;
+  private updateState = (sender: QuestionFileModel, options: any) => {
+    this.koState(options.state);
+    this.koInputTitle(this.inputTitle);
+  };
   constructor(name: string) {
     super(name);
-    var updateState = (state: any) => {
-      this.koState(state);
-      this.koInputTitle(this.inputTitle);
-    };
-    this.onStateChanged.add((sender, options) => {
-      updateState(options.state);
-    });
+    this.onUploadStateChanged.add(this.updateState);
+    this.updateState(this, { state: this.currentState });
   }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionFileImplementor(this);
   }
   public dispose() {
+    this.onUploadStateChanged.remove(this.updateState);
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

@@ -227,7 +227,6 @@ export class QuestionFileModel extends Question {
       (status, data) => {
         if (status === "success") {
           this.value = undefined;
-          this.stateChanged("empty");
           this.errors = [];
           !!doneCallback && doneCallback();
           this.indexToShow = 0;
@@ -323,7 +322,6 @@ export class QuestionFileModel extends Question {
                   };
                 })
               );
-              this.stateChanged("loaded");
             }
           });
         }
@@ -507,6 +505,12 @@ export class QuestionFileModel extends Question {
     src.value = "";
     this.loadFiles(files);
   }
+
+  protected setNewValue(newValue: any): void {
+    super.setNewValue(newValue);
+    this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+  }
+
   //#region
   // web-based methods
   private rootElement: HTMLElement;

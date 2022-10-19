@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -7,8 +7,9 @@ import { AngularComponentFactory } from "../../component-factory";
   templateUrl: "./list.component.html",
   styleUrls: ["../../hide-host.scss"]
 })
-export class ListComponent extends BaseAngular {
+export class ListComponent extends BaseAngular implements AfterViewInit {
   @Input() model: any;
+  @ViewChild("listContainerElement") listContainerElement!: ElementRef<HTMLDivElement>;
 
   getModel() {
     return this.model;
@@ -24,6 +25,11 @@ export class ListComponent extends BaseAngular {
   }
   onMouseMove(event: Event): void {
     this.model.onMouseMove(event);
+  }
+  ngAfterViewInit(): void {
+    if(!!this.listContainerElement?.nativeElement) {
+      this.model.initListContainerHtmlElement(this.listContainerElement.nativeElement);
+    }
   }
 }
 

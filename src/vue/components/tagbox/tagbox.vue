@@ -35,7 +35,7 @@
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
-          :title="question.cleanCaption"
+          :title="question.clearCaption"
           size="auto"
         >
         </sv-svg-icon>

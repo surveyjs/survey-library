@@ -29,6 +29,8 @@ export interface IListModel {
   onFilterStringChangedCallback?: (text: string) => void;
 }
 export class ListModel extends ActionContainer {
+  private listContainerHtmlElement: HTMLElement;
+
   @property({
     defaultValue: true,
     onSet: (newValue: boolean, target: ListModel) => {
@@ -48,9 +50,12 @@ export class ListModel extends ActionContainer {
       target.onFilterStringChanged(target.filterString);
     }
   }) filterString: string;
+  @property({ defaultValue: false }) hasVerticalScroller: boolean;
+  @property({ defaultValue: true }) isAllDataLoaded: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
+  public scrollHandler: (e?: any) => void;
 
   private hasText(item: Action, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
@@ -145,6 +150,9 @@ export class ListModel extends ActionContainer {
   public get emptyMessage(): string {
     return this.getLocalizationString("emptyMessage");
   }
+  public get scrollableContainer(): HTMLElement {
+    return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
+  }
 
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
@@ -217,5 +225,39 @@ export class ListModel extends ActionContainer {
   }
   public selectFocusedItem(): void {
     this.onItemClick(this.focusedItem);
+  }
+  public initListContainerHtmlElement(htmlElement: HTMLElement): void {
+    this.listContainerHtmlElement = htmlElement;
+  }
+  public onLastItemRended(item: Action): void {
+    if(this.isAllDataLoaded) return;
+
+    if(item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
+      this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
+    }
+  }
+  public scrollToFocusedItem(): void {
+    setTimeout(() => {
+      if(!this.listContainerHtmlElement) return;
+
+      const item = this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemFocused);
+      if(item) {
+        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }
+    }, 0);
+  }
+
+  public addScrollEventListener(handler: (e?: any) => void): void {
+    if(!!handler) {
+      this.scrollHandler = handler;
+    }
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.addEventListener("scroll", this.scrollHandler);
+    }
+  }
+  public removeScrollEventListener(): void {
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
+    }
   }
 }

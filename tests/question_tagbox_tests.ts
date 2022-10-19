@@ -262,3 +262,69 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
   assert.equal(list.actions[3].visible, false);
   assert.deepEqual(question.value, ["item4", "item1"]);
 });
+
+function getNumberArray(skip = 1, count = 25): Array<number> {
+  const result:Array<number> = [];
+  for(let index = skip; index < (skip + count); index++) {
+    result.push(index);
+  }
+  return result;
+}
+
+const callback = (_, opt) => {
+  const total = 70;
+  setTimeout(() => {
+    if(opt.skip + opt.take < total) {
+      opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+    } else {
+      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+    }
+  }, 500);
+};
+
+QUnit.test("lazy loading: several loading", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 30);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[29].value, 30);
+
+    question.dropdownListModel["updateQuestionChoices"]();
+    setTimeout(() => {
+      assert.equal(question.choices.length, 60);
+      assert.equal(question.choices[0].value, 1);
+      assert.equal(question.choices[59].value, 60);
+
+      question.dropdownListModel["updateQuestionChoices"]();
+      setTimeout(() => {
+        assert.equal(question.choices.length, 70);
+        assert.equal(question.choices[0].value, 1);
+        assert.equal(question.choices[69].value, 70);
+
+        done3();
+      }, 550);
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
+});

@@ -751,6 +751,7 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.titleExpandable, this.state !== "default")
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isReadOnly)
       .append(cssClasses.titleOnError, this.containsErrors)
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
@@ -782,11 +783,21 @@ export class Question extends SurveyElement<Question>
   public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
   }
+  protected getIsTooltipErrorSupportedByParent(): boolean {
+    if(this.parentQuestion) {
+      return this.parentQuestion.getIsTooltipErrorInsideSupported();
+    } else {
+      return super.getIsTooltipErrorSupportedByParent();
+    }
+  }
+  private get showErrorsOutsideQuestion(): boolean {
+    return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
+  }
   public get showErrorsAboveQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
   }
 
   public get cssError(): string {

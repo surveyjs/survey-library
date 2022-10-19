@@ -112,8 +112,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected renderClearButton(className: string): JSX.Element {
     return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
-        <span>{this.question.cleanButtonCaption}</span>
-        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.cleanButtonCaption}></SvgIcon>: null }
+        <span>{this.question.clearButtonCaption}</span>
+        {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon>: null }
       </button>
     ) : null;
   }
@@ -128,7 +128,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           }}
           title={val.name}
           download={val.name}
-          style={{ width: this.question.imageWidthRendered }}
+          style={{ width: this.question.imageWidth }}
         >
           {val.name}
         </a>
@@ -150,8 +150,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             {this.question.canPreviewImage(val) ? (
               <img
                 src={val.content}
-                height={this.question.imageHeight}
-                width={this.question.imageWidth}
+                style={{ height: this.question.imageHeight, width: this.question.imageWidth }}
                 alt="File preview"
               />
             ) : (this.question.cssClasses.defaultImage?(

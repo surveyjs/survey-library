@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
-    const cleanButtonSelector = Selector("button").withText("Clean");
+    const cleanButtonSelector = Selector("button").withText("Clear");
     await t.click(cleanButtonSelector);
     await t.expect(cleanButtonSelector.exists).notOk();
   });
@@ -133,8 +133,8 @@ frameworks.forEach(framework => {
     );
 
     await setOptions("image", {
-      imageHeight: 50,
-      imageWidth: 50
+      imageHeight: "50px",
+      imageWidth: "50px"
     });
 
     assert.equal(await getWidth(), 50);

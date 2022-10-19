@@ -3,7 +3,9 @@ import { Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 
 /**
- * A Model for non value question. This question doesn't add any new functionality. It hides some properties, including the value.
+ * A base class for question types that cannot have a value ([Html](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)).
+ *
+ * This class does not implement new functionality&mdash;it only redefines default values of certain properties inherited from the [`Question`](https://surveyjs.io/form-library/documentation/question) class.
  */
 export class QuestionNonValue extends Question {
   constructor(name: string) {

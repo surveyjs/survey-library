@@ -486,5 +486,28 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("modern"),
     after: () => StylesManager.applyTheme("default"),
   },
+  {
+    name: "Test file question with preview image size",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          imageWidth: "350px",
+          imageHeight: "250px",
+          defaultValue: [
+            {
+              "name": "arrow.svg",
+              "type": "image/svg+xml",
+              "content": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6L"
+            }
+          ]
+        }
+      ]
+    },
+    snapshot: "file-image-size",
+  }
   ]
 );

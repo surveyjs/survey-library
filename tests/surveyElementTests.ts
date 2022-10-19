@@ -177,6 +177,50 @@ QUnit.test("Check errors location", function (assert) {
   assert.notOk(questionInMatrix.showErrorsAboveQuestion);
   assert.ok(questionInMatrix.isErrorsModeTooltip);
 });
+QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "p1",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorOnTop);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorOnBottom);
+
+  survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.ok(q1.showErrorsAboveQuestion);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorsBelowQuestion);
+});
 
 QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
   CustomWidgetCollection.Instance.clear();

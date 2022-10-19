@@ -33,7 +33,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         <img
           className={cssClasses}
           src={this.question.locImageLink.renderedHtml}
-          alt={this.question.text || this.question.title}
+          alt={this.question.altText || this.question.title}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           //alt={item.text || item.value}

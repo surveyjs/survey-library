@@ -4,7 +4,7 @@
       v-if="question.renderedMode === 'image'"
       :class="question.getImageCss()"
       :src="question.locImageLink.renderedHtml"
-      :alt="question.text || question.title"
+      :alt="question.altText || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"

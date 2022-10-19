@@ -69,7 +69,6 @@ export var polishSurveyStrings = {
   timerLimitAll: "Spędziłeś {0} z {1} na tej stronie a w sumie {2} z {3}.",
   timerLimitPage: "Spędziłeś {0} z {1} na tej stronie",
   timerLimitSurvey: "Spędziłeś {0} z {1}.",
-  cleanCaption: "Wyczyść",
   clearCaption: "Jasne",
   chooseFileCaption: "Wybierz plik",
   removeFileCaption: "Usuń ten plik",

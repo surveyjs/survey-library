@@ -30,7 +30,7 @@ export class QuestionImageModel extends QuestionNonValue {
     locImageLink.onGetTextCallback = (text: string): string => {
       return getCorrectImageLink(text);
     };
-    this.createLocalizableString("text", this, false);
+    this.createLocalizableString("altText", this, false);
     this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {
@@ -59,14 +59,14 @@ export class QuestionImageModel extends QuestionNonValue {
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
    */
-  public get text(): string {
-    return this.getLocalizableStringText("text");
+  public get altText(): string {
+    return this.getLocalizableStringText("altText");
   }
-  public set text(val: string) {
-    this.setLocalizableStringText("text", val);
+  public set altText(val: string) {
+    this.setLocalizableStringText("altText", val);
   }
-  get locText(): LocalizableString {
-    return this.getLocalizableString("text");
+  get locAltText(): LocalizableString {
+    return this.getLocalizableString("altText");
   }
   /**
    * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
@@ -201,7 +201,7 @@ Serializer.addClass(
   "image",
   [
     { name: "imageLink", serializationProperty: "locImageLink" },
-    { name: "text", serializationProperty: "locText" },
+    { name: "altText", serializationProperty: "locAltText", alternativeName: "text", category: "general" },
     {
       name: "contentMode",
       default: "auto",

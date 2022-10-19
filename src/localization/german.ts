@@ -70,7 +70,6 @@ export var germanSurveyStrings = {
     "Sie waren {0} von {1} auf dieser Seite und brauchten insgesamt {2} von {3}.",
   timerLimitPage: "Sie waren {0} von {1} auf dieser Seite.",
   timerLimitSurvey: "Sie haben insgesamt {0} von {1} gebraucht.",
-  cleanCaption: "Alles löschen",
   clearCaption: "Auswahl entfernen",
   chooseFileCaption: "Datei auswählen",
   removeFileCaption: "Datei löschen",

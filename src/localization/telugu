@@ -64,7 +64,6 @@ export var teluguStrings = {
   timerLimitAll: "ఈ పేజీ పైన మీరు {1}లో {0} భాగాన్ని ఉపయోగించారు. మోతంగా {3}లో {2} భాగాన్ని ఉపయోగించారు.",
   timerLimitPage: "ఈ పేజీలో మీరు {1}లోని{0} ని ఉపయోగించారు",
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
-  cleanCaption: "స్వచ్ఛ ము",
   clearCaption: "స్పష్టమ్",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",

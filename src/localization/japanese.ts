@@ -69,7 +69,6 @@ export var japaneseSurveyStrings = {
     "このページに{1}のうち{0}を費やし、{3}のうち{2}を合計で費やしました。",
   timerLimitPage: "このページで{1}の{0}を使ったことがあります。",
   timerLimitSurvey: "合計で{1}の{0}を使ったことがあります。",
-  cleanCaption: "削除",
   clearCaption: "空白",
   chooseFileCaption: "ファイルを選択",
   removeFileCaption: "このファイルを削除",

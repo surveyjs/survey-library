@@ -755,7 +755,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getIsErrorsModeTooltip();
   }
   protected getIsErrorsModeTooltip() {
-    return this.isDefaultV2Theme && this.hasParent;
+    return this.isDefaultV2Theme && this.hasParent && this.getIsTooltipErrorSupportedByParent();
+  }
+  protected getIsTooltipErrorSupportedByParent(): boolean {
+    return (<any>this.parent)?.getIsTooltipErrorInsideSupported();
+  }
+  protected getIsTooltipErrorInsideSupported(): boolean {
+    return false;
   }
 
   public get hasParent() {

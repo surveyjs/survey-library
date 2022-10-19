@@ -1,5 +1,5 @@
 <ng-template #template>
-    <div [class]="model.cssClasses.root">
+    <div [class]="model.cssClasses.root" #listContainerElement>
         <div *ngIf="model.showFilter" [class]="model.cssClasses.filter">
             <div [class]="model.cssClasses.filterIcon">
                 <svg [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>

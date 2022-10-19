@@ -69,7 +69,6 @@ export var danishSurveyStrings = {
     "Du har brugt {0} af {1} på denne side og {2} af {3} i alt.",
   timerLimitPage: "Du har brugt {0} af {1} på denne side.",
   timerLimitSurvey: "Du har brugt {0} af {1} i alt.",
-  cleanCaption: "Rens",
   clearCaption: "Fjern",
   chooseFileCaption: "Vælg fil",
   removeFileCaption: "Fjern denne fil",

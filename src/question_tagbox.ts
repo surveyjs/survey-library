@@ -16,7 +16,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("cleanCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
   }
 
   protected getDefaultItemComponent(): string {
@@ -62,6 +62,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   })
   hideSelectedItems: boolean;
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -76,14 +78,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.getLocalizableString("placeholder");
   }
 
-  public get cleanCaption(): string {
-    return this.getLocalizableStringText("cleanCaption");
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
   }
-  public set cleanCaption(value: string) {
-    this.setLocalizableStringText("cleanCaption", value);
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
   }
-  get locCleanCaption(): LocalizableString {
-    return this.getLocalizableString("cleanCaption");
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {
@@ -128,6 +130,8 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean", default: true, visible: false },
     { name: "itemComponent", visible: false, default: "" }

@@ -1,6 +1,7 @@
 import { Action, IAction } from "../src/actions/action";
+import { ElementHelper } from "../src/element-helper";
 import { ListModel } from "../src/list";
-import { createIActionArray } from "./utilstests";
+import { createIActionArray, createListContainerHtmlElement } from "./utilstests";
 
 export default QUnit.module("List Model");
 const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
@@ -226,4 +227,60 @@ QUnit.test("onMouseMove", function (assert) {
 
   list.onMouseMove(new MouseEvent("mouseMove"));
   assert.equal(list.focusedItem, undefined);
+});
+QUnit.test("add/remove scrollHandler", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  let result = 0;
+
+  const element = createListContainerHtmlElement();
+  list.initListContainerHtmlElement(element);
+
+  assert.equal(ElementHelper.hasVerticalScroller(list.scrollableContainer), true);
+  assert.equal(!!list.scrollHandler, false);
+  assert.equal(result, 0);
+
+  list.addScrollEventListener(() => { result++; });
+  assert.equal(!!list.scrollHandler, true);
+  assert.equal(result, 0);
+
+  list.scrollableContainer.dispatchEvent(new CustomEvent("scroll"));
+  assert.equal(result, 1);
+
+  list.removeScrollEventListener();
+  assert.equal(!!list.scrollHandler, true);
+  assert.equal(result, 1);
+
+  list.scrollableContainer.dispatchEvent(new CustomEvent("scroll"));
+  assert.equal(result, 1);
+
+  document.body.removeChild(element);
+});
+QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  const element = createListContainerHtmlElement();
+  list.initListContainerHtmlElement(element);
+
+  assert.equal(list.hasVerticalScroller, false);
+
+  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  assert.equal(list.hasVerticalScroller, false);
+
+  document.body.removeChild(element);
+});
+
+QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  const element = createListContainerHtmlElement();
+  list.initListContainerHtmlElement(element);
+  list.isAllDataLoaded = false;
+
+  assert.equal(list.hasVerticalScroller, false);
+
+  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  assert.equal(list.hasVerticalScroller, true);
+
+  document.body.removeChild(element);
 });

@@ -19,7 +19,7 @@
         <!-- ko component: { name: 'sv-title-actions', params: {element: question } } --><!-- /ko -->
       </span>
     </label>
-    <!-- ko if: question.isLabelRendered && question.hasDescription -->
+    <!-- ko if: question.canRenderLabelDescription -->
     <div data-bind="css: question.cssDescription">
       <!-- ko template: { name: 'survey-string', data: question.locDescription } -->
       <!-- /ko -->

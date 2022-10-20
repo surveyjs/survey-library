@@ -203,19 +203,25 @@ frameworks.forEach((framework) => {
             title: "Click me",
             action: () => {
               const q = options.question;
-              q.description = !q.description ? "Description!" : "";
+              if(!q.description) {
+                q.description = "Description!";
+              } else {
+                q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
+              }
             },
           }];
       } });
     });
-  test("Check actions", async (t) => {
+  test.only("Check actions", async (t) => {
     await t
       .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()
       .click(Selector(".sd-action__title").withText("Click me"))
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
       .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector("div").withText("Description!").exists).notOk();
+      .expect(Selector("div").withText("Description!").exists).notOk()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok();
   });
 });
 

@@ -203,7 +203,11 @@ frameworks.forEach((framework) => {
             title: "Click me",
             action: () => {
               const q = options.question;
-              q.description = !q.description ? "Description!" : "";
+              if(!q.description) {
+                q.description = "Description!";
+              } else {
+                q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";
+              }
             },
           }];
       } });
@@ -215,7 +219,9 @@ frameworks.forEach((framework) => {
       .click(Selector(".sd-action__title").withText("Click me"))
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok()
       .click(Selector(".sd-action__title").withText("Click me"))
-      .expect(Selector("div").withText("Description!").exists).notOk();
+      .expect(Selector("div").withText("Description!").exists).notOk()
+      .click(Selector(".sd-action__title").withText("Click me"))
+      .expect(Selector(".sv-string-viewer").withText("Description!").exists).ok();
   });
 });
 

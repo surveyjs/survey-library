@@ -18,6 +18,6 @@
         <sv-ng-element-title-actions [element]="model"></sv-ng-element-title-actions>
       </span>
     </label>
-    <div *ngIf="model.isLabelRendered && model.hasDescription" [class]="model.cssDescription" [model]="model.locDescription" sv-ng-string></div>
+    <div *ngIf="model.canRenderLabelDescription" [class]="model.cssDescription" [model]="model.locDescription" sv-ng-string></div>
   </div>
 </div>

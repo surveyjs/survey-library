@@ -87,6 +87,9 @@ export class QuestionBooleanModel extends Question {
   get isLabelRendered() : boolean {
     return this.titleLocation === "hidden";
   }
+  get canRenderLabelDescription(): boolean {
+    return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);
+  }
   /**
    * Gets or sets a text label that corresponds to a positive answer.
    *

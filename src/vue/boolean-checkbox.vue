@@ -36,7 +36,7 @@
         </span>
       </label>
     <div
-      v-if="question.isLabelRendered && question.hasDescription"
+      v-if="question.canRenderLabelDescription"
       :class="question.cssDescription"
     >
       <survey-string :locString="question.locDescription" />

@@ -212,7 +212,7 @@ frameworks.forEach((framework) => {
           }];
       } });
     });
-  test.only("Check actions", async (t) => {
+  test("Check actions", async (t) => {
     await t
       .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()

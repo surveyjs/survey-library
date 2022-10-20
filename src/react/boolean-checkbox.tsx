@@ -2,6 +2,8 @@ import * as React from "react";
 import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
+import { TitleActions } from "./components/title/title-actions";
+import { SurveyElementBase } from "./reactquestion_element";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
@@ -10,6 +12,8 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
+    const description = this.question.isLabelRendered && !!this.question.hasDescription ?
+      SurveyElementBase.renderQuestionDescription(this.question) : null;
     return (
       <div className={cssClasses.rootCheckbox}>
         <div className={itemClass}>
@@ -45,10 +49,11 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             </span>
             {this.question.isLabelRendered && (
               <span className={cssClasses.checkboxControlLabel}>
-                {this.renderLocString(this.question.locTitle)}
+                <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
               </span>
             )}
           </label>
+          {description}
         </div>
       </div>
     );

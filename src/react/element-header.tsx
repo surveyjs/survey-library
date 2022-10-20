@@ -14,7 +14,7 @@ export class SurveyElementHeader extends React.Component<any, any> {
       <TitleElement element={element}></TitleElement>
     ) : null;
     const description = element.hasDescriptionUnderTitle
-      ? this.renderDescription()
+      ? SurveyElementBase.renderQuestionDescription(this.element)
       : null;
     return (
       <div className={element.cssHeader} onClick={element.clickTitleFunction}>
@@ -22,12 +22,5 @@ export class SurveyElementHeader extends React.Component<any, any> {
         {description}
       </div>
     );
-  }
-  protected renderDescription(
-  ): JSX.Element {
-    var descriptionText = SurveyElementBase.renderLocString(
-      this.element.locDescription
-    );
-    return <div className={this.element.cssDescription}>{descriptionText}</div>;
   }
 }

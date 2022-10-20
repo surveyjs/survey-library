@@ -7,6 +7,7 @@ import { ISurveyCreator } from "./reactquestion";
 import { Base, ArrayChanges, SurveyModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { PanelModel } from "../panel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -19,6 +20,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       style: style,
       key: key,
     });
+  }
+  public static renderQuestionDescription(question: Question | PanelModel): JSX.Element {
+    var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
+    return <div className={question.cssDescription}>{descriptionText}</div>;
   }
   private changedStatePropNameValue: string;
   constructor(props: any) {

@@ -431,6 +431,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public getTitleOwner(): ITitleOwner { return this; }
+  protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);

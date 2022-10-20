@@ -1,45 +1,5 @@
 <ng-template #template>
   <sv-ng-dynamic-head [tagName]="element.titleTagName" [element]="element" *ngIf="element.hasTitle">
-    <ng-container *ngIf="!element.hasTitleActions">
-      <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
-    </ng-container>
-    <ng-container *ngIf="element.hasTitleActions">
-      <div class="sv-title-actions">
-        <span class="sv-title-actions__title">
-          <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
-        </span>
-        <sv-ng-action-bar [model]="element.getTitleToolbar()"></sv-ng-action-bar>
-      </div>
-    </ng-container>
+    <sv-ng-element-title-actions [element]="element"></sv-ng-element-title-actions>
   </sv-ng-dynamic-head>
-  <ng-template #elementTitleContent>
-    <sv-ng-string *ngIf="!element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
-    <ng-container *ngIf="element.isTitleOwner">
-      <span
-        *ngIf="element.isTitleOwner && element.isRequireTextOnStart"
-        [class]="element.cssClasses.requiredText"
-        [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span>
-      <span
-        *ngIf="element.isTitleOwner && element.no"
-        style="position: static"
-        [class]="element.cssClasses.number"
-        [attr.aria-hidden]="true"
-        >{{ element.no }}</span>
-      <span *ngIf="element.isTitleOwner && element.no">&nbsp;</span>
-      <span
-        *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle"
-        [class]="element.cssClasses.requiredText"
-        [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span>
-      <span *ngIf="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
-      <sv-ng-string *ngIf="element.isTitleOwner" [model]="element.locTitle"></sv-ng-string>
-      <span *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
-      <span
-        *ngIf="element.isTitleOwner && element.isRequireTextAfterTitle"
-        [class]="element.cssClasses.requiredText"
-        [attr.aria-hidden]="true"
-        >{{ element.requiredText }}</span> 
-  </ng-container>
-  </ng-template>
 </ng-template>

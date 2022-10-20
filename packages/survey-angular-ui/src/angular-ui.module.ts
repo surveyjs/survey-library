@@ -37,6 +37,7 @@ import { SelectBaseItemComponent } from "./questions/selectbase-item";
 import { SelectBaseComponent } from "./questions/selectbase.component";
 import { SurveyCommentComponent } from "./comment.component";
 import { ElementHeaderComponent } from "./components/element-header/element-header.component";
+import { ElementTitleActionsComponent } from "./components/element-title/title-actions.component";
 import { ElementTitleComponent } from "./components/element-title/element-title.component";
 import { SurveyHeaderComponent } from "./components/survey-header/survey-header.component";
 
@@ -108,7 +109,7 @@ import { LogoImageComponent } from "./components/survey-header/logo-image.compon
     ListComponent, ListItemComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
-    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
+    SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, RatingDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, SurveyNavigationButton, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,

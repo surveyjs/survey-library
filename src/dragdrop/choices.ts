@@ -1,4 +1,5 @@
 import { QuestionRankingModel } from "src/question_ranking";
+import { ImageItemValue } from "../question_imagepicker";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
@@ -14,7 +15,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     event: PointerEvent
   ): HTMLElement {
     if (this.parentElement.getType() === "imagepicker") {
-      return this.createImagePickerShortcut(text, draggedElementNode, event);
+      return this.createImagePickerShortcut(this.draggedElement, text, draggedElementNode, event);
     }
     const draggedElementShortcut:any = document.createElement("div");
     // draggedElementShortcut.innerText = text;
@@ -62,7 +63,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return draggedElementShortcut;
   }
 
-  private createImagePickerShortcut(text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
+  private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
     const draggedElementShortcut:any = document.createElement("div");
     draggedElementShortcut.style.cssText = ` 
       cursor: grabbing;
@@ -77,7 +78,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
     const controlsNode: HTMLElement = itemValueNode.querySelector(".svc-image-item-value-controls");
     const imageContainerNode:any = itemValueNode.querySelector(".sd-imagepicker__image-container");
-    const imageNode:any = itemValueNode.querySelector("img").cloneNode(true);
+    let imageNode: any = itemValueNode.querySelector(item.imageLink ? "img" : ".sd-imagepicker__no-image").cloneNode(true);
 
     controlsNode.style.display = "none";
     imageContainerNode.style.width = imageNode.width + "px";

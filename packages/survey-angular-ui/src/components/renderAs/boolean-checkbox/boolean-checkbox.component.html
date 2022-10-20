@@ -14,7 +14,9 @@
         </svg>
         <span class="check"></span>
       </span>
-      <sv-ng-element-title *ngIf="model.isLabelRendered" [element]="model"></sv-ng-element-title>
+      <span *ngIf="model.isLabelRendered" [class]="model.cssClasses.checkboxControlLabel">
+        <sv-ng-element-title-actions [element]="model"></sv-ng-element-title-actions>
+      </span>
     </label>
     <div *ngIf="model.isLabelRendered && model.hasDescription" [class]="model.cssDescription" [model]="model.locDescription" sv-ng-string></div>
   </div>

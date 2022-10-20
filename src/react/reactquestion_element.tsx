@@ -22,7 +22,6 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     });
   }
   public static renderQuestionDescription(question: Question | PanelModel): JSX.Element {
-    if(!question.description) return null;
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
     return <div className={question.cssDescription}>{descriptionText}</div>;
   }

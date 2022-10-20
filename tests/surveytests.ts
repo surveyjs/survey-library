@@ -62,6 +62,7 @@ import { getSize, increaseHeightByContent } from "../src/utils/utils";
 import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey");
 
@@ -3499,6 +3500,53 @@ QUnit.test("Several questions in one row", function (assert) {
     assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
   }
 });
+
+QUnit.test("Several questions in one row - defaultV2", function (assert) {
+  let survey = new SurveyModel({});
+  survey.css = defaultV2Css;
+  let page = survey.addNewPage();
+  page.addNewQuestion("text", "q1");
+  const q2 = page.addNewQuestion("text", "q2");
+  q2.startWithNewLine = false;
+  assert.equal(page.rows.length, 1, "only one row");
+  assert.equal(page.rows[0].elements.length, 2, "two elements in row");
+
+  assert.equal(page.rows[0].elements[0].rightIndent, 0, "the first indent is 0");
+  assert.equal(page.rows[0].elements[1].rightIndent, 0, "the second indent is 0");
+});
+
+QUnit.test("Several questions in complex questions row - defaultV2", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  let survey = new SurveyModel({});
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "order",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "itemName",
+                "title": "Item Name"
+              },
+              {
+                "type": "text",
+                "name": "count",
+                "startWithNewLine": false,
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  assert.equal(survey.getAllQuestions()[0].templateElements[0].rightIndent, 0, "the first indent is 0");
+  StylesManager.applyTheme("default");
+});
+
 QUnit.test(
   "Rendered width with setting width in the same row, using calc",
   function (assert) {

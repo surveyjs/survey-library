@@ -749,7 +749,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     keys.push("description");
   }
 
-  protected get isDefaultV2Theme() {
+  public get isDefaultV2Theme() {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
 

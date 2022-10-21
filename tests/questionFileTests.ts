@@ -497,7 +497,7 @@ QUnit.test(
         assert.notOk(q1.isEmpty());
         assert.equal(q1.value.length, 1);
         assert.equal(q1.value[0].content, "f2_url");
-        assert.equal(stateSec, "->loading->error->empty->loading->loaded");
+        assert.equal(stateSec, "->loading->error->loading->loaded");
         assert.equal(state, "loaded");
         done();
       }, 10);
@@ -842,7 +842,7 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
   }];
 
   setTimeout(() => {
-    assert.equal(downloadCallCount, 2);
+    assert.equal(downloadCallCount, 1);
     assert.equal(q.previewValue.length, 1);
     assert.deepEqual(q.previewValue, [downloadedFile]);
     done();
@@ -952,6 +952,47 @@ QUnit.test("Check assign data and upload state", (assert) => {
     name: "file1.png",
     type: "image/png"
   }];
+  assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
+});
+
+QUnit.test("Check download file event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+        storeDataAsText: false,
+        allowMultiple: true,
+      }
+    ],
+  });
+  var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
+  let log = "";
+  survey.onDownloadFile.add((survey, options) => {
+    log += "->" + options.fileValue.name;
+    options.callback(
+      "success",
+      options.fileValue.name + "_downloaded"
+    );
+  });
+
+  assert.equal(q.currentState, "empty", "Initial state is empty");
+
+  survey.data = { "file1": [{
+    content: "file1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "file2",
+    name: "file2.png",
+    type: "image/png"
+  }, {
+    content: "file3",
+    name: "file3.png",
+    type: "image/png"
+  }] };
+  assert.equal(log, "->file1.png->file2.png->file3.png", "Every file should be loaded only once");
+  assert.equal(q.value.length, 3, "Question value contains 3 files");
   assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
 });
 

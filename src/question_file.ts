@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
@@ -33,7 +33,7 @@ export class QuestionFileModel extends Question {
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
-  @property() public previewValue: any[] = [];
+  @propertyArray({}) public previewValue: any[];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
@@ -73,7 +73,6 @@ export class QuestionFileModel extends Question {
     });
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
-
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
@@ -334,7 +333,7 @@ export class QuestionFileModel extends Question {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
   protected loadPreview(newValue: any): void {
-    this.previewValue = [];
+    this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -345,13 +344,13 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
         var content = value.content || value;
-        this.previewValue = this.previewValue.concat([
+        this.previewValue.push(
           {
             name: value.name,
             type: value.type,
             content: content,
           },
-        ]);
+        );
       });
     } else {
       if (!!this._previewLoader) {
@@ -360,7 +359,9 @@ export class QuestionFileModel extends Question {
       this.isReadyValue = false;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
-          this.previewValue = loaded;
+          loaded.forEach((val) => {
+            this.previewValue.push(val);
+          });
         }
         this.isReadyValue = true;
         this.onReadyChanged &&
@@ -377,10 +378,6 @@ export class QuestionFileModel extends Question {
     this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
-  }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
-    super.setQuestionValue(newValue, updateIsAnswered);
-    this.loadPreview(newValue);
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -511,9 +508,10 @@ export class QuestionFileModel extends Question {
     this.loadFiles(files);
   }
 
-  protected setNewValue(newValue: any): void {
-    super.setNewValue(newValue);
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+    this.loadPreview(newValue);
   }
 
   //#region

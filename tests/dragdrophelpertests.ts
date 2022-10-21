@@ -563,7 +563,6 @@ QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic 2", function (
 });
 
 QUnit.test("createImagePickerShortcut", function (assert) {
-  debugger;
   let ddHelper = new DragDropChoices();
   let item = new ImageItemValue("a");
 
@@ -573,7 +572,6 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   const draggedElement1 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
   let result1 = createImagePickerShortcut(item, "", draggedElement1, null);
   assert.equal(result1.querySelectorAll(".sd-imagepicker__no-image").length, 1);
-
 
   item.imageLink = "#";
   testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><img src=\"#\"></div><div class=\"svc-image-item-value-controls\"></div>";

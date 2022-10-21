@@ -33,7 +33,6 @@ export class QuestionFileModel extends Question {
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
-  @property() public previewValue: any[] = [];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
@@ -50,6 +49,7 @@ export class QuestionFileModel extends Question {
 
   constructor(name: string) {
     super(name);
+    this.createNewArray("previewValue");
     this.fileIndexAction = new Action({
       id: "fileIndex",
       title: this.getFileIndexCaption(),
@@ -73,7 +73,9 @@ export class QuestionFileModel extends Question {
     });
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
-
+  public get previewValue(): Array<any> {
+    return this.getPropertyValue("previewValue");
+  }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
@@ -334,7 +336,7 @@ export class QuestionFileModel extends Question {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
   protected loadPreview(newValue: any): void {
-    this.previewValue = [];
+    this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -345,13 +347,13 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
         var content = value.content || value;
-        this.previewValue = this.previewValue.concat([
+        this.previewValue.push(
           {
             name: value.name,
             type: value.type,
             content: content,
           },
-        ]);
+        );
       });
     } else {
       if (!!this._previewLoader) {
@@ -359,7 +361,7 @@ export class QuestionFileModel extends Question {
       }
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
-          this.previewValue = loaded;
+          this.previewValue.push(...loaded);
         }
         this._previewLoader.dispose();
         this._previewLoader = undefined;

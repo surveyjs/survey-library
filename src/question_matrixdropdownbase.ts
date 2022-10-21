@@ -769,7 +769,7 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
 }
 
 /**
- * A base class for matrix dropdown and matrix dynamic questions.
+ * A base class for the [QuestionMatrixDropdownModel](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [QuestionMatrixDynamicModel](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData {
   public static get defaultCellType() {
@@ -899,9 +899,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   /**
-   * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
+   * Specifies the matrix layout. Set this property to `"vertical"` if you want to display columns instead of rows and rows instead of columns.
+   *
+   * Default value: `"horizontal"`
    * @see columns
-   * @see rowCount
+   * @see rows
+   * @see isColumnLayoutHorizontal
    */
   public get columnLayout(): string {
     return this.getPropertyValue("columnLayout");
@@ -916,7 +919,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.columnLayout = val;
   }
   /**
-   * Returns true if columns are located horizontally
+   * Returns `true` if columns are placed in the horizontal direction and rows in the vertical direction.
+   *
+   * To specify the layout, use the `columnLayout` property. If you set it to `"vertical"`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the horizontal layout, but the `columnLayout` property remains set to `"vertical"`. Unlike `columnLayout`, the `isColumnLayoutHorizontal` property always indicates the current layout.
    * @see columnLayout
    */
   public get isColumnLayoutHorizontal() {
@@ -924,8 +929,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.columnLayout != "vertical";
   }
   /**
-   * Set this property to true if you want to differ case sensitive values in unique columns, for example to allow enter "ABC" into the first row and "abc" into the second.
-   * It doesn't allow by default.
+   * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
+   *
+   * When this property is `true`, `"ABC"` and `"abc"` are considered different values.
+   *
+   * Default value: `false`
+   * @see keyDuplicationError
    */
   public get isUniqueCaseSensitive(): boolean {
     return this.isUniqueCaseSensitiveValue !== undefined ? this.isUniqueCaseSensitiveValue : settings.comparator.caseSensitive;
@@ -934,7 +943,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.isUniqueCaseSensitiveValue = val;
   }
   /**
-   * Set the value to "underRow" to show the detailPanel under the row.
+   * Specifies the location of detail sections.
+   *
+   * Possible values:
+   *
+   * - `"underRow"` - Displays detail sections under their respective rows. Users can expand any number of detail sections.
+   * - `"underRowSingle"` - Displays detail sections under their respective rows, but only one detail section can be expanded at a time.
+   * - `"none"` (default) - Hides detail sections.
+   *
+   * Use the `detailElements` property to specify content of detail sections.
+   * @see detailElements
+   * @see detailPanel
    */
   public get detailPanelMode(): string {
     return this.getPropertyValue("detailPanelMode");
@@ -943,8 +962,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("detailPanelMode", val);
   }
   /**
-   * The detail template Panel. This panel is used as a template on creating detail panel for a row.
-   * @see  detailElements
+   * Contains a [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) instance that represents a detail section template.
+   * @see detailElements
    * @see detailPanelMode
    */
   public get detailPanel(): PanelModel {
@@ -954,9 +973,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.detailPanel;
   }
   /**
-   * The template Panel elements, questions and panels.
-   * @see  detailPanel
+   * An array of survey elements (questions and panels) to be displayed in detail sections.
+   *
+   * Detail sections are expandable panels displayed under each matrix row. You can use them to display questions that do not fit into the row.
+   *
+   * Set the `detailPanelMode` property to `"underRow"` or `"underRowSingle"` to display detail sections.
    * @see detailPanelMode
+   * @see detailPanel
    */
   public get detailElements(): Array<IElement> {
     return this.detailPanel.elements;
@@ -1068,7 +1091,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   /**
-   * Use this property to change the default cell type.
+   * Specifies the type of matrix cells. You can override this property for individual columns.
+   *
+   * Possible values:
+   *
+   * - `"dropdown"`
+   * - `"checkbox"`
+   * - `"radiogroup"`
+   * - `"text"`
+   * - `"comment"`
+   * - `"boolean"`
+   * - `"expression"`
+   * - `"rating"`
+   *
+   * Default value: "dropdown" (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */
   public get cellType(): string {
     return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
@@ -1088,7 +1124,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   /**
-   * The default column count for radiogroup and checkbox  cell types.
+   * Specifies the number of columns in Radiogroup and Checkbox cells.
+   *
+   * Default value: 0 (the number of columns is selected automatically based on the available column width)
+   * @see cellType
    */
   public get columnColCount(): number {
     return this.getPropertyValue("columnColCount");
@@ -1108,18 +1147,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public set columnMinWidth(val: string) {
     this.setPropertyValue("columnMinWidth", val);
   }
-  /**
-   * Set this property to true to show the horizontal scroll.
-   */
   public get horizontalScroll(): boolean {
     return this.getPropertyValue("horizontalScroll", false);
   }
   public set horizontalScroll(val: boolean) {
     this.setPropertyValue("horizontalScroll", val);
   }
-  /**
-   * The Matrix toolbar and inner panel toolbars get adaptive if the property is set to true.
-   */
   public get allowAdaptiveActions(): boolean {
     return this.getPropertyValue("allowAdaptiveActions");
   }
@@ -1384,8 +1417,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   /**
-   * Returns the column by it's name. Returns null if a column with this name doesn't exist.
-   * @param column
+   * Returns a matrix column with a given `name` or `null` if a column with this is not found.
+   * @param columnName A column name.
    */
   public getColumnByName(columnName: string): MatrixDropdownColumn {
     for (var i = 0; i < this.columns.length; i++) {
@@ -1396,15 +1429,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   getColumnName(columnName: string): MatrixDropdownColumn {
     return this.getColumnByName(columnName);
   }
-  /**
-   * Returns the column width.
-   * @param column
-   */
   public getColumnWidth(column: MatrixDropdownColumn): string {
     return column.minWidth ? column.minWidth : this.columnMinWidth;
   }
   /**
-   * The default choices for dropdown, checkbox and radiogroup cell types.
+   * Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. You can override this property for individual columns.
+   *
+   * This property accepts an array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   "value": any, // A value to be saved in survey results
+   *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   * }
+   * ```
+   *
+   * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
+   * @see cellType
    */
   public get choices(): Array<any> {
     return this.getPropertyValue("choices");
@@ -1413,7 +1454,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("choices", val);
   }
   /**
-   * The default placeholder for dropdown cell type.
+   * A placeholder for Dropdown matrix cells.
+   * @see cellType
    */
   public get placeholder() {
     return this.getLocalizableStringText("placeholder");
@@ -1431,8 +1473,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.placeholder = val;
   }
   /**
-   * The duplication value error text. Set it to show the text different from the default.
-   * @see MatrixDropdownColumn.isUnique
+   * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true`).
+   *
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
+   * @see isUniqueCaseSensitive
    */
   public get keyDuplicationError() {
     return this.getLocalizableStringText("keyDuplicationError");
@@ -1514,8 +1558,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.updateHasFooter();
   }
   /**
-   * Returns the row value. If the row value is empty, the object is empty: {}.
-   * @param rowIndex row index from 0 to visible row count - 1.
+   * Returns an object with row values. If a row has no answers, this method returns an empty object.
+   * @param rowIndex A zero-based row index.
+   * @see setRowValue
    */
   public getRowValue(rowIndex: number) {
     if (rowIndex < 0) return null;
@@ -1546,9 +1591,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return res;
   }
   /**
-   * Set the row value.
-   * @param rowIndex row index from 0 to visible row count - 1.
-   * @param rowValue an object {"column name": columnValue,... }
+   * Assigns values to a row.
+   * @param rowIndex A zero-based row index.
+   * @param rowValue An object with the following structure: `{ "column_name": columnValue, ... }`
+   * @see getRowValue
    */
   public setRowValue(rowIndex: number, rowValue: any): any {
     if (rowIndex < 0) return null;

@@ -52,7 +52,9 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
 }
 
 /**
- * A Model for a select image question.
+  * A class that describes the Image Picker question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
  */
 export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
@@ -94,7 +96,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
   /**
-   * Multi select option. If set to true, then allows to select multiple images.
+   * Specifies whether users can select multiple images or videos.
+   *
+   * Default value: `false`
    */
   public get multiSelect(): boolean {
     return this.getPropertyValue("multiSelect");
@@ -102,10 +106,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set multiSelect(newValue: boolean) {
     this.setPropertyValue("multiSelect", newValue);
   }
-  /**
-   * Returns true if item is checked
-   * @param item image picker item value
-   */
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     if (this.isValueEmpty(val)) return false;
@@ -146,7 +146,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   /**
-   * Show label under the image.
+   * Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the `choices` array.
+   * @see choices
    */
   public get showLabel(): boolean {
     return this.getPropertyValue("showLabel");
@@ -184,7 +185,13 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.convertValToArrayForMultSelect(val);
   }
   /**
-   * The image height.
+   * Specifies the height of containers for images or videos. Accepts positive numbers and CSS values.
+   *
+   * Default value: undefined
+   *
+   * Use the `imageFit` property to specify how to fit the images or videos into their containers.
+   * @see imageWidth
+   * @see imageFit
    */
   public get imageHeight() {
     return this.getPropertyValue("imageHeight");
@@ -198,9 +205,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return (height ? height : 150) + "px";
   }
   /**
-   * The image width.
+   * Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
+   *
+   * Default value: 200
+   *
+   * Use the `imageFit` property to specify how to fit the images or videos into their containers.
+   * @see imageHeight
+   * @see imageFit
    */
-
   public get imageWidth() {
     return this.getPropertyValue("imageWidth");
   }
@@ -214,7 +226,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return (width ? width : 200) + "px";
   }
   /**
-   * The image fit mode.
+   * Specifies how to resize images or videos to fit them into their containers.
+   *
+   * Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
+   * @see imageHeight
+   * @see imageWidth
    */
   public get imageFit(): string {
     return this.getPropertyValue("imageFit");
@@ -223,7 +239,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this.setPropertyValue("imageFit", val);
   }
   /**
-   * The content mode.
+   * Specifies the type of content that choice items display.
+   *
+   * Possible values:
+   *
+   * - `"image"` - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
+   * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
+   * - `"youtube"` - Links to YouTube videos.
+   * - `"auto"` (default) - Selects one of the above based on the `imageLink` property value of each choice item.
    */
   public get contentMode(): string {
     return this.getPropertyValue("contentMode");

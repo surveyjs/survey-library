@@ -19,7 +19,9 @@ function isUrlYoutubeVideo(url: string): boolean {
 }
 
 /**
- * A Model for image question. This question hasn't any functionality and can be used to improve the appearance of the survey.
+  * A class that describes the Image question type. Unlike other question types, Image cannot have a title or value.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-image/ (linkStyle))
  */
 export class QuestionImageModel extends QuestionNonValue {
   constructor(name: string) {
@@ -42,7 +44,8 @@ export class QuestionImageModel extends QuestionNonValue {
     this.calculateRenderedMode();
   }
   /**
-   * The image URL.
+   * Specifies an image or video URL.
+   * @see contentMode
    */
   public get imageLink(): string {
     return this.getLocalizableStringText("imageLink");
@@ -54,7 +57,7 @@ export class QuestionImageModel extends QuestionNonValue {
     return this.getLocalizableString("imageLink");
   }
   /**
-   * The image alt text.
+   * Specifies a value for the `alt` attribute of the underlying `<img>` element.
    */
   public get altText(): string {
     return this.getLocalizableStringText("altText");
@@ -66,7 +69,13 @@ export class QuestionImageModel extends QuestionNonValue {
     return this.getLocalizableString("altText");
   }
   /**
-   * The image height.
+   * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
+   *
+   * Default value: 150
+   *
+   * Use the `imageFit` property to specify how to fit the image or video into the container.
+   * @see imageWidth
+   * @see imageFit
    */
   public get imageHeight(): string {
     return this.getPropertyValue("imageHeight");
@@ -78,7 +87,13 @@ export class QuestionImageModel extends QuestionNonValue {
     return this.imageHeight ? this.imageHeight + "px" : undefined;
   }
   /**
-   * The image width.
+   * Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
+   *
+   * Default value: 200
+   *
+   * Use the `imageFit` property to specify how to fit the image or video into the container.
+   * @see imageHeight
+   * @see imageFit
    */
   public get imageWidth(): string {
     return this.getPropertyValue("imageWidth");
@@ -90,7 +105,11 @@ export class QuestionImageModel extends QuestionNonValue {
     return this.imageWidth ? this.imageWidth + "px" : undefined;
   }
   /**
-   * The image fit mode.
+   * Specifies how to resize the image or video to fit it into its container.
+   *
+   * Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
+   * @see imageHeight
+   * @see imageWidth
    */
   public get imageFit(): string {
     return this.getPropertyValue("imageFit");
@@ -99,7 +118,14 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setPropertyValue("imageFit", val);
   }
   /**
-   * The content mode.
+   * Specifies the type of content that the Image question displays.
+   *
+   * Possible values:
+   *
+   * - `"image"` - An image in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
+   * - `"video"` - A video in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
+   * - `"youtube"` - A link to a YouTube video.
+   * - `"auto"` (default) - Selects one of the above based on the [`imageLink`](https://surveyjs.io/form-library/documentation/questionimagemodel#imageLink) property.
    */
   public get contentMode(): string {
     return this.getPropertyValue("contentMode");
@@ -111,7 +137,8 @@ export class QuestionImageModel extends QuestionNonValue {
     }
   }
   /**
-   * The rendered mode.
+   * Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
+   * @see contentMode
    */
   public get renderedMode(): string {
     return this.getPropertyValue("renderedMode", "image");

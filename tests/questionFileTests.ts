@@ -995,3 +995,49 @@ QUnit.test("Check download file event", (assert) => {
   assert.equal(q.value.length, 3, "Question value contains 3 files");
   assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
 });
+
+QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "file",
+        name: "file1",
+        storeDataAsText: false,
+      }
+    ],
+  });
+  const question = survey.getAllQuestions()[0];
+  let done = assert.async();
+  let log = "";
+  survey.onDownloadFile.add((survey, options) => {
+    assert.equal(options.question.isReady, false);
+    setTimeout(() => {
+      log += "->" + options.fileValue.name;
+      options.callback("success", (<string>options.content).replace("url", "content"));
+    });
+  });
+  question.onReadyChanged.add(() => {
+    assert.equal(log, "->file1.png->file2.png");
+    assert.deepEqual(question.previewValue, [{
+      content: "content1",
+      name: "file1.png",
+      type: "image/png"
+    }, {
+      content: "content2",
+      name: "file2.png",
+      type: "image/png"
+    }]);
+    assert.ok(question.isReady);
+    done();
+  });
+  survey.data = { "file1": [{
+    content: "url1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "url2",
+    name: "file2.png",
+    type: "image/png"
+  }] };
+  assert.equal(question.isReady, false);
+});

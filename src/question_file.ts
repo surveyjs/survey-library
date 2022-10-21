@@ -356,12 +356,20 @@ export class QuestionFileModel extends Question {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
+      this.isReadyValue = false;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
         }
+        this.isReadyValue = true;
+        this.onReadyChanged &&
+        this.onReadyChanged.fire(this, {
+          question: this,
+          isReady: true,
+          oldIsReady: false,
+        });
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });

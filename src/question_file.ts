@@ -370,10 +370,6 @@ export class QuestionFileModel extends Question {
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
-    super.setQuestionValue(newValue, updateIsAnswered);
-    this.loadPreview(newValue);
-  }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -503,9 +499,10 @@ export class QuestionFileModel extends Question {
     this.loadFiles(files);
   }
 
-  protected setNewValue(newValue: any): void {
-    super.setNewValue(newValue);
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+    this.loadPreview(newValue);
   }
 
   //#region

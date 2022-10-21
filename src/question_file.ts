@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
@@ -33,6 +33,7 @@ export class QuestionFileModel extends Question {
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
+  @propertyArray({}) public previewValue: any[];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
@@ -49,7 +50,6 @@ export class QuestionFileModel extends Question {
 
   constructor(name: string) {
     super(name);
-    this.createNewArray("previewValue");
     this.fileIndexAction = new Action({
       id: "fileIndex",
       title: this.getFileIndexCaption(),
@@ -72,9 +72,6 @@ export class QuestionFileModel extends Question {
       }
     });
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
-  }
-  public get previewValue(): Array<any> {
-    return this.getPropertyValue("previewValue");
   }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
@@ -361,7 +358,9 @@ export class QuestionFileModel extends Question {
       }
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
-          this.previewValue.push(...loaded);
+          loaded.forEach((val) => {
+            this.previewValue.push(val);
+          });
         }
         this._previewLoader.dispose();
         this._previewLoader = undefined;

@@ -1819,12 +1819,16 @@ export class Question extends SurveyElement<Question>
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
+  protected onChangeQuestionValue(newValue: any): void { }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
       this.isValueChangedDirectly = true;
     }
     this.questionValue = newValue;
+    if (!isEqual) {
+      this.onChangeQuestionValue(newValue);
+    }
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();

@@ -674,7 +674,7 @@ export class Base {
    * Registers a function to call when a property value changes.
    * @param propertyNames An array of one or multiple property names.
    * @param handler A function to call when one of the listed properties change.
-   * @param key an optional parameter. If there is already a registered function for this property with the same key, it will be overwritten.
+   * @param key (Optional) A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
    * @see unregisterPropertyChangedHandlers
    */
   public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
@@ -685,7 +685,7 @@ export class Base {
   /**
    * Unregisters value change event handlers for the specified properties.
    * @param propertyNames An array of one or multiple property names.
-   * @param key the key with which you have registered the notification for this property. It can be null.
+   * @param key (Optional) A key of the registration that you want to cancel.
    * @see registerPropertyChangedHandlers
    */
   public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {

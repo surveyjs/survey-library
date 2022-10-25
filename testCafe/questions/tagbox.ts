@@ -116,13 +116,12 @@ frameworks.forEach((framework) => {
       ]
     });
 
-    const constant = 100;
     await t
       .resizeWindow(800, 600)
       .expect(selectedItems.count).eql(0)
 
       .click(questionTagbox)
-      .expect(popupContainer.offsetTop).lte(constant);
+      .expect(popupContainer.offsetTop).within(70, 100);
 
     for (let i = 1; i < 27; i++) {
       await t.click(getListItemByText("item" + i.toString()));
@@ -130,7 +129,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(selectedItems.count).eql(26)
-      .expect(popupContainer.offsetTop).gt(constant)
+      .expect(popupContainer.offsetTop).within(120, 200)
       .resizeWindow(1920, 1080);
   });
 

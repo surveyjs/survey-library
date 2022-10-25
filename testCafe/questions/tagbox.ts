@@ -323,4 +323,133 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1280, 1100);
   });
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "country",
+          title: "Select the country...",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "tagbox",
+          name: "kids",
+          title: "tagbox page 30",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    const popupContainer = Selector(".sv-popup__container");
+    const tagbox1 = popupContainer.nth(0);
+    const tagbox2 = popupContainer.nth(1);
+    const listItems = Selector(".sv-list__item span");
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("2")
+      .expect(tagbox1.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(450, 460)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(46)
+
+      .pressKey("enter")
+      .expect(tagbox1.visible).notOk()
+
+      .click(Selector(".sd-tagbox").nth(1))
+      .pressKey("2")
+      .expect(tagbox2.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox2.offsetTop).within(250, 260)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(450, 460)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox2.offsetTop).eql(776)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(46)
+
+      .pressKey("enter")
+      .expect(tagbox2.visible).notOk()
+
+      .resizeWindow(1280, 1100);
+  });
 });

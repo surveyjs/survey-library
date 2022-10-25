@@ -144,6 +144,7 @@ export class DropdownListModel extends Base {
       this.popupModel.isVisible = true;
     }
     this.setFilter(this.filterString);
+    this.popupRecalculatePosition(true);
   }
 
   setInputHasValue(newValue: boolean): void {

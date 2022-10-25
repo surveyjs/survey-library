@@ -129,7 +129,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(selectedItems.count).eql(26)
-      .expect(popupContainer.offsetTop).within(120, 200)
+      .expect(popupContainer.offsetTop).within(120, 240)
       .resizeWindow(1920, 1080);
   });
 

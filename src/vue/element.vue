@@ -1,6 +1,7 @@
 <template>
   <div :class="!element.isPanel ? element.getRootCss() : null" 
         v-if="row.isNeedRender"
+        v-on:focusin="element.focusIn()"
         :id="element.id"
         :role="element.ariaRole"
         :aria-required="element.ariaRequired"

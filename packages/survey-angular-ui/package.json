@@ -22,7 +22,6 @@
     "@angular/core": "*",
     "@angular/forms": "*",
     "tslib": "^2.3.0",
-    "zone.js": "~0.11.4",
     "survey-core": "^1.9.46"
   },
   "devDependencies": {

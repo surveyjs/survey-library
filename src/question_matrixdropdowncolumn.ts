@@ -93,6 +93,7 @@ export var matrixDropdownColumnTypes = {
         column.colCount > -1 ? column.colCount : question.columnColCount;
     },
   },
+  tagbox: {},
   text: {},
   comment: {},
   boolean: {
@@ -102,7 +103,6 @@ export var matrixDropdownColumnTypes = {
       question: any,
       data: any
     ) => {
-      cellQuestion.showTitle = true;
       cellQuestion.renderAs = column.renderAs;
     },
   },

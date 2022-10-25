@@ -187,7 +187,7 @@ export class PopupBaseViewModel extends Base {
     this.unmountPopupContainer();
     this.container = undefined;
     this.model.onVisibilityChanged.clear();
-    this.model.onTargetModified.clear();
+    this.model.onRecalculatePosition.clear();
   }
   public initializePopupContainer(): void {
     if (!this.container) {

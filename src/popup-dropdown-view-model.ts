@@ -14,7 +14,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
   }
 
-  private updatePosition(onShowing = true) {
+  private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
@@ -26,9 +26,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     let height = popupContainer.offsetHeight - scrollContent.offsetHeight + scrollContent.scrollHeight;
     const width = popupContainer.getBoundingClientRect().width;
     this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
-    if(onShowing) {
-      this.height = "auto";
-    }
     let verticalPosition = this.model.verticalPosition;
     if (!!window) {
       height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
@@ -119,8 +116,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
-    this.model.onTargetModified.add((_, options: { }) => {
-      this.updatePosition(false);
+    this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
+      this.updatePosition(options.isResetHeight);
     });
   }
 
@@ -134,12 +131,25 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.width = null;
       this.minWidth = null;
     } else {
-      this.updatePosition();
+      this.updatePosition(true, false);
     }
 
     this.switchFocus();
 
     window.addEventListener("scroll", this.scrollEventCallBack);
+  }
+
+  public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
+    if(isResetHeight) {
+      this.height = "auto";
+      if(isResetHeight && isDelayUpdating) {
+        setTimeout(() => {
+          this._updatePosition();
+        }, 1);
+      } else {
+        this._updatePosition();
+      }
+    }
   }
 
   public updateOnHiding(): void {

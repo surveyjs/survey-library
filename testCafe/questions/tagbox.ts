@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getListItemByText } from "../helper";
+import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } from "../helper";
 import { Selector } from "testcafe";
 const title = "tagbox";
 
@@ -207,5 +207,120 @@ frameworks.forEach((framework) => {
       .pressKey("space")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
+  });
+
+  const theme = "defaultV2";
+
+  function choicesLazyLoad(_, opt) {
+    var getNumberArray = (skip = 1, count = 25) => {
+      const result = [];
+      for(let index = skip; index < (skip + count); index++) {
+        result.push(index);
+      }
+      return result;
+    };
+
+    const total = 55;
+    setTimeout(() => {
+      if(opt.skip + opt.take < total) {
+        opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+      } else {
+        opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+      }
+    }, 500);
+  }
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "country",
+          title: "Select the country...",
+          choicesLazyLoadEnabled: true
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "tagbox",
+          name: "kids",
+          title: "tagbox page 30",
+          choicesLazyLoadEnabled: true,
+          choicesLazyLoadPageSize: 30
+        }
+      ]
+    };
+    await initSurvey(framework, json, { onChoicesLazyLoad: choicesLazyLoad });
+    const popupContainer = Selector(".sv-popup__container");
+    const tagbox1 = popupContainer.nth(0);
+    const tagbox2 = popupContainer.nth(1);
+    const listItems = Selector(".sv-list__item span");
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("enter")
+      .expect(tagbox1.find(".sv-list__empty-container").visible).ok()
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox1.offsetTop).lt(200)
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(tagbox1.find(".sv-list").scrollTop).eql(0)
+      .expect(tagbox1.find(".sv-list").scrollHeight).within(1100, 1150)
+      .expect(listItems.filterVisible().count).eql(25)
+
+      .scrollBy(tagbox1.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(tagbox1.offsetTop).lt(200)
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(300, 470)
+      .expect(tagbox1.find(".sv-list").scrollHeight).within(2200, 2300)
+      .expect(listItems.filterVisible().count).eql(50)
+
+      .scrollBy(tagbox1.find(".sv-list"), 0, 2300)
+      .wait(500)
+      .expect(tagbox1.offsetTop).lt(200)
+      .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(1500, 1620)
+      .expect(tagbox1.find(".sv-list").scrollHeight).within(2500, 2600)
+      .expect(listItems.filterVisible().count).eql(55)
+
+      .click(getListItemByText("55"))
+      .click(Selector(".sd-tagbox").nth(1))
+      .expect(tagbox2.find(".sv-list__empty-container").visible).ok()
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox2.offsetTop).eql(0)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-list").scrollTop).eql(0)
+      .expect(tagbox2.find(".sv-list").scrollHeight).within(1350, 1380)
+      .expect(listItems.filterVisible().count).eql(30)
+
+      .scrollBy(tagbox2.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
+      .expect(tagbox2.offsetTop).eql(0)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-list").scrollTop).within(650, 670)
+      .expect(tagbox2.find(".sv-list").scrollHeight).within(2500, 2530)
+      .expect(listItems.filterVisible().count).eql(55)
+      .click(getListItemByText("55"))
+
+      .resizeWindow(1280, 1100);
   });
 });

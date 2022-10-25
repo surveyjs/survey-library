@@ -26,11 +26,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
     this.syncFilterStringPlacholder(selectedActions);
   }
-  private popupTargetModified() {
-    setTimeout(() => {
-      this.popupModel.targetModified();
-    }, 1);
-  }
 
   protected override createListModel(): MultiSelectListModel {
     const visibleItems = this.getAvailableItems();
@@ -47,7 +42,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         } else if(status === "removed") {
           this.deselectItem(item.id);
         }
-        this.popupTargetModified();
+        this.popupRecalculatePosition(false);
         if(this.closeOnSelect) {
           this.popupModel.isVisible = false;
         }
@@ -57,7 +52,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   protected onSetFilterString(): void {
     super.onSetFilterString();
-    this.popupTargetModified();
+    this.popupRecalculatePosition(true);
   }
 
   public selectAllItems(): void {
@@ -90,7 +85,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   public removeLastSelectedItem() {
     this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
-    this.popupTargetModified();
+    this.popupRecalculatePosition(false);
   }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {

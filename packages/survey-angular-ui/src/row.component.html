@@ -1,7 +1,8 @@
 <ng-template #template>
-  <div [class]="row.getRowCss()" *ngIf="row.visible">
+  <div [class]="row.getRowCss()" *ngIf="row.visible" #container>
     <ng-container *ngFor="let element of row.visibleElements; trackBy: trackElementBy">
-      <sv-ng-element [model]="$any(element)"></sv-ng-element>
+      <sv-ng-element [model]="$any(element)" *ngIf="row.isNeedRender"></sv-ng-element>
+      <ng-template *ngIf="!row.isNeedRender && element.skeletonComponentName" [component]="{ name: element.skeletonComponentName, data: { element: element } }"></ng-template>
     </ng-container>
   </div>
 </ng-template>

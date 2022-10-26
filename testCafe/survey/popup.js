@@ -97,4 +97,25 @@ frameworks.forEach(framework => {
     await t.expect(surveyResult.car).eql(["Nissan", "Audi"]);
     await t.expect(titleSelector.exists).notOk();
   });
+
+  test("Check popup styles", async t => {
+    await t.resizeWindow(1000, 600);
+    const titleSelector = Selector("span").withText("Car survey");
+    const getStyleWidthInPercents = ClientFunction((prop) => {
+      return document.querySelector(".sv_window").style[prop];
+    });
+    await t
+      .expect(titleSelector.visible).ok()
+      .click(titleSelector);
+
+    await t
+      .expect(getStyleWidthInPercents("width")).eql("60%")
+      .expect(getStyleWidthInPercents("max-width")).eql("60%");
+
+    await ClientFunction(() => window["survey"].width = "455px")();
+
+    await t
+      .expect(getStyleWidthInPercents("width")).eql("455px")
+      .expect(getStyleWidthInPercents("max-width")).eql("455px");
+  });
 });

@@ -6319,7 +6319,6 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
-
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);

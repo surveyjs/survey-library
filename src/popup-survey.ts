@@ -1,6 +1,7 @@
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
+import { property } from "./jsonobject";
 
 /**
  * A Model for a survey running in the Popup Window.
@@ -34,6 +35,8 @@ export class PopupSurveyModel extends Base {
     this.registerPropertyChangedHandlers(["isExpanded"], () => {
       this.onExpandedChanged();
     });
+    this.width = <any>new ComputedUpdater<string>(() => this.survey.width);
+    this.width = this.survey.width;
     this.updateCss();
     this.onCreating();
   }
@@ -141,6 +144,13 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderTitle(): string {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
+  public get renderedWidth(): string {
+    let width = this.getPropertyValue("width", "60%");
+    if (width && !isNaN(width)) width = width + "px";
+    return width;
+  }
+  @property() width: string;
+
   private updateCss() {
     if(!this.css || !this.css.window) return;
     const cssWindow = this.css.window;

@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="surveyWindow.isShowing"
-    style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
+    style="position: fixed; bottom: 3px; right: 10px"
+    :style="{maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth}"
     :class="surveyWindow.cssRoot"
   >
     <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">

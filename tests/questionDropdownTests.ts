@@ -612,3 +612,23 @@ QUnit.test("itemsSettings property", assert => {
     done1();
   }, 550);
 });
+
+QUnit.test("Test dropdown choices change should update strings", function (assert) {
+  const json = {
+    questions: [
+      {
+        name: "liveage",
+        type: "dropdown",
+        choices: ["i1", "i2"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+
+  assert.equal(question.readOnlyText, "Select...");
+  question.value = "i3";
+  assert.equal(question.readOnlyText, "Select...");
+  question.choices = ["i1", "i2", "i3"];
+  assert.equal(question.readOnlyText, "");
+});

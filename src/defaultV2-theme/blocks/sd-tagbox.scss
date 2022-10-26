@@ -93,3 +93,10 @@
   pointer-events: none;
   color: $foreground-light;
 }
+
+[dir="rtl"],
+[style*="direction:rtl"] {
+  .sd-tagbox-item_clean-button {
+    background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+  }
+}

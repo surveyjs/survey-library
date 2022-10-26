@@ -112,7 +112,7 @@ frameworks.forEach(framework => {
       .expect(getStyleWidthInPercents("width")).eql("60%")
       .expect(getStyleWidthInPercents("max-width")).eql("60%");
 
-    await ClientFunction(() => window["survey"].popupWidth = "455px")();
+    await ClientFunction(() => window["survey"].width = "455px")();
 
     await t
       .expect(getStyleWidthInPercents("width")).eql("455px")

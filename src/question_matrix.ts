@@ -197,8 +197,10 @@ export class MatrixCells {
 }
 
 /**
- * A Model for a simple matrix question.
- */
+  * A class that describes the Single-Choice Matrix question type.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+  */
 export class QuestionMatrixModel
   extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
   implements IMatrixData, IMatrixCellsOwner {
@@ -231,7 +233,8 @@ export class QuestionMatrixModel
     return false;
   }
   /**
-   * Set this property to true, if you want a user to answer all rows.
+   * Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
+   * @see isRequired
    */
   public get isAllRowRequired(): boolean {
     return this.getPropertyValue("isAllRowRequired", false);
@@ -239,14 +242,17 @@ export class QuestionMatrixModel
   public set isAllRowRequired(val: boolean) {
     this.setPropertyValue("isAllRowRequired", val);
   }
-  /**
-   * Returns true, if there is at least one row.
-   */
   public get hasRows(): boolean {
     return this.rows.length > 0;
   }
   /**
-   * Use this property to render items in a specific order: "random" or "initial". Default is "initial".
+   * Specifies a sort order for matrix rows.
+   *
+   * Possible values:
+   *
+   * - "initial" (default) - Preserves the original order of the `rows` array.
+   * - "random" - Arranges matrix rows in random order each time the question is displayed.
+   * @see rows
    */
   public get rowsOrder(): string {
     return this.getPropertyValue("rowsOrder");
@@ -258,7 +264,8 @@ export class QuestionMatrixModel
     this.onRowsChanged();
   }
   /**
-   * Set this property to true to hide the question if there is no visible rows in the matrix.
+   * Specifies whether to hide the question when the matrix has no visible rows.
+   * @see rowsVisibleIf
    */
   public get hideIfRowsEmpty(): boolean {
     return this.getPropertyValue("hideIfRowsEmpty");
@@ -361,11 +368,6 @@ export class QuestionMatrixModel
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
   }
-
-  /**
-   * Returns the list of visible rows as model objects.
-   * @see rowsVisibleIf
-   */
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
   }

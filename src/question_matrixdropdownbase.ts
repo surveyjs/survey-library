@@ -1473,7 +1473,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.placeholder = val;
   }
   /**
-   * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true`).
+   * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see isUniqueCaseSensitive

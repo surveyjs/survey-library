@@ -1193,4 +1193,245 @@ frameworks.forEach((framework) => {
       .click(questionDropdownV2Select)
       .expect(popupContainer.clientWidth).gte(850);
   });
+
+  function choicesLazyLoad(_, opt) {
+    var getNumberArray = (skip = 1, count = 25) => {
+      const result = [];
+      for(let index = skip; index < (skip + count); index++) {
+        result.push(index);
+      }
+      return result;
+    };
+
+    const total = 55;
+    setTimeout(() => {
+      if(opt.skip + opt.take < total) {
+        opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+      } else {
+        opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+      }
+    }, 500);
+  }
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "country",
+          title: "Select the country...",
+          choicesLazyLoadEnabled: true
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "dropdown",
+          name: "kids",
+          title: "Dropdown page 30",
+          choicesLazyLoadEnabled: true,
+          choicesLazyLoadPageSize: 30
+        }
+      ]
+    };
+    await initSurvey(framework, json, { onChoicesLazyLoad: choicesLazyLoad });
+    const popupContainer = Selector(".sv-popup__container");
+    const dropdown1 = popupContainer.nth(0);
+    const dropdown2 = popupContainer.nth(1);
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("enter")
+      .expect(dropdown1.find(".sv-list__empty-container").visible).ok()
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).eql(0)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(1100, 1150)
+      .expect(listItems.filterVisible().count).eql(25)
+
+      .scrollBy(dropdown1.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(300, 470)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2200, 2300)
+      .expect(listItems.filterVisible().count).eql(50)
+
+      .scrollBy(dropdown1.find(".sv-list"), 0, 2300)
+      .wait(500)
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(1500, 1620)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2500, 2600)
+      .expect(listItems.filterVisible().count).eql(55)
+
+      .click(getListItemByText("55"))
+      .click(Selector(".sd-dropdown").nth(1))
+      .expect(dropdown2.find(".sv-list__empty-container").visible).ok()
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(0)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1380)
+      .expect(listItems.filterVisible().count).eql(30)
+
+      .scrollBy(dropdown2.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(0)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-list").scrollTop).within(650, 670)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(2500, 2530)
+      .expect(listItems.filterVisible().count).eql(55)
+      .click(getListItemByText("55"))
+
+      .resizeWindow(1280, 1100);
+  });
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "country",
+          title: "Select the country...",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "dropdown",
+          name: "kids",
+          title: "dropdown page 30",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    const popupContainer = Selector(".sv-popup__container");
+    const dropdown1 = popupContainer.nth(0);
+    const dropdown2 = popupContainer.nth(1);
+    const listItems = Selector(".sv-list__item span");
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("2")
+      .expect(dropdown1.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(450, 460)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(46)
+
+      .pressKey("enter")
+      .expect(dropdown1.visible).notOk()
+
+      .click(Selector(".sd-dropdown").nth(1))
+      .pressKey("2")
+      .expect(dropdown2.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).within(250, 260)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(450, 460)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(776)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(46)
+
+      .pressKey("enter")
+      .expect(dropdown2.visible).notOk()
+
+      .resizeWindow(1280, 1100);
+  });
 });

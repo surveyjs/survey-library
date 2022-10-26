@@ -42,6 +42,7 @@ export class DropdownListModel extends Base {
         take: this.itemsSettings.take,
         setItems: (items: Array<any>, totalCount: number) => {
           this.setItems(items, totalCount);
+          this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
         }
       });
       this.itemsSettings.skip += this.itemsSettings.take;
@@ -90,6 +91,12 @@ export class DropdownListModel extends Base {
     this.setInputHasValue(!!newValue);
   }
 
+  protected popupRecalculatePosition(isResetHeight: boolean): void {
+    setTimeout(() => {
+      this.popupModel.recalculatePosition(isResetHeight);
+    }, 1);
+  }
+
   protected onHidePopup(): void {
     this.resetFilterString();
     this.listModel.refresh();
@@ -115,15 +122,17 @@ export class DropdownListModel extends Base {
         this._popupModel.toggleVisibility();
       };
     }
-    const res = new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
-    res.locOwner = this.question;
-    res.onPropertyChanged.add((sender: any, options: any) => {
+    return new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+  }
+  protected updateAfterListModelCreated(model: ListModel): void {
+    model.locOwner = this.question;
+    model.onPropertyChanged.add((sender: any, options: any) => {
       if (options.name == "hasVerticalScroller") {
         this.hasScroll = options.newValue;
       }
     });
-    res.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
-    return res;
+    model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
+    model.cssClasses = this.question.survey?.getCss().list;
   }
   protected resetFilterString(): void {
     if(!!this.filterString) {
@@ -135,6 +144,7 @@ export class DropdownListModel extends Base {
       this.popupModel.isVisible = true;
     }
     this.setFilter(this.filterString);
+    this.popupRecalculatePosition(true);
   }
 
   setInputHasValue(newValue: boolean): void {
@@ -162,7 +172,7 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();
-    this.listModel.cssClasses = question.survey?.getCss().list;
+    this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
     this.createPopup();
     this.resetItemsSettings();

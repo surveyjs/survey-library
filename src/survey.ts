@@ -6319,6 +6319,12 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
+  /**
+   * A survey popup width in CSS values.
+   *
+   * Default value: `60%`
+   */
+  @property({ defaultValue: "60%" }) popupWidth: string;
 
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };

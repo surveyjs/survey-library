@@ -13,7 +13,10 @@
   box-sizing: border-box;
   font-family: inherit;
   font-size: inherit;
-  padding: 0.25em 1.5em 0.25em 0.87em;
+  // padding: 0.25em 1.5em 0.25em 0.87em;
+  padding-block: 0.25em;
+  padding-inline-end: 1.5em;
+  padding-inline-start: 0.87em;
   height: 2.19em;
   width: 100%;
   display: flex;
@@ -97,4 +100,11 @@
   white-space: nowrap;
   display: inline-block;
   appearance: none;
+}
+
+[dir="rtl"],
+[style*="direction:rtl"] {
+  .sv-dropdown {
+    background-position: left 0.7em top 50%, 0 0;
+  }
 }

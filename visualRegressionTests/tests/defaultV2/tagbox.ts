@@ -222,4 +222,61 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("tagbox-question-multiline-selected-items.png", questionTagbox, t, comparer);
     });
   });
+
+  test("Check rtl tagbox question ", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "question1",
+            defaultValue: ["item10", "item20"],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item13",
+              "item14",
+              "item15",
+              "item16",
+              "item17",
+              "item18",
+              "item19",
+              "item20"
+            ]
+          }
+        ]
+      });
+
+      const questionTagbox = Selector(".sd-question");
+      await resetFocusToBody();
+
+      await t.hover(Selector(".sv-tagbox__item"));
+      await takeElementScreenshot("tagbox-rtl-question-answered.png", questionTagbox, t, comparer);
+
+      await t.click(".sd-tagbox_clean-button-svg");
+      await resetFocusToBody();
+      await takeElementScreenshot("tagbox-rtl-question.png", questionTagbox, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+  });
+
 });

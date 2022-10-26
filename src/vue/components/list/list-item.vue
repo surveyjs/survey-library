@@ -15,7 +15,7 @@
       />
 
     <div
-      :style="{ paddingLeft: model.getItemIndent(item) }"
+      :style="{ paddingInlineStart: model.getItemIndent(item) }"
       v-bind:class="model.cssClasses.itemBody"
     >
       <sv-svg-icon

@@ -35,8 +35,8 @@ export class PopupSurveyModel extends Base {
     this.registerPropertyChangedHandlers(["isExpanded"], () => {
       this.onExpandedChanged();
     });
-    this.width = <any>new ComputedUpdater<string>(() => this.survey.popupWidth);
-    this.width = this.survey.popupWidth;
+    this.width = <any>new ComputedUpdater<string>(() => this.survey.width);
+    this.width = this.survey.width;
     this.updateCss();
     this.onCreating();
   }
@@ -145,7 +145,9 @@ export class PopupSurveyModel extends Base {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
   public get renderedWidth(): string {
-    return this.getPropertyValue("width", "60%");
+    let width = this.getPropertyValue("width", "60%");
+    if (width && !isNaN(width)) width = width + "px";
+    return width;
   }
   @property() width: string;
 

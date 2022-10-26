@@ -1,3 +1,7 @@
+---
+title: Create a Multi-Page Survey | SurveyJS Form Libraries
+description: SurveyJS Form Library lets you add multiple pages to your survey. Learn how to control page visibility and navigation, and configure the introductory and thank you pages.
+---
 # Create a Multi-Page Survey
 
 This step-by-step tutorial will help you create a survey with multiple pages.

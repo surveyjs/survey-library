@@ -1,3 +1,7 @@
+---
+title: React Form Library | Getting Started Guide
+description: A step-by-step tutorial on how to add the SurveyJS Form Library to a React application.
+---
 # Add a Survey to a React Application
 
 This step-by-step tutorial will help you get started with the SurveyJS Library in a React application. To add a survey to your React application, follow the steps below:

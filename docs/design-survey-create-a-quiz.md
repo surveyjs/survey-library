@@ -1,3 +1,7 @@
+---
+title: Create a Quiz | SurveyJS Form Libraries
+description: Learn how to build your own interactive timed quizes and tests with SurveyJS. A step-by-step tutorial plus access to the full demo source code.
+---
 # Create a Quiz
 
 This tutorial shows you how to create the following quiz&mdash;a multi-page survey that limits response time and tracks correct/incorrect answers. 

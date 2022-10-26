@@ -1,3 +1,7 @@
+---
+title: UI icons | SurveyJS Form Libraries
+description: View the list of all available built-in icons used in SurveyJS libraries, and the code showing how to replace a built-in icon with a custom one.
+---
 # Icons
 
 This help topic describes icons built into SurveyJS components and shows how you can replace them with custom icons.

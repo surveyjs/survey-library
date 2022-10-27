@@ -10040,6 +10040,58 @@ QUnit.test("question.getPlainData - optional question type", function (assert) {
   assert.deepEqual(plainData.questionType, "radiogroup");
 });
 
+QUnit.test("question.getPlainData - optional survey values", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [1, 2, 3]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = { question1: 1 };
+  survey.setValue("customValue", "test");
+
+  var plainData = survey.getPlainData();
+  assert.deepEqual(plainData.length, 1);
+  delete plainData[0]["getString"];
+  delete plainData[0]["data"];
+  assert.deepEqual(plainData[0], {
+    "displayValue": "1",
+    "isNode": true,
+    "name": "question1",
+    "title": "question1",
+    "value": 1
+  }, "Question only");
+
+  plainData = survey.getPlainData({ includeValues: true });
+  assert.deepEqual(plainData.length, 2);
+  delete plainData[0]["getString"];
+  delete plainData[0]["data"];
+  delete plainData[1]["getString"];
+  delete plainData[1]["data"];
+  assert.deepEqual(plainData[0], {
+    "displayValue": "1",
+    "isNode": true,
+    "name": "question1",
+    "title": "question1",
+    "value": 1
+  }, "Question");
+  assert.deepEqual(plainData[1], {
+    "displayValue": "test",
+    "isNode": false,
+    "name": "customValue",
+    "title": "customValue",
+    "value": "test"
+  }, "Value");
+});
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
     questions: [

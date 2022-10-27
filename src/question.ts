@@ -26,6 +26,19 @@ export interface IConditionObject {
   context?: Question;
 }
 
+export interface IQuestionPlainData {
+  name: string | number;
+  title: string;
+  value: any;
+  displayValue: any;
+  isNode: boolean;
+  isComment?: boolean;
+  questionType?: string;
+  data?: Array<IQuestionPlainData>;
+  getString: (val: any) => string;
+  [key: string]: any;
+}
+
 /**
  * A base class for all questions.
  */
@@ -1346,12 +1359,12 @@ export class Question extends SurveyElement<Question>
         propertyName: string,
       }>,
     }
-  ): any {
+  ): IQuestionPlainData {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false };
     }
     if (options.includeEmpty || !this.isEmpty()) {
-      var questionPlainData = <any>{
+      var questionPlainData: IQuestionPlainData = {
         name: this.name,
         title: this.locTitle.renderedHtml,
         value: this.value,

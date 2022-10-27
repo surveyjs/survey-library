@@ -1,8 +1,4 @@
 ---
-title: Knockout Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Knockout application.
----
----
 title: Angular Form Library | Getting Started Guide
 
 

@@ -1,3 +1,7 @@
+---
+title: Configure Question Titles | SurveyJS Form Libraries
+description: You can define a question title and configure its additional elements, such as a question sequence number or 'required' marks.
+---
 # Configure Question Titles
 
 You can specify the [`title`](https://surveyjs.io/Documentation/Library?id=Question#title) property to set a question title. If you leave it unspecified, the question displays its [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) value as a title. However, question titles can have additional elements that you can configure, such as question numbers and required marks.

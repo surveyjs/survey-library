@@ -1,3 +1,7 @@
+---
+title: Conditional Logic and Dynamic Texts | SurveyJS
+description: Learn how to implement branching and skip logic and add dynamic texts to your surveys.
+---
 # Conditional Logic and Dynamic Texts
 
 This help topic describes how to implement custom conditional logic and add dynamic texts to your survey. Refer to the following sections for details:

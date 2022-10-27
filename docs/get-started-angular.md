@@ -1,7 +1,5 @@
 ---
 title: Angular Form Library | Getting Started Guide
-
-
 description: A step-by-step tutorial on how to add the SurveyJS Form Library to an Angular application.
 ---
 # Add a Survey to an Angular Application

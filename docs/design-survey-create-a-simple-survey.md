@@ -1,6 +1,6 @@
 ---
 title: Create a Simple Survey | SurveyJS Form Libraries
-description: The guide describes a basic survey structure and its elements, and offers some code examples of how to display an on-page form or a pop-up survey in a web app.
+description: The guide describes a basic survey structure and its elements and offers code examples of how to display an on-page form or a pop-up survey in a web app.
 ---
 # Create a Simple Survey
 

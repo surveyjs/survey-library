@@ -113,11 +113,11 @@ export class StylesManager {
     ".sv_q_dd_control": "display: flex; justify-content: space-between; appearance: none;",
     ".sv_q_dd_value": "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative;",
     ".sv_q_dd_root": "position: relative;",
-    ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; right: 0; top: 0;",
-    ".sv_q_dd_filter-string-input": "outline: none; border: none; background-color: transparent; position: absolute; left: 0;",
+    ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; inset-inline-end: 0; top: 0;",
+    ".sv_q_dd_filter-string-input": "outline: none; border: none; background-color: transparent; position: absolute; inset-inline-start: 0;",
 
     ".sv_q_dropdown_clean-button": "margin: auto 2em;",
-    ".sv_q_tagbox__placeholder": "position: absolute; top: 0; left: 1em; max-width: 100%; width: auto; height: 100%; text-align: left; cursor: text; pointer-events: none;",
+    ".sv_q_tagbox__placeholder": "position: absolute; top: 0; inset-inline-start: 1em; max-width: 100%; width: auto; height: 100%; text-align: start; cursor: text; pointer-events: none;",
 
     ".sv_qstn .sv-q-col-1, .sv-question .sv-q-col-1":
       "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
@@ -416,7 +416,7 @@ export class StylesManager {
     ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",
     ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
     ".sv-list__item": "width: 100%; box-sizing: border-box; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
-    ".sv-list__item-body": "width: 100%; box-sizing: border-box; padding: 8px 64px 8px 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__item-body": "width: 100%; box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; padding-inline-end: 64px; padding-inline-start: 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
@@ -883,7 +883,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none; padding: 0px; width: auto; display: flex; flex-grow: 1;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; position: absolute; left: 0; top: 0; height: 100%; background-color: transparent;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value .sv_q_dropdown__filter-string-input[type=text]": "border: none; outline: none; padding: 0px; width: auto; display: flex; flex-grow: 1;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; position: absolute; inset-inline-start: 0; top: 0; height: 100%; background-color: transparent;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_q_dropdown_control .sv_q_dropdown__value.sv_q_tagbox__value .sv_q_dropdown__filter-string-input.sv_q_tagbox__filter-string-input": "position: initial;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
     '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':

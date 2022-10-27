@@ -26,7 +26,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   render(): JSX.Element {
     if (!this.item) return null;
     const contentWrapStyle = {
-      paddingLeft: this.model.getItemIndent(this.item)
+      paddingInlineStart: this.model.getItemIndent(this.item)
     };
     const className = this.model.getItemClass(this.item);
     const content: Array<JSX.Element> = [];

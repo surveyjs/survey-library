@@ -3,7 +3,7 @@
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>
-    <div [class]="listModel.cssClasses.itemBody" [style.paddingLeft]="paddingLeft">
+    <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft">
     <ng-container *ngIf="!model.component">
       <svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="24"
         sv-ng-svg-icon></svg>

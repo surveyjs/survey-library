@@ -1,6 +1,6 @@
 ---
 title: Create a Quiz | SurveyJS Form Libraries
-description: Learn how to build your own interactive timed quizes and tests with SurveyJS. A step-by-step tutorial plus access to the full demo source code.
+description: Learn how to build your own interactive timed quizzes and tests with SurveyJS. A step-by-step tutorial plus access to the full demo source code.
 ---
 # Create a Quiz
 

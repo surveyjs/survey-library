@@ -4,7 +4,7 @@ description: A step-by-step tutorial on how to add the SurveyJS Form Library to 
 ---
 # Add a Survey to an Angular Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in an Angular application. To add a survey to your Angular application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in an Angular application. To add a survey to your Angular application, follow the steps below:
 
 - [Install the `survey-angular` npm Package](#install-the-survey-angular-npm-package)
 - [Configure Styles](#configure-styles)
@@ -24,7 +24,7 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Install the `survey-angular` npm Package
 
-The SurveyJS Library for Angular is distributed as a <a href="https://www.npmjs.com/package/survey-angular" target="_blank">survey-angular</a> npm package. Run the following command to install it:
+The SurveyJS Form Library for Angular is distributed as a <a href="https://www.npmjs.com/package/survey-angular" target="_blank">survey-angular</a> npm package. Run the following command to install it:
 
 ```cmd
 npm install survey-angular --save
@@ -34,7 +34,7 @@ npm install survey-angular --save
 
 SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Open the `angular.json` file and reference a style sheet that implements the required theme:
 

@@ -4,7 +4,7 @@ description: A step-by-step tutorial on how to add the SurveyJS Form Library to 
 ---
 # Add a Survey to a Vue Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a Vue application. To add a survey to your Vue application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue application. To add a survey to your Vue application, follow the steps below:
 
 - [Install the `survey-vue-ui` npm Package](#install-the-survey-vue-ui-npm-package)
 - [Configure Styles](#configure-styles)
@@ -24,7 +24,7 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Install the `survey-vue-ui` npm Package
 
-The SurveyJS Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-vue-ui` dependencies.
+The SurveyJS Form Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-vue-ui` dependencies.
 
 ```cmd
 npm install survey-vue-ui --save
@@ -34,7 +34,7 @@ npm install survey-vue-ui --save
 
 SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Open the Vue component in which your survey will be and import a style sheet that implements the required theme.
 

@@ -2,11 +2,11 @@
 title: Introduction to the Form Library | SurveyJS
 description: SurveyJS Form Library is a free and open-source JS component that allows you to configure and run on-page forms and pop-up surveys in a web app.
 ---
-# SurveyJS Library / Runner Overview
+# SurveyJS Form Library Overview
 
-SurveyJS Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application. 
+SurveyJS Form Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application. 
 
-![SurveyJS Library / Runner](images/overview.png)
+![SurveyJS Form Library](images/overview.png)
 
 ## Features
 
@@ -39,4 +39,4 @@ Visit our [What's New page](https://surveyjs.io/WhatsNew) for information on new
 
 ## Licensing
 
-SurveyJS Library / Runner is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).
+SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

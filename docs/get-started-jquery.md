@@ -4,7 +4,7 @@ description: A step-by-step tutorial on how to add the SurveyJS Form Library to 
 ---
 # Add a Survey to a jQuery Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a jQuery application. To add a survey to your jQuery application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a jQuery application. To add a survey to your jQuery application, follow the steps below:
 
 - [Link SurveyJS Resources](#link-surveyjs-resources)
 - [Create a Model](#create-a-model)
@@ -24,9 +24,9 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library ships with a script and several style sheets that implement the Modern and Default V2 themes illustrated below:
+The SurveyJS Form Library ships with a script and several style sheets that implement the Modern and Default V2 themes illustrated below:
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Insert links to the script and one of the style sheets within the `<head>` tag on your HTML page _after_ the jQuery link:
 

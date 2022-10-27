@@ -22,7 +22,7 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Configure Questions
 
-Quizzes can include any question type supported by the SurveyJS library. The following code sets up three [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) questions. Note that for each question, the [`correctAnswer`](https://surveyjs.io/Documentation/Library?id=Question#correctAnswer) property is specified.
+Quizzes can include any question type supported by the SurveyJS Form Library. The following code sets up three [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) questions. Note that for each question, the [`correctAnswer`](https://surveyjs.io/Documentation/Library?id=Question#correctAnswer) property is specified.
 
 ```js
 const surveyJson = {

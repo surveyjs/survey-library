@@ -4,7 +4,7 @@ description: A step-by-step tutorial on how to add the SurveyJS Form Library to 
 ---
 # Add a Survey to a React Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a React application. To add a survey to your React application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a survey to your React application, follow the steps below:
 
 - [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
@@ -24,7 +24,7 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Install the `survey-react-ui` npm Package
 
-The SurveyJS Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
+The SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
 
 ```cmd
 npm install survey-react-ui --save
@@ -34,7 +34,7 @@ npm install survey-react-ui --save
 
 SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Open the React component in which your survey will be and import a style sheet that implements the required theme.
 

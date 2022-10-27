@@ -32,7 +32,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   }
 }
 /**
- * A Model for a matrix dropdown question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
+  * A class that describes the Multiple-Choice Matrix question type. Multiple-Choice Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
@@ -54,7 +56,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return "matrixdropdown";
   }
   /**
-   * Set this property to show it on the first column for the total row.
+   * A title for the total row. Applies if at least one column displays total values.
+   * @see rowTitleWidth
+   * @see columns
    */
   public get totalText() {
     return this.getLocalizableStringText("totalText", "");
@@ -69,7 +73,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return this.locTotalText;
   }
   /**
-   * The column width for the first column, row title column.
+   * A width for the column that displays row titles (first column). Accepts CSS values.
    */
   public get rowTitleWidth(): string {
     return this.getPropertyValue("rowTitleWidth", "");
@@ -81,7 +85,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return this.rowTitleWidth;
   }
   /**
-   * Set this property to true to hide the question if there is no visible rows in the matrix.
+   * Specifies whether to hide the question when the matrix has no visible rows.
+   * @see rowsVisibleIf
    */
   public get hideIfRowsEmpty(): boolean {
     return this.getPropertyValue("hideIfRowsEmpty", false);

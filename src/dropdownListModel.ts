@@ -22,14 +22,14 @@ export class DropdownListModel extends Base {
   }
 
   private updateListItems() {
-    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
+    this.listModel.setItems(this.getAvailableItems());
   }
   private setItems(items: Array<any>, totalCount: number) {
     this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
     this.question.choices = this.itemsSettings.items;
     this.itemsSettings.totalCount = totalCount;
-    this.updateListItems();
     this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.question.choices.length == this.itemsSettings.totalCount;
+    this.updateListItems();
   }
 
   private updateQuestionChoices(): void {
@@ -83,12 +83,11 @@ export class DropdownListModel extends Base {
     });
   }
 
-  private setFilter(newValue: string):void {
+  private setFilterStringToListModel(newValue: string):void {
     this.listModel.filterString = newValue;
     if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
-    this.setInputHasValue(!!newValue);
   }
 
   protected popupRecalculatePosition(isResetHeight: boolean): void {
@@ -142,7 +141,8 @@ export class DropdownListModel extends Base {
     if(!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setFilter(this.filterString);
+    this.setFilterStringToListModel(this.filterString);
+    this.setInputHasValue(!!this.filterString);
     this.popupRecalculatePosition(true);
   }
 

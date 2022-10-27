@@ -185,3 +185,10 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-list__input:disabled::placeholder {
   color: $foreground-light;
 }
+
+.sv-list__loading-indicator {
+  pointer-events: none;
+}
+.sv-list__loading-indicator .sv-list__item-body {
+  background-color: transparent;
+}

@@ -284,3 +284,22 @@ QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function 
 
   document.body.removeChild(element);
 });
+
+QUnit.test("getItemClass", (assert) => {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item");
+
+  list.focusedItem = list.actions[0];
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused");
+
+  list.selectFocusedItem();
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused sv-list__item--selected");
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item");
+
+  list.actions[1].enabled = false;
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled");
+
+  list.actions[1].css = "custom-css";
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
+});

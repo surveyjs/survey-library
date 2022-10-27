@@ -1,6 +1,6 @@
 ---
 title: Survey Localization | SurveyJS Form Libraries
-description: To adapt a survey to the local language of your respondents, you can localize its UI elements and survey contents. Leverage our community-sourced support for 50+ languages.
+description: To adapt a survey to the local language of your respondents, localize survey UI elements and contents. Leverage our community-sourced support for 50+ languages.
 ---
 # Localization & Globalization
 

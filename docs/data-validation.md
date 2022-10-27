@@ -1,6 +1,6 @@
 ---
 title: Data Validation | SurveyJS Form Libraries
-description: SurveyJS lets you validate user responses before they proceed to the next page or complete a survey. You can also run validation immediately after an answer is entered.
+description: SurveyJS lets you validate user responses before users proceed to the next page or complete a survey. You can also run validation immediately after an answer is entered.
 ---
 # Data Validation
 

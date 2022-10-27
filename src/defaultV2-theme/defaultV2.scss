@@ -57,6 +57,7 @@ body {
 }
 
 .sd-root-modern {
+  -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
   --sd-imagepicker-gap: 16px;
   width: 100%;

@@ -121,7 +121,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("confirmDelete", val);
   }
   /**
-   * Specifies a key column. Set this property to a column name, and the question will display a `keyDuplicationError` if a user tries to enter a duplicate value in this column.
+   * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
    */
   public get keyName(): string {
@@ -144,7 +144,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Specifies whether default values for a new row/column should be copied from the last row/column.
    *
-   * If you also specify a `defaultValue`, it will be merged with the copied values.
+   * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
   public get defaultValueFromLastRow(): boolean {

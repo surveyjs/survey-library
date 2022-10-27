@@ -69,7 +69,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         size={this.question.inputSize}
         placeholder={placeholder}
         list={this.question.dataListId}
-        autoComplete={this.question.autoComplete}
+        autocomplete={this.question.autocomplete}
         onBlur={this.updateValueOnEvent}
         onChange={onChange}
         onKeyUp={onKeyUp}

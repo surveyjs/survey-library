@@ -170,11 +170,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * An [autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute value for the underlying `<input>` element.
    */
-  public get autoComplete(): string {
-    return this.getPropertyValue("autoComplete", "");
+  public get autocomplete(): string {
+    return this.getPropertyValue("autocomplete", "");
   }
-  public set autoComplete(val: string) {
-    this.setPropertyValue("autoComplete", val);
+  public set autocomplete(val: string) {
+    this.setPropertyValue("autocomplete", val);
   }
 
   /**
@@ -272,7 +272,7 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    { name: "autoComplete", choices: settings.questions.dataList, },
+    { name: "autocomplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },

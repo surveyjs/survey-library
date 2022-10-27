@@ -1,24 +1,24 @@
 ﻿<script type="text/html" id="survey-question-text">
   <!--ko if: !question.dataListId && !question.isInputTextUpdate && !question.isReadOnlyRenderDiv()-->
   <input
-    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, value: question.value, css: question.getControlClass()"
+    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId}, value: question.value, css: question.getControlClass()"
   />
   <!--/ko-->
   <!--ko if: !question.dataListId && question.isInputTextUpdate && !question.isReadOnlyRenderDiv()-->
   <input
-    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, textInput: question.value, css: question.getControlClass()"
+    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId}, textInput: question.value, css: question.getControlClass()"
   />
   <!--/ko-->
   <!--ko if: question.dataListId && !question.isReadOnlyRenderDiv()-->
   <div>
     <!--ko if: !question.isInputTextUpdate-->
     <input
-    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, value: question.value, css: question.getControlClass()"
+    data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId}, value: question.value, css: question.getControlClass()"
     />
     <!--/ko-->
     <!--ko if: question.isInputTextUpdate-->
     <input
-      data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autoComplete: question.autoComplete, list:question.dataListId}, textInput: question.value, css: question.getControlClass()"
+      data-bind="disable: question.isInputReadOnly, style: question.inputStyle, attr: {type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId}, textInput: question.value, css: question.getControlClass()"
     />
     <!--/ko-->
     <datalist data-bind="attr: {id: question.dataListId}">

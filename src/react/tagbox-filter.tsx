@@ -54,7 +54,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     return this.model;
   }
   render(): JSX.Element {
-    return (<input type="text" autoComplete="off"
+    return (<input type="text" autocomplete="off"
       id={this.question.getInputId()}
       ref={(element) => (this.inputElement = element)}
       className={this.question.cssClasses.filterStringInput}

@@ -122,11 +122,11 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * Text auto complete
    */
-  public get autoComplete(): string {
-    return this.getPropertyValue("autoComplete", "");
+  public get autocomplete(): string {
+    return this.getPropertyValue("autocomplete", "");
   }
-  public set autoComplete(val: string) {
-    this.setPropertyValue("autoComplete", val);
+  public set autocomplete(val: string) {
+    this.setPropertyValue("autocomplete", val);
   }
   /**
    * The minimum value
@@ -467,7 +467,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "autoComplete",
+      name: "autocomplete",
       choices: settings.questions.dataList,
     },
     {

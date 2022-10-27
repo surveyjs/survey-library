@@ -1,6 +1,6 @@
 ---
 title: Populate Form Fields | SurveyJS Form Libraries
-description: You can pass a value for a form field by setting a question value property. To retrieve and pre-fill multiple question values use the data property.
+description: You can pass a value for a form field by setting a question's 'value' property. To retrieve and pre-fill multiple question values use the 'data' property.
 ---
 # Populate Form Fields
 

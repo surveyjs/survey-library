@@ -12,7 +12,8 @@
 }
 
 [dir="rtl"],
-[style*="direction:rtl"] {
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sv-paneldynamic__add-btn {
     float: left;
   }
@@ -27,6 +28,7 @@
   background-color: $remove-button-color;
   margin-top: 1.25em;
 }
+
 .sv-paneldynamic__remove-btn--right {
   margin-top: 0;
   margin-left: 1.25em;
@@ -50,7 +52,7 @@
     height: 0.7em;
     width: 0.7em;
   }
-} 
+}
 
 .sv-paneldynamic__prev-btn {
   left: -1.3em;
@@ -80,18 +82,21 @@
   border: none;
   margin: 0;
 }
+
 .sv-paneldynamic__progress--top {
   margin-bottom: 1em;
 }
+
 .sv-paneldynamic__progress--bottom {
   margin-top: 1em;
 }
-.sv-paneldynamic__panel-wrapper ~ .sv-paneldynamic__panel-wrapper {
+
+.sv-paneldynamic__panel-wrapper~.sv-paneldynamic__panel-wrapper {
   padding-top: 2.5em;
 }
+
 .sv-paneldynamic__panel-wrapper--in-row {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
-

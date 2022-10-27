@@ -22,25 +22,31 @@
   display: flex;
   justify-content: space-between;
 }
+
 .sv-dropdown:focus,
 .sv-dropdown:focus-within {
   background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%231AB394;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E ");
   border-color: $dropdown-border-color;
   outline: none;
 }
+
 .sv-dropdown::-ms-expand {
   display: none;
 }
+
 .sv-dropdown--error {
   border-color: $error-color;
   color: $error-color;
 }
+
 .sv-dropdown--error::placeholder {
   color: $error-color;
 }
+
 .sv-dropdown option {
   color: $text-color;
 }
+
 .sv-dropdown__value {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -51,22 +57,27 @@
   color: $text-color;
   position: relative;
 }
+
 .sv_dropdown_control__input-field-component {
   height: auto;
 }
+
 .sv-dropdown_clean-button {
   padding: 3px 12px;
   margin: auto 0;
 }
+
 .sv-dropdown_clean-button-svg {
   width: 12px;
   height: 12px;
 }
+
 .sv-input.sv-dropdown:focus-within {
   .sv-dropdown__filter-string-input {
     z-index: 2000;
   }
 }
+
 .sv-dropdown__filter-string-input {
   border: none;
   outline: none;
@@ -86,10 +97,12 @@
   top: 0;
   height: 100%;
 }
+
 .sv-dropdown--empty:not(.sv-input--disabled) .sv-dropdown__filter-string-input::placeholder {
   font-family: $font-family;
   color: $text-color;
 }
+
 .sv-dropdown__filter-string-input::placeholder {
   color: $disabled-text-color;
   font-size: inherit;
@@ -103,7 +116,8 @@
 }
 
 [dir="rtl"],
-[style*="direction:rtl"] {
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sv-dropdown {
     background-position: left 0.7em top 50%, 0 0;
   }

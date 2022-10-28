@@ -59,7 +59,7 @@ Serializer.addClass(
     { name: "requiredIf", visible: false },
     { name: "validators", visible: false },
     { name: "titleLocation", visible: false },
-    { name: "useDisplayValueInPlaceholders", visible: false },
+    { name: "useDisplayValueInPlaceholders", alternativeName: "useDisplayValuesInTitle", visible: false },
   ],
   function () {
     return new QuestionNonValue("");

@@ -245,14 +245,14 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * Specifies whether to use display names for question values in placeholders. 
+   * Specifies whether to use display names for question values in placeholders.
    * This property is used for questions whose values define the `value` and `text` properties (for example, a Radiogroup `choice` option with `value` and `text`).
-   * 
+   *
    * Question placeholders can be used in the following places:
    * - Survey element titles and descriptions;
    * - The `expression` property of the Expression question;
-   * - The `html` property of the HTML question.    
-   * 
+   * - The `html` property of the HTML question.
+   *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`.
    *
    * Default value: `true`
@@ -2034,7 +2034,7 @@ Serializer.addClass("question", [
     choices: ["default", "collapsed", "expanded"],
   },
   { name: "visible:switch", default: true },
-  { name: "useDisplayValueInPlaceholders:boolean", default: true, layout: "row" },
+  { name: "useDisplayValueInPlaceholders:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", default: settings.minWidth },

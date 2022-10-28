@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -11,6 +12,9 @@ export class ListComponent extends BaseAngular implements AfterViewInit {
   @Input() model: any;
   @ViewChild("listContainerElement") listContainerElement!: ElementRef<HTMLDivElement>;
 
+  trackItemBy = (_: any, item: Action) => {
+    return item.id;
+  }
   getModel() {
     return this.model;
   }

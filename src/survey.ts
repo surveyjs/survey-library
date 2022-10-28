@@ -28,7 +28,7 @@ import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { Question } from "./question";
+import { IQuestionPlainData, Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -2619,21 +2619,44 @@ export class SurveyModel extends SurveyElementCore
     options?: {
       includeEmpty?: boolean,
       includeQuestionTypes?: boolean,
+      includeValues?: boolean,
       calculations?: Array<{
         propertyName: string,
       }>,
     }
-  ) {
+  ): Array<IQuestionPlainData> {
     if (!options) {
-      options = { includeEmpty: true, includeQuestionTypes: false };
+      options = { includeEmpty: true, includeQuestionTypes: false, includeValues: false };
     }
-    var result: Array<any> = [];
+    const result: Array<IQuestionPlainData> = [];
+    const questionValueNames: Array<string> = [];
     this.getAllQuestions().forEach((question) => {
       var resultItem = (<Question>question).getPlainData(options);
       if (!!resultItem) {
         result.push(resultItem);
+        questionValueNames.push(question.valueName || question.name);
       }
     });
+    if(!!options.includeValues) {
+      const keys = this.getValuesKeys();
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if(questionValueNames.indexOf(key) == -1) {
+          var dataValue = this.getDataValueCore(this.valuesHash, key);
+          if(!!dataValue) {
+            result.push({
+              name: key,
+              title: key,
+              value: dataValue,
+              displayValue: dataValue,
+              isNode: false,
+              getString: (val: any) =>
+                typeof val === "object" ? JSON.stringify(val) : val,
+            });
+          }
+        }
+      }
+    }
     return result;
   }
   getFilteredValues(): any {

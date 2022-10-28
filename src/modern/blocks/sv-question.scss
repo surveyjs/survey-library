@@ -3,6 +3,7 @@
   box-sizing: border-box;
   font-family: inherit;
 }
+
 .sv-question__title {
   position: relative;
   box-sizing: border-box;
@@ -12,77 +13,98 @@
   font-size: 1.25em;
   word-break: break-word;
 }
+
 .sv-question__required-text {
   line-height: 0.8em;
   font-size: 1.4em;
 }
+
 .sv-question__description {
   margin: 0;
   padding-left: 0.55em;
   font-size: 1em;
   word-break: break-word;
 }
+
 .sv-question__input {
   width: 100%;
   height: 1.81em;
 }
+
 .sv-question__content {
   margin-left: 0.55em;
 }
+
 .sv-question__erbox {
   color: $error-color;
   font-size: 0.74em;
   font-weight: bold;
 }
+
 .sv-question__erbox--location--top {
   margin-bottom: 0.4375em;
 }
+
 .sv-question__erbox--location--bottom {
   margin-top: 0.4375em;
 }
+
 .sv-question__footer {
   padding: 0.87em 0;
 }
+
 .sv-question__title--answer {
   background-color: $answer-background-color;
 }
+
 .sv-question__title--error {
   background-color: $error-background-color;
 }
+
 .sv-question__header--location--top {
   margin-bottom: 0.65em;
 }
+
 .sv-question__header--location--left {
   float: left;
   width: 27%;
   margin-right: 0.875em;
 }
+
 [dir="rtl"],
-[style*="direction:rtl"] {
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sv-question__header--location--left {
     float: right;
   }
 }
+
 .sv-question__header--location--bottom {
   margin-top: 0.8em;
 }
+
 .sv-question__content--left {
   overflow: hidden;
 }
+
 .sv-question__other {
   margin-top: 0.5em;
 }
+
 .sv-question__form-group {
   margin-top: 0.5em;
 }
+
 .sv-question--disabled {
   .sv-question__header {
     color: $disabled-text-color;
   }
 }
+
 .sv-image {
   display: inline-block;
 }
+
 .sv-question__title--expandable {
   cursor: pointer;
   display: flex;
@@ -110,9 +132,11 @@
     transform: rotate(180deg);
   }
 }
+
 .sv-question__icon {
   outline: none;
 }
+
 .sv-question__icon:before {
   content: "";
   display: inline-block;
@@ -124,6 +148,7 @@
   margin-left: 1.5em;
   vertical-align: middle;
 }
+
 .sv-question__icon--expanded:before {
   transform: rotate(180deg);
 }

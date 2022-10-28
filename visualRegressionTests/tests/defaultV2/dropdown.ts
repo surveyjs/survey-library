@@ -416,7 +416,6 @@ frameworks.forEach(framework => {
       })();
 
       await initSurvey(framework, {
-        showQuestionNumbers: "off",
         questions: [
           {
             type: "dropdown",

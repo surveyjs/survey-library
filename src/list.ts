@@ -7,6 +7,7 @@ import { ElementHelper } from "./element-helper";
 export let defaultListCss = {
   root: "sv-list__container",
   item: "sv-list__item",
+  loadingIndicator: "sv-list__loading-indicator",
   itemSelected: "sv-list__item--selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
@@ -30,6 +31,7 @@ export interface IListModel {
 }
 export class ListModel extends ActionContainer {
   private listContainerHtmlElement: HTMLElement;
+  private loadingIndicatorValue: Action;
 
   @property({
     defaultValue: true,
@@ -91,6 +93,12 @@ export class ListModel extends ActionContainer {
     this.selectedItem = selectedItem;
   }
 
+  public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
+    super.setItems(items, sortByVisibleIndex);
+    if(!this.isAllDataLoaded && !!this.actions.length) {
+      this.actions.push(this.loadingIndicator);
+    }
+  }
   protected onSet(): void {
     this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
@@ -136,6 +144,7 @@ export class ListModel extends ActionContainer {
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
+      .append(itemValue.css)
       .toString();
   };
 
@@ -152,6 +161,20 @@ export class ListModel extends ActionContainer {
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
+  }
+  public get loadingText(): string {
+    return this.getLocalizationString("loadingFile");
+  }
+  public get loadingIndicator(): Action {
+    if(!this.loadingIndicatorValue) {
+      this.loadingIndicatorValue = new Action({
+        id: "loadingIndicator",
+        title: this.loadingText,
+        action: () => { },
+        css: this.cssClasses.loadingIndicator
+      });
+    }
+    return this.loadingIndicatorValue;
   }
 
   public goToItems(event: KeyboardEvent): void {

@@ -10,7 +10,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
-  private syncFilterStringPlacholder(actions?: Array<Action>) {
+  private syncFilterStringPlaceholder(actions?: Array<Action>) {
     const selectedActions = actions || this.getSelectedActions();
     if(selectedActions.length) {
       this.filterStringPlaceholder = undefined;
@@ -24,7 +24,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private syncSelectedItemsFromQuestion() {
     const selectedActions = this.getSelectedActions();
     (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
-    this.syncFilterStringPlacholder(selectedActions);
+    this.syncFilterStringPlaceholder(selectedActions);
   }
 
   protected override createListModel(): MultiSelectListModel {
@@ -87,7 +87,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
-    this.syncFilterStringPlacholder();
+    this.syncFilterStringPlaceholder();
     this.closeOnSelect = question.closeOnSelect;
   }
 

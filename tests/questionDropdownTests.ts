@@ -583,12 +583,12 @@ QUnit.test("itemsSettings property", assert => {
   assert.equal(itemsSettings.take, 25);
   assert.equal(itemsSettings.totalCount, 0);
   assert.equal(itemsSettings.items.length, 0);
-  assert.equal(listModel.actions.length, 0);
+  assert.equal(listModel.actions.length, 0, "listModel.actions");
 
   question.dropdownListModel.popupModel.isVisible = true;
 
   setTimeout(() => {
-    assert.equal(listModel.actions.length, 25);
+    assert.equal(listModel.actions.length, 26, "listModel.actions");
     assert.equal(itemsSettings.skip, 25);
     assert.equal(itemsSettings.take, 25);
     assert.equal(itemsSettings.totalCount, 55);
@@ -597,14 +597,14 @@ QUnit.test("itemsSettings property", assert => {
     question.dropdownListModel.popupModel.isVisible = false;
 
     setTimeout(() => {
-      assert.equal(listModel.actions.length, 25);
+      assert.equal(listModel.actions.length, 26, "listModel.actions");
       assert.equal(itemsSettings.skip, 0);
       assert.equal(itemsSettings.take, 25);
       assert.equal(itemsSettings.totalCount, 0);
       assert.equal(itemsSettings.items.length, 0);
 
       question.dropdownListModel.popupModel.isVisible = true;
-      assert.equal(listModel.actions.length, 0);
+      assert.equal(listModel.actions.length, 0, "listModel.actions");
 
       done2();
     }, 550);

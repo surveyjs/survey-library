@@ -331,7 +331,10 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("step", val);
   }
   public get renderedStep(): string {
-    return this.isValueEmpty(this.step) ? "any" : this.step;
+    if(this.isValueEmpty(this.step)) {
+      return this.inputType !== "number" ? undefined : "any";
+    }
+    return this.step;
   }
   supportGoNextPageAutomatic() {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;

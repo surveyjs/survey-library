@@ -221,6 +221,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   }
   protected renderButton(): JSX.Element {
     if (
+      this.question.panelRemoveButtonLocation !== "right" ||
       !this.question.canRemovePanel ||
       (this.question.isRenderModeList && this.panel.isCollapsed)
     ) {

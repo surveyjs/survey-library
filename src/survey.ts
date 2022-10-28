@@ -44,6 +44,7 @@ import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -985,6 +986,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
+  public onGetPaneldynamicPanelActions: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    *- `sender` - A survey object that fires the event.
@@ -4477,7 +4479,18 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
-
+  public getUpdatedPaneldynamicPanelActions(
+    question: QuestionPanelDynamicModel,
+    panel: PanelModel,
+    actions: Array<IAction>): Array<IAction> {
+    var options = {
+      question: question,
+      panel: panel,
+      actions: actions,
+    };
+    this.onGetPaneldynamicPanelActions.fire(this, options);
+    return options.actions;
+  }
   getUpdatedElementTitleActions(
     element: ISurveyElement,
     titleActions: Array<IAction>
@@ -4511,7 +4524,6 @@ export class SurveyModel extends SurveyElementCore
     this.onGetPanelTitleActions.fire(this, options);
     return options.titleActions;
   }
-
   private getUpdatedPageTitleActions(
     page: ISurveyElement,
     titleActions: Array<IAction>

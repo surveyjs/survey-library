@@ -8,6 +8,8 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { SurveyError } from "./survey-error";
 import { Base } from "./base";
 import { IAction } from "./actions/action";
+import { PanelModel } from "./panel";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -116,6 +118,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getUpdatedMatrixRowActions(
     question: QuestionMatrixDropdownModelBase,
     row: MatrixDropdownRowModelBase,
+    actions: Array<IAction>
+  ): Array<IAction>;
+  getUpdatedPaneldynamicPanelActions(
+    question: QuestionPanelDynamicModel,
+    panel: PanelModel,
     actions: Array<IAction>
   ): Array<IAction>;
   questionStartIndex: string;

@@ -15,7 +15,9 @@
   <ng-container *ngFor="let panel of renderedPanels; index as index"> 
     <div [class]="model.getPanelWrapperCss()">
       <ng-template [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
-      <ng-container *ngTemplateOutlet="removeBtn; context: { panel }"></ng-container>
+      <ng-container *ngIf="model.panelRemoveButtonLocation ==='right'">
+        <ng-container *ngTemplateOutlet="removeBtn; context: { panel }"></ng-container>
+      </ng-container>
     </div>
     <!-- add track by [key]="'separator' + panel.id" -->
     <hr [class]="model.cssClasses.separator" *ngIf="model.isRenderModeList && index < model.panelCount - 1"/>

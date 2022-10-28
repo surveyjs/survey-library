@@ -27,7 +27,8 @@ import { confirmAction } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
-import { Action } from "./actions/action";
+import { Action, IAction } from "./actions/action";
+import { ComputedUpdater } from "./base";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -264,6 +265,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return null;
   }
+
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
@@ -873,11 +875,13 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isLoadingFromJson) return;
     this.prepareValueForPanelCreating();
     var panels = [];
+    let panel: any;
     if (this.useTemplatePanel) {
-      new QuestionPanelDynamicItem(this, this.template);
+      panel = new QuestionPanelDynamicItem(this, this.template);
       panels.push(this.template);
     } else {
       for (var i = 0; i < this.panelCount; i++) {
+        panel = this.createNewPanel();
         panels.push(this.createNewPanel());
       }
     }
@@ -1060,7 +1064,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see panels
    * @see template
    */
-  public removePanel(value: any) {
+  public removePanel(value: any): void {
     var index = this.getPanelIndex(value);
     if (index < 0 || index >= this.panelCount) return;
     var panel = this.panels[index];
@@ -1472,6 +1476,22 @@ export class QuestionPanelDynamicModel extends Question
     keyValues.push(value);
     return false;
   }
+  public getPanelActions(panel: PanelModel): Array<IAction> {
+    let actions: Array<IAction> = [
+      new Action({
+        id: `remove-panel-${panel.id}`,
+        title: this.panelRemoveText,
+        visible: <any>new ComputedUpdater(() => [this.canRemovePanel, panel.state !== "collapsed", this.panelRemoveButtonLocation !== "right"].every((val: boolean) => val === true)),
+        innerCss: this.getPanelRemoveButtonCss(),
+        action: () => this.removePanelUI(panel),
+        data: { question: this, index: this.panels.indexOf(panel) }
+      })
+    ];
+    if(!!this.survey) {
+      actions = this.survey.getUpdatedPaneldynamicPanelActions(this, panel, actions);
+    }
+    return actions;
+  }
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
     var json = this.template.toJSON();
@@ -1485,6 +1505,10 @@ export class QuestionPanelDynamicModel extends Question
       questions[i].setParentQuestion(this);
     }
     panel.locStrsChanged();
+    panel.onGetFooterActionsCallback = () => {
+      return this.getPanelActions(panel);
+    };
+    panel.footerToolbarCss = this.cssClasses.panelFooter;
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {

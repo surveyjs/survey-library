@@ -8,6 +8,7 @@ import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
+  readonly minPageSize = 25;
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
   private itemsSettings: {skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
@@ -16,7 +17,7 @@ export class DropdownListModel extends Base {
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
-    this.itemsSettings.take = this.question.choicesLazyLoadPageSize;
+    this.itemsSettings.take = Math.max(this.minPageSize, this.question.choicesLazyLoadPageSize);
     this.itemsSettings.totalCount = 0;
     this.itemsSettings.items = [];
   }

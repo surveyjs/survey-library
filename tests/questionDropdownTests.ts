@@ -632,3 +632,54 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   question.choices = ["i1", "i2", "i3"];
   assert.equal(question.readOnlyText, "");
 });
+
+QUnit.test("min page size", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+      choicesLazyLoadPageSize: 10
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const listModel = question.popupModel.contentComponentData.model as ListModel;
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+  assert.equal(listModel.actions.length, 0, "listModel.actions");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+
+  setTimeout(() => {
+    assert.equal(listModel.actions.length, 26, "listModel.actions");
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 55);
+    assert.equal(itemsSettings.items.length, 25);
+
+    question.dropdownListModel.popupModel.isVisible = false;
+
+    setTimeout(() => {
+      assert.equal(listModel.actions.length, 26, "listModel.actions");
+      assert.equal(itemsSettings.skip, 0);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 0);
+      assert.equal(itemsSettings.items.length, 0);
+
+      question.dropdownListModel.popupModel.isVisible = true;
+      assert.equal(listModel.actions.length, 0, "listModel.actions");
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
+});

@@ -468,6 +468,7 @@ Serializer.addClass(
     },
     {
       name: "autocomplete",
+      alternativeName: "autoComplete",
       choices: settings.questions.dataList,
     },
     {

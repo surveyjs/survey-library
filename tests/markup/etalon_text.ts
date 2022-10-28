@@ -76,7 +76,7 @@ registerMarkupTest({
         inputType: "date",
         title: "Question title",
         isRequired: true,
-        autoComplete: "bdate",
+        autocomplete: "bdate",
         titleLocation: "hidden"
       }
     ],
@@ -94,7 +94,7 @@ registerMarkupTest({
         title: "Your e-mail:",
         placeholder: "jon.snow@nightwatch.org",
         isRequired: true,
-        autoComplete: "email",
+        autocomplete: "email",
         validators: [
           {
             type: "email"

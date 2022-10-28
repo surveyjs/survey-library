@@ -56,7 +56,7 @@ class XmlParser {
  *   imageLinkName: "imageUrl", // Specifies which field contains image URLs. Used in Image Picker questions.
  *   // Path to the array of choices. Specify `path` only if the array of choices is nested within the object returned by the service.
  *   // The following path separators are allowed: semicolon `;`, comma `,`.
- *   path: "myNestedArray" 
+ *   path: "myNestedArray"
  * }
  * ```
  *

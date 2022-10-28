@@ -44,6 +44,7 @@
     display: block;
   }
 }
+
 .sd-tagbox-item_clean-button {
   display: none;
   position: absolute;
@@ -53,16 +54,20 @@
   padding-inline-start: calcSize(4);
   background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
 }
+
 .sd-tagbox-item_clean-button-svg {
   padding: calcSize(0.5);
 }
+
 .sd-tagbox-item_clean-button-svg:hover {
   border-radius: 100px;
   background: $primary-foreground-disabled;
 }
+
 .sd-tagbox-item_clean-button-svg use {
   fill: $primary-foreground;
 }
+
 .sd-tagbox__value.sd-dropdown__value {
   position: relative;
   gap: calcSize(0.5);
@@ -81,6 +86,7 @@
   height: calcSize(5);
   position: initial;
 }
+
 .sd-tagbox__placeholder {
   position: absolute;
   top: 0;
@@ -95,7 +101,8 @@
 }
 
 [dir="rtl"],
-[style*="direction:rtl"] {
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sd-tagbox-item_clean-button {
     background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
   }

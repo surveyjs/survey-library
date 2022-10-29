@@ -7790,4 +7790,26 @@ QUnit.test("Load old JSON where columns without cellType set correctly", functio
   assert.deepEqual(cellQuestion.choices.length, 4, "load 4 choices");
   assert.equal(cellQuestion.choices[2].value, "c", "load choices correctly");
 });
+QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "allowRowsDragAndDrop": true,
+        "columnLayout": "vertical",
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "text", name: "col2" },
+        ],
+        "rowCount": 2
+      }
+    ]
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.allowRowsDragAndDrop, false, "vertical column layout");
+  matrix.columnLayout = "horizontal";
+  assert.equal(matrix.renderedTable.allowRowsDragAndDrop, true, "horizontal column layout");
+  matrix.onPointerDown(<any>undefined, <any>undefined);
+});
 

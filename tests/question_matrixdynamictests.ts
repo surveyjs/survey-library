@@ -6014,6 +6014,28 @@ QUnit.test("Detail panel, run conditions", function (assert) {
     "third question is visible now"
   );
 });
+QUnit.test("Detail panel and defaultValueFromLastRow", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        detailPanelMode: "underRow",
+        defaultValueFromLastRow: true,
+        detailElements: [{ type: "text", name: "q1" }],
+        rowCount: 1,
+        columns: [
+          { cellType: "text", name: "col1" },
+          { cellType: "text", name: "col2" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "col1Value", q1: "q1Value" }];
+  matrix.addRow();
+  assert.deepEqual(matrix.value, [{ col1: "col1Value", q1: "q1Value" }, { col1: "col1Value", q1: "q1Value" }]);
+});
 QUnit.test("Detail panel, rendered table", function (assert) {
   var survey = new SurveyModel({
     elements: [

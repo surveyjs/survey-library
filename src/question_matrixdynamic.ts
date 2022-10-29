@@ -463,17 +463,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
-      var row = this.visibleRows[this.rowCount - 1];
-      if (!this.isValueEmpty(row.value)) {
-        if (!newValue) {
-          newValue = this.createNewValue();
-        }
-        if (
-          !this.isValueSurveyElement(newValue) &&
-          !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
-        ) {
-          newValue[newValue.length - 1] = row.value;
-          this.value = newValue;
+      if(this.isValueEmpty(defaultValue)) {
+        const row = this.visibleRows[this.rowCount - 1];
+        if (!this.isValueEmpty(row.value)) {
+          if (!newValue) {
+            newValue = this.createNewValue();
+          }
+          if (
+            !this.isValueSurveyElement(newValue) &&
+            !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
+          ) {
+            newValue[newValue.length - 1] = row.value;
+            this.value = newValue;
+          }
         }
       }
     }

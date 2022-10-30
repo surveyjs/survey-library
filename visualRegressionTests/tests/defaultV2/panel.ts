@@ -299,6 +299,44 @@ frameworks.forEach(framework => {
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
+  test("Check panel with errors and question title location left", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      questions: [
+        {
+          type: "panel",
+          name: "delivery_details",
+          title: "Please, specify the delivery details.",
+          width: "708px",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "delivery_agent",
+              isRequired: true,
+              titleLocation: "left",
+              title: "Delivery agent",
+              choices: ["DHL", "Pony Express", "FedEx"]
+            },
+            {
+              type: "boolean",
+              isRequired: true,
+              titleLocation: "left",
+              name: "delivery_speed",
+              title: "Do you like to get the order as fast as it possible?"
+            }
+          ]
+        },
+      ]
+    });
+    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const panelRoot = Selector(".sd-panel");
+    await resetFocusToBody();
+    await t.click(Selector("input[value='Complete']"));
+    await takeScreenshot("panel-with-question-title-left-and-errors-above.png", panelRoot, screenshotComparerOptions);
+    await t
+      .expect(compareResults.isValid())
+      .ok(compareResults.errorMessages());
+  });
   test("Check panel with errors below", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

@@ -5121,12 +5121,18 @@ QUnit.test("text question renderedStep", function (assert) {
     elements: [
       { type: "text", inputType: "number", name: "q1" },
       { type: "text", inputType: "number", name: "q2", step: 0.2 },
+      { type: "text", inputType: "time", name: "q3" },
+      { type: "text", inputType: "time", name: "q4", step: 1 },
     ],
   });
   var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  var q3 = <QuestionTextModel>survey.getQuestionByName("q3");
+  var q4 = <QuestionTextModel>survey.getQuestionByName("q4");
   assert.equal(q1.renderedStep, "any", "Default value is 'any'");
   assert.equal(q2.renderedStep, 0.2, "get value from step");
+  assert.equal(q3.renderedStep, undefined, "time: step is empty if not set");
+  assert.equal(q4.renderedStep, 1, "time: step is set");
 });
 QUnit.test("text question inputSize and inputWidth", function (assert) {
   var survey = new SurveyModel({

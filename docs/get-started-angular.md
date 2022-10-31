@@ -6,7 +6,7 @@ description: A step-by-step tutorial on how to add the SurveyJS Form Library to 
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in an Angular application. To add a survey to your Angular application, follow the steps below:
 
-- [Install the `survey-angular` npm Package](#install-the-survey-angular-npm-package)
+- [Install the `survey-angular-ui` npm Package](#install-the-survey-angular-ui-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
 - [Render the Survey](#render-the-survey)
@@ -22,13 +22,19 @@ As a result, you will create a survey displayed below:
 
 You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">Get Started with SurveyJS - Angular</a>.
 
-## Install the `survey-angular` npm Package
+## Install the `survey-angular-ui` npm Package
 
-The SurveyJS Form Library for Angular is distributed as a <a href="https://www.npmjs.com/package/survey-angular" target="_blank">survey-angular</a> npm package. Run the following command to install it:
+The SurveyJS Form Library for Angular consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-angular-ui`](https://www.npmjs.com/package/survey-angular-ui) (rendering code). Run the following command to install `survey-angular-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-angular-ui` dependencies.
 
 ```cmd
-npm install survey-angular --save
+npm install survey-angular-ui --save
 ```
+
+> NOTE: SurveyJS for Angular requires Angular v13.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
+>
+> ```cmd
+> npm install @angular/cdk@^13.0.0 --save
+> ```
 
 ## Configure Styles
 
@@ -54,9 +60,9 @@ Open the `angular.json` file and reference a style sheet that implements the req
             "styles": [
               "src/styles.css",
               // Default V2 theme
-              "node_modules/survey-angular/defaultV2.min.css",
+              "node_modules/survey-core/defaultV2.min.css",
               // Modern theme
-              // "node_modules/survey-angular/modern.min.css"
+              // "node_modules/survey-core/modern.min.css"
             ],
             // ...
           }
@@ -71,7 +77,7 @@ To apply the referenced theme, call the `applyTheme(themeName)` method. Dependin
 
 ```js
 import { Component } from '@angular/core';
-import { StylesManager } from "survey-angular";
+import { StylesManager } from "survey-core";
 
 StylesManager.applyTheme("defaultV2");
 
@@ -103,18 +109,20 @@ const surveyJson = {
 };
 ```
 
-To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey. 
+To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. Assign the model instance to a component property. The model instance will be later used to render the survey. 
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { ..., Model } from "survey-angular";
+import { ..., Model } from "survey-core";
 
 @Component({
   // ...
 })
 export class AppComponent implements OnInit {
+  surveyModel: Model;
   ngOnInit() {
     const survey = new Model(surveyJson);
+    this.surveyModel = survey;
   }
 }
 ```
@@ -124,7 +132,7 @@ export class AppComponent implements OnInit {
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { Model, StylesManager } from "survey-angular";
+import { Model, StylesManager } from "survey-core";
 
 StylesManager.applyTheme("defaultV2");
 
@@ -147,8 +155,10 @@ const surveyJson = {
 })
 export class AppComponent implements OnInit {
   title = 'My First Survey';
-  ngOnInit() {    
+  surveyModel: Model;
+  ngOnInit() {
     const survey = new Model(surveyJson);
+    this.surveyModel = survey;
   }
 }
 ```
@@ -156,27 +166,30 @@ export class AppComponent implements OnInit {
 
 ## Render the Survey
 
-A survey should be rendered in an HTML element. Add this element to your component template:
-
-```html
-<div id="surveyContainer"></div>
-```
-
-To render a survey, call the `render()` method on the `SurveyNG` object as shown in the code below. Pass the model instance you created in the previous step to this method as the `model` property:
+Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyAngularModule` from `survey-angular-ui`, and list it in the `imports` array.
 
 ```js
-import { Component, OnInit } from '@angular/core';
-import { ..., SurveyNG } from "survey-angular";
+// app.module.ts
+// ...
+import { SurveyAngularModule } from "survey-angular-ui";
 
-@Component({
-  // ...
+@NgModule({
+  declarations: [ ... ],
+  imports: [
+    ...,
+    SurveyAngularModule
+  ],
+  providers: [ ... ],
+  bootstrap: [ ... ]
 })
-export class AppComponent implements OnInit {
-  ngOnInit() {
-    // ...
-    SurveyNG.render("surveyContainer", { model: survey });
-  }
-}
+export class AppModule { }
+
+```
+
+To render a survey, add a `<survey>` element to your component template and bind the element's `model` attribute to the model instance you created in the previous step:
+
+```html
+<survey [model]="surveyModel"></survey>
 ```
 
 If you replicate the code correctly, you should see the following survey:
@@ -187,12 +200,14 @@ If you replicate the code correctly, you should see the following survey:
     <summary>View full code</summary>  
 
 ```html
-<div id="surveyContainer"></div>
+<!-- app.component.html -->
+<survey [model]="surveyModel"></survey>
 ```
 
 ```js
+// app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Model, SurveyNG, StylesManager } from "survey-angular";
+import { Model, StylesManager } from "survey-core";
 
 StylesManager.applyTheme("defaultV2");
 
@@ -215,11 +230,34 @@ const surveyJson = {
 })
 export class AppComponent implements OnInit {
   title = 'My First Survey';
-  ngOnInit() {    
+  surveyModel: Model;
+  ngOnInit() {
     const survey = new Model(surveyJson);
-    SurveyNG.render("surveyContainer", { model: survey });
+    this.surveyModel = survey;
   }
 }
+```
+
+```js
+// app.module.ts
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { SurveyAngularModule } from "survey-angular-ui";
+
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    SurveyAngularModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
 ```
 </details>
 
@@ -229,7 +267,7 @@ After a respondent completes a survey, the results are available within the [onC
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { ..., Model } from "survey-angular";
+import { ..., Model } from "survey-core";
 
 const SURVEY_ID = 1;
 
@@ -251,16 +289,16 @@ export class AppComponent implements OnInit {
 }
 
 function saveSurveyResults(url, json) {
-    const request = new XMLHttpRequest();
-    request.open('POST', url);
-    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    request.addEventListener('load', () => {
-        // Handle "load"
-    });
-    request.addEventListener('error', () => {
-        // Handle "error"
-    });
-    request.send(JSON.stringify(json));
+  const request = new XMLHttpRequest();
+  request.open('POST', url);
+  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+  request.addEventListener('load', () => {
+    // Handle "load"
+  });
+  request.addEventListener('error', () => {
+    // Handle "error"
+  });
+  request.send(JSON.stringify(json));
 }
 ```
 
@@ -268,7 +306,7 @@ In this tutorial, the results are simply output in an alert dialog:
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { ..., Model } from "survey-angular";
+import { ..., Model } from "survey-core";
 
 @Component({
   // ...
@@ -296,12 +334,14 @@ To view the application, run `ng serve` in a command line and open [http://local
     <summary>View full code</summary>  
 
 ```html
-<div id="surveyContainer"></div>
+<!-- app.component.html -->
+<survey [model]="surveyModel"></survey>
 ```
 
 ```js
+// app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Model, SurveyNG, StylesManager } from "survey-angular";
+import { Model, StylesManager } from "survey-core";
 
 StylesManager.applyTheme("defaultV2");
 
@@ -324,6 +364,8 @@ const surveyJson = {
 })
 export class AppComponent implements OnInit {
   title = 'My First Survey';
+  surveyModel: Model;
+
   alertResults (sender) {
     const results = JSON.stringify(sender.data);
     alert(results);
@@ -331,9 +373,31 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const survey = new Model(surveyJson);
     survey.onComplete.add(this.alertResults);
-    SurveyNG.render("surveyContainer", { model: survey });
+    this.surveyModel = survey;
   }
 }
+```
+
+```js
+// app.module.ts
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { SurveyAngularModule } from "survey-angular-ui";
+
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    SurveyAngularModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
 ```
 </details>
 

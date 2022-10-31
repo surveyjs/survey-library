@@ -181,7 +181,7 @@ export class QuestionSignaturePadModel extends Question {
     return !this.isInputReadOnly && this.allowClear;
   }
   /**
-   * Speicifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
    * @see backgroundColor
    */
   public get penColor(): string {

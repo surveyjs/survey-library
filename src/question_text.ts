@@ -349,7 +349,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
   }
   /**
-   * An array of predefined options that from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
+   * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
    */
   public get dataList(): Array<string> {
     return this.locDataList.value;

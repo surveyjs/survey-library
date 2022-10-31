@@ -138,7 +138,6 @@ survey.onComplete.add((survey) => {
       resultData.push(item);
     }
   }
-  return resultData;
 });
 ```
 

@@ -420,7 +420,7 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("colCount", val);
   }
   /**
-   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the undelying `<input>` elements.
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
   public get itemSize(): number {
     return this.getPropertyValue("itemSize");

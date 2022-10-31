@@ -10,7 +10,9 @@ import { Helpers } from "./helpers";
 import { QuestionSelectBase } from "./question_baseselect";
 
 /**
- * A Model for a ranking question
+ * A class that describes the Ranking question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-ranking/ (linkStyle))
  */
 export class QuestionRankingModel extends QuestionCheckboxModel {
   private domNode: HTMLElement = null;
@@ -329,7 +331,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   /**
-   * For mobile devices. Set this property to false, to disable the "long tap" before drag start. Default is true.
+   * Specifies whether to use a long tap (press and hold) gesture to start dragging.
+   *
+   * Default value: `true`
+   *
+   * Disable this property if you want to start dragging when users perform a scroll gesture.
   */
   public get longTap(): boolean {
     return this.getPropertyValue("longTap");

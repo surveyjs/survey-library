@@ -138,4 +138,4 @@ import { SkeletonComponent } from "./components/skeleton/skeleton.component";
   ],
   providers: [PopupService],
 })
-export class SurveyAngularModule { }
+export class SurveyModule { }

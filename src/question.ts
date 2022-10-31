@@ -262,7 +262,7 @@ export class Question extends SurveyElement<Question>
    *
    * Default value: `true`
    *
-   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, Dropdown questions).
+   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, and Dropdown questions).
    *
    * You can use question values as placeholders in the following places:
    *

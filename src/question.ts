@@ -260,17 +260,17 @@ export class Question extends SurveyElement<Question>
   /**
    * Specifies whether to use display names for question values in placeholders.
    *
-   * This property is used for questions whose values define the `value` and `text` properties (for example, a Radiogroup choice `option` with `value` and `text`).
-   *
-   * Question placeholders can be used in the following places:
-   *
-   * - Survey element titles and descriptions;
-   * - The `expression` property of the Expression question;
-   * - The `html` property of the HTML question.
-   *
-   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`.
-   *
    * Default value: `true`
+   *
+   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, Dropdown questions).
+   *
+   * You can use question values as placeholders in the following places:
+   *
+   * - Survey element titles and descriptions
+   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
+   * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
+   *
+   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
    */
   public get useDisplayValuesInDynamicTexts(): boolean {
     return this.getPropertyValue("useDisplayValuesInDynamicTexts");

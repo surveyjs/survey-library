@@ -1,12 +1,12 @@
 import { TestBed } from "@angular/core/testing";
-import { SurveyAngularModule } from "src/angular-ui.module";
+import { SurveyModule } from "src/angular-ui.module";
 import { SurveyComponent } from "src/survey.component";
 import { SurveyModel } from "survey-core";
 
 describe("event tests", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SurveyAngularModule],
+      imports: [SurveyModule],
     }).compileComponents();
     TestBed;
   });

@@ -12,9 +12,9 @@ export class TestComponent {
   public isPopup: boolean;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     (window as any).Survey = Survey;
-    (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel) => {
+    (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel, isPopup: boolean) => {
       this.model = survey;
-      this.isPopup = this.model instanceof Survey.PopupSurveyModel;
+      this.isPopup = isPopup;
       this.changeDetectorRef.detectChanges();
     }
   }

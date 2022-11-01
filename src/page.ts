@@ -127,11 +127,13 @@ export class PageModel extends PanelModelBase implements IPage {
     return classes;
   }
   public get cssTitle(): string {
+    if(!this.cssClasses.page) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.title)
       .toString();
   }
   public get cssRoot(): string {
+    if(!this.cssClasses.page || !this.survey) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&

@@ -561,6 +561,8 @@ export class SurveyModel extends SurveyElementCore
    *- `sender` - the survey object that fires the event.
    *- `options.question` - a question for which you can change the CSS classes.
    *- `options.cssClasses` - an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel> = this.addEvent<
     SurveyModel

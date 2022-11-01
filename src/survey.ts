@@ -47,6 +47,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
  */
 export class SurveyModel extends SurveyElementCore
   implements
@@ -101,7 +103,7 @@ export class SurveyModel extends SurveyElementCore
    *- `options.trigger` - An instance of a trigger that has been just perform it's action.
    * @see onComplete
    */
-   public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
@@ -879,13 +881,13 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionPanelDynamicModel.panels
    * @see onDynamicPanelRemoved
    */
-   public onDynamicPanelRemoving: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
-   /**
-   * The event is fired every second if the method `startTimer` has been called.
-   * @see startTimer
-   * @see timeSpent
-   * @see Page.timeSpent
-   */
+  public onDynamicPanelRemoving: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+  * The event is fired every second if the method `startTimer` has been called.
+  * @see startTimer
+  * @see timeSpent
+  * @see Page.timeSpent
+  */
   public onTimer: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired before displaying a new information in the Timer Panel. Use it to change the default text.
@@ -1217,7 +1219,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public setCss(value: any, needMerge = true) {
-    if(needMerge) {
+    if (needMerge) {
       this.mergeValues(value, this.css);
     } else {
       this.cssValue = value;
@@ -1748,7 +1750,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("locale", surveyLocalization.currentLocale);
   }
   public set locale(value: string) {
-    if(value === surveyLocalization.defaultLocale && !surveyLocalization.currentLocale) {
+    if (value === surveyLocalization.defaultLocale && !surveyLocalization.currentLocale) {
       value = "";
     }
     this.setPropertyValue("locale", value);
@@ -1790,7 +1792,7 @@ export class SurveyModel extends SurveyElementCore
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
-    if(!this.isShowStartingPage) {
+    if (!this.isShowStartingPage) {
       this.updateProgressText();
     }
     var page = this.activePage;
@@ -2367,11 +2369,11 @@ export class SurveyModel extends SurveyElementCore
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
   }
-  public set showQuestionNumbers(value: string|boolean) {
-    if(value === true) {
+  public set showQuestionNumbers(value: string | boolean) {
+    if (value === true) {
       value = "on";
     }
-    if(value === false) {
+    if (value === false) {
       value = "off";
     }
     value = value.toLowerCase();
@@ -2637,13 +2639,13 @@ export class SurveyModel extends SurveyElementCore
         questionValueNames.push(question.valueName || question.name);
       }
     });
-    if(!!options.includeValues) {
+    if (!!options.includeValues) {
       const keys = this.getValuesKeys();
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        if(questionValueNames.indexOf(key) == -1) {
+        if (questionValueNames.indexOf(key) == -1) {
           var dataValue = this.getDataValueCore(this.valuesHash, key);
-          if(!!dataValue) {
+          if (!!dataValue) {
             result.push({
               name: key,
               title: key,
@@ -4062,9 +4064,9 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   private completeServerValidation(options: any, isPreview: boolean) {
-    if(this.serverValidationEventCount > 1) {
-      this.serverValidationEventCount --;
-      if(!!options && !!options.errors && Object.keys(options.errors).length === 0) return;
+    if (this.serverValidationEventCount > 1) {
+      this.serverValidationEventCount--;
+      if (!!options && !!options.errors && Object.keys(options.errors).length === 0) return;
     }
     this.serverValidationEventCount = 0;
     this.setIsValidatingOnServer(false);
@@ -4118,8 +4120,8 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = true;
   }
   canBeCompleted(): void {
-    if(!settings.changeNavigationButtonsOnCompleteTrigger) return;
-    if(!this.canBeCompletedByTrigger) {
+    if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
+    if (!this.canBeCompletedByTrigger) {
       this.canBeCompletedByTrigger = true;
       this.updateButtonsVisibility();
     }
@@ -4249,7 +4251,7 @@ export class SurveyModel extends SurveyElementCore
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver(() => {
-          if(isProcessed || !isContainerVisible(observedElement)) {
+          if (isProcessed || !isContainerVisible(observedElement)) {
             isProcessed = false;
           } else {
             isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
@@ -4265,7 +4267,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
-    if(this.isMobile === isMobile) {
+    if (this.isMobile === isMobile) {
       return false;
     } else {
       this.setIsMobile(isMobile);
@@ -4452,12 +4454,12 @@ export class SurveyModel extends SurveyElementCore
     return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel) {
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.updateVisibleIndexes();
     }
     if (this.onDynamicPanelAdded.isEmpty) return;
     var panels = (<any>question).panels;
-    if(panelIndex === undefined) {
+    if (panelIndex === undefined) {
       panelIndex = panels.length - 1;
       panel = panels[panelIndex];
     }
@@ -4945,9 +4947,9 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
-    if(!!this.editingObj) {
+    if (!!this.editingObj) {
       const prop = Serializer.findProperty(this.editingObj.getType(), valueName);
-      if(!!prop) newValue = prop.settingValue(this.editingObj, newValue);
+      if (!!prop) newValue = prop.settingValue(this.editingObj, newValue);
     }
     if (this.onValueChanging.isEmpty) return newValue;
     var options = {
@@ -5133,7 +5135,7 @@ export class SurveyModel extends SurveyElementCore
         properties
       );
     }
-    if(prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
@@ -5435,7 +5437,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   private updateNavigationCss() {
-    if(!!this.navigationBar) {
+    if (!!this.navigationBar) {
       this.updateNavigationBarCss();
       !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
     }
@@ -5594,13 +5596,13 @@ export class SurveyModel extends SurveyElementCore
     }
     const processor = new ProcessValue();
     const firstName = processor.getFirstName(textValue.name);
-    if(firstName === textValue.name) return;
+    if (firstName === textValue.name) return;
     const data: any = {};
     let val = this.getValue(firstName);
-    if(Helpers.isValueEmpty(val)) {
+    if (Helpers.isValueEmpty(val)) {
       val = this.getVariable(firstName);
     }
-    if(Helpers.isValueEmpty(val)) return;
+    if (Helpers.isValueEmpty(val)) return;
     data[firstName] = val;
     textValue.value = processor.getValue(textValue.name, data);
     textValue.isExists = processor.hasValue(textValue.name, data);
@@ -6753,9 +6755,10 @@ Serializer.addClass("survey", [
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxOthersLength:number", default: 0, minValue: 0 },
-  { name: "goNextPageAutomatic:boolean",
+  {
+    name: "goNextPageAutomatic:boolean",
     onSetValue: function (obj: any, value: any) {
-      if(value !== "autogonext") {
+      if (value !== "autogonext") {
         value = Helpers.isTwoValueEquals(value, true);
       }
       obj.setPropertyValue("goNextPageAutomatic", value);

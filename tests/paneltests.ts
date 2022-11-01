@@ -1697,3 +1697,12 @@ QUnit.test("Delete a first question in the row", function (assert) {
   assert.equal(page.rows.length, 2, "Still two rows");
   assert.equal(q3.startWithNewLine, true, "q3 startWithNewLine is true");
 });
+QUnit.test("page.cssRoot check for existign cssStyle.page", function (assert) {
+  const survey = new SurveyModel();
+  const prevPage = survey.css.page;
+  delete survey.css.page;
+  const page = new PageModel();
+  assert.equal(page.cssRoot, "");
+  assert.equal(page.cssTitle, "");
+  survey.css.page = prevPage;
+});

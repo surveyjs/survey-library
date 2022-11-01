@@ -3,7 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 
 import { AppComponent } from "./app.component";
-import { SurveyAngularModule } from "survey-angular-ui";
+import { SurveyModule } from "survey-angular-ui";
 import { TestComponent } from "./components/test/test.component";
 import { ExampleComponent } from "./components/example/example.component";
 import { AppRoutingModule } from "./router.module";
@@ -23,12 +23,12 @@ import { CustomActionComponent } from "./components/test-custom-components/actio
     CustomActionComponent
   ],
   imports: [
-    BrowserModule, SurveyAngularModule, FormsModule, AppRoutingModule
+    BrowserModule, SurveyModule, FormsModule, AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { 
+export class AppModule {
   static declaration = [AngularItemTemplateComponent, CustomActionComponent]
 }
 

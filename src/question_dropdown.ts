@@ -16,6 +16,7 @@ import { settings } from "./settings";
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModel: DropdownListModel;
+  lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
     let result = this.placeholder;
@@ -83,7 +84,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public get selectedItem(): ItemValue {
     if (this.isEmpty()) return null;
-    return ItemValue.getItemByValue(this.visibleChoices, this.value);
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    if(!!itemValue) {
+      this.lastSelectedItemValue = itemValue;
+    }
+    return this.lastSelectedItemValue;
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -247,6 +252,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public getInputId() {
     return this.inputId + "_0";
+  }
+  public clearValue() {
+    super.clearValue();
+    this.lastSelectedItemValue = null;
   }
 
   onClick(e: any): void {

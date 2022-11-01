@@ -8,15 +8,19 @@ import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
+  readonly minPageSize = 25;
+  readonly loadingItemHeight = 40;
+
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
   private itemsSettings: {skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
+  private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
-    this.itemsSettings.take = this.question.choicesLazyLoadPageSize;
+    this.itemsSettings.take = Math.max(this.minPageSize, this.question.choicesLazyLoadPageSize);
     this.itemsSettings.totalCount = 0;
     this.itemsSettings.items = [];
   }
@@ -33,14 +37,18 @@ export class DropdownListModel extends Base {
   }
 
   private updateQuestionChoices(): void {
+    if(this.isRunningLoadQuestionChoices) return;
+
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if(!this.itemsSettings.skip || isUpdate) {
+      this.isRunningLoadQuestionChoices = true;
       this.question.survey.loadQuestionChoices({
         question: this.question,
         filter: this.filterString,
         skip: this.itemsSettings.skip,
         take: this.itemsSettings.take,
         setItems: (items: Array<any>, totalCount: number) => {
+          this.isRunningLoadQuestionChoices = false;
           this.setItems(items, totalCount);
           this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
         }
@@ -253,7 +261,7 @@ export class DropdownListModel extends Base {
   }
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
-    if(target.scrollTop + target.offsetHeight === target.scrollHeight) {
+    if((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
       this.updateQuestionChoices();
     }
   }

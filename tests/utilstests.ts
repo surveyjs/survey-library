@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
 import { Question } from "../src/question";
-import { sanitizeEditableContent } from "../src/utils/utils";
+import { createSvg, sanitizeEditableContent } from "../src/utils/utils";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -79,3 +79,24 @@ export function createListContainerHtmlElement(): HTMLElement {
   innerElement.appendChild(listContainerElement);
   return element;
 }
+
+QUnit.test(
+  "utils: createSvg",
+  function (assert) {
+    var element: HTMLSpanElement = document.createElement("svg");
+    element.innerHTML = "<use></use>";
+    document.body.appendChild(element);
+    createSvg(16, 0, 0, "test", element, "titletext");
+    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
+    assert.equal(element.querySelectorAll("title").length, 1);
+    assert.equal(element.querySelector("title")?.innerHTML, "titletext");
+
+    debugger;
+    createSvg(16, 0, 0, "test", element, "titletext2");
+    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
+    assert.equal(element.querySelectorAll("title").length, 1);
+    assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
+
+    element.remove();
+  }
+);

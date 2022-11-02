@@ -160,8 +160,10 @@ function createSvg(
     }
     return;
   } else {
-    titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    svgElem.appendChild(titleElement);
+    if (!titleElement) {
+      titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      svgElem.appendChild(titleElement);
+    }
   }
   titleElement.textContent = title;
 }

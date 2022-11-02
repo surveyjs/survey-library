@@ -22,7 +22,7 @@ jobs:
       - name: Zip Build
         uses: montudor/action-zip@v1
         with:
-          args: unzip -qq build.zip -d build
+          args: zip -qq -r build.zip build
 
       - name: Create Release
         uses: taiki-e/create-gh-release-action@v1

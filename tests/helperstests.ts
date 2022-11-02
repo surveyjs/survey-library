@@ -417,3 +417,12 @@ QUnit.test("convertArrayValueToObject function", function(assert) {
   assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name", [{ name: 1, test: 2 }]), [{ name: 1, test: 2 }, { name: 2 }], "#1");
 });
+QUnit.test("getUnbindValue function", function(assert) {
+  assert.deepEqual(Helpers.getUnbindValue(1), 1, "do not convert number");
+  const obj = { val: 1 };
+  const unbindObj = Helpers.getUnbindValue(obj);
+  assert.notStrictEqual(obj, unbindObj, "new objects are not strict equal");
+  assert.deepEqual(obj, unbindObj, "objects are deep equal");
+  const dateVal = new Date(2004, 5, 7);
+  assert.strictEqual(Helpers.getUnbindValue(dateVal), dateVal, "do not convert date");
+});

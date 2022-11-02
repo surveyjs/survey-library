@@ -14,6 +14,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         
+      - name: Build
+        run: |
+          npm install
+          npm run build
+          
+      - name: Zip Build
+      - uses: montudor/action-zip@v1
+        with:
+          args: unzip -qq build.zip -d build
+
       - name: Create Release
       - uses: taiki-e/create-gh-release-action@v1
         with:
@@ -25,3 +35,9 @@ jobs:
           title: $version
           # (Required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'build.zip'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: $tag

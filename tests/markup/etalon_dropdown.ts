@@ -217,5 +217,47 @@ registerMarkupTests(
       },
       snapshot: "dropdown-with-markdown",
     },
+    {
+      name: "Test Dropdown question with other selected item",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "showOtherItem": true,
+            "defaultValue": "other",
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      snapshot: "dropdown-with-other-value",
+    },
+    {
+      name: "Test Dropdown question with none selected item",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "showNoneItem": true,
+            "defaultValue": "none",
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      snapshot: "dropdown-with-none-value",
+    },
   ]
 );

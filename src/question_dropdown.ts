@@ -19,11 +19,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
-    let result = this.placeholder;
-    if (this.hasOther && this.isOtherSelected) {
-      result = this.otherText;
-    } else if (!!this.selectedItem) {
-      result = this.renderAs == "select" ? this.selectedItemText : "";
+    let result = !!this.selectedItem ? "" : this.placeholder;
+    if(this.renderAs == "select") {
+      if (this.isOtherSelected) {
+        result = this.otherText;
+      } else if (this.isNoneSelected) {
+        result = this.noneText;
+      } else if (!!this.selectedItem) {
+        result = this.selectedItemText;
+      }
     }
     this.readOnlyText = result;
   }

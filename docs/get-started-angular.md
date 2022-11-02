@@ -166,18 +166,18 @@ export class AppComponent implements OnInit {
 
 ## Render the Survey
 
-Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyAngularModule` from `survey-angular-ui`, and list it in the `imports` array.
+Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
 
 ```js
 // app.module.ts
 // ...
-import { SurveyAngularModule } from "survey-angular-ui";
+import { SurveyModule } from "survey-angular-ui";
 
 @NgModule({
   declarations: [ ... ],
   imports: [
     ...,
-    SurveyAngularModule
+    SurveyModule
   ],
   providers: [ ... ],
   bootstrap: [ ... ]
@@ -242,7 +242,7 @@ export class AppComponent implements OnInit {
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { SurveyAngularModule } from "survey-angular-ui";
+import { SurveyModule } from "survey-angular-ui";
 
 import { AppComponent } from './app.component';
 
@@ -252,7 +252,7 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    SurveyAngularModule
+    SurveyModule
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -382,7 +382,7 @@ export class AppComponent implements OnInit {
 // app.module.ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { SurveyAngularModule } from "survey-angular-ui";
+import { SurveyModule } from "survey-angular-ui";
 
 import { AppComponent } from './app.component';
 
@@ -392,7 +392,7 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    SurveyAngularModule
+    SurveyModule
   ],
   providers: [],
   bootstrap: [AppComponent]

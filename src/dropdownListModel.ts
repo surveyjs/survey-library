@@ -266,6 +266,7 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
+    this.listModel.selectFocusedItem();
     this.resetFilterString();
     this._popupModel.isVisible = false;
     this.setInputHasValue(false);

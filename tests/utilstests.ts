@@ -91,7 +91,6 @@ QUnit.test(
     assert.equal(element.querySelectorAll("title").length, 1);
     assert.equal(element.querySelector("title")?.innerHTML, "titletext");
 
-    debugger;
     createSvg(16, 0, 0, "test", element, "titletext2");
     assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
     assert.equal(element.querySelectorAll("title").length, 1);

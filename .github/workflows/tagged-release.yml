@@ -29,7 +29,7 @@ jobs:
         with:
           files: 'build.zip'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-#           release-tag: $tag
+          release-tag: ${{ github.ref_name }}
 
       - name: Create Release
         uses: taiki-e/create-gh-release-action@v1

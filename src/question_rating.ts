@@ -332,6 +332,9 @@ export class QuestionRatingModel extends Question {
   get allowClear(): boolean {
     return true;
   }
+  get searchEnabled(): boolean {
+    return false;
+  }
   public get renderedValue(): boolean {
     return this.value;
   }

@@ -24,13 +24,6 @@ jobs:
         with:
           args: zip -qq -r build.zip build
 
-      - name: Add Zip Build Artifact
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: 'build.zip'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ github.ref_name }}
-
       - name: Create Release
         uses: taiki-e/create-gh-release-action@v1
         with:
@@ -42,3 +35,11 @@ jobs:
           title: $version
           # (Required) GitHub token for creating GitHub Releases.
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add Zip Build Artifact
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'build.zip'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.ref_name }}
+

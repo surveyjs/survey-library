@@ -930,7 +930,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Check dropdown reset filter string", async (t) => {
-    const jsonWithDropDown = {
+    const jsonWithDropdown = {
       questions: [
         {
           type: "dropdown",
@@ -967,7 +967,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    await initSurvey(framework, jsonWithDropDown);
+    await initSurvey(framework, jsonWithDropdown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     const listItems = Selector(".sv-list__item");
 
@@ -982,7 +982,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
       .expect(clearButton.visible).notOk();

@@ -258,7 +258,7 @@ export class QuestionRowModel extends Base {
 
 /**
  * A base class for a Panel and Page objects.
- * 
+ *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModelBase extends SurveyElement<Question>
@@ -1479,21 +1479,21 @@ export class PanelModelBase extends SurveyElement<Question>
 
       }
       else
-        if (destRow.elements[0].startWithNewLine) {
-          if (destRow.index > 0) {
-            dragDropInfo.isBottom = true;
-            destRow = destRow.panel.rows[destRow.index - 1];
-            dragDropInfo.destination =
+      if (destRow.elements[0].startWithNewLine) {
+        if (destRow.index > 0) {
+          dragDropInfo.isBottom = true;
+          destRow = destRow.panel.rows[destRow.index - 1];
+          dragDropInfo.destination =
               destRow.elements[destRow.elements.length - 1];
-            return this.dragDropAddTargetToExistingRow(
-              dragDropInfo,
-              destRow,
-              prevRow
-            );
-          } else {
-            return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
-          }
+          return this.dragDropAddTargetToExistingRow(
+            dragDropInfo,
+            destRow,
+            prevRow
+          );
+        } else {
+          return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
         }
+      }
     }
     var prevRowIndex = -1;
     if (prevRow == destRow) {

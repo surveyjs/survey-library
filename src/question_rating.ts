@@ -23,7 +23,7 @@ export class RenderedRatingItem extends Base {
 
 /**
  * A Model for a rating question.
- * 
+ *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-rating/ (linkStyle))
  */
 export class QuestionRatingModel extends Question {

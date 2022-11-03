@@ -74,8 +74,8 @@ The following class-based validators are available:
 | `"answercount"`   | [`AnswerCountValidator`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator) | Throws an error if a user selects fewer choices than specified by [`minCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#minCount) or more choices than specified by [`maxCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#maxCount). Applies only to question types that can have multiple values (for instance, [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)). |
 | `"regex"`         | [`RegexValidator`](https://surveyjs.io/Documentation/Library?id=RegexValidator)             | Throws an error if an entered value does not match a regular expression defined in the [`regex`](https://surveyjs.io/Documentation/Library?id=RegexValidator#regex) property.                                                                                                                                                                                                                                                                       |
 
-[View the "Built-In Validators" example](https://surveyjs.io/Examples/Library?id=validators-standard (linkStyle))
-[View the "Expression Validator" example](https://surveyjs.io/Examples/Library?id=validators-expression (linkStyle)) 
+[View the "Built-In Validators" Demo](https://surveyjs.io/Examples/Library?id=validators-standard (linkStyle))
+[View the "Expression Validator" Demo](https://surveyjs.io/Examples/Library?id=validators-expression (linkStyle)) 
 
 ## Implement Custom Client-Side Validation
 
@@ -100,6 +100,8 @@ survey.onValidateQuestion.add((survey, options) => {
   }
 });
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/validators-event/ (linkStyle))
 
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create a [custom function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#custom-functions), register it, and then call it from within your expression. The following code uses this technique to implement the same value validation scenario:
 
@@ -127,7 +129,7 @@ const surveyJson = {
 };
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=validators-custom (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=validators-custom (linkStyle))
 
 ## Server-Side Validation
 
@@ -175,7 +177,7 @@ function validateCountry(survey, { data, errors, complete }) {
 survey.onServerValidateQuestions.add(validateCountry);
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=validators-server (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=validators-server (linkStyle))
 
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it within your expression. The following code uses this technique to implement the previously demonstrated validation scenario:
 
@@ -215,6 +217,8 @@ const surveyJson = {
   }]
 };
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/validators-async-expression/reactjs (linkStyle))
 
 ## See Also
 

@@ -41,8 +41,6 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
-
 ## Required Mark
 
 Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredText`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredText) property to set another symbol or specify an explanatory text string:
@@ -53,8 +51,6 @@ const surveyJson = {
   "requiredText": "!"
 }
 ```
-
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
 
 ## Title Pattern
 
@@ -70,4 +66,5 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
+[View the "Process Text" Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+[View the "Survey Options" Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))

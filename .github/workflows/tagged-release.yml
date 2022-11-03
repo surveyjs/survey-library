@@ -29,13 +29,13 @@ jobs:
         with:
           files: 'build.zip'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: $tag
+#           release-tag: $tag
 
       - name: Create Release
         uses: taiki-e/create-gh-release-action@v1
         with:
           # (Optional)
-          changelog: CHANGELOG.md
+#           changelog: CHANGELOG.md
           # (Optional) Format of title.
           # [default value: $tag]
           # [possible values: variables $tag, $version, and any string]

@@ -212,7 +212,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
 /**
  * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
  * An end-user may dynamically add/remove panels, unless you forbidden this.
- * 
+ *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
  */
 export class QuestionPanelDynamicModel extends Question
@@ -1632,8 +1632,8 @@ export class QuestionPanelDynamicModel extends Question
         propertyName: string,
       }>,
     } = {
-        includeEmpty: true,
-      }
+      includeEmpty: true,
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {

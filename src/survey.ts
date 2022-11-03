@@ -969,7 +969,7 @@ export class SurveyModel extends SurveyElementCore
    *- `options.titleActions` - A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question.
    * @see IAction
    * @see Question
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
    */
   public onGetQuestionTitleActions: EventBase<SurveyModel> = this.addEvent<
@@ -1302,7 +1302,7 @@ export class SurveyModel extends SurveyElementCore
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
    * This feature is experimantal and might do not support all the use cases.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
    */
   public get lazyRendering(): boolean {
@@ -1339,9 +1339,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets a list of calculated values in the survey.
    * @see CalculatedValue
-   * 
+   *
    * For more information, refer to [Calculated Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
-   * 
+   *
    */
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getPropertyValue("calculatedValues");
@@ -1465,7 +1465,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets whether the Survey displays survey title in its pages. Set it to `false` to hide a survey title.
    * @see title
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showTitle(): boolean {
@@ -1477,7 +1477,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets whether the Survey displays page titles. Set it to `false` to hide page titles.
    * @see PageModel.title
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showPageTitles(): boolean {
@@ -1491,7 +1491,7 @@ export class SurveyModel extends SurveyElementCore
    * @see data
    * @see onComplete
    * @see navigateToUrl
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showCompletedPage(): boolean {
@@ -1543,7 +1543,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.
    * @see Question.title
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
    */
   public get requiredText(): string {
@@ -1583,7 +1583,7 @@ export class SurveyModel extends SurveyElementCore
    * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
    * @see Question.title
    * @see requiredText
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
    */
   public get questionStartIndex(): string {
@@ -1643,7 +1643,7 @@ export class SurveyModel extends SurveyElementCore
    * > NOTE: If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
    *
    * @see showNavigationButtons
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-autonextpage/ (linkStyle))
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
@@ -2030,7 +2030,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showCompletedPage
    * @see completedHtmlOnCondition
    * @see locale
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get completedHtml(): string {
@@ -2140,7 +2140,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
    * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
   public addNavigationItem(val: IAction): Action {
@@ -2250,7 +2250,7 @@ export class SurveyModel extends SurveyElementCore
    * You can set it to requireNumTitle: * 1. What is your name?
    * You can set it to numTitle (remove require symbol completely): 1. What is your name?
    * @see QuestionModel.title
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
    */
   public get questionTitlePattern(): string {
@@ -2381,7 +2381,7 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Gets or sets whether the survey displays page numbers on pages titles.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
@@ -2400,7 +2400,7 @@ export class SurveyModel extends SurveyElementCore
    * - `on` - display question numbers
    * - `onpage` - display question numbers, start numbering on every page
    * - `off` - turn off the numbering for questions titles
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showQuestionNumbers(): string {
@@ -2428,7 +2428,7 @@ export class SurveyModel extends SurveyElementCore
    * - `top` - show progress bar in the top
    * - `bottom` - show progress bar in the bottom
    * - `both` - show progress bar in both sides: top and bottom.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    */
   public get showProgressBar(): string {
@@ -2447,7 +2447,7 @@ export class SurveyModel extends SurveyElementCore
    * - `requiredQuestions`,
    * - `correctQuestions`,
    * - `buttons`
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    */
   public get progressBarType(): string {
@@ -2538,7 +2538,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `edit` (default) - make a survey editable,
    * - `display` - make a survey read-only.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-displaymode/ (linkStyle))
    */
   public get mode(): string {
@@ -2930,7 +2930,7 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * The zero-based index of the current page in the visible pages array.
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
    */
   public get currentPageNo(): number {

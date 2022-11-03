@@ -128,6 +128,9 @@ export class QuestionSelectBase extends Question {
   public get isOtherSelected(): boolean {
     return this.hasOther && this.getHasOther(this.renderedValue);
   }
+  public get isNoneSelected(): boolean {
+    return this.hasNone && this.selectedItem === this.noneItem;
+  }
   /**
    * Specifies whether to display the "None" choice item.
    *

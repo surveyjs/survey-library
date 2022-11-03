@@ -43,7 +43,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
     this.row.isNeedRender = !this.row.isLazyRendering();
   }
   public override ngOnDestroy(): void {
-    this.stopLazyRendering();
     super.ngOnDestroy();
+    this.stopLazyRendering();
   }
 }

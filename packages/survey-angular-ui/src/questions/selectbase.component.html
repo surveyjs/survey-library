@@ -1,31 +1,31 @@
 <fieldset [class]="model.getSelectBaseRootCss()" role="presentation" #contentElement>
   <legend *ngIf="showLegend" role="presentation" class="sv-hidden"></legend>
   <ng-container *ngIf="model.hasHeadItems">
-    <ng-container *ngFor="let item of model.headItems">
+    <ng-container *ngFor="let item of model.headItems; trackBy: trackItemBy">
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </ng-container>
   <ng-container *ngIf="!model.hasColumns && !model.blockedRow">
-    <ng-container *ngFor="let item of model.bodyItems">
+    <ng-container *ngFor="let item of model.bodyItems; trackBy: trackItemBy" >
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </ng-container>
   <div [class]="model.cssClasses.rootRow" *ngIf="!model.hasColumns && model.blockedRow">
-    <ng-container *ngFor="let item of model.dataChoices">
+    <ng-container *ngFor="let item of model.dataChoices; trackBy: trackItemBy">
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </div>
   <ng-container *ngIf="model.hasColumns">
     <div [class]="model.cssClasses.rootMultiColumn">
-      <div [class]="model.getColumnClass()" *ngFor="let column of model.columns" role="presentation">
-        <ng-container *ngFor="let item of column">
+      <div [class]="model.getColumnClass()" *ngFor="let column of model.columns; trackBy: trackColumnBy" role="presentation">
+        <ng-container *ngFor="let item of column; trackBy: trackItemBy">
           <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
         </ng-container>
       </div>
     </div>
   </ng-container>
   <ng-container *ngIf="model.hasFootItems">
-    <ng-container *ngFor="let item of model.footItems">
+    <ng-container *ngFor="let item of model.footItems; trackBy: trackItemBy">
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </ng-container>

@@ -140,7 +140,7 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
-    if (!!value && value instanceof Object) {
+    if (!!value && value instanceof Object && !(value instanceof Date)) {
       //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
     }

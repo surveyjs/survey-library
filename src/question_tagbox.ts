@@ -9,6 +9,8 @@ import { EventBase } from "./base";
 
 /**
  * A Model for a tagbox question
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))
  */
 export class QuestionTagboxModel extends QuestionCheckboxModel {
   dropdownListModel: DropdownMultiSelectListModel;

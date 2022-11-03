@@ -258,6 +258,8 @@ export class QuestionRowModel extends Base {
 
 /**
  * A base class for a Panel and Page objects.
+ * 
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
@@ -328,9 +330,9 @@ export class PanelModelBase extends SurveyElement<Question>
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
-    (this.showDescription && this.isDesignMode &&
-      settings.allowShowEmptyTitleInDesignMode &&
-      settings.allowShowEmptyDescriptionInDesignMode);
+      (this.showDescription && this.isDesignMode &&
+        settings.allowShowEmptyTitleInDesignMode &&
+        settings.allowShowEmptyDescriptionInDesignMode);
   }
   public localeChanged() {
     super.localeChanged();
@@ -764,7 +766,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
-    if(!withError && !ignoreCollapseState && this.isCollapsed) return null;
+    if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
@@ -774,7 +776,7 @@ export class PanelModelBase extends SurveyElement<Question>
         if (!!res) return res;
       } else {
         const q = (<Question>el).getFirstQuestionToFocus(withError);
-        if(!!q) return q;
+        if (!!q) return q;
       }
     }
     return null;
@@ -1001,7 +1003,8 @@ export class PanelModelBase extends SurveyElement<Question>
       this.id
     );
     (<Base>(<any>element)).registerPropertyChangedHandlers(["startWithNewLine"], () => {
-      this.onElementStartWithNewLineChanged(element); }, this.id);
+      this.onElementStartWithNewLineChanged(element);
+    }, this.id);
     this.onElementVisibilityChanged(this);
   }
   protected onRemoveElement(element: IElement) {
@@ -1077,7 +1080,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
     let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
-    if(!dragDropInfo) {
+    if (!dragDropInfo) {
       dragDropInfo = new DragDropInfo(null, element);
       dragDropInfo.target = element;
       dragDropInfo.isEdge = this.elements.length > 1;
@@ -1476,21 +1479,21 @@ export class PanelModelBase extends SurveyElement<Question>
 
       }
       else
-      if (destRow.elements[0].startWithNewLine) {
-        if (destRow.index > 0) {
-          dragDropInfo.isBottom = true;
-          destRow = destRow.panel.rows[destRow.index - 1];
-          dragDropInfo.destination =
+        if (destRow.elements[0].startWithNewLine) {
+          if (destRow.index > 0) {
+            dragDropInfo.isBottom = true;
+            destRow = destRow.panel.rows[destRow.index - 1];
+            dragDropInfo.destination =
               destRow.elements[destRow.elements.length - 1];
-          return this.dragDropAddTargetToExistingRow(
-            dragDropInfo,
-            destRow,
-            prevRow
-          );
-        } else {
-          return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+            return this.dragDropAddTargetToExistingRow(
+              dragDropInfo,
+              destRow,
+              prevRow
+            );
+          } else {
+            return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+          }
         }
-      }
     }
     var prevRowIndex = -1;
     if (prevRow == destRow) {

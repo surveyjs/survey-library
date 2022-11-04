@@ -18,7 +18,9 @@ Follow the steps below:
 - [Display Quiz Results](#display-quiz-results)
 - [Render the Quiz](#render-the-quiz)
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">Quiz</a>.
+[View the "Quiz" Example Source Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle)) 
+[View the "Quiz" Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle)) 
+[View the "Review Quiz results" Demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle)) 
 
 ## Configure Questions
 

@@ -5918,6 +5918,39 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
   survey.locale = "";
   assert.equal(question.optionsCaption, "Select...", "default locale, #2");
 });
+QUnit.test("multipletext placeholder localization", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        "type": "multipletext",
+        "name": "question1",
+        "items": [
+          {
+            "name": "text1",
+            "placeholder": {
+              "de": "placeholder de",
+              "default": "placeholder default"
+            }
+          }
+        ]
+      }]
+  });
+  survey.locale = "";
+  const question = <QuestionMultipleTextModel>survey.getAllQuestions()[0];
+  const editor = question.items[0].editor;
+  let counter = 0;
+  assert.equal(editor.placeholder, "placeholder default", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "renderedPlaceholder, default locale");
+  editor.locPlaceHolder.onStringChanged.add((sender, options) => counter ++);
+  survey.locale = "de";
+  assert.equal(counter, 1, "Changed one time");
+  assert.equal(editor.placeholder, "placeholder de", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder de", "renderedPlaceholder, de locale");
+  survey.locale = "";
+  assert.equal(counter, 2, "Changed second time");
+  assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
+});
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [

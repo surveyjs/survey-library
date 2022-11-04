@@ -773,10 +773,10 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * Gets or sets the location of question titles within the template panel relative to their input fields.
    *
-   * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's  container (page or survey).
-   * - `"top"` - Displays question titles above the input fields.
-   * - `"bottom"` - Displays question titles below the input fields.
-   * - `"left"` - Displays question titles to the left of the input fields.
+   * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's container (page or survey).
+   * - `"top"` - Displays question titles above input fields.
+   * - `"bottom"` - Displays question titles below input fields.
+   * - `"left"` - Displays question titles to the left of input fields.
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
    */
@@ -800,12 +800,12 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Specifies the location of the Delete Panel button relative to the panel content.
+   * Specifies the location of the Delete Panel button relative to panel content.
    *
    * Possible values:
    *
-   * - `"bottom"` (default) - Displays the Delete Panel button below the panel content.
-   * - `"right"` - Displays the Delete Panel button to the right of the panel content.
+   * - `"bottom"` (default) - Displays the Delete Panel button below panel content.
+   * - `"right"` - Displays the Delete Panel button to the right of panel content.
    * @see panelRemoveText
    */
   public get panelRemoveButtonLocation(): string {

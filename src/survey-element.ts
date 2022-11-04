@@ -396,6 +396,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);
+      this.surveyDataValue = null;
     } else {
       this.surveyDataValue = this.surveyImplValue.getSurveyData();
       this.setSurveyCore(this.surveyImplValue.getSurvey());

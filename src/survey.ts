@@ -6663,6 +6663,7 @@ export class SurveyModel extends SurveyElementCore
     this.editingObj = null;
     if (!this.pages) return;
     for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].setSurveyImpl(undefined);
       this.pages[i].dispose();
     }
     this.pages.splice(0, this.pages.length);

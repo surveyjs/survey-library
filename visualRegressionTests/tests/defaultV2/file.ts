@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
+import { url, t, comparer, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "File Screenshot";
 
@@ -34,33 +34,26 @@ frameworks.forEach(framework => {
     })();
   });
   test("Check file question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
     await t.resizeWindow(1920, 1080);
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+
     const questionRoot = Selector(".sd-question");
-    await takeScreenshot("file-question-single-image.png", questionRoot, screenshotComparerOptions);
+    await takeElementScreenshot("file-question-single-image.png", questionRoot, t, comparer);
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/Flamingo.png"]);
     await checkElementScreenshot("file-question-single-file-small-image.png", questionRoot, t);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/Portfolio.pdf"]);
-    await takeScreenshot("file-question-single-file.png", questionRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await takeElementScreenshot("file-question-single-file.png", questionRoot, t, comparer);
     await ClientFunction(()=>{
       const question = (window as any).survey.getQuestionByName("file_question");
       question.allowMultiple = true;
       question.clear();
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
-    await takeScreenshot("file-question-multiple.png", questionRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await takeElementScreenshot("file-question-multiple.png", questionRoot, t, comparer);
   });
   test("Check file question - long names", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
     await t.resizeWindow(1920, 1080);
     await ClientFunction(()=>{
       const question = (window as any).survey.getQuestionByName("file_question");
@@ -72,14 +65,15 @@ frameworks.forEach(framework => {
           "content": "#item1.zip"
         }];
     })();
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const { takeElementScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
-    await takeScreenshot("file-question-long-name.png", questionRoot, screenshotComparerOptions);
+    await takeElementScreenshot("file-question-long-name.png", questionRoot, t, comparer);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
   });
   test("Check file question mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
     await t.resizeWindow(1920, 1080);
     await ClientFunction(()=>{
       (window as any).survey.resizeObserver.disconnect();
@@ -87,7 +81,7 @@ frameworks.forEach(framework => {
       (window as any).survey.getAllQuestions()[0].isMobile = true;
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
+    const { takeElementScreenshot, compareResults } = createScreenshotsComparer(t);
     const questionRoot = Selector(".sd-question");
     await ClientFunction(()=>{
       const question = (window as any).survey.getQuestionByName("file_question");
@@ -95,15 +89,15 @@ frameworks.forEach(framework => {
       question.clear();
     })();
     await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
-    await takeScreenshot("file-question-multiple-mobile.png", questionRoot, screenshotComparerOptions);
+    await takeElementScreenshot("file-question-multiple-mobile.png", questionRoot, t, comparer);
     await t
       .expect(compareResults.isValid())
       .ok(compareResults.errorMessages());
 
     await t.click(Selector(".sd-file #nextPage"));
-    await takeScreenshot("file-question-multiple-mobile-next.png", questionRoot, screenshotComparerOptions);
+    await takeElementScreenshot("file-question-multiple-mobile-next.png", questionRoot, t, comparer);
     await t.click(Selector(".sd-file #prevPage"));
     await t.click(Selector(".sd-file #prevPage"));
-    await takeScreenshot("file-question-multiple-mobile-prev.png", questionRoot, screenshotComparerOptions);
+    await takeElementScreenshot("file-question-multiple-mobile-prev.png", questionRoot, t, comparer);
   });
 });

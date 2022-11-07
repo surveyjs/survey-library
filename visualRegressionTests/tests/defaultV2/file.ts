@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
       question.allowMultiple = true;
       question.value = [
         {
-          "name": "files/item2_very_long_name_that_i_could_not_even_imagine_for_that_moment_and_to_be_honest_it_will_be_really_the_longest_file_name_in_the_world_really_really_lond_i_believe.pdf",
+          "name": "item2_very_long_name_that_i_could_not_even_imagine_for_that_moment_and_to_be_honest_it_will_be_really_the_longest_file_name_in_the_world_really_really_lond_i_believe.pdf",
           "type": "application/x-zip-compressed",
           "content": "#item1.zip"
         }];

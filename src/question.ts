@@ -345,6 +345,7 @@ export class Question extends SurveyElement<Question>
    * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
    * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
    * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"tagbox"*](https://surveyjs.io/form-library/documentation/questiontagboxmodel)
    * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel)
    * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel)
    * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel)
@@ -806,7 +807,7 @@ export class Question extends SurveyElement<Question>
     return this.showErrorOnCore("bottom");
   }
   protected getIsTooltipErrorSupportedByParent(): boolean {
-    if(this.parentQuestion) {
+    if (this.parentQuestion) {
       return this.parentQuestion.getIsTooltipErrorInsideSupported();
     } else {
       return super.getIsTooltipErrorSupportedByParent();
@@ -931,8 +932,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   private expandAllPanels(panel: IPanel) {
-    if(!!panel && !!panel.parent) {
-      if(panel.isCollapsed) {
+    if (!!panel && !!panel.parent) {
+      if (panel.isCollapsed) {
         panel.expand();
       }
       this.expandAllPanels(panel.parent);

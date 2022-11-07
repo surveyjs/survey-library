@@ -320,7 +320,7 @@ $(function() {
 ```
 </details>
 
-[View Pop-Up Survey example](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
+[View the "Pop-Up Survey" Demo](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
 
 ## See Also
 

@@ -43,8 +43,7 @@ const initPopupSurvey = ClientFunction(
         data: { survey: model },
       });
     } else if (framework === "angular") {
-      const popupSurvey = new window["Survey"].PopupSurveyModel(undefined, model);
-      window.setSurvey(popupSurvey);
+      window.setSurvey(model, true);
     }
     window["survey"] = model;
   }

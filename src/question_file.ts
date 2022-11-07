@@ -576,7 +576,8 @@ export class QuestionFileModel extends Question {
       );
       if (!isConfirmed) return;
     }
-    this.removeFileByContent(data);
+    const previewIndex = this.previewValue.indexOf(data);
+    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
   }
   doDownloadFile = (event: any, data: any) => {
     if (detectIEOrEdge()) {

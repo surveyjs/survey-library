@@ -258,19 +258,27 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
-   *
-   * This property is useful when interpolated question values have both the `value` and `text` properties.
+   * Specifies whether to use display names for question values in placeholders.
    *
    * Default value: `true`
+   *
+   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, and Dropdown questions).
+   *
+   * You can use question values as placeholders in the following places:
+   *
+   * - Survey element titles and descriptions
+   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
+   * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
+   *
+   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
    */
-  public get useDisplayValuesInTitle(): boolean {
-    return this.getPropertyValue("useDisplayValuesInTitle");
+  public get useDisplayValuesInDynamicTexts(): boolean {
+    return this.getPropertyValue("useDisplayValuesInDynamicTexts");
   }
-  public set useDisplayValuesInTitle(val: boolean) {
-    this.setPropertyValue("useDisplayValuesInTitle", val);
+  public set useDisplayValuesInDynamicTexts(val: boolean) {
+    this.setPropertyValue("useDisplayValuesInDynamicTexts", val);
   }
-  protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
+  protected getUseDisplayValuesInDynamicTexts(): boolean { return this.useDisplayValuesInDynamicTexts; }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
    *
@@ -2046,7 +2054,7 @@ Serializer.addClass("question", [
     choices: ["default", "collapsed", "expanded"],
   },
   { name: "visible:switch", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
+  { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", default: settings.minWidth },

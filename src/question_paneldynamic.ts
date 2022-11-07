@@ -70,7 +70,7 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
   }
   protected getQuestionDisplayText(question: Question): string {
     const name = this.sharedQuestions[question.name];
-    if(!name) return super.getQuestionDisplayText(question);
+    if (!name) return super.getQuestionDisplayText(question);
     const val = this.panelItem.getValue(name);
     return question.getDisplayValue(true, val);
   }
@@ -137,18 +137,18 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public setValue(name: string, newValue: any) {
     const oldItemData = this.data.getPanelItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    if(typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
+    if (typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
     this.data.setPanelItemData(this, name, newValue);
     const questions = this.panel.questions;
-    for(var i = 0; i < questions.length; i ++) {
-      if(questions[i].getValueName() === name) continue;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].getValueName() === name) continue;
       questions[i].checkBindings(name, newValue);
     }
   }
   getVariable(name: string): any {
     return undefined;
   }
-  setVariable(name: string, newValue: any) {}
+  setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
@@ -197,7 +197,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
 }
 
 export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
-  constructor(public data: IQuestionPanelDynamicData) {}
+  constructor(public data: IQuestionPanelDynamicData) { }
   getSurveyData(): ISurveyData {
     return null;
   }
@@ -210,9 +210,12 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
 }
 
 /**
- * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
- * An end-user may dynamically add/remove panels, unless you forbidden this.
- */
+  * A class that describes the Dynamic Panel question type.
+  *
+  * Dynamic Panel allows respondents to add panels based on a template panel and delete them. Specify the [`templateElements`](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel#templateElements) property to configure template panel elements.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
+  */
 export class QuestionPanelDynamicModel extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
@@ -250,7 +253,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile"], ()=>{
+    this.registerPropertyChangedHandlers(["isMobile"], () => {
       this.updateFooterActions();
     });
   }
@@ -258,9 +261,9 @@ export class QuestionPanelDynamicModel extends Question
     return false;
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
-    for(var i = 0; i < this.panels.length; i ++) {
+    for (var i = 0; i < this.panels.length; i++) {
       const res = this.panels[i].getFirstQuestionToFocus(withError);
-      if(!!res) return res;
+      if (!!res) return res;
     }
     return null;
   }
@@ -276,7 +279,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private addOnPropertyChangedCallback(element: SurveyElement) {
-    if(element.isQuestion) {
+    if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
     element.onPropertyChanged.add((element, options) => {
@@ -323,9 +326,11 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * The template Panel. This panel is used as a template on creatign dynamic panels
-   * @see  templateElements
+   * A `PanelModel` object used as a template to create dynamic panels.
+   * @see PanelModel
+   * @see templateElements
    * @see templateTitle
+   * @see panels
    * @see panelCount
    */
   public get template(): PanelModel {
@@ -335,18 +340,20 @@ export class QuestionPanelDynamicModel extends Question
     return this.template;
   }
   /**
-   * The template Panel elements, questions and panels.
-   * @see  templateElements
+   * An array of questions and panels included in the template panel.
    * @see template
+   * @see panels
    * @see panelCount
    */
   public get templateElements(): Array<IElement> {
     return this.template.elements;
   }
   /**
-   * The template Panel title property.
-   * @see  templateElements
+   * A title for the template panel.
    * @see template
+   * @see templateDescription
+   * @see templateElements
+   * @see panels
    * @see panelCount
    */
   public get templateTitle(): string {
@@ -359,11 +366,12 @@ export class QuestionPanelDynamicModel extends Question
     return this.template.locTitle;
   }
   /**
-   * The template Panel description property.
-   * @see  templateElements
+   * A description for the template panel.
    * @see template
-   * @see panelCount
    * @see templateTitle
+   * @see templateElements
+   * @see panels
+   * @see panelCount
    */
   public get templateDescription(): string {
     return this.template.description;
@@ -383,7 +391,8 @@ export class QuestionPanelDynamicModel extends Question
     return res;
   }
   /**
-   * The array of dynamic panels created based on panel template
+   * An array of `PanelModel` objects created based on the template panel.
+   * @see PanelModel
    * @see template
    * @see panelCount
    */
@@ -391,7 +400,9 @@ export class QuestionPanelDynamicModel extends Question
     return this.getPropertyValue("panels");
   }
   /**
-   * The index of current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns -1, otherwise it returns a value from 0 to panelCount - 1.
+   * A zero-based index of the currently displayed panel.
+   *
+   * When `renderMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains -1.
    * @see currentPanel
    * @see panels
    * @see panelCount
@@ -417,8 +428,10 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * The current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.
-   * @see currenIndex
+   * A `PanelModel` object that is the currently displayed panel.
+   *
+   * When `renderMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains `null`.
+   * @see currentIndex
    * @see panels
    * @see panelCount
    * @see renderMode
@@ -429,8 +442,8 @@ export class QuestionPanelDynamicModel extends Question
     return this.panels[index];
   }
   /**
-   * Set it to true, to show a confirmation dialog on removing a panel
-   * @see ConfirmDeleteText
+   * Specifies whether to display a confirmation dialog when a respondent wants to delete a panel.
+   * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
     return this.getPropertyValue("confirmDelete", false);
@@ -439,7 +452,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("confirmDelete", val);
   }
   /**
-   * Set it to a question name used in the template panel and the library shows duplication error, if there are same values in different panels of this question.
+   * Specifies a key question. Set this property to the name of a question used in the template, and Dynamic Panel will display `keyDuplicationError` if a user tries to enter a duplicate value in this question.
    * @see keyDuplicationError
    */
   public get keyName(): string {
@@ -449,7 +462,8 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("keyName", val);
   }
   /**
-   * Use this property to change the default text showing in the confirmation delete dialog on removing a panel.
+   * A message displayed in a confirmation dialog that appears when a respondent wants to delete a panel.
+   * @see confirmDelete
    */
   public get confirmDeleteText() {
     return this.getLocalizableStringText("confirmDeleteText");
@@ -461,7 +475,9 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("confirmDeleteText");
   }
   /**
-   * The duplication value error text. Set it to show the text different from the default.
+   * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
+   *
+   * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/master/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
   public get keyDuplicationError() {
@@ -474,10 +490,9 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("keyDuplicationError");
   }
   /**
-   * Use this property to change the default previous button text. Previous button shows the previous panel, change the currentPanel, when the renderMode doesn't equal to "list".
-   * @see currentPanel
-   * @see currentIndex
+   * A caption for the Previous button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
+   * @see isPrevButtonShowing
    */
   public get panelPrevText(): string {
     return this.getLocalizableStringText("panelPrevText");
@@ -489,10 +504,9 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("panelPrevText");
   }
   /**
-   * Use this property to change the default next button text. Next button shows the next panel, change the currentPanel, when the renderMode doesn't equal to "list".
-   * @see currentPanel
-   * @see currentIndex
+   * A caption for the Next button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
+   * @see isNextButtonShowing
    */
   public get panelNextText(): string {
     return this.getLocalizableStringText("panelNextText");
@@ -504,7 +518,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("panelNextText");
   }
   /**
-   * Use this property to change the default value of add panel button text.
+   * A caption for the Add Panel button.
    */
   public get panelAddText() {
     return this.getLocalizableStringText("panelAddText");
@@ -516,7 +530,8 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("panelAddText");
   }
   /**
-   * Use this property to change the default value of remove panel button text.
+   * A caption for the Delete Panel button.
+   * @see panelRemoveButtonLocation
    */
   public get panelRemoveText() {
     return this.getLocalizableStringText("panelRemoveText");
@@ -540,18 +555,19 @@ export class QuestionPanelDynamicModel extends Question
     return this.renderMode === "progressBottom" || this.renderMode === "progressTopBottom";
   }
   /**
-   * Returns true when currentIndex is more than 0.
-   * @see currenIndex
-   * @see currenPanel
+   * Indicates whether the Previous button is visible.
+   * @see currentIndex
+   * @see currentPanel
+   * @see panelPrevText
    */
   public get isPrevButtonShowing(): boolean {
     return this.currentIndex > 0;
   }
   /**
-   * Returns true when currentIndex is more than or equal 0 and less than panelCount - 1.
-   * @see currenIndex
-   * @see currenPanel
-   * @see panelCount
+   * Indicates whether the Next button is visible.
+   * @see currentIndex
+   * @see currentPanel
+   * @see panelNextText
    */
   public get isNextButtonShowing(): boolean {
     return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1;
@@ -597,13 +613,9 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Use this property to get/set the number of dynamic panels.
-   * @see template
+   * The number of panels in Dynamic Panel.
    * @see minPanelCount
    * @see maxPanelCount
-   * @see addPanel
-   * @see removePanel
-   * @see removePanelUI
    */
   public get panelCount(): number {
     return this.isLoadingFromJson || this.useTemplatePanel
@@ -640,11 +652,14 @@ export class QuestionPanelDynamicModel extends Question
     this.fireCallback(this.panelCountChangedCallback);
   }
   /**
-   * Use this property to allow the end-user to collapse/expand the panels. It works only if the renderMode property equals to "list" and templateTitle property is not empty. The following values are available:
-   * default - the default value. User can't collapse/expand panels
-   * expanded - User can collapse/expand panels and all panels are expanded by default
-   * collapsed - User can collapse/expand panels and all panels are collapsed by default
-   * firstExpanded - User can collapse/expand panels. The first panel is expanded and others are collapsed
+   * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - All panels are displayed in full and cannot be collapsed.
+   * - `"expanded"` - All panels are displayed in full and can be collapsed in the UI.
+   * - `"collapsed"` - All panels display only their titles and descriptions and can be expanded in the UI.
+   * - `"firstExpanded"` - Only the first panel is displayed in full; other panels are collapsed and can be expanded in the UI.
    * @see renderMode
    * @see templateTitle
    */
@@ -692,9 +707,12 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = false;
   }
   /**
-   * The minimum panel count. A user could not delete a panel if the panelCount equals to minPanelCount
+   * A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
+   *
+   * Default value: 0
    * @see panelCount
    * @see maxPanelCount
+   * @see allowRemovePanel
    */
   public get minPanelCount(): number {
     return this.getPropertyValue("minPanelCount");
@@ -707,9 +725,12 @@ export class QuestionPanelDynamicModel extends Question
     if (this.panelCount < val) this.panelCount = val;
   }
   /**
-   * The maximum panel count. A user could not add a panel if the panelCount equals to maxPanelCount
+   * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
+   *
+   * Default value: 100 (inherited from [`settings.panelMaximumPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
    * @see panelCount
    * @see minPanelCount
+   * @see allowAddPanel
    */
   public get maxPanelCount(): number {
     return this.getPropertyValue("maxPanelCount");
@@ -724,7 +745,10 @@ export class QuestionPanelDynamicModel extends Question
     if (this.panelCount > val) this.panelCount = val;
   }
   /**
-   * Set this property to false to hide the 'Add New' button
+   * Specifies whether users are allowed to add new panels.
+   *
+   * Default value: `true`
+   * @see canAddPanel
    * @see allowRemovePanel
    */
   public get allowAddPanel(): boolean {
@@ -734,7 +758,10 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("allowAddPanel", val);
   }
   /**
-   * Set this property to false to hide the 'Remove' button
+   * Specifies whether users are allowed to delete panels.
+   *
+   * Default value: `true`
+   * @see canRemovePanel
    * @see allowAddPanel
    */
   public get allowRemovePanel(): boolean {
@@ -744,9 +771,14 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("allowRemovePanel", val);
   }
   /**
-   * Set this property different from "default" to set the specific question title location for the template questions.
-   * @see SurveyModel.questionTitleLocation
-   * @see PanelModelBase.questionTitleLocation
+   * Gets or sets the location of question titles within the template panel relative to their input fields.
+   *
+   * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's container (page or survey).
+   * - `"top"` - Displays question titles above input fields.
+   * - `"bottom"` - Displays question titles below input fields.
+   * - `"left"` - Displays question titles to the left of input fields.
+   * - `"hidden"` - Hides question titles.
+   * @see titleLocation
    */
   public get templateTitleLocation(): string {
     return this.getPropertyValue("templateTitleLocation");
@@ -768,8 +800,13 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Use this property to change the location of the remove button relative to the panel.
-   * By default the value is "bottom". You may set it to "right" and remove button will appear to the right of the panel.
+   * Specifies the location of the Delete Panel button relative to panel content.
+   *
+   * Possible values:
+   *
+   * - `"bottom"` (default) - Displays the Delete Panel button below panel content.
+   * - `"right"` - Displays the Delete Panel button to the right of panel content.
+   * @see panelRemoveText
    */
   public get panelRemoveButtonLocation(): string {
     return this.getPropertyValue("panelRemoveButtonLocation");
@@ -801,10 +838,6 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
-  /**
-   * Returns true when renderMode equals to "list".
-   * @see renderMode
-   */
   public get isRenderModeList() {
     return this.renderMode === "list";
   }
@@ -837,16 +870,22 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   /**
-   * Returns true when an end user may add a new panel. The question is not read only and panelCount less than maxPanelCount
-   * and renderMode is "list" or the current panel doesn't have any errors
+   * Indicates whether it is possible to add a new panel.
+   *
+   * This property returns `true` when all of the following conditions apply:
+   *
+   * - Users are allowed to add new panels (`allowAddPanel` is `true`).
+   * - Dynamic Panel or its parent survey is not in read-only state.
+   * - `panelCount` is less than `maxPanelCount`.
+   * @see allowAddPanel
    * @see isReadOnly
    * @see panelCount
    * @see maxPanelCount
-   * @see renderMode
+   * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if(this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
+    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
       return false;
     }
     return (
@@ -856,10 +895,18 @@ export class QuestionPanelDynamicModel extends Question
     );
   }
   /**
-   * Returns true when an end user may remove a panel. The question is not read only and panelCount is more than minPanelCount
+   * Indicates whether it is possible to delete panels.
+   *
+   * This property returns `true` when all of the following conditions apply:
+   *
+   * - Users are allowed to delete panels (`allowRemovePanel` is `true`).
+   * - Dynamic Panel or its parent survey is not in read-only state.
+   * - `panelCount` exceeds `minPanelCount`.
+   * @see allowRemovePanel
    * @see isReadOnly
    * @see panelCount
    * @see minPanelCount
+   * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
     if (this.isDesignMode) return false;
@@ -891,7 +938,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
    * @see defaultValue
-   * @see defaultValueFromLastRow
+   * @see defaultValueFromLastPanel
    */
   public get defaultPanelValue(): any {
     return this.getPropertyValue("defaultPanelValue");
@@ -900,10 +947,10 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("defaultPanelValue", val);
   }
   /**
-   * Set it to true to copy the value into new added panel from the last panel. If defaultPanelValue is set and this property equals to true,
-   * then the value for new added panel is merging.
+   * Specifies whether default values for a new panel should be copied from the last panel.
+   *
+   * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
-   * @see defaultPanelValue
    */
   public get defaultValueFromLastPanel(): boolean {
     return this.getPropertyValue("defaultValueFromLastPanel", false);
@@ -962,7 +1009,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
-    if(!this.canLeaveCurrentPanel()) return null;
+    if (!this.canLeaveCurrentPanel()) return null;
     const newPanel = this.addPanel();
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
@@ -1036,8 +1083,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
-   * Goes to the next panel in the PanelDynamic
-   * Returns true, if it can move to the next panel. It can return false if the renderMode is "list" or the current panel has errors.
+   * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `renderMode` is `"list"` or the current panel contains validation errors.
    * @see renderMode
    */
   public goToNextPanel(): boolean {
@@ -1047,8 +1093,7 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   /**
-   * Goes to the previous panel in the PanelDynamic
-   *
+   * Switches Dynamic Panel to the previous panel.
    */
   public goToPrevPanel() {
     if (this.currentIndex < 0) return;
@@ -1150,12 +1195,12 @@ export class QuestionPanelDynamicModel extends Question
   ): Question {
     return !!this.survey && !!this.valueName
       ? <Question>(
-          this.survey.getQuestionByValueNameFromArray(
-            this.valueName,
-            name,
-            panelIndex
-          )
+        this.survey.getQuestionByValueNameFromArray(
+          this.valueName,
+          name,
+          panelIndex
         )
+      )
       : null;
   }
   public addConditionObjectsByContext(
@@ -1189,7 +1234,7 @@ export class QuestionPanelDynamicModel extends Question
           text: prefixText + "panel." + panelObjs[i].text,
           question: panelObjs[i].question
         };
-        if(context === true) {
+        if (context === true) {
           obj.context = this;
         }
         objects.push(obj);
@@ -1228,8 +1273,8 @@ export class QuestionPanelDynamicModel extends Question
     this.setPanelsSurveyImpl();
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
-    if(!!this.survey) {
-      for(var i = 0; i < this.panelCount; i ++) {
+    if (!!this.survey) {
+      for (var i = 0; i < this.panelCount; i++) {
         this.survey.dynamicPanelAdded(this);
       }
     }
@@ -1458,7 +1503,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        if(fireCallback) {
+        if (fireCallback) {
           question.addError(
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
@@ -1492,7 +1537,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
     var self = this;
-    panel.onGetQuestionTitleLocation = function() {
+    panel.onGetQuestionTitleLocation = function () {
       return self.getTemplateQuestionTitleLocation();
     };
     return panel;
@@ -1711,7 +1756,7 @@ export class QuestionPanelDynamicModel extends Question
       .toString();
   }
   /**
-   * A text displayed when the dynamic panel contains no entries. Applies only in the Default V2 theme.
+   * A text displayed when Dynamic Panel contains no entries. Applies only in the Default V2 theme.
    */
   public get noEntriesText(): string {
     return this.getLocalizableStringText("noEntriesText");
@@ -1727,12 +1772,12 @@ export class QuestionPanelDynamicModel extends Question
   }
   public needResponsiveWidth(): boolean {
     const panel = <PanelModel>this.getPanel();
-    if(!!panel && panel.needResponsiveWidth()) return true;
+    if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
   private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {
-    if(!this.footerToolbarValue) {
+    if (!this.footerToolbarValue) {
       this.initFooterToolbar();
     }
     return this.footerToolbarValue;
@@ -1741,7 +1786,7 @@ export class QuestionPanelDynamicModel extends Question
   legacyNavigation: boolean
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
-    if(!!this.updateFooterActionsCallback) {
+    if (!!this.updateFooterActionsCallback) {
       this.updateFooterActionsCallback();
     }
   }
@@ -1751,14 +1796,14 @@ export class QuestionPanelDynamicModel extends Question
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
       title: this.panelPrevText,
-      action: ()=>{
+      action: () => {
         this.goToPrevPanel();
       }
     });
     const nextTextBtn = new Action({
       id: "sv-pd-next-btn",
       title: this.panelNextText,
-      action: ()=>{
+      action: () => {
         this.goToNextPanel();
       }
     });
@@ -1880,7 +1925,7 @@ Serializer.addClass(
       choices: ["bottom", "right"],
     },
   ],
-  function() {
+  function () {
     return new QuestionPanelDynamicModel("");
   },
   "question"

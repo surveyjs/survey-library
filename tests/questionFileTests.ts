@@ -1041,3 +1041,33 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   }] };
   assert.equal(question.isReady, false);
 });
+
+QUnit.test("QuestionFile remove file by preview value", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true,
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  survey.data = {
+    image1: [
+      { name: "f1", content: "data" },
+      { name: "f2", content: "data" },
+    ],
+  };
+
+  assert.deepEqual(q1.previewValue.length, 2);
+  q1.doRemoveFile(q1.previewValue[1]);
+
+  assert.deepEqual(q1.previewValue.length, 1);
+  assert.deepEqual(survey.data, {
+    image1: [{ name: "f1", content: "data" }],
+  });
+});

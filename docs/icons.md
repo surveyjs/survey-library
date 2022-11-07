@@ -52,6 +52,8 @@ const svg = ReactDOMServer.renderToString(<MyIcon />);
 SvgRegistry.registerIconFromSvg("icon-delete", svg);
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/custom-icons/ (linkStyle))
+
 ## See Also
 
 - [Conditional Logic and Dynamic Texts](/Documentation/Library?id=design-survey-conditional-logic)

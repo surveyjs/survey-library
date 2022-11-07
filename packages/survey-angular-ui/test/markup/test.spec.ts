@@ -3,7 +3,7 @@ import { SurveyComponent } from "src/survey.component";
 import { settings, StylesManager, SurveyModel } from "survey-core";
 import { testQuestionMarkup } from "../../../../tests/markup/helper";
 import { markupTests } from "../../../../tests/markup/etalon";
-import { SurveyAngularModule } from "src/angular-ui.module";
+import { SurveyModule } from "src/angular-ui.module";
 
 const platformDescriptor = {
   name: "Angular",
@@ -41,9 +41,9 @@ const blackList = [];
 describe("etalon tests", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SurveyAngularModule],
+      imports: [SurveyModule],
     }).compileComponents();
-    TestBed.inject(SurveyAngularModule);
+    TestBed.inject(SurveyModule);
     (<any>window).ResizeObserver = function () {
       return {
         observe: () => {},

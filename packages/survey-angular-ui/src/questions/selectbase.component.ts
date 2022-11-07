@@ -17,6 +17,12 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
   public getDefaultComponentName(): string {
     return "sv-ng-selectbase-item";
   }
+  public trackItemBy(_: number, item: ItemValue): any {
+    return item.value;
+  }
+  public trackColumnBy(index: number): any {
+    return index;
+  }
 
   public getItemValueComponentName(item: ItemValue): string {
     return this.model.getItemValueWrapperComponentName(item) || this.getDefaultComponentName();

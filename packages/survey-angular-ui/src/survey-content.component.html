@@ -4,14 +4,13 @@
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
+        <ng-container *ngIf="model.isTimerPanelShowingOnTop && !model.isShowStartingPage">
+          <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
+        </ng-container>
         <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
           <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
         </ng-container>
         <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.width]="model.renderedWidth" [style.maxWidth]="model.renderedWidth">
-          <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
-          <!-- ko template: { name: 'survey-timerpanel' } -->
-          <!-- /ko -->
-          <!-- /ko -->
           <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
           <!-- ko if: activePage -->
             <ng-container *ngIf="model.activePage">
@@ -24,12 +23,11 @@
             <!-- /ko -->
             <!-- /ko -->
           <!-- /ko -->
-          <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
-          <!-- ko template: { name: 'survey-timerpanel' } -->
-          <!-- /ko -->
-          <!-- /ko -->
           <ng-container *ngIf="model.isShowProgressBarOnBottom && !model.isShowStartingPage">
             <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
+          </ng-container>
+          <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
+            <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
           </ng-container>
           <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>
         </div>

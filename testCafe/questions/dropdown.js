@@ -678,6 +678,43 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.nth(1).textContent).eql("item21");
   });
 
+  test("Select item after switching focus", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+
+    await t
+      .expect(popupContainer.visible).notOk()
+
+      .pressKey("a")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueText.textContent).eql("Vauxhall");
+  });
+
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
       questions: [
@@ -893,7 +930,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Check dropdown reset filter string", async (t) => {
-    const jsonWithDropDown = {
+    const jsonWithDropdown = {
       questions: [
         {
           type: "dropdown",
@@ -930,7 +967,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    await initSurvey(framework, jsonWithDropDown);
+    await initSurvey(framework, jsonWithDropdown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     const listItems = Selector(".sv-list__item");
 
@@ -945,7 +982,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
       .expect(clearButton.visible).notOk();

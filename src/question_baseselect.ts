@@ -33,6 +33,8 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue("none");
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
+  @property() protected selectedItemValues: any;
+
   constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this.noneItemValue, true, "noneItemText");
@@ -440,6 +442,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected setNewValue(newValue: any) {
+    this.resetSelectedItemValues();
     newValue = this.valueFromData(newValue);
     if (
       (!this.choicesByUrl.isRunning &&
@@ -475,6 +478,28 @@ export class QuestionSelectBase extends Question {
       val = this.getQuestionComment();
     }
     return val;
+  }
+  protected updateSelectedItemValues(): void {
+    if(!!this.survey && !this.isEmpty() && this.choices.length === 0) {
+      const IsMultipleValue = this.getIsMultipleValue();
+
+      this.survey.getChoiceDisplayValue({
+        question: this,
+        values: IsMultipleValue ? this.value : [this.value],
+        callback: (displayValues: Array<string>) => {
+          if(!displayValues || !displayValues.length) return;
+
+          if(IsMultipleValue) {
+            this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
+          } else {
+            this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
+          }
+        }
+      });
+    }
+  }
+  protected resetSelectedItemValues(): void {
+    this.selectedItemValues = null;
   }
   protected hasUnknownValue(
     val: any,

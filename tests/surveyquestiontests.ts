@@ -6130,3 +6130,29 @@ QUnit.test("Do not allow question to start with #", function (assert) {
   questions[1].valueName = "#q3";
   assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
 });
+QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        defaultValue: 55,
+        choicesByUrl: {
+          url: "some url"
+        }
+      },
+    ]
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+  assert.equal(question.selectedItem.value, 55);
+  assert.equal(question.selectedItem.text, "DisplayText_55");
+});

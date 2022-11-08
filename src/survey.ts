@@ -684,6 +684,7 @@ export class SurveyModel extends SurveyElementCore
   >();
 
   public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onGetChoiceDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
    * The event is fired on adding a new row in Matrix Dynamic question.
@@ -4416,6 +4417,9 @@ export class SurveyModel extends SurveyElementCore
   }
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
+  }
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, callback: (displayValues: Array<string>) => void }): void {
+    this.onGetChoiceDisplayValue.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);

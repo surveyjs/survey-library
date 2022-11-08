@@ -247,7 +247,7 @@ export class ListModel extends ActionContainer {
     }
   }
   public selectFocusedItem(): void {
-    this.onItemClick(this.focusedItem);
+    !!this.focusedItem && this.onItemClick(this.focusedItem);
   }
   public initListContainerHtmlElement(htmlElement: HTMLElement): void {
     this.listContainerHtmlElement = htmlElement;

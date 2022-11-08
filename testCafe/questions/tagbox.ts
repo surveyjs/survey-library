@@ -176,10 +176,18 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.nth(0).textContent).contains("item23")
       .expect(popupContainer.visible).ok()
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(popupContainer.visible).notOk()
       .expect(selectedItems.count).eql(1)
-      .expect(selectedItems.nth(0).textContent).contains("item23");
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+
+      .pressKey("1")
+      .pressKey("4")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(selectedItems.nth(1).textContent).contains("item14");
   });
 
   test("Check tagbox key press", async (t) => {

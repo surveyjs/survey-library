@@ -15610,3 +15610,20 @@ QUnit.test("Make sure that panel is not collapsed on focusing the question", fun
   assert.equal(p2.isExpanded, true, "Expand panel, p2");
   assert.equal(p1.isExpanded, true, "Expand panel, p1");
 });
+QUnit.test("Set question choices for disposed survey", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [1, 2]
+      }
+    ],
+  });
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  survey.dispose();
+  question.choices = [1, 2, 3];
+  assert.equal(question.choices.length, 3, "There is not errors");
+  assert.notOk(question.survey, "Survey is not set");
+  assert.notOk(question.data, "data is not set");
+});

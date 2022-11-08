@@ -79,7 +79,11 @@ export class MultipleTextItemModel extends Base
     super.addUsedLocales(locales);
     this.editor.addUsedLocales(locales);
   }
-  public locStrsChanged() {
+  public localeChanged(): void {
+    super.localeChanged();
+    this.editor.localeChanged();
+  }
+  public locStrsChanged(): void {
     super.locStrsChanged();
     this.editor.locStrsChanged();
   }
@@ -395,13 +399,19 @@ export class QuestionMultipleTextModel extends Question
     json["type"] = "text";
     return json;
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].locStrsChanged();
     }
   }
-  supportGoNextPageAutomatic() {
+  public localeChanged(): void {
+    super.localeChanged();
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].localeChanged();
+    }
+  }
+  supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) return false;
     }

@@ -9,7 +9,6 @@ import { property } from "./jsonobject";
  * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
  */
 export class PopupSurveyModel extends Base {
-  public static surveyElementName = "PopupSurveyJS";
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 

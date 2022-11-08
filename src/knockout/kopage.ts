@@ -35,7 +35,7 @@ export class QuestionRow extends QuestionRowModel {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
       var element = <IElement>con;
-      if (element.isPanel) {
+      if (element.isPanel && this.panel.survey) {
         this.panel.survey.afterRenderPanel(con, el);
       } else {
         (<Question>element).afterRender(el);

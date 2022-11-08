@@ -3,7 +3,7 @@
 $primary: var(--primary, #19b394);
 $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 $primary-foreground: var(--primary-foreground, #fff);
-$primary-foreground-disabled: var(--primary-foreground-disabled, rgba(#fff, 0.25)); 
+$primary-foreground-disabled: var(--primary-foreground-disabled, rgba(#fff, 0.25));
 
 $secondary: var(--secondary, #ff9814);
 $secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
@@ -34,7 +34,7 @@ $green: var(--green, #19b394);
 $green-light: var(--green-light, rgba(25, 179, 148, 0.1));
 $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 
-$font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family: var(--font-family);
 
 $base-unit: var(--base-unit, 8px);
 

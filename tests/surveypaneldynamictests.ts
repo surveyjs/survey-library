@@ -32,7 +32,7 @@ QUnit.test("Create panels based on template on setting value", function(
     2,
     "There are two elements in the first panel"
   );
-  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel")
+  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel");
 });
 
 QUnit.test("Synhronize panelCount and value array length", function(assert) {
@@ -4633,4 +4633,64 @@ QUnit.test("Incorrect default value in panel dynamic", (assert) => {
   assert.equal(panel.panelCount, 2, "There are two panels");
   const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
   assert.equal(p1_q1.name, "panel_q1", "question name is correct");
+});
+
+QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          {
+            type: "file",
+            name: "file1",
+            storeDataAsText: false,
+          }
+        ],
+        panelCount: 1
+      }
+    ],
+  });
+  const panel = survey.getAllQuestions()[0];
+  const question = panel.panels[0].questions[0];
+  let done = assert.async();
+  let log = "";
+  survey.onDownloadFile.add((survey, options) => {
+    assert.equal(options.question.isReady, false);
+    setTimeout(() => {
+      log += "->" + options.fileValue.name;
+      options.callback("success", (<string>options.content).replace("url", "content"));
+    });
+  });
+  panel.onReadyChanged.add((_, opt) => {
+    if(opt.isReady) {
+      assert.equal(log, "->file1.png->file2.png");
+      assert.equal(question.isReady, true);
+      assert.equal(question.onReadyChanged.isEmpty, true);
+      assert.deepEqual(panel.panels[0].questions[0].previewValue, [{
+        content: "content1",
+        name: "file1.png",
+        type: "image/png"
+      }, {
+        content: "content2",
+        name: "file2.png",
+        type: "image/png"
+      }]);
+      assert.ok(panel.isReady);
+      done();
+    }
+  });
+  survey.data = { panel: [{
+    "file1": [{
+      content: "url1",
+      name: "file1.png",
+      type: "image/png"
+    }, {
+      content: "url2",
+      name: "file2.png",
+      type: "image/png"
+    }]
+  }] };
+  assert.equal(panel.isReady, false);
 });

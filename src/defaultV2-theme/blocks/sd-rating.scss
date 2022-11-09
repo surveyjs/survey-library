@@ -8,6 +8,7 @@
     padding: 0 0 calcSize(2) 0;
     flex-wrap: nowrap;
     gap: calcSize(1);
+    margin-inline-start: 0;
   }
   &.sd-rating--wrappable {
     fieldset {
@@ -65,6 +66,7 @@
   &.sd-rating__min-text {
     margin-right: calcSize(1);
     // margin-left: calcSize(2);
+    border-left: 0px;
   }
   &.sd-rating__max-text {
     margin-right: calcSize(2);

@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { SurveyModel, PopupSurveyModel } from "survey-core";
 import { ImplementorBase } from "./kobase";
-var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
+var koTemplate = require("html-loader?interpolate!val-loader!./templates/window.html");
 
 export class PopupSurveyImplementor extends ImplementorBase {
   constructor(public window: PopupSurveyModel) {
@@ -20,7 +20,6 @@ export class PopupSurveyImplementor extends ImplementorBase {
       ko.cleanNode(windowElement);
       ko.applyBindings(this.window, windowElement);
       document.body.appendChild(windowElement);
-      this.window.survey.render(PopupSurveyModel.surveyElementName);
     } else {
       document.body.removeChild(windowElement);
       windowElement.innerHTML = "";

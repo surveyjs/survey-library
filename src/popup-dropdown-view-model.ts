@@ -27,6 +27,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const width = popupContainer.getBoundingClientRect().width;
     this.model.setWidthByTarget && (this.minWidth = targetElementRect.width + "px");
     let verticalPosition = this.model.verticalPosition;
+
+    let actualHorizontalPosition = this.getActualHorizontalPosition();
+
     if (!!window) {
       height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
       verticalPosition = PopupUtils.updateVerticalPosition(
@@ -39,14 +42,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     this.popupDirection = PopupUtils.calculatePopupDirection(
       verticalPosition,
-      this.model.horizontalPosition
+      actualHorizontalPosition
     );
     const pos = PopupUtils.calculatePosition(
       targetElementRect,
       height,
       width + marginLeft + marginRight,
       verticalPosition,
-      this.model.horizontalPosition,
+      actualHorizontalPosition,
       this.showHeader,
       this.model.positionMode
     );
@@ -66,7 +69,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.left,
         width,
         window.innerWidth,
-        this.model.horizontalPosition,
+        actualHorizontalPosition,
         this.model.positionMode,
         { left: marginLeft, right: marginRight }
       );
@@ -84,13 +87,26 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.top,
         pos.left,
         verticalPosition,
-        this.model.horizontalPosition,
+        actualHorizontalPosition,
         marginLeft,
         marginRight
       );
     }
     this.pointerTarget.top += "px";
     this.pointerTarget.left += "px";
+  }
+
+  protected getActualHorizontalPosition(): "left" | "center" | "right" {
+    let actualHorizontalPosition = this.model.horizontalPosition;
+    let isRtl = !!document && document.defaultView.getComputedStyle(document.body).direction == "rtl";
+    if(isRtl) {
+      if(this.model.horizontalPosition === "left") {
+        actualHorizontalPosition = "right";
+      } else if(this.model.horizontalPosition === "right") {
+        actualHorizontalPosition = "left";
+      }
+    }
+    return actualHorizontalPosition;
   }
 
   protected hidePopup(): void {

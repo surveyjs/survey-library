@@ -29,6 +29,11 @@
   border: 2px solid $background;
   color: $foreground;
 }
+
+legend+.sd-rating__item {
+  margin-inline-start: 2px;
+}
+
 .sd-rating__item--error {
   background-color: $red-light;
   box-shadow: 0px 1px 2px transparent;

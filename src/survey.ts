@@ -6342,12 +6342,48 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
+  public get timerInfo(): { spent: number, limit: number } {
+    return this.getTimerInfo();
+  }
+  public get timerClockText(): string {
+    if(!!this.currentPage) {
+      let { spent, limit } = this.getTimerInfo();
+      return this.getDisplayClockTime(limit - spent);
+    }
+    return "";
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
     var loc = new LocalizableString(this, true);
     loc.text = options.text;
     return loc.textOrHtml;
+  }
+  private surveySpentAfterTimerSwitch: number = 0;
+  private getTimerInfo() : { spent: number, limit: number } {
+    let page = this.currentPage;
+    if (!page) return null;
+    let pageSpent = page.timeSpent;
+    let surveySpent = this.timeSpent;
+    let pageLimitSec = this.getPageMaxTimeToFinish(page);
+    let surveyLimit = this.maxTimeToFinish;
+    if (this.showTimerPanelMode == "page") {
+      return { spent: pageSpent, limit: pageLimitSec };
+    }
+    if(this.showTimerPanelMode == "survey") {
+      return { spent: surveySpent, limit: surveyLimit };
+    }
+    else {
+      if(surveyLimit - surveySpent > pageLimitSec - pageSpent && pageLimitSec > 0) {
+        this.surveySpentAfterTimerSwitch = 0;
+        return { spent: pageSpent, limit: pageLimitSec };
+      } else {
+        if(surveySpent !== 0 && pageSpent === 0) {
+          this.surveySpentAfterTimerSwitch = surveySpent;
+        }
+        return { spent: surveySpent - this.surveySpentAfterTimerSwitch, limit: surveyLimit - this.surveySpentAfterTimerSwitch };
+      }
+    }
   }
   private getTimerInfoText() {
     var page = this.currentPage;
@@ -6397,6 +6433,11 @@ export class SurveyModel extends SurveyElementCore
   ): string {
     const strName = this.maxTimeToFinish > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
+  }
+  private getDisplayClockTime(val: number): string {
+    const min: number = Math.floor(val / 60);
+    const sec: number = val % 60;
+    return `${min}:${sec}`;
   }
   private getDisplayTime(val: number): string {
     const min: number = Math.floor(val / 60);

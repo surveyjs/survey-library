@@ -1,11 +1,15 @@
 import { ISurvey } from "./base-interfaces";
-import { Base } from "./base";
+import { Base, EventBase } from "./base";
 import { SurveyTimer } from "./surveytimer";
 import { property } from "./jsonobject";
 import { PageModel } from "./page";
+import { SurveyModel } from "./survey";
 
 export interface ISurveyTimerText {
   timerInfoText: string;
+  timerInfo: { spent: number, limit: number };
+  timerClockText: string;
+  onCurrentPageChanged: EventBase<SurveyModel>;
 }
 
 export class SurveyTimerModel extends Base {
@@ -17,16 +21,21 @@ export class SurveyTimerModel extends Base {
     this.onCreating();
   }
   @property() text: string;
+  @property() progress: number;
+  @property() clockText: string;
   @property({ defaultValue: 0 }) spent: number;
-  public get survey(): ISurvey { return this.surveyValue; }
+  public get survey(): ISurveyTimerText { return <any>this.surveyValue; }
   public onCreating(): void {}
   private timerFunc: any = null;
   public start(): void {
     if(!this.survey) return;
     if (this.isRunning || this.isDesignMode) return;
+    this.survey.onCurrentPageChanged.add(() => {
+      this.update();
+    });
     this.timerFunc = (): void => { this.doTimer(); };
     this.setIsRunning(true);
-    this.updateText();
+    this.update();
     SurveyTimer.instance.start(this.timerFunc);
   }
   public stop(): void {
@@ -40,18 +49,35 @@ export class SurveyTimerModel extends Base {
   private setIsRunning(val: boolean): void {
     this.setPropertyValue("isRunning", val);
   }
+  private update() {
+    this.updateText();
+    this.updateProgress();
+  }
   private doTimer(): void {
-    var page = <PageModel>this.survey.currentPage;
+    var page = <PageModel>(<ISurvey><any>this.survey).currentPage;
     if (page) {
       page.timeSpent = page.timeSpent + 1;
     }
     this.spent = this.spent + 1;
-    this.updateText();
+    this.update();
     if(this.onTimer) {
       this.onTimer(page);
     }
   }
+  private updateProgress() {
+    let { spent, limit } = this.survey.timerInfo;
+    if(spent == 0) {
+      this.progress = 0;
+      setTimeout(() => {
+        this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+      }, 0);
+    }
+    else if(spent !== limit) {
+      this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+    }
+  }
   private updateText(): void {
-    this.text = (<ISurveyTimerText><any>this.survey).timerInfoText;
+    this.clockText = this.survey.timerClockText;
+    this.text = this.survey.timerInfoText;
   }
 }

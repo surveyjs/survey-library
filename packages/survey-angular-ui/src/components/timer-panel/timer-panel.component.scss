@@ -1,0 +1,39 @@
+.timer {
+  float: right;
+  position: sticky;
+  top: 16px;
+  background: white;
+  width: 144px;
+  height: 144px;
+  margin-bottom: -144px;
+  margin-top: 16px;
+  margin-right: 32px;
+  display: flex;
+  border-radius: 100%;
+  padding: 8px;
+  box-shadow: 0 2px 6px #0000001a;
+  box-sizing: border-box;
+}
+.timer__progress {
+  height: 100%;
+  width: 100%;
+  transform: rotate(-90deg);
+  stroke: #19B394;
+  stroke-dashoffset: 0;
+  fill: none;
+  stroke-width: 4px;
+}
+.timer__progress--animation circle {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+}
+.timer__text {
+  position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  padding: 8px;
+  color: #19B394;
+    font-weight: 700;
+font-size: 32px;
+}

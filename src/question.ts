@@ -1842,10 +1842,13 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  protected setValueChangedDirectly(): void {
+    this.isValueChangedDirectly = true;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.isValueChangedDirectly = true;
+      this.setValueChangedDirectly();
     }
     this.questionValue = newValue;
     if (!isEqual) {

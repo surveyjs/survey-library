@@ -1392,10 +1392,14 @@ export class QuestionPanelDynamicModel extends Question
   protected clearValueIfInvisibleCore(): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
+      this.isSetPanelItemData = [];
       for (var j = 0; j < questions.length; j++) {
-        questions[j].clearValueIfInvisible();
+        const q = questions[j];
+        q.clearValueIfInvisible();
+        this.isSetPanelItemData.push(q.getValueName());
       }
     }
+    this.isSetPanelItemData = undefined;
     super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {

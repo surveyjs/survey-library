@@ -4694,3 +4694,53 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
   }] };
   assert.equal(panel.isReady, false);
 });
+QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, Bug#5206", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          {
+            name: "q1",
+            type: "radiogroup",
+            choices: [1, 2, 3],
+          },
+          {
+            name: "panel1",
+            type: "paneldynamic",
+            visibleIf: "{panel.q1} = 1",
+            panelCount: 1,
+            allowAddPanel: false,
+            allowRemovePanel: false,
+            templateElements: [
+              {
+                type: "text",
+                name: "panel1_q1",
+              },
+            ],
+          },
+          {
+            name: "panel2",
+            type: "paneldynamic",
+            visibleIf: "{panel.q1} = 1",
+            panelCount: 1,
+            allowAddPanel: false,
+            allowRemovePanel: false,
+            templateElements: [
+              {
+                type: "text",
+                name: "panel2_q1",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  rootPanel.panels[0].getQuestionByName("q1").value = 2;
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
+});

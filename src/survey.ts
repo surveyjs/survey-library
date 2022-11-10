@@ -5035,8 +5035,9 @@ export class SurveyModel extends SurveyElementCore
     var res = question.hasErrors(true, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
+    const isCheckErrorOnChanged = this.checkErrorsMode.indexOf("Value") > -1;
     if (
-      !!question.page &&
+      !!question.page && isCheckErrorOnChanged &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)
     ) {
       this.fireValidatedErrorsOnPage(<PageModel>question.page);

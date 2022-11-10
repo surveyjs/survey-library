@@ -10359,8 +10359,8 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   };
   var survey = new SurveyModel(json);
   var counter = 0;
-  var errors = null;
-  var questions = null;
+  var errors: any = null;
+  var questions: any = null;
   survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
     counter++;
     errors = options.errors;
@@ -10374,57 +10374,57 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
 
   survey.setValue("q1", "val1");
   survey.nextPage();
-  assert.equal(
-    counter,
-    2 + 1,
-    "called 3 times, one time calls on value changed, since question has an error"
-  );
+  assert.equal(counter, 2, "called 2 times");
   assert.equal(errors.length, 1, "there is one error, #1");
   assert.equal(questions.length, 1, "there is one error, #2");
 
   survey.setValue("q2", "val2");
   survey.nextPage();
-  assert.equal(
-    counter,
-    3 + 2,
-    "called three times + two times, times time calls on value changed, since questions have errors"
-  );
+  assert.equal(counter, 3, "called three times");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.checkErrorsMode = "onValueChanged";
 
   survey.setValue("q3", "val3");
-  assert.equal(counter, 4 + 2, "called four times");
+  assert.equal(counter, 4, "called four times");
   assert.equal(errors.length, 1, "there is one error, #3");
   assert.equal(questions.length, 1, "there is one error, #4");
 
   survey.setValue("q3", "a@b.com");
-  assert.equal(counter, 5 + 2, "called five times");
+  assert.equal(counter, 5, "called five times");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.setValue("q3", "a@c.com");
-  assert.equal(
-    counter,
-    5 + 2,
-    "called five times - it doesn't called this time"
-  );
+  assert.equal(counter, 5, "called five times - it doesn't called this time");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.clearValue("q3");
-  assert.equal(
-    counter,
-    5 + 2,
-    "Do not call errors validation on clearing value"
-  );
+  assert.equal(counter, 5, "Do not call errors validation on clearing value");
   assert.equal(errors.length, 0, "there is no errors on clearing value");
   survey.completeLastPage();
-  assert.equal(counter, 6 + 2, "called six times");
+  assert.equal(counter, 6, "called six times");
   assert.equal(errors.length, 2, "there are two errors onComplete, #5");
   assert.equal(questions.length, 2, "there are two question onComplete, #6");
 });
+QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on changing question value, Bug#5194",
+  function (assert) {
+    const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
+    let counter = 0;
+    survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+      counter ++;
+    });
+    survey.completeLastPage();
+    assert.equal(survey.state, "running");
+    assert.equal(counter, 1, "On complete");
+    survey.setValue("name", "Jon");
+    assert.equal(counter, 1, "We do not make complete");
+    survey.completeLastPage();
+    assert.equal(counter, 2, "Do complete again");
+  }
+);
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();

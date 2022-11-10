@@ -7513,6 +7513,37 @@ QUnit.test("Question defaultValueExpression in matrix dynamic", function (
   q1.value = 10;
   assert.equal(q2.value, 4, "stop react on defaultValueExpression");
 });
+QUnit.test("Question defaultValueExpression in matrix dynamic delete/add rows, Bug#5193", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [{ cellType: "text", name: "col1" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        defaultValueExpression: "{q1}",
+        columns: [{ cellType: "text", name: "col1" }]
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  const rows1 = matrix1.visibleRows;
+  rows1[0].cells[0].value = "val1";
+  rows1[1].cells[0].value = "val2";
+  assert.deepEqual(matrix2.value, [{ col1: "val1" }, { col1: "val2" }]);
+  matrix2.removeRow(1);
+  assert.deepEqual(matrix2.value, [{ col1: "val1" }]);
+  matrix2.addRow();
+  const rows2 = matrix2.visibleRows;
+  rows2[1].cells[0].value = "val2_2";
+  assert.deepEqual(matrix2.value, [{ col1: "val1" }, { col1: "val2_2" }]);
+});
 QUnit.test("call locationChangedCallback for cell question", function (
   assert
 ) {

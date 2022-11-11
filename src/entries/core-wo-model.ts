@@ -3,8 +3,6 @@ export * from "./chunks/model";
 
 // css standard classes
 export { defaultStandardCss } from "../defaultCss/cssstandard";
-// css bootstrap classes
-export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 // css bootstrap + material classes
 export { defaultBootstrapMaterialCss } from "../defaultCss/cssbootstrapmaterial";
 

@@ -786,7 +786,7 @@ export class StylesManager {
       "$foreground-disabled": "#161616",
       "$background-dim": "#f3f3f3",
     },
-    bootstrap: {
+    /*bootstrap: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$text-input-color": "#404040;",
@@ -803,7 +803,7 @@ export class StylesManager {
 
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
-    },
+    },*/
     bootstrapmaterial: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
@@ -1147,6 +1147,7 @@ export class StylesManager {
     //eo ranking
   };
 
+  /*
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
     ".sv_main .sv_p_description": "padding-left: 1.66em;",
@@ -1211,7 +1212,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
 
     ".sv-skeleton-element": "background-color: $background-dim;",
-  };
+  };*/
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
@@ -1325,17 +1326,14 @@ export class StylesManager {
   static findSheet(styleSheetId: string): any {
     if (typeof document === "undefined") return null;
     for (let i = 0; i < document.styleSheets.length; i++) {
-      if (
-        !!document.styleSheets[i].ownerNode &&
-        (<any>document).styleSheets[i].ownerNode["id"] === styleSheetId
-      ) {
+      if (!!document.styleSheets[i].ownerNode && (<any>document).styleSheets[i].ownerNode["id"] === styleSheetId) {
         return <CSSStyleSheet>document.styleSheets[i];
       }
     }
     return null;
   }
 
-  static createSheet(styleSheetId: string) {
+  static createSheet(styleSheetId: string): any {
     let style = document.createElement("style");
     style.id = styleSheetId;
     // Add a media (and/or media query) here if you'd like!
@@ -1346,24 +1344,22 @@ export class StylesManager {
     return <CSSStyleSheet>style.sheet;
   }
 
-  public static applyTheme(
-    themeName: string = "default",
-    themeSelector: string = ".sv_main"
-  ) {
-    let ThemeCss: any;
+  public static applyTheme(themeName: string = "default", themeSelector: string = ".sv_main", themeCssRules?: { [key: string]: string }, themeColors?: { [key: string]: string }): void {
+    let themeCss: any;
 
-    if (themeName === "modern") themeSelector = ".sv-root-modern ";
+    if (themeName === "modern")
+      themeSelector = ".sv-root-modern ";
     if (themeName === "defaultV2") {
       surveyCss.currentType = themeName;
       return;
     }
-    if (
-      ["bootstrap", "bootstrapmaterial", "modern"].indexOf(themeName) !== -1
-    ) {
-      ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
+    if(!!themeCssRules) {
+      themeCss = themeCssRules;
+    } else if (["bootstrapmaterial", "modern"].indexOf(themeName) !== -1) {
+      themeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {
-      ThemeCss = StylesManager.ThemeCss;
+      themeCss = StylesManager.ThemeCss;
       surveyCss.currentType = "standard";
     }
 
@@ -1372,25 +1368,18 @@ export class StylesManager {
       let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {
         sheet = StylesManager.createSheet(styleSheetId);
-        const theme = StylesManager.ThemeColors[themeName] ||
-          StylesManager.ThemeColors["default"];
+        const theme = themeColors || StylesManager.ThemeColors["default"];
 
-        Object.keys(ThemeCss).forEach((selector) => {
-          let cssRuleText = ThemeCss[selector];
+        Object.keys(themeCss).forEach((selector) => {
+          let cssRuleText = themeCss[selector];
           Object.keys(theme).forEach(
             (colorVariableName) => (cssRuleText = cssRuleText.replace(new RegExp("\\" + colorVariableName, "g"), theme[colorVariableName]))
           );
           try {
             if (selector.indexOf("body") === 0) {
-              sheet.insertRule(
-                selector + " { " + cssRuleText + " }",
-                0
-              );
+              sheet.insertRule(selector + " { " + cssRuleText + " }", 0);
             } else {
-              sheet.insertRule(
-                themeSelector + selector + " { " + cssRuleText + " }",
-                0
-              );
+              sheet.insertRule(themeSelector + selector + " { " + cssRuleText + " }", 0);
             }
           } catch (e) { }
         });
@@ -1404,22 +1393,17 @@ export class StylesManager {
     if (StylesManager.Enabled) {
       this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
       if (!this.sheet) {
-        this.sheet = StylesManager.createSheet(
-          StylesManager.SurveyJSStylesSheetId
-        );
+        this.sheet = StylesManager.createSheet(StylesManager.SurveyJSStylesSheetId);
         this.initializeStyles(this.sheet);
       }
     }
   }
 
-  public initializeStyles(sheet: CSSStyleSheet) {
+  public initializeStyles(sheet: CSSStyleSheet): any {
     if (StylesManager.Enabled) {
       Object.keys(StylesManager.Styles).forEach((selector) => {
         try {
-          sheet.insertRule(
-            selector + " { " + StylesManager.Styles[selector] + " }",
-            0
-          );
+          sheet.insertRule(selector + " { " + StylesManager.Styles[selector] + " }", 0);
         } catch (e) { }
       });
       Object.keys(StylesManager.Media).forEach((selector) => {

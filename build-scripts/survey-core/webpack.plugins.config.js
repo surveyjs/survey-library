@@ -2,22 +2,27 @@
 
 const webpackCommonConfigCreator = require("../webpack.common");
 const { merge } = require("webpack-merge");
-var packageJson = require("./package.json");
 var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var path = require("path");
 
 const config = {
   entry: {
-    survey: path.resolve(__dirname, "../../src/main.scss"),
-    modern: path.resolve(__dirname, "../../src/modern.scss"),
-    defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss"),
+    ["bootstrap-theme"]: path.resolve(__dirname, "../../src/plugins/themes/bootstrap/index.ts"),
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
+  externals: {
+    "survey-core": {
+      root: "Survey",
+      commonjs2: "survey-core",
+      commonjs: "survey-core",
+      amd: "survey-core"
+    }
+  }
 };
 
 module.exports = function (options) {
-  options.platform = "core";
-  options.libraryName = "Survey";
-  return merge(webpackCommonConfigCreator(options, packageJson, "survey.core"), config);
+  options.platform = "";
+  options.libraryName = "SurveyThemes";
+  return merge(webpackCommonConfigCreator(options, { "name": "survey-plugins" }, "survey.plugins"), config);
 };

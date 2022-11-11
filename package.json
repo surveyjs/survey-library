@@ -12,6 +12,8 @@
     "testcafe:react": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=react",
     "testcafe:vue": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=vue",
     "release": "standard-version --message \"Release: %s [azurepipelines skip]\" ",
+    "build_plugins_dev": "webpack --config ./build-scripts/survey-core/webpack.plugins.config.js --env.buildType dev",
+    "build_plugins_prod": "webpack --config ./build-scripts/survey-core/webpack.plugins.config.js --env.buildType prod",
     "build_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev",
     "build_core_prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod",
     "build_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev",

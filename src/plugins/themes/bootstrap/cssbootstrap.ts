@@ -1,5 +1,3 @@
-import { surveyCss } from "./cssstandard";
-
 export var defaultBootstrapCss = {
   root: "sv_main sv_bootstrap_css",
   container: "sv_container",
@@ -338,4 +336,3 @@ export var defaultBootstrapCss = {
     },
   },
 };
-(<any>surveyCss)["bootstrap"] = defaultBootstrapCss;

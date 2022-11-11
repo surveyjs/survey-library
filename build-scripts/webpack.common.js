@@ -122,12 +122,6 @@ module.exports = function (options, packageJson, chunkName) {
 
   var config = {
     mode: isProductionBuild ? "production" : "development",
-    entry: {
-      [packageName]: path.resolve(
-        __dirname,
-        "../src/entries/" + options.platform + ".ts"
-      ),
-    },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
@@ -214,7 +208,6 @@ module.exports = function (options, packageJson, chunkName) {
       umdNamedDefine: true,
     },
     plugins: [
-      new webpack.ProgressPlugin(percentage_handler),
       new webpack.DefinePlugin({
         "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version),
@@ -233,15 +226,27 @@ module.exports = function (options, packageJson, chunkName) {
     ],
   };
 
+  if(!!options.platform) {
+    config.plugins.unshift(percentage_handler);
+    config.entry = {
+      [packageName]: path.resolve(
+        __dirname,
+        "../src/entries/" + options.platform + ".ts"
+      ),
+    };
+  }
+
   if (isProductionBuild) {
-    config.plugins.push(
-      new GenerateJsonPlugin(
-        /*buildPath +*/ "package.json",
-        packageJson,
-        undefined,
-        2
-      )
-    );
+    if(!!options.platform) {
+      config.plugins.push(
+        new GenerateJsonPlugin(
+          /*buildPath +*/ "package.json",
+          packageJson,
+          undefined,
+          2
+        )
+      );
+    }
   } else {
     config.devtool = "inline-source-map";
     config.plugins = config.plugins.concat([

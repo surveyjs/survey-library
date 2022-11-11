@@ -6438,7 +6438,11 @@ export class SurveyModel extends SurveyElementCore
   private getDisplayClockTime(val: number): string {
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
-    return `${min}:${sec}`;
+    let secStr = sec.toString();
+    if(sec < 10) {
+      secStr = "0" + secStr;
+    }
+    return `${min}:${secStr}`;
   }
   private getDisplayTime(val: number): string {
     const min: number = Math.floor(val / 60);

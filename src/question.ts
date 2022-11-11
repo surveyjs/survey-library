@@ -203,6 +203,13 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }
+  public get ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }

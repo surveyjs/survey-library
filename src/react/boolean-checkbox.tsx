@@ -38,17 +38,17 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               aria-describedby={this.question.ariaDescribedBy}
             />
             <span className={cssClasses.checkboxMaterialDecorator}>
-              { this.question.svgIcon ?
+              {this.question.svgIcon ?
                 <svg
                   className={cssClasses.checkboxItemDecorator}
                 >
                   <use xlinkHref={this.question.svgIcon}></use>
-                </svg>:null
+                </svg> : null
               }
               <span className="check" />
             </span>
             {this.question.isLabelRendered && (
-              <span className={cssClasses.checkboxControlLabel}>
+              <span className={cssClasses.checkboxControlLabel} id={this.question.labelRenderedAriaID}>
                 <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
               </span>
             )}

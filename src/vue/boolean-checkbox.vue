@@ -21,6 +21,7 @@
             ></use>
           </svg><span class="check"></span></span><span
           v-if="question.isLabelRendered"
+          :id="question.labelRenderedAriaID"
           :class="question.cssClasses.checkboxControlLabel"
         >
           <survey-element-title-content

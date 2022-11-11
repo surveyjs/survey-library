@@ -8,7 +8,7 @@ export var Skeleton: any;
 ko.components.register("sv-skeleton", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return { question: params.question };
+      return { element: params.element };
     },
   },
   template: template,

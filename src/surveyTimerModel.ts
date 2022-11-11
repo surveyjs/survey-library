@@ -4,11 +4,15 @@ import { SurveyTimer } from "./surveytimer";
 import { property } from "./jsonobject";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface ISurveyTimerText {
   timerInfoText: string;
   timerInfo: { spent: number, limit: number };
   timerClockText: string;
+  getCss(): any;
+  isTimerPanelShowingOnBottom: boolean;
+  isTimerPanelShowingOnTop: boolean;
   onCurrentPageChanged: EventBase<SurveyModel>;
 }
 
@@ -79,5 +83,25 @@ export class SurveyTimerModel extends Base {
   private updateText(): void {
     this.clockText = this.survey.timerClockText;
     this.text = this.survey.timerInfoText;
+  }
+  public get showTimerAsClock(): boolean {
+    return !!this.survey.getCss().clockTimerRoot;
+  }
+
+  public get rootCss(): string {
+    return new CssClassBuilder()
+      .append(this.survey.getCss().clockTimerRoot)
+      .append(this.survey.getCss().clockTimerRootTop, this.survey.isTimerPanelShowingOnTop)
+      .append(this.survey.getCss().clockTimerRootBottom, this.survey.isTimerPanelShowingOnBottom)
+      .toString();
+  }
+  public getProgressCss(): string {
+    return new CssClassBuilder()
+      .append(this.survey.getCss().clockTimerProgress)
+      .append(this.survey.getCss().clockTimerProgressAnimation, this.progress > 0)
+      .toString();
+  }
+  public get textCss(): string {
+    return this.survey.getCss().clockTimerText;
   }
 }

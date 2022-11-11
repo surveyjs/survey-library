@@ -6363,7 +6363,7 @@ export class SurveyModel extends SurveyElementCore
   private surveySpentAfterTimerSwitch: number = 0;
   private getTimerInfo() : { spent: number, limit: number } {
     let page = this.currentPage;
-    if (!page) return null;
+    if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
     let surveySpent = this.timeSpent;
     let pageLimitSec = this.getPageMaxTimeToFinish(page);

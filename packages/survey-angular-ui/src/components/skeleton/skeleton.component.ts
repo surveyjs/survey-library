@@ -4,7 +4,7 @@ import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   selector: "sv-skeleton",
-  template: "./skeleton.component.html",
+  templateUrl: "./skeleton.component.html",
   styleUrls: ["../../hide-host.scss"]
 })
 export class SkeletonComponent extends EmbeddedViewContentComponent {

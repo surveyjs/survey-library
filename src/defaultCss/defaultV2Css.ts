@@ -7,6 +7,7 @@ export var defaultV2Css = {
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
+  bodyWithTimer: "sd-body--with-timer",
   bodyEmpty: "sd-body sd-body--empty",
   footer: "sd-footer sd-body__navigation sd-clearfix",
   title: "sd-title",

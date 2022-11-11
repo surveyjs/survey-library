@@ -1,7 +1,6 @@
 <div class="timer">
 	<svg class="timer__progress" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 160 160" [class.timer__progress--animation]="model.progress !== 0">
-         <circle cx="80" cy="80" r="70" stroke-dasharray="440"
-        [style.stroke-dashoffset]="-440 * model.progress" stroke-linecap="round" />
+         <circle cx="80" cy="80" r="70" [style.stroke-dasharray]="circleLength" [style.stroke-dashoffset]="progress" stroke-linecap="round" />
  	</svg>
-    <div class="timer__text">{{model.clockText}}</div>
+    <div class="timer__text">{{ model.clockText }}</div>
 </div>

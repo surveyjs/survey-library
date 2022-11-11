@@ -29,6 +29,11 @@
     .sd-body__navigation {
       padding: calcSize(2) var(--sd-page-vertical-padding);
     }
+    &.sd-body--with-timer {
+      max-width: calc(100% - var(--sd-timer-size) - var(--sd-timer-size) / 144  * 64 + 48px);
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 }
 

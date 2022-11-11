@@ -26,11 +26,11 @@
           <ng-container *ngIf="model.isShowProgressBarOnBottom && !model.isShowStartingPage">
             <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
           </ng-container>
-          <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
-            <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
-          </ng-container>
-          <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>
+          <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>  
         </div>
+        <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
+            <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
+        </ng-container>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
         <div [hidden]="model.completedState === ''" [class]="model.css.saveData.root">

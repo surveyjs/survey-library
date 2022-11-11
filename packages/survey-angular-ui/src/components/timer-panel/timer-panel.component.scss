@@ -1,16 +1,20 @@
 .timer {
+  z-index: 2;
   float: right;
   position: sticky;
-  top: 16px;
+  // top: 16px;
+  bottom: calc(var(--sd-timer-size) / 144 * 32);
   background: white;
-  width: 144px;
-  height: 144px;
-  margin-bottom: -144px;
-  margin-top: 16px;
-  margin-right: 32px;
+  width: var(--sd-timer-size);
+  height: var(--sd-timer-size);
+  // margin-bottom: -144px;
+  margin-top: calc(-32px - var(--sd-timer-size) - var(--sd-timer-size) / 144 * 32);
+  // margin-top: 16px;
+  margin-bottom: calc(var(--sd-timer-size) / 144 * 32);
+  margin-right: calc(var(--sd-timer-size) / 144 * 32);
   display: flex;
   border-radius: 100%;
-  padding: 8px;
+  padding: calc(var(--sd-timer-size) / 144 * 8);
   box-shadow: 0 2px 6px #0000001a;
   box-sizing: border-box;
 }
@@ -35,5 +39,5 @@
   padding: 8px;
   color: #19B394;
     font-weight: 700;
-font-size: 32px;
+font-size: calc(var(--sd-timer-size) / 144 * 32);
 }

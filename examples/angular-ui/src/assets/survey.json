@@ -1,9 +1,10 @@
 {
   "title": "American History",
-  "showProgressBar": "bottom",
-  "showTimerPanel": "top",
-  "maxTimeToFinishPage": 10,
-  "maxTimeToFinish": 25,
+  "showProgressBar": "top",
+  "showTimerPanel": "bottom",
+  "showTimerPanelMode": "all",
+  "maxTimeToFinish": 100,
+  "widthMode": "responsive",
   "firstPageIsStarted": true,
   "startSurveyText": "Start Quiz",
   "pages": [
@@ -23,6 +24,42 @@
     },
     {
       "elements": [
+        {
+          "type": "radiogroup",
+          "name": "civilwar",
+          "title": "When was the American Civil War?",
+          "choices": [
+            "1796-1803",
+            "1810-1814",
+            "1861-1865",
+            "1939-1945"
+          ],
+          "correctAnswer": "1861-1865"
+        },
+        {
+          "type": "radiogroup",
+          "name": "civilwar",
+          "title": "When was the American Civil War?",
+          "choices": [
+            "1796-1803",
+            "1810-1814",
+            "1861-1865",
+            "1939-1945"
+          ],
+          "correctAnswer": "1861-1865"
+        },
+        {
+          "type": "radiogroup",
+          "name": "civilwar",
+          "title": "When was the American Civil War?",
+          "choices": [
+            "1796-1803",
+            "1810-1814",
+            "1861-1865",
+            "1939-1945"
+          ],
+          "correctAnswer": "1861-1865"
+        },
         {
           "type": "radiogroup",
           "name": "civilwar",

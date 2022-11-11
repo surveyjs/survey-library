@@ -35,7 +35,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     clone.style.cssText = `
       min-width: 100px;
       box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      background-color: var(--background);
+      background-color: var(--background, white);
       border-radius: 36px;
       padding-right: 16px;
       margin-left: 0;

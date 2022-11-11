@@ -2149,6 +2149,17 @@ QUnit.test("Rating question, renderedRateItems", function (assert) {
   assert.notOk(rate.hasMaxLabel, "Rating has no max label");
 });
 
+QUnit.test("Rating question, renderedRateItems. Update renderedRateItems on changing rateValues", function (assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
+  rate.rateValues.push(new ItemValue("item1"));
+  assert.equal(rate.visibleRateValues.length, 1, "There is on item now");
+  rate.rateValues.push(new ItemValue("item2"));
+  assert.equal(rate.visibleRateValues.length, 2, "There is on two now");
+  rate.rateValues.splice(0, 2);
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 default default items again");
+});
+
 QUnit.test(
   "Rating question, visibleRateValues property load from JSON",
   function (assert) {

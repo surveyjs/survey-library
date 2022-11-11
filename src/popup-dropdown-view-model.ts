@@ -31,7 +31,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     let actualHorizontalPosition = this.getActualHorizontalPosition();
 
     if (!!window) {
-      height = Math.ceil(Math.min(height, window.innerHeight * 0.9));
+      height = Math.ceil(Math.min(height, window.innerHeight * 0.9, window.visualViewport.height));
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,

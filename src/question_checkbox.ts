@@ -19,6 +19,7 @@ import { IQuestion } from "./base-interfaces";
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
   private invisibleOldValues: any = {};
+  private initialSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
     var selectAllItemText = this.createLocalizableString(
@@ -187,13 +188,22 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see enabledChoices
    */
   public get selectedChoices(): Array<ItemValue> {
+    const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return [];
-    var val = this.renderedValue;
-    var res = [];
-    for (var i = 0; i < val.length; i++) {
-      res.push(ItemValue.getItemByValue(this.visibleChoices, val[i]));
+
+    const val = this.renderedValue as Array<any>;
+    const allChoices = !!this.initialSelectedItemValues ? [].concat(this.initialSelectedItemValues, this.visibleChoices) : this.visibleChoices;
+    const itemValues = val.map((item) => { return ItemValue.getItemByValue(allChoices, item); }).filter(item => !!item);
+    if(!itemValues.length && !selectedItemValues) {
+      this.updateSelectedItemValues();
     }
-    return res;
+
+    if(!!itemValues.length) return itemValues;
+    if(!!selectedItemValues && !!selectedItemValues.length) {
+      this.initialSelectedItemValues = [].concat(selectedItemValues);
+      return selectedItemValues;
+    }
+    return val.map((item: any) => new ItemValue(item));
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
   protected onEnableItemCallBack(item: ItemValue): boolean {

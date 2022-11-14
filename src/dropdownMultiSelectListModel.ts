@@ -12,7 +12,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   private syncFilterStringPlaceholder(actions?: Array<Action>) {
     const selectedActions = actions || this.getSelectedActions();
-    if(selectedActions.length) {
+    if(selectedActions.length || this.question.selectedItems.length) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -23,7 +23,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   private syncSelectedItemsFromQuestion() {
     const selectedActions = this.getSelectedActions();
-    (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
+    (<MultiSelectListModel>this.listModel).setSelectedItems(selectedActions);
     this.syncFilterStringPlaceholder(selectedActions);
   }
 

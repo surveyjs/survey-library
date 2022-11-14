@@ -36,6 +36,7 @@ $base-unit: var(--base-unit, 8px);
 .sv-action-bar--default-size-mode .sv-action-bar-separator {
   margin: 0 calcSize(1);
 }
+
 .sv-action-bar--small-size-mode .sv-action-bar-separator {
   margin: 0 calcSize(0.5);
 }
@@ -68,15 +69,18 @@ button.sv-action-bar-item {
   line-height: calcSize(3);
   margin: 0 calcSize(1);
 }
+
 .sv-action-bar--small-size-mode .sv-action-bar-item {
   height: calcSize(4);
   font-size: calcSize(1.5);
   line-height: calcSize(2);
   margin: 0 calcSize(0.5);
 }
+
 .sv-action:first-of-type .sv-action-bar-item {
   margin-inline-start: 0; //margin-left
 }
+
 .sv-action:last-of-type .sv-action-bar-item {
   margin-inline-end: 0; //margin-right
 }
@@ -84,6 +88,7 @@ button.sv-action-bar-item {
 .sv-action-bar--default-size-mode .sv-action-bar-item__title--with-icon {
   margin-inline-start: calcSize(1);
 }
+
 .sv-action-bar--small-size-mode .sv-action-bar-item__title--with-icon {
   margin-inline-start: calcSize(0.5);
 }
@@ -92,20 +97,21 @@ button.sv-action-bar-item {
   svg {
     display: block;
   }
+
   use {
     fill: $foreground-light;
   }
 }
 
 //hovered state
-.sv-action-bar-item:hover,
-.sv-action-bar-item:focus {
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):hover,
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):focus {
   outline: none;
   background-color: $background-dim;
 }
 
 //pressed state
-.sv-action-bar-item:active {
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):active {
   opacity: 0.5;
 }
 
@@ -166,17 +172,20 @@ button.sv-action-bar-item {
     margin: auto 8px;
   }
 }
+
 .sv-expand-action--expanded {
   &:before {
     transform: rotate(180deg);
   }
 }
+
 .sv-dots {
   width: 48px;
 }
 
 .sv-dots__item {
   width: 100%;
+
   .sv-action-bar-item__icon {
     margin: auto;
   }
@@ -193,7 +202,8 @@ button.sv-action-bar-item {
   display: flex;
   flex-direction: row;
   align-items: center;
-  & > * {
+
+  &>* {
     flex: 0 0 auto;
   }
 }
@@ -201,7 +211,8 @@ button.sv-action-bar-item {
 .sv-action--space {
   margin-left: auto;
 }
-.sv-action-bar-item--pressed {
+
+.sv-action-bar-item--pressed:not(.sv-action-bar-item--active) {
   background-color: $background-dim;
   opacity: 50%;
 }

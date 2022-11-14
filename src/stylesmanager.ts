@@ -783,12 +783,12 @@ export class StylesManager {
       let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {
         sheet = StylesManager.createSheet(styleSheetId);
-        const theme = themeColors || StylesManager.ThemeColors["default"];
+        // const theme = themeColors || StylesManager.ThemeColors["default"];
 
         Object.keys(themeCss).forEach((selector) => {
           let cssRuleText = themeCss[selector];
-          Object.keys(theme).forEach(
-            (colorVariableName) => (cssRuleText = cssRuleText.replace(new RegExp("\\" + colorVariableName, "g"), theme[colorVariableName]))
+          Object.keys(themeColors || {}).forEach(
+            (colorVariableName) => (cssRuleText = cssRuleText.replace(new RegExp("\\" + colorVariableName, "g"), themeColors[colorVariableName]))
           );
           try {
             if (selector.indexOf("body") === 0) {

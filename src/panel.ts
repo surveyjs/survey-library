@@ -418,6 +418,17 @@ export class PanelModelBase extends SurveyElement<Question>
     this.isRandomizing = false;
   }
   /**
+   * Returns `true` if elements in this panel/page are arranged in random order.
+   * @see questionsOrder
+   */
+  public get areQuestionsRandomized(): boolean {
+    var order =
+      this.questionsOrder == "default" && this.survey
+        ? this.survey.questionsOrder
+        : this.questionsOrder;
+    return order == "random";
+  }
+  /**
    * Returns a survey element (panel or page) that contains this panel and allows you to move this question to a different survey element.
    *
    * This property is always `null` for the `PageModel` object.

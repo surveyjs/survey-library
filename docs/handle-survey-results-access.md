@@ -142,8 +142,9 @@ survey.onComplete.add((survey) => {
       resultData.push(item);
     }
   }
-  // Send resultData to your web server.
-  //...
+  // ...
+  // Send `resultData` to your web server
+  // ...
 });
 ```
 

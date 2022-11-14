@@ -436,7 +436,7 @@ export class Question extends SurveyElement<Question>
    *
    * Possible values:
    *
-   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.

@@ -69,7 +69,7 @@
   <component
   v-else-if="!!element.skeletonComponentName"
   :is="element.skeletonComponentName"
-  :question="element"
+  :element="element"
   :css="css"
 ></component>
 </template>

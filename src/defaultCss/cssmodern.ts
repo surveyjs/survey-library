@@ -1,4 +1,4 @@
-import { surveyCss } from "./cssstandard";
+import { surveyCss } from "./defaultV2Css";
 export var modernCss = {
   root: "sv-root-modern",
   timerRoot: "sv-body__timer",

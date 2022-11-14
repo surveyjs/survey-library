@@ -1,4 +1,4 @@
-import { surveyCss } from "./defaultCss/cssstandard";
+import { surveyCss } from "./defaultCss/defaultV2Css";
 export class StylesManager {
   private static SurveyJSStylesSheetId = "surveyjs-styles";
 
@@ -543,7 +543,7 @@ export class StylesManager {
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
-    default: {
+    /*default: {
       "$header-background-color": "#e7e7e7",
       "$body-container-background-color": "#f4f4f4",
 
@@ -571,8 +571,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#8dd9ca",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    orange: {
+    },*/
+    /*orange: {
       "$header-background-color": "#4a4a4a",
       "$body-container-background-color": "#f8f8f8",
 
@@ -600,8 +600,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#f7b781",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    darkblue: {
+    },*/
+    /*darkblue: {
       "$header-background-color": "#d9d8dd",
       "$body-container-background-color": "#f6f7f2",
 
@@ -629,8 +629,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#839ec9",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    darkrose: {
+    },*/
+    /*darkrose: {
       "$header-background-color": "#ddd2ce",
       "$body-container-background-color": "#f7efed",
 
@@ -658,8 +658,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#c6bed4",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    stone: {
+    },*/
+    /*stone: {
       "$header-background-color": "#cdccd2",
       "$body-container-background-color": "#efedf4",
 
@@ -687,8 +687,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#747491",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    winter: {
+    },*/
+    /*winter: {
       "$header-background-color": "#82b8da",
       "$body-container-background-color": "#dae1e7",
 
@@ -716,8 +716,8 @@ export class StylesManager {
 
       "$progress-buttons-color": "#d1c9f5",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
-    winterstone: {
+    },*/
+    /*winterstone: {
       "$header-background-color": "#323232",
       "$body-container-background-color": "#f8f8f8",
 
@@ -745,7 +745,7 @@ export class StylesManager {
 
       "$progress-buttons-color": "#acdcf2",
       "$progress-buttons-line-color": "#d4d4d4"
-    },
+    },*/
     modern: {
       "$main-color": "#1ab394",
       "$add-button-color": "#1948b3",
@@ -824,7 +824,7 @@ export class StylesManager {
     }*/
   };
 
-  public static ThemeCss: { [key: string]: string } = {
+  /*public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
 
     ".sv_default_css hr": "border-color: $border-color;",
@@ -992,7 +992,7 @@ export class StylesManager {
     ".sv_main .sv-ranking-item__icon": "fill: $main-color;",
     "body .sv-ranking-shortcut .sv-ranking-item__icon": "fill: $main-color;"
     //eo ranking
-  };
+  };*/
 
   public static modernThemeCss: { [key: string]: string } = {
     // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
@@ -1357,8 +1357,10 @@ export class StylesManager {
       themeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {
-      themeCss = StylesManager.ThemeCss;
-      surveyCss.currentType = "standard";
+      // themeCss = StylesManager.ThemeCss;
+      // surveyCss.currentType = "standard";
+      surveyCss.currentType = "defaultV2";
+      return;
     }
 
     if (StylesManager.Enabled) {

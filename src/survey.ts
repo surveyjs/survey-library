@@ -16,7 +16,7 @@ import {
   IFindElement,
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
-import { surveyCss } from "./defaultCss/cssstandard";
+import { surveyCss } from "./defaultCss/defaultV2Css";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";

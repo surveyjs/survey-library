@@ -1,4 +1,11 @@
-import { surveyCss } from "./cssstandard";
+export var surveyCss: any = {
+  currentType: "",
+  getCss: function () {
+    var loc = this.currentType ? this[this.currentType] : defaultV2Css;
+    if (!loc) loc = defaultV2Css;
+    return loc;
+  }
+};
 
 export var defaultV2Css = {
   root: "sd-root-modern",

@@ -3,7 +3,6 @@ import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
-import { surveyCss } from "../src/defaultCss/cssstandard";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 

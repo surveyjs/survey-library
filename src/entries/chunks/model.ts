@@ -204,7 +204,7 @@ export {
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 
-export { surveyCss } from "../../defaultCss/cssstandard";
+export { surveyCss } from "../../defaultCss/defaultV2Css";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
 

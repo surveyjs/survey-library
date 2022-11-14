@@ -11,7 +11,9 @@ const config = {
   entry: {
     survey: path.resolve(__dirname, "../../src/main.scss"),
     modern: path.resolve(__dirname, "../../src/modern.scss"),
+    "modern.fontless": path.resolve(__dirname, "../../src/modern.fontless.scss"),
     defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss"),
+    "defaultV2.fontless": path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.fontless.scss")
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
 };

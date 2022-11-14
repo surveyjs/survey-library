@@ -203,6 +203,13 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }
+  public get ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
@@ -429,7 +436,7 @@ export class Question extends SurveyElement<Question>
    *
    * Possible values:
    *
-   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.

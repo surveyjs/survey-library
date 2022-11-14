@@ -14,7 +14,7 @@
         <span class="check"></span>
       </span>
       <span
-        data-bind="if: question.isLabelRendered, css: question.koCss().checkboxControlLabel"
+        data-bind="if: question.isLabelRendered, css: question.koCss().checkboxControlLabel, attr: {id: question.labelRenderedAriaID}"
       >
         <!-- ko component: { name: 'sv-title-actions', params: {element: question } } --><!-- /ko -->
       </span>

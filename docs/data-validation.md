@@ -133,7 +133,7 @@ const surveyJson = {
 
 ## Server-Side Validation
 
-If your validation logic requires a request to a server, make this request within the `onServerValidateQuestions` event handler. It accepts the survey as the first argument and an object with the following fields as the second argument:
+If your validation logic requires a request to a server, make this request within the [`onServerValidateQuestions`](https://surveyjs.io/form-library/documentation/surveymodel#onServerValidateQuestions) event handler. It accepts the survey as the first argument and an object with the following fields as the second argument:
 
 - `data` - An object that contains question values.
 - `errors` - An object for your error messages. Set error messages as follows: `errors["questionName"] = "My error message";`

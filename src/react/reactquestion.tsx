@@ -165,7 +165,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           role={question.ariaRole}
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
-          aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
+          aria-labelledby={question.ariaLabelledBy}
         >
           {errorsAboveQuestion}
           {headerTop}

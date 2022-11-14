@@ -6,7 +6,7 @@
         :role="element.ariaRole"
         :aria-required="element.ariaRequired"
         :aria-invalid="element.ariaInvalid"
-        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
+        :aria-labelledby="element.ariaLabelledBy"
         :data-name="element.name">
     <survey-errors
       v-if="!element.isPanel && element.showErrorsAboveQuestion"
@@ -69,7 +69,7 @@
   <component
   v-else-if="!!element.skeletonComponentName"
   :is="element.skeletonComponentName"
-  :question="element"
+  :element="element"
   :css="css"
 ></component>
 </template>

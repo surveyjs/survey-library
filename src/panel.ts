@@ -409,6 +409,19 @@ export class PanelModelBase extends SurveyElement<Question>
     this.isRandomizing = false;
   }
   /**
+   * The property returns true, if the elements are randomized on the panel or page
+   * @see hasShown
+   * @see questionsOrder
+   * @see SurveyModel.questionsOrder
+   */
+  public get areQuestionsRandomized(): boolean {
+    var order =
+      this.questionsOrder == "default" && this.survey
+        ? this.survey.questionsOrder
+        : this.questionsOrder;
+    return order == "random";
+  }
+  /**
    * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
    */
   public get parent(): PanelModelBase {

@@ -804,7 +804,7 @@ export class StylesManager {
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
     },*/
-    bootstrapmaterial: {
+    /*bootstrapmaterial: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$text-input-color": "#404040;",
@@ -823,7 +823,7 @@ export class StylesManager {
 
       "$progress-buttons-color": "#8dd6c7",
       "$progress-buttons-line-color": "#d4d4d4",
-    }
+    }*/
   };
 
   public static ThemeCss: { [key: string]: string } = {
@@ -1214,7 +1214,7 @@ export class StylesManager {
     ".sv-skeleton-element": "background-color: $background-dim;",
   };*/
 
-  public static bootstrapmaterialThemeCss: { [key: string]: string } = {
+  /*public static bootstrapmaterialThemeCss: { [key: string]: string } = {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
       "linear-gradient(0deg, $main-color 2px, $main-color 0),linear-gradient(0deg, #D2D2D2 1px, transparent 0);",
     ".sv_main.sv_bootstrapmaterial_css .sv_qstn": "margin-bottom: 1rem;",
@@ -1319,7 +1319,7 @@ export class StylesManager {
     ".sv_main .sv-action-bar-item:hover": "background-color: $background-dim;",
 
     ".sv-skeleton-element": "background-color: $background-dim;",
-  };
+  };*/
 
   private sheet: CSSStyleSheet = null;
 
@@ -1355,7 +1355,7 @@ export class StylesManager {
     }
     if(!!themeCssRules) {
       themeCss = themeCssRules;
-    } else if (["bootstrapmaterial", "modern"].indexOf(themeName) !== -1) {
+    } else if (themeName === "modern") {
       themeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {

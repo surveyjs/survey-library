@@ -1,5 +1,3 @@
-import { surveyCss } from "./cssstandard";
-
 export var defaultBootstrapMaterialCss = {
   root: "sv_main sv_bootstrapmaterial_css",
   container: "sv_container",
@@ -345,4 +343,3 @@ export var defaultBootstrapMaterialCss = {
     },
   },
 };
-(<any>surveyCss)["bootstrapmaterial"] = defaultBootstrapMaterialCss;

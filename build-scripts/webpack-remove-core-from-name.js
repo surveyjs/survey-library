@@ -1,4 +1,4 @@
-function RemoveCoreFromNamePlugin(options) {}
+function RemoveCoreFromNamePlugin(options) { }
 
 RemoveCoreFromNamePlugin.prototype.apply = function (compiler) {
   const REGEXP_NAME = /\[rc-name\]/gi;
@@ -17,7 +17,7 @@ RemoveCoreFromNamePlugin.prototype.apply = function (compiler) {
         }
 
         return path.replace(REGEXP_NAME, (match, ...args) => {
-          return chunkName !== "modern" && chunkName !== "defaultV2" ? "survey" : chunkName;
+          return chunkName !== "modern" && chunkName !== "modern.fontless" && chunkName !== "defaultV2" && chunkName !== "defaultV2.fontless" ? "survey" : chunkName;
         });
       }
     );

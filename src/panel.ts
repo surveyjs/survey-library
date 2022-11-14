@@ -257,7 +257,7 @@ export class QuestionRowModel extends Base {
 }
 
 /**
- * A base class for a Panel and Page objects.
+ * A base class for the [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) and [PageModel](https://surveyjs.io/form-library/documentation/pagemodel) classes.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
@@ -347,8 +347,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Returns the char/string for a required panel.
+   * Returns a character or text string that indicates a required panel/page.
    * @see SurveyModel.requiredText
+   * @see isRequired
    */
   public get requiredText(): string {
     return this.survey != null && this.isRequired
@@ -368,7 +369,9 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.isRequired && this.titlePattern == "numTitleRequire";
   }
   /**
-   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   * Specifies a custom error message for a required panel/page.
+   * @see isRequired
+   * @see requiredIf
    */
   public get requiredErrorText(): string {
     return this.getLocalizableStringText("requiredErrorText");
@@ -380,7 +383,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.getLocalizableString("requiredErrorText");
   }
   /**
-   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
+   * Specifies the sort order of questions in the panel/page.
+   *
+   * Possible values:
+   *
+   * - `"initial"` - Preserves the original order of questions.
+   * - `"random"` - Displays questions in random order.
+   * - `"default"` (default) - Inherits the setting from the Survey's `questionsOrder` property.
    * @see SurveyModel.questionsOrder
    * @see areQuestionsRandomized
    */
@@ -409,7 +418,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.isRandomizing = false;
   }
   /**
-   * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
+   * Returns a survey element (panel or page) that contains this panel and allows you to move this question to a different survey element.
+   *
+   * This property is always `null` for the `PageModel` object.
    */
   public get parent(): PanelModelBase {
     return this.getPropertyValue("parent", null);
@@ -422,8 +433,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.parent.depth + 1;
   }
   /**
-   * An expression that returns true or false. If it returns true the Panel becomes visible and if it returns false the Panel becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+   * A Boolean expression. If it evaluates to `false`, this panel/page becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see visible
+   * @see isVisible
    */
   public get visibleIf(): string {
     return this.getPropertyValue("visibleIf", "");
@@ -447,7 +463,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return classes;
   }
   /**
-   * A unique element identificator. It is generated automatically.
+   * An auto-generated unique element identifier.
    */
   public get id(): string {
     return this.getPropertyValue("id");
@@ -456,7 +472,8 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("id", val);
   }
   /**
-   * Returns true if the current object is Panel. Returns false if the current object is Page (a root Panel).
+   * Returns `true` if the survey element is a panel.
+   * @see Base.getType
    */
   public get isPanel(): boolean {
     return false;
@@ -471,8 +488,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return layoutType !== "flow";
   }
   /**
-   * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
-   * @see Question
+   * An array of all questions within this panel/page. Includes questions within nested panels.
    * @see elements
    */
   public get questions(): Array<Question> {
@@ -499,8 +515,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return name;
   }
   /**
-   * Returns the question by its name
-   * @param name the question name
+   * Returns a question with a specified `name`. This method does not find questions within nested panels.
+   * @param name A question name.
    */
   public getQuestionByName(name: string): Question {
     var questions = this.questions;
@@ -510,8 +526,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Returns the element by its name. It works recursively.
-   * @param name the element name
+   * Returns a survey element with a specified `name`. This method can find survey elements within nested elements.
+   * @param name An element name.
    */
   public getElementByName(name: string): IElement {
     var elements = this.elements;
@@ -534,7 +550,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Returns question values on the current page
+   * Returns a JSON object with question values nested in the panel/page.
+   * @see getDisplayValue
    */
   public getValue(): any {
     var data: any = {};
@@ -555,8 +572,9 @@ export class PanelModelBase extends SurveyElement<Question>
     return data;
   }
   /**
-   * Return questions values as a JSON object with display text. For example, for dropdown, it would return the item text instead of item value.
-   * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
+   * Returns a JSON object with display texts that correspond to question values nested in the panel/page.
+   * @param keysAsText Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
+   * @see getValue
    */
   public getDisplayValue(keysAsText: boolean): any {
     var data: any = {};
@@ -571,7 +589,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return data;
   }
   /**
-   * Returns question comments on the current page
+   * Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
    */
   public getComments(): any {
     var comments = {};
@@ -587,10 +605,13 @@ export class PanelModelBase extends SurveyElement<Question>
     return comments;
   }
   /**
-   * Call this function to remove all question values from the current page/panel, that end-user will not be able to enter.
-   * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
-   * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
-   * @see Question.clearIncorrectValues
+   * Removes values that cannot be assigned to nested questions, for example, choices unlisted in the `choices` array.
+   *
+   * Call this method after you assign new question values in code to ensure that they are acceptable.
+   *
+   * > NOTE: This method does not remove values for insivible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
+   *
+   * @see hasErrors
    */
   public clearIncorrectValues() {
     for (var i = 0; i < this.elements.length; i++) {
@@ -598,7 +619,8 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Call this function to clear all errors in the panel / page and all its child elements (panels and questions)
+   * Empties the `errors` array for this panel/page and all its child elements (panels and questions).
+   * @see errors
    */
   public clearErrors() {
     for (var i = 0; i < this.elements.length; i++) {
@@ -611,7 +633,8 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.parent) this.parent.markQuestionListDirty();
   }
   /**
-   * Returns the list of the elements in the object, Panel/Page. Elements can be questions or panels. The function doesn't return elements in the nested Panels.
+   * An array of all survey elements (questions or panels) within this panel/page. Does not include questions within nested panels.
+   * @see questions
    */
   public get elements(): Array<IElement> {
     return this.elementsValue;
@@ -620,9 +643,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.elements;
   }
   /**
-   * Returns true if the current element belongs to the Panel/Page. It looks in nested Panels as well.
-   * @param element
-   * @see PanelModel
+   * Checks whether a given element belongs to this panel/page or nested panels.
+   * @param element A survey element to check.
    */
   public containsElement(element: IElement): boolean {
     for (var i = 0; i < this.elements.length; i++) {
@@ -636,7 +658,9 @@ export class PanelModelBase extends SurveyElement<Question>
     return false;
   }
   /**
-   * Set this property to true, to require the answer at least in one question in the panel.
+   * Makes the panel/page require an answer at least in one nested question. If a respondent leaves the panel/page without any answers, the survey displays a validation error.
+   * @see requiredIf
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get isRequired(): boolean {
     return this.getPropertyValue("isRequired", false);
@@ -645,8 +669,11 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isRequired", val);
   }
   /**
-   * An expression that returns true or false. If it returns true the Panel/Page becomes required.
-   * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
+   * A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have answer).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -782,7 +809,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Call it to focus the input on the first question
+   * Sets focus on the input of the first question in this panel/page.
    */
   public focusFirstQuestion() {
     var q = this.getFirstQuestionToFocus();
@@ -791,7 +818,8 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Call it to focus the input of the first question that has an error.
+   * Sets focus on the input of the first question in this panel/page that has an error.
+   * @see hasErrors
    */
   public focusFirstErrorQuestion() {
     var q = this.getFirstQuestionToFocus(true);
@@ -799,11 +827,6 @@ export class PanelModelBase extends SurveyElement<Question>
       q.focus();
     }
   }
-  /**
-   * Fill list array with the questions.
-   * @param list
-   * @param visibleOnly set it to true to get visible questions only
-   */
   public addQuestionsToList(
     list: Array<IQuestion>,
     visibleOnly: boolean = false,
@@ -811,10 +834,6 @@ export class PanelModelBase extends SurveyElement<Question>
   ) {
     this.addElementsToList(list, visibleOnly, includingDesignTime, false);
   }
-  /**
-   * Fill list array with the panels.
-   * @param list
-   */
   public addPanelsIntoList(
     list: Array<IPanel>,
     visibleOnly: boolean = false,
@@ -877,7 +896,8 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Returns true if the current object is Page and it is the current page.
+   * Returns `true` if this is the current page.
+   * @see SurveyModel.currentPage
    */
   public get isActive(): boolean {
     return !this.survey || <PageModel>this.survey.currentPage == this.root;
@@ -888,7 +908,19 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Set this property different from "default" to set the specific question title location for this panel/page.
+   * Sets title location relative to the input field for questions the belong to this panel/page.
+   *
+   * Use this property to override the `questionTitleLocation` property specified for the survey. You can also set the `titleLocation` property for individual questions.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the survey.
+   * - `"top"` - Displays the title above the input field.
+   * - `"bottom"` - Displays the title below the input field.
+   * - `"left"` - Displays the title to the left of the input field.
+   * - `"hidden"` - Hides the question title.
+   *
+   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    * @see SurveyModel.questionTitleLocation
    */
   public get questionTitleLocation(): string {
@@ -1135,9 +1167,6 @@ export class PanelModelBase extends SurveyElement<Question>
       row.updateVisible();
     }
   }
-  /**
-   * Returns rendered title text or html.
-   */
   public get processedTitle() {
     return this.getRenderedTitle(this.locTitle.textOrHtml);
   }
@@ -1147,8 +1176,11 @@ export class PanelModelBase extends SurveyElement<Question>
       : str;
   }
   /**
-   * Use it to get/set the object visibility.
+   * Gets or sets panel/page visibility.
+   *
+   * If you want to display or hide a survey element based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visibleIf
+   * @see isVisible
    */
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
@@ -1178,7 +1210,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Returns true if object is visible or survey is in design mode right now.
+   * Returns `true` if the panel/page is visible or the survey is currently in design mode.
+   *
+   * If you want to display or hide a question based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see visibleIf
+   * @see visible
    */
   public get isVisible(): boolean {
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
@@ -1248,10 +1284,12 @@ export class PanelModelBase extends SurveyElement<Question>
       el.updateElementCss(reNew);
     }
   }
-
   /**
-   * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.
-   * The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
+   * A Boolean expression. If it evaluates to `false`, this panel/page becomes read-only.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
    * @see readOnly
    * @see isReadOnly
    */
@@ -1262,9 +1300,11 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("enableIf", val);
   }
   /**
-   * Add an element into Panel or Page. Returns true if the element added successfully. Otherwise returns false.
-   * @param element
-   * @param index element index in the elements array
+   * Adds a survey element (question or panel) to this panel/page. Returns `true` if the element was added successfully; `false` otherwise.
+   * @param element A survey element to add.
+   * @param index A desired index of this element in the `elements` array.
+   * @see addNewQuestion
+   * @see addNewPanel
    */
   public addElement(element: IElement, index: number = -1): boolean {
     if (!this.canAddElement(element)) return false;
@@ -1290,27 +1330,22 @@ export class PanelModelBase extends SurveyElement<Question>
       !!element && element.isLayoutTypeSupported(this.getChildrenLayoutType())
     );
   }
-  /**
-   * Add a question into Panel or Page. Returns true if the question added successfully. Otherwise returns false.
-   * @param question
-   * @param index element index in the elements array
-   */
   public addQuestion(question: Question, index: number = -1): boolean {
     return this.addElement(question, index);
   }
-  /**
-   * Add a panel into Panel or Page.  Returns true if the panel added successfully. Otherwise returns false.
-   * @param panel
-   * @param index element index in the elements array
-   */
   public addPanel(panel: PanelModel, index: number = -1): boolean {
     return this.addElement(panel, index);
   }
   /**
-   * Creates a new question and adds it at location of index, by default the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
-   * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
-   * @param name a question name
-   * @param index element index in the elements array
+   * Creates a new question of a given type and adds it to the `elements` array at a specified index.
+   *
+   * This method returns `null` if the question cannot be created or added to this panel/page; otherwise, the method returns the created question.
+   *
+   * @param questionType A [question type](https://surveyjs.io/form-library/documentation/question#getType).
+   * @param name A question name.
+   * @param index A desired index of the new question in the `elements` array.
+   * @see elements
+   * @see addElement
    */
   public addNewQuestion(
     questionType: string,
@@ -1322,18 +1357,18 @@ export class PanelModelBase extends SurveyElement<Question>
     return question;
   }
   /**
-   * Creates a new panel and adds it into the end of the elements list. Returns null, if the panel could not be created or could not be added into page or panel.
-   * @param name a panel name
+   * Creates a new panel and adds it to the end of the `elements` array.
+   *
+   * This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
+   * @param name A panel name.
+   * @see elements
+   * @see addElement
    */
   public addNewPanel(name: string = null): PanelModel {
     var panel = this.createNewPanel(name);
     if (!this.addPanel(panel)) return null;
     return panel;
   }
-  /**
-   * Returns the index of element parameter in the elements list.
-   * @param element question or panel
-   */
   public indexOf(element: IElement): number {
     return this.elements.indexOf(element);
   }
@@ -1343,8 +1378,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return res;
   }
   /**
-   * Remove an element (Panel or Question) from the elements list.
-   * @param element
+   * Deletes a survey element (question or panel) from this panel/page. Returns `true` if the element was deleted successfully; `false` otherwise.
+   * @param element A survey element to delete.
    * @see elements
    */
   public removeElement(element: IElement): boolean {
@@ -1358,12 +1393,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.elements.splice(index, 1);
     return true;
   }
-  /**
-   * Remove question  from the elements list.
-   * @param question
-   * @see elements
-   * @see removeElement
-   */
   public removeQuestion(question: Question) {
     this.removeElement(question);
   }

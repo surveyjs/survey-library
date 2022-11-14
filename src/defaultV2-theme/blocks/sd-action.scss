@@ -12,20 +12,25 @@
   line-height: calcSize(3);
   outline: none;
 }
+
 .sd-action--negative {
   color: $red;
 }
+
 .sd-action--icon {
   padding: calcSize(1);
 }
+
 .sd-action--icon {
   use {
     fill: $foreground-light;
   }
 }
+
 svg.sd-action--icon {
   fill: $foreground-light;
 }
+
 .sd-action:disabled,
 .sd-action--disabled {
   color: $foreground;
@@ -35,33 +40,39 @@ svg.sd-action--icon {
   pointer-events: none;
 }
 
-.sd-action:hover,
-.sd-action:focus {
+.sd-action:not(.sd-action--pressed):hover,
+.sd-action:not(.sd-action--pressed):focus {
   outline: none;
   background-color: $primary-light;
   cursor: pointer;
   opacity: 1;
+
   &.sd-action--icon {
     background-color: $background-dim;
   }
+
   &.sd-action--negative {
     background-color: $red-light;
+
     &.sd-action--icon {
       use {
         fill: $red;
       }
     }
   }
+
   &:active {
     opacity: 0.5;
   }
 }
+
 .sd-action__icon {
   display: block;
   width: calcSize(3);
   height: calcSize(3);
 }
-.sd-action--pressed {
+
+.sd-action--pressed:not(.sd-action--active) {
   background-color: $background-dim;
   opacity: 0.5;
 }

@@ -77,14 +77,18 @@ export class QuestionBooleanModel extends Question {
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
-    if(!this.isValueEmpty(this.locLabel.text) && (this.isValueEmpty(original.text) || this.isLabelRendered && !this.showTitle)) return this.locLabel;
+    if (!this.isValueEmpty(this.locLabel.text) && (this.isValueEmpty(original.text) || this.isLabelRendered && !this.showTitle)) return this.locLabel;
     return original;
   }
+  public get labelRenderedAriaID(): string {
+    return this.isLabelRendered ? this.ariaTitleId : null;
+  }
+
   //Obsolete
   @property() showTitle: boolean;
   //Obsolete, use title
   @property({ localizable: true }) label: string;
-  get isLabelRendered() : boolean {
+  get isLabelRendered(): boolean {
     return this.titleLocation === "hidden";
   }
   get canRenderLabelDescription(): boolean {
@@ -156,7 +160,7 @@ export class QuestionBooleanModel extends Question {
     if (this.isDefaultValueSet("false", this.valueFalse)) this.setBooleanValue(false);
     if (this.defaultValue == "indeterminate") this.setBooleanValue(null);
   }
-  private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any) : boolean {
+  private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any): boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -196,9 +200,9 @@ export class QuestionBooleanModel extends Question {
   }
 
   public get svgIcon(): string {
-    if(this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
-    if(this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
-    if(!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
+    if (this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
+    if (this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
 
@@ -245,7 +249,7 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
-    if(event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       preventDefaults(event);
       this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
       return;
@@ -256,11 +260,11 @@ export class QuestionBooleanModel extends Question {
 
   public getRadioItemClass(css: any, value: any): string {
     let className = undefined;
-    if(css.radioItem) {
+    if (css.radioItem) {
       className = css.radioItem;
     }
-    if(css.radioItemChecked && value === this.value) {
-      className = (className?className+" ":"") + css.radioItemChecked;
+    if (css.radioItemChecked && value === this.value) {
+      className = (className ? className + " " : "") + css.radioItemChecked;
     }
     return className;
   }

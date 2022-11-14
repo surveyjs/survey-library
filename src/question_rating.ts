@@ -32,19 +32,9 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.onPropertyChanged.add((sender: any, options: any) => {
-      if (
-        options.name == "rateMin" ||
-        options.name == "rateMax" ||
-        options.name == "minRateDescription" ||
-        options.name == "maxRateDescription" ||
-        options.name == "rateStep" ||
-        options.name == "displayRateDescriptionsAsExtremeItems"
-      ) {
-        this.createRenderedRateItems();
-      }
-    });
-
+    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
+      "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
+    () => this.createRenderedRateItems());
     this.createLocalizableString(
       "minRateDescription",
       this,

@@ -103,6 +103,7 @@ export class Survey extends SurveyElementBase<any, any>
             {this.renderTimerPanel("top")}
             {topProgress}
             {renderResult}
+            {this.renderTimerPanel("bottom")}
           </div>
         </form>
         { this.survey.showBrandInfo ? <BrandInfo/> : null }
@@ -198,7 +199,6 @@ export class Survey extends SurveyElementBase<any, any>
       >
         {this.renderNavigation("top")}
         {activePage}
-        {this.renderTimerPanel("bottom")}
         {bottomProgress}
         {this.renderNavigation("bottom")}
       </div>

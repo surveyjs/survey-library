@@ -30,11 +30,6 @@
               :page="vueSurvey.activePage"
               :css="css"
             />
-            <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
-              :timerModel="vueSurvey.timerModel"
-              :css="css"
-            />
             <component
               v-if="vueSurvey.isShowProgressBarOnBottom && !vueSurvey.isShowStartingPage"
               :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
@@ -48,6 +43,11 @@
             />
           </div>
         </template>
+        <survey-timerpanel
+              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
+              :timerModel="vueSurvey.timerModel"
+              :css="css"
+            />
         <div v-if="hasCompletedPage">
           <div
             v-html="getProcessedCompletedHtml()"

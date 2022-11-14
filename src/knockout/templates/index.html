@@ -34,14 +34,14 @@
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
-                  <!-- ko template: { name: 'survey-timerpanel' } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
                   <!-- ko if: isNavigationButtonsShowingOnBottom -->
                     <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->
               </div>
+              <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
+              <!-- ko template: { name: 'survey-timerpanel' } -->
+              <!-- /ko -->
+              <!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>

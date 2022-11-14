@@ -6,7 +6,6 @@ import { BaseAngular } from "../../base-angular";
   {
     selector: "sv-timer-panel",
     templateUrl: "./timer-panel.component.html",
-    // template: "<div class='model.survey.getCss().timerRoot'>{{model.text}}</div>"
   }
 )
 

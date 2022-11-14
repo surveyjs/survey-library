@@ -1,7 +1,5 @@
 <div *ngIf="model.showTimerAsClock" [class]="model.rootCss">
-	<svg [class]="model.getProgressCss()" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 160 160"  [style.stroke-dasharray]="circleLength" [style.stroke-dashoffset]="progress">
-         <circle cx="80" cy="80" r="70" />
- 	</svg>
+    <svg [class]="model.getProgressCss()" [style.stroke-dasharray]="circleLength" [style.stroke-dashoffset]="progress" [size]="'auto'" [iconName]="'icon-timercircle'" sv-ng-svg-icon></svg>
     <div [class]="model.textCss">{{ model.clockText }}</div>
 </div>
 <div *ngIf="!model.showTimerAsClock" [class]='model.survey.getCss().timerRoot'>{{model.text}}</div>

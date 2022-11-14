@@ -173,3 +173,22 @@ QUnit.test("Remove showTitle and label", function (assert) {
   question = createBoolean({ "title": "Title", "label": { default: "Label default", de: "Label de" }, titleLocation: "hidden" });
   assert.deepEqual(question.toJSON(), { name: "q1", title: { default: "Label default", de: "Label de" }, titleLocation: "hidden" }, "Title location is hidden");
 });
+
+QUnit.test("Check boolean labelRenderedAriaID", function (assert) {
+  var json = {
+    "elements": [
+      {
+        "type": "boolean",
+        "name": "bool",
+        "valueTrue": "true",
+        "valueFalse": "false"
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+  assert.strictEqual(question.labelRenderedAriaID, null);
+
+  question.titleLocation = "hidden";
+  assert.strictEqual(question.labelRenderedAriaID.indexOf("_ariaTitle") !== -1, true);
+});

@@ -183,5 +183,5 @@ QUnit.test("Survey widthMode property for rating questions", function (assert) {
       },
     ]
   });
-  assert.equal(survey3.calculateWidthMode(), "responsive", "rating with rate values widthMode is responsive");
+  assert.equal(survey3.calculateWidthMode(), "static", "rating with rate values widthMode is static");
 });

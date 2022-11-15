@@ -345,7 +345,6 @@ export class QuestionRatingModel extends Question {
     const rateMin = this.getPropertyValue("rateMin");
     return this.displayMode != "dropdown" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
-      rateValues.length > 0 ||
       (rateStep && (rateMax - rateMin) / rateStep > 9));
   }
 

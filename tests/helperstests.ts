@@ -118,6 +118,7 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
   assert.equal(Helpers.isTwoValueEquals("Abc", "aBc"), true, "CaseSensitive (false) case 2");
   assert.equal(Helpers.isTwoValueEquals("abc", "ABC"), true, "CaseSensitive (false) case 3");
   assert.equal(Helpers.isTwoValueEquals("abc ", " ABC"), true, "CaseSensitive and trim");
+  assert.equal(Helpers.isTwoValueEquals({ text1: "Text1", text2: "Text2" }, { text1: "text1", text2: "text2" }), true, "CaseSensitive (true) for object");
   settings.comparator.trimStrings = false;
   settings.comparator.caseSensitive = true;
   assert.equal(Helpers.isTwoValueEquals("abc ", "abc"), false, "trimString = false");

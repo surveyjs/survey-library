@@ -1454,7 +1454,7 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true, true)
+    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
       ? 1
       : 0;
   }

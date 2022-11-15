@@ -8,6 +8,7 @@
     [attr.readonly]="!model.searchEnabled ? true : null"
     [attr.disabled]="question.isInputReadOnly ? true : null"
     [attr.size]="!model.filterString ? 1 : null"
+    [attr.aria-label]="model.placeholder"
     [attr.placeholder]="model.filterStringPlaceholder"
     (keydown)="model.inputKeyHandler($event)"
     (blur)="model.onBlur($event)"

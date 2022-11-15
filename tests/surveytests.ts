@@ -7194,6 +7194,7 @@ QUnit.test("Quiz, correct, incorrect answers", function (assert) {
 QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   assert
 ) {
+  settings.comparator.caseSensitive = false;
   var survey = new SurveyModel({
     pages: [
       {
@@ -7206,6 +7207,31 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   assert.equal(survey.getCorrectedAnswers(), 0, "Still no correct answer");
   survey.setValue("q1", "myanswer");
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
+});
+QUnit.test("Quiz, correct, multiple text", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "multipletext",
+        "name": "root",
+        "correctAnswer": {
+          "text1": "Text1",
+          "text2": "Text2"
+        },
+        "items": [{
+          "name": "text1",
+        }, {
+          "name": "text2",
+        }]
+      }
+    ]
+  });
+  assert.equal(survey.getCorrectedAnswers(), 0, "No correct answer");
+  survey.setValue("root", {
+    "text1": "text1",
+    "text2": "text2"
+  });
+  assert.equal(survey.getCorrectedAnswers(), 1, "Check as case insensitive");
 });
 QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", function (
   assert
@@ -7371,6 +7397,23 @@ QUnit.test(
     assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
+QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "correctAnswer": "hi"
+      }
+    ]
+  });
+  settings.comparator.caseSensitive = true;
+  survey.setValue("q1", "HI");
+  assert.equal(survey.getCorrectedAnswerCount(), 0, "It is case sensitive");
+  survey.setValue("q1", "hi");
+  assert.equal(survey.getCorrectedAnswerCount(), 1, "It is correct");
+  settings.comparator.caseSensitive = false;
+});
 QUnit.test(
   "Quiz, correct, incorrect answers and onIsAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
   function (assert) {

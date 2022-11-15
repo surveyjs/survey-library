@@ -170,6 +170,16 @@ frameworks.forEach(framework => {
     });
     await checkElementScreenshot("survey-with-width.png", Selector(".sd-container-modern"), t); // title
   });
+  test("Check survey with width adaptivity", async (t) => {
+    await t.resizeWindow(700, 1080);
+    await initSurvey(framework, {
+      title: "Test",
+      widthMode: "static",
+      width: "900px",
+      pages: testedPages
+    });
+    await checkElementScreenshot("survey-with-width-adaptivity.png", Selector(".sd-container-modern"), t); // title
+  });
   test("Check survey title with logo", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

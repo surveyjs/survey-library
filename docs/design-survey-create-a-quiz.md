@@ -6,8 +6,8 @@ description: Learn how to build your own interactive timed quizzes and tests wit
 
 This tutorial shows you how to create the following quiz&mdash;a multi-page survey that limits response time and tracks correct/incorrect answers. 
 
-<iframe src="https://surveyjs.github.io/code-examples/quiz/jquery/"
-    style="width:100%; height:650px; border:0; border-radius: 4px; overflow:hidden;"
+<iframe src="/proxy/github/code-examples/quiz/jquery/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
 Follow the steps below:

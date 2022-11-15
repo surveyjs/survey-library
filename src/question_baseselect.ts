@@ -542,7 +542,7 @@ export class QuestionSelectBase extends Question {
    *
    * ```js
    * {
-   *   "value": any, // A **unique** value to be saved in the survey results. 
+   *   "value": any, // A unique value to be saved in the survey results. 
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
    *   "customProperty": any // Any property that you find useful

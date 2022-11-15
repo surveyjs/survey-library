@@ -11,7 +11,7 @@
     "testcafe:ko": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=knockout",
     "testcafe:react": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=react",
     "testcafe:vue": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=vue",
-    "release": "standard-version --message \"Release: %s [skip ci]\" ",
+    "release": "standard-version --message \"Release: %s [azurepipelines skip]\" ",
     "build_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev",
     "build_core_prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod",
     "build_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev",
@@ -78,7 +78,7 @@
     "testcafe:ci:angular": "testcafe -c 4 -q chrome:headless testCafe/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.56",
+  "version": "1.9.57",
   "name": "survey-library",
   "private": true,
   "devDependencies": {

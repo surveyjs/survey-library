@@ -258,6 +258,8 @@ export class QuestionRowModel extends Base {
 
 /**
  * A base class for a Panel and Page objects.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
@@ -328,9 +330,9 @@ export class PanelModelBase extends SurveyElement<Question>
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
-    (this.showDescription && this.isDesignMode &&
-      settings.allowShowEmptyTitleInDesignMode &&
-      settings.allowShowEmptyDescriptionInDesignMode);
+      (this.showDescription && this.isDesignMode &&
+        settings.allowShowEmptyTitleInDesignMode &&
+        settings.allowShowEmptyDescriptionInDesignMode);
   }
   public localeChanged() {
     super.localeChanged();
@@ -405,6 +407,19 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateRows();
     this.updateVisibleIndexes();
     this.isRandomizing = false;
+  }
+  /**
+   * The property returns true, if the elements are randomized on the panel or page
+   * @see hasShown
+   * @see questionsOrder
+   * @see SurveyModel.questionsOrder
+   */
+  public get areQuestionsRandomized(): boolean {
+    var order =
+      this.questionsOrder == "default" && this.survey
+        ? this.survey.questionsOrder
+        : this.questionsOrder;
+    return order == "random";
   }
   /**
    * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
@@ -764,7 +779,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   getFirstQuestionToFocus(withError: boolean = false, ignoreCollapseState: boolean = false): Question {
-    if(!withError && !ignoreCollapseState && this.isCollapsed) return null;
+    if (!withError && !ignoreCollapseState && this.isCollapsed) return null;
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
@@ -774,7 +789,7 @@ export class PanelModelBase extends SurveyElement<Question>
         if (!!res) return res;
       } else {
         const q = (<Question>el).getFirstQuestionToFocus(withError);
-        if(!!q) return q;
+        if (!!q) return q;
       }
     }
     return null;
@@ -1001,7 +1016,8 @@ export class PanelModelBase extends SurveyElement<Question>
       this.id
     );
     (<Base>(<any>element)).registerPropertyChangedHandlers(["startWithNewLine"], () => {
-      this.onElementStartWithNewLineChanged(element); }, this.id);
+      this.onElementStartWithNewLineChanged(element);
+    }, this.id);
     this.onElementVisibilityChanged(this);
   }
   protected onRemoveElement(element: IElement) {
@@ -1077,7 +1093,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private updateRowsOnElementAdded(element: IElement, index: number) {
     if (!this.canBuildRows()) return;
     let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
-    if(!dragDropInfo) {
+    if (!dragDropInfo) {
       dragDropInfo = new DragDropInfo(null, element);
       dragDropInfo.target = element;
       dragDropInfo.isEdge = this.elements.length > 1;

@@ -15,7 +15,7 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
-      <!-- ko foreach: question.renderedValue -->
+      <!-- ko foreach: question.selectedChoices -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->

@@ -173,19 +173,6 @@ export class PageModel extends PanelModelBase implements IPage {
     this.randomizeElements(this.areQuestionsRandomized);
   }
   /**
-   * The property returns true, if the elements are randomized on the page
-   * @see hasShown
-   * @see questionsOrder
-   * @see SurveyModel.questionsOrder
-   */
-  public get areQuestionsRandomized(): boolean {
-    var order =
-      this.questionsOrder == "default" && this.survey
-        ? this.survey.questionsOrder
-        : this.questionsOrder;
-    return order == "random";
-  }
-  /**
    * Call it to scroll to the page top.
    */
   public scrollToTop() {

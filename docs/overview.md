@@ -11,8 +11,8 @@ SurveyJS Form Library allows you to create dynamic surveys and forms and integra
 ## Features
 
 - Dynamic forms, surveys, and quizzes for your JavaScript application
-- Native support for React, Vue, and Knockout
-- Integration of the Knockout version into Angular and jQuery applications
+- Native support for React, Vue, Angular, and Knockout
+- Integration of the Knockout version into jQuery applications
 - 20+ built-in question types and support for custom question types
 - Support for [conditional survey logic](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
 - [Answer validation](https://surveyjs.io/Documentation/Library?id=data-validation)

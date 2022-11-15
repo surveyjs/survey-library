@@ -203,6 +203,13 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }
+  public get ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
@@ -345,6 +352,7 @@ export class Question extends SurveyElement<Question>
    * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
    * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
    * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"tagbox"*](https://surveyjs.io/form-library/documentation/questiontagboxmodel)
    * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel)
    * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel)
    * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel)
@@ -428,7 +436,7 @@ export class Question extends SurveyElement<Question>
    *
    * Possible values:
    *
-   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.
@@ -806,7 +814,7 @@ export class Question extends SurveyElement<Question>
     return this.showErrorOnCore("bottom");
   }
   protected getIsTooltipErrorSupportedByParent(): boolean {
-    if(this.parentQuestion) {
+    if (this.parentQuestion) {
       return this.parentQuestion.getIsTooltipErrorInsideSupported();
     } else {
       return super.getIsTooltipErrorSupportedByParent();
@@ -931,8 +939,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   private expandAllPanels(panel: IPanel) {
-    if(!!panel && !!panel.parent) {
-      if(panel.isCollapsed) {
+    if (!!panel && !!panel.parent) {
+      if (panel.isCollapsed) {
         panel.expand();
       }
       this.expandAllPanels(panel.parent);
@@ -1446,7 +1454,7 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true, true)
+    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
       ? 1
       : 0;
   }
@@ -1841,10 +1849,13 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  protected setValueChangedDirectly(): void {
+    this.isValueChangedDirectly = true;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.isValueChangedDirectly = true;
+      this.setValueChangedDirectly();
     }
     this.questionValue = newValue;
     if (!isEqual) {

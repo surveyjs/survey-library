@@ -188,7 +188,6 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const style: any = {};
     if(!!this.survey.renderedWidth) {
-      style.width = this.survey.renderedWidth;
       style.maxWidth = this.survey.renderedWidth;
     }
     return (

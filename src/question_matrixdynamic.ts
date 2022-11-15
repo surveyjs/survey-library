@@ -343,8 +343,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * This property returns `true` when all of the following conditions apply:
    *
    * - Users are allowed to add new rows (`allowAddRows` is `true`).
-   * - The question, panel, or survey is not in read-only state.
-   * - `rowCount` does not exceed `maxRowCount`
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` is less than `maxRowCount`.
    * @see allowAddRows
    * @see isReadOnly
    * @see rowCount
@@ -363,8 +363,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * This property returns `true` when all of the following conditions apply:
    *
    * - Users are allowed to delete rows (`allowRemoveRows` is `true`).
-   * - The question, panel, or survey is not in read-only state.
-   * - `rowCount` exceeds `minRowCount`
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` exceeds `minRowCount`.
    * @see allowRemoveRows
    * @see isReadOnly
    * @see rowCount

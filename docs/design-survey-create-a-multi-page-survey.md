@@ -19,11 +19,12 @@ This step-by-step tutorial will help you create a survey with multiple pages.
 
 The survey below illustrates the result:
 
-<iframe src="https://surveyjs.github.io/code-examples/multi-page-survey/jquery/"
-    style="width:100%; height:540px; border:0; border-radius: 4px; overflow:hidden;"
+<iframe src="/proxy/github/code-examples/multi-page-survey/jquery/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/multi-page-survey" target="_blank">Multi-Page Survey</a>.
+[View the Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
+[View the "NPS Survey" Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
 
 ## Add Multiple Pages to a Survey
 
@@ -248,7 +249,7 @@ survey.doComplete();
 
 In this tutorial, the survey uses out-of-the-box page navigation and does not demonstrate the described API members. However, the given information should help you implement custom page navigation if you find it more suitable in your scenario.
 
-[View Custom Navigation example](https://surveyjs.io/Examples/Library?id=survey-customnavigation (linkStyle))
+[View the "Custom Navigation" Demo](https://surveyjs.io/Examples/Library?id=survey-customnavigation (linkStyle))
 
 ### Page Navigation UI
 
@@ -287,6 +288,8 @@ const surveyJson = {
     showProgressBar: "top"
 };
 ```
+
+[View the "Default survey progress bar" Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle)) 
 
 The example in this tutorial uses only the `pageNextText`, `completeText`, and `showPrevButton` properties:
 
@@ -556,6 +559,8 @@ const surveyJson = {
     showPreviewBeforeComplete: "showAnsweredQuestions"
 };
 ```
+
+[View the "Show Preview before complete" Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
 
 When the preview page is enabled, the last page in the survey displays a Preview button instead of a Complete button. Set the [`previewText`](https://surveyjs.io/Documentation/Library?id=surveymodel#previewText) property if you want to change the Preview button caption:
 

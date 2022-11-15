@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { PageModel } from "survey-core";
-import { PanelModelBase, PanelModel, QuestionRowModel, Question, doKey2ClickUp } from "survey-core";
+import { PanelModelBase, PanelModel, QuestionRowModel, Question, Base, doKey2ClickUp } from "survey-core";
 import { Serializer } from "survey-core";
 import { SurveyElement, IElement } from "survey-core";
 import { ElementFactory } from "survey-core";
@@ -35,7 +35,8 @@ export class QuestionRow extends QuestionRowModel {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
       var element = <IElement>con;
-      if (element.isPanel) {
+      if((<Base><any>element).isDisposed) return;
+      if (element.isPanel && this.panel.survey) {
         this.panel.survey.afterRenderPanel(con, el);
       } else {
         (<Question>element).afterRender(el);

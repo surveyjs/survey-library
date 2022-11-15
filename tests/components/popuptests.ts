@@ -148,6 +148,25 @@ QUnit.test("PopupModalViewModel defaults", (assert) => {
   viewModel.dispose();
 });
 
+QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  assert.equal(viewModel.model.horizontalPosition, "left");
+  assert.equal(viewModel["getActualHorizontalPosition"](), "left");
+
+  document.body.style.direction = "rtl";
+  assert.equal(viewModel["getActualHorizontalPosition"](), "right");
+
+  document.body.style.direction = "";
+  assert.equal(viewModel["getActualHorizontalPosition"](), "left");
+
+  viewModel.dispose();
+});
+
 QUnit.test("PopupViewModel styleClass", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {});
   const targetElement: HTMLElement = document.createElement("div");

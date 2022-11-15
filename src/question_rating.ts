@@ -22,7 +22,7 @@ export class RenderedRatingItem extends Base {
 }
 
 /**
- * A class that describes the Rating question type.
+ * A Model for a rating question.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-rating/ (linkStyle))
  */
@@ -32,19 +32,9 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.onPropertyChanged.add((sender: any, options: any) => {
-      if (
-        options.name == "rateMin" ||
-        options.name == "rateMax" ||
-        options.name == "minRateDescription" ||
-        options.name == "maxRateDescription" ||
-        options.name == "rateStep" ||
-        options.name == "displayRateDescriptionsAsExtremeItems"
-      ) {
-        this.createRenderedRateItems();
-      }
-    });
-
+    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
+      "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
+    () => this.createRenderedRateItems());
     this.createLocalizableString(
       "minRateDescription",
       this,
@@ -332,6 +322,9 @@ export class QuestionRatingModel extends Question {
   get allowClear(): boolean {
     return true;
   }
+  get searchEnabled(): boolean {
+    return false;
+  }
   public get renderedValue(): boolean {
     return this.value;
   }
@@ -352,7 +345,6 @@ export class QuestionRatingModel extends Question {
     const rateMin = this.getPropertyValue("rateMin");
     return this.displayMode != "dropdown" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
-      rateValues.length > 0 ||
       (rateStep && (rateMax - rateMin) / rateStep > 9));
   }
 

@@ -2149,6 +2149,17 @@ QUnit.test("Rating question, renderedRateItems", function (assert) {
   assert.notOk(rate.hasMaxLabel, "Rating has no max label");
 });
 
+QUnit.test("Rating question, renderedRateItems. Update renderedRateItems on changing rateValues", function (assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
+  rate.rateValues.push(new ItemValue("item1"));
+  assert.equal(rate.visibleRateValues.length, 1, "There is on item now");
+  rate.rateValues.push(new ItemValue("item2"));
+  assert.equal(rate.visibleRateValues.length, 2, "There is on two now");
+  rate.rateValues.splice(0, 2);
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 default default items again");
+});
+
 QUnit.test(
   "Rating question, visibleRateValues property load from JSON",
   function (assert) {
@@ -5918,6 +5929,39 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
   survey.locale = "";
   assert.equal(question.optionsCaption, "Select...", "default locale, #2");
 });
+QUnit.test("multipletext placeholder localization", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        "type": "multipletext",
+        "name": "question1",
+        "items": [
+          {
+            "name": "text1",
+            "placeholder": {
+              "de": "placeholder de",
+              "default": "placeholder default"
+            }
+          }
+        ]
+      }]
+  });
+  survey.locale = "";
+  const question = <QuestionMultipleTextModel>survey.getAllQuestions()[0];
+  const editor = question.items[0].editor;
+  let counter = 0;
+  assert.equal(editor.placeholder, "placeholder default", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "renderedPlaceholder, default locale");
+  editor.locPlaceHolder.onStringChanged.add((sender, options) => counter ++);
+  survey.locale = "de";
+  assert.equal(counter, 1, "Changed one time");
+  assert.equal(editor.placeholder, "placeholder de", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder de", "renderedPlaceholder, de locale");
+  survey.locale = "";
+  assert.equal(counter, 2, "Changed second time");
+  assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
+});
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [
@@ -6129,4 +6173,30 @@ QUnit.test("Do not allow question to start with #", function (assert) {
   assert.equal(questions[0].name, "q2", "change #q2 to q2");
   questions[1].valueName = "#q3";
   assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
+});
+QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        defaultValue: 55,
+        choicesByUrl: {
+          url: "some url"
+        }
+      },
+    ]
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+  assert.equal(question.selectedItem.value, 55);
+  assert.equal(question.selectedItem.text, "DisplayText_55");
 });

@@ -23,7 +23,7 @@ Refer to the sections below for information on how to enable validation in your 
 
 ## Built-In Client-Side Validators
 
-SurveyJS Form Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property to override the default error message:
+SurveyJS Form Library supports multiple built-in client-side validators. The Required validator ensures that a question value is not empty. Enable a question's [`isRequired`](https://surveyjs.io/Documentation/Library?id=Question#isRequired) property to add the Required validator to this question. In addition, you can specify the [`requiredErrorText`](https://surveyjs.io/Documentation/Library?id=Question#requiredText) property to override the default error message:
 
 ```js
 const surveyJson = {
@@ -31,7 +31,7 @@ const surveyJson = {
     "name": "question1",
     "type": "text",
     "isRequired": true,
-    "requiredText": "Value cannot be empty"
+    "requiredErrorText": "Value cannot be empty"
   }]
 }
 ```
@@ -65,17 +65,17 @@ const surveyJson = {
 
 The following class-based validators are available:
 
-| `type` (for JSON) | Validator Class (for JavaScript)                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `"numeric"`       | [`NumericValidator`](https://surveyjs.io/Documentation/Library?id=NumericValidator)         | Throws an error if the answer is not a number or if an entered number is outside the [`minValue`](https://surveyjs.io/Documentation/Library?id=NumericValidator#minValue) and [`maxValue`](https://surveyjs.io/Documentation/Library?id=NumericValidator#maxValue) range.                                                                                                                                                                           |
-| `"text"`          | [`TextValidator`](https://surveyjs.io/Documentation/Library?id=TextValidator)               | Throws an error if the length of entered text is outside the range between [`minLength`](https://surveyjs.io/Documentation/Library?id=TextValidator#minLength) and [`maxLength`](https://surveyjs.io/Documentation/Library?id=TextValidator#maxLength).                                                                                                                                                                                             |
-| `"email"`         | [`EmailValidator`](https://surveyjs.io/Documentation/Library?id=EmailValidator)             | Throws an error if an entered value is not a valid e-mail address.                                                                                                                                                                                                                                                                                                                                                                                  |
-| `"expression"`    | [`ExpressionValidator`](https://surveyjs.io/Documentation/Library?id=ExpressionValidator)   | Throws an error when the [`expression`](https://surveyjs.io/Documentation/Library?id=ExpressionValidator#expression) evaluates to `false` (see [Expressions](/Documentation/Library?id=design-survey-conditional-logic#expressions)).                                                                                                                                                                                                               |
-| `"answercount"`   | [`AnswerCountValidator`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator) | Throws an error if a user selects fewer choices than specified by [`minCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#minCount) or more choices than specified by [`maxCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#maxCount). Applies only to question types that can have multiple values (for instance, [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)). |
-| `"regex"`         | [`RegexValidator`](https://surveyjs.io/Documentation/Library?id=RegexValidator)             | Throws an error if an entered value does not match a regular expression defined in the [`regex`](https://surveyjs.io/Documentation/Library?id=RegexValidator#regex) property.                                                                                                                                                                                                                                                                       |
+| `type` (for JSON) | Validator Class (for JavaScript)                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"numeric"`       | [`NumericValidator`](https://surveyjs.io/Documentation/Library?id=NumericValidator)         | Throws an error if the answer is not a number or if an entered number is outside the [`minValue`](https://surveyjs.io/Documentation/Library?id=NumericValidator#minValue) and [`maxValue`](https://surveyjs.io/Documentation/Library?id=NumericValidator#maxValue) range. Alternatively, you can set the [`min`](https://surveyjs.io/form-library/documentation/questiontextmodel#min) and [`max`](https://surveyjs.io/form-library/documentation/questiontextmodel#max) properties in the question object to specify the range. |
+| `"text"`          | [`TextValidator`](https://surveyjs.io/Documentation/Library?id=TextValidator)               | Throws an error if the length of entered text is outside the range between [`minLength`](https://surveyjs.io/Documentation/Library?id=TextValidator#minLength) and [`maxLength`](https://surveyjs.io/Documentation/Library?id=TextValidator#maxLength).                                                                                                                                                                                                                                                                          |
+| `"email"`         | [`EmailValidator`](https://surveyjs.io/Documentation/Library?id=EmailValidator)             | Throws an error if an entered value is not a valid e-mail address.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `"expression"`    | [`ExpressionValidator`](https://surveyjs.io/Documentation/Library?id=ExpressionValidator)   | Throws an error when the [`expression`](https://surveyjs.io/Documentation/Library?id=ExpressionValidator#expression) evaluates to `false` (see [Expressions](/Documentation/Library?id=design-survey-conditional-logic#expressions)).                                                                                                                                                                                                                                                                                            |
+| `"answercount"`   | [`AnswerCountValidator`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator) | Throws an error if a user selects fewer choices than specified by [`minCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#minCount) or more choices than specified by [`maxCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#maxCount). Applies only to question types that can have multiple values (for instance, [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)).                                                                              |
+| `"regex"`         | [`RegexValidator`](https://surveyjs.io/Documentation/Library?id=RegexValidator)             | Throws an error if an entered value does not match a regular expression defined in the [`regex`](https://surveyjs.io/Documentation/Library?id=RegexValidator#regex) property.                                                                                                                                                                                                                                                                                                                                                    |
 
-[View the "Built-In Validators" example](https://surveyjs.io/Examples/Library?id=validators-standard (linkStyle))
-[View the "Expression Validator" example](https://surveyjs.io/Examples/Library?id=validators-expression (linkStyle)) 
+[View the "Built-In Validators" Demo](https://surveyjs.io/Examples/Library?id=validators-standard (linkStyle))
+[View the "Expression Validator" Demo](https://surveyjs.io/Examples/Library?id=validators-expression (linkStyle)) 
 
 ## Implement Custom Client-Side Validation
 
@@ -100,6 +100,8 @@ survey.onValidateQuestion.add((survey, options) => {
   }
 });
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/validators-event/ (linkStyle))
 
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create a [custom function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#custom-functions), register it, and then call it from within your expression. The following code uses this technique to implement the same value validation scenario:
 
@@ -127,11 +129,11 @@ const surveyJson = {
 };
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=validators-custom (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=validators-custom (linkStyle))
 
 ## Server-Side Validation
 
-If your validation logic requires a request to a server, make this request within the `onServerValidateQuestions` event handler. It accepts the survey as the first argument and an object with the following fields as the second argument:
+If your validation logic requires a request to a server, make this request within the [`onServerValidateQuestions`](https://surveyjs.io/form-library/documentation/surveymodel#onServerValidateQuestions) event handler. It accepts the survey as the first argument and an object with the following fields as the second argument:
 
 - `data` - An object that contains question values.
 - `errors` - An object for your error messages. Set error messages as follows: `errors["questionName"] = "My error message";`
@@ -175,7 +177,7 @@ function validateCountry(survey, { data, errors, complete }) {
 survey.onServerValidateQuestions.add(validateCountry);
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=validators-server (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=validators-server (linkStyle))
 
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it within your expression. The following code uses this technique to implement the previously demonstrated validation scenario:
 
@@ -215,6 +217,8 @@ const surveyJson = {
   }]
 };
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/validators-async-expression/reactjs (linkStyle))
 
 ## See Also
 

@@ -50,6 +50,8 @@ survey.onValueChanged.add((survey, { name, question, value }) => {
 });
 ```
 
+[View the "Auto-Populate Form Fields" Demo](https://surveyjs.io/form-library/examples/auto-populate-form-fields/ (linkStyle))
+
 ## Access Full Survey Results
 
 To access full survey results, use the Survey's [`data`](/Documentation/Library?id=surveymodel#data) property. It contains a JSON object with answered questions and has the following structure:
@@ -87,6 +89,8 @@ const survey = new Model(surveyJson);
 
 console.log(survey.data);
 ```
+
+[View the "Edit saved survey" Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
 
 If you need to get survey results as an array of JavaScript objects, call the Survey's [`getPlainData()`](/Documentation/Library?id=surveymodel#getPlainData) method. The objects in the array have the following structure:
 
@@ -138,6 +142,9 @@ survey.onComplete.add((survey) => {
       resultData.push(item);
     }
   }
+  // ...
+  // Send `resultData` to your web server
+  // ...
 });
 ```
 

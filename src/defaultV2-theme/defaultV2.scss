@@ -94,6 +94,9 @@ body {
     background-color: $foreground-light;
   }
 }
+.sd-root-modern--mobile {
+  --sd-timer-size: 72px;
+}
 
 .sv-popup {
   .sv-popup__scrolling-content {

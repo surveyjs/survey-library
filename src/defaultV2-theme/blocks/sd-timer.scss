@@ -24,6 +24,8 @@
   margin-top: calc(-1 * var(--sd-timer-size) - var(--sd-timer-size) / 144 * 32);
 }
 .sd-timer__progress {
+  --sd-timer-stroke-background-color:  var(--background-dim, #f3f3f3);
+  --sd-timer-stroke-background-width: 2px;
   stroke-linecap: round;
   height: 100%;
   width: 100%;
@@ -37,13 +39,26 @@
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 1s linear;
 }
-.sd-timer__text {
+.sd-timer__text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  padding: 8px;
-  color: #19B394;
+  padding: calcSize(1);
+  color: $primary;
   font-weight: 700;
   font-size: calc(var(--sd-timer-size) / 144 * 32);
+}
+.sd-timer__text--major {
+  color: $primary;
+  font-weight: 700;
+  font-size: calc(var(--sd-timer-size) / 144 * 32);
+}
+.sd-timer__text--minor {
+  color: $foreground-light;
+  font-weight: 600;
+  font-size: 12px;
 }

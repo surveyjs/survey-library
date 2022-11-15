@@ -268,24 +268,30 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
   survey.startTimer();
   let timerModel = survey.timerModel;
   let done = assert.async();
-  assert.equal(timerModel.clockText, "0:10");
+  assert.equal(timerModel.clockMajorText, "0:10");
+  assert.equal(timerModel.clockMinorText, "0:25");
   assert.equal(timerModel.progress, 0);
   setTimeout(() => {
     assert.equal(timerModel.progress, 0.1, "Should start animation to first second");
     doTimer(3);
-    assert.equal(timerModel.clockText, "0:07");
+    assert.equal(timerModel.clockMajorText, "0:07");
+    assert.equal(timerModel.clockMinorText, "0:22");
     assert.equal(timerModel.progress, 0.4, "Should start animation to next second (3 + 1)/10");
     doTimer(6);
-    assert.equal(timerModel.clockText, "0:01");
+    assert.equal(timerModel.clockMajorText, "0:01");
+    assert.equal(timerModel.clockMinorText, "0:16");
     assert.equal(timerModel.progress, 1);
     survey.nextPage();
-    assert.equal(timerModel.clockText, "0:10");
+    assert.equal(timerModel.clockMajorText, "0:10");
+    assert.equal(timerModel.clockMinorText, "0:16");
     assert.equal(timerModel.progress, 0, "Timer should be reset after page switch");
     doTimer(9);
-    assert.equal(timerModel.clockText, "0:01");
+    assert.equal(timerModel.clockMajorText, "0:01");
+    assert.equal(timerModel.clockMinorText, "0:07");
     assert.equal(timerModel.progress, 1);
     survey.nextPage();
-    assert.equal(timerModel.clockText, "0:07", "Should be counting on rest survey time");
+    assert.equal(timerModel.clockMajorText, "0:10");
+    assert.equal(timerModel.clockMinorText, "0:07");
     done();
   }, 1);
 

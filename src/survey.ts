@@ -6346,12 +6346,17 @@ export class SurveyModel extends SurveyElementCore
   public get timerInfo(): { spent: number, limit: number } {
     return this.getTimerInfo();
   }
-  public get timerClockText(): string {
+  public get timerClock(): { majorText: string, minorText?: string } {
+    let major: string;
+    let minor: string;
     if(!!this.currentPage) {
-      let { spent, limit } = this.getTimerInfo();
-      return this.getDisplayClockTime(limit - spent);
+      let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
+      major = this.getDisplayClockTime(limit - spent);
+      if(minorLimit > 0) {
+        minor = this.getDisplayClockTime(minorLimit - minorSpent);
+      }
     }
-    return "";
+    return { majorText: major, minorText: minor };
   }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
@@ -6360,8 +6365,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private surveySpentAfterTimerSwitch: number = 0;
-  private getTimerInfo() : { spent: number, limit: number } {
+  private getTimerInfo() : { spent: number, limit: number, minorSpent?: number, minorLimit?: number} {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6375,14 +6379,12 @@ export class SurveyModel extends SurveyElementCore
       return { spent: surveySpent, limit: surveyLimit };
     }
     else {
-      if(surveyLimit - surveySpent > pageLimitSec - pageSpent && pageLimitSec > 0) {
-        this.surveySpentAfterTimerSwitch = 0;
+      if(pageLimitSec > 0 && surveyLimit > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
+      } else if(pageLimitSec > 0)
         return { spent: pageSpent, limit: pageLimitSec };
-      } else {
-        if(surveySpent !== 0 && pageSpent === 0) {
-          this.surveySpentAfterTimerSwitch = surveySpent;
-        }
-        return { spent: surveySpent - this.surveySpentAfterTimerSwitch, limit: surveyLimit - this.surveySpentAfterTimerSwitch };
+      else {
+        return { spent: surveySpent, limit: surveyLimit };
       }
     }
   }

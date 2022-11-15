@@ -36,6 +36,11 @@
     }
   }
 }
+.sd-root-modern--mobile .sd-body.sd-body--with-timer.sd-body--responsive {
+  max-width: initial;
+  margin-left: 0;
+  margin-right: 0;
+}
 
 .sd-body__navigation.sd-action-bar {
   box-sizing: border-box;

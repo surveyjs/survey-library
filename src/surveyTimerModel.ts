@@ -9,7 +9,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export interface ISurveyTimerText {
   timerInfoText: string;
   timerInfo: { spent: number, limit: number };
-  timerClockText: string;
+  timerClock: { majorText: string, minorText?: string };
   getCss(): any;
   isTimerPanelShowingOnBottom: boolean;
   isTimerPanelShowingOnTop: boolean;
@@ -26,7 +26,8 @@ export class SurveyTimerModel extends Base {
   }
   @property() text: string;
   @property() progress: number;
-  @property() clockText: string;
+  @property() clockMajorText: string;
+  @property() clockMinorText: string;
   @property({ defaultValue: 0 }) spent: number;
   public get survey(): ISurveyTimerText { return <any>this.surveyValue; }
   public onCreating(): void {}
@@ -81,7 +82,9 @@ export class SurveyTimerModel extends Base {
     }
   }
   private updateText(): void {
-    this.clockText = this.survey.timerClockText;
+    let timerClock = this.survey.timerClock;
+    this.clockMajorText = timerClock.majorText;
+    this.clockMinorText = timerClock.minorText;
     this.text = this.survey.timerInfoText;
   }
   public get showTimerAsClock(): boolean {
@@ -101,7 +104,14 @@ export class SurveyTimerModel extends Base {
       .append(this.survey.getCss().clockTimerProgressAnimation, this.progress > 0)
       .toString();
   }
-  public get textCss(): string {
-    return this.survey.getCss().clockTimerText;
+  public get textCssContainer(): string {
+    return this.survey.getCss().clockTimerTextContainer;
+  }
+  public get minorTextCss(): string {
+    return this.survey.getCss().clockTimerMinorText;
+  }
+
+  public get majorTextCss(): string {
+    return this.survey.getCss().clockTimerMajorText;
   }
 }

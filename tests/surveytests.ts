@@ -7194,6 +7194,7 @@ QUnit.test("Quiz, correct, incorrect answers", function (assert) {
 QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   assert
 ) {
+  settings.comparator.caseSensitive = false;
   var survey = new SurveyModel({
     pages: [
       {
@@ -7371,6 +7372,23 @@ QUnit.test(
     assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
+QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "correctAnswer": "hi"
+      }
+    ]
+  });
+  settings.comparator.caseSensitive = true;
+  survey.setValue("q1", "HI");
+  assert.equal(survey.getCorrectedAnswerCount(), 0, "It is case sensitive");
+  survey.setValue("q1", "hi");
+  assert.equal(survey.getCorrectedAnswerCount(), 1, "It is correct");
+  settings.comparator.caseSensitive = false;
+});
 QUnit.test(
   "Quiz, correct, incorrect answers and onIsAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
   function (assert) {

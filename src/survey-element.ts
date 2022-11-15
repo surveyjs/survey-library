@@ -534,6 +534,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * A survey element identifier.
+   * 
+   * > NOTE: Question names must be unique. Ensure that question names are unique. If you populate a question choices collection, ensure that a choice's `value` is unique.
    */
   public get name(): string {
     return this.getPropertyValue("name", "");

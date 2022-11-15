@@ -13,7 +13,7 @@
             [attr.id]="model.getInputId()"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
-            [attr.aria-label]="model.placeholder"
+            [attr.aria-label]="question.placeholder"
             [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" />
         </div>

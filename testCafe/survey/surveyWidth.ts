@@ -21,7 +21,6 @@ frameworks.forEach((framework) => {
 
   test("Check survey width", async (t) => {
     await t
-      .expect(Selector(".sv_body").getStyleProperty("width")).eql("455px")
       .expect(Selector(".sv_body").getStyleProperty("max-width")).eql("455px");
   });
 });

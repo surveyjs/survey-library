@@ -10,7 +10,7 @@
         <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
           <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
         </ng-container>
-        <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.width]="model.renderedWidth" [style.maxWidth]="model.renderedWidth">
+        <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth">
           <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
           <!-- ko if: activePage -->
             <ng-container *ngIf="model.activePage">

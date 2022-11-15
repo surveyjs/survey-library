@@ -7208,6 +7208,31 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   survey.setValue("q1", "myanswer");
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
 });
+QUnit.test("Quiz, correct, multiple text", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "multipletext",
+        "name": "root",
+        "correctAnswer": {
+          "text1": "Text1",
+          "text2": "Text2"
+        },
+        "items": [{
+          "name": "text1",
+        }, {
+          "name": "text2",
+        }]
+      }
+    ]
+  });
+  assert.equal(survey.getCorrectedAnswers(), 0, "No correct answer");
+  survey.setValue("root", {
+    "text1": "text1",
+    "text2": "text2"
+  });
+  assert.equal(survey.getCorrectedAnswers(), 1, "Check as case insensitive");
+});
 QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", function (
   assert
 ) {

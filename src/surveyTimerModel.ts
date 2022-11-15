@@ -104,7 +104,7 @@ export class SurveyTimerModel extends Base {
       .append(this.survey.getCss().clockTimerProgressAnimation, this.progress > 0)
       .toString();
   }
-  public get textCssContainer(): string {
+  public get textContainerCss(): string {
     return this.survey.getCss().clockTimerTextContainer;
   }
   public get minorTextCss(): string {

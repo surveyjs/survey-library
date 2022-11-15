@@ -1,9 +1,15 @@
 <template>
   <div v-if="timerModel.showTimerAsClock" :class="timerModel.rootCss">
-    <svg :class="timerModel.getProgressCss()" :style="{ strokeDasharray: circleRadius, strokeDashoffset: progress }">
+    <svg
+      :class="timerModel.getProgressCss()"
+      :style="{ strokeDasharray: circleRadius, strokeDashoffset: progress }"
+    >
       <use :xlink:href="'#icon-timercircle'"></use>
     </svg>
-    <div :class="timerModel.textCss">{{ timerModel.clockText }}</div>
+    <div :class="timerModel.textContainerCss">
+      <span :class="timerModel.majorTextCss">{{ timerModel.clockMajorText }}</span>
+      <span v-if="!!timerModel.clockMinorText" :class="timerModel.minorTextCss">{{ timerModel.clockMinorText }}</span>
+    </div>
   </div>
   <div v-else :class="timerModel.survey.getCss().timerRoot">
     {{ timerModel.text }}

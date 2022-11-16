@@ -19,7 +19,7 @@ var svgStoreUtils = require(path.resolve(
   "../node_modules/webpack-svgstore-plugin/src/helpers/utils.js"
 ));
 
-module.exports = function (options, packageJson, chunkName) {
+module.exports = function (options, packageJson, chunkName, buildFolderName) {
   packageJson.version = packageJsonWithVersion.version;
   const today = new Date();
   const year = today.getFullYear();
@@ -29,7 +29,7 @@ module.exports = function (options, packageJson, chunkName) {
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
   ].join("\n");
 
-  var buildPath = __dirname + "/../build/" + packageJson.name + "/";
+  var buildPath = __dirname + "/../build/" + (buildFolderName || packageJson.name) + "/";
   var dts_generator = __dirname + "/" + packageJson.name + "/d_ts_generator.js";
   var isProductionBuild = options.buildType === "prod";
 

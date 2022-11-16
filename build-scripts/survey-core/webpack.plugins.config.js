@@ -32,5 +32,5 @@ const config = {
 module.exports = function (options) {
   options.platform = "";
   options.libraryName = "SurveyThemes";
-  return merge(webpackCommonConfigCreator(options, { "name": "survey-plugins" }, "survey.plugins"), config);
+  return merge(webpackCommonConfigCreator(options, { "name": "survey-plugins" }, "survey.plugins", "survey-core/plugins"), config);
 };

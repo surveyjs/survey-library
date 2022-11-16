@@ -2,11 +2,11 @@
   "Categories": [
     {
       "Name": "overview",
-      "Title": "SurveyJS Form Library Overview"
+      "Title": "Overview"
     },
     {
       "Name": "get-started",
-      "Title": "Get Started with SurveyJS",
+      "Title": "Get Started",
       "Items": [
         {
           "Name": "get-started-angular",

@@ -1119,10 +1119,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * A question number or letter (depends on SurveyModel's `questionStartIndex` property).
+   * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
    *
-   * For invisible questions, this property returns an empty string.
+   * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
+   * @see hideNumber
+   * @see titleLocation
+   * @see visibleIf
    */
   public get no(): string {
     return this.getPropertyValue("no");

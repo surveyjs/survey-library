@@ -258,8 +258,6 @@ export class QuestionRowModel extends Base {
 
 /**
  * A base class for the [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) and [PageModel](https://surveyjs.io/form-library/documentation/pagemodel) classes.
- *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
@@ -1647,8 +1645,11 @@ export class PanelModelBase extends SurveyElement<Question>
 }
 
 /**
- * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root.
- * It may contain questions and other panels.
+ * A class that describes the Panel container element.
+ *
+ * A panel can contain questions and other panels. Refer to the following help topic for an illustration: [Survey Structure](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#survey-structure).
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModel extends PanelModelBase implements IElement {
   constructor(name: string = "") {
@@ -1686,7 +1687,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     return true;
   }
   /**
-   * Get/set the page where the panel is located.
+   * Returns a page to which the panel belongs and allows you to move this panel to a different page.
+   * @see PanelModelBase.parent
    */
   public get page(): IPage {
     return this.getPage(this.parent);
@@ -1712,8 +1714,11 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public getTitleOwner(): ITitleOwner { return this; }
   /**
-   * Set showNumber to true to start showing the number for this panel.
-   * @see visibleIndex
+   * Specifies whether to show the panel number in the title.
+   *
+   * Default value: `false`
+   * @see SurveyModel.showQuestionNumbers
+   * @see SurveyModel.questionTitlePattern
    */
   public get showNumber(): boolean {
     return this.getPropertyValue("showNumber", false);
@@ -1740,10 +1745,18 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   /**
-   * Gets or sets the first question index for elements inside the panel. The first question index is '1.' by default and it is taken from survey.questionStartIndex property.
-   * You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
-   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
-   * @see survey.questionStartIndex
+   * Specifies a number or letter used to start numbering of elements inside the panel.
+   *
+   * You can include desired prefixes and postfixes alongside the number or letter:
+   *
+   * ```js
+   * "questionStartIndex": "a.", // a., b., c., ...
+   * "questionStartIndex": "#3", // #3, #4, #5, ...
+   * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
+   * ```
+   * Default value: `"1."` (inherited from `SurveyModel`'s `questionStartIndex` property)
+   * @see SurveyModel.questionStartIndex
+   * @see showQuestionNumbers
    */
   public get questionStartIndex(): string {
     return this.getPropertyValue("questionStartIndex", "");
@@ -1756,9 +1769,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getQuestionStartIndex();
   }
   /**
-   * The property returns the question number. If question is invisible then it returns empty string.
-   * If visibleIndex is 1, then no is 2, or 'B' if survey.questionStartIndex is 'A'.
-   * @see SurveyModel.questionStartIndex
+   * A question number or letter (depends on the `questionStartIndex` property).
+   *
+   * When the question number, title, or the entire question is invisible, this property returns an empty string.
+   * @see questionStartIndex
+   * @see showNumber
+   * @see visibleIf
    */
   public get no(): string {
     return this.getPropertyValue("no", "");
@@ -1807,7 +1823,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getRenderedTitle(str);
   }
   /**
-   * The inner indent. Set this property to increase the panel content margin.
+   * Increases or decreases indent of the panel content from the left edge. Accepts positive integer values and 0.
    */
   public get innerIndent(): number {
     return this.getPropertyValue("innerIndent");
@@ -1816,7 +1832,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("innerIndent", val);
   }
   /**
-   * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
+   * Disable this property if you want to render the current panel on the same line or row with the previous question or panel.
    */
   public get startWithNewLine(): boolean {
     return this.getPropertyValue("startWithNewLine");
@@ -1824,9 +1840,6 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set startWithNewLine(value: boolean) {
     this.setPropertyValue("startWithNewLine", value);
   }
-  /**
-   * The Panel toolbar gets adaptive if the property is set to true.
-   */
   public get allowAdaptiveActions(): boolean {
     return this.getPropertyValue("allowAdaptiveActions");
   }

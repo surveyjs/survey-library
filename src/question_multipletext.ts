@@ -126,9 +126,6 @@ export class MultipleTextItemModel extends Base
   get locTitle() {
     return this.editor.locTitle;
   }
-  /**
-   * Returns the text or html for rendering the title.
-   */
   public get fullTitle(): string {
     return this.editor.fullTitle;
   }

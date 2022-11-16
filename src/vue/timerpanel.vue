@@ -12,7 +12,7 @@
     </div>
   </div>
   <div v-else :class="timerModel.survey.getCss().timerRoot">
-    {{ timerModel.text }}
+    {{ text }}
   </div>
 </template>
 

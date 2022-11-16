@@ -13,6 +13,6 @@
     </div>
     <!-- /ko -->
     <!-- ko if: !timerModel.showTimerAsClock -->
-    <div data-bind="css: timerModel.survey.getCss().timerRoot">{{timerModel.text}}</div>
+    <div data-bind="css: timerModel.survey.getCss().timerRoot, text: timerModel.text"></div>
     <!--/ko -->
 </script>

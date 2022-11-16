@@ -97,6 +97,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}
            className={ this.question.cssClasses.filterStringInput }
+           aria-label={this.question.placeholder}
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }

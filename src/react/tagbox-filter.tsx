@@ -61,6 +61,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       disabled={this.question.isInputReadOnly}
       readOnly={!this.model.searchEnabled ? true : undefined}
       size={!this.model.filterString ? 1 : undefined}
+      aria-label={this.question.placeholder}
       placeholder={this.model.filterStringPlaceholder}
       onKeyDown={(e) => { this.keyhandler(e); }}
       onChange={(e) => { this.onChange(e); }}

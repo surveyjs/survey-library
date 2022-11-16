@@ -16,12 +16,12 @@
 
 .sd-timer--top {
   top: calc(var(--sd-timer-size) / 144 * 32);
-  margin-top: calc(var(--sd-timer-size) / 144 * 32);
+  margin-top: calcSize(4);
   margin-bottom: calc(-1 * var(--sd-timer-size));
 }
 .sd-timer--bottom {
   bottom: calc(var(--sd-timer-size) / 144 * 32);
-  margin-top: calc(-1 * var(--sd-timer-size) - var(--sd-timer-size) / 144 * 32);
+  margin-top: calc(var(--sd-timer-size) * ( -1 - 32 / 144));
 }
 .sd-timer__progress {
   --sd-timer-stroke-background-color:  var(--background-dim, #f3f3f3);
@@ -60,5 +60,5 @@
 .sd-timer__text--minor {
   color: $foreground-light;
   font-weight: 600;
-  font-size: 12px;
+  font-size: calcSize(1.5);
 }

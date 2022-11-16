@@ -61,7 +61,7 @@ body {
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
   --sd-imagepicker-gap: 16px;
-  --sd-timer-size: 144px;
+  --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;
@@ -94,7 +94,7 @@ body {
   }
 }
 .sd-root-modern--mobile {
-  --sd-timer-size: 72px;
+  --sd-timer-size: calc(9 * #{$base-unit});
 }
 
 .sv-popup {

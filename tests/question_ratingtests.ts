@@ -2,6 +2,7 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomResizeObserver } from "./questionImagepicker";
+import { RendererFactory } from "../src/rendererFactory";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -204,11 +205,39 @@ QUnit.test("do not process reponsiveness when required width differs from avalai
   assert.equal(q1.renderAs, "default", "difference too small: not processed");
   assert.equal(q1["processResponsiveness"](503, 500), true);
   assert.equal(q1.renderAs, "dropdown", "difference is enough: is processed");
-  q1["processResponsiveness"](503, 500) // dummy: to reset isProcessed flag
+  q1["processResponsiveness"](503, 500); // dummy: to reset isProcessed flag
   assert.equal(q1["processResponsiveness"](500, 502), false);
   assert.equal(q1.renderAs, "dropdown", "difference too small: not processed");
   assert.equal(q1["processResponsiveness"](500, 503), true);
   assert.equal(q1.renderAs, "default", "difference is enough: processed");
+});
+QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set renderAs 'dropdown'", (assert) => {
+  RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        displayMode: "dropdown"
+      },
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderAs, "dropdown");
+  assert.equal(q1.isDefaultRendering(), false);
+  const container = document.createElement("div");
+  container.innerHTML = "<div class='sd-scrollable-container'></div>";
+  q1["initResponsiveness"](container);
+  assert.equal(q1["resizeObserver"], undefined);
+
+  survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.setJsonObject(json);
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderAs, "default");
+  assert.equal(q1.isDefaultRendering(), true);
+  RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {
@@ -259,7 +288,7 @@ QUnit.test("Check rateValues on text change", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   assert.equal(q1.rateValues.length, 0);
   var oldRendered = q1.renderedRateValues;
-  q1.visibleRateValues[0].text = 'abc';
+  q1.visibleRateValues[0].text = "abc";
   assert.equal(q1.rateValues.length, 5);
   assert.equal(q1.renderedRateValues, oldRendered, "renderedRateValues is not cloned");
 });

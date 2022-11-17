@@ -542,196 +542,10 @@ export class StylesManager {
     },
   };
 
-  public static ThemeColors: { [key: string]: { [key: string]: string } } = {
-    modern: {
-      "$main-color": "#1ab394",
-      "$add-button-color": "#1948b3",
-      "$remove-button-color": "#ff1800",
-      "$disable-color": "#dbdbdb",
-      "$progress-text-color": "#9d9d9d",
-      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
-      "$slider-color": "white",
-      "$disabled-switch-color": "#9f9f9f",
-      "$disabled-slider-color": "#cfcfcf",
-      "$error-color": "#d52901",
-      "$text-color": "#404040",
-      "$light-text-color": "#fff",
-      "$button-text-color": "#fff",
-      "$checkmark-color": "#fff",
-      "$matrix-text-checked-color": "#fff",
-
-      "$progress-buttons-color": "#8dd9ca",
-      "$progress-buttons-line-color": "#d4d4d4",
-
-      "$text-input-color": "#404040",
-      "$inputs-background-color": "transparent",
-      "$main-hover-color": "#9f9f9f",
-      "$body-container-background-color": "#f4f4f4",
-      "$text-border-color": "#d4d4d4",
-      "$disabled-text-color": "rgba(64, 64, 64, 0.5)",
-      "$border-color": "rgb(64, 64, 64, 0.5)",
-      "$dropdown-border-color": "#d4d4d4",
-      "$header-background-color": "#e7e7e7",
-      "$answer-background-color": "rgba(26, 179, 148, 0.2)",
-      "$error-background-color": "rgba(213, 41, 1, 0.2)",
-      "$radio-checked-color": "#404040",
-      "$clean-button-color": "#1948b3",
-      "$body-background-color": "#ffffff",
-      "$foreground-light": "#909090",
-      "$foreground-disabled": "#161616",
-      "$background-dim": "#f3f3f3",
-    },
-  };
-
-  public static modernThemeCss: { [key: string]: string } = {
-    // ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
-    // ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-boolean__switch": "background-color: $main-color;",
-    ".sv-boolean__slider": "background-color: $slider-color;",
-    ".sv-boolean__label--disabled": "color: $disabled-label-color;",
-    ".sv-boolean--disabled .sv-boolean__switch":
-      "background-color: $disabled-switch-color;",
-    ".sv-boolean--disabled .sv-boolean__slider":
-      "background-color: $disabled-slider-color;",
-
-    ".sv-btn": "color: $button-text-color;",
-    ".sv-btn--navigation": "background-color: $main-color",
-    ".sv-checkbox__svg": "border-color: $border-color; fill: transparent;",
-    ".sv-checkbox--allowhover:hover .sv-checkbox__svg":
-      "background-color: $main-hover-color; fill: $checkmark-color;",
-    ".sv-checkbox--checked .sv-checkbox__svg":
-      "background-color: $main-color; fill: $checkmark-color;",
-    ".sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg":
-      "background-color: $disable-color; fill: $checkmark-color;",
-    ".sv-checkbox--disabled .sv-checkbox__svg": "border-color: $disable-color;",
-    ".sv-comment": "border-color: $text-border-color; max-width: 100%;",
-    ".sv-comment:focus": "border-color: $main-color;",
-    ".sv-completedpage":
-      "color: $text-color; background-color: $body-container-background-color;",
-    ".sv-container-modern": "color: $text-color;",
-    ".sv-container-modern__title": "color: $main-color;",
-    ".sv-description": "color: $disabled-text-color;",
-    ".sv-dropdown": "border-bottom: 0.06em solid $text-border-color;",
-    ".sv-dropdown:focus": "border-color: $dropdown-border-color;",
-    ".sv-dropdown--error": "border-color: $error-color; color: $error-color;",
-    ".sv-dropdown--error::placeholder": "color: $error-color;",
-    ".sv-dropdown--error::-ms-input-placeholder": "color: $error-color;",
-    ".sv-tagbox": "border-bottom: 0.06em solid $text-border-color;",
-    ".sv-tagbox:focus": "border-color: $dropdown-border-color;",
-    ".sv-tagbox--error": "border-color: $error-color; color: $error-color;",
-    ".sv-tagbox--error::placeholder": "color: $error-color;",
-    ".sv-tagbox--error::-ms-input-placeholder": "color: $error-color;",
-    ".sv-file__decorator":
-      "background-color: $body-container-background-color;",
-    ".sv-file__clean-btn": "background-color: $remove-button-color;",
-    ".sv-file__choose-btn:not(.sv-file__choose-btn--disabled)":
-      "background-color: $add-button-color;",
-    ".sv-file__choose-btn--disabled": "background-color: $disable-color;",
-    ".sv-file__remove-svg": "fill: #ff1800;",
-    ".sv-file__sign a": "color: $text-color;",
-    ".sv-imagepicker__item--allowhover:hover .sv-imagepicker__image":
-      "background-color: $main-hover-color; border-color: $main-hover-color;",
-    ".sv-imagepicker__item--checked .sv-imagepicker__image":
-      "background-color: $main-color; border-color: $main-color;",
-    ".sv-imagepicker__item--disabled.sv-imagepicker__item--checked .sv-imagepicker__image":
-      "background-color: $disable-color; border-color: $disable-color;",
-    ".sv-item__control:focus + .sv-item__decorator":
-      "border-color: $main-color;",
-    ".sv-matrix__text--checked":
-      "color: $matrix-text-checked-color; background-color: $main-color;",
-    ".sv-matrix__text--disabled.sv-matrix__text--checked":
-      "background-color: $disable-color;",
-    ".sv-matrixdynamic__add-btn": "background-color: $add-button-color;",
-    ".sv-matrixdynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
-    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
-    ".sv-paneldynamic__prev-btn": "fill: $text-color;",
-    ".sv-paneldynamic__next-btn": "fill: $text-color;",
-    ".sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled": "fill: $disable-color;",
-    ".sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled": "fill: $disable-color;",
-    ".sv-paneldynamic__progress-text": "color: $progress-text-color;",
-    ".sv-progress": "background-color: $header-background-color;",
-    ".sv-progress__bar": "background-color: $main-color;",
-    ".sv-progress__text": "color: $progress-text-color;",
-    ".sv_progress-buttons__list li:before":
-      "border-color: $progress-buttons-color; background-color: $progress-buttons-color;",
-    ".sv_progress-buttons__list li:after": "background-color: $progress-buttons-line-color;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-title": "color: $text-color;",
-    ".sv_progress-buttons__list .sv_progress-buttons__page-description": "color: $text-color;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before":
-      "border-color: $main-color; background-color: $main-color;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after":
-      "background-color: $progress-buttons-color",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before":
-      "border-color: $main-color; background-color: white;",
-    ".sv_progress-buttons__list li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before":
-      "border-color: $main-color; background-color: white;",
-    ".sv-question__erbox": "color: $error-color;",
-    ".sv-question__title--answer":
-      "background-color: $answer-background-color;",
-    ".sv-question__title--error": "background-color: $error-background-color;",
-    ".sv-panel__title--error": "background-color: $error-background-color;",
-    ".sv-radio__svg": "border-color: $border-color; fill: transparent;",
-    ".sv-radio--allowhover:hover .sv-radio__svg": "fill: $border-color;",
-    ".sv-radio--checked .sv-radio__svg":
-      "border-color: $radio-checked-color; fill: $radio-checked-color;",
-    ".sv-radio--disabled .sv-radio__svg": "border-color: $disable-color;",
-    ".sv-radio--disabled.sv-radio--checked .sv-radio__svg":
-      "fill: $disable-color;",
-    ".sv-rating": "color: $text-color;",
-    ".sv-rating input:focus + .sv-rating__min-text + .sv-rating__item-text, .sv-rating input:focus + .sv-rating__item-text":
-      "outline-color: $main-color;",
-    ".sv-rating__item-text":
-      "color: $main-hover-color; border: solid 0.1875em $main-hover-color;",
-    ".sv-rating__item-text:hover":
-      "background-color: $main-hover-color; color: $body-background-color;",
-    ".sv-rating__item--selected .sv-rating__item-text":
-      "background-color: $main-color; color: $body-background-color; border-color: $main-color;",
-    ".sv-rating--disabled .sv-rating__item-text":
-      "color: $disable-color; border-color: $disable-color;",
-    ".sv-rating--disabled .sv-rating__item-text:hover":
-      "background-color: transparent;",
-    ".sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text":
-      "background-color: $disable-color; color: $body-background-color;",
-    "::-webkit-scrollbar": "background-color: $main-hover-color;",
-    "::-webkit-scrollbar-thumb": "background: $main-color;",
-    ".sv-selectbase__clear-btn": "background-color: $clean-button-color;",
-    ".sv-table": "background-color: rgba($main-hover-color, 0.1);",
-    ".sv-text:focus": "border-color: $main-color;",
-    '.sv-text[type="date"]::-webkit-calendar-picker-indicator':
-      "color: transparent; background: transparent;",
-    ".sv-text--error": "color: $error-color; border-color: $error-color;",
-    ".sv-text--error::placeholder": "color: $error-color;",
-    ".sv-text--error::-ms-placeholder": "color: $error-color;",
-    ".sv-text--error:-ms-placeholder": "color: $error-color;",
-    "input.sv-text, textarea.sv-comment, select.sv-dropdown":
-      "color: $text-input-color; background-color: $inputs-background-color;",
-    ".sv-text::placeholder": "color: $text-input-color;",
-    ".sv-text::-ms-placeholder": "color: $text-input-color;",
-    ".sv-text:-ms-placeholder": "color: $text-input-color;",
-    ".sv-table__row--detail": "background-color: $header-background-color;",
-    //signature pad
-    ".sjs_sp_container": "border: 1px dashed $disable-color;",
-    ".sjs_sp_placeholder": "color: $foreground-light;",
-
-    //drag-drop
-    ".sv-matrixdynamic__drag-icon": "padding-top:16px",
-    ".sv-matrixdynamic__drag-icon:after":
-      "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid $border-color; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
-    ".sv-matrix__drag-drop-ghost-position-top, .sv-matrix__drag-drop-ghost-position-bottom":
-      "position: relative;",
-    ".sv-matrix__drag-drop-ghost-position-top::after, .sv-matrix__drag-drop-ghost-position-bottom::after":
-      "content: ''; width: 100%; height: 4px; background-color: var(--primary, #19b394); position: absolute; left: 0;",
-    ".sv-matrix__drag-drop-ghost-position-top::after": "top: 0;",
-    ".sv-matrix__drag-drop-ghost-position-bottom::after": "bottom: 0;",
-    //eo drag-drop
-    ".sv-skeleton-element": "background-color: $background-dim;",
-
-    //ranking
-    ".sv-ranking-item:focus .sv-ranking-item__index": "border: 2px solid $main-color;",
-    ".sv-ranking-item__icon": "fill: $main-color;",
-    "body .sv-ranking-shortcut .sv-ranking-item__icon": "fill: $main-color;"
-    //eo ranking
+  public static ThemeColors: { [key: string]: { [key: string]: string } } = { };
+  public static ThemeCss: { [key: string]: { [key: string]: string } } = { };
+  public static ThemeSelector: { [key: string]: string } = {
+    "default": ".sv_main"
   };
 
   private sheet: CSSStyleSheet = null;
@@ -757,33 +571,23 @@ export class StylesManager {
     return <CSSStyleSheet>style.sheet;
   }
 
-  public static applyTheme(themeName: string = "default", themeSelector: string = ".sv_main", themeCssRules?: { [key: string]: string }, themeColors?: { [key: string]: string }): void {
-    let themeCss: any;
+  public static applyTheme(themeName: string = "default", themeSelector?: string): void {
+    surveyCss.currentType = themeName;
+    // const themeCssRules = StylesManager.ThemeCss[themeName + "ThemeCss"];
+    const currentThemeSelector = themeSelector || StylesManager.ThemeSelector[themeName] || StylesManager.ThemeSelector["default"];
+    const themeCss = StylesManager.ThemeCss[themeName];
 
-    if (themeName === "modern")
-      themeSelector = ".sv-root-modern ";
-    if (themeName === "defaultV2") {
-      surveyCss.currentType = themeName;
-      return;
-    }
-    if(!!themeCssRules) {
-      themeCss = themeCssRules;
-    } else if (themeName === "modern") {
-      themeCss = (<any>StylesManager)[themeName + "ThemeCss"];
-      surveyCss.currentType = themeName;
-    } else {
-      /*themeCss = StylesManager.ThemeCss;
-      surveyCss.currentType = "standard";*/
+    if(!themeCss) {
       surveyCss.currentType = "defaultV2";
       return;
     }
 
     if (StylesManager.Enabled) {
-      const styleSheetId = (themeName + themeSelector).trim();
+      const styleSheetId = (themeName + currentThemeSelector).trim();
       let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {
         sheet = StylesManager.createSheet(styleSheetId);
-        // const theme = themeColors || StylesManager.ThemeColors["default"];
+        const themeColors = StylesManager.ThemeColors[themeName] || StylesManager.ThemeColors["default"];
 
         Object.keys(themeCss).forEach((selector) => {
           let cssRuleText = themeCss[selector];
@@ -794,7 +598,7 @@ export class StylesManager {
             if (selector.indexOf("body") === 0) {
               sheet.insertRule(selector + " { " + cssRuleText + " }", 0);
             } else {
-              sheet.insertRule(themeSelector + selector + " { " + cssRuleText + " }", 0);
+              sheet.insertRule(currentThemeSelector + selector + " { " + cssRuleText + " }", 0);
             }
           } catch (e) { }
         });

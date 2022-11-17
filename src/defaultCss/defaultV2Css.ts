@@ -575,4 +575,5 @@ export var defaultV2Css = {
   },
 };
 
-surveyCss["defaultV2"] = defaultV2Css;
+export const defaultV2ThemeName = "defaultV2";
+surveyCss[defaultV2ThemeName] = defaultV2Css;

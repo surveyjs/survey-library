@@ -1,9 +1,6 @@
 // model
 export * from "./chunks/model";
 
-export { defaultV2Css } from "../defaultCss/defaultV2Css";
-// css modern classes
-export { modernCss } from "../defaultCss/cssmodern";
 export * from "../svgbundle";
 
 // utils

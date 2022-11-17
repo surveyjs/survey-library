@@ -271,6 +271,22 @@ export class SurveyModel extends SurveyElementCore
    * or inside a matrix cell or it can be a text question in multiple text items or inside a panel of a panel dynamic.
    * You can use this event to set up properties to a question based on it's type for all questions, regardless where they are located, on the page or inside a matrix cell.
    * Please note: If you want to use this event for questions loaded from JSON then you have to create survey with empty/null JSON parameter, assign the event and call survey.fromJSON(yourJSON) function.
+   * ```js
+   * {
+   *   const surveyJson = {
+   *    //...
+   *   };
+   *   // Create an empty model.
+   *   this.survey = new Survey.Model();
+   *   // Add an event handler.
+   *   this.survey.onQuestionCreated.add((sender, options){
+   *    //...
+   *   });
+   *   // Load a survey JSON. 
+   *   this.survey.fromJSON(this.surveyJson);
+   * }
+   * ```
+   * 
    *- `sender` - the survey object that fires the event.
    *- `options.question` - a newly created question object.
    * @see Question

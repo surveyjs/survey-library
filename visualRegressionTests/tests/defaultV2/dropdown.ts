@@ -93,7 +93,7 @@ frameworks.forEach(framework => {
 
       const questionRoot = Selector(".sd-question");
       await t
-        .typeText(".sd-dropdown__filter-string-input", "Greece")
+        .typeText(".sd-dropdown__filter-string-input", "Greece", { speed: 0.5 })
         .wait(100);
       await takeElementScreenshot("dropdown-input-position.png", questionRoot, t, comparer);
     });

@@ -93,8 +93,9 @@ frameworks.forEach(framework => {
 
       const questionRoot = Selector(".sd-question");
       await t
-        .typeText(".sd-dropdown__filter-string-input", "Greece", { speed: 0.5 })
-        .wait(100);
+        .click(".sd-dropdown__filter-string-input")
+        .pressKey("G r e e c e")
+        .wait(500);
       await takeElementScreenshot("dropdown-input-position.png", questionRoot, t, comparer);
     });
   });

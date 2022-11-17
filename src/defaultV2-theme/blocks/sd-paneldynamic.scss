@@ -129,6 +129,10 @@
     position: relative;
     top: calc(0.5 * var(--sd-base-vertical-padding));
     margin-right: calcSize(-3);
-    justify-content: flex-end;   
-    margin-bottom: calcSize(-1);
+    justify-content: flex-end;
+}
+.sd-paneldynamic__panel-footer {
+    .sv-action:not(.sv-action--hidden) {   
+        margin-bottom: calcSize(-1);
+    }
 }

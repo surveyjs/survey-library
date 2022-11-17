@@ -1480,11 +1480,9 @@ export class QuestionPanelDynamicModel extends Question
     let actions: Array<IAction> = [
       new Action({
         id: `remove-panel-${panel.id}`,
-        title: this.panelRemoveText,
+        component: "sv-paneldynamic-remove-btn",
         visible: <any>new ComputedUpdater(() => [this.canRemovePanel, panel.state !== "collapsed", this.panelRemoveButtonLocation !== "right"].every((val: boolean) => val === true)),
-        innerCss: this.getPanelRemoveButtonCss(),
-        action: () => this.removePanelUI(panel),
-        data: { question: this, index: this.panels.indexOf(panel) }
+        data: { question: this, panel: panel }
       })
     ];
     if(!!this.survey) {

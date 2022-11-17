@@ -4666,7 +4666,7 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
 
   const actions = paneldynamic.panels[0].getFooterToolbar().actions;
   assert.equal(actions.length, 2);
-  assert.equal(actions[0].title, "Remove Panel");
+  assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
   assert.equal(actions[1].title, "test");
 
   paneldynamic.removePanel(paneldynamic.panels[1]);

@@ -9,7 +9,7 @@ import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelDynamicAction {
   protected handleClick = (event: any) => {
-    this.question.removePanelUI(this.props.data.index);
+    this.question.removePanelUI(this.data.panel);
   }
   protected renderElement(): JSX.Element {
     return (

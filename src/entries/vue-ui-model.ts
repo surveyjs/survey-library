@@ -43,7 +43,6 @@ export { Expression } from "../vue/expression.vue";
 export { ImagePicker } from "../vue/imagepicker.vue";
 export { ImagePickerItem } from "../vue/imagepicker-item.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
-export { PanelDynamicRemove } from "../vue/paneldynamicremove.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Progress } from "../vue/progress.vue";
@@ -80,6 +79,8 @@ export { PanelDynamicAddBtn } from "../vue/components/paneldynamic-actions/panel
 export { PanelDynamicNextBtn } from "../vue/components/paneldynamic-actions/paneldynamic-next-btn.vue";
 export { PanelDynamicPrevBtn } from "../vue/components/paneldynamic-actions/paneldynamic-prev-btn.vue";
 export { PanelDynamicProgressText } from "../vue/components/paneldynamic-actions/paneldynamic-progress-text.vue";
+export { PanelDynamicRemoveButton } from "../vue/components/paneldynamic-actions/paneldynamic-remove-btn.vue";
+
 export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";

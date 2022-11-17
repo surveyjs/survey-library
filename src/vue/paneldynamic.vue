@@ -20,7 +20,7 @@
     <template v-for="(panel, index) in renderedPanels">
       <div :class="question.getPanelWrapperCss()" :key="panel.id">
         <survey-panel :question="panel" :css="css" />
-        <survey-paneldynamicremove v-if="question.panelRemoveButtonLocation === 'right'" :question="question" :panel="panel" />
+        <survey-paneldynamicremove v-if="question.panelRemoveButtonLocation === 'right' && question.canRemovePanel && panel.state !== 'collapsed'" :data="{ question, panel }" />
       </div>
       <hr :class="question.cssClasses.separator" v-if="question.isRenderModeList && index < question.panelCount - 1" :key="'separator' + panel.id" />
     </template>

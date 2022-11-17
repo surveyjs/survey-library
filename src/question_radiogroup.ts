@@ -7,7 +7,9 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 
 /**
- * A Model for a radiogroup question.
+ * A class that describes the Radiogroup question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-radiogroup/ (linkStyle))
  */
 export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
@@ -30,14 +32,22 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.inputId + "_0";
   }
   /**
-   * Return the selected item in the radio group. Returns null if the value is empty
+   * Returns the selected choice item. If no item is selected, returns `null`.
    */
   public get selectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
-    return ItemValue.getItemByValue(this.visibleChoices, this.value);
+
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    if(!itemValue && !selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return itemValue || selectedItemValues || new ItemValue(this.value);
   }
   /**
-   * Show "clear button" flag.
+   * Specifies whether to display a button that clears the question value.
+   *
+   * Default value: `false`
    */
   public get showClearButton(): boolean {
     return this.getPropertyValue("showClearButton");

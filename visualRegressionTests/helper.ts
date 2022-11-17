@@ -54,9 +54,9 @@ export const screenshotComparerOptions = {
   screenshotsRelativePath: "../visualRegressionTests/screenshots",
   destinationRelativePath: "../visualRegressionTests/artifacts",
   enableTextMask: true,
-  textMaskRadius: 5,
+  textMaskRadius: 2,
   textDiffTreshold: 0.5,
-  maskRadius: 5,
+  maskRadius: 2,
   attempts: 2,
   attemptTimeout: 500,
   looksSameComparisonOptions: {

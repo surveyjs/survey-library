@@ -1,3 +1,7 @@
+---
+title: Survey Localization | SurveyJS Form Libraries
+description: To adapt a survey to the local language of your respondents, localize survey UI elements and contents. Leverage our community-sourced support for 50+ languages.
+---
 # Localization & Globalization
 
 This article describes how to localize UI elements and contents of your survey.
@@ -80,7 +84,7 @@ If any translation strings are missing in your custom locale, they will be taken
 surveyLocalization.defaultLocale = "fr";
 ```
 
-[View example](https://surveyjs.io/Examples/Library/survey-localization (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library/survey-localization/ (linkStyle))
 
 ## Localize Survey Contents
 
@@ -120,7 +124,7 @@ To apply your translations, set the current locale:
 survey.locale = "de";
 ```
 
-[View example](https://surveyjs.io/Examples/Library/?id=survey-multilanguages (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library/?id=survey-multilanguages/ (linkStyle))
 
 ### Localize `choicesByUrl`
 
@@ -144,7 +148,7 @@ Checkbox, Dropdown, and Radiogroup questions can load choices from a RESTful ser
 ]
 ```
 
-[View example on Plunker](https://plnkr.co/edit/vefTbkOtrY1mVS6D (linkStyle))
+[View Plunker Example](https://plnkr.co/edit/vefTbkOtrY1mVS6D (linkStyle))
 
 ## See Also
 

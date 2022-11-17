@@ -1,3 +1,7 @@
+---
+title: Conditional Logic and Dynamic Texts | SurveyJS
+description: Learn how to implement branching and skip logic and add dynamic texts to your surveys.
+---
 # Conditional Logic and Dynamic Texts
 
 This help topic describes how to implement custom conditional logic and add dynamic texts to your survey. Refer to the following sections for details:
@@ -59,7 +63,7 @@ Certain question types can contain multiple values. Use a dot symbol to access a
 | [Matrix](/Documentation/Library?id=questionmatrixmodel) | `{questionname.rowname}` |
 | [Matrix Dropdown](/Documentation/Library?id=questionmatrixdropdownmodel) | `{questionname.rowname.columnname}` |
 
-[View the "Complex Questions in Expressions" example](/Examples/Library?id=condition-complexquestions (linkStyle))
+[View the "Complex Questions in Expressions" Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
 
 In dynamic questions, use a zero-based index to access a specific value (question or cell):
 
@@ -70,7 +74,7 @@ In dynamic questions, use a zero-based index to access a specific value (questio
 
 In addition, Matrix questions support a `row` prefix that allows you to access cells on the same row: `{row.columnname}`. Similarly, you can use a `panel` prefix to access questions in the same Panel: `{panel.questionName}`.
 
-[View the "Conditions in Dynamic Questions" example](/Examples/Library?id=condition-dynamic (linkStyle))
+[View the "Conditions in Dynamic Questions" Demo](/Examples/Library?id=condition-dynamic (linkStyle))
 
 ### Variables
 
@@ -134,7 +138,7 @@ const surveyJson = {
 };
 ```
 
-[View the "Use Calculated Values" example](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
+[View the "Use Calculated Values" Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
 
 ## Expressions
 
@@ -454,7 +458,7 @@ FunctionFactory.Instance.register("age", age);
 ```
 
 [View source code on GitHub](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230)
-
+[View the "Use custom function in expressions" Demo](https://surveyjs.io/form-library/examples/condition-customfunctions/ (linkStyle))
 #### Access Survey Elements Within a Custom Function
 
 You can access any survey element via a [survey instance](https://surveyjs.io/Documentation/Library?id=surveymodel). Use the `this.survey` property to get the survey instance within your custom function implementation. This property allows you to design your function so that it accepts a survey element name as a parameter:
@@ -493,7 +497,7 @@ import { FunctionFactory } from "survey-core";
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 ```
 
-[View the "Async Function in Expression" example](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
+[View the "Async Function in Expression" Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
 
 ## Conditional Visibility
 
@@ -534,8 +538,8 @@ const surveyJson = {
 
 If you do not specify the `visibleIf`, `enableIf`, and `requiredIf` properties, an element's state depends on the [`isVisible`](/Documentation/Library?id=Question#isVisible), [`isReadOnly`](/Documentation/Library?id=Question#isReadOnly), and [`isRequired`](/Documentation/Library?id=Question#isRequired) properties. You can specify them at design time or use them to get or set the current state at runtime. If you set one of these properties for a panel or page, all nested questions inherit the setting.
 
-[View the "Conditional Visibility" example](/Examples/Library?id=condition-kids (linkStyle))
-[View the "Enable/Disable Elements" example](/Examples/Library?id=condition-enable-kids (linkStyle))
+[View the "Conditional Visibility" Demo](/Examples/Library?id=condition-kids (linkStyle))
+[View the "Enable/Disable Elements" Demo](/Examples/Library?id=condition-enable-kids (linkStyle))
 
 ### Item Visibility (Choices, Columns, Rows)
 
@@ -562,7 +566,7 @@ const surveyJson = {
 }
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf (linkStyle))
 
 This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use the technique described in the next topic.
 
@@ -592,8 +596,8 @@ const surveyJson = {
 }
 ```
 
-[View Matrix example](https://surveyjs.io/Examples/Library?id=condition-matrixVisibleIf (linkStyle))
-[View Matrix Dropdown example](https://surveyjs.io/Examples/Library?id=condition-matrixDropdownVisibleIf (linkStyle))
+[View Matrix Demo](https://surveyjs.io/Examples/Library?id=condition-matrixVisibleIf (linkStyle))
+[View Matrix Dropdown Demo](https://surveyjs.io/Examples/Library?id=condition-matrixDropdownVisibleIf (linkStyle))
 
 ## Conditional Survey Logic (Triggers)
 
@@ -626,6 +630,9 @@ const surveyJson = {
   ]
 }
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/trigger-complete/ (linkStyle))
+
 ---
 
 ### `setvalue`
@@ -657,6 +664,8 @@ const surveyJson = {
 }
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/trigger-setvalue/ (linkStyle))
+
 ---
 
 ### `copyvalue`
@@ -687,13 +696,15 @@ const surveyJson = {
 }
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/trigger-copyvalue/ (linkStyle))
+
 ---
 
 ### `runexpression`
 
 If the `expression` is `true`, the trigger runs another expression specified by the `runExpression` property. You can also save the result of `runExpression` as a question value. For this, assign the question's name to the `setToName` property.
 
-[View the "Run Expression Trigger" example](https://surveyjs.io/Examples/Library?id=trigger-runexpression (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/trigger-runexpression/ (linkStyle))
 
 ---
 

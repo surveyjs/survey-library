@@ -176,10 +176,18 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.nth(0).textContent).contains("item23")
       .expect(popupContainer.visible).ok()
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(popupContainer.visible).notOk()
       .expect(selectedItems.count).eql(1)
-      .expect(selectedItems.nth(0).textContent).contains("item23");
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+
+      .pressKey("1")
+      .pressKey("4")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(selectedItems.nth(1).textContent).contains("item14");
   });
 
   test("Check tagbox key press", async (t) => {
@@ -277,22 +285,22 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
       .expect(tagbox1.find(".sv-list").scrollTop).eql(0)
-      .expect(tagbox1.find(".sv-list").scrollHeight).within(1100, 1150)
-      .expect(listItems.filterVisible().count).eql(25)
+      .expect(tagbox1.find(".sv-list").scrollHeight).within(1100, 1200)
+      .expect(listItems.filterVisible().count).eql(26)
 
       .scrollBy(tagbox1.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(300, 470)
-      .expect(tagbox1.find(".sv-list").scrollHeight).within(2200, 2300)
-      .expect(listItems.filterVisible().count).eql(50)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(400, 550)
+      .expect(tagbox1.find(".sv-list").scrollHeight).within(2300, 2400)
+      .expect(listItems.filterVisible().count).eql(51)
 
       .scrollBy(tagbox1.find(".sv-list"), 0, 2300)
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(1500, 1620)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(1600, 1700)
       .expect(tagbox1.find(".sv-list").scrollHeight).within(2500, 2600)
       .expect(listItems.filterVisible().count).eql(55)
 
@@ -307,15 +315,15 @@ frameworks.forEach((framework) => {
       .expect(tagbox2.offsetTop).eql(0)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
       .expect(tagbox2.find(".sv-list").scrollTop).eql(0)
-      .expect(tagbox2.find(".sv-list").scrollHeight).within(1350, 1380)
-      .expect(listItems.filterVisible().count).eql(30)
+      .expect(tagbox2.find(".sv-list").scrollHeight).within(1350, 1500)
+      .expect(listItems.filterVisible().count).eql(31)
 
       .scrollBy(tagbox2.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
       .expect(tagbox2.offsetTop).eql(0)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
-      .expect(tagbox2.find(".sv-list").scrollTop).within(650, 670)
+      .expect(tagbox2.find(".sv-list").scrollTop).within(650, 750)
       .expect(tagbox2.find(".sv-list").scrollHeight).within(2500, 2530)
       .expect(listItems.filterVisible().count).eql(55)
       .click(getListItemByText("55"))

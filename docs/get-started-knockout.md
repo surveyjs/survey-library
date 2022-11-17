@@ -1,6 +1,6 @@
 # Add a Survey to a Knockout Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a Knockout application. To add a survey to your Knockout application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Knockout application. To add a survey to your Knockout application, follow the steps below:
 
 - [Link SurveyJS Resources](#link-surveyjs-resources)
 - [Create a Model](#create-a-model)
@@ -19,9 +19,9 @@ You can find the full code in the following GitHub repository: <a href="https://
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
+The SurveyJS Form Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Insert links to the scripts and style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
 

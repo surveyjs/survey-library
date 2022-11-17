@@ -197,17 +197,15 @@ export class StylesManager {
       "visibility: visible; top: 15px;",
     ".sv-ranking-item:focus .sv-ranking-item__index":
       "background: white; border: 2px solid var(--primary, #19b394);",
-    ".sv-ranking-item__content":
-      "display: flex; align-items: center; line-height: 1em; background-color: white;padding: 5px 0px; border-radius: 100px;",
+    ".sv-ranking-item__content": "display: flex; align-items: center; line-height: 1em; padding: 5px 0px; border-radius: 100px;",
     ".sv-ranking-item__icon-container":
       "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
     ".sv-ranking-item__icon":
       "visibility: hidden;top:20px; fill: var(--primary, #19b394); position: absolute;",
     ".sv-ranking-item__index":
-      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1);border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
-    ".sv-ranking-item__text": "display: inline-block;",
-    ".sv-ranking-item__ghost":
-      "display: none;background: #f3f3f3;border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
+      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: rgba(25, 179, 148, 0.1); color: var(--foreground); border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
+    ".sv-ranking-item__text": "display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-ranking-item__ghost": "display: none; background-color: var(--background-dim, #f3f3f3); border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
     "[dir='rtl'] .sv-ranking-item__ghost": "left: initilal; right: 25px;",
     ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
     ".sv-ranking-item--ghost .sv-ranking-item__content": "visibility: hidden;",
@@ -221,6 +219,7 @@ export class StylesManager {
       "visibility:visible; fill:#9f9f9f;",
     ".sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover":
       "visibility:hidden;",
+    ".sv-ranking--mobile.sv-ranking-shortcut": "max-width: 80%;",
     ".sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
     ".sv-ranking--disabled": "opacity: 0.8;",
     ".sv-ranking-shortcut .sv-ranking-item__icon": "fill: var(--primary, #19b394); ",
@@ -421,8 +420,10 @@ export class StylesManager {
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",
     ".sv-list__item-icon use": "fill: #909090;",
-    ".sv-list__item:not(.sv-list__item--selected):hover .sv-list__item-body": "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__item:hover .sv-list__item-body": "background-color: var(--background-dim, #f3f3f3);",
     ".sv-list__item.sv-list__item--focused .sv-list__item-body": "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-list__loading-indicator": "pointer-events: none;",
+    ".sv-list__loading-indicator .sv-list__item-body": "background-color: transparent",
     // ".sv-list__item--selected": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-list__item--selected .sv-list__item-icon use": "fill: var(--primary-foreground, #fff);",
     ".sv-list__item.sv-list__item--disabled": "color: var(--foreground-light, #909090); cursor: default;",

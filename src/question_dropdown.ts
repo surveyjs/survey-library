@@ -16,13 +16,18 @@ import { settings } from "./settings";
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModel: DropdownListModel;
+  lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
-    let result = this.placeholder;
-    if (this.hasOther && this.isOtherSelected) {
-      result = this.otherText;
-    } else if (!!this.selectedItem) {
-      result = this.renderAs == "select" ? this.selectedItemText : "";
+    let result = !!this.selectedItem ? "" : this.placeholder;
+    if(this.renderAs == "select") {
+      if (this.isOtherSelected) {
+        result = this.otherText;
+      } else if (this.isNoneSelected) {
+        result = this.noneText;
+      } else if (!!this.selectedItem) {
+        result = this.selectedItemText;
+      }
     }
     this.readOnlyText = result;
   }
@@ -82,8 +87,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return "dropdown";
   }
   public get selectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
-    return ItemValue.getItemByValue(this.visibleChoices, this.value);
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    if(!!itemValue) {
+      this.lastSelectedItemValue = itemValue;
+    } else if(!selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return this.lastSelectedItemValue || selectedItemValues || new ItemValue(this.value);
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -167,14 +179,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (val < 1) val = 1;
     this.setPropertyValue("choicesStep", val);
   }
-  /**
-   * An [autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute value for the underlying `<input>` element.
-   */
-  public get autoComplete(): string {
-    return this.getPropertyValue("autoComplete", "");
+
+  public get autocomplete(): string {
+    return this.getPropertyValue("autocomplete", "");
   }
-  public set autoComplete(val: string) {
-    this.setPropertyValue("autoComplete", val);
+  public set autocomplete(val: string) {
+    this.setPropertyValue("autocomplete", val);
   }
 
   /**
@@ -250,6 +260,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getInputId() {
     return this.inputId + "_0";
   }
+  public clearValue() {
+    super.clearValue();
+    this.lastSelectedItemValue = null;
+  }
 
   onClick(e: any): void {
     !!this.onOpenedCallBack && this.onOpenedCallBack();
@@ -272,7 +286,7 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    { name: "autoComplete", choices: settings.questions.dataList, },
+    { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },

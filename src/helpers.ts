@@ -121,9 +121,7 @@ export class Helpers {
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
       if (!y.hasOwnProperty(p)) return false;
-      if (x[p] === y[p]) continue;
-      if (typeof x[p] !== "object") return false;
-      if (!this.isTwoValueEquals(x[p], y[p])) return false;
+      if (!this.isTwoValueEquals(x[p], y[p], ignoreOrder, caseSensitive, trimStrings)) return false;
     }
     for (p in y) {
       if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
@@ -140,7 +138,7 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
-    if (!!value && value instanceof Object) {
+    if (!!value && value instanceof Object && !(value instanceof Date)) {
       //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
     }

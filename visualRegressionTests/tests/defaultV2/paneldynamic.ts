@@ -1,6 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, checkElementScreenshot, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -56,32 +55,38 @@ frameworks.forEach(framework => {
     await initSurvey(framework, json);
   });
   test("Paneldynamic progressTop mode", async (t) => {
-    await t.resizeWindow(1920, 1080);
-    const paneldynamicRoot = Selector(".sd-question--paneldynamic");
-    await ClientFunction(() => {
-      (window as any).survey.getQuestionByName("applications").currentIndex = 2;
-    })();
-    await checkElementScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, t);
-    await ClientFunction(() => {
-      (window as any).survey.getAllQuestions()[0].allowRemovePanel = false;
-    })();
-    await checkElementScreenshot("paneldynamic-without-remove-button.png", paneldynamicRoot, t);
-    await ClientFunction(() => {
-      (window as any).survey.getAllQuestions()[0].allowRemovePanel = true;
-      (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
-    })();
-    await checkElementScreenshot("paneldynamic-progress-top-legacy-navigation.png", paneldynamicRoot, t);
-    await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
-    await checkElementScreenshot("paneldynamic-empty.png", paneldynamicRoot, t);
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      const paneldynamicRoot = Selector(".sd-question--paneldynamic");
+      await ClientFunction(() => {
+        (window as any).survey.getQuestionByName("applications").currentIndex = 2;
+      })();
+      await takeElementScreenshot("paneldynamic-progress-top.png", paneldynamicRoot, t, comparer);
+      await ClientFunction(() => {
+        (window as any).survey.getAllQuestions()[0].allowRemovePanel = false;
+      })();
+      await takeElementScreenshot("paneldynamic-without-remove-button.png", paneldynamicRoot, t, comparer);
+      await ClientFunction(() => {
+        (window as any).survey.getAllQuestions()[0].allowRemovePanel = true;
+        (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
+      })();
+      await takeElementScreenshot("paneldynamic-progress-top-legacy-navigation.png", paneldynamicRoot, t, comparer);
+      await ClientFunction(() => { (window as any).survey.getQuestionByName("applications").panelCount = 0; })();
+      await takeElementScreenshot("paneldynamic-empty.png", paneldynamicRoot, t, comparer);
+    });
   });
   test("Paneldynamic list mode", async (t) => {
-    await t.resizeWindow(1920, 1920);
-    const paneldynamicRoot = Selector(".sd-question--paneldynamic");
-    await ClientFunction(() => {
-      document.body.focus();
-      (window as any).survey.getQuestionByName("applications").renderMode = "list";
-    })();
-    await checkElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t);
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1920);
+      const paneldynamicRoot = Selector(".sd-question--paneldynamic");
+      await ClientFunction(() => {
+        document.body.focus();
+        (window as any).survey.getQuestionByName("applications").renderMode = "list";
+      })();
+      await takeElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t, comparer);
+    });
   });
 });
 

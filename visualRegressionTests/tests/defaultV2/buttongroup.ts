@@ -1,6 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler, checkElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Dropdown Screenshot";
 
@@ -45,37 +44,39 @@ frameworks.forEach(framework => {
     await applyTheme(theme);
   });
   test("Check dropdown question", async (t) => {
-    await t.resizeWindow(1920, 1080);
-    await registerButtongroup(framework);
-    if (framework === "vue" || framework === "angular") {
-      return;
-    }
-    await initSurvey(framework, {
-      showQuestionNumbers: "off",
-      widthMode: "static",
-      questions: [
-        {
-          type: "buttongroup",
-          title: "Where are you living?",
-          name: "buttongroup_question",
-          choices: ["Greece", "US", "UK", "Spain"]
-        },
-      ]
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await registerButtongroup(framework);
+      if (framework === "vue" || framework === "angular") {
+        return;
+      }
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        widthMode: "static",
+        questions: [
+          {
+            type: "buttongroup",
+            title: "Where are you living?",
+            name: "buttongroup_question",
+            choices: ["Greece", "US", "UK", "Spain"]
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      const item = Selector(".sv-button-group__item").nth(2);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await focusBody();
+      await takeElementScreenshot("buttongroup-question.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLEmbedElement>document.querySelector(".sv-button-group__item:nth-child(2)")).focus(); })();
+      await takeElementScreenshot("buttongroup-question-focused.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(item);
+      await takeElementScreenshot("buttongroup-question-hovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await ClientFunction(() => {
+        (<any>window).survey.getQuestionByName("buttongroup_question").value = "UK";
+      })();
+      await takeElementScreenshot("buttongroup-question-answered.png", questionRoot, t, comparer);
     });
-    const questionRoot = Selector(".sd-question");
-    const item = Selector(".sv-button-group__item").nth(2);
-    const focusBody = ClientFunction(() => { document.body.focus(); });
-    await focusBody();
-    await checkElementScreenshot("buttongroup-question.png", questionRoot, t);
-    await ClientFunction(() => { (<HTMLEmbedElement>document.querySelector(".sv-button-group__item:nth-child(2)")).focus(); })();
-    await checkElementScreenshot("buttongroup-question-focused.png", questionRoot, t);
-    await focusBody();
-    await t.hover(item);
-    await checkElementScreenshot("buttongroup-question-hovered.png", questionRoot, t);
-    await focusBody();
-    await ClientFunction(() => {
-      (<any>window).survey.getQuestionByName("buttongroup_question").value = "UK";
-    })();
-    await checkElementScreenshot("buttongroup-question-answered.png", questionRoot, t);
   });
 });

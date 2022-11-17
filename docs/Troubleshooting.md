@@ -1,3 +1,7 @@
+---
+title: Troubleshooting | SurveyJS Form Libraries
+description: Common errors that occur when you add Form Library component to your app and the ways to troubleshoot them.
+---
 # Troubleshooting
 
 This help topic describes how to troubleshoot problems that may occur when you use the SurveyJS Form Library in your application.

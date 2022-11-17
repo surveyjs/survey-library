@@ -42,7 +42,7 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
 - [Live Examples](https://surveyjs.io/Examples/Library)
 - [What's New](https://surveyjs.io/WhatsNew)
 
-## Build the SurveyJS Library from Sources
+## Build the SurveyJS Form Library from Sources
 
 1. **Clone the repo**
 
@@ -85,4 +85,4 @@ Make sure that you have Node.js v6.0.0 or later and npm v2.7.0 or later installe
 
 ## Licensing
 
-SurveyJS Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).
+SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

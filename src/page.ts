@@ -127,11 +127,13 @@ export class PageModel extends PanelModelBase implements IPage {
     return classes;
   }
   public get cssTitle(): string {
+    if(!this.cssClasses.page) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.title)
       .toString();
   }
   public get cssRoot(): string {
+    if(!this.cssClasses.page || !this.survey) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
@@ -169,19 +171,6 @@ export class PageModel extends PanelModelBase implements IPage {
       }
     }
     this.randomizeElements(this.areQuestionsRandomized);
-  }
-  /**
-   * The property returns true, if the elements are randomized on the page
-   * @see hasShown
-   * @see questionsOrder
-   * @see SurveyModel.questionsOrder
-   */
-  public get areQuestionsRandomized(): boolean {
-    var order =
-      this.questionsOrder == "default" && this.survey
-        ? this.survey.questionsOrder
-        : this.questionsOrder;
-    return order == "random";
   }
   /**
    * Call it to scroll to the page top.

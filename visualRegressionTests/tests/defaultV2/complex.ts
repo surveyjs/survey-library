@@ -1,6 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Complex Screenshot";
 
@@ -93,19 +92,18 @@ frameworks.forEach(framework => {
     await applyTheme(theme);
   });
   test("Check complex question", async (t) => {
-    await t.resizeWindow(1920, 1800);
-    await ClientFunction(() => { (window as any).Survey.surveyLocalization.locales.en.panelDynamicProgressText = "{0} of {1}"; })();
-    await initSurvey(framework, json);
-    await ClientFunction(() => {
-      const panel = (window as any).survey.getQuestionByName("order");
-      panel.currentIndex = 4;
-    })();
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
-    const questionRoot = Selector(".sd-question");
-    await takeScreenshot("complex-question.png", questionRoot, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1800);
+      await ClientFunction(() => { (window as any).Survey.surveyLocalization.locales.en.panelDynamicProgressText = "{0} of {1}"; })();
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        const panel = (window as any).survey.getQuestionByName("order");
+        panel.currentIndex = 4;
+      })();
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("complex-question.png", questionRoot, t, comparer);
+    });
   });
 });
 

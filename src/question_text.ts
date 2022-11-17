@@ -10,7 +10,9 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 
 /**
- * A Model for an input text question.
+ * A class that describes the Text question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
  */
 export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
@@ -47,7 +49,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateInputSize();
   }
   /**
-   * Use this property to change the default input type.
+   * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
    */
   public get inputType(): string {
     return this.getPropertyValue("inputType");
@@ -82,7 +84,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return true;
   }
   /**
-   * The text input size
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
   public get size(): number {
     return this.getPropertyValue("size");
@@ -120,16 +122,17 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("inputWidth", size > 0 ? "auto" : "");
   }
   /**
-   * Text auto complete
+   * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
-  public get autoComplete(): string {
-    return this.getPropertyValue("autoComplete", "");
+  public get autocomplete(): string {
+    return this.getPropertyValue("autocomplete", "");
   }
-  public set autoComplete(val: string) {
-    this.setPropertyValue("autoComplete", val);
+  public set autocomplete(val: string) {
+    this.setPropertyValue("autocomplete", val);
   }
   /**
-   * The minimum value
+   * A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
+   * @see minValueExpression
    */
   public get min(): string {
     return this.getPropertyValue("min");
@@ -142,7 +145,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("min", val);
   }
   /**
-   * The maximum value
+   * A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max) attribute of the underlying `<input>` element.
+   * @see maxValueExpression
    */
   public get max(): string {
     return this.getPropertyValue("max");
@@ -155,7 +159,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("max", val);
   }
   /**
-   * The minimum value that you can setup as expression, for example today(-1) = yesterday;
+   * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
+   * @see min
    */
   public get minValueExpression(): string {
     return this.getPropertyValue("minValueExpression", "");
@@ -164,7 +169,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("minValueExpression", val);
   }
   /**
-   * The maximum value that you can setup as expression, for example today(1) = tomorrow;
+   * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+   * @see max
    */
   public get maxValueExpression(): string {
     return this.getPropertyValue("maxValueExpression", "");
@@ -179,9 +185,9 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.getPropertyValue("renderedMax");
   }
   /**
-   * The text that shows when value is less than min property.
+   * An error message to display when the question value is less than the minimum accepted value.
    * @see min
-   * @see maxErrorText
+   * @see minValueExpression
    */
   public get minErrorText(): string {
     return this.getLocalizableStringText("minErrorText");
@@ -193,9 +199,9 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.getLocalizableString("minErrorText");
   }
   /**
-   * The text that shows when value is greater than man property.
+   * An error message to display when the question value exceeds the maximum accepted value.
    * @see max
-   * @see minErrorText
+   * @see maxValueExpression
    */
   public get maxErrorText(): string {
     return this.getLocalizableStringText("maxErrorText");
@@ -208,7 +214,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   /**
-   * Readonly property that returns true if the current inputType allows to set min and max properties
+   * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
    * @see inputType
    * @see min
    * @see max
@@ -322,7 +328,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   /**
-   * The step value
+   * A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
    */
   public get step(): string {
     return this.getPropertyValue("step");
@@ -331,7 +337,10 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("step", val);
   }
   public get renderedStep(): string {
-    return this.isValueEmpty(this.step) ? "any" : this.step;
+    if(this.isValueEmpty(this.step)) {
+      return this.inputType !== "number" ? undefined : "any";
+    }
+    return this.step;
   }
   supportGoNextPageAutomatic() {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
@@ -340,7 +349,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
   }
   /**
-   * The list of recommended options available to choose.
+   * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
    */
   public get dataList(): Array<string> {
     return this.locDataList.value;
@@ -467,7 +476,8 @@ Serializer.addClass(
       },
     },
     {
-      name: "autoComplete",
+      name: "autocomplete",
+      alternativeName: "autoComplete",
       choices: settings.questions.dataList,
     },
     {

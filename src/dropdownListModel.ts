@@ -8,39 +8,47 @@ import { Question } from "./question";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
+  readonly minPageSize = 25;
+  readonly loadingItemHeight = 40;
+
   private _popupModel: PopupModel;
   private focusFirstInputSelector = ".sv-list__item--selected";
   private itemsSettings: {skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
+  private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
-    this.itemsSettings.take = this.question.choicesLazyLoadPageSize;
+    this.itemsSettings.take = Math.max(this.minPageSize, this.question.choicesLazyLoadPageSize);
     this.itemsSettings.totalCount = 0;
     this.itemsSettings.items = [];
   }
 
   private updateListItems() {
-    this._popupModel.contentComponentData.model.setItems(this.getAvailableItems());
+    this.listModel.setItems(this.getAvailableItems());
   }
   private setItems(items: Array<any>, totalCount: number) {
     this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
     this.question.choices = this.itemsSettings.items;
     this.itemsSettings.totalCount = totalCount;
-    this.updateListItems();
     this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.question.choices.length == this.itemsSettings.totalCount;
+    this.updateListItems();
   }
 
   private updateQuestionChoices(): void {
+    if(this.isRunningLoadQuestionChoices) return;
+
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if(!this.itemsSettings.skip || isUpdate) {
+      this.isRunningLoadQuestionChoices = true;
       this.question.survey.loadQuestionChoices({
         question: this.question,
         filter: this.filterString,
         skip: this.itemsSettings.skip,
         take: this.itemsSettings.take,
         setItems: (items: Array<any>, totalCount: number) => {
+          this.isRunningLoadQuestionChoices = false;
           this.setItems(items, totalCount);
           this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
         }
@@ -83,12 +91,11 @@ export class DropdownListModel extends Base {
     });
   }
 
-  private setFilter(newValue: string):void {
+  private setFilterStringToListModel(newValue: string):void {
     this.listModel.filterString = newValue;
     if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
-    this.setInputHasValue(!!newValue);
   }
 
   protected popupRecalculatePosition(isResetHeight: boolean): void {
@@ -142,7 +149,8 @@ export class DropdownListModel extends Base {
     if(!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setFilter(this.filterString);
+    this.setFilterStringToListModel(this.filterString);
+    this.setInputHasValue(!!this.filterString);
     this.popupRecalculatePosition(true);
   }
 
@@ -253,11 +261,14 @@ export class DropdownListModel extends Base {
   }
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
-    if(target.scrollTop + target.offsetHeight === target.scrollHeight) {
+    if((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
       this.updateQuestionChoices();
     }
   }
   onBlur(event: any): void {
+    if(this.popupModel.isVisible) {
+      this.listModel.selectFocusedItem();
+    }
     this.resetFilterString();
     this._popupModel.isVisible = false;
     this.setInputHasValue(false);

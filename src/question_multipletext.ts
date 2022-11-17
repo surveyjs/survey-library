@@ -79,7 +79,11 @@ export class MultipleTextItemModel extends Base
     super.addUsedLocales(locales);
     this.editor.addUsedLocales(locales);
   }
-  public locStrsChanged() {
+  public localeChanged(): void {
+    super.localeChanged();
+    this.editor.localeChanged();
+  }
+  public locStrsChanged(): void {
     super.locStrsChanged();
     this.editor.locStrsChanged();
   }
@@ -274,7 +278,9 @@ export class MultipleTextItemModel extends Base
 }
 
 /**
- * A Model for a multiple text question.
+ * A class that describes the Multiple Text question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-multipletext/ (linkStyle))
  */
 export class QuestionMultipleTextModel extends Question
   implements IMultipleTextData, IPanel {
@@ -346,7 +352,8 @@ export class QuestionMultipleTextModel extends Question
     }
   }
   /**
-   * The list of input items.
+   * An array of `MultipleTextItemModel` objects that represent input items.
+   * @see addItem
    */
   public get items(): Array<MultipleTextItemModel> {
     return this.getPropertyValue("items");
@@ -355,9 +362,10 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("items", val);
   }
   /**
-   * Add a new text item.
-   * @param name a item name
-   * @param title a item title (optional)
+   * Adds a new input item.
+   * @param name An item name
+   * @param title (Optional) An item title
+   * @see items
    */
   public addItem(name: string, title: string = null): MultipleTextItemModel {
     var item = this.createTextItem(name, title);
@@ -391,20 +399,28 @@ export class QuestionMultipleTextModel extends Question
     json["type"] = "text";
     return json;
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].locStrsChanged();
     }
   }
-  supportGoNextPageAutomatic() {
+  public localeChanged(): void {
+    super.localeChanged();
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].localeChanged();
+    }
+  }
+  supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) return false;
     }
     return true;
   }
   /**
-   * The number of columns. Items are rendred in one line if the value is 0.
+   * The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.
+   *
+   * Default value: 1
    */
   public get colCount(): number {
     return this.getPropertyValue("colCount");
@@ -414,7 +430,7 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("colCount", val);
   }
   /**
-   * The default text input size.
+   * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
   public get itemSize(): number {
     return this.getPropertyValue("itemSize");
@@ -422,9 +438,6 @@ export class QuestionMultipleTextModel extends Question
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
   }
-  /**
-   * Returns the list of rendered rows.
-   */
   public getRows(): Array<any> {
     var colCount = this.colCount;
     var items = this.items;

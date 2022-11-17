@@ -1,6 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { createScreenshotsComparer } from "devextreme-screenshot-comparer";
-import { url, screenshotComparerOptions, frameworks, initSurvey, url_test, explicitErrorHandler } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Brand banner Screenshot";
 
@@ -32,12 +31,11 @@ frameworks.forEach(framework => {
     })();
   });
   test("Check brand info banner", async (t) => {
-    await t.resizeWindow(1920, 1080);
-    const { takeScreenshot, compareResults } = createScreenshotsComparer(t);
-    const brandInfo = Selector(".sv-brand-info");
-    await takeScreenshot("brand-info-image.png", brandInfo, screenshotComparerOptions);
-    await t
-      .expect(compareResults.isValid())
-      .ok(compareResults.errorMessages());
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+
+      const brandInfo = Selector(".sv-brand-info");
+      await takeElementScreenshot("brand-info-image.png", brandInfo, t, comparer);
+    });
   });
 });

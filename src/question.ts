@@ -26,6 +26,19 @@ export interface IConditionObject {
   context?: Question;
 }
 
+export interface IQuestionPlainData {
+  name: string | number;
+  title: string;
+  value: any;
+  displayValue: any;
+  isNode: boolean;
+  isComment?: boolean;
+  questionType?: string;
+  data?: Array<IQuestionPlainData>;
+  getString: (val: any) => string;
+  [key: string]: any;
+}
+
 /**
  * A base class for all questions.
  */
@@ -190,6 +203,13 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }
+  public get ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
@@ -245,19 +265,27 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
-   *
-   * This property is useful when interpolated question values have both the `value` and `text` properties.
+   * Specifies whether to use display names for question values in placeholders.
    *
    * Default value: `true`
+   *
+   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, and Dropdown questions).
+   *
+   * You can use question values as placeholders in the following places:
+   *
+   * - Survey element titles and descriptions
+   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
+   * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
+   *
+   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
    */
-  public get useDisplayValuesInTitle(): boolean {
-    return this.getPropertyValue("useDisplayValuesInTitle");
+  public get useDisplayValuesInDynamicTexts(): boolean {
+    return this.getPropertyValue("useDisplayValuesInDynamicTexts");
   }
-  public set useDisplayValuesInTitle(val: boolean) {
-    this.setPropertyValue("useDisplayValuesInTitle", val);
+  public set useDisplayValuesInDynamicTexts(val: boolean) {
+    this.setPropertyValue("useDisplayValuesInDynamicTexts", val);
   }
-  protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
+  protected getUseDisplayValuesInDynamicTexts(): boolean { return this.useDisplayValuesInDynamicTexts; }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
    *
@@ -324,6 +352,7 @@ export class Question extends SurveyElement<Question>
    * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
    * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
    * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"tagbox"*](https://surveyjs.io/form-library/documentation/questiontagboxmodel)
    * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel)
    * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel)
    * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel)
@@ -407,7 +436,7 @@ export class Question extends SurveyElement<Question>
    *
    * Possible values:
    *
-   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.
@@ -785,7 +814,7 @@ export class Question extends SurveyElement<Question>
     return this.showErrorOnCore("bottom");
   }
   protected getIsTooltipErrorSupportedByParent(): boolean {
-    if(this.parentQuestion) {
+    if (this.parentQuestion) {
       return this.parentQuestion.getIsTooltipErrorInsideSupported();
     } else {
       return super.getIsTooltipErrorSupportedByParent();
@@ -910,8 +939,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   private expandAllPanels(panel: IPanel) {
-    if(!!panel && !!panel.parent) {
-      if(panel.isCollapsed) {
+    if (!!panel && !!panel.parent) {
+      if (panel.isCollapsed) {
         panel.expand();
       }
       this.expandAllPanels(panel.parent);
@@ -1346,12 +1375,12 @@ export class Question extends SurveyElement<Question>
         propertyName: string,
       }>,
     }
-  ): any {
+  ): IQuestionPlainData {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false };
     }
     if (options.includeEmpty || !this.isEmpty()) {
-      var questionPlainData = <any>{
+      var questionPlainData: IQuestionPlainData = {
         name: this.name,
         title: this.locTitle.renderedHtml,
         value: this.value,
@@ -1425,7 +1454,7 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true, true)
+    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
       ? 1
       : 0;
   }
@@ -1820,10 +1849,13 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  protected setValueChangedDirectly(): void {
+    this.isValueChangedDirectly = true;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.isValueChangedDirectly = true;
+      this.setValueChangedDirectly();
     }
     this.questionValue = newValue;
     if (!isEqual) {
@@ -2033,7 +2065,7 @@ Serializer.addClass("question", [
     choices: ["default", "collapsed", "expanded"],
   },
   { name: "visible:switch", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
+  { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", default: settings.minWidth },

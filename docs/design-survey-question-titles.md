@@ -1,3 +1,7 @@
+---
+title: Configure Question Titles | SurveyJS Form Libraries
+description: You can define a question title and configure its additional elements, such as a question sequence number or 'required' marks.
+---
 # Configure Question Titles
 
 You can specify the [`title`](https://surveyjs.io/Documentation/Library?id=Question#title) property to set a question title. If you leave it unspecified, the question displays its [`name`](https://surveyjs.io/Documentation/Library?id=Question#name) value as a title. However, question titles can have additional elements that you can configure, such as question numbers and required marks.
@@ -37,8 +41,6 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
-
 ## Required Mark
 
 Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredText`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredText) property to set another symbol or specify an explanatory text string:
@@ -49,8 +51,6 @@ const surveyJson = {
   "requiredText": "!"
 }
 ```
-
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
 
 ## Title Pattern
 
@@ -66,4 +66,5 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" example](https://surveyjs.io/Examples/Library/?id=survey-processtext (linkStyle))
+[View the "Process Text" Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+[View the "Survey Options" Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))

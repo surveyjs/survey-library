@@ -7,7 +7,7 @@
         v-model="question.renderedValue"
         @click="click"
         @keyup="keyUp"
-        :autocomplete="question.autoComplete"
+        :autocomplete="question.autocomplete"
         :class="question.getControlClass()"
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"

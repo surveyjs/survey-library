@@ -7194,6 +7194,7 @@ QUnit.test("Quiz, correct, incorrect answers", function (assert) {
 QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   assert
 ) {
+  settings.comparator.caseSensitive = false;
   var survey = new SurveyModel({
     pages: [
       {
@@ -7206,6 +7207,31 @@ QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function (
   assert.equal(survey.getCorrectedAnswers(), 0, "Still no correct answer");
   survey.setValue("q1", "myanswer");
   assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
+});
+QUnit.test("Quiz, correct, multiple text", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "multipletext",
+        "name": "root",
+        "correctAnswer": {
+          "text1": "Text1",
+          "text2": "Text2"
+        },
+        "items": [{
+          "name": "text1",
+        }, {
+          "name": "text2",
+        }]
+      }
+    ]
+  });
+  assert.equal(survey.getCorrectedAnswers(), 0, "No correct answer");
+  survey.setValue("root", {
+    "text1": "text1",
+    "text2": "text2"
+  });
+  assert.equal(survey.getCorrectedAnswers(), 1, "Check as case insensitive");
 });
 QUnit.test("Quiz, correct, incorrect answers, questionCount in expressions", function (
   assert
@@ -7371,6 +7397,23 @@ QUnit.test(
     assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
+QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "correctAnswer": "hi"
+      }
+    ]
+  });
+  settings.comparator.caseSensitive = true;
+  survey.setValue("q1", "HI");
+  assert.equal(survey.getCorrectedAnswerCount(), 0, "It is case sensitive");
+  survey.setValue("q1", "hi");
+  assert.equal(survey.getCorrectedAnswerCount(), 1, "It is correct");
+  settings.comparator.caseSensitive = false;
+});
 QUnit.test(
   "Quiz, correct, incorrect answers and onIsAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
   function (assert) {
@@ -8387,7 +8430,7 @@ QUnit.test("Survey get full title with values", function (assert) {
           { value: 1, text: "One" },
           { value: 2, text: "Two" },
         ],
-        useDisplayValuesInTitle: false,
+        useDisplayValuesInDynamicTexts: false,
       },
     ],
   };
@@ -10040,6 +10083,58 @@ QUnit.test("question.getPlainData - optional question type", function (assert) {
   assert.deepEqual(plainData.questionType, "radiogroup");
 });
 
+QUnit.test("question.getPlainData - optional survey values", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [1, 2, 3]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = { question1: 1 };
+  survey.setValue("customValue", "test");
+
+  var plainData = survey.getPlainData();
+  assert.deepEqual(plainData.length, 1);
+  delete plainData[0]["getString"];
+  delete plainData[0]["data"];
+  assert.deepEqual(plainData[0], {
+    "displayValue": "1",
+    "isNode": true,
+    "name": "question1",
+    "title": "question1",
+    "value": 1
+  }, "Question only");
+
+  plainData = survey.getPlainData({ includeValues: true });
+  assert.deepEqual(plainData.length, 2);
+  delete plainData[0]["getString"];
+  delete plainData[0]["data"];
+  delete plainData[1]["getString"];
+  delete plainData[1]["data"];
+  assert.deepEqual(plainData[0], {
+    "displayValue": "1",
+    "isNode": true,
+    "name": "question1",
+    "title": "question1",
+    "value": 1
+  }, "Question");
+  assert.deepEqual(plainData[1], {
+    "displayValue": "test",
+    "isNode": false,
+    "name": "customValue",
+    "title": "customValue",
+    "value": "test"
+  }, "Value");
+});
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
     questions: [
@@ -10307,8 +10402,8 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   };
   var survey = new SurveyModel(json);
   var counter = 0;
-  var errors = null;
-  var questions = null;
+  var errors: any = null;
+  var questions: any = null;
   survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
     counter++;
     errors = options.errors;
@@ -10322,57 +10417,57 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
 
   survey.setValue("q1", "val1");
   survey.nextPage();
-  assert.equal(
-    counter,
-    2 + 1,
-    "called 3 times, one time calls on value changed, since question has an error"
-  );
+  assert.equal(counter, 2, "called 2 times");
   assert.equal(errors.length, 1, "there is one error, #1");
   assert.equal(questions.length, 1, "there is one error, #2");
 
   survey.setValue("q2", "val2");
   survey.nextPage();
-  assert.equal(
-    counter,
-    3 + 2,
-    "called three times + two times, times time calls on value changed, since questions have errors"
-  );
+  assert.equal(counter, 3, "called three times");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.checkErrorsMode = "onValueChanged";
 
   survey.setValue("q3", "val3");
-  assert.equal(counter, 4 + 2, "called four times");
+  assert.equal(counter, 4, "called four times");
   assert.equal(errors.length, 1, "there is one error, #3");
   assert.equal(questions.length, 1, "there is one error, #4");
 
   survey.setValue("q3", "a@b.com");
-  assert.equal(counter, 5 + 2, "called five times");
+  assert.equal(counter, 5, "called five times");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.setValue("q3", "a@c.com");
-  assert.equal(
-    counter,
-    5 + 2,
-    "called five times - it doesn't called this time"
-  );
+  assert.equal(counter, 5, "called five times - it doesn't called this time");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
   survey.clearValue("q3");
-  assert.equal(
-    counter,
-    5 + 2,
-    "Do not call errors validation on clearing value"
-  );
+  assert.equal(counter, 5, "Do not call errors validation on clearing value");
   assert.equal(errors.length, 0, "there is no errors on clearing value");
   survey.completeLastPage();
-  assert.equal(counter, 6 + 2, "called six times");
+  assert.equal(counter, 6, "called six times");
   assert.equal(errors.length, 2, "there are two errors onComplete, #5");
   assert.equal(questions.length, 2, "there are two question onComplete, #6");
 });
+QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on changing question value, Bug#5194",
+  function (assert) {
+    const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
+    let counter = 0;
+    survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+      counter ++;
+    });
+    survey.completeLastPage();
+    assert.equal(survey.state, "running");
+    assert.equal(counter, 1, "On complete");
+    survey.setValue("name", "Jon");
+    assert.equal(counter, 1, "We do not make complete");
+    survey.completeLastPage();
+    assert.equal(counter, 2, "Do complete again");
+  }
+);
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();
@@ -15557,4 +15652,21 @@ QUnit.test("Make sure that panel is not collapsed on focusing the question", fun
   question.focus();
   assert.equal(p2.isExpanded, true, "Expand panel, p2");
   assert.equal(p1.isExpanded, true, "Expand panel, p1");
+});
+QUnit.test("Set question choices for disposed survey", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [1, 2]
+      }
+    ],
+  });
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  survey.dispose();
+  question.choices = [1, 2, 3];
+  assert.equal(question.choices.length, 3, "There is not errors");
+  assert.notOk(question.survey, "Survey is not set");
+  assert.notOk(question.data, "data is not set");
 });

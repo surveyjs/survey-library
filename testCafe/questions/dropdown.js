@@ -678,6 +678,43 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.nth(1).textContent).eql("item21");
   });
 
+  test("Select item after switching focus", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+
+    await t
+      .expect(popupContainer.visible).notOk()
+
+      .pressKey("a")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueText.textContent).eql("Vauxhall");
+  });
+
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
       questions: [
@@ -893,7 +930,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Check dropdown reset filter string", async (t) => {
-    const jsonWithDropDown = {
+    const jsonWithDropdown = {
       questions: [
         {
           type: "dropdown",
@@ -930,7 +967,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    await initSurvey(framework, jsonWithDropDown);
+    await initSurvey(framework, jsonWithDropdown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     const listItems = Selector(".sv-list__item");
 
@@ -945,7 +982,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
       .expect(clearButton.visible).notOk();
@@ -1260,22 +1297,22 @@ frameworks.forEach((framework) => {
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
       .expect(dropdown1.find(".sv-list").scrollTop).eql(0)
-      .expect(dropdown1.find(".sv-list").scrollHeight).within(1100, 1150)
-      .expect(listItems.filterVisible().count).eql(25)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(1100, 1200)
+      .expect(listItems.filterVisible().count).eql(26)
 
       .scrollBy(dropdown1.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(300, 470)
-      .expect(dropdown1.find(".sv-list").scrollHeight).within(2200, 2300)
-      .expect(listItems.filterVisible().count).eql(50)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(400, 550)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2300, 2400)
+      .expect(listItems.filterVisible().count).eql(51)
 
       .scrollBy(dropdown1.find(".sv-list"), 0, 2300)
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(1500, 1620)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(1600, 1700)
       .expect(dropdown1.find(".sv-list").scrollHeight).within(2500, 2600)
       .expect(listItems.filterVisible().count).eql(55)
 
@@ -1290,15 +1327,15 @@ frameworks.forEach((framework) => {
       .expect(dropdown2.offsetTop).eql(0)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
       .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
-      .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1380)
-      .expect(listItems.filterVisible().count).eql(30)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1500)
+      .expect(listItems.filterVisible().count).eql(31)
 
       .scrollBy(dropdown2.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
-      .expect(dropdown2.find(".sv-list").scrollTop).within(650, 670)
+      .expect(dropdown2.find(".sv-list").scrollTop).within(650, 750)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(2500, 2530)
       .expect(listItems.filterVisible().count).eql(55)
       .click(getListItemByText("55"))

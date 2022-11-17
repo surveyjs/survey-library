@@ -1,14 +1,18 @@
-# SurveyJS Library / Runner Overview
+---
+title: Introduction to the Form Library | SurveyJS
+description: SurveyJS Form Library is a free and open-source JS component that allows you to configure and run on-page forms and pop-up surveys in a web app.
+---
+# SurveyJS Form Library Overview
 
-SurveyJS Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application. 
+SurveyJS Form Library allows you to create dynamic surveys and forms and integrate them into your JavaScript application. 
 
-![SurveyJS Library / Runner](images/overview.png)
+![SurveyJS Form Library](images/overview.png)
 
 ## Features
 
 - Dynamic forms, surveys, and quizzes for your JavaScript application
-- Native support for React, Vue, and Knockout
-- Integration of the Knockout version into Angular and jQuery applications
+- Native support for React, Vue, Angular, and Knockout
+- Integration of the Knockout version into jQuery applications
 - 20+ built-in question types and support for custom question types
 - Support for [conditional survey logic](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
 - [Answer validation](https://surveyjs.io/Documentation/Library?id=data-validation)
@@ -35,4 +39,4 @@ Visit our [What's New page](https://surveyjs.io/WhatsNew) for information on new
 
 ## Licensing
 
-SurveyJS Library / Runner is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).
+SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

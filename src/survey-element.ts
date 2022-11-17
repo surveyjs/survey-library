@@ -396,6 +396,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);
+      this.surveyDataValue = null;
     } else {
       this.surveyDataValue = this.surveyImplValue.getSurveyData();
       this.setSurveyCore(this.surveyImplValue.getSurvey());
@@ -677,11 +678,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;
     if (this.textProcessor)
-      return this.textProcessor.processText(text, this.getUseDisplayValuesInTitle());
+      return this.textProcessor.processText(text, this.getUseDisplayValuesInDynamicTexts());
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
-  protected getUseDisplayValuesInTitle(): boolean { return true; }
+  protected getUseDisplayValuesInDynamicTexts(): boolean { return true; }
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
     const index: number = list.indexOf(this);

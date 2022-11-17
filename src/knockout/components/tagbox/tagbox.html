@@ -15,7 +15,7 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
-      <!-- ko foreach: question.renderedValue -->
+      <!-- ko foreach: question.selectedChoices -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
@@ -24,6 +24,7 @@
        attr: { 
         size: !model.filterString ? 1 : null, 
         id: question.getInputId(), 
+        'aria-label': question.placeholder,
         placeholder: model.filterStringPlaceholder, 
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 

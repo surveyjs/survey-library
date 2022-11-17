@@ -38,6 +38,7 @@
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"
+          :aria-label="question.placeholder"
           :placeholder="question.readOnlyText"
           @change="inputChange"
           @keyup="inputKeyHandler"

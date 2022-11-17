@@ -41,6 +41,7 @@ export * from "./components/element-header/element-header.component";
 export * from "./components/element-title/element-title.component";
 export * from "./components/survey-header/survey-header.component";
 export * from "./components/skeleton/skeleton.component";
+export * from "./components/timer-panel/timer-panel.component";
 
 export * from "./components/element-title/dynamic-head.component";
 export * from "./components/list/list.component";

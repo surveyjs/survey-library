@@ -1,3 +1,7 @@
+---
+title: UI icons | SurveyJS Form Libraries
+description: Refer to the list of all available built-in icons used in SurveyJS libraries and the code that shows how to replace a built-in icon with a custom one.
+---
 # Icons
 
 This help topic describes icons built into SurveyJS components and shows how you can replace them with custom icons.
@@ -9,8 +13,8 @@ This help topic describes icons built into SurveyJS components and shows how you
 
 SurveyJS uses icons in SVG format. The following built-in SVG icons are available:
 
-<iframe src="https://surveyjs.github.io/code-examples/icons/"
-  style="width:100%; height:1770px; border:0; overflow:hidden;">
+<iframe src="/proxy/github/code-examples/icons/index.html"
+  style="width:100%; border:0; overflow:hidden;">
 </iframe>
 
 The following code shows how you can swap two built-in icons. It uses the `icon-export` icon instead of `icon-import`, and vice versa:
@@ -47,6 +51,8 @@ import ReactDOMServer from "react-dom/server";
 const svg = ReactDOMServer.renderToString(<MyIcon />);
 SvgRegistry.registerIconFromSvg("icon-delete", svg);
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/custom-icons/ (linkStyle))
 
 ## See Also
 

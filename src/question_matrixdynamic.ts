@@ -92,7 +92,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!this.allowRowsDragAndDrop) return;
+    if (!row || !this.allowRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     if (row.isDetailPanelShowing) return;
     this.draggedRow = row;
@@ -343,8 +343,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * This property returns `true` when all of the following conditions apply:
    *
    * - Users are allowed to add new rows (`allowAddRows` is `true`).
-   * - The question, panel, or survey is not in read-only state.
-   * - `rowCount` does not exceed `maxRowCount`
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` is less than `maxRowCount`.
    * @see allowAddRows
    * @see isReadOnly
    * @see rowCount
@@ -363,8 +363,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * This property returns `true` when all of the following conditions apply:
    *
    * - Users are allowed to delete rows (`allowRemoveRows` is `true`).
-   * - The question, panel, or survey is not in read-only state.
-   * - `rowCount` exceeds `minRowCount`
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` exceeds `minRowCount`.
    * @see allowRemoveRows
    * @see isReadOnly
    * @see rowCount
@@ -463,17 +463,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
-      var row = this.visibleRows[this.rowCount - 1];
-      if (!this.isValueEmpty(row.value)) {
-        if (!newValue) {
-          newValue = this.createNewValue();
-        }
-        if (
-          !this.isValueSurveyElement(newValue) &&
-          !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
-        ) {
-          newValue[newValue.length - 1] = row.value;
-          this.value = newValue;
+      if(this.isValueEmpty(defaultValue)) {
+        const row = this.visibleRows[this.rowCount - 1];
+        if (!this.isValueEmpty(row.value)) {
+          if (!newValue) {
+            newValue = this.createNewValue();
+          }
+          if (
+            !this.isValueSurveyElement(newValue) &&
+            !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
+          ) {
+            newValue[newValue.length - 1] = row.value;
+            this.value = newValue;
+          }
         }
       }
     }

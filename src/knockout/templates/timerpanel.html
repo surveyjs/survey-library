@@ -1,3 +1,18 @@
 <script type="text/html" id="survey-timerpanel">
-    <div data-bind="css: css.timerRoot, text:timerModel.text"></div>
+    <!-- ko if: timerModel.showTimerAsClock -->
+    <div data-bind="css: timerModel.rootCss">
+        <svg data-bind="css: timerModel.getProgressCss(), style: { strokeDasharray: 440, strokeDashoffset: -440 * timerModel.progress }">
+            <use data-bind="attr:{'xlink:href': '#icon-timercircle'}" xlink:href=''></use>
+          </svg>
+        <div data-bind="css: timerModel.textContainerCss">
+            <span data-bind="css: timerModel.majorTextCss, text: timerModel.clockMajorText"></span>
+            <!-- ko if: !!timerModel.minorTextCss -->
+            <span data-bind="css: timerModel.minorTextCss, text: timerModel.clockMinorText"></span>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: !timerModel.showTimerAsClock -->
+    <div data-bind="css: timerModel.survey.getCss().timerRoot, text: timerModel.text"></div>
+    <!--/ko -->
 </script>

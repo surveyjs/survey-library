@@ -618,7 +618,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > NOTE: This method does not remove values for insivible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > NOTE: This method does not remove values for invisible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
    *
    * @see hasErrors
    */
@@ -678,7 +678,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isRequired", val);
   }
   /**
-   * A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have answer).
+   * A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have an answer).
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
@@ -917,7 +917,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Sets title location relative to the input field for questions the belong to this panel/page.
+   * Sets a title location relative to the input field for questions that belong to this panel/page.
    *
    * Use this property to override the `questionTitleLocation` property specified for the survey. You can also set the `titleLocation` property for individual questions.
    *
@@ -1823,7 +1823,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.getRenderedTitle(str);
   }
   /**
-   * Increases or decreases indent of the panel content from the left edge. Accepts positive integer values and 0.
+   * Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
    */
   public get innerIndent(): number {
     return this.getPropertyValue("innerIndent");

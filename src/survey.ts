@@ -286,7 +286,7 @@ export class SurveyModel extends SurveyElementCore
    * // Load the survey JSON schema
    * survey.fromJSON(surveyJson);
    * ```
-   * 
+   *
    *- `sender` - the survey object that fires the event.
    *- `options.question` - a newly created question object.
    * @see Question
@@ -4434,7 +4434,7 @@ export class SurveyModel extends SurveyElementCore
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
   }
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, callback: (displayValues: Array<string>) => void }): void {
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
     this.onGetChoiceDisplayValue.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {

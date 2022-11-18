@@ -6188,8 +6188,8 @@ QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
     ]
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
-      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
 

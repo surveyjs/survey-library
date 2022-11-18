@@ -1,3 +1,6 @@
+import { defaultThemeName } from "../../src/entries/plugins";
+import { StylesManager } from "../../src/stylesmanager";
+
 export var markupTests = [];
 
 export function registerMarkupTest(t) {
@@ -83,6 +86,7 @@ export function testQuestionMarkup(assert, test, platform) {
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
+  StylesManager.applyTheme(defaultThemeName);
   var done = assert.async();
   if (test.before)
     test.before();

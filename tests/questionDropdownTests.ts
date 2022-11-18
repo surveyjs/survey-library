@@ -498,10 +498,19 @@ QUnit.test("hasScroll property", assert => {
   document.body.removeChild(element);
 });
 
-function getNumberArray(skip = 1, count = 25): Array<number> {
-  const result:Array<number> = [];
-  for(let index = skip; index < (skip + count); index++) {
-    result.push(index);
+function getNumberArray(skip = 1, count = 25, filter = ""): Array<number> {
+  const result: Array<number> = [];
+  let index = skip;
+  while ((skip + result.length) < (skip + count)) {
+    if (!!filter) {
+      if (index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
+        result.push(index);
+      }
+    }
+    else {
+      result.push(index);
+    }
+    index++;
   }
   return result;
 }
@@ -510,9 +519,9 @@ const callback = (_, opt) => {
   const total = 55;
   setTimeout(() => {
     if(opt.skip + opt.take < total) {
-      opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+      opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
     } else {
-      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
     }
   }, 500);
 };
@@ -846,5 +855,69 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItem.value, 55);
     assert.equal(question.selectedItem.text, "DisplayText_55");
     done();
+  }, 550);
+});
+
+QUnit.test("lazy loading + change filter string", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 55);
+    assert.equal(itemsSettings.items.length, 25);
+
+    question.dropdownListModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25);
+      assert.equal(question.choices[0].value, 2);
+      assert.equal(question.choices[24].value, 123);
+      assert.equal(itemsSettings.skip, 25);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 55);
+      assert.equal(itemsSettings.items.length, 25);
+
+      question.dropdownListModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25);
+        assert.equal(question.choices[0].value, 22);
+        assert.equal(question.choices[24].value, 1223);
+        assert.equal(itemsSettings.skip, 25);
+        assert.equal(itemsSettings.take, 25);
+        assert.equal(itemsSettings.totalCount, 55);
+        assert.equal(itemsSettings.items.length, 25);
+
+        done3();
+      }, 550);
+
+      done2();
+    }, 550);
+
+    done1();
   }, 550);
 });

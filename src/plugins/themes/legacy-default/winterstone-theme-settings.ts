@@ -1,6 +1,6 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
-import { standardThemeCssRules } from "./standard-theme-settings";
+import { defaultThemeCssRules } from "./standard-theme-settings";
 
 export const winterstoneThemeName = "winterstone";
 (<any>surveyCss)[winterstoneThemeName] = defaultStandardCss;
@@ -36,4 +36,4 @@ export const winterstoneThemeColors: { [key: string]: string } = {
 };
 
 StylesManager.ThemeColors[winterstoneThemeName] = winterstoneThemeColors;
-StylesManager.ThemeCss[winterstoneThemeName] = standardThemeCssRules;
+StylesManager.ThemeCss[winterstoneThemeName] = defaultThemeCssRules;

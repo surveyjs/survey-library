@@ -1,7 +1,7 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultBootstrapMaterialCss } from "./cssbootstrapmaterial";
 
-export const bootstrapMaterialThemeName = "cssbootstrapmaterial";
+export const bootstrapMaterialThemeName = "bootstrapmaterial";
 (<any>surveyCss)[bootstrapMaterialThemeName] = defaultBootstrapMaterialCss;
 
 export const bootstrapMaterialThemeColors: { [key: string]: string } = {

@@ -1,6 +1,6 @@
 import { surveyCss, StylesManager } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
-import { standardThemeCssRules } from "./standard-theme-settings";
+import { defaultThemeCssRules } from "./standard-theme-settings";
 
 export const winterThemeName = "winter";
 (<any>surveyCss)[winterThemeName] = defaultStandardCss;
@@ -36,4 +36,4 @@ export const winterThemeColors: { [key: string]: string } = {
 };
 
 StylesManager.ThemeColors[winterThemeName] = winterThemeColors;
-StylesManager.ThemeCss[winterThemeName] = standardThemeCssRules;
+StylesManager.ThemeCss[winterThemeName] = defaultThemeCssRules;

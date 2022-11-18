@@ -11,6 +11,8 @@ import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
+import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Panel");
 
@@ -615,6 +617,7 @@ QUnit.test("Do not generate rows and do not set renderWidth", function (assert) 
   assert.equal(q.renderWidth, "", "render width is empty");
 });
 QUnit.test("question.cssRoot class", function (assert) {
+  StylesManager.applyTheme(defaultThemeName);
   const survey = new SurveyModel();
   const page = survey.addNewPage("p");
   const flowPanel = new FlowPanelModel("flowPanel");

@@ -1,6 +1,6 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
-import { standardThemeCssRules } from "./standard-theme-settings";
+import { defaultThemeCssRules } from "./standard-theme-settings";
 
 export const orangeThemeName = "orange";
 (<any>surveyCss)[orangeThemeName] = defaultStandardCss;
@@ -36,4 +36,4 @@ export const orangeThemeColors: { [key: string]: string } = {
 };
 
 StylesManager.ThemeColors[orangeThemeName] = orangeThemeColors;
-StylesManager.ThemeCss[orangeThemeName] = standardThemeCssRules;
+StylesManager.ThemeCss[orangeThemeName] = defaultThemeCssRules;

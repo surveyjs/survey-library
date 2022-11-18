@@ -1,4 +1,4 @@
 import { StylesManager } from "survey-core";
-import { standardThemeName } from "./standard-theme-settings";
+import { defaultThemeName } from "./standard-theme-settings";
 
-StylesManager.applyTheme(standardThemeName);
+StylesManager.applyTheme(defaultThemeName);

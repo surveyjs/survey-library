@@ -1,6 +1,6 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
-import { standardThemeCssRules } from "./standard-theme-settings";
+import { defaultThemeCssRules } from "./standard-theme-settings";
 
 export const darkblueThemeName = "darkblue";
 (<any>surveyCss)[darkblueThemeName] = defaultStandardCss;
@@ -36,4 +36,4 @@ export const darkblueThemeColors: { [key: string]: string } = {
 };
 
 StylesManager.ThemeColors[darkblueThemeName] = darkblueThemeColors;
-StylesManager.ThemeCss[darkblueThemeName] = standardThemeCssRules;
+StylesManager.ThemeCss[darkblueThemeName] = defaultThemeCssRules;

@@ -1,10 +1,10 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
 
-export const standardThemeName = "standard";
-(<any>surveyCss)[standardThemeName] = defaultStandardCss;
+export const defaultThemeName = "default";
+(<any>surveyCss)[defaultThemeName] = defaultStandardCss;
 
-export const standardThemeColors: { [key: string]: string } = {
+export const defaultThemeColors: { [key: string]: string } = {
   "$header-background-color": "#e7e7e7",
   "$body-container-background-color": "#f4f4f4",
 
@@ -34,7 +34,7 @@ export const standardThemeColors: { [key: string]: string } = {
   "$progress-buttons-line-color": "#d4d4d4"
 };
 
-export const standardThemeCssRules = {
+export const defaultThemeCssRules = {
   ".sv_default_css": "background-color: $body-container-background-color;",
 
   ".sv_default_css hr": "border-color: $border-color;",
@@ -166,5 +166,5 @@ export const standardThemeCssRules = {
   //eo ranking
 };
 
-StylesManager.ThemeColors[standardThemeName] = standardThemeColors;
-StylesManager.ThemeCss[standardThemeName] = standardThemeCssRules;
+StylesManager.ThemeColors[defaultThemeName] = defaultThemeColors;
+StylesManager.ThemeCss[defaultThemeName] = defaultThemeCssRules;

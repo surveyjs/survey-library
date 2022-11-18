@@ -1,6 +1,6 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { defaultStandardCss } from "./cssstandard";
-import { standardThemeCssRules } from "./standard-theme-settings";
+import { defaultThemeCssRules } from "./standard-theme-settings";
 
 export const stoneThemeName = "stone";
 (<any>surveyCss)[stoneThemeName] = defaultStandardCss;
@@ -36,4 +36,4 @@ export const stoneThemeColors: { [key: string]: string } = {
 };
 
 StylesManager.ThemeColors[stoneThemeName] = stoneThemeColors;
-StylesManager.ThemeCss[stoneThemeName] = standardThemeCssRules;
+StylesManager.ThemeCss[stoneThemeName] = defaultThemeCssRules;

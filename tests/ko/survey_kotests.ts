@@ -23,6 +23,8 @@ import { SurveyTimer } from "../../src/surveytimer";
 import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
 import { ItemValue } from "../../src/itemvalue";
+import { StylesManager } from "../../src/stylesmanager";
+import { defaultThemeName } from "../../src/plugins/themes/legacy-default/standard-theme-settings";
 
 export default QUnit.module("koTests");
 
@@ -1383,6 +1385,7 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function (assert) {
 QUnit.test(
   "exception during changing multiSelect for imagepicker, bug https://github.com/surveyjs/editor/issues/374",
   function (assert) {
+    StylesManager.applyTheme(defaultThemeName);
     var survey = new Survey();
     var page = survey.addNewPage("p");
     var q = new QuestionImagePicker("question1");
@@ -1741,6 +1744,7 @@ QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function (
 QUnit.test(
   "Some custom CSS not working - https://github.com/surveyjs/survey-library/issues/2122",
   function (assert) {
+    StylesManager.applyTheme(defaultThemeName);
     var survey = new Survey({
       questions: [
         {
@@ -1787,6 +1791,7 @@ QUnit.test(
 QUnit.test(
   "Other item selected and not checked - https://github.com/surveyjs/survey-library/issues/2200",
   function (assert) {
+    StylesManager.applyTheme(defaultThemeName);
     var q1 = new QuestionRadiogroup("q1");
     q1.fromJSON({
       type: "radiogroup",
@@ -1923,6 +1928,7 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
       },
     ],
   };
+  StylesManager.applyTheme(defaultThemeName);
   let survey: Survey = new Survey(json);
   let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(
     survey,
@@ -2189,6 +2195,7 @@ QUnit.test("loc strings changed on data assignment", function (assert) {
 QUnit.test(
   "Create correct Panel object when creating in code, Bug#2866",
   function (assert) {
+    StylesManager.applyTheme(defaultThemeName);
     var survey = new Survey();
     var page = survey.addNewPage("page1");
     var panel = <Panel>page.addNewPanel("panel1");

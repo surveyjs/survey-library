@@ -16,7 +16,7 @@
     <div [class]="model.getPanelWrapperCss()">
       <ng-template [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
       <ng-container *ngIf="model.panelRemoveButtonLocation ==='right'">
-        <sv-ng-paneldynamic-remove-btn *ngIf="model.canRemovePanel && panel.state != 'collapsed' && model.panelRemoveButtonLocation == 'right'" data="{ panel: panel, question: model }"></sv-ng-paneldynamic-remove-btn>
+        <sv-ng-paneldynamic-remove-btn *ngIf="model.canRemovePanel && panel.state != 'collapsed' && model.panelRemoveButtonLocation == 'right'" [data]="{ panel: panel, question: model }"></sv-ng-paneldynamic-remove-btn>
       </ng-container>
     </div>
     <!-- add track by [key]="'separator' + panel.id" -->

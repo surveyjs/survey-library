@@ -1527,14 +1527,15 @@ export class QuestionPanelDynamicModel extends Question
     return false;
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
-    let actions: Array<IAction> = [
-      new Action({
+    let actions = panel.footerActions;
+    if(this.panelRemoveButtonLocation !== "right") {
+      actions.push(new Action({
         id: `remove-panel-${panel.id}`,
         component: "sv-paneldynamic-remove-btn",
         visible: <any>new ComputedUpdater(() => [this.canRemovePanel, panel.state !== "collapsed", this.panelRemoveButtonLocation !== "right"].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
-      })
-    ];
+      }));
+    }
     if(!!this.survey) {
       actions = this.survey.getUpdatedPaneldynamicPanelActions(this, panel, actions);
     }

@@ -287,7 +287,7 @@ export class SurveyModel extends SurveyElementCore
    * // Load the survey JSON schema
    * survey.fromJSON(surveyJson);
    * ```
-   * 
+   *
    *- `sender` - the survey object that fires the event.
    *- `options.question` - a newly created question object.
    * @see Question

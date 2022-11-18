@@ -2490,9 +2490,6 @@ export class SurveyModel extends SurveyElementCore
       this.showPreviewBeforeComplete != "showAllQuestions"
     );
   }
-  /**
-   * Returns the text/HTML that is rendered as a survey title.
-   */
   public get processedTitle() {
     return this.locTitle.renderedHtml;
   }

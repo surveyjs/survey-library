@@ -4761,14 +4761,17 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
       }
     ]
   });
-  survey.onGetPaneldynamicPanelActions.add((_, opt) => {
+  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  survey.onGetPaneldynamicPanelActions.add((sender, opt) => {
+    assert.equal(sender, survey);
+    assert.equal(opt.question, paneldynamic);
+    assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);
     opt.actions.push({
       id: "test",
       title: "test",
       action: () => {}
     });
   });
-  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(paneldynamic.panels[0].footerActions.length, 0);
   assert.equal(paneldynamic.panels[0]["footerToolbarValue"], undefined);
 

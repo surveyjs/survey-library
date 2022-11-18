@@ -4762,10 +4762,12 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
     ]
   });
   const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  let updatedPanels: any[] = [];
   survey.onGetPaneldynamicPanelActions.add((sender, opt) => {
     assert.equal(sender, survey);
     assert.equal(opt.question, paneldynamic);
     assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);
+    updatedPanels.push(opt.panel);
     opt.actions.push({
       id: "test",
       title: "test",
@@ -4778,6 +4780,9 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
   //panel actions should be created only after footerToolbar is requested
 
   const actions = paneldynamic.panels[0].getFooterToolbar().actions;
+  paneldynamic.panels[1].getFooterToolbar();
+  assert.deepEqual(updatedPanels, paneldynamic.panels);
+
   assert.equal(actions.length, 2);
   assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
   assert.equal(actions[1].title, "test");

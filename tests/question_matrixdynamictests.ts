@@ -5312,6 +5312,86 @@ QUnit.test("getProgressInfo", function (assert) {
     requiredAnsweredQuestionCount: 1,
   });
 });
+QUnit.test("getProgressInfo with non input questions in matrix dropdown Bug#5255", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+            cellType: "expression"
+          },
+          {
+            name: "col3",
+            cellType: "html"
+          },
+        ],
+        rows: ["row1", "row2", "row3"]
+      },
+    ],
+  });
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 0,
+  });
+  survey.data = { matrix: { row1: { col1: "1" }, row2: { col1: "2" }, row3: {} } };
+  assert.ok(question.renderedTable);
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 2,
+  });
+});
+QUnit.test("getProgressInfo with non input questions in matrix dynamic Bug#5255", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            isRequired: true,
+          },
+          {
+            name: "col2",
+            cellType: "expression"
+          },
+          {
+            name: "col3",
+            cellType: "html"
+          },
+        ]
+      },
+    ],
+  });
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  question.rowCount = 3;
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 0,
+  });
+  survey.data = { matrix: [{ col1: "1" }, { col1: "2" }, {}] };
+  assert.ok(question.renderedTable);
+  assert.deepEqual(question.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 2,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 2,
+  });
+});
 
 QUnit.test("getProgressInfo, matrix dynamic without creating table", function (assert) {
   var survey = new SurveyModel({

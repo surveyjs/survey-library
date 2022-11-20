@@ -42,3 +42,23 @@ registerMarkupTest(
     event: "onAfterRenderPage"
   },
 );
+registerMarkupTest(
+  {
+    name: "Test question with description under input",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          description: "Under input",
+          descriptionLocation: "underInput",
+          titleLocation: "hidden"
+        }
+      ],
+      questionErrorLocation: "bottom"
+    },
+    snapshot: "question-description-under-input",
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+);

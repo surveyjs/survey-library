@@ -227,7 +227,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
   };
 
   if(!!options.platform) {
-    config.plugins.unshift(percentage_handler);
+    config.plugins.unshift(new webpack.ProgressPlugin(percentage_handler));
     config.entry = {
       [packageName]: path.resolve(
         __dirname,

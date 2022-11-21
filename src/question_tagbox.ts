@@ -64,7 +64,17 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   })
   hideSelectedItems: boolean;
+  /**
+   * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
+   * @see choicesLazyLoadPageSize
+   * @see SurveyModel.onChoicesLazyLoad
+   */
   @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  /**
+   * Specifies the number of choice items to load at a time when choices are loaded on demand.
+   * @see choicesLazyLoadEnabled
+   * @see SurveyModel.onChoicesLazyLoad
+   */
   @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   /**

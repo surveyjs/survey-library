@@ -206,7 +206,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
   /**
-   * Enables lazy loading. If you set this property to `true`, you must implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
+   * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */

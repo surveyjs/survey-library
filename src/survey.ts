@@ -699,7 +699,40 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
+  /**
+   * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
+   *
+   * This event is raised only for those questions that have the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadEnabled) property set to `true`.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.skip`- The number of choice items to skip.
+   * - `options.take` - The number of choice items to load. You can use the question's [`choicesLazyLoadPageSize`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadPageSize) property to change this number.
+   * - `options.filter` - A search string used to filter choices.
+   * - `options.setItems(items: Array<any>, totalCount: Number)` - A method that you should call to assign loaded items to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   * @see QuestionDropdownModel.choicesLazyLoadEnabled
+   * @see QuestionDropdownModel.choicesLazyLoadPageSize
+   */
   public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
+  /**
+   * Use this event to load a display text for the [default choice item](https://surveyjs.io/form-library/documentation/questiondropdownmodel#defaultValue) in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions.
+   *
+   * If you load choices from a server (use [`choicesByUrl`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesByUrl) or [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad)), display texts become available only when data is loaded, which does not happen until a user opens the drop-down menu. However, a display text for a default choice item is required before that. In this case, you can load data individually for the default item within the `onGetChoiceDisplayValue` event handler.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.values`- An array of one (in Dropdown) or more (in Tag Box) default values.
+   * - `options.setItems(displayValues: Array<string>)` - A method that you should call to assign display texts to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   */
   public onGetChoiceDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**

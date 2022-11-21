@@ -74,6 +74,32 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check dropdown question input", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            optionsCaption: "Select country here...",
+            allowClear: false,
+            choices: ["Greece"],
+          },
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await t
+        .click(".sd-dropdown__filter-string-input")
+        .pressKey("G r e e c e")
+        .wait(500);
+      await takeElementScreenshot("dropdown-input-position.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check dropdown select question popup", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);

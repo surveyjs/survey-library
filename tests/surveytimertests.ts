@@ -2,6 +2,7 @@ import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
 import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
 import { SurveyTimerModel } from "../src/surveyTimerModel";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("SurveyTimer");
 
@@ -252,4 +253,64 @@ QUnit.test("Test SurveyTimerModel", function(assert) {
   assert.equal(timerModel.spent, 62 + 3, "62 + 3 spent");
   assert.equal(timerModel.text, "You have spent 3 sec on this page and 1 min 5 sec in total.", "62 + 3 text");
   survey.stopTimer();
+});
+
+QUnit.test("Test SurveyTimerModel with clock", function(assert) {
+  var survey = new SurveyModel();
+  survey.maxTimeToFinish = 25;
+  survey.maxTimeToFinishPage = 10;
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.addNewPage("p3");
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  survey.pages[2].addNewQuestion("text");
+  survey.startTimer();
+  let timerModel = survey.timerModel;
+  let done = assert.async();
+  assert.equal(timerModel.clockMajorText, "0:10");
+  assert.equal(timerModel.clockMinorText, "0:25");
+  assert.equal(timerModel.progress, 0);
+  setTimeout(() => {
+    assert.equal(timerModel.progress, 0.1, "Should start animation to first second");
+    doTimer(3);
+    assert.equal(timerModel.clockMajorText, "0:07");
+    assert.equal(timerModel.clockMinorText, "0:22");
+    assert.equal(timerModel.progress, 0.4, "Should start animation to next second (3 + 1)/10");
+    doTimer(6);
+    assert.equal(timerModel.clockMajorText, "0:01");
+    assert.equal(timerModel.clockMinorText, "0:16");
+    assert.equal(timerModel.progress, 1);
+    survey.nextPage();
+    assert.equal(timerModel.clockMajorText, "0:10");
+    assert.equal(timerModel.clockMinorText, "0:16");
+    assert.equal(timerModel.progress, 0, "Timer should be reset after page switch");
+    doTimer(9);
+    assert.equal(timerModel.clockMajorText, "0:01");
+    assert.equal(timerModel.clockMinorText, "0:07");
+    assert.equal(timerModel.progress, 1);
+    survey.nextPage();
+    assert.equal(timerModel.clockMajorText, "0:10");
+    assert.equal(timerModel.clockMinorText, "0:07");
+    done();
+  }, 1);
+
+});
+
+QUnit.test("Test showTimerAsClock flag", function(assert) {
+  var survey = new SurveyModel();
+  survey.maxTimeToFinish = 25;
+  survey.maxTimeToFinishPage = 10;
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.addNewPage("p3");
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  survey.pages[2].addNewQuestion("text");
+  survey.startTimer();
+  let timerModel = survey.timerModel;
+  assert.notOk(timerModel.showTimerAsClock);
+  survey.css = defaultV2Css;
+  assert.ok(timerModel.showTimerAsClock);
+
 });

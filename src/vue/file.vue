@@ -18,6 +18,7 @@
       v-if="question.isReadOnly"
       type="file"
       disabled
+      :id="question.inputId"
       :class="question.getReadOnlyFileCss()"
       :multiple="question.multipleRendered"
       :placeholder="question.title"

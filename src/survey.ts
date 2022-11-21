@@ -700,7 +700,40 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
+  /**
+   * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
+   *
+   * This event is raised only for those questions that have the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadEnabled) property set to `true`.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.skip`- The number of choice items to skip.
+   * - `options.take` - The number of choice items to load. You can use the question's [`choicesLazyLoadPageSize`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadPageSize) property to change this number.
+   * - `options.filter` - A search string used to filter choices.
+   * - `options.setItems(items: Array<any>, totalCount: Number)` - A method that you should call to assign loaded items to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   * @see QuestionDropdownModel.choicesLazyLoadEnabled
+   * @see QuestionDropdownModel.choicesLazyLoadPageSize
+   */
   public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
+  /**
+   * Use this event to load a display text for the [default choice item](https://surveyjs.io/form-library/documentation/questiondropdownmodel#defaultValue) in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions.
+   *
+   * If you load choices from a server (use [`choicesByUrl`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesByUrl) or [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad)), display texts become available only when data is loaded, which does not happen until a user opens the drop-down menu. However, a display text for a default choice item is required before that. In this case, you can load data individually for the default item within the `onGetChoiceDisplayValue` event handler.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.values`- An array of one (in Dropdown) or more (in Tag Box) default values.
+   * - `options.setItems(displayValues: Array<string>)` - A method that you should call to assign display texts to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   */
   public onGetChoiceDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
@@ -1301,6 +1334,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
+      .append(this.css.bodyWithTimer, this.showTimerPanel != "none" && this.state === "running")
       .append(this.css.body + "--" + this.calculatedWidthMode).toString();
   }
   @property() completedCss: string;
@@ -2491,9 +2525,6 @@ export class SurveyModel extends SurveyElementCore
       this.showPreviewBeforeComplete != "showAllQuestions"
     );
   }
-  /**
-   * Returns the text/HTML that is rendered as a survey title.
-   */
   public get processedTitle() {
     return this.locTitle.renderedHtml;
   }
@@ -6421,12 +6452,50 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
+  public get timerInfo(): { spent: number, limit: number } {
+    return this.getTimerInfo();
+  }
+  public get timerClock(): { majorText: string, minorText?: string } {
+    let major: string;
+    let minor: string;
+    if(!!this.currentPage) {
+      let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
+      major = this.getDisplayClockTime(limit - spent);
+      if(minorLimit > 0) {
+        minor = this.getDisplayClockTime(minorLimit - minorSpent);
+      }
+    }
+    return { majorText: major, minorText: minor };
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
     var loc = new LocalizableString(this, true);
     loc.text = options.text;
     return loc.textOrHtml;
+  }
+  private getTimerInfo() : { spent: number, limit: number, minorSpent?: number, minorLimit?: number} {
+    let page = this.currentPage;
+    if (!page) return { spent: 0, limit: 0 };
+    let pageSpent = page.timeSpent;
+    let surveySpent = this.timeSpent;
+    let pageLimitSec = this.getPageMaxTimeToFinish(page);
+    let surveyLimit = this.maxTimeToFinish;
+    if (this.showTimerPanelMode == "page") {
+      return { spent: pageSpent, limit: pageLimitSec };
+    }
+    if(this.showTimerPanelMode == "survey") {
+      return { spent: surveySpent, limit: surveyLimit };
+    }
+    else {
+      if(pageLimitSec > 0 && surveyLimit > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
+      } else if(pageLimitSec > 0)
+        return { spent: pageSpent, limit: pageLimitSec };
+      else {
+        return { spent: surveySpent, limit: surveyLimit };
+      }
+    }
   }
   private getTimerInfoText() {
     var page = this.currentPage;
@@ -6476,6 +6545,15 @@ export class SurveyModel extends SurveyElementCore
   ): string {
     const strName = this.maxTimeToFinish > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
+  }
+  private getDisplayClockTime(val: number): string {
+    const min: number = Math.floor(val / 60);
+    const sec: number = val % 60;
+    let secStr = sec.toString();
+    if(sec < 10) {
+      secStr = "0" + secStr;
+    }
+    return `${min}:${secStr}`;
   }
   private getDisplayTime(val: number): string {
     const min: number = Math.floor(val / 60);

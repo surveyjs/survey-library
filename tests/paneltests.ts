@@ -1706,3 +1706,38 @@ QUnit.test("page.cssRoot check for existings cssStyle.page", function (assert) {
   assert.equal(page.cssTitle, "");
   survey.css.page = prevPage;
 });
+QUnit.test("Check panel footer actions event", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel",
+        elements: [
+          {
+            type: "text",
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  survey.onGetPanelFooterActions.add((sender, opt) => {
+    assert.equal(sender, survey);
+    assert.equal(opt.panel, panel);
+    assert.equal(opt.question, undefined);
+    opt.actions.push({
+      id: "test",
+      title: "test",
+      action: () => {}
+    });
+  });
+  assert.equal(panel.footerActions.length, 0);
+  assert.equal(panel["footerToolbarValue"], undefined);
+
+  //panel actions should be created only after footerToolbar is requested
+
+  const actions = panel.getFooterToolbar().actions;
+
+  assert.equal(actions.length, 1);
+  assert.equal(actions[0].title, "test");
+});

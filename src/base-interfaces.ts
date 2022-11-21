@@ -120,10 +120,10 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ): Array<IAction>;
-  getUpdatedPaneldynamicPanelActions(
-    question: QuestionPanelDynamicModel,
+  getUpdatedPanelFooterActions(
     panel: PanelModel,
-    actions: Array<IAction>
+    actions: Array<IAction>,
+    question?: QuestionPanelDynamicModel
   ): Array<IAction>;
   questionStartIndex: string;
   questionTitleLocation: string;

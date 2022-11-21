@@ -1860,6 +1860,8 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
       if(!!this.onGetFooterActionsCallback) {
         actions = this.onGetFooterActionsCallback();
+      } else {
+        actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
       // if (!!this.cssClasses.panel) {

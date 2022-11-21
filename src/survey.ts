@@ -1015,7 +1015,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
-  public onGetPaneldynamicPanelActions: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onGetPanelFooterActions: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    *- `sender` - A survey object that fires the event.
@@ -4569,16 +4569,15 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
-  public getUpdatedPaneldynamicPanelActions(
-    question: QuestionPanelDynamicModel,
+  public getUpdatedPanelFooterActions(
     panel: PanelModel,
-    actions: Array<IAction>): Array<IAction> {
+    actions: Array<IAction>, question?: QuestionPanelDynamicModel): Array<IAction> {
     var options = {
       question: question,
       panel: panel,
       actions: actions,
     };
-    this.onGetPaneldynamicPanelActions.fire(this, options);
+    this.onGetPanelFooterActions.fire(this, options);
     return options.actions;
   }
   getUpdatedElementTitleActions(

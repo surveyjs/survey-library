@@ -1537,7 +1537,7 @@ export class QuestionPanelDynamicModel extends Question
       }));
     }
     if(!!this.survey) {
-      actions = this.survey.getUpdatedPaneldynamicPanelActions(this, panel, actions);
+      actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
     }
     return actions;
   }

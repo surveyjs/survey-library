@@ -4763,7 +4763,7 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
   });
   const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   let updatedPanels: any[] = [];
-  survey.onGetPaneldynamicPanelActions.add((sender, opt) => {
+  survey.onGetPanelFooterActions.add((sender, opt) => {
     assert.equal(sender, survey);
     assert.equal(opt.question, paneldynamic);
     assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);

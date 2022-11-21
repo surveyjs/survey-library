@@ -96,7 +96,7 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
     await initSurvey(framework, json, {
-      onGetPaneldynamicPanelActions: (_, opt) => {
+      onGetPanelFooterActions: (_, opt) => {
         opt.actions.push({
           title: "Duplicate",
           action: () => {}

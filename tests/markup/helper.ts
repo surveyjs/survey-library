@@ -1,5 +1,5 @@
 import { defaultThemeName } from "../../src/entries/plugins";
-import { StylesManager } from "../../src/stylesmanager";
+import { StylesManager } from "survey-core";
 
 export var markupTests = [];
 

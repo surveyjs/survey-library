@@ -486,8 +486,8 @@ export class QuestionSelectBase extends Question {
       this.survey.getChoiceDisplayValue({
         question: this,
         values: IsMultipleValue ? this.value : [this.value],
-        callback: (displayValues: Array<string>) => {
-          if(!displayValues || !displayValues.length) return;
+        setItems: (displayValues: Array<string>) => {
+          if (!displayValues || !displayValues.length) return;
 
           if(IsMultipleValue) {
             this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));

@@ -8,6 +8,7 @@
     <input
       [style]="model.inputStyle" [class]="model.getControlClass()"
       (change)="onChange($event)" [attr.value]="model.value"
+      [attr.list]="model.dataListId"
       [disabled]="model.isInputReadOnly" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"
       (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
       [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"

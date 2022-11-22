@@ -1,5 +1,5 @@
 <template>
-  <div v-if="question.isVisible" :class="question.getContainerCss()">
+  <div v-if="question.isVisible" :class="question.getContainerCss()" :id="question.id">
     <survey-element-header v-if="question.hasTitle || question.hasDescription" :element="question" :css="css"></survey-element-header>
     <survey-errors :element="question" />
     <div

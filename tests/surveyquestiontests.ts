@@ -774,6 +774,17 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function (
     "set the value from the text item"
   );
 });
+QUnit.test("Multiple Text Question: get/set for id", function (
+  assert
+) {
+  var mText = new QuestionMultipleTextModel("q1");
+  mText.items.push(new MultipleTextItemModel("text1"));
+  mText.items.push(new MultipleTextItemModel("text2"));
+  mText.id = "testid";
+  assert.equal(mText.id, "testid", "id is returned correctly");
+  assert.equal(mText.items[0].editor.id, "testid_0", "id for first multipletext editor");
+  assert.equal(mText.items[1].editor.id, "testid_1", "id for second multipletext editor");
+});
 QUnit.test(
   "Multiple Text Question: get/set values and properties via question text",
   function (assert) {
@@ -6188,8 +6199,8 @@ QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
     ]
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
-      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
 

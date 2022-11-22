@@ -1,0 +1,18 @@
+// tsconfig.build-types.json
+{
+    "compilerOptions": {
+        "outDir": "../../build/survey-vue3-ui",
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.cy.ts",
+        "**/*.spec.ts",
+        "**/__tests__/**/*"
+    ]
+}

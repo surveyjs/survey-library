@@ -5,13 +5,9 @@ import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
 import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
-
-import { App as LibApp } from 'survey-vue-ui'
-
 </script>
 
 <template>
-  <LibApp />
   <WelcomeItem>
     <template #icon>
       <DocumentationIcon />

@@ -4,6 +4,7 @@ import * as SurveyCore from "survey-core";
 import { TestComponent } from "./test.component";
 import * as widgets from "surveyjs-widgets";
 import "icheck";
+import { defaultThemeName } from "../../../../../../src/entries/plugins";
 @Component({
   selector: "test-default",
   templateUrl: "./test.component.html",
@@ -13,7 +14,7 @@ import "icheck";
 export class TestCustomWidgetComponent extends TestComponent {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
-    StylesManager.applyTheme("default");
+    StylesManager.applyTheme(defaultThemeName);
     widgets.sortablejs(SurveyCore);
     widgets.icheck(SurveyCore, window.jQuery);
   }

@@ -298,19 +298,44 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
 });
 
 QUnit.test("Test showTimerAsClock flag", function(assert) {
-  var survey = new SurveyModel();
-  survey.maxTimeToFinish = 25;
-  survey.maxTimeToFinishPage = 10;
-  survey.addNewPage("p1");
-  survey.addNewPage("p2");
-  survey.addNewPage("p3");
-  survey.pages[0].addNewQuestion("text");
-  survey.pages[1].addNewQuestion("text");
-  survey.pages[2].addNewQuestion("text");
+  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+    var survey = new SurveyModel();
+    survey.maxTimeToFinish = maxTimeToFinish;
+    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.addNewPage("p1");
+    survey.pages[0].addNewQuestion("text");
+    return survey;
+  };
+  var survey = createSurvey(25, 10);
   survey.startTimer();
   let timerModel = survey.timerModel;
   assert.notOk(timerModel.showTimerAsClock);
   survey.css = defaultV2Css;
   assert.ok(timerModel.showTimerAsClock);
 
+  survey = createSurvey(0, 0);
+  survey.css = defaultV2Css;
+  survey.startTimer();
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, undefined);
+  assert.strictEqual(timerModel.clockMajorText, undefined);
+  assert.notOk(timerModel.showTimerAsClock);
+
+  survey = createSurvey(0, 10);
+  survey.startTimer();
+  survey.css = defaultV2Css;
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, 0);
+  assert.strictEqual(timerModel.clockMajorText, "0:10");
+  assert.ok(timerModel.showTimerAsClock);
+
+  survey = createSurvey(25, 0);
+  survey.css = defaultV2Css;
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, 0);
+  assert.strictEqual(timerModel.clockMajorText, "0:25");
+  assert.ok(timerModel.showTimerAsClock);
 });

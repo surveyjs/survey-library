@@ -6449,9 +6449,11 @@ export class SurveyModel extends SurveyElementCore
     let minor: string;
     if(!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      major = this.getDisplayClockTime(limit - spent);
-      if(minorLimit > 0) {
-        minor = this.getDisplayClockTime(minorLimit - minorSpent);
+      if(limit > 0) {
+        major = this.getDisplayClockTime(limit - spent);
+        if(minorLimit > 0) {
+          minor = this.getDisplayClockTime(minorLimit - minorSpent);
+        }
       }
     }
     return { majorText: major, minorText: minor };

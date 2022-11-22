@@ -89,7 +89,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 
   protected getBody(cssClasses: any): JSX.Element {
-    if(this.question.blockedRow) {
+    if (this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
     }
     else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
@@ -139,7 +139,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     });
     const survey = this.question.survey as SurveyModel;
     let wrappedItem = null;
-    if(!!survey) {
+    if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -226,6 +226,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             className={this.cssClasses.itemControl}
+            role="option"
             type="checkbox"
             name={this.question.name}
             value={this.item.value != "selectall" ? this.item.value : undefined}
@@ -239,12 +240,12 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator}>
-                { this.question.itemSvgIcon ?
+                {this.question.itemSvgIcon ?
                   <svg
                     className={this.cssClasses.itemDecorator}
                   >
                     <use xlinkHref={this.question.itemSvgIcon}></use>
-                  </svg>:
+                  </svg> :
                   null
                 }
               </span> :

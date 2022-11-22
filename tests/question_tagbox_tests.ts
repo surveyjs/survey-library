@@ -359,8 +359,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     }, 500);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
-      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
 
@@ -410,8 +410,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     }, 500);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
-      options.callback(options.values.map(item => ("DisplayText_" + item)));
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
   survey.data = { "q1": [52, 55] };

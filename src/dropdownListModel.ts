@@ -36,8 +36,8 @@ export class DropdownListModel extends Base {
     this.updateListItems();
   }
 
-  private updateQuestionChoices(): void {
-    if(this.isRunningLoadQuestionChoices) return;
+  private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
+    if (this.isRunningLoadQuestionChoices) return;
 
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if(!this.itemsSettings.skip || isUpdate) {
@@ -49,8 +49,11 @@ export class DropdownListModel extends Base {
         take: this.itemsSettings.take,
         setItems: (items: Array<any>, totalCount: number) => {
           this.isRunningLoadQuestionChoices = false;
-          this.setItems(items, totalCount);
+          this.setItems(items || [], totalCount || 0);
           this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
+          if (!!callbackAfterItemsLoaded) {
+            callbackAfterItemsLoaded();
+          }
         }
       });
       this.itemsSettings.skip += this.itemsSettings.take;
@@ -149,9 +152,19 @@ export class DropdownListModel extends Base {
     if(!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setFilterStringToListModel(this.filterString);
     this.setInputHasValue(!!this.filterString);
-    this.popupRecalculatePosition(true);
+
+    const updateAfterFilterStringChanged = () => {
+      this.setFilterStringToListModel(this.filterString);
+      this.popupRecalculatePosition(true);
+    };
+
+    if (this.question.choicesLazyLoadEnabled) {
+      this.resetItemsSettings();
+      this.updateQuestionChoices(updateAfterFilterStringChanged);
+    } else {
+      updateAfterFilterStringChanged();
+    }
   }
 
   setInputHasValue(newValue: boolean): void {

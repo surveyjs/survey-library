@@ -4465,7 +4465,7 @@ export class SurveyModel extends SurveyElementCore
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
   }
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, callback: (displayValues: Array<string>) => void }): void {
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
     this.onGetChoiceDisplayValue.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {

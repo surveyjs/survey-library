@@ -5,15 +5,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import { Model } from "survey-core";
+import { defineSurveyComponent } from "../base";
 
-export default defineComponent({
+export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "Survey",
   props: {
     model: Model,
   },
+  data: (vm: any) => {
+    return {
+      getModel: () => { return vm.model; }
+    }
+  }
 });
 </script>
 

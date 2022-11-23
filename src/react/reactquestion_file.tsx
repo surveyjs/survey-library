@@ -82,6 +82,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     chooseFile = (
       <label
         role="button"
+        tabIndex={0}
         className={this.question.getChooseFileCss()}
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonCaption}

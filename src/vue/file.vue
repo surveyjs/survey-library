@@ -38,6 +38,7 @@
         <div :class="question.cssClasses.wrapper">
           <label
             role="button"
+            tabindex="0"
             :class="question.getChooseFileCss()"
             :for="question.inputId"
             v-bind:aria-label="question.chooseButtonCaption"

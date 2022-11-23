@@ -1152,6 +1152,7 @@ export class SurveyModel extends SurveyElementCore
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
+    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1992,17 +1993,20 @@ export class SurveyModel extends SurveyElementCore
   public set logoPosition(value: string) {
     this.setPropertyValue("logoPosition", value);
   }
-  public get hasLogo() {
-    return !!this.logo && this.logoPosition !== "none";
+  public get hasLogo(): boolean {
+    return this.getPropertyValue("hasLogo", false);
   }
-  public get isLogoBefore() {
+  private updateHasLogo(): void {
+    this.setPropertyValue("hasLogo", !!this.logo && this.logoPosition !== "none");
+  }
+  public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
     return (
       this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
-  public get isLogoAfter() {
+  public get isLogoAfter(): boolean {
     if (this.isDesignMode) return this.renderedHasLogo;
     return (
       this.renderedHasLogo &&
@@ -5528,6 +5532,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
+    this.updateHasLogo();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
     this.setCalculatedWidthModeUpdater();

@@ -11999,6 +11999,15 @@ QUnit.test("Survey hasLogo", function (assert) {
   assert.notOk(!!survey.locLogo.renderedHtml);
   survey.logo = "some url";
   assert.ok(survey.hasLogo);
+  assert.ok(survey.getPropertyValue("hasLogo"));
+});
+
+QUnit.test("Survey hasLogo is reactive", function (assert) {
+  var survey = new SurveyModel({
+    logo: "an url"
+  });
+  assert.ok(survey.hasLogo);
+  assert.ok(survey.getPropertyValue("hasLogo"));
 });
 
 QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {

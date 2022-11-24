@@ -10,6 +10,7 @@ const config = {
   entry: {
     ["bootstrap-theme"]: path.resolve(__dirname, "../../src/plugins/themes/bootstrap/index.ts"),
     ["bootstrapmaterial-theme"]: path.resolve(__dirname, "../../src/plugins/themes/bootstrapmaterial/index.ts"),
+    ["modern-theme"]: path.resolve(__dirname, "../../src/plugins/themes/modern/index.ts"),
     ["legacy-default-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/standard.ts"),
     ["legacy-orange-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/orange.ts"),
     ["legacy-darkblue-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/darkblue.ts"),

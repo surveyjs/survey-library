@@ -200,3 +200,100 @@ QUnit.test("Change placeHolder to placeholder", function(assert) {
   assert.equal(q.placeHolder, "text4", "placeHolder #4");
   assert.equal(q.placeholder, "text4", "placeholder #4");
 });
+QUnit.test("Test event handlers", function(assert) {
+  const testInput = document.createElement("input");
+  const fakeInput = document.createElement("input");
+  document.body.appendChild(testInput);
+  document.body.appendChild(fakeInput);
+  let survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+    ]
+  });
+  let q = <QuestionTextModel>survey.getQuestionByName("q1");
+  testInput.focus();
+  testInput.value = "test1";
+  q.onChange({
+    target: testInput
+  });
+  assert.equal(q.value, undefined);
+  fakeInput.focus();
+  q.onChange({
+    target: testInput
+  });
+  assert.equal(q.value, "test1", "value should be updated on change only if element is not focused #5270");
+  testInput.value = "test2";
+  q.onBlur({
+    target: testInput
+  });
+  assert.equal(q.value, "test2", "value should be updated after focus loose");
+  testInput.value = "test3";
+  q.onKeyUp({
+    target: testInput,
+    keyCode: 14
+  });
+  assert.equal(q.value, "test2");
+  q.onKeyUp({
+    target: testInput,
+    keyCode: 13
+  });
+  assert.equal(q.value, "test3", "value should be updated after 'enter' press");
+});
+
+QUnit.test("Test event handlers with on typing text update mode", function(assert) {
+  const testInput = document.createElement("input");
+  const fakeInput = document.createElement("input");
+  document.body.appendChild(testInput);
+  document.body.appendChild(fakeInput);
+  let survey = new SurveyModel({
+    textUpdateMode: "onTyping",
+    elements: [
+      { type: "text", name: "q1" },
+    ]
+  });
+  let q = <QuestionTextModel>survey.getQuestionByName("q1");
+  testInput.focus();
+  testInput.value = "test1";
+  q.onChange({
+    target: testInput
+  });
+  assert.equal(q.value, "test1");
+  testInput.value = "test2";
+  fakeInput.focus();
+  q.onChange({
+    target: testInput
+  });
+  assert.equal(q.value, "test2", "value always should be update on change if onTyping mode");
+  testInput.value = "test3";
+  q.onBlur({
+    target: testInput
+  });
+  assert.equal(q.value, "test3", "value should be updated after focus loose");
+  testInput.value = "test4";
+  q.onKeyUp({
+    target: testInput
+  });
+  assert.equal(q.value, "test4", "value should be updated on key up");
+  testInput.value = "test5";
+  q.onKeyDown({
+    target: testInput,
+    keyCode: 15
+  });
+  assert.equal(q.value, "test4", "value should not be updated on key down");
+
+  q.onKeyDown({
+    target: testInput,
+    keyCode: 229
+  });
+  assert.equal(q["_isWaitingForEnter"], true);
+  q.onKeyUp({
+    target: testInput,
+  });
+  assert.equal(q.value, "test4", "value should not be updated on key up if is waiting for enter and key is not enter");
+  q.onKeyUp({
+    target: testInput,
+    keyCode: 13
+  });
+  assert.equal(q["_isWaitingForEnter"], false);
+  assert.equal(q.value, "test5", "value should be updated on key up if is waiting for enter and key is enter");
+});

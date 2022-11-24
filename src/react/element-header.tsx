@@ -1,6 +1,5 @@
 import React from "react";
-import { PanelModel } from "../panel";
-import { Question } from "../question";
+import { Question, PanelModel } from "survey-core";
 import { TitleElement } from "./components/title/title-element";
 import { SurveyElementBase } from "./reactquestion_element";
 

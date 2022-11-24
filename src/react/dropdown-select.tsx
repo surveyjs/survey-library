@@ -1,9 +1,8 @@
 import * as React from "react";
-import { RendererFactory } from "survey-core";
+import { RendererFactory, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { SurveyQuestionOptionItem } from "./dropdown-item";
-import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {

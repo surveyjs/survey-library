@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Question, DropdownListModel } from "survey-core";
-import { Helpers } from "../helpers";
+import { Helpers, Question, DropdownListModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase } from "./reactquestion_element";
-import { QuestionImagePickerModel } from "survey-core";
-import { ImageItemValue, SurveyModel } from "survey-core";
+import { QuestionImagePickerModel, ImageItemValue, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 

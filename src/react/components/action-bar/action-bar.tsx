@@ -4,7 +4,6 @@ import {
   Action,
   ActionContainer
 } from "survey-core";
-import { AdaptiveActionContainer } from "../../../actions/adaptive-container";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";

@@ -3,10 +3,9 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionRankingModel, SurveyModel } from "survey-core";
+import { QuestionRankingModel, SurveyModel, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected get question(): QuestionRankingModel {

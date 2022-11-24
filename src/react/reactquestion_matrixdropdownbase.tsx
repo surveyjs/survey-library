@@ -8,6 +8,7 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
+  MatrixDropdownColumn,
   AdaptiveActionContainer,
   Question,
   Base
@@ -18,7 +19,6 @@ import { SurveyPanel } from "./panel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
-import { MatrixDropdownColumn } from "../question_matrixdropdowncolumn";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 

@@ -1,13 +1,8 @@
 import * as React from "react";
-import { Helpers } from "survey-core";
-import { LocalizableString } from "survey-core";
-import { Question } from "survey-core";
-import { SurveyElement } from "survey-core";
+import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ArrayChanges, SurveyModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { PanelModel } from "../panel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -8,7 +8,6 @@ import { SurveyHeader } from "./components/survey-header/survey-header";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
-import { doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "../utils/utils";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { BrandInfo } from "./components/brand-info";
 

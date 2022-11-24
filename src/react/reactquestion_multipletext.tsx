@@ -1,8 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ISurveyCreator, SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactquestion";
-import { QuestionMultipleTextModel } from "survey-core";
-import { MultipleTextItemModel } from "survey-core";
+import { QuestionMultipleTextModel, MultipleTextItemModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { TitleContent } from "./components/title/title-content";

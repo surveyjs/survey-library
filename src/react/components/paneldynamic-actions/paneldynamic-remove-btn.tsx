@@ -1,7 +1,4 @@
 import React from "react";
-import {
-  QuestionPanelDynamicModel
-} from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { ReactSurveyElement } from "../../reactquestion_element";
 import { SurveyQuestionPanelDynamic } from "../../reactquestion_paneldynamic";

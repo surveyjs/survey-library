@@ -3,10 +3,8 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionMatrixModel } from "survey-core";
-import { MatrixRowModel, SurveyModel } from "survey-core";
+import { QuestionMatrixModel, MatrixRowModel, SurveyModel, Helpers } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Helpers } from "survey-core";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {

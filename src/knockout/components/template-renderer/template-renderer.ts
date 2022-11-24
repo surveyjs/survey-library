@@ -1,6 +1,5 @@
 import * as ko from "knockout";
-import { SurveyModel } from "survey-core";
-import { SurveyTemplateRendererViewModel } from "../../../template-renderer";
+import { SurveyModel, SurveyTemplateRendererViewModel } from "survey-core";
 
 const template = require("./template-renderer.html");
 

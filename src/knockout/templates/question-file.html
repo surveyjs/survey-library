@@ -10,7 +10,7 @@
         <div data-bind="css: question.getFileDecoratorCss()">
           <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
           <div data-bind="css: question.koCss().wrapper">
-            <label role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
+            <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
               <span data-bind="text: question.chooseButtonCaption"></span>
               <!-- ko if: question.cssClasses.chooseFileIconId -->
                   <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->

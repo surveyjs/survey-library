@@ -14,41 +14,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   protected renderInput() {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
-    var onKeyDown = null;
-    var onKeyUp = null;
-    var onCompositionUpdate = null;
-    if (this.question.isInputTextUpdate) {
-      onKeyDown = (e: any) => (this._isWaitingForEnter = e.keyCode === 229);
-      onKeyUp = (e: any) => {
-        if (!this._isWaitingForEnter || e.keyCode === 13) {
-          this.updateValueOnEvent(e);
-          this._isWaitingForEnter = false;
-        }
-      };
-      onCompositionUpdate = (e: any) => {
-        e.persist();
-        setTimeout(() => {
-          this.updateValueOnEvent(e);
-        }, 1);
-      };
-    } else {
-      //https://github.com/surveyjs/survey-library/issues/3384
-      onKeyUp = (e: any) => {
-        if (e.keyCode === 13) {
-          this.updateValueOnEvent(e);
-        }
-      };
-    }
 
-    var onChange = (e: any) => {
-      if (e.target === document.activeElement) {
-        if (this.question.isInputTextUpdate) {
-          this.updateValueOnEvent(e);
-        }
-      } else {
-        this.updateValueOnEvent(e);
-      }
-    };
     const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
@@ -71,10 +37,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         list={this.question.dataListId}
         autoComplete={this.question.autocomplete}
         onBlur={this.updateValueOnEvent}
-        onChange={onChange}
-        onKeyUp={onKeyUp}
-        onKeyDown={onKeyDown}
-        onCompositionUpdate={onCompositionUpdate}
+        onChange={this.question.onChange}
+        onKeyUp={this.question.onKeyUp}
+        onKeyDown={this.question.onKeyDown}
+        onCompositionUpdate={this.question.onCompositionUpdate}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}

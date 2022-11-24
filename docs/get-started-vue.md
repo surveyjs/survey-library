@@ -2,7 +2,7 @@
 title: Vue.js Form Library | Getting Started Guide
 description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Vue.js application.
 ---
-# Add a Survey to a Vue Application
+# Add a Survey to a Vue.js Application
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue application. To add a survey to your Vue application, follow the steps below:
 

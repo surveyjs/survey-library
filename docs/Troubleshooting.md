@@ -8,7 +8,7 @@ This help topic describes how to troubleshoot problems that may occur when you u
 
 ## The survey doesn't contain visible pages or questions
 
-**Issue**: The survey appears empty and the following message is displayed: "The survey doesn't contain visible pages or questions".
+**Issue**: The survey appears empty, and the following message is displayed: "The survey doesn't contain visible pages or questions".
 
 **Solution**:
 

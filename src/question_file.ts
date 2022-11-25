@@ -97,7 +97,7 @@ export class QuestionFileModel extends Question {
   /**
    * Disable this property only to implement a custom preview.
    *
-   * [View "Custom Preview" Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
    * @see allowImagesPreview
    */
   public get showPreview() {

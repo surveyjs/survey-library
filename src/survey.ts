@@ -123,7 +123,7 @@ export class SurveyModel extends SurveyElementCore
    * - `options.showDataSavingClear` - call this method to hide the text about the saving progress.
    * - `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
    *
-   * > NOTE: Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods described above. This is required because the UI that indicates data saving progress is integrated into the Complete page. If you hide the Complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods described above. This is required because the UI that indicates data saving progress is integrated into the Complete page. If you hide the Complete page, the UI also becomes invisible.
    *
    * @see data
    * @see clearInvisibleValues
@@ -506,11 +506,12 @@ export class SurveyModel extends SurveyElementCore
    *- `options.name` - the question name.
    *- `options.files` - the Javascript File objects array to upload.
    *- `options.callback` - a callback function to get the file upload status and the updloaded file content.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
    * @see onClearFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onUploadFiles%22)
    */
   public onUploadFiles: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -521,10 +522,11 @@ export class SurveyModel extends SurveyElementCore
    *- `options.content` - the file content.
    *- `options.fileValue` - single file question value.
    *- `options.callback` - a callback function to get the file downloading status and the downloaded file content.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onDownloadFile%22)
    */
   public onDownloadFile: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -535,10 +537,11 @@ export class SurveyModel extends SurveyElementCore
    *- `options.value` - the question value.
    *- `options.fileName` - a removed file's name, set it to `null` to clear all files.
    *- `options.callback` - a callback function to get the operation status.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
    * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onClearFiles%22)
    */
   public onClearFiles: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -1692,7 +1695,7 @@ export class SurveyModel extends SurveyElementCore
    * - `autogonext` - navigate to the next page automatically but do not submit survey data.
    * - `false` - do not navigate to the next page and do not submit survey data automatically.
    *
-   * > NOTE: If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * > If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
    *
    * @see showNavigationButtons
    *
@@ -2533,7 +2536,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets question title location relative to the input field: `"top"`, `"bottom"`, or `"left"`.
    *
-   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+   * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    *
    * You can override this setting if you specify the `questionTitleLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionTitleLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionTitleLocation) or set the `titleLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#titleLocation).
    */

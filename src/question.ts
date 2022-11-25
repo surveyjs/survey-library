@@ -678,7 +678,9 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
-  public beforeDestroyQuestionElement(el: HTMLElement): void { }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.commentElement = undefined;
+  }
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;

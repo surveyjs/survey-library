@@ -1472,6 +1472,10 @@ export class QuestionSelectBase extends Question {
     super.afterRender(el);
     this.rootElement = el;
   }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.rootElement = undefined;
+  }
   private focusOtherComment() {
     if (!!this.rootElement) {
       setTimeout(() => {

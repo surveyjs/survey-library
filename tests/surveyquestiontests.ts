@@ -6211,3 +6211,21 @@ QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
   assert.equal(question.selectedItem.value, 55);
   assert.equal(question.selectedItem.text, "DisplayText_55");
 });
+QUnit.test("remove reference to DOM elements", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "q1",
+      },
+    ]
+  });
+  const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+
+  const el = document.createElement("div");
+  el.id = question.id;
+  question.afterRenderQuestionElement(el);
+  assert.equal(question["element"], el);
+  question.beforeDestroyQuestionElement(el);
+  assert.equal(question["element"], undefined);
+});

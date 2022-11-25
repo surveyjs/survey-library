@@ -8,8 +8,8 @@
       v-if="!isCollapsed"
       :class="question.cssClasses.panel.content"
     >
-      <survey-row
-        v-for="(row, index) in rows"
+      <template v-for="(row, index) in rows">
+        <survey-row
         v-if="row.visible"
         :key="question.id + '_' + index"
         :row="row"
@@ -17,6 +17,7 @@
         :css="css"
       >
       </survey-row>
+      </template>
       <sv-action-bar :model="question.getFooterToolbar()"></sv-action-bar>
     </div>
   </div>
@@ -34,7 +35,7 @@ export class Panel extends BaseVue {
   @Prop() isEditMode: Boolean;
   @Prop() css: any;
 
-  private isCollapsed: boolean = false;
+  private isCollapsedValue: boolean = false;
 
   protected getModel(): Base {
     return this.question;
@@ -43,10 +44,10 @@ export class Panel extends BaseVue {
     if (this.question.survey) {
       this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
-    this.isCollapsed = this.question.isCollapsed;
+    this.isCollapsedValue = this.question.isCollapsed;
 
     this.question.stateChangedCallback = () => {
-      this.isCollapsed = this.question.isCollapsed;
+      this.isCollapsedValue = this.question.isCollapsed;
     };
   }
   beforeDestroy() {
@@ -72,6 +73,9 @@ export class Panel extends BaseVue {
   }
   get survey(): ISurvey {
     return this.question.survey;
+  }
+  get isCollapsed(): boolean {
+    return this.isCollapsedValue;
   }
   cancelPreview() {
     this.question.cancelPreview();

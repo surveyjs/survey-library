@@ -190,11 +190,6 @@ Object.defineProperty(Survey, "cssType", {
   configurable: false,
 });
 
-export function attachKey2click( evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }) {
-  evt.preventDefault();
-  evt.stopPropagation();
-  doKey2ClickUp(evt, options);
-}
 
 Vue.component("survey", Survey);
 export default Survey;

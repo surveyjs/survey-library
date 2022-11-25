@@ -71,6 +71,10 @@ export class QuestionCommentModel extends QuestionTextBase {
       setTimeout(() => increaseHeightByContent(this.element), 1);
     }
   }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.element = undefined;
+  }
   public onInput(event: any): void {
     if (this.isInputTextUpdate)
       this.value = event.target.value;

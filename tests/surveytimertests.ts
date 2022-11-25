@@ -292,6 +292,7 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
     survey.nextPage();
     assert.equal(timerModel.clockMajorText, "0:10");
     assert.equal(timerModel.clockMinorText, "0:07");
+    survey.stopTimer();
     done();
   }, 1);
 
@@ -312,6 +313,7 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   assert.notOk(timerModel.showTimerAsClock);
   survey.css = defaultV2Css;
   assert.ok(timerModel.showTimerAsClock);
+  survey.stopTimer();
 
   survey = createSurvey(0, 0);
   survey.css = defaultV2Css;
@@ -321,6 +323,7 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   assert.strictEqual(timerModel.progress, undefined);
   assert.strictEqual(timerModel.clockMajorText, undefined);
   assert.notOk(timerModel.showTimerAsClock);
+  survey.stopTimer();
 
   survey = createSurvey(0, 10);
   survey.startTimer();
@@ -330,6 +333,7 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   assert.strictEqual(timerModel.progress, 0);
   assert.strictEqual(timerModel.clockMajorText, "0:10");
   assert.ok(timerModel.showTimerAsClock);
+  survey.stopTimer();
 
   survey = createSurvey(25, 0);
   survey.css = defaultV2Css;
@@ -338,4 +342,5 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
   assert.strictEqual(timerModel.progress, 0);
   assert.strictEqual(timerModel.clockMajorText, "0:25");
   assert.ok(timerModel.showTimerAsClock);
+  survey.stopTimer();
 });

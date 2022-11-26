@@ -1,6 +1,7 @@
 <template>
   <div v-if="timerModel.showTimerAsClock" :class="timerModel.rootCss">
     <svg
+      v-if="timerModel.showProgress"
       :class="timerModel.getProgressCss()"
       :style="{ strokeDasharray: circleRadius, strokeDashoffset: progress }"
     >

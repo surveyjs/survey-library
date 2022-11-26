@@ -6441,7 +6441,7 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
-  public get timerInfo(): { spent: number, limit: number } {
+  public get timerInfo(): { spent: number, limit?: number } {
     return this.getTimerInfo();
   }
   public get timerClock(): { majorText: string, minorText?: string } {
@@ -6449,10 +6449,13 @@ export class SurveyModel extends SurveyElementCore
     let minor: string;
     if(!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      if(limit > 0) {
-        major = this.getDisplayClockTime(limit - spent);
+      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      else { major = this.getDisplayClockTime(spent); }
+      if(minorSpent !== undefined) {
         if(minorLimit > 0) {
           minor = this.getDisplayClockTime(minorLimit - minorSpent);
+        } else {
+          minor = this.getDisplayClockTime(minorSpent);
         }
       }
     }
@@ -6465,7 +6468,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private getTimerInfo() : { spent: number, limit: number, minorSpent?: number, minorLimit?: number} {
+  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6481,10 +6484,14 @@ export class SurveyModel extends SurveyElementCore
     else {
       if(pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
-      } else if(pageLimitSec > 0)
-        return { spent: pageSpent, limit: pageLimitSec };
+      } else if(pageLimitSec > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
+      }
+      else if(surveyLimit > 0) {
+        return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
+      }
       else {
-        return { spent: surveySpent, limit: surveyLimit };
+        return { spent: pageSpent, minorSpent: surveySpent };
       }
     }
   }

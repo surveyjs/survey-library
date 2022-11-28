@@ -29,6 +29,7 @@ import { BaseVue } from "./base";
 export class CheckboxItem extends BaseVue {
   @Prop() question: any;
   @Prop() item: ItemValue;
+  @Prop() index: any;
   @Prop() hideLabel: boolean;
   protected getModel(): Base {
     return this.item;

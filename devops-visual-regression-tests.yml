@@ -49,6 +49,7 @@ jobs:
   
   - script: |
       npm run build_knockout_prod
+      npm run build-knockout-typings:windows
     displayName: 'build prod'
 
   - script: |
@@ -105,6 +106,7 @@ jobs:
   
   - script: |
       npm run build_react_prod
+      npm run build-react-typings:windows
     displayName: 'build prod'
 
   - script: |
@@ -160,6 +162,7 @@ jobs:
   
   - script: |
       npm run build_vue_prod
+      npm run build-vue-typings
     displayName: 'build prod'
 
   - script: |

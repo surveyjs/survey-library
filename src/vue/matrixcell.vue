@@ -99,7 +99,7 @@ export class MatrixCell extends Vue {
     return null;
   }
   getCellIndex(): string {
-    return this.cell["index"] || "";
+    return (this.cell as any).index || "";
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;

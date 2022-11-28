@@ -297,3 +297,22 @@ QUnit.test("Test event handlers with on typing text update mode", function(asser
   assert.equal(q["_isWaitingForEnter"], false);
   assert.equal(q.value, "test5", "value should be updated on key up if is waiting for enter and key is enter");
 });
+
+QUnit.test("Test event handlers do not change question'value if newValue is same", function(assert) {
+  let log = "";
+  const testInput = document.createElement("input");
+  class QuestionTextTest extends QuestionTextModel {
+    protected onValueChanged() {
+      log += "->changedValue";
+    }
+  }
+  const question = new QuestionTextTest("q1");
+  testInput.value = "test1";
+  question.onBlur({
+    target: testInput
+  });
+  question.onBlur({
+    target: testInput
+  });
+  assert.equal(log, "->changedValue", "Value should be changed only one time");
+});

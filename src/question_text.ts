@@ -397,7 +397,12 @@ export class QuestionTextModel extends QuestionTextBase {
   //web-based methods
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
-    this.value = event.target.value;
+    const newValue = event.target.value;
+    if (
+      !Helpers.isTwoValueEquals(this.value, newValue)
+    ) {
+      this.value = newValue;
+    }
   }
   onCompositionUpdate = (event: any) => {
     if(this.isInputTextUpdate) {

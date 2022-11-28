@@ -172,7 +172,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    *
    * Default value: 0 (unlimited)
    *
-   * > NOTE: This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
    */
   public get maxSelectedChoices(): number {
     return this.getPropertyValue("maxSelectedChoices");

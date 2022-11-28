@@ -7,18 +7,7 @@ import { AngularComponentFactory } from "../component-factory";
   selector: "sv-ng-text-question",
   templateUrl: "./text.component.html",
   styleUrls: ["./text.component.scss"]
-})
-export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
-  keyup(event: any) {
-    if (this.model.isInputTextUpdate) {
-      this.model.value = event.target.value;
-    }
-  }
-  onChange(event: any) {
-    if(!this.model.isInputTextUpdate) {
-      this.model.value = event.target.value;
-    }
-  }
-}
+  })
+export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {}
 
 AngularComponentFactory.Instance.registerComponent("text-question", TextQuestionComponent);

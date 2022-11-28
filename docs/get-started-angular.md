@@ -20,7 +20,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">Get Started with SurveyJS - Angular</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular (linkStyle))
 
 ## Install the `survey-angular-ui` npm Package
 
@@ -30,7 +30,7 @@ The SurveyJS Form Library for Angular consists of two npm packages: [`survey-cor
 npm install survey-angular-ui --save
 ```
 
-> NOTE: SurveyJS for Angular requires Angular v13.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
+> SurveyJS for Angular requires Angular v13.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
 >
 > ```cmd
 > npm install @angular/cdk@^13.0.0 --save
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import { Component, OnInit } from '@angular/core';
@@ -197,7 +197,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!-- app.component.html -->
@@ -331,7 +331,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 To view the application, run `ng serve` in a command line and open [http://localhost:4200/](http://localhost:4200/) in your browser.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!-- app.component.html -->
@@ -401,7 +401,7 @@ export class AppModule { }
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular (linkStyle))
 
 ## Further Reading
 

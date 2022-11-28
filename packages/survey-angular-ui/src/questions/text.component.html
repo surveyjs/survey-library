@@ -1,21 +1,17 @@
-  <input *ngIf="!model.dataListId && !model.isReadOnlyRenderDiv()" [style]="model.inputStyle" [class]="model.getControlClass()"
-  (change)="onChange($event)" [attr.value]="model.value" [disabled]="model.isInputReadOnly" name="user" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"
-  (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
-    [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
-    [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autocomplete"
-    [attr.ar] #contentElement/>
-  <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()" #contentElement>
-    <input
-      [style]="model.inputStyle" [class]="model.getControlClass()"
-      (change)="onChange($event)" [attr.value]="model.value"
-      [attr.list]="model.dataListId"
-      [disabled]="model.isInputReadOnly" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"
-      (keyup)="keyup($event)" [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
-      [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
-      [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autocomplete"
-    />
+  <ng-container [ngTemplateOutlet]="input" *ngIf="!model.dataListId && !model.isReadOnlyRenderDiv()"></ng-container>
+  <div *ngIf="model.dataListId && !model.isReadOnlyRenderDiv()">
+    <ng-container [ngTemplateOutlet]="input"></ng-container>
     <datalist [id]="model.dataListId">
       <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
     </datalist>
   </div>
   <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>
+  <ng-template #input>
+    <input [style]="model.inputStyle" [class]="model.getControlClass()" [attr.list]="model.dataListId"
+    (change)="model.onChange($event)" [attr.value]="model.value" [disabled]="model.isInputReadOnly" name="user" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"
+    (keyup)="model.onKeyUp($event)" (keydown)="model.onKeyDown($event)" (blur)="model.onBlur($event)" (compositionupdate)="model.onCompositionUpdate($event)" 
+    [attr.size] = "model.renderedInputSize" [attr.max-length]= "model.getMaxLength()" [attr.min]="model.renderedMin"
+    [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
+    [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autocomplete"
+    [attr.ar] #contentElement/>
+  </ng-template>

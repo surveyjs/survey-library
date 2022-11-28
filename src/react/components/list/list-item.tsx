@@ -23,7 +23,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   getStateElement() {
     return this.item;
   }
-  render(): JSX.Element {
+  render(): JSX.Element | null {
     if (!this.item) return null;
     const contentWrapStyle = {
       paddingInlineStart: this.model.getItemIndent(this.item)
@@ -46,7 +46,10 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         content.push(text);
       }
     } else {
-      content.push(ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id }));
+      const newElement = ReactElementFactory.Instance.createElement(this.item.component, { item: this.item, key: this.item.id });
+      if(!!newElement) {
+        content.push(newElement);
+      }
     }
 
     const contentWrap =
@@ -65,7 +68,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
       <li
         className={className}
         role="option"
-        style={style}
+        style={style as any}
         aria-selected={this.model.isItemSelected(this.item)}
         onClick={(event: any) => {
           this.model.onItemClick(this.item);

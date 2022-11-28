@@ -3,12 +3,12 @@ import { Serializer,
   Question,
   QuestionFactory,
   QuestionFileModel,
+  getOriginalEvent,
   confirmAction,
   detectIEOrEdge,
   loadFileFromBase64
 } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { getOriginalEvent } from "../utils/utils";
 
 class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: QuestionFile) {

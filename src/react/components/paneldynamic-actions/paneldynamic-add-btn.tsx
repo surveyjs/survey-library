@@ -19,7 +19,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
   protected handleClick = (event: any) => {
     this.question.addPanelUI();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): JSX.Element | null {
     if (!this.question.canAddPanel) return null;
     return (
       <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleClick} >

@@ -1,12 +1,9 @@
 import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
-import { SurveyModel } from "survey-core";
-import { QuestionRowModel } from "survey-core";
+import { SurveyModel, Question, QuestionRowModel, IElement, Base } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { IElement, Base } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { Question } from "../question";
 
 export class SurveyRow extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
@@ -37,8 +34,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return !!this.row && !!this.survey && !!this.creator && this.row.visible;
   }
   protected renderElementContent(): JSX.Element {
-    var elements = null;
-    elements = this.row.visibleElements.map((element, index) => {
+    const elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
       const css = (element as Question).cssClassesValue;
       return (

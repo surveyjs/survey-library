@@ -6,7 +6,6 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
 > {
-  private _isWaitingForEnter = false;
   //controlRef: React.RefObject<HTMLInputElement>;
   constructor(props: any) {
     super(props);
@@ -26,7 +25,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         className={inputClass}
         type={this.question.inputType}
         //ref={this.controlRef}
-        ref={(input) => (this.control = input)}
+        ref={(input) => (this.setControl(input))}
         style={this.question.inputStyle}
         maxLength={this.question.getMaxLength()}
         min={this.question.renderedMin}
@@ -58,11 +57,11 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         this.renderInput()
     );
   }
-  private renderDataList(): JSX.Element {
+  private renderDataList(): JSX.Element | null {
     if (!this.question.dataListId) return null;
     var items = this.question.dataList;
     if (items.length == 0) return null;
-    var options = [];
+    var options:Array<JSX.Element> = [];
     for (var i = 0; i < items.length; i++) {
       options.push(<option key={"item"+i} value={items[i]}></option>);
     }

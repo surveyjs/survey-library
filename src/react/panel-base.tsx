@@ -1,9 +1,7 @@
 import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
-import { SurveyModel } from "survey-core";
-import { QuestionRowModel, PanelModel, PanelModelBase } from "survey-core";
+import { Base, SurveyModel, QuestionRowModel, PanelModel, PanelModelBase } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Base } from "survey-core";
 import { SurveyRow } from "./row";
 
 export class SurveyPanelBase extends SurveyElementBase<any, any> {
@@ -18,7 +16,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected canUsePropInState(key: string): boolean {
     return key !== "elements" && super.canUsePropInState(key);
   }
-  protected get survey(): SurveyModel {
+  protected get survey(): SurveyModel | null {
     return this.getSurvey();
   }
   protected get creator(): ISurveyCreator {
@@ -33,7 +31,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected getPanelBase(): PanelModelBase {
     return this.props.element || this.props.question;
   }
-  protected getSurvey(): SurveyModel {
+  protected getSurvey(): SurveyModel | null {
     return (
       this.props.survey || (!!this.panelBase ? this.panelBase.survey : null)
     );
@@ -84,7 +82,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     if (this.changedStatePropName !== "rows") {
       this.renderedRowsCache = {};
     }
-    var rows = [];
+    var rows:Array<JSX.Element> = [];
     var questionRows = this.panelBase.rows;
     for (var i = 0; i < questionRows.length; i++) {
       var row = this.renderedRowsCache[questionRows[i].id];

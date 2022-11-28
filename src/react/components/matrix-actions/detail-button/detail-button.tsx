@@ -27,7 +27,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
   protected renderElement(): JSX.Element {
     var isExpanded = this.row.isDetailPanelShowing;
     var ariaExpanded = isExpanded;
-    var ariaControls = isExpanded ? this.row.detailPanelId : null;
+    var ariaControls = isExpanded ? this.row.detailPanelId : undefined;
     return (
       <button
         type="button"

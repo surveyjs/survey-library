@@ -41,7 +41,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   }
 
   protected getItems(cssClasses: any): Array<any> {
-    var items = [];
+    var items:Array<JSX.Element> = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
@@ -59,7 +59,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   ): JSX.Element {
     const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem = null;
+    let wrappedItem: JSX.Element | null = null;
     if(!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
@@ -124,7 +124,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     const cssClasses = this.cssClasses;
     var isChecked = question.isItemSelected(item);
     var itemClass = question.getItemClass(item);
-    var text = null;
+    var text: JSX.Element | null = null;
     if (question.showLabel) {
       text = (
         <span
@@ -137,7 +137,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
 
     var style: any = { objectFit: this.question.imageFit };
 
-    var control = null;
+    var control: JSX.Element | null = null;
     if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
       control = (
         <img

@@ -14,9 +14,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   protected renderInput() {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
-    var onKeyDown = null;
-    var onKeyUp = null;
-    var onCompositionUpdate = null;
+    var onKeyDown: ((e: any) => void) | undefined = undefined;
+    var onKeyUp: ((e: any) => void) | undefined = undefined;
+    var onCompositionUpdate: ((e: any) => void) | undefined = undefined;
     if (this.question.isInputTextUpdate) {
       onKeyDown = (e: any) => (this._isWaitingForEnter = e.keyCode === 229);
       onKeyUp = (e: any) => {
@@ -60,7 +60,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         className={inputClass}
         type={this.question.inputType}
         //ref={this.controlRef}
-        ref={(input) => (this.control = input)}
+        ref={(input) => (this.setControl(input))}
         style={this.question.inputStyle}
         maxLength={this.question.getMaxLength()}
         min={this.question.renderedMin}
@@ -92,11 +92,11 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         this.renderInput()
     );
   }
-  private renderDataList(): JSX.Element {
+  private renderDataList(): JSX.Element | null {
     if (!this.question.dataListId) return null;
     var items = this.question.dataList;
     if (items.length == 0) return null;
-    var options = [];
+    var options:Array<JSX.Element> = [];
     for (var i = 0; i < items.length; i++) {
       options.push(<option key={"item"+i} value={items[i]}></option>);
     }

@@ -34,8 +34,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return !!this.row && !!this.survey && !!this.creator && this.row.visible;
   }
   protected renderElementContent(): JSX.Element {
-    var elements = null;
-    elements = this.row.visibleElements.map((element, index) => {
+    const elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
       const css = (element as Question).cssClassesValue;
       return (

@@ -25,7 +25,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       ? this.renderLocString(this.question.locMaxRateDescription)
       : null;
     return (
-      <div className={this.question.ratingRootCss} ref={(div) => (this.control = div)}>
+      <div className={this.question.ratingRootCss} ref={(div) => (this.setControl(div))}>
         <fieldset role="radiogroup">
           <legend role="presentation" className={"sv-hidden"}></legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}

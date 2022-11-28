@@ -29,7 +29,7 @@ export class SurveyPage extends SurveyPanelBase {
   protected renderTitle(): JSX.Element {
     return <TitleElement element={this.page}></TitleElement>;
   }
-  protected renderDescription(): JSX.Element {
+  protected renderDescription(): JSX.Element | null {
     if (!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
     return (

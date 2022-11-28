@@ -8,7 +8,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var onBlur = !this.question.isInputTextUpdate ? this.updateValueOnEvent : null;
+    var onBlur:((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
     var onInput = (event: any) => {
       if (this.question.isInputTextUpdate)
         this.updateValueOnEvent(event);
@@ -25,7 +25,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         className={this.question.className}
         disabled={ this.question.isInputReadOnly }
         readOnly={ this.question.isInputReadOnly }
-        ref={(tetxarea) => (this.control = tetxarea)}
+        ref={(textarea) => (this.setControl(textarea))}
         maxLength={this.question.getMaxLength()}
         placeholder={placeholder}
         onBlur={onBlur}

@@ -28,7 +28,7 @@ export class TitleContent extends React.Component<any, any> {
         </span>
       );
     };
-    var spans = [];
+    var spans: Array<JSX.Element> = [];
     if (element.isRequireTextOnStart) {
       spans.push(this.renderRequireText(element, cssClasses));
       spans.push(getSpaceSpan("req-sp"));

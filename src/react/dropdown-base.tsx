@@ -109,7 +109,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      </div>);
    }
 
-   createClearButton(): JSX.Element {
+   createClearButton(): JSX.Element | null {
      if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
      const style = { display: this.question.isEmpty() ? "none" : "" };

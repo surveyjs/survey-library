@@ -20,6 +20,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
     "jsx": "react",
     "declaration": true,
     "emitDeclarationOnly": true,

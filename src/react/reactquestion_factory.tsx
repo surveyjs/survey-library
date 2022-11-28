@@ -17,7 +17,7 @@ export class ReactQuestionFactory {
     }
     return result.sort();
   }
-  public createQuestion(questionType: string, params: any): JSX.Element {
+  public createQuestion(questionType: string, params: any): JSX.Element | null {
     var creator = this.creatorHash[questionType];
     if (creator == null) return null;
     return creator(params);

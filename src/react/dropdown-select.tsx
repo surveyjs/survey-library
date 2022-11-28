@@ -24,7 +24,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
       (<select
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        ref={(select) => (this.control = select)}
+        ref={(select) => (this.setControl(select))}
         autoComplete={this.question.autocomplete}
         onChange={this.updateValueOnEvent}
         onInput={this.updateValueOnEvent}

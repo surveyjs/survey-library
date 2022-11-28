@@ -16,7 +16,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var tableRows = this.question.getRows();
-    var rows = [];
+    var rows:Array<JSX.Element> = [];
     for (var i = 0; i < tableRows.length; i++) {
       rows.push(this.renderRow(i, tableRows[i], cssClasses));
     }
@@ -32,7 +32,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     cssClasses: any
   ) {
     var key: string = "item" + rowIndex;
-    var tds = [];
+    var tds:Array<JSX.Element> = [];
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
       tds.push(
@@ -80,7 +80,7 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
     </label>);
   }
 
-  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element {
+  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element | null {
     return this.item.editor.isErrorsModeTooltip ? (
       <SurveyElementErrors
         element={item.editor}

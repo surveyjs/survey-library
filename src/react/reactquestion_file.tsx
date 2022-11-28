@@ -14,7 +14,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
-    var fileInput = null;
+    var fileInput: JSX.Element | null = null;
     var fileDecorator = this.renderFileDecorator();
     var clearButton = this.renderClearButton(
       this.question.showRemoveButton
@@ -31,9 +31,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           disabled={this.isDisplayMode}
           className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
           id={this.question.inputId}
-          ref={input => (this.control = input)}
+          ref={input => (this.setControl(input))}
           style={!this.isDisplayMode ? {} : { color: "transparent" }}
-          onChange={!this.isDisplayMode ? this.question.doChange : null}
+          onChange={!this.isDisplayMode ? this.question.doChange : (() => {})}
           multiple={this.question.allowMultiple}
           placeholder={this.question.title}
           accept={this.question.acceptedTypes}
@@ -44,9 +44,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           disabled={this.isDisplayMode}
           className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
           id={this.question.inputId}
-          ref={input => (this.control = input)}
+          ref={input => (this.setControl(input))}
           style={!this.isDisplayMode ? {} : { color: "transparent" }}
-          onChange={!this.isDisplayMode ? this.question.doChange : null}
+          onChange={!this.isDisplayMode ? this.question.doChange : (() => {})}
           aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
           aria-invalid={this.question.ariaInvalid}
@@ -77,8 +77,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderFileDecorator(): JSX.Element {
     const questionCss = this.question.cssClasses;
-    let noFileChosen = null;
-    let chooseFile = null;
+    let noFileChosen: JSX.Element | null = null;
+    let chooseFile: JSX.Element | null = null;
     chooseFile = (
       <label
         role="button"
@@ -110,7 +110,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderClearButton(className: string): JSX.Element {
+  protected renderClearButton(className: string): JSX.Element | null {
     return className ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.clearButtonCaption}</span>
@@ -118,7 +118,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </button>
     ) : null;
   }
-  protected renderFileSign(className: string, val: any): JSX.Element {
+  protected renderFileSign(className: string, val: any): JSX.Element | null {
     if(!className || !val.name) return null;
     return (
       <div className={className}>
@@ -136,7 +136,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderPreview(): JSX.Element {
+  protected renderPreview(): JSX.Element | null {
     if (!this.question.previewValue || !this.question.previewValue.length) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;

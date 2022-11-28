@@ -27,14 +27,14 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (this.question) {
-      this.question.visibleRowsChangedCallback = null;
+      this.question.visibleRowsChangedCallback = null as any;
     }
   }
 
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var rowsTH = this.question.hasRows ? <td /> : null;
-    var headers = [];
+    var headers:Array<JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
       var key = "column" + i;
@@ -45,7 +45,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         </th>
       );
     }
-    var rows = [];
+    var rows:Array<JSX.Element> = [];
     var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
       var row = visibleRows[i];
@@ -72,7 +72,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     return (
       <div
         className={cssClasses.tableWrapper}
-        ref={root => (this.control = root)}
+        ref={root => (this.setControl(root))}
       >
         <fieldset>
           <legend aria-label={this.question.locTitle.renderedHtml} />
@@ -106,7 +106,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element;
+    let wrapper: JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
@@ -116,7 +116,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return !!this.row;
   }
   protected renderElement(): JSX.Element {
-    var rowsTD = null;
+    var rowsTD: JSX.Element | null = null;
 
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
@@ -135,11 +135,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   }
 
   generateTds() {
-    var tds = [];
+    var tds:Array<JSX.Element> = [];
     var row = this.row;
 
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
-      var td = null;
+      var td: JSX.Element | null = null;
       var column = this.question.visibleColumns[i];
       var key = "value" + i;
 
@@ -155,7 +155,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           <td
             key={key}
             className={itemClass}
-            onClick={getHandler ? getHandler(column) : null}
+            onClick={getHandler ? getHandler(column) : () => {}}
           >
             {this.renderLocString(
               this.question.getCellDisplayLocText(row.name, column)

@@ -22,6 +22,8 @@
     "build_vue_prod": "webpack --config ./build-scripts/survey-vue/webpack.config.js --env.buildType prod",
     "build_jquery_dev": "webpack --config ./build-scripts/survey-jquery/webpack.config.js --env.buildType dev",
     "build_jquery_prod": "webpack --config ./build-scripts/survey-jquery/webpack.config.js --env.buildType prod",
+    "build-jquery-typings:linux": "tsc --p tsconfig.typing.jquery.json && echo \"declare module 'survey-jquery' { import main = require('entries/jquery'); export = main; }\" >> build/survey-jquery/survey-jquery.d.ts",
+    "build-jquery-typings:windows": "tsc --p tsconfig.typing.jquery.json && echo declare module 'survey-jquery' { import main = require('entries/jquery'); export = main; } >> build/survey-jquery/survey-jquery.d.ts",
     "build_angular_dev": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType dev",
     "build_angular_prod": "webpack --config ./build-scripts/survey-angular/webpack.config.js --env.buildType prod",
     "build_i18n_dev": "webpack --config ./build-scripts/survey-core/webpack.i18n.js --env.buildType dev",

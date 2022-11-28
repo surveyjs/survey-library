@@ -50,6 +50,7 @@
     "build_core": "npm run build_core_dev && npm run build_core_prod",
     "build-core-typings:linux": "tsc --p tsconfig.typing.json && echo \"declare module 'survey-core' { import main = require('entries/core'); export = main; }\" >> build/survey-core/survey.core.d.ts",
     "build-core-typings:windows": "tsc --p tsconfig.typing.json && echo declare module 'survey-core' { import main = require('entries/core'); export = main; } >> build/survey-core/survey.core.d.ts",
+    "build-all-ui-typings:windows": "npm run build-core-typings:windows && npm run build-knockout-ui-typings:windows && npm run build-react-ui-typings:windows && npm run build-vue-ui-typings",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",

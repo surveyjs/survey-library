@@ -207,7 +207,7 @@ export var settings = {
       cssClass?: string,
       title?: string,
       displayMode?: "popup" | "overlay"
-    ) => void
+    ) => any
     >undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,

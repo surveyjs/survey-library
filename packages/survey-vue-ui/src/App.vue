@@ -15,6 +15,8 @@ export default defineComponent({
   data() {
     const survey = new Model({});
     survey.title = "It works!";
+    survey.description = "Survey description";
+    survey.surveyId = "Survey1";
     return {
       survey: survey as any,
     };

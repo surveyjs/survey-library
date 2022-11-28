@@ -1,6 +1,8 @@
 <template>
   <div class="survey">
     <h1>{{ model.title }}</h1>
+    <h2>{{ model.description }}</h2>
+    <div>{{ model.surveyId }}</div>
   </div>
 </template>
 

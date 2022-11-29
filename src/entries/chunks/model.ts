@@ -33,6 +33,7 @@ export {
   ISurvey,
   ISurveyElement,
   IElement,
+  IQuestion,
   IPage,
   IPanel,
   ISurveyData,

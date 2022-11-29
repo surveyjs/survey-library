@@ -5,7 +5,7 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { doKey2ClickBlur, doKey2ClickUp, mergeValues } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -141,7 +141,14 @@ export class DropdownListModel extends Base {
       }
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
-    model.cssClasses = this.question.survey?.getCss().list;
+  }
+  public updateListCssClasses() {
+    if(this.listModel) {
+      const cssClasses = {};
+      mergeValues(this.question.survey?.getCss().list, cssClasses);
+      mergeValues(this.question.cssClasses.list, cssClasses);
+      this.listModel.cssClasses = cssClasses;
+    }
   }
   protected resetFilterString(): void {
     if(!!this.filterString) {

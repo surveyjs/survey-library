@@ -220,3 +220,26 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
   assert.equal(dropdownListModel.filterString, "", "filterString after onClear");
   assert.equal(question.value, undefined, "question.value after onClear");
 });
+
+QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  survey.css = {
+    dropdown: {
+      list: {
+        item: "original-class"
+      }
+    }
+  };
+  survey.onUpdateQuestionCssClasses.add(function (survey, options) {
+    var classes = options.cssClasses;
+    classes.list = {
+      item: classes.list.item += " custom-class"
+    };
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  question.dropdownListModel = dropdownListModel;
+  question.onFirstRendering();
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.cssClasses.item, "original-class custom-class");
+});

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-file">
   <div data-bind="css: question.fileRootCss">
       <!-- ko ifnot: question.isInputReadOnly -->
-      <input type="file" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
+      <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
       <!-- /ko -->
       <!-- ko if: question.isReadOnly -->
       <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { id: question.inputId, placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>

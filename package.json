@@ -98,6 +98,7 @@
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@types/babel__traverse": "7.18.2",
     "@angular-devkit/build-angular": "~13.0.0",
     "@angular/cli": "~13.0.0",
     "@angular/common": "~13.0.0",

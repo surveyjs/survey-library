@@ -42,6 +42,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         <input
           type="file"
           disabled={this.isDisplayMode}
+          tabIndex={-1}
           className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
           id={this.question.inputId}
           ref={input => (this.setControl(input))}

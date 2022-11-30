@@ -3,6 +3,7 @@
     <input
       :class="question.cssClasses.fileInput"
       v-if="!question.isReadOnly"
+      tabindex="-1"
       type="file"
       :id="question.inputId"
       @change="question.doChange"

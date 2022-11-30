@@ -2,6 +2,7 @@
   <input
     [class]="model.cssClasses.fileInput"
     *ngIf="!model.isReadOnly"
+    tabindex="-1"
     type="file"
     [attr.id]="model.inputId"
     (change)="model.doChange($event)"

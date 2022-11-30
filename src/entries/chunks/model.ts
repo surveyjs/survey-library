@@ -28,12 +28,15 @@ export {
   ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
-export { Base, Event, ArrayChanges, ComputedUpdater } from "../../base";
+export { Base, Event, EventBase, ArrayChanges, ComputedUpdater } from "../../base";
 export {
   ISurvey,
   ISurveyElement,
   IElement,
+  IQuestion,
   IPage,
+  IPanel,
+  ISurveyData,
   ITitleOwner
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
@@ -62,7 +65,8 @@ export {
   BinaryOperand,
   Variable,
   FunctionOperand,
-  ArrayOperand
+  ArrayOperand,
+  UnaryOperand
 } from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
@@ -102,6 +106,7 @@ export {
   QuestionMatrixModel,
   IMatrixData
 } from "../../question_matrix";
+export { QuestionMatrixBaseModel } from "../../martixBase";
 export {
   MultipleTextItemModel,
   QuestionMultipleTextModel
@@ -129,6 +134,7 @@ export { QuestionHtmlModel } from "../../question_html";
 export { QuestionRadiogroupModel } from "../../question_radiogroup";
 export { QuestionRatingModel, RenderedRatingItem } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
+export { QuestionTextBase } from "../../question_textbase";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export {

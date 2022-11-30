@@ -337,7 +337,7 @@ export class ChoicesRestful extends Base {
    * url: "https://surveyjs.io/api/CountriesExample?region={region}"
    * ```
    *
-   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
+   * [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
    * @see path
    * @see valueName
    * @see titleName
@@ -384,7 +384,7 @@ export class ChoicesRestful extends Base {
   /**
    * Specifies which property in the obtained data object contains choice values.
    *
-   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
+   * [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
    *
    * @see url
    * @see path

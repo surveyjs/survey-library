@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel } from "survey-core";
+import { Base, Question, PageModel, SurveyError, StylesManager, surveyCss, Helpers, doKey2ClickUp, SvgRegistry, SurveyModel, doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "survey-core";
 import { SurveyPage } from "./page";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -8,7 +8,6 @@ import { SurveyHeader } from "./components/survey-header/survey-header";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
-import { doKey2ClickBlur, doKey2ClickDown, IAttachKey2clickOptions } from "../utils/utils";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { BrandInfo } from "./components/brand-info";
 
@@ -69,7 +68,7 @@ export class Survey extends SurveyElementBase<any, any>
     if(this.survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
-    let renderResult: JSX.Element;
+    let renderResult: JSX.Element | null;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
     } else if (this.survey.state == "completedbefore") {
@@ -83,7 +82,7 @@ export class Survey extends SurveyElementBase<any, any>
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
-    let customHeader: JSX.Element = <div className="sv_custom_header" />;
+    let customHeader: JSX.Element | null = <div className="sv_custom_header" />;
     if (this.survey.hasLogo) {
       customHeader = null;
     }
@@ -122,11 +121,11 @@ export class Survey extends SurveyElementBase<any, any>
   handleTryAgainClick(event: any) {
     this.survey.doComplete();
   }
-  protected renderCompleted(): JSX.Element {
+  protected renderCompleted(): JSX.Element | null {
     if (!this.survey.showCompletedPage) return null;
-    var completedState = null;
+    var completedState: JSX.Element | null = null;
     if (this.survey.completedState) {
-      var tryAgainButton = null;
+      var tryAgainButton: JSX.Element | null = null;
       if (this.survey.completedState == "error") {
         var btnText = this.survey.getLocalizationString("saveAgainButton");
         tryAgainButton = (
@@ -221,13 +220,13 @@ export class Survey extends SurveyElementBase<any, any>
       />
     );
   }
-  protected renderProgress(isTop: boolean): JSX.Element {
+  protected renderProgress(isTop: boolean): JSX.Element | null {
     return ReactElementFactory.Instance.createElement(
       "sv-progress-" + this.survey.progressBarType.toLowerCase(),
       { survey: this.survey, css: this.css, isTop: isTop }
     );
   }
-  protected renderNavigation(navPosition: string): JSX.Element {
+  protected renderNavigation(navPosition: string): JSX.Element | null {
     if (
       this.survey.isNavigationButtonsShowing !== "both" &&
       (this.survey.isNavigationButtonsShowing === "none" ||
@@ -309,7 +308,7 @@ export class Survey extends SurveyElementBase<any, any>
   }
 
   //ISurveyCreator
-  public createQuestionElement(question: Question): JSX.Element {
+  public createQuestionElement(question: Question): JSX.Element | null {
     return ReactQuestionFactory.Instance.createQuestion(
       !question.isDefaultRendering || question.isDefaultRendering()
         ? question.getTemplate()

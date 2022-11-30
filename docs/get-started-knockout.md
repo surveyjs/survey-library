@@ -1,3 +1,7 @@
+---
+title: Knockout Form Library | Getting Started Guide
+description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Knockout application.
+---
 # Add a Survey to a Knockout Application
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Knockout application. To add a survey to your Knockout application, follow the steps below:
@@ -15,7 +19,7 @@ As a result, you will create a survey displayed below:
 </p>
 <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout (linkStyle))
 
 ## Link SurveyJS Resources
 
@@ -75,7 +79,7 @@ const survey = new SurveyKnockout.Survey(surveyJson);
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -144,7 +148,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -245,7 +249,7 @@ survey.onComplete.add(alertResults);
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -303,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function() {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout (linkStyle))
 
 ## Further Reading
 

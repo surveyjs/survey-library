@@ -1,8 +1,7 @@
 import * as React from "react";
-import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
+import { DropdownMultiSelectListModel, QuestionTagboxModel, Helpers } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Helpers } from "../helpers";
 
 interface ITagboxFilterProps {
   model: DropdownMultiSelectListModel;

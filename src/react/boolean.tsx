@@ -50,7 +50,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     if (el) {
       el.indeterminate = this.question.isIndeterminate;
     }
-    this.control = el;
+    this.setControl(el);
     super.updateDomElement();
   }
   protected renderElement(): JSX.Element {

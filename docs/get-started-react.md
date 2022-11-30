@@ -20,7 +20,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">Get Started with SurveyJS - React</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
 
 ## Install the `survey-react-ui` npm Package
 
@@ -86,7 +86,7 @@ function App() {
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -136,7 +136,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -229,7 +229,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import { useCallback } from 'react';
@@ -268,7 +268,7 @@ export default App;
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
 
 ## Further Reading
 

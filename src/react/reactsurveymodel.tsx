@@ -33,7 +33,7 @@ export class ReactSurveyElementsWrapper {
     const componentName = survey.getItemValueWrapperComponentName(item, question);
     const componentData = survey.getItemValueWrapperComponentData(item, question);
     return ReactElementFactory.Instance.createElement(componentName, {
-      key: element.key,
+      key: element?.key,
       element,
       question,
       item,

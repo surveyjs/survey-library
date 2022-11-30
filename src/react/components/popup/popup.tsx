@@ -1,9 +1,8 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
+import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, IDialogOptions, createDialogOptions, createPopupModalViewModel, createPopupViewModel, CssClassBuilder, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { Base } from "../../../base";
 import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface IPopupProps {
@@ -25,7 +24,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     return this.model;
   }
   private createModel(): void {
-    this.popup = createPopupViewModel(this.props.model, undefined);
+    this.popup = createPopupViewModel(this.props.model, undefined as any);
     this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
@@ -33,7 +32,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
       const popupDropdownModel = this.popup as PopupDropdownViewModel;
       if(!popupDropdownModel) return;
 
-      popupDropdownModel.targetElement = this.containerRef.current.parentElement;
+      if(!!this.containerRef.current.parentElement) {
+        popupDropdownModel.targetElement = this.containerRef.current.parentElement;
+      }
     }
   }
   componentDidMount(): void {

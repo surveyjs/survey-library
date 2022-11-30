@@ -12001,6 +12001,15 @@ QUnit.test("Survey hasLogo", function (assert) {
   assert.notOk(!!survey.locLogo.renderedHtml);
   survey.logo = "some url";
   assert.ok(survey.hasLogo);
+  assert.ok(survey.getPropertyValue("hasLogo"));
+});
+
+QUnit.test("Survey hasLogo is reactive", function (assert) {
+  var survey = new SurveyModel({
+    logo: "an url"
+  });
+  assert.ok(survey.hasLogo);
+  assert.ok(survey.getPropertyValue("hasLogo"));
 });
 
 QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {
@@ -15674,4 +15683,83 @@ QUnit.test("Set question choices for disposed survey", function (assert) {
   assert.equal(question.choices.length, 3, "There is not errors");
   assert.notOk(question.survey, "Survey is not set");
   assert.notOk(question.data, "data is not set");
+});
+QUnit.test("Expression for questions with a lot of dots", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1.1" },
+      { type: "text", name: "q1.1.2", visibleIf: "{q1.1} = 'a'" },
+      { type: "text", name: "q1.1.2.3", visibleIf: "{q1.1.2} = 'a'" },
+      { type: "text", name: "q1.1.2.3.4", visibleIf: "{q1.1.2.3} = 'a'" },
+      { type: "text", name: "q1.1.2.3.4.5", visibleIf: "{q1.1.2.3.4} = 'a'" }
+    ],
+  });
+  const question1_1 = survey.getQuestionByName("q1.1");
+  const question1_1_2 = survey.getQuestionByName("q1.1.2");
+  const question1_1_3_3 = survey.getQuestionByName("q1.1.2.3");
+  const question1_1_2_3_4 = survey.getQuestionByName("q1.1.2.3.4");
+  const question1_1_2_3_4_5 = survey.getQuestionByName("q1.1.2.3.4.5");
+  assert.equal(question1_1_2.visible, false, "question1_1_2 false");
+  question1_1.value = "a";
+  assert.equal(question1_1_2.visible, true, "question1_1_2 true");
+  assert.equal(question1_1_3_3.visible, false, "question1_1_2_3 false");
+  question1_1_2.value = "a";
+  assert.equal(question1_1_3_3.visible, true, "question1_1_2_3 true");
+  assert.equal(question1_1_2_3_4.visible, false, "question1_1_2_3_4 false");
+  question1_1_3_3.value = "a";
+  assert.equal(question1_1_2_3_4.visible, true, "question1_1_2_3_4 true");
+  assert.equal(question1_1_2_3_4_5.visible, false, "question1_1_2_3_4_5 false");
+  question1_1_2_3_4.value = "a";
+  assert.equal(question1_1_2_3_4_5.visible, true, "question1_1_2_3_4_5 true");
+});
+QUnit.test("Expression for questions with a lot of dots #2", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "WF4.1",
+        "choices": [
+          "Restricted",
+          "Confidential",
+          "Internal",
+          "Public",
+          "Do Not Know"
+        ]
+      },
+      {
+        "type": "radiogroup",
+        "name": "WF4.4",
+        "visibleIf": "{WF4.1}='Restricted' or {WF4.1} ='Confidential' or {WF4.1} ='Internal' or {WF4.1} ='Public'",
+        "choices": ["Yes", "No"]
+      },
+      {
+        "type": "radiogroup",
+        "name": "WF4.4.1",
+        "visibleIf": "{WF4.4} = 'Yes'",
+        "choices": ["Yes", "No"]
+      },
+      {
+        "type": "radiogroup",
+        "name": "WF4.4.1.1",
+        "visibleIf": "{WF4.4.1}='Yes'",
+        "choices": [1, 2, 3]
+      }
+    ]
+  });
+  const questionWF4_1 = survey.getQuestionByName("WF4.1");
+  const questionWF4_4 = survey.getQuestionByName("WF4.4");
+  const questionWF4_4_1 = survey.getQuestionByName("WF4.4.1");
+  const questionWF4_4_1_1 = survey.getQuestionByName("WF4.4.1.1");
+
+  assert.equal(questionWF4_4.visible, false, "questionWF4_4 false");
+  questionWF4_1.value = "Public";
+  assert.equal(questionWF4_4.visible, true, "questionWF4_4 true");
+
+  assert.equal(questionWF4_4_1.visible, false, "questionWF4_4_1 false");
+  questionWF4_4.value = "Yes";
+  assert.equal(questionWF4_4_1.visible, true, "questionWF4_4_1 true");
+
+  assert.equal(questionWF4_4_1_1.visible, false, "questionWF4_4_1_1 false");
+  questionWF4_4_1.value = "Yes";
+  assert.equal(questionWF4_4_1_1.visible, true, "questionWF4_4_1_1 true");
 });

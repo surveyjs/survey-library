@@ -78,6 +78,10 @@ export class ProcessValue {
     return values;
   }
   private getValueCore(text: string, values: any): any {
+    const question = this.getQuestionDirectly(text);
+    if(question) {
+      return { hasValue: true, value: question.value, path: [text] };
+    }
     const res = this.getValueFromValues(text, values);
     if(!!text && !res.hasValue) {
       const val = this.getValueFromSurvey(text);
@@ -88,6 +92,11 @@ export class ProcessValue {
       }
     }
     return res;
+  }
+  private getQuestionDirectly(name: string): any {
+    if(!!this.properties && !!this.properties.survey)
+      return this.properties.survey.getQuestionByValueName(name);
+    return undefined;
   }
   private getValueFromSurvey(name: string): any {
     if(!!this.properties && !!this.properties.survey)

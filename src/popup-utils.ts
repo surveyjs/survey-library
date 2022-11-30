@@ -24,7 +24,7 @@ export function createPopupModalViewModel(options: IDialogOptions): PopupBaseVie
   return popupViewModel;
 }
 
-export function createPopupViewModel(model: PopupModel, targetElement: HTMLElement): PopupBaseViewModel {
+export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement): PopupBaseViewModel {
   if(model.isModal) {
     return new PopupModalViewModel(model);
   } else {

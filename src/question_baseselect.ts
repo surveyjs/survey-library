@@ -526,7 +526,7 @@ export class QuestionSelectBase extends Question {
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
    *
-   * [View "Dropdown + RESTful" demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
    * @see choices
    */
   public get choicesByUrl(): ChoicesRestful {
@@ -1471,6 +1471,10 @@ export class QuestionSelectBase extends Question {
   public afterRender(el: HTMLElement) {
     super.afterRender(el);
     this.rootElement = el;
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.rootElement = undefined;
   }
   private focusOtherComment() {
     if (!!this.rootElement) {

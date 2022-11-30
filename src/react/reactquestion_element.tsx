@@ -1,13 +1,8 @@
 import * as React from "react";
-import { Helpers } from "survey-core";
-import { LocalizableString } from "survey-core";
-import { Question } from "survey-core";
-import { SurveyElement } from "survey-core";
+import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
-import { Base, ArrayChanges, SurveyModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { PanelModel } from "../panel";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -25,7 +20,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
     return <div className={question.cssDescription}>{descriptionText}</div>;
   }
-  private changedStatePropNameValue: string;
+  private changedStatePropNameValue: string | undefined;
   constructor(props: any) {
     super(props);
   }
@@ -52,7 +47,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     }
     return this._allowComponentUpdate;
   }
-  render(): JSX.Element {
+  render(): JSX.Element | null {
     if (!this.canRender()) {
       return null;
     }
@@ -61,7 +56,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     var res = this.renderElement();
     this.startEndRendering(-1);
 
-    res = this.wrapElement(res);
+    if(!!res) {
+      res = this.wrapElement(res);
+    }
 
     this.changedStatePropNameValue = undefined;
     return res;
@@ -89,10 +86,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected canRender(): boolean {
     return true;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): JSX.Element | null {
     return null;
   }
-  protected get changedStatePropName(): string {
+  protected get changedStatePropName(): string | undefined {
     return this.changedStatePropNameValue;
   }
   private makeBaseElementsReact() {
@@ -111,7 +108,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     var el = this.getStateElement();
     return !!el ? [el] : [];
   }
-  protected getStateElement(): Base {
+  protected getStateElement(): Base | null {
     return null;
   }
   protected get isDisplayMode(): boolean {
@@ -169,7 +166,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private unMakeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
-    stateElement.setPropertyValueCoreHandler = undefined;
+    stateElement.setPropertyValueCoreHandler = undefined as any;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
       if (Array.isArray(val)) {
@@ -260,11 +257,16 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     }
     const survey: SurveyModel = this.questionBase
       .survey as SurveyModel;
-    let wrapper: JSX.Element;
+    let wrapper: JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
+  }
+  public setControl(element: HTMLElement | null): void {
+    if(!!element) {
+      this.control = element;
+    }
   }
 }
 

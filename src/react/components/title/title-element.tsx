@@ -9,17 +9,18 @@ export class TitleElement extends React.Component<any, any> {
   private get element(): SurveyElementCore {
     return this.props.element;
   }
-  render(): JSX.Element {
+  render(): JSX.Element | any {
     const element = this.element;
     if (!element || !element.hasTitle) return null;
+    const ariaLabel = element.titleAriaLabel || undefined;
     const titleContent = (
       <TitleActions
         element={element}
         cssClasses={element.cssClasses}
       ></TitleActions>
     );
-    let onClick = null;
-    let onKeyUp = null;
+    let onClick: undefined | ((e: any) => void) = undefined;
+    let onKeyUp: undefined | ((e: any) => void) = undefined;
     if (element.hasTitleEvents) {
       onKeyUp = (evt: any) => {
         doKey2ClickUp(evt.nativeEvent);
@@ -31,7 +32,7 @@ export class TitleElement extends React.Component<any, any> {
       <CustomTag
         className={element.cssTitle}
         id={element.ariaTitleId}
-        aria-label={element.titleAriaLabel}
+        aria-label={ariaLabel}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
         role="columnheader"

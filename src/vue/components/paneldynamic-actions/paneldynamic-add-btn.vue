@@ -17,7 +17,7 @@ import { Action, QuestionPanelDynamicModel } from "survey-core";
 export class PaneldynamicAction extends Vue {
   @Prop() data: any;
   @Prop() item: Action;
-  protected get question(): QuestionPanelDynamicModel {
+  get question(): QuestionPanelDynamicModel {
     return (this.item && this.item.data.question) || this.data.question;
   }
 }

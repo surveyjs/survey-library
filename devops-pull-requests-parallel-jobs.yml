@@ -52,6 +52,7 @@ jobs:
 
     - script: |
         npm run build_knockout_prod
+        npm run build-knockout-typings:linux
       displayName: "Build Knockout"
 
     - script: |
@@ -106,6 +107,7 @@ jobs:
 
     - script: |
         npm run build_react_prod
+        npm run build-react-typings:linux
       displayName: "Build React"
 
     - script: |
@@ -152,6 +154,7 @@ jobs:
 
     - script: |
         npm run build_vue_prod
+        npm run build-vue-typings
       displayName: "Build Vue"
 
     - script: |
@@ -198,6 +201,7 @@ jobs:
     - script: |
         npm run build_core
         npm run build_i18n
+        npm run build-core-typings:linux
       displayName: "Build Core"
 
     - script: |

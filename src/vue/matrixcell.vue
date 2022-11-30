@@ -15,7 +15,7 @@
       v-if="cell.hasPanel"
       :is="getComponentName(cell.panel)"
       :question="cell.panel"
-      :css="question.survey.css"
+      :css="question.cssClasses"
     ></component>
     <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
       <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
@@ -37,7 +37,7 @@
         :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
-        :index="'' + cell.index"
+        :index="getCellIndex()"
         :hideLabel="true"
       ></survey-radiogroup-item>
       <survey-checkbox-item
@@ -46,7 +46,7 @@
         :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
-        :index="'' + cell.index"
+        :index="getCellIndex()"
         :hideLabel="true"
       ></survey-checkbox-item>
       <survey-other-choice
@@ -84,7 +84,7 @@ export class MatrixCell extends Vue {
   @Prop() cell: QuestionMatrixDropdownRenderedCell;
 
   isVisible: boolean = false;
-  getComponentName(element: Question) {
+  getComponentName(element: Question | any) {
     if (element.customWidget) {
       return "survey-customwidget";
     }
@@ -97,6 +97,9 @@ export class MatrixCell extends Vue {
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;
+  }
+  getCellIndex(): string {
+    return (this.cell as any).index || "";
   }
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;

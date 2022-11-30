@@ -618,7 +618,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > NOTE: This method does not remove values for invisible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values for invisible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
    *
    * @see hasErrors
    */
@@ -929,7 +929,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * - `"left"` - Displays the title to the left of the input field.
    * - `"hidden"` - Hides the question title.
    *
-   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+   * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    * @see SurveyModel.questionTitleLocation
    */
   public get questionTitleLocation(): string {

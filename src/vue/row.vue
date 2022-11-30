@@ -1,10 +1,9 @@
 <template>
   <div :class="row.getRowCss()">
-    <div v-for="element in row.visibleElements" :style="element.rootStyle">
+    <div v-for="element in elements" :style="element.rootStyle">
     <survey-element
       v-if="!element.isPanel" 
       :key="element.id"
-      
       :element="element"
       :survey="survey"
       :css="css"
@@ -17,8 +16,7 @@
     </survey-element>
     <survey-panel
       v-if="element.isPanel"
-            :key="element.id"
-      
+      :key="element.id"
       :question="element"
       :css="css">
     </survey-panel>
@@ -40,6 +38,10 @@ export class Row extends BaseVue {
   @Prop() row: QuestionRowModel;
   @Prop() css: any;
   @Prop() survey: SurveyModel;
+
+  get elements(): Array<any> {
+    return this.row.visibleElements;
+  }
 
   protected getModel(): Base {
     return this.row;

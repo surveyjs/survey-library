@@ -23,8 +23,7 @@ The survey below illustrates the result:
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
-[View the Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
-[View the "NPS Survey" Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
 
 ## Add Multiple Pages to a Survey
 
@@ -128,7 +127,7 @@ const surveyJson = {
 If you need to access an array of visible pages, use the [SurveyModel](https://surveyjs.io/Documentation/Library?id=surveymodel)'s [`visiblePages`](https://surveyjs.io/Documentation/Library?id=surveymodel#visiblePages) property. If you only need the number of visible pages, use the [`visiblePageCount`](https://surveyjs.io/Documentation/Library?id=surveymodel#visiblePageCount) property. Both properties update dynamically as the respondent progresses in the survey.
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -249,7 +248,7 @@ survey.doComplete();
 
 In this tutorial, the survey uses out-of-the-box page navigation and does not demonstrate the described API members. However, the given information should help you implement custom page navigation if you find it more suitable in your scenario.
 
-[View the "Custom Navigation" Demo](https://surveyjs.io/Examples/Library?id=survey-customnavigation (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=survey-customnavigation (linkStyle))
 
 ### Page Navigation UI
 
@@ -289,12 +288,12 @@ const surveyJson = {
 };
 ```
 
-[View the "Default survey progress bar" Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle)) 
+[View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle)) 
 
 The example in this tutorial uses only the `pageNextText`, `completeText`, and `showPrevButton` properties:
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -388,7 +387,7 @@ const startPage = survey.startedPage;
 ```
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -485,7 +484,7 @@ An array that allows you to specify different complete page content based on con
 If your survey should not display a complete page, disable the [`showCompletedPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#showCompletedPage) property.
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -560,7 +559,7 @@ const surveyJson = {
 };
 ```
 
-[View the "Show Preview before complete" Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/survey-showpreview/ (linkStyle))
 
 When the preview page is enabled, the last page in the survey displays a Preview button instead of a Complete button. Set the [`previewText`](https://surveyjs.io/Documentation/Library?id=surveymodel#previewText) property if you want to change the Preview button caption:
 
@@ -594,7 +593,7 @@ survey.cancelPreview();
 The example in this tutorial uses only the `showPreviewBeforeComplete` property:
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -668,7 +667,7 @@ Refer to the following platform-specific articles for information on how to rend
 - [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
 - [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/multi-page-survey" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
 
 ## See Also
 

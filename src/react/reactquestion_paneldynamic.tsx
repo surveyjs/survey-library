@@ -221,13 +221,14 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   }
   protected renderButton(): JSX.Element | null {
     if (
+      this.question.panelRemoveButtonLocation !== "right" ||
       !this.question.canRemovePanel ||
       (this.question.isRenderModeList && this.panel.isCollapsed)
     ) {
       return null;
     }
     return ReactElementFactory.Instance.createElement("sv-paneldynamic-remove-btn", {
-      data: { question: this.question, index: this.index }
+      data: { question: this.question, panel: this.panel }
     });
   }
 }

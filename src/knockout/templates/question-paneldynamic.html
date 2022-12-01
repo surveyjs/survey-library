@@ -16,8 +16,11 @@
             <!-- ko component: { name: survey.getElementWrapperComponentName(question), params: { componentData:  survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
             <!-- /ko -->
           <!-- /ko -->
-          <!-- ko template: { name: 'survey-question-paneldynamic-remove-btn', data: { question: question, panel: $data} } -->
+          <!-- ko if: question.panelRemoveButtonLocation === 'right' && question.koCanRemovePanel() && $data.state != 'collapsed'-->
+            <!-- ko component: { name: 'sv-paneldynamic-remove-btn', params: { question: question, panel: $data } } -->
+            <!-- /ko -->
           <!-- /ko -->
+          
         </div>
         <!-- ko if: $index() < question.panelCount - 1 -->
         <hr data-bind="css: question.koCss().separator"/>
@@ -46,8 +49,10 @@
           <!-- ko component: { name: question.survey.getElementWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: question.koElementType, data: question, afterRender: $parent.koPanelAfterRender } } } -->
           <!-- /ko -->
         <!-- /ko -->
-        <!-- ko template: { name: 'survey-question-paneldynamic-remove-btn', data: { question: question, panel: question.koPanel() }, as: 'question'} -->
-        <!-- /ko -->
+        <!-- ko if: question.panelRemoveButtonLocation === 'right'-->
+          <!-- ko template: { name: 'survey-question-paneldynamic-remove-btn', data: { question: question, panel: question.koPanel() }, as: 'question'} -->
+          <!-- /ko -->
+        <!-- /ko-->
       </div>
       <!-- /ko -->
       <!-- ko if: question.showLegacyNavigation && question.koIsProgressBottom--> 
@@ -71,12 +76,4 @@
     </div>
     <!-- /ko -->
   </div>
-</script>
-
-<script type="text/html" id="survey-question-paneldynamic-remove-btn">
-  <button type="button"
-    data-bind="visible: question.koCanRemovePanel() && panel.state != 'collapsed', click: function() { question.koRemovePanelClick(panel); }, css: question.getPanelRemoveButtonCss()">
-    <span data-bind="css: question.koCss().buttonRemoveText, text: question.panelRemoveText"></span>
-    <span data-bind="css: question.koCss().iconRemove"></span>
-  </button>
 </script>

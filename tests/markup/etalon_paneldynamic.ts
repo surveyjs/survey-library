@@ -98,5 +98,59 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
+  {
+    name: "Test paneldynamic (list) markup",
+    json: {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          renderMode: "list",
+          templateElements: [
+            {
+              "type": "text",
+              "titleLocation": "hidden",
+              "name": "q1"
+            }
+          ],
+          panelCount: 1,
+        },
+      ]
+    },
+    event: "onAfterRenderPage",
+    snapshot: "paneldynamic-remove-btn-action-bar",
+    before: () => { StylesManager.applyTheme("defaultV2"); },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].panels[0].allowAdaptiveActions = false;
+    },
+    after: () => StylesManager.applyTheme("default"),
+  },
+  {
+    name: "Test paneldynamic (list) markup",
+    json: {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          renderMode: "list",
+          panelRemoveButtonLocation: "right",
+          templateElements: [
+            {
+              "type": "text",
+              "titleLocation": "hidden",
+              "name": "q1"
+            }
+          ],
+          panelCount: 1,
+        },
+      ]
+    },
+    event: "onAfterRenderPage",
+    snapshot: "paneldynamic-remove-btn-right",
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
   ]
 );

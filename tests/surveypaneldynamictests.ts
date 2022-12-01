@@ -14,6 +14,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -4743,4 +4744,51 @@ QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, B
   rootPanel.panels[0].getQuestionByName("q1").value = 2;
   survey.completeLastPage();
   assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
+});
+
+QUnit.test("Check paneldynamic panel actions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+        minPanelCount: 1,
+        panelCount: 2,
+        panelRemoveText: "Remove Panel"
+      }
+    ]
+  });
+  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  let updatedPanels: any[] = [];
+  survey.onGetPanelFooterActions.add((sender, opt) => {
+    assert.equal(sender, survey);
+    assert.equal(opt.question, paneldynamic);
+    assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);
+    updatedPanels.push(opt.panel);
+    opt.actions.push({
+      id: "test",
+      title: "test",
+      action: () => {}
+    });
+  });
+  assert.equal(paneldynamic.panels[0].footerActions.length, 0);
+  assert.equal(paneldynamic.panels[0]["footerToolbarValue"], undefined);
+
+  //panel actions should be created only after footerToolbar is requested
+
+  const actions = paneldynamic.panels[0].getFooterToolbar().actions;
+  paneldynamic.panels[1].getFooterToolbar();
+  assert.deepEqual(updatedPanels, paneldynamic.panels);
+
+  assert.equal(actions.length, 2);
+  assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
+  assert.equal(actions[1].title, "test");
+
+  paneldynamic.removePanel(paneldynamic.panels[1]);
+
+  assert.equal(actions.length, 2);
+  assert.equal(actions[0].visible, false);
 });

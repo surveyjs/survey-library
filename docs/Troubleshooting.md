@@ -32,4 +32,4 @@ If you implement a custom question component, add it to the survey's `ComponentC
 
 **Solution**: Survey uses a question's [`name`](https://surveyjs.io/form-library/documentation/question#name) property value to identify the question and differentiate it from other questions. If you set the same `name` for multiple questions, Survey considers them the same question and copies answers between them. To resolve this issue, specify a unique `name` for each question in your survey.
 
-> If answer duplication is a desirable behavior, use the [`copyvalue`](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#copyvalue) trigger to implement it.
+> If answer duplication is desired behavior, use the [`copyvalue`](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#copyvalue) trigger to implement it.

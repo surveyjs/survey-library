@@ -8,7 +8,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export interface ISurveyTimerText {
   timerInfoText: string;
-  timerInfo: { spent: number, limit: number };
+  timerInfo: { spent: number, limit?: number };
   timerClock: { majorText: string, minorText?: string };
   getCss(): any;
   isTimerPanelShowingOnBottom: boolean;
@@ -71,14 +71,18 @@ export class SurveyTimerModel extends Base {
   }
   private updateProgress() {
     let { spent, limit } = this.survey.timerInfo;
-    if(spent == 0) {
-      this.progress = 0;
-      setTimeout(() => {
+    if(!limit) {
+      this.progress = undefined;
+    } else {
+      if(spent == 0) {
+        this.progress = 0;
+        setTimeout(() => {
+          this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+        }, 0);
+      }
+      else if(spent !== limit) {
         this.progress = Math.floor((spent + 1)/limit * 100) / 100;
-      }, 0);
-    }
-    else if(spent !== limit) {
-      this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+      }
     }
   }
   private updateText(): void {
@@ -86,6 +90,9 @@ export class SurveyTimerModel extends Base {
     this.clockMajorText = timerClock.majorText;
     this.clockMinorText = timerClock.minorText;
     this.text = this.survey.timerInfoText;
+  }
+  public get showProgress(): boolean {
+    return this.progress !== undefined;
   }
   public get showTimerAsClock(): boolean {
     return !!this.survey.getCss().clockTimerRoot;

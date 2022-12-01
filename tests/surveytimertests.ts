@@ -292,25 +292,103 @@ QUnit.test("Test SurveyTimerModel with clock", function(assert) {
     survey.nextPage();
     assert.equal(timerModel.clockMajorText, "0:10");
     assert.equal(timerModel.clockMinorText, "0:07");
+    survey.stopTimer();
     done();
   }, 1);
 
 });
 
 QUnit.test("Test showTimerAsClock flag", function(assert) {
-  var survey = new SurveyModel();
-  survey.maxTimeToFinish = 25;
-  survey.maxTimeToFinishPage = 10;
-  survey.addNewPage("p1");
-  survey.addNewPage("p2");
-  survey.addNewPage("p3");
-  survey.pages[0].addNewQuestion("text");
-  survey.pages[1].addNewQuestion("text");
-  survey.pages[2].addNewQuestion("text");
+  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+    var survey = new SurveyModel();
+    survey.maxTimeToFinish = maxTimeToFinish;
+    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.addNewPage("p1");
+    survey.pages[0].addNewQuestion("text");
+    return survey;
+  };
+  var survey = createSurvey(25, 10);
   survey.startTimer();
   let timerModel = survey.timerModel;
   assert.notOk(timerModel.showTimerAsClock);
   survey.css = defaultV2Css;
   assert.ok(timerModel.showTimerAsClock);
+  survey.stopTimer();
+});
+QUnit.test("Check timer when limits are not specified", function(assert) {
+  const createSurvey = (showTimerModelMode: string, maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+    var survey = new SurveyModel();
+    survey.showTimerPanelMode = showTimerModelMode;
+    survey.maxTimeToFinish = maxTimeToFinish;
+    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.addNewPage("p1");
+    survey.pages[0].addNewQuestion("text");
+    return survey;
+  };
+  let survey = createSurvey("all", 0, 0);
+  survey.startTimer();
+  let timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, undefined);
+  assert.strictEqual(timerModel.clockMajorText, "0:00");
+  assert.strictEqual(timerModel.clockMinorText, "0:00");
+  assert.notOk(timerModel.showProgress);
+  doTimer(1);
+  assert.strictEqual(timerModel.clockMajorText, "0:01");
+  assert.strictEqual(timerModel.clockMinorText, "0:01");
+  survey.stopTimer();
 
+  survey = createSurvey("all", 0, 10);
+  survey.startTimer();
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, 0);
+  assert.strictEqual(timerModel.clockMajorText, "0:10");
+  assert.strictEqual(timerModel.clockMinorText, "0:00");
+  assert.ok(timerModel.showProgress);
+  doTimer(1);
+  assert.strictEqual(timerModel.progress, 0.2);
+  assert.strictEqual(timerModel.clockMajorText, "0:09");
+  assert.strictEqual(timerModel.clockMinorText, "0:01");
+  survey.stopTimer();
+
+  survey = createSurvey("all", 25, 0);
+  survey.startTimer();
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, 0);
+  assert.strictEqual(timerModel.clockMajorText, "0:25");
+  assert.strictEqual(timerModel.clockMinorText, "0:00");
+  assert.ok(timerModel.showProgress);
+  doTimer(1);
+  assert.strictEqual(timerModel.progress, 0.08);
+  assert.strictEqual(timerModel.clockMajorText, "0:24");
+  assert.strictEqual(timerModel.clockMinorText, "0:01");
+  survey.stopTimer();
+
+  survey = createSurvey("survey", 0, 0);
+  survey.startTimer();
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, undefined);
+  assert.strictEqual(timerModel.clockMajorText, "0:00");
+  assert.strictEqual(timerModel.clockMinorText, undefined);
+  assert.notOk(timerModel.showProgress);
+  doTimer(1);
+  assert.strictEqual(timerModel.clockMajorText, "0:01");
+  assert.strictEqual(timerModel.clockMinorText, undefined);
+  survey.stopTimer();
+
+  survey = createSurvey("page", 0, 0);
+  survey.startTimer();
+  timerModel = survey.timerModel;
+  timerModel["update"]();
+  assert.strictEqual(timerModel.progress, undefined);
+  assert.strictEqual(timerModel.clockMajorText, "0:00");
+  assert.strictEqual(timerModel.clockMinorText, undefined);
+  assert.notOk(timerModel.showProgress);
+  doTimer(1);
+  assert.strictEqual(timerModel.clockMajorText, "0:01");
+  assert.strictEqual(timerModel.clockMinorText, undefined);
+  survey.stopTimer();
 });

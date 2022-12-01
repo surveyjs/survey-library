@@ -12,6 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -1506,7 +1507,22 @@ export class QuestionSelectBase extends Question {
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
   }
-
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    if(!!this.dropdownListModel) {
+      const listCssClasses = {};
+      mergeValues(css.list, listCssClasses);
+      mergeValues(res.list, listCssClasses);
+      res["list"] = listCssClasses;
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if(this.dropdownListModel) {
+      this.dropdownListModel.updateListCssClasses(classes.list);
+    }
+    return classes;
+  }
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).

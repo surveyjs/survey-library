@@ -534,8 +534,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * A survey element identifier.
-   * 
-   * > NOTE: Question names must be unique. 
+   *
+   * > NOTE: Question names must be unique.
    */
   public get name(): string {
     return this.getPropertyValue("name", "");
@@ -834,7 +834,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   /**
    * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-
    * @see rightIndent
    */
   public get indent(): number {
@@ -845,7 +844,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * Increases or decreases an indent of survey element content from the right edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
-
    * @see indent
    */
   public get rightIndent(): number {

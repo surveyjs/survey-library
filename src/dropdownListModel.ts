@@ -142,13 +142,8 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateListCssClasses() {
-    if(this.listModel) {
-      const cssClasses = {};
-      mergeValues(this.question.survey?.getCss().list, cssClasses);
-      mergeValues(this.question.cssClasses.list, cssClasses);
-      this.listModel.cssClasses = cssClasses;
-    }
+  public updateListCssClasses(listCssClasses: any) {
+    this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
     if(!!this.filterString) {

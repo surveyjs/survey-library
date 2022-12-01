@@ -287,12 +287,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       event.stopPropagation();
     }
   }
-  protected updateElementCssCore(css: any): void {
-    super.updateElementCssCore(css);
-    if(this.dropdownListModel) {
-      this.dropdownListModel.updateListCssClasses();
-    }
-  }
 }
 Serializer.addClass(
   "dropdown",

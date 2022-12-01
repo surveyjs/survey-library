@@ -224,6 +224,9 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
 QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   survey.css = {
+    list: {
+      itemSelected: "original-class-selected"
+    },
     dropdown: {
       list: {
         item: "original-class"
@@ -233,7 +236,8 @@ QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (asser
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
     var classes = options.cssClasses;
     classes.list = {
-      item: classes.list.item += " custom-class"
+      item: classes.list.item += " custom-class",
+      itemSelected: classes.list.itemSelected += " custom-class-selected"
     };
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -242,4 +246,5 @@ QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (asser
   question.onFirstRendering();
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.cssClasses.item, "original-class custom-class");
+  assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });

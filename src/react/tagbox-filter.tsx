@@ -1,8 +1,7 @@
 import * as React from "react";
-import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
+import { DropdownMultiSelectListModel, QuestionTagboxModel, Helpers } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyElementBase } from "./reactquestion_element";
-import { Helpers } from "../helpers";
 
 interface ITagboxFilterProps {
   model: DropdownMultiSelectListModel;
@@ -61,6 +60,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       disabled={this.question.isInputReadOnly}
       readOnly={!this.model.searchEnabled ? true : undefined}
       size={!this.model.filterString ? 1 : undefined}
+      aria-label={this.question.placeholder}
       placeholder={this.model.filterStringPlaceholder}
       onKeyDown={(e) => { this.keyhandler(e); }}
       onChange={(e) => { this.onChange(e); }}

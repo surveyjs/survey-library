@@ -12,7 +12,8 @@
       </div>
       <div *ngIf="model.showErrorOnBottom && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
       <div *ngIf="model.isErrorsModeTooltip && model.hasVisibleErrors" [element]="model" [location]="'tooltip'" sv-ng-errors></div>
-    </div>
+      <div *ngIf="model.hasDescriptionUnderInput" [class]="model.cssDescription" [model]="model.locDescription" sv-ng-string></div>
+  </div>
     <div [element]="model" *ngIf="model.hasTitleOnBottom" sv-ng-element-header></div>
     <div *ngIf="model.showErrorsBelowQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
   </div>

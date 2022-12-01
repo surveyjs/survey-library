@@ -18,9 +18,7 @@ Follow the steps below:
 - [Display Quiz Results](#display-quiz-results)
 - [Render the Quiz](#render-the-quiz)
 
-[View the "Quiz" Example Source Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle)) 
-[View the "Quiz" Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle)) 
-[View the "Review Quiz results" Demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle)) 
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
 
 ## Configure Questions
 
@@ -110,7 +108,7 @@ const surveyJson = {
 ```
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -193,7 +191,7 @@ const surveyJson = {
 ```
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -285,7 +283,7 @@ const surveyJson = {
 The `completedHtml` and `completedHtmlOnCondition` properties can be used together. In this case, if none of the `completedHtmlOnCondition` expressions evaluate to `true`, the complete page displays the HTML markup from the `completedHtml` property.
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -364,7 +362,7 @@ Refer to the following platform-specific articles for information on how to rend
 - [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
 - [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
 
 ## See Also
 

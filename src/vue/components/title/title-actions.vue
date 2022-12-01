@@ -18,13 +18,14 @@ import { Component, Prop } from "vue-property-decorator";
 import {
   Action,
   AdaptiveActionContainer,
-  ISurveyElement,
+  Question,
+  PanelModel,
   RendererFactory,
 } from "survey-core";
 
 @Component
 export class TitleActions extends Vue {
-  @Prop() element: ISurveyElement;
+  @Prop() element: Question | PanelModel;
   @Prop() css: any;
   constructor() {
     super();

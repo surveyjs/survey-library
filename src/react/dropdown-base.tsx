@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Question, DropdownListModel } from "survey-core";
-import { Helpers } from "../helpers";
+import { Helpers, Question, DropdownListModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
@@ -97,6 +96,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}
            className={ this.question.cssClasses.filterStringInput }
+           aria-label={this.question.placeholder}
            placeholder= { this.question.readOnlyText }
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }
@@ -109,7 +109,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      </div>);
    }
 
-   createClearButton(): JSX.Element {
+   createClearButton(): JSX.Element | null {
      if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
      const style = { display: this.question.isEmpty() ? "none" : "" };

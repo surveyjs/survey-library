@@ -18,7 +18,7 @@
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth, width: survey.renderedWidth}">
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}">
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"
@@ -28,11 +28,6 @@
               :key="pageId"
               :survey="vueSurvey"
               :page="vueSurvey.activePage"
-              :css="css"
-            />
-            <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
-              :timerModel="vueSurvey.timerModel"
               :css="css"
             />
             <component
@@ -48,6 +43,11 @@
             />
           </div>
         </template>
+        <survey-timerpanel
+              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
+              :timerModel="vueSurvey.timerModel"
+              :css="css"
+            />
         <div v-if="hasCompletedPage">
           <div
             v-html="getProcessedCompletedHtml()"
@@ -88,8 +88,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp } from "survey-core";
-import { IAttachKey2clickOptions } from "../utils/utils";
+import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp, IAttachKey2clickOptions } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -109,7 +108,7 @@ export class Survey extends BaseVue {
     super();
     if(this.vueSurvey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
-    } 
+    }
   }
   protected getModel(): Base {
     return this.vueSurvey;
@@ -126,7 +125,7 @@ export class Survey extends BaseVue {
   forceUpdate() {
     this.updater += 1;
     this.$forceUpdate();
-  }  
+  }
   protected onMounted() {
     this.surveyOnMounted();
   }
@@ -143,7 +142,7 @@ export class Survey extends BaseVue {
     };
     this.vueSurvey.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => {
       Vue.delete(valuesHash, key);
-    }
+    };
     this.vueSurvey.renderCallback = this.forceUpdate;
     this.vueSurvey.startTimerFromUI();
   }
@@ -191,11 +190,6 @@ Object.defineProperty(Survey, "cssType", {
   configurable: false,
 });
 
-export function attachKey2click( evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }) {
-  evt.preventDefault();
-  evt.stopPropagation();
-  doKey2ClickUp(evt, options);
-}
 
 Vue.component("survey", Survey);
 export default Survey;

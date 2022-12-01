@@ -1,7 +1,5 @@
 import QuestionDateModel from "../question_date";
-import { Question } from "../../question";
-import { Serializer } from "../../jsonobject";
-import { QuestionFactory } from "../../questionfactory";
+import { Question, Serializer, QuestionFactory } from "survey-core";
 import { QuestionImplementor } from "../../knockout/koquestion";
 
 export class QuestionDateImplementor extends QuestionImplementor {

@@ -3,7 +3,7 @@
     <component v-if="!question" :is="tagName">
       <survey-flowpanelelement
         v-for="elNode in nodes"
-        :key="elNode.elementId"
+        :key="elementId"
         :node="elNode"
         :panel="panel"
         css="css"
@@ -49,7 +49,7 @@ export class FlowPanelElement extends Vue {
   public nodes: Array<Node> = [];
   public text: string = "";
   public style: any = {};
-
+  
   private getStyle(nodeType: string) {
     var style: any = {};
     if (nodeType.toLowerCase() === "b") {

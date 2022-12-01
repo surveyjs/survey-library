@@ -1,6 +1,6 @@
 import Vue from "vue";
-import { Base } from "survey-core";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Base, IAttachKey2clickOptions, doKey2ClickUp } from "survey-core";
+import { Component } from "vue-property-decorator";
 
 @Component
 export class BaseVue extends Vue {
@@ -62,6 +62,12 @@ export class BaseVue extends Vue {
   destroyed() {
     this.onDestroyed();
   }
+}
+
+export function attachKey2click(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
+  evt.preventDefault();
+  evt.stopPropagation();
+  doKey2ClickUp(evt, options);
 }
 
 export default BaseVue;

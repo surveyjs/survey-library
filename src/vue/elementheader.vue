@@ -13,11 +13,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElement, doKey2ClickUp } from "survey-core";
+import { SurveyElement, Question, PanelModel, doKey2ClickUp } from "survey-core";
 
 @Component
 export class ElementHeader extends Vue {
-  @Prop() element: SurveyElement;
+  @Prop() element: Question | PanelModel;
   @Prop() css: any;
   
   clickTitleFunction() {

@@ -1,7 +1,6 @@
 import React from "react";
-import { SurveyElementCore } from "survey-core";
+import { SurveyElementCore, ITitleOwner } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { ITitleOwner } from "survey-core";
 
 export class TitleContent extends React.Component<any, any> {
   constructor(props: any) {
@@ -29,7 +28,7 @@ export class TitleContent extends React.Component<any, any> {
         </span>
       );
     };
-    var spans = [];
+    var spans: Array<JSX.Element> = [];
     if (element.isRequireTextOnStart) {
       spans.push(this.renderRequireText(element, cssClasses));
       spans.push(getSpaceSpan("req-sp"));

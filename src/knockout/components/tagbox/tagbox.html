@@ -24,6 +24,7 @@
        attr: { 
         size: !model.filterString ? 1 : null, 
         id: question.getInputId(), 
+        'aria-label': question.placeholder,
         placeholder: model.filterStringPlaceholder, 
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 

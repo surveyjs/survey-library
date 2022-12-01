@@ -3,10 +3,9 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionRankingModel, SurveyModel } from "survey-core";
+import { QuestionRankingModel, SurveyModel, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   protected get question(): QuestionRankingModel {
@@ -17,7 +16,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     return (
       <div
         className={this.question.rootClass}
-        ref={(root) => (this.control = root)}
+        ref={(root) => (this.setControl(root))}
       >
         {this.getItems()}
       </div>
@@ -25,7 +24,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   }
 
   protected getItems(): Array<any> {
-    const items = [];
+    const items: Array<JSX.Element> = [];
     const rankingChoices = this.question.rankingChoices;
     for (let i = 0; i < rankingChoices.length; i++) {
       const item = rankingChoices[i];
@@ -84,7 +83,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
       />
     );
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem = null;
+    let wrappedItem: JSX.Element | null = null;
     if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }

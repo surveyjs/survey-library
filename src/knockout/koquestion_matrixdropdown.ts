@@ -91,6 +91,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
           cell.question.customWidget.willUnmount(cell.question, el);
         });
       }
+      ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
+        cell.question.beforeDestroyQuestionElement(el);
+      });
       cell.question.afterRenderQuestionElement(el);
     }, 0);
   }

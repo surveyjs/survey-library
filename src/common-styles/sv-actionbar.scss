@@ -110,6 +110,15 @@ button.sv-action-bar-item {
   background-color: $background-dim;
 }
 
+.sv-action-bar-item--active.sv-action-bar-item--pressed {
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    // background-color: $background-dim;
+  }
+}
+
 //pressed state
 .sv-action-bar-item:not(.sv-action-bar-item--pressed):active {
   opacity: 0.5;

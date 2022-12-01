@@ -1,0 +1,10 @@
+{
+  "folders": [
+    "design-survey"
+  ],
+  "rename": {
+    "design-survey-question-titles": "design-survey-configure-question-titles",
+    "design-survey-predefine-answers": "design-survey-pre-populate-form-fields",
+    "localization": "survey-localization"
+  }
+}

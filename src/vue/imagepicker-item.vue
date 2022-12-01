@@ -75,12 +75,12 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { QuestionImagePickerModel } from "survey-core";
+import { QuestionImagePickerModel, ImageItemValue } from "survey-core";
 
 @Component
 export class ImagePickerItem extends QuestionVue<QuestionImagePickerModel> {
   @Prop() question: QuestionImagePickerModel;
-  @Prop() item: ImagePickerItem;
+  @Prop() item: ImageItemValue;
   getItemClass(item: any) {
     return this.question.getItemClass(item);
   }

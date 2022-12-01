@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "es2015",
+    "lib": [
+      "DOM",
+      "ES5",
+      "ES2015.Promise",
+      "es6"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "./src/entries/core.ts"
+      ]
+    },
+    "types": [
+      "vite/client",
+      "node",
+    ],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "Node",
+    "outFile": "build/survey-vue/survey-vue.d.ts",
+  },
+  "include": [
+    "src/entries/vue.ts"
+  ]
+}

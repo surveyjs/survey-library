@@ -264,7 +264,15 @@ export class QuestionRatingModel extends Question {
   * - `"dropdown"` - Displays rate values as items in a drop-down list.
   * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.
   */
-  @property({ defaultValue: "auto", onSet: (val, target) => { } }) displayMode: "dropdown" | "buttons" | "auto";
+  @property({ defaultValue: "auto", onSet: (val: string, target: QuestionRatingModel) => {
+    if(!target.isDesignMode) {
+      if(val === "dropdown") {
+        target.renderAs = "dropdown";
+      } else {
+        target.renderAs = "default";
+      }
+    }
+  } }) displayMode: "dropdown" | "buttons" | "auto";
 
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
@@ -345,7 +353,6 @@ export class QuestionRatingModel extends Question {
     const rateMin = this.getPropertyValue("rateMin");
     return this.displayMode != "dropdown" && !!(this.hasMinRateDescription ||
       this.hasMaxRateDescription ||
-      rateValues.length > 0 ||
       (rateStep && (rateMax - rateMin) / rateStep > 9));
   }
 

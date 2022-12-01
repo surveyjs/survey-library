@@ -5,12 +5,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { SurveyElement } from "survey-core";
+import { SurveyElement, Question, PanelModel } from "survey-core";
 import { BaseVue } from "../base";
 
 @Component
 export class Skeleton extends BaseVue {
-  @Prop() element: SurveyElement;
+  @Prop() element: Question | PanelModel;
   constructor() {
     super();
   }

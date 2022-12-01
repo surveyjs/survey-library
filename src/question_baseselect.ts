@@ -480,7 +480,7 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected updateSelectedItemValues(): void {
-    if(!!this.survey && !this.isEmpty() && this.choices.length === 0) {
+    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
       const IsMultipleValue = this.getIsMultipleValue();
 
       this.survey.getChoiceDisplayValue({
@@ -489,7 +489,7 @@ export class QuestionSelectBase extends Question {
         setItems: (displayValues: Array<string>) => {
           if (!displayValues || !displayValues.length) return;
 
-          if(IsMultipleValue) {
+          if (IsMultipleValue) {
             this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
           } else {
             this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
@@ -542,7 +542,7 @@ export class QuestionSelectBase extends Question {
    *
    * ```js
    * {
-   *   "value": any, // A value to be saved in the survey results
+   *   "value": any, // A unique value to be saved in the survey results.
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
    *   "customProperty": any // Any property that you find useful

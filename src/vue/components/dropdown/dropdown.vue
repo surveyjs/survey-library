@@ -40,8 +40,7 @@
           :readonly="!model.searchEnabled ? true : null"
           :aria-label="question.placeholder"
           :placeholder="question.readOnlyText"
-          @change="inputChange"
-          @keyup="inputKeyHandler"
+          @input="inputChange"
           @blur="blur"
         />
       </div>
@@ -93,9 +92,6 @@ export class DropdownComponent extends BaseVue {
   }
 
   inputChange(event: any) {
-    this.model.filterString = event.target.value;
-  }
-  inputKeyHandler(event: any) {
     this.model.filterString = event.target.value;
   }
 

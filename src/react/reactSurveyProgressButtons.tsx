@@ -88,7 +88,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     return this.progressButtonsModel.getScrollButtonCss(this.state.hasScroller, isLeftScroll);
   }
   protected clickScrollButton(
-    listContainerElement: Element,
+    listContainerElement: Element | null,
     isLeftScroll: boolean
   ): void {
     if(!!listContainerElement) {

@@ -1,8 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
-import { QuestionRatingModel } from "survey-core";
-import { RenderedRatingItem } from "survey-core";
+import { QuestionRatingModel, RenderedRatingItem } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
 export class SurveyQuestionRating extends SurveyQuestionElementBase {
@@ -26,7 +25,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       ? this.renderLocString(this.question.locMaxRateDescription)
       : null;
     return (
-      <div className={this.question.ratingRootCss} ref={(div) => (this.control = div)}>
+      <div className={this.question.ratingRootCss} ref={(div) => (this.setControl(div))}>
         <fieldset role="radiogroup">
           <legend role="presentation" className={"sv-hidden"}></legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}

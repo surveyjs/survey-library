@@ -40,7 +40,7 @@ import Vue from "vue";
 import { SurveyElementCore } from "survey-core";
 @Component
 export class TitleContent extends Vue {
-  @Prop() element: SurveyElementCore;
+  @Prop() element: any;
   @Prop() css: any;
 
 }

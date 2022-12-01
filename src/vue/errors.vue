@@ -24,11 +24,11 @@
 import Vue from "vue";
 import { BaseVue } from "./base";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElement, TooltipManager, Base } from "survey-core";
+import { SurveyElement, TooltipManager, Base, Question, PanelModel } from "survey-core";
 
 @Component
 export class Errors extends BaseVue {
-  @Prop() element: SurveyElement;
+  @Prop() element: Question | PanelModel;
   @Prop() location: String;
   private tooltipManager: TooltipManager;
   protected getModel(): Base {

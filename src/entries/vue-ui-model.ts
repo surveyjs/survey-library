@@ -19,6 +19,7 @@ export { CheckboxItem } from "../vue/checkboxitem.vue";
 export { ButtonGroup } from "../vue/buttongroup.vue";
 export { ButtonGroupItem } from "../vue/buttongroupitem.vue";
 export { QuestionText } from "../vue/text.vue";
+export { QuestionTextInput } from "../vue/text-input.vue";
 export { Boolean } from "../vue/boolean";
 export { BooleanSwitch } from "../vue/boolean-switch.vue";
 export { BooleanCheckbox } from "../vue/boolean-checkbox.vue";

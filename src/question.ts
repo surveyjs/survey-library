@@ -442,7 +442,7 @@ export class Question extends SurveyElement<Question>
    * - `"left"` - Displays the title to the left of the input field.
    * - `"hidden"` - Hides the question title.
    *
-   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+   * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    * @see SurveyModel.questionTitleLocation
    * @see getTitleLocation
    * @see isAllowTitleLeft
@@ -678,7 +678,9 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
-  public beforeDestroyQuestionElement(el: HTMLElement): void { }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.commentElement = undefined;
+  }
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;
@@ -1119,10 +1121,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * A question number or letter (depends on SurveyModel's `questionStartIndex` property).
+   * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
    *
-   * For invisible questions, this property returns an empty string.
+   * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
+   * @see hideNumber
+   * @see titleLocation
+   * @see visibleIf
    */
   public get no(): string {
     return this.getPropertyValue("no");
@@ -1892,7 +1897,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > NOTE: This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
    *
    * @see hasErrors
    */

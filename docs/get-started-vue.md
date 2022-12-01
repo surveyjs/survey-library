@@ -2,7 +2,7 @@
 title: Vue.js Form Library | Getting Started Guide
 description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Vue.js application.
 ---
-# Add a Survey to a Vue Application
+# Add a Survey to a Vue.js Application
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue application. To add a survey to your Vue application, follow the steps below:
 
@@ -20,7 +20,7 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue" target="_blank">Get Started with SurveyJS - Vue</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue (linkStyle))
 
 ## Install the `survey-vue-ui` npm Package
 
@@ -110,7 +110,7 @@ export default {
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 <template>
@@ -183,7 +183,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 <template>
@@ -309,7 +309,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 To view the application, run `npm run serve` in a command line and open [http://localhost:8080/](http://localhost:8080/) in your browser.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 <template>
@@ -359,7 +359,7 @@ export default {
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue (linkStyle))
 
 ## Further Reading
 

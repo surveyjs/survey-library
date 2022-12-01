@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "es2015",
+    "lib": [
+      "DOM",
+      "ES5",
+      "ES2015.Promise",
+      "es6"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "./src/entries/core.ts"
+      ]
+    },
+    "sourceMap": false,
+    "noImplicitAny": false,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "outFile": "build/survey-angular/survey-angular.d.ts"
+  },
+  "include": [
+    "src/entries/angular.ts"
+  ],
+}

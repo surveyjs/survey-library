@@ -57,24 +57,24 @@ const surveyJson = {
 
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
-| Question Type | Syntax |
-| ------------- | ------ |
-| [Multiple Text](/Documentation/Library?id=questionmultipletextmodel) | `{questionname.itemname}` |
-| [Matrix](/Documentation/Library?id=questionmatrixmodel) | `{questionname.rowname}` |
+| Question Type                                                            | Syntax                              |
+| ------------------------------------------------------------------------ | ----------------------------------- |
+| [Multiple Text](/Documentation/Library?id=questionmultipletextmodel)     | `{questionname.itemname}`           |
+| [Matrix](/Documentation/Library?id=questionmatrixmodel)                  | `{questionname.rowname}`            |
 | [Matrix Dropdown](/Documentation/Library?id=questionmatrixdropdownmodel) | `{questionname.rowname.columnname}` |
 
-[View the "Complex Questions in Expressions" Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
+[View Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
 
 In dynamic questions, use a zero-based index to access a specific value (question or cell):
 
-| Question Type | Syntax |
-| ------------- | ------ |
-| [Panel Dynamic](/Documentation/Library?id=questionpaneldynamicmodel) | `{dynamicpanelname[index].questionname}` |
+| Question Type                                                          | Syntax                                     |
+| ---------------------------------------------------------------------- | ------------------------------------------ |
+| [Panel Dynamic](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
 | [Matrix Dynamic](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
 
 In addition, Matrix questions support a `row` prefix that allows you to access cells on the same row: `{row.columnname}`. Similarly, you can use a `panel` prefix to access questions in the same Panel: `{panel.questionName}`.
 
-[View the "Conditions in Dynamic Questions" Demo](/Examples/Library?id=condition-dynamic (linkStyle))
+[View Demo](/Examples/Library?id=condition-dynamic (linkStyle))
 
 ### Variables
 
@@ -138,7 +138,7 @@ const surveyJson = {
 };
 ```
 
-[View the "Use Calculated Values" Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=survey-calculatedvalues (linkStyle))
 
 ## Expressions
 
@@ -146,21 +146,21 @@ Expressions allow you to add logic to your survey and perform calculations right
 
 SurveyJS supports the following expression types:
 
-- **String expression**   
+- String expression   
   An expression that evaluates to a string value. The following string expression evaluates to `"Adult"` if the [`age`](#age) function returns a value of 21 or higher; otherwise, the expression evaluates to `"Minor"`:
 
     ```js
     "expression": "iif(age({birthdate}) >= 21, 'Adult', 'Minor')"
     ```
 
-- **Numeric expression**    
+- Numeric expression    
   An expression that evaluates to a number. The following numeric expression evaluates to the sum of the `total1` and `total2` question values:
 
     ```js
     "expression": "sum({total1}, {total2})"
     ```
 
-- **Boolean expression**    
+- Boolean expression    
   An expression that evaluates to `true` or `false`. Boolean expressions are widely used to implement conditional logic. Refer to the following help topic for more information: [Conditional Visibility](#conditional-visibility).
 
 Expressions can include question names, variables, and calculated values (described in the [Dynamic Texts](#dynamic-texts) section). Plus, expressions can use [built-in](#built-in-functions) and [custom functions](#custom-functions).
@@ -207,7 +207,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 *Example*: `"expression": "iif({question1} + {question2} > 20, 'High', 'Low')"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L205-L209)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L205-L209 (linkStyle))
 
 ---
 
@@ -219,7 +219,7 @@ Returns `true` if all questions in a given panel or page have valid input; other
 
 *Example*: `"expression": "isContainerReady('page1')"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L232-L245)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L232-L245 (linkStyle))
 
 ---
 
@@ -231,7 +231,7 @@ Returns `true` if the survey is in display or preview mode.
 
 *Example*: `"expression": "isDisplayMode()"` 
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250 (linkStyle))  
 
 ---
 
@@ -243,7 +243,7 @@ Returns age according to a given birthdate. The date argument (which is typicall
 
 *Example*: `"expression": "age({birthdate})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230 (linkStyle))  
 
 ---
 
@@ -255,7 +255,7 @@ Returns the current date and time.
 
 *Example*: `"expression": "currentDate()"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L252-L255)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L252-L255 (linkStyle))  
 
 ---
 
@@ -270,7 +270,7 @@ Returns the current date or a date shifted from the current by a given number of
 - `"expression": "today()"`
 - `"expression": "today(2)"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))  
 
 ---
 
@@ -282,7 +282,7 @@ Returns a Date value converted from a given question's value.
 
 *Example*: `"expression": "getDate({birthdate})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L211-L216)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L211-L216 (linkStyle))  
 
 ---
 
@@ -294,7 +294,7 @@ Returns the number of days between two given dates.
 
 *Example*: `"expression": "diffDays({startDate}, {endDate}) < 7"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L266-L274)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L266-L274 (linkStyle))
 
 ---
 
@@ -306,7 +306,7 @@ Returns the sum of passed numbers.
 
 *Example*: `"expression": "sum({total1}, {total2})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250 (linkStyle))
 
 ---
 
@@ -318,7 +318,7 @@ Returns the maximum of passed numbers.
 
 *Example*: `"expression": "max({total1}, {total2})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L106-L109)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L106-L109 (linkStyle))
 
 ---
 
@@ -330,7 +330,7 @@ Returns the minimum of passed numbers.
 
 *Example*: `"expression": "min({total1}, {total2})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L101-L104)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L101-L104 (linkStyle))
 
 ---
 
@@ -342,7 +342,7 @@ Returns the average of passed numbers.
 
 *Example*: `"expression": "avg({total1}, {total2}, {total3})"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L118-L127)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L118-L127 (linkStyle))
 
 ---
 
@@ -354,7 +354,8 @@ Returns the sum of numbers in an array taken from a given question property.
 
 *Example*: `"expression": "sumInArray({matrixdynamic1}, 'total') > 1000"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171) | [View example](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js (linkStyle))
 
 ---
 
@@ -366,7 +367,7 @@ Returns the maximum of numbers in an array taken from a given question property.
 
 *Example*: `"expression": "maxInArray({matrixdynamic4}, 'quantity') > 20"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187 (linkStyle))
 
 ---
 
@@ -378,7 +379,7 @@ Returns the minimum of numbers in an array taken from a given question property.
 
 *Example*: `"expression": "minInArray({matrixdynamic3}, 'quantity') > 5"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179 (linkStyle))
 
 ---
 
@@ -390,7 +391,7 @@ Returns the average of numbers in an array taken from a given question property.
 
 *Example*: `"expression": "avgInArray({matrixdynamic2}, 'quantity') > 10"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203)  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203 (linkStyle))  
 
 ---
 
@@ -402,7 +403,7 @@ Returns the total number of items in an array taken from a given question proper
 
 *Example*: `"expression": "countInArray({matrixdynamic5}) > 10"`
 
-[View implementation](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196)
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196 (linkStyle))
 
 ### Custom Functions
 
@@ -457,8 +458,9 @@ function age(params: any[]): any {
 FunctionFactory.Instance.register("age", age);
 ```
 
-[View source code on GitHub](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230)
-[View the "Use custom function in expressions" Demo](https://surveyjs.io/form-library/examples/condition-customfunctions/ (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230 (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/condition-customfunctions/ (linkStyle))
+
 #### Access Survey Elements Within a Custom Function
 
 You can access any survey element via a [survey instance](https://surveyjs.io/Documentation/Library?id=surveymodel). Use the `this.survey` property to get the survey instance within your custom function implementation. This property allows you to design your function so that it accepts a survey element name as a parameter:
@@ -497,7 +499,7 @@ import { FunctionFactory } from "survey-core";
 FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 ```
 
-[View the "Async Function in Expression" Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
 
 ## Conditional Visibility
 
@@ -507,16 +509,16 @@ A survey parses and runs all expressions on startup. If a Boolean expression eva
 
 The following table shows examples of Boolean expressions:
 
-| Expression | Description |
-| ---------- | ----------- |
-| `"{age} >= 21"` | Evaluates to `true` if the `"age"` question has a value of 21 or higher. |
-| `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} = 'yes'"`  | The `or` and `and` operators combine two or more conditions. |
-| `"!({isLoyal} = 'yes' and ({rank1} + {rank2} + {rank3}) > 21)"` | The `!` or `not` operator reverts the result. |
-| `"{name} notempty"` | Evaluates to `true` if the `"name"` question has any value. |
-| `"{name} empty"` | Evaluates to `true` if the `"name"` question has no value. |
-| `"{speakinglanguages} = ['English', 'Spanish']"` | Evaluates to `true` if strictly English and Spanish are selected in the `"speakinglanguages"` question. If one of the languages is not selected or other languages are selected too, the expression evaluates to `false`. |
-| `"{speakinglanguages} contains 'Spanish'"` | Evaluates to `true` if Spanish is selected. Other languages may or may not be selected. |
-| `"age({birthdate}) >= 21"` | Evaluates to `true` if the `age` function returns 21 or higher. |
+| Expression                                                      | Description                                                                                                                                                                                                               |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"{age} >= 21"`                                                 | Evaluates to `true` if the `"age"` question has a value of 21 or higher.                                                                                                                                                  |
+| `"({rank1} + {rank2} + {rank3}) > 21 and {isLoyal} = 'yes'"`    | The `or` and `and` operators combine two or more conditions.                                                                                                                                                              |
+| `"!({isLoyal} = 'yes' and ({rank1} + {rank2} + {rank3}) > 21)"` | The `!` or `not` operator reverts the result.                                                                                                                                                                             |
+| `"{name} notempty"`                                             | Evaluates to `true` if the `"name"` question has any value.                                                                                                                                                               |
+| `"{name} empty"`                                                | Evaluates to `true` if the `"name"` question has no value.                                                                                                                                                                |
+| `"{speakinglanguages} = ['English', 'Spanish']"`                | Evaluates to `true` if strictly English and Spanish are selected in the `"speakinglanguages"` question. If one of the languages is not selected or other languages are selected too, the expression evaluates to `false`. |
+| `"{speakinglanguages} contains 'Spanish'"`                      | Evaluates to `true` if Spanish is selected. Other languages may or may not be selected.                                                                                                                                   |
+| `"age({birthdate}) >= 21"`                                      | Evaluates to `true` if the `age` function returns 21 or higher.                                                                                                                                                           |
 
 You should use different properties to specify the visibility of [questions](#question-visibility) and [items (choices, rows, columns)](#item-visibility-choices-columns-rows).
 
@@ -538,8 +540,7 @@ const surveyJson = {
 
 If you do not specify the `visibleIf`, `enableIf`, and `requiredIf` properties, an element's state depends on the [`isVisible`](/Documentation/Library?id=Question#isVisible), [`isReadOnly`](/Documentation/Library?id=Question#isReadOnly), and [`isRequired`](/Documentation/Library?id=Question#isRequired) properties. You can specify them at design time or use them to get or set the current state at runtime. If you set one of these properties for a panel or page, all nested questions inherit the setting.
 
-[View the "Conditional Visibility" Demo](/Examples/Library?id=condition-kids (linkStyle))
-[View the "Enable/Disable Elements" Demo](/Examples/Library?id=condition-enable-kids (linkStyle))
+[View Demo](/Examples/Library?id=condition-kids (linkStyle))
 
 ### Item Visibility (Choices, Columns, Rows)
 
@@ -595,9 +596,6 @@ const surveyJson = {
   }]
 }
 ```
-
-[View Matrix Demo](https://surveyjs.io/Examples/Library?id=condition-matrixVisibleIf (linkStyle))
-[View Matrix Dropdown Demo](https://surveyjs.io/Examples/Library?id=condition-matrixDropdownVisibleIf (linkStyle))
 
 ## Conditional Survey Logic (Triggers)
 

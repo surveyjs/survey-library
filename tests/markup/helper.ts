@@ -87,6 +87,12 @@ export function testQuestionMarkup(assert, test, platform) {
   if (test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
+  platform.survey.getAllQuestions().map((q, i) => {
+    q.id = "testid" + i;
+  });
+  platform.survey.getAllPanels().map((p, i) => {
+    p.id = "testidp" + i;
+  });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
     setTimeout(()=>{
@@ -225,14 +231,14 @@ function clearClasses(el: Element) {
 }
 
 function clearAttributes(el: Element) {
-  el.removeAttribute("aria-labelledby");
+  //el.removeAttribute("aria-labelledby");
   el.removeAttribute("data-bind");
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");
-  el.removeAttribute("id");
-  el.removeAttribute("aria-describedby");
+  //el.removeAttribute("id");
+  //el.removeAttribute("aria-describedby");
   el.removeAttribute("for");
-  if(el.getAttribute("list")) el.removeAttribute("list");
+  //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("name") !== "name")
     el.removeAttribute("name");

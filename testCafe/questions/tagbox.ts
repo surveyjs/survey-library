@@ -331,7 +331,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`).only("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [

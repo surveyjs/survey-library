@@ -309,7 +309,7 @@ function mergeValues(src: any, dest: any) {
   }
 }
 
-class Logger {
+export class Logger {
   private _result = "";
   public log(action: string) {
     this._result += "->" + action;
@@ -339,5 +339,4 @@ export {
   getOriginalEvent,
   preventDefaults,
   findParentByClassNames,
-  Logger
 };

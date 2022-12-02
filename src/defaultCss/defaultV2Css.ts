@@ -4,6 +4,9 @@ export var surveyCss: any = {
     var loc = this.currentType ? this[this.currentType] : defaultV2Css;
     if (!loc) loc = defaultV2Css;
     return loc;
+  },
+  getAvailableThemes: function() {
+    return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
   }
 };
 

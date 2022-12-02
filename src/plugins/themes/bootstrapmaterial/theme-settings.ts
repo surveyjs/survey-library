@@ -1,4 +1,5 @@
 import { StylesManager, surveyCss } from "survey-core";
+import { setMediaStyles, setStyles } from "../common-theme-settings";
 import { defaultBootstrapMaterialCss } from "./cssbootstrapmaterial";
 
 export const bootstrapMaterialThemeName = "bootstrapmaterial";
@@ -98,6 +99,9 @@ export const bootstrapMaterialThemeCssRules = {
 
   ".sv-skeleton-element": "background-color: $background-dim;",
 };
+
+setStyles();
+setMediaStyles();
 
 StylesManager.ThemeColors[bootstrapMaterialThemeName] = bootstrapMaterialThemeColors;
 StylesManager.ThemeCss[bootstrapMaterialThemeName] = bootstrapMaterialThemeCssRules;

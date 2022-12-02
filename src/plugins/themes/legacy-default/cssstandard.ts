@@ -1,3 +1,5 @@
+import { setMediaStyles, setStyles } from "../common-theme-settings";
+
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
   container: "sv_container",
@@ -353,3 +355,6 @@ export var defaultStandardCss = {
     filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input"
   },
 };
+
+setStyles();
+setMediaStyles();

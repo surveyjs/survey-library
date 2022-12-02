@@ -1,6 +1,6 @@
 import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { StylesManager } from "survey-core";
-import { modernThemeName } from "../../../../../../src/entries/plugins";
+import { modernThemeName } from "survey-core/plugins/survey-modern-theme";
 import { TestComponent } from "./test.component";
 @Component({
   selector: "test-modern",

@@ -1,4 +1,6 @@
 import { StylesManager } from "survey-core";
-import { defaultThemeName } from "./standard-theme-settings";
+import { stoneThemeName } from "./stone-theme-settings";
+export * from "./stone-theme-settings";
+export * from "./cssstandard";
 
-StylesManager.applyTheme(defaultThemeName);
+StylesManager.applyTheme(stoneThemeName);

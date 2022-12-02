@@ -4,7 +4,7 @@ import * as SurveyCore from "survey-core";
 import { TestComponent } from "./test.component";
 import * as widgets from "surveyjs-widgets";
 import "icheck";
-import { defaultThemeName } from "../../../../../../src/entries/plugins";
+import { defaultThemeName } from "survey-core/plugins/survey-default-theme";
 @Component({
   selector: "test-default",
   templateUrl: "./test.component.html",

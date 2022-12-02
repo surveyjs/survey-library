@@ -1,6 +1,6 @@
 import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import {  StylesManager } from "survey-core";
-import { defaultThemeName } from "../../../../../../src/entries/plugins";
+import { defaultThemeName } from "survey-core/plugins/survey-default-theme";
 import { TestComponent } from "./test.component";
 
 @Component({

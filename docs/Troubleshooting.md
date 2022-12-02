@@ -25,3 +25,11 @@ Survey elements become invisible when their [visible](https://surveyjs.io/form-l
 ### Survey uses an unregistered custom question component
 
 If you implement a custom question component, add it to the survey's `ComponentCollection`. For more information, refer to the following help topic: [Create Specialized Question Types](https://surveyjs.io/survey-creator/documentation/create-specialized-question-types).
+
+## Answers are duplicated
+
+**Issue**: When a user answers a question, the answer is copied to another question.
+
+**Solution**: Survey uses a question's [`name`](https://surveyjs.io/form-library/documentation/question#name) property value to identify the question and differentiate it from other questions. If you set the same `name` for multiple questions, Survey considers them the same question and copies answers between them. To resolve this issue, specify a unique `name` for each question in your survey.
+
+> If answer duplication is desired behavior, use the [`copyvalue`](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#copyvalue) trigger to implement it.

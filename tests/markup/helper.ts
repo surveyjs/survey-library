@@ -93,6 +93,14 @@ export function testQuestionMarkup(assert, test, platform) {
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.getAllQuestions().map((q, i) => {
     q.id = "testid" + i;
+    if(q.getType() === "paneldynamic") {
+      q.panels.forEach((p, j) => {
+        p.id = q.id + "panel" + j;
+        p.questions.forEach((pq, k)=> {
+          pq.id = p.id + "question" + k;
+        });
+      });
+    }
   });
   platform.survey.getAllPanels().map((p, i) => {
     p.id = "testidp" + i;

@@ -21,9 +21,10 @@ export class SurveyTimerPanel extends ReactSurveyElement {
     let result = <div className={this.timerModel.survey.getCss().timerRoot}>{this.timerModel.text}</div>;
     if(this.timerModel.showTimerAsClock) {
       let style = { strokeDasharray: this.circleLength, strokeDashoffset: this.progress };
+      const progress = (this.timerModel.showProgress ? <SvgIcon className={this.timerModel.getProgressCss()} style={style} iconName={"icon-timercircle"} size={"auto"}></SvgIcon>: null);
       result =
       (<div className={this.timerModel.rootCss}>
-        <SvgIcon className={this.timerModel.getProgressCss()} style={style} iconName={"icon-timercircle"} size={"auto"}></SvgIcon>
+        {progress}
         <div className={this.timerModel.textContainerCss}>
           <span className={this.timerModel.majorTextCss}>{this.timerModel.clockMajorText }</span>
           {(this.timerModel.clockMinorText ? <span className={this.timerModel.minorTextCss}>{this.timerModel.clockMinorText }</span> : null)}

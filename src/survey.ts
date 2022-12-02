@@ -44,6 +44,7 @@ import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1050,6 +1051,15 @@ export class SurveyModel extends SurveyElementCore
   public onGetPageTitleActions: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
   >();
+  /**
+   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   *
+   * - `sender` - A Survey that raised the event.
+   * - `options.panel` - A Panel whose actions are being modified.
+   * - `options.actions` - An array of panel [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it.
+   * - `options.question` - A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel.
+   */
+  public onGetPanelFooterActions: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    *- `sender` - A survey object that fires the event.
@@ -4605,7 +4615,17 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
-
+  public getUpdatedPanelFooterActions(
+    panel: PanelModel,
+    actions: Array<IAction>, question?: QuestionPanelDynamicModel): Array<IAction> {
+    var options = {
+      question: question,
+      panel: panel,
+      actions: actions,
+    };
+    this.onGetPanelFooterActions.fire(this, options);
+    return options.actions;
+  }
   getUpdatedElementTitleActions(
     element: ISurveyElement,
     titleActions: Array<IAction>
@@ -4639,7 +4659,6 @@ export class SurveyModel extends SurveyElementCore
     this.onGetPanelTitleActions.fire(this, options);
     return options.titleActions;
   }
-
   private getUpdatedPageTitleActions(
     page: ISurveyElement,
     titleActions: Array<IAction>
@@ -6449,7 +6468,7 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
-  public get timerInfo(): { spent: number, limit: number } {
+  public get timerInfo(): { spent: number, limit?: number } {
     return this.getTimerInfo();
   }
   public get timerClock(): { majorText: string, minorText?: string } {
@@ -6457,9 +6476,14 @@ export class SurveyModel extends SurveyElementCore
     let minor: string;
     if(!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      major = this.getDisplayClockTime(limit - spent);
-      if(minorLimit > 0) {
-        minor = this.getDisplayClockTime(minorLimit - minorSpent);
+      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      else { major = this.getDisplayClockTime(spent); }
+      if(minorSpent !== undefined) {
+        if(minorLimit > 0) {
+          minor = this.getDisplayClockTime(minorLimit - minorSpent);
+        } else {
+          minor = this.getDisplayClockTime(minorSpent);
+        }
       }
     }
     return { majorText: major, minorText: minor };
@@ -6471,7 +6495,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private getTimerInfo() : { spent: number, limit: number, minorSpent?: number, minorLimit?: number} {
+  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6487,10 +6511,14 @@ export class SurveyModel extends SurveyElementCore
     else {
       if(pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
-      } else if(pageLimitSec > 0)
-        return { spent: pageSpent, limit: pageLimitSec };
+      } else if(pageLimitSec > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
+      }
+      else if(surveyLimit > 0) {
+        return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
+      }
       else {
-        return { spent: surveySpent, limit: surveyLimit };
+        return { spent: pageSpent, minorSpent: surveySpent };
       }
     }
   }

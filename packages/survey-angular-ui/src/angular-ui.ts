@@ -77,6 +77,7 @@ export * from "./string-editor.component";
 export * from "./components/paneldynamic-actions/paneldynamic-add-btn.component";
 export * from "./components/paneldynamic-actions/paneldynamic-next-btn.component";
 export * from "./components/paneldynamic-actions/paneldynamic-prev-btn.component";
+export * from "./components/paneldynamic-actions/paneldynamic-remove-btn.component";
 export * from "./components/paneldynamic-actions/paneldynamic-progress-text.component";
 export * from "./questions/paneldynamic.component";
 export * from "./embedded-view-content.component";

@@ -12,6 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -480,7 +481,7 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected updateSelectedItemValues(): void {
-    if(!!this.survey && !this.isEmpty() && this.choices.length === 0) {
+    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
       const IsMultipleValue = this.getIsMultipleValue();
 
       this.survey.getChoiceDisplayValue({
@@ -489,7 +490,7 @@ export class QuestionSelectBase extends Question {
         setItems: (displayValues: Array<string>) => {
           if (!displayValues || !displayValues.length) return;
 
-          if(IsMultipleValue) {
+          if (IsMultipleValue) {
             this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
           } else {
             this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
@@ -542,7 +543,7 @@ export class QuestionSelectBase extends Question {
    *
    * ```js
    * {
-   *   "value": any, // A value to be saved in the survey results
+   *   "value": any, // A unique value to be saved in the survey results.
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
    *   "customProperty": any // Any property that you find useful
@@ -1506,7 +1507,22 @@ export class QuestionSelectBase extends Question {
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
   }
-
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    if(!!this.dropdownListModel) {
+      const listCssClasses = {};
+      mergeValues(css.list, listCssClasses);
+      mergeValues(res.list, listCssClasses);
+      res["list"] = listCssClasses;
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if(this.dropdownListModel) {
+      this.dropdownListModel.updateListCssClasses(classes.list);
+    }
+    return classes;
+  }
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).

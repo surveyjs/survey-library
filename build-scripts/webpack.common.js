@@ -30,7 +30,6 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
   ].join("\n");
 
   var buildPath = __dirname + "/../build/" + (buildFolderName || packageJson.name) + "/";
-  var dts_generator = __dirname + "/" + packageJson.name + "/d_ts_generator.js";
   var isProductionBuild = options.buildType === "prod";
 
   function createSVGBundle() {
@@ -96,11 +95,6 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       console.log("Build started... good luck!");
     } else if (1 == percentage) {
       if (isProductionBuild) {
-        console.log("Generating d.ts file: " + dts_generator);
-        require(dts_generator);
-
-        rimraf.sync(buildPath + "typings");
-
         if (fs.existsSync(buildPath + "survey.vue.js"))
           fs.copyFileSync(
             buildPath + "survey.vue.js",
@@ -135,10 +129,6 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
-            compilerOptions: {
-              declaration: isProductionBuild,
-              outDir: buildPath + "typings/",
-            },
             //transpileOnly: options.buildType !== "prod",
             appendTsSuffixTo: [/\.vue$/],
           },

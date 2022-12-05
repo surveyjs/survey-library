@@ -220,6 +220,7 @@ jobs:
         npm run build_core
         npm run build_i18n_dev
         npm run build-core-typings:windows
+        npm run build-plugins-prod
       displayName: "Build Core"
 
     - script: |

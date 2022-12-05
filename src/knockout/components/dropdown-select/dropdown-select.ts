@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ImplementorBase } from "src/knockout/kobase";
+import { ImplementorBase } from "../../kobase";
 import { ItemValue, RendererFactory } from "survey-core";
 
 const template = require("./dropdown-select.html");

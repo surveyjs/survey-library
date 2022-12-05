@@ -10,7 +10,7 @@
             </ng-container>
             <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
-            [attr.role]="dropdownModel.inputReadOnly ? model.ariaRole : null"
+            [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"

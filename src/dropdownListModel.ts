@@ -206,6 +206,9 @@ export class DropdownListModel extends Base {
   public get inputReadOnly(): boolean {
     return this.question.isInputReadOnly || this.searchEnabled;
   }
+  public get filterStringEnabled(): boolean {
+    return !this.question.isInputReadOnly && this.searchEnabled;
+  }
 
   public setSearchEnabled(newValue: boolean) {
     this.listModel.searchEnabled = false;

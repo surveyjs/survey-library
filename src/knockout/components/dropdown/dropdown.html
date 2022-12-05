@@ -30,7 +30,7 @@
         'aria-label': question.placeholder, 
         placeholder: question.readOnlyText, 
         readonly: !model.searchEnabled, 
-        role: model.inputReadOnly ? question.ariaRole : undefined,
+        role: model.filterStringEnabled ? question.ariaRole : undefined,
         tabindex: model.inputReadOnly ? undefined : -1,
         disabled: question.isInputReadOnly,
         id: question.getInputId() 

@@ -6,7 +6,7 @@
     v-bind:class="question.cssClasses.filterStringInput"
     v-bind:placeholder="model.filterStringPlaceholder"
     v-bind:disabled="question.isInputReadOnly"
-    :role="model.inputReadOnly ? question.ariaRole : null"
+    :role="model.filterStringEnabled ? question.ariaRole : null"
     :aria-label="question.placeholder"
     :id="question.getInputId()"
     :readonly="!model.searchEnabled ? true : null"

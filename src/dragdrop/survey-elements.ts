@@ -3,7 +3,7 @@ import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
-import { QuestionRowModel } from "src/panel";
+import { QuestionRowModel } from "../panel";
 
 export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;
@@ -31,7 +31,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     toolboxItemTitle: string
   ): void {
     const preventSaveTargetNode = true;
-    const draggedElement:any = this.createElementFromJson(draggedElementJson);
+    const draggedElement: any = this.createElementFromJson(draggedElementJson);
     draggedElement.toolboxItemTitle = toolboxItemTitle;
     this.startDrag(event, draggedElement, null, null, preventSaveTargetNode);
   }
@@ -149,13 +149,13 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     }
 
     // drop to matrix detail panel
-    if ((dropTarget.getType() === "matrixdropdown" || dropTarget.getType() === "matrixdynamic") && (<any>dropTarget).detailPanelMode !=="none" && !this.isEdge) {
+    if ((dropTarget.getType() === "matrixdropdown" || dropTarget.getType() === "matrixdynamic") && (<any>dropTarget).detailPanelMode !== "none" && !this.isEdge) {
       dropTarget = (<any>dropTarget).detailPanel;
     }
 
     // drop to panel
     else if (dropTarget.isPanel) {
-      dropTarget= this.getPanelDropTarget(
+      dropTarget = this.getPanelDropTarget(
         dropTargetNode,
         dropTarget,
         event
@@ -182,7 +182,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     if (this.dropTarget === this.draggedElement) return false;
 
     if (this.draggedElement.getType() === "paneldynamic" &&
-          this.dropTarget === this.draggedElement.template)
+      this.dropTarget === this.draggedElement.template)
       return false;
 
     if (

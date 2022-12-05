@@ -2,7 +2,7 @@ import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
-import { surveyLocalization } from "src/surveyStrings";
+import { surveyLocalization } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   protected dotsItem: Action;

@@ -1,4 +1,4 @@
-import { QuestionRankingModel } from "src/question_ranking";
+import { QuestionRankingModel } from "../question_ranking";
 import { ImageItemValue } from "../question_imagepicker";
 import { ItemValue } from "../itemvalue";
 import { QuestionSelectBase } from "../question_baseselect";
@@ -17,7 +17,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     if (this.parentElement.getType() === "imagepicker") {
       return this.createImagePickerShortcut(this.draggedElement, text, draggedElementNode, event);
     }
-    const draggedElementShortcut:any = document.createElement("div");
+    const draggedElementShortcut: any = document.createElement("div");
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -41,7 +41,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       margin-left: 0;
     `;
 
-    const dragIcon:any = clone.querySelector(".svc-item-value-controls__drag-icon");
+    const dragIcon: any = clone.querySelector(".svc-item-value-controls__drag-icon");
     dragIcon.style.visibility = "visible";
 
     const removeIcon: any = clone.querySelector(".svc-item-value-controls__remove");
@@ -64,7 +64,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
-    const draggedElementShortcut:any = document.createElement("div");
+    const draggedElementShortcut: any = document.createElement("div");
     draggedElementShortcut.style.cssText = ` 
       cursor: grabbing;
       position: absolute;
@@ -77,7 +77,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
     const controlsNode: HTMLElement = itemValueNode.querySelector(".svc-image-item-value-controls");
-    const imageContainerNode:any = itemValueNode.querySelector(".sd-imagepicker__image-container");
+    const imageContainerNode: any = itemValueNode.querySelector(".sd-imagepicker__image-container");
     let imageNode: any = itemValueNode.querySelector(item.imageLink ? "img" : ".sd-imagepicker__no-image").cloneNode(true);
 
     controlsNode.style.display = "none";

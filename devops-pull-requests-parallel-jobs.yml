@@ -202,6 +202,7 @@ jobs:
         npm run build_core
         npm run build_i18n
         npm run build-core-typings:linux
+        npm run build-plugins-prod
       displayName: "Build Core"
 
     - script: |

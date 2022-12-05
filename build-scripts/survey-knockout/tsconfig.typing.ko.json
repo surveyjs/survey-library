@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./src/entries/core.ts"
+        "../../src/entries/core.ts"
       ]
     },
     "sourceMap": false,
@@ -20,13 +20,12 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "jsx": "react",
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "build/survey-react/survey-react.d.ts"
+    "outFile": "../../build/survey-knockout/survey-knockout.d.ts"
   },
   "include": [
-    "src/entries/react.ts"
+    "../../src/entries/knockout.ts"
   ],
 }

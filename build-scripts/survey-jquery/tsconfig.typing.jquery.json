@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./src/entries/core.ts"
+        "../../src/entries/core.ts"
       ]
     },
     "sourceMap": false,
@@ -23,9 +23,9 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "build/survey-jquery/survey-jquery.d.ts"
+    "outFile": "../../build/survey-jquery/survey-jquery.d.ts"
   },
   "include": [
-    "src/entries/jquery.ts"
+    "../../src/entries/jquery.ts"
   ],
 }

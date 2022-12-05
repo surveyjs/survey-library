@@ -77,7 +77,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question, DropdownListModel, Helpers } from "survey-core";
-import BaseVue from "src/vue/base";
+import BaseVue from "../../base";
 
 @Component
 export class DropdownComponent extends BaseVue {

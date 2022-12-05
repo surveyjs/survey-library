@@ -365,4 +365,23 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-hidden-title-actions-long-title.png", qRoot, t, comparer);
     });
   });
+  test("Text question inputType: 'range'", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        questions: [
+          {
+            name: "Range",
+            type: "text",
+            inputType: "range",
+            isRequired: true
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      const qRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-text-range.png", qRoot, t, comparer);
+    });
+  });
 });

@@ -86,6 +86,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getType(): string {
     return "dropdown";
   }
+  public get ariaRole(): string {
+    return "combobox";
+  }
   public get selectedItem(): ItemValue {
     const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;

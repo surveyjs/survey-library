@@ -5,6 +5,7 @@
     [(ngModel)]="model.filterString"
     [attr.id]="question.getInputId()"
     [class]="question.cssClasses.filterStringInput"
+    [attr.role]="model.inputReadOnly ? model.ariaRole : null"
     [attr.readonly]="!model.searchEnabled ? true : null"
     [attr.disabled]="question.isInputReadOnly ? true : null"
     [attr.size]="!model.filterString ? 1 : null"

@@ -127,6 +127,7 @@ export interface IAction {
   visibleIndex?: number;
   needSpace?: boolean;
   ariaChecked?: boolean;
+  ariaRole?: string;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -139,7 +140,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.items,
     (item: Action) => {
       listOptions.onSelectionChanged(item),
-      innerPopupModel.toggleVisibility();
+        innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
     listOptions.selectedItem,
@@ -222,6 +223,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
   @property() ariaChecked: boolean;
+  @property({ defaultValue: "button" }) ariaRole: string;
   @property({
     onSet: (val, target) => {
       if (target.locTitleValue.text === val) return;

@@ -71,7 +71,6 @@ export class SurveyActionBarItem extends SurveyElementBase<
         size={this.item.iconSize}
         iconName={this.item.iconName}
         title={this.item.tooltip || this.item.title}
-        aria-checked={this.item.ariaChecked}
       ></SvgIcon>
     ) : null;
     return (
@@ -95,6 +94,8 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onClick={() => this.item.action(this.item)}
         title={title}
         tabIndex={tabIndex}
+        aria-checked={this.item.ariaChecked}
+        role={this.item.ariaRole}
       >
         {buttonContent}
       </button>, null, { processEsc: false });

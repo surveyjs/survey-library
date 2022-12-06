@@ -1,5 +1,6 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { modernCss } from "./cssmodern";
+import { setMediaStyles, setStyles } from "../common-theme-settings"; // need for typigs
 
 export const modernThemeName = "modern";
 (<any>surveyCss)[modernThemeName] = modernCss;

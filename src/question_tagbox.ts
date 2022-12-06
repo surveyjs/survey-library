@@ -103,6 +103,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getType(): string {
     return "tagbox";
   }
+  public get ariaRole(): string {
+    return "combobox";
+  }
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }

@@ -35,6 +35,7 @@
           v-bind:class="question.cssClasses.filterStringInput"
           v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
+          :role="model.filterStringEnabled ? question.ariaRole : null"
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"

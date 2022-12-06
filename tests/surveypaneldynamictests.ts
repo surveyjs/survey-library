@@ -14,11 +14,8 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
-<<<<<<< HEAD
-import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
-=======
->>>>>>> 0abd3e2e010ef7079ce26aaa0ee739bba4416c6f
 import { StylesManager } from "../src/stylesmanager";
+import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 

@@ -1,4 +1,3 @@
-import { QuestionMatrixDropdownRenderedRow } from "src/question_matrixdropdownrendered";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
@@ -123,7 +122,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let draggedRenderedRow;
 
     const renderedRows = this.parentElement.renderedTable.rows;
-    renderedRows.forEach((renderedRow, index)=> {
+    renderedRows.forEach((renderedRow, index) => {
       if (renderedRow.row === this.dropTarget) {
         // renderedRow.isGhostRow = true;
         dropTargetIndex = index;

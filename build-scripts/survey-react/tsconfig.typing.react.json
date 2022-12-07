@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./build/survey-core"
+        "../../src/entries/core.ts"
       ]
     },
     "sourceMap": false,
@@ -20,14 +20,13 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "strictNullChecks": true,
     "jsx": "react",
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "build/survey-react-ui/survey-react-ui.d.ts"
+    "outFile": "../../build/survey-react/survey-react.d.ts"
   },
   "include": [
-    "src/entries/react-ui-model.ts"
+    "../../src/entries/react.ts"
   ],
 }

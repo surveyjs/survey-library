@@ -11,7 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./build/survey-core"
+        "../../build/survey-core"
       ]
     },
     "sourceMap": false,
@@ -23,9 +23,9 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "build/survey-knockout-ui/survey-knockout-ui.d.ts"
+    "outFile": "../../build/survey-knockout-ui/survey-knockout-ui.d.ts"
   },
   "include": [
-    "src/entries/knockout-ui-model.ts"
+    "../../src/entries/knockout-ui-model.ts"
   ],
 }

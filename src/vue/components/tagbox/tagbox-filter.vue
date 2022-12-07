@@ -21,7 +21,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
-import BaseVue from "src/vue/base";
+import BaseVue from "../../base";
 
 @Component
 export class TagboxFilterComponent extends BaseVue {

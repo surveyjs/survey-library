@@ -6229,3 +6229,25 @@ QUnit.test("remove reference to DOM elements", function (assert) {
   question.beforeDestroyQuestionElement(el);
   assert.equal(question["element"], undefined);
 });
+QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"],
+      cells: { row1: { col1: "text!!" } }
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  const cellLocStr = matrix.cells.getCellDisplayLocText(0, 0);
+  assert.equal(cellLocStr.textOrHtml, "text!!");
+  survey.onTextMarkdown.add((sender, options) => {
+    if(options.text === "text!!") {
+      options.html = "!!text";
+    }
+  });
+  assert.equal(cellLocStr.textOrHtml, "!!text");
+});

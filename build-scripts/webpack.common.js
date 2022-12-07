@@ -150,33 +150,11 @@ module.exports = function (options, packageJson, chunkName) {
         },
         {
           test: /\.css$/,
-          loader: [
-            MiniCssExtractPlugin.loader,
-            {
-              loader: "css-loader",
-              options: {
-                sourceMap: options.buildType !== "prod",
-              },
-            },
-          ],
+          use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { sourceMap: options.buildType !== "prod" } }],
         },
         {
           test: /\.s(c|a)ss$/,
-          loader: [
-            MiniCssExtractPlugin.loader,
-            {
-              loader: "css-loader",
-              options: {
-                sourceMap: options.buildType !== "prod",
-              },
-            },
-            {
-              loader: "sass-loader",
-              options: {
-                sourceMap: options.buildType !== "prod",
-              },
-            },
-          ],
+          use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { sourceMap: options.buildType !== "prod" } }, { loader: 'sass-loader', options: { sourceMap: options.buildType !== "prod" } }],
         },
         {
           test: /\.html$/,
@@ -213,7 +191,7 @@ module.exports = function (options, packageJson, chunkName) {
         filename: isProductionBuild ? "[rc-name].min.css" : "[rc-name].css",
       }),
       new VueLoaderPlugin(),
-      new webpack.WatchIgnorePlugin([/svgbundle\.html/]),
+      new webpack.WatchIgnorePlugin({ paths: [/svgbundle\.html/] }),
       new webpack.BannerPlugin({
         banner: banner,
       }),

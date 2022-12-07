@@ -622,6 +622,13 @@ export class QuestionSelectBase extends Question {
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
+
+  /**
+   * Specifies whether to keep values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @see clearIncorrectValues
+   */
   public get keepIncorrectValues(): boolean {
     return this.getPropertyValue("keepIncorrectValues", false);
   }

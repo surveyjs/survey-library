@@ -53,6 +53,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isClearValueOnHidden: boolean;
   isClearValueOnHiddenContainer: boolean;
   questionsOrder: string;
+  keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
   questionAdded(
     question: IQuestion,

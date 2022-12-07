@@ -15758,3 +15758,38 @@ QUnit.test("Expression for questions with a lot of dots #2", function (assert) {
   questionWF4_4_1.value = "Yes";
   assert.equal(questionWF4_4_1_1.visible, true, "questionWF4_4_1_1 true");
 });
+
+QUnit.test("selectbase.keepIncorrectValues & survey.keepIncorrectValues", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": ["item1", "item2"]
+      }
+    ]
+  });
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  question.value = "item3";
+  survey.clearIncorrectValues();
+  assert.equal(true, question.isEmpty(), "clear incorrect value, #1");
+  question.keepIncorrectValues = true;
+  question.value = "item3";
+  survey.clearIncorrectValues();
+  assert.equal("item3", question.value, "keep incorrect value, #2");
+
+  question.keepIncorrectValues = false;
+  survey.clearIncorrectValues();
+  assert.equal(true, question.isEmpty(), "clear incorrect value, #3");
+
+  survey.keepIncorrectValues = true;
+  question.value = "item3";
+  survey.clearIncorrectValues();
+  assert.equal("item3", question.value, "keep incorrect value, #4");
+
+  survey.keepIncorrectValues = false;
+  question.value = "item3";
+  survey.clearIncorrectValues();
+  assert.equal(true, question.isEmpty(), "clear incorrect value, #5");
+});
+

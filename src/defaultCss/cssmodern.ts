@@ -354,6 +354,12 @@ export var modernCss = {
     maxText: "sv-rating__max-text",
     itemDisabled: "sv-rating--disabled",
     filterStringInput: "sv-dropdown__filter-string-input",
+    control: "sv-dropdown",
+    cleanButton: "sv-dropdown_clean-button",
+    cleanButtonSvg: "sv-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-clear_16x16",
+    controlValue: "sv-dropdown__value",
+    controlInputFieldComponent: "sv_dropdown_control__input-field-component"
   },
   comment: {
     root: "sv-comment",

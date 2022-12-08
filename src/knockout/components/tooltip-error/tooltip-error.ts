@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { Question, TooltipManager } from "survey-core";
-const template = require("html-loader?interpolate!val-loader!./tooltip-error.html");
+const template = require("./tooltip-error.html");
 
 export class TooltipErrorViewModel {
   private tooltipManager: TooltipManager;

@@ -3,7 +3,6 @@
 const webpackCommonConfigCreator = require("../webpack.common");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
-var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var path = require("path");
 
@@ -15,7 +14,6 @@ const config = {
     defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss"),
     "defaultV2.fontless": path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.fontless.scss")
   },
-  plugins: [new FixStyleOnlyEntriesPlugin()],
 };
 
 module.exports = function (options) {

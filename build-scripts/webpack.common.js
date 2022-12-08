@@ -3,21 +3,16 @@
 var webpack = require("webpack");
 var path = require("path");
 var MiniCssExtractPlugin = require("mini-css-extract-plugin");
-var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
+var RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 var RemoveCoreFromName = require("./webpack-remove-core-from-name");
 var TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var DashedNamePlugin = require("./webpack-dashed-name");
 
-var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
 var replace = require("replace-in-file");
-var svgStoreUtils = require(path.resolve(
-  __dirname,
-  "../node_modules/webpack-svgstore-plugin/src/helpers/utils.js"
-));
 
 module.exports = function (options, packageJson, chunkName) {
   packageJson.version = packageJsonWithVersion.version;
@@ -31,63 +26,6 @@ module.exports = function (options, packageJson, chunkName) {
 
   var buildPath = __dirname + "/../build/" + packageJson.name + "/";
   var isProductionBuild = options.buildType === "prod";
-
-  function createSVGBundle() {
-    var options = {
-      fileName: path.resolve(
-        path.join("./src"),
-        "./svgbundle.html"
-      ),
-      template: path.resolve(__dirname, "./svgbundle.pug"),
-      svgoOptions: {
-        plugins: [{ removeTitle: true }],
-      },
-      prefix: "icon-",
-    };
-
-    svgStoreUtils.filesMap(path.join("./src/images/**/*.svg"), files => {
-      const fileContent = svgStoreUtils.createSprite(
-        svgStoreUtils.parseFiles(files, options),
-        options.template
-      );
-      fs.writeFileSync(options.fileName, fileContent);
-    });
-  }
-
-  function replaceLines(fileName, regex, to) {
-    replace.sync(
-      {
-        files: fileName,
-        from: regex,
-        to: to,
-      },
-      (error, changes) => {
-        if (error) {
-          return console.error("Error occurred:", error);
-        }
-        console.log("check me :     " + fileName);
-        console.log("Modified files:", changes.join(", "));
-      }
-    );
-  }
-
-  function removeLines(fileName, regex) {
-    replace.sync(
-      {
-        files: fileName,
-        from: regex,
-        to: "",
-      },
-      (error, changes) => {
-        if (error) {
-          return console.error("Error occurred:", error);
-        }
-        console.log("check me :     " + fileName);
-        console.log("Modified files:", changes.join(", "));
-      }
-    );
-  }
-
   var packageName = chunkName || packageJson.name;
 
   var percentage_handler = function handler(percentage, msg) {
@@ -159,6 +97,10 @@ module.exports = function (options, packageJson, chunkName) {
         {
           test: /\.html$/,
           loader: "html-loader",
+          options: {
+            // Disables attributes processing
+            sources: false,
+          },
         },
         {
           test: /\.(svg)$/,
@@ -196,8 +138,8 @@ module.exports = function (options, packageJson, chunkName) {
         banner: banner,
       }),
       new RemoveCoreFromName(),
-      new FixStyleOnlyEntriesPlugin(),
-      new DashedNamePlugin()
+      new RemoveEmptyScriptsPlugin(),
+      new DashedNamePlugin(),
     ],
   };
 

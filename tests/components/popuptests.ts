@@ -6,7 +6,7 @@ import { surveyLocalization } from "../../src/surveyStrings";
 import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 
-const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
+const popupTemplate = require("../../src/knockout/components/popup/popup.html");
 
 export default QUnit.module("Popup");
 

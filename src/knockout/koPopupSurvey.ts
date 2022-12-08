@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { SurveyModel, PopupSurveyModel } from "survey-core";
 import { ImplementorBase } from "./kobase";
-var koTemplate = require("html-loader?interpolate!val-loader!./templates/window.html");
+var koTemplate = require("./templates/window.html");
 
 export class PopupSurveyImplementor extends ImplementorBase {
   constructor(public window: PopupSurveyModel) {

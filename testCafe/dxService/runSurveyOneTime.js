@@ -1,6 +1,6 @@
 import { frameworks, url } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
-import uuid from "node-uuid";
+import * as uuid from "uuid";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "runSurveyOneTime";
@@ -34,7 +34,7 @@ const initSurvey = ClientFunction(framework => {
     .insertAdjacentHTML(
       "afterend",
       '<textarea id="sentResults" rows="10" readonly="true" style="width:95%"></textarea>' +
-        '<div id="surveyMsg"></div>'
+      '<div id="surveyMsg"></div>'
     );
 
   function onIsSurveyCompleted(success, result, response) {
@@ -86,11 +86,11 @@ const initSurvey = ClientFunction(framework => {
       survey.sendResultOnPageNext = document.getElementById(
         "sendResultOnPageNext"
       ).checked;
-      survey.onComplete.add(function(s) {
+      survey.onComplete.add(function (s) {
         document.getElementById("surveyElement").innerHTML = "";
         document.getElementById("clientIdContainer").style.display = "inline";
       });
-      survey.onSendResult.add(function(survey) {
+      survey.onSendResult.add(function (survey) {
         var text =
           "clientId:" +
           survey.clientId +

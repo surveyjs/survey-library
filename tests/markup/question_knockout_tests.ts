@@ -8,7 +8,7 @@ var platformDescriptor = {
   survey: null,
   surveyFactory: (json) => new KnockoutModel(json),
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/"+snapshot+".snap.html");
+    return require("./snapshots/"+snapshot+".snap.html").default;
   },
   render: (survey, element) => survey.render(element.id)
 };

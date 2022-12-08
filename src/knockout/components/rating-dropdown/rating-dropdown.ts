@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { RendererFactory } from "survey-core";
 
-const template = require("./rating-dropdown.html");
+const template = require("./rating-dropdown.html").default;
 
 export var RatingDropdownViewModel: any;
 

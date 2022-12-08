@@ -2,7 +2,7 @@ import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 import { DropdownMultiSelectListModel } from "survey-core";
 
-const template = require("./tagbox.html");
+const template = require("./tagbox.html").default;
 
 export var TagboxViewModel: any;
 

@@ -9,7 +9,7 @@ var platformDescriptor = {
   survey: null,
   surveyFactory: (json) => new (<any>VueModel)(json),
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/"+snapshot+".snap.html");
+    return require("./snapshots/"+snapshot+".snap.html").default;
   },
   render: (survey, element) => {
     (<any>window).ResizeObserver = function () {

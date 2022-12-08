@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { Action } from "survey-core";
 import { ImplementorBase } from "../../kobase";
-const template = require("./action.html");
+const template = require("./action.html").default;
 
 ko.components.register("sv-action", {
   viewModel: {

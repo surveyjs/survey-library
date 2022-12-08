@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { ISurveyElement } from "survey-core";
 
-const template = require("./title-content.html");
+const template = require("./title-content.html").default;
 
 export var TitleContentViewModel: any;
 

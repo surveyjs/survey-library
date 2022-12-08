@@ -1,10 +1,10 @@
 import * as ko from "knockout";
 
-const addBtnTemplate = require("./paneldynamic-add-btn.html");
-const nextBtnTemplate = require("./paneldynamic-next-btn.html");
-const prevBtnTemplate = require("./paneldynamic-prev-btn.html");
-const progressTextTemplate = require("./paneldynamic-progress-text.html");
-const removeBtnTemplate = require("./paneldynamic-remove-btn.html");
+const addBtnTemplate = require("./paneldynamic-add-btn.html").default;
+const nextBtnTemplate = require("./paneldynamic-next-btn.html").default;
+const prevBtnTemplate = require("./paneldynamic-prev-btn.html").default;
+const progressTextTemplate = require("./paneldynamic-progress-text.html").default;
+const removeBtnTemplate = require("./paneldynamic-remove-btn.html").default;
 
 export var SurveyQuestionPaneldynamicActioons: any;
 

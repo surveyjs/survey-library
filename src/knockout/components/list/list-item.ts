@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 
-const template = require("./list-item.html");
+const template = require("./list-item.html").default;
 
 export var ListItemViewComponent: any;
 

@@ -2,7 +2,7 @@ import * as ko from "knockout";
 import { ISurveyElement } from "survey-core";
 import { RendererFactory } from "survey-core";
 
-const template = require("./title-actions.html");
+const template = require("./title-actions.html").default;
 
 export var TitleActionViewModel: any;
 

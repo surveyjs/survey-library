@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-const template = require("./action-bar-separator.html");
+const template = require("./action-bar-separator.html").default;
 
 export var ActionBarSeparatorViewModel: any;
 

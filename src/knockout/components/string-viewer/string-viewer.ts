@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-const template = require("./string-viewer.html");
+const template = require("./string-viewer.html").default;
 export var StringViewerViewModel: any;
 
 ko.components.register("sv-string-viewer", {

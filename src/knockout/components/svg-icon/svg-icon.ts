@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { createSvg } from "survey-core";
-const template = require("./svg-icon.html");
+const template = require("./svg-icon.html").default;
 
 export var SvgIconViewModel: any;
 

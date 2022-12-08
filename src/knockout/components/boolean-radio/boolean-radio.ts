@@ -2,7 +2,7 @@ import * as ko from "knockout";
 import { RendererFactory } from "survey-core";
 export * from "./boolean-radio-item";
 
-const template = require("./boolean-radio.html");
+const template = require("./boolean-radio.html").default;
 
 export var BooleanRadioViewModel: any;
 

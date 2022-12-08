@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-const template = require("./detail-button.html");
+const template = require("./detail-button.html").default;
 
 export var SurveyQuestionMatrixDetailButton: any;
 

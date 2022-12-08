@@ -3,7 +3,7 @@ import { Action, ListModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 import { ActionContainerImplementor } from "../action-bar/action-bar";
 
-const template = require("./list.html");
+const template = require("./list.html").default;
 
 export * from "./list-item";
 

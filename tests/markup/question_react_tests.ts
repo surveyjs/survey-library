@@ -20,7 +20,7 @@ var platformDescriptor = {
     });
   },
   getStrFromHtml: (snapshot) => {
-    return require("./snapshots/"+snapshot+".snap.html");
+    return require("./snapshots/"+snapshot+".snap.html").default;
   },
   finish: (element) => {
     ReactDOM.unmountComponentAtNode(element);

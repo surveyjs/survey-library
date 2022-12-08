@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { RendererFactory } from "survey-core";
 
-const template = require("./boolean-checkbox.html");
+const template = require("./boolean-checkbox.html").default;
 
 export var CheckboxViewModel: any;
 

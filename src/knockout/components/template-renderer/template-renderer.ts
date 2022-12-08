@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { SurveyModel, SurveyTemplateRendererViewModel } from "survey-core";
 
-const template = require("./template-renderer.html");
+const template = require("./template-renderer.html").default;
 
 ko.components.register(SurveyModel.TemplateRendererComponentName, {
   viewModel: {

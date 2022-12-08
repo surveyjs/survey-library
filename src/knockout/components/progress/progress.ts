@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { SurveyProgressModel } from "survey-core";
-const template = require("./progress.html");
+const template = require("./progress.html").default;
 
 export class ProgressViewModel {
   constructor(public model: any) {}

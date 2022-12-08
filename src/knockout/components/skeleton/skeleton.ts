@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { RendererFactory } from "survey-core";
 
-const template = require("./skeleton.html");
+const template = require("./skeleton.html").default;
 
 export var Skeleton: any;
 

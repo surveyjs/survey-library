@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-const template = require("./brand-info.html");
+const template = require("./brand-info.html").default;
 
 export var BrandInfoComponent: any;
 

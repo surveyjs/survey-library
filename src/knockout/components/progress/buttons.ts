@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
-const template: any = require("./buttons.html");
+const template: any = require("./buttons.html").default;
 
 export class ProgressButtonsViewModel {
   private progressButtonsModel: SurveyProgressButtonsModel;

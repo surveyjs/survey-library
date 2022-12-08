@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-const template = require("./survey-nav-button.html");
+const template = require("./survey-nav-button.html").default;
 
 export var SurveyNavigationButton: any;
 

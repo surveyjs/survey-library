@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { LocalizableString } from "survey-core";
-const template = require("./string-editor.html");
+const template = require("./string-editor.html").default;
 
 export class StringEditorViewModel {
   constructor(public locString: any) {}

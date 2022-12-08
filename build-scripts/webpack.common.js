@@ -12,7 +12,6 @@ var DashedNamePlugin = require("./webpack-dashed-name");
 
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
-var replace = require("replace-in-file");
 
 module.exports = function (options, packageJson, chunkName) {
   packageJson.version = packageJsonWithVersion.version;
@@ -61,7 +60,7 @@ module.exports = function (options, packageJson, chunkName) {
       ),
     },
     resolve: {
-      extensions: [".ts", ".js", ".tsx", ".scss"],
+      extensions: [".ts", ".js", ".tsx", ".scss", ".vue"],
       plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
     },
     optimization: {
@@ -133,7 +132,6 @@ module.exports = function (options, packageJson, chunkName) {
         filename: isProductionBuild ? "[rc-name].min.css" : "[rc-name].css",
       }),
       new VueLoaderPlugin(),
-      new webpack.WatchIgnorePlugin({ paths: [/svgbundle\.html/] }),
       new webpack.BannerPlugin({
         banner: banner,
       }),

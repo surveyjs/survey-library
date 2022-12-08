@@ -2,7 +2,7 @@ import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 import { DropdownListModel } from "survey-core";
 
-const template = require("./dropdown.html");
+const template = require("./dropdown.html").default;
 
 export var DropdownViewModel: any;
 

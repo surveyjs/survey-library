@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { ButtonGroupItemModel } from "survey-core";
-const template = require("./button-group-item.html");
+const template = require("./button-group-item.html").default;
 
 export class ButtonGroupItemViewModel {
   public constructor(public model: ButtonGroupItemModel) {}

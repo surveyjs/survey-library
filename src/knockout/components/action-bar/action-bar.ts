@@ -2,7 +2,7 @@ import * as ko from "knockout";
 import { ActionContainer } from "survey-core";
 import { ImplementorBase } from "../../kobase";
 
-const template = require("./action-bar.html");
+const template = require("./action-bar.html").default;
 
 export * from "./action";
 export * from "./action-bar-item";

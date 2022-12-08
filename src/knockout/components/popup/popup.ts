@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { createPopupModalViewModel, PopupBaseViewModel, settings, IDialogOptions, createDialogOptions, createPopupViewModel } from "survey-core";
 import { ImplementorBase } from "../../kobase";
-const template = require("./popup.html");
+const template = require("./popup.html").default;
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {

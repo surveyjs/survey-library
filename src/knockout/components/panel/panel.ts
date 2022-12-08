@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { PanelModel } from "survey-core";
-const template = require("./panel.html");
+const template = require("./panel.html").default;
 
 export class PanelViewModel {
   constructor(public question: PanelModel, public targetElement: HTMLElement) {}

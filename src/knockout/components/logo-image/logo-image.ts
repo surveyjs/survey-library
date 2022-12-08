@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-const template: string = require("./logo-image.html");
+const template: string = require("./logo-image.html").default;
 export let LogoImageViewModel: any;
 
 ko.components.register("sv-logo-image", {

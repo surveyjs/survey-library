@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { ActionDropdownViewModel } from "survey-core";
 
-const template = require("./action-bar-item-dropdown.html");
+const template = require("./action-bar-item-dropdown.html").default;
 
 export let ActionBarItemDropdownViewModel: any;
 

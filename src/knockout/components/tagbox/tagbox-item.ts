@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 
-const template = require("./tagbox-item.html");
+const template = require("./tagbox-item.html").default;
 
 export var TagboxViewComponent: any;
 

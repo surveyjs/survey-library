@@ -6,10 +6,10 @@ class SurveyTemplateTextTest extends SurveyTemplateText {
   constructor(public template: string) {
     super();
   }
-  protected get text(): string {
+  protected getTextCore(): string {
     return this.template;
   }
-  protected set text(value: string) {
+  protected setTextCore(value: string): void {
     this.template = value;
   }
 }

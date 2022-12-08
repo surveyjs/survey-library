@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 
-const template = require("./drag-drop-icon.html");
+const template = require("./drag-drop-icon.html").default;
 
 export var SurveyQuestionMatrixDynamicDragDropIcon: any;
 

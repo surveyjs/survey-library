@@ -10,7 +10,6 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var DashedNamePlugin = require("./webpack-dashed-name");
 
-var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
 var replace = require("replace-in-file");

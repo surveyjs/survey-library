@@ -102,19 +102,17 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
-        npm run build-core-typings:linux
+        npm run build-plugins
       displayName: "Build Core"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_angular
-        npm run build-angular-typings:linux
       displayName: "Build Angular"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_jquery
-        npm run build-jquery-typings:linux
       displayName: "Build jQuery"
 
     - task: CopyFiles@2
@@ -208,16 +206,14 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_knockout
-        npm run build-knockout-typings:linux
       displayName: "Build Knockout"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
-        npm run build-core-typings:linux
+        npm run build-plugins
         npm run build_knockout_ui
-        npm run build-knockout-ui-typings:linux
       displayName: "Build Knockout UI"
 
     - script: |
@@ -316,16 +312,14 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_react
-        npm run build-react-typings:linux
       displayName: "Build React"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
-        npm run build-core-typings:linux
+        npm run build-plugins
         npm run build_react_ui
-        npm run build-react-ui-typings:linux
       displayName: "Build React UI"
 
     - script: |
@@ -419,16 +413,14 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_vue
-        npm run build-vue-typings
       displayName: "Build Vue"
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
-        npm run build-core-typings:linux
+        npm run build-plugins
         npm run build_vue_ui
-        npm run build-vue-ui-typings
       displayName: "Build Vue UI"
 
     - script: |
@@ -516,7 +508,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
-        npm run build-core-typings:linux
+        npm run build-plugins
       displayName: "Build Core"
 
     - script: |

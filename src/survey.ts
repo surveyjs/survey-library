@@ -1833,7 +1833,18 @@ export class SurveyModel extends SurveyElementCore
       key.substring(0, key.indexOf(postPrefix))
     );
   }
-
+  /**
+   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the choices array.
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @see clearIncorrectValues
+   */
+  public get keepIncorrectValues(): boolean {
+    return this.getPropertyValue("keepIncorrectValues", false);
+  }
+  public set keepIncorrectValues(val: boolean) {
+    this.setPropertyValue("keepIncorrectValues", val);
+  }
   /**
    * Gets or sets the survey locale. The default value it is empty, this means the 'en' locale is used.
    * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.

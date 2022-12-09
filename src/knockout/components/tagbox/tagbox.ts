@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ImplementorBase } from "src/knockout/kobase";
+import { ImplementorBase } from "../../kobase";
 import { DropdownMultiSelectListModel } from "survey-core";
 
 const template = require("./tagbox.html");

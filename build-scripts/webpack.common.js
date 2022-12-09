@@ -11,7 +11,6 @@ var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var DashedNamePlugin = require("./webpack-dashed-name");
 var CamelCaseNamePlugin = require("./webpack-camel-name");
 
-var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
 var replace = require("replace-in-file");

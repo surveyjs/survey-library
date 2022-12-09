@@ -11,20 +11,21 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./build/survey-core"
+        "../../src/entries/core.ts"
       ]
     },
-    "types": [
-      "vite/client",
-    ],
+    "sourceMap": false,
+    "noImplicitAny": false,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "moduleResolution": "Node",
-    "outFile": "build/survey-vue-ui/survey-vue-ui.d.ts",
+    "outFile": "../../build/survey-angular/survey-angular.d.ts"
   },
   "include": [
-    "src/entries/vue-ui-model.ts"
-  ]
+    "../../src/entries/angular.ts"
+  ],
 }

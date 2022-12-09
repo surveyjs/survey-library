@@ -2,6 +2,9 @@
   border: none;
   margin: 0;
   padding: 0;
+  //prevent comment to resize over question area
+  min-inline-size: 0;
+  min-width: 0;
 }
 
 .sd-selectbase--row {

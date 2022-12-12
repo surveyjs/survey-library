@@ -1,4 +1,4 @@
-name: NodeJS 16.x
+name: NodeJS 18.x
 
 on:
   push:

@@ -19,8 +19,6 @@ Follow the steps below:
 - [Render the Quiz](#render-the-quiz)
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
-[View the "Make a Quiz" Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
-[View the "Review Quiz results" Demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle))
 
 ## Configure Questions
 
@@ -371,3 +369,4 @@ Refer to the following platform-specific articles for information on how to rend
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
 - [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
 - [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)
+- [View the "Review Quiz results" Demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle))

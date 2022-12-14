@@ -3,6 +3,7 @@ import { ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase } from
 import { QuestionImagePickerModel, ImageItemValue, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -204,6 +205,10 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           />
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>
+              {!!this.question.cssClasses.checkedItemDecorator ?
+                <span className={this.question.cssClasses.checkedItemDecorator }>
+                  {!!this.question.cssClasses.checkedItemSvgIconId ? <SvgIcon size={"auto"} className={this.question.cssClasses.checkedItemSvgIcon} iconName={this.question.cssClasses.checkedItemSvgIconId}></SvgIcon> : null}
+                </span> : null}
               {control}
             </div>
             {text}

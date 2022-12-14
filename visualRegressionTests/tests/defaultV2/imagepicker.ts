@@ -20,7 +20,43 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
-
+  test("Check imagepicker checked item", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1500);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        widthMode: "static",
+        questions: [
+          {
+            type: "imagepicker",
+            name: "choosepicture",
+            title: "Imagepicker",
+            defaultValue: "lion",
+            choices: [{
+              value: "lion",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+            },
+            {
+              value: "giraffe",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            },
+            {
+              value: "panda",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+            },
+            {
+              value: "camel",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+            },
+            ]
+          }
+        ]
+      });
+      await resetFocusToBody();
+      await t.wait(1000);
+      await takeElementScreenshot("imagepicker-checked-item.png", Selector(".sd-question"), t, comparer);
+    });
+  });
   test("Check responsive imagepicker", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1500);

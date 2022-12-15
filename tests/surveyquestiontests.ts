@@ -6251,3 +6251,28 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   });
   assert.equal(cellLocStr.textOrHtml, "!!text");
 });
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text",
+      "inputType": "datetime-local",
+      "defaultValueExpression": "currentDate()"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "inputType": "date",
+      "defaultValueExpression": "currentDate()"
+    }
+    ] });
+  const d = new Date();
+  let prefix = d.getFullYear() + "-";
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q1");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+});

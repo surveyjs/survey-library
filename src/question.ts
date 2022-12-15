@@ -1524,8 +1524,11 @@ export class Question extends SurveyElement<Question>
       func(defaultValue);
     }
   }
+  protected convertFuncValuetoQuestionValue(val: any): any {
+    return Helpers.convertValToQuestionVal(val);
+  }
   private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
-    setFunc(Helpers.convertValToQuestionVal(val));
+    setFunc(this.convertFuncValuetoQuestionValue(val));
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {

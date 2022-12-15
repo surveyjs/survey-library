@@ -266,6 +266,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return isValid;
   }
+  protected convertFuncValuetoQuestionValue(val: any): any {
+    let inpuType = this.inputType.replace("-local", "");
+    return Helpers.convertValToQuestionVal(val, inpuType);
+  }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
     let errorValue = value.toString();

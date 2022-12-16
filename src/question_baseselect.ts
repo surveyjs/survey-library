@@ -546,11 +546,13 @@ export class QuestionSelectBase extends Question {
    *   "value": any, // A unique value to be saved in the survey results.
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
-   *   "customProperty": any // Any property that you find useful
+   *   "customProperty": any // Any property that you find useful.
    * }
    * ```
    *
-   * Refer to the following help topic for information on how to add custom properties so that they are serialized into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
+   * To enable Markdown support for the `text` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl

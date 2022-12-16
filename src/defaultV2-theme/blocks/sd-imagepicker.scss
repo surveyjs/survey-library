@@ -33,24 +33,28 @@
 .sd-imagepicker__image-container {
   position: relative;
 }
-.sd-imagepicker__item--checked .sd-imagepicker__image-container::before {
-  display: block;
+.sd-imagepicker__check-decorator {
+  display: none;
   position: absolute;
-  content: " ";
   top: calcSize(1);
   right: calcSize(1);
   width: calcSize(6);
   height: calcSize(6);
+  padding: calcSize(1.5);
   box-sizing: border-box;
-  border-radius: calcSize(12.5);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='23' height='17' viewBox='0 0 23 17' fill='none'%3E%3Cpath d='M8.33331 16.1L0.333313 8L2.43331 5.9L8.33331 11.9L20.2333 0L22.3333 2.1L8.33331 16.1Z' fill='%2319B394'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 22px calcSize(2);
+  border-radius: 100%;
   background-color: $background;
-  z-index: 1;
+  z-index: 1
 }
-.sd-imagepicker_>_item--error .sd-imagepicker__image-container::before {
+.sd-imagepicker__check-icon {
+  width: calcSize(3);
+  height: calcSize(3);
+  fill: $primary;
+}
+.sd-imagepicker__item--checked .sd-imagepicker__check-decorator {
+  display: block;
+}
+.sd-imagepicker__item--error .sd-imagepicker__image-container::before {
   display: block;
   position: absolute;
   content: " ";

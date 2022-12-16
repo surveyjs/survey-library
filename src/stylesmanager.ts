@@ -198,13 +198,12 @@ export class StylesManager {
     ".sv-ranking-item:focus .sv-ranking-item__index":
       "background: white; border: 2px solid var(--primary, #19b394);",
     ".sv-ranking-item__content": "display: flex; align-items: center; line-height: 1em; padding: 5px 0px; border-radius: 100px;",
-    ".sv-ranking-item__icon-container":
-      "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
+    ".sv-ranking-item__icon-container": "left: 0;top: 0;bottom: 0;width: calc(3 * var(--base-unit, 8px)); flex-shrink: 0;",
     ".sv-ranking-item__icon":
       "visibility: hidden;top:20px; fill: var(--primary, #19b394); position: absolute;",
     ".sv-ranking-item__index":
-      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--primary-light, rgba(25, 179, 148, 0.1)); color: var(--foreground); border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
-    ".sv-ranking-item__text": "display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;",
+      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--primary-light, rgba(25, 179, 148, 0.1)); color: var(--foreground); border-radius: 100%; border:2px solid transparent; width: 40px; height: 40px; line-height: 1em;",
+    ".sv-ranking-item__text": "display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0 calc(2 * var(--base-unit, 8px));",
     ".sv-ranking-item__ghost": "display: none; background-color: var(--background-dim, #f3f3f3); border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
     "[dir='rtl'] .sv-ranking-item__ghost": "left: initilal; right: 25px;",
     ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",

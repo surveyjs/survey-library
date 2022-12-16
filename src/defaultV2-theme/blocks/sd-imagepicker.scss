@@ -44,7 +44,7 @@
   box-sizing: border-box;
   border-radius: 100%;
   background-color: $background;
-  z-index: 1
+  z-index: 1;
 }
 .sd-imagepicker__check-icon {
   width: calcSize(3);
@@ -76,6 +76,7 @@
   max-width: 100%;
 }
 .sd-imagepicker__text {
+  font-size: calcSize(2);
   line-height: calcSize(3);
   margin-top: calcSize(1);
   color: $foreground;

@@ -415,7 +415,7 @@ export class StylesManager {
     ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",
     ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
     ".sv-list__item": "width: 100%; box-sizing: border-box; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
-    ".sv-list__item-body": "width: 100%; box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; padding-inline-end: 64px; padding-inline-start: 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__item-body": "width: 100%; box-sizing: border-box; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); padding-top: calc(1 * var(--base-unit, 8px)); padding-bottom: calc(1 * var(--base-unit, 8px)); padding-inline-end: calc(8 * var(--base-unit, 8px)); padding-inline-start: calc(2 * var(--base-unit, 8px)); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

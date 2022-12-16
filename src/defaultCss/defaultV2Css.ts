@@ -431,7 +431,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     onError: "sd-input--error"
   },
-  expression: "",
+  expression: "sd-expression",
   file: {
     root: "sd-file",
     other: "sd-input sd-comment",

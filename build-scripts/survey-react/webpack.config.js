@@ -1,6 +1,7 @@
 "use strict";
 
 const webpackCommonConfigCreator = require("../webpack.common");
+const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var path = require("path");
@@ -24,7 +25,15 @@ const config = {
       commonjs: "react-dom",
       amd: "react-dom"
     }
-  }
+  },
+  plugins: [
+    new DtsGeneratorPlugin({
+      tsConfigPath: "./build-scripts/survey-react/tsconfig.typing.react.json",
+      filePath: "build/survey-react/survey-react.d.ts",
+      moduleName: "survey-react",
+      importName: "entries/react"
+    }),
+  ],
 };
 
 module.exports = function (options) {

@@ -191,6 +191,15 @@ export class MatrixCells {
     }
     this.valuesChanged();
   }
+  public locStrsChanged(): void {
+    if (this.isEmpty) return;
+    for (var row in this.values) {
+      var rowValues = this.values[row];
+      for (var col in rowValues) {
+        rowValues[col].strChanged();
+      }
+    }
+  }
   protected createString(): LocalizableString {
     return new LocalizableString(this.cellsOwner, true);
   }
@@ -301,7 +310,10 @@ export class QuestionMatrixModel
   public get itemSvgIcon(): string {
     return this.cssClasses.itemSvgIconId;
   }
-
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.cells.locStrsChanged();
+  }
   protected getQuizQuestionCount() {
     var res = 0;
     for (var i = 0; i < this.rows.length; i++) {

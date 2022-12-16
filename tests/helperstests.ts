@@ -427,3 +427,8 @@ QUnit.test("getUnbindValue function", function(assert) {
   const dateVal = new Date(2004, 5, 7);
   assert.strictEqual(Helpers.getUnbindValue(dateVal), dateVal, "do not convert date");
 });
+QUnit.test("convertDateToString/convertDateTimeToString functions", function(assert) {
+  const d = new Date(2022, 11, 24, 10, 55, 33, 3);
+  assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");
+  assert.equal(Helpers.convertDateTimeToString(d), "2022-12-24 10:55", "convertDateTimeToString");
+});

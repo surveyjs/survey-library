@@ -33,7 +33,9 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    this.model.initListContainerHtmlElement(this.listContainerRef.current);
+    if(!!this.listContainerRef && !!this.listContainerRef.current) {
+      this.model.initListContainerHtmlElement(this.listContainerRef.current);
+    }
   }
   renderElement() {
     const items = this.renderItems();
@@ -108,7 +110,7 @@ export class List extends SurveyElementBase<IListProps, any> {
       display: this.model.isEmpty ? null : "none",
     };
 
-    return (<div className={this.model.cssClasses.emptyContainer} style={style}>
+    return (<div className={this.model.cssClasses.emptyContainer} style={style as any}>
       <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
     </div>);
   }

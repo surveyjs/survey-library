@@ -20,7 +20,7 @@ export class ReactElementFactory {
   public isElementRegistered(elementType: string) {
     return !!this.creatorHash[elementType];
   }
-  public createElement(elementType: string, params: any): JSX.Element {
+  public createElement(elementType: string, params: any): JSX.Element | any {
     var creator = this.creatorHash[elementType];
     if (creator == null) return null;
     return creator(params);

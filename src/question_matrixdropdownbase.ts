@@ -1442,8 +1442,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * {
    *   "value": any, // A value to be saved in survey results
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   *   "customProperty": any // Any property that you find useful.
    * }
    * ```
+   *
+   * To enable Markdown support for the `text` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see cellType
@@ -1756,9 +1761,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }
   protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
-    res.questionCount += this.columns.length;
     for (var i = 0; i < this.columns.length; i++) {
       const col = this.columns[i];
+      if(!col.templateQuestion.hasInput) continue;
+      res.questionCount += 1;
       res.requiredQuestionCount += col.isRequired;
       const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
       res.answeredQuestionCount += hasValue ? 1 : 0;

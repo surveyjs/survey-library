@@ -104,8 +104,8 @@ button.sv-action-bar-item {
 }
 
 //hovered state
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):hover,
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):focus {
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):hover:enabled,
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):focus:enabled {
   outline: none;
   background-color: $background-dim;
 }
@@ -120,7 +120,7 @@ button.sv-action-bar-item {
 }
 
 //pressed state
-.sv-action-bar-item:not(.sv-action-bar-item--pressed):active {
+.sv-action-bar-item:not(.sv-action-bar-item--pressed):active:enabled {
   opacity: 0.5;
 }
 
@@ -128,10 +128,6 @@ button.sv-action-bar-item {
 .sv-action-bar-item:disabled {
   opacity: 0.25;
   cursor: default;
-
-  .sv-action-bar-item__icon use {
-    fill: $foreground;
-  }
 }
 
 .sv-action-bar-item__title {

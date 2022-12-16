@@ -44,6 +44,7 @@ import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -123,7 +124,7 @@ export class SurveyModel extends SurveyElementCore
    * - `options.showDataSavingClear` - call this method to hide the text about the saving progress.
    * - `options.isCompleteOnTrigger` - returns true if the survey is completed on "complete" trigger.
    *
-   * > NOTE: Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods described above. This is required because the UI that indicates data saving progress is integrated into the Complete page. If you hide the Complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods described above. This is required because the UI that indicates data saving progress is integrated into the Complete page. If you hide the Complete page, the UI also becomes invisible.
    *
    * @see data
    * @see clearInvisibleValues
@@ -286,7 +287,7 @@ export class SurveyModel extends SurveyElementCore
    * // Load the survey JSON schema
    * survey.fromJSON(surveyJson);
    * ```
-   * 
+   *
    *- `sender` - the survey object that fires the event.
    *- `options.question` - a newly created question object.
    * @see Question
@@ -506,11 +507,12 @@ export class SurveyModel extends SurveyElementCore
    *- `options.name` - the question name.
    *- `options.files` - the Javascript File objects array to upload.
    *- `options.callback` - a callback function to get the file upload status and the updloaded file content.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
    * @see onClearFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onUploadFiles%22)
    */
   public onUploadFiles: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -521,10 +523,11 @@ export class SurveyModel extends SurveyElementCore
    *- `options.content` - the file content.
    *- `options.fileValue` - single file question value.
    *- `options.callback` - a callback function to get the file downloading status and the downloaded file content.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onDownloadFile%22)
    */
   public onDownloadFile: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -535,10 +538,11 @@ export class SurveyModel extends SurveyElementCore
    *- `options.value` - the question value.
    *- `options.fileName` - a removed file's name, set it to `null` to clear all files.
    *- `options.callback` - a callback function to get the operation status.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
    * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
-   * @see [View Examples](https://www.google.com/search?q=site%3Ahttps%3A%2F%2Fsurveyjs.io%2FExamples%2F+%22onClearFiles%22)
    */
   public onClearFiles: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
@@ -699,7 +703,40 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
 
+  /**
+   * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
+   *
+   * This event is raised only for those questions that have the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadEnabled) property set to `true`.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.skip`- The number of choice items to skip.
+   * - `options.take` - The number of choice items to load. You can use the question's [`choicesLazyLoadPageSize`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadPageSize) property to change this number.
+   * - `options.filter` - A search string used to filter choices.
+   * - `options.setItems(items: Array<any>, totalCount: Number)` - A method that you should call to assign loaded items to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   * @see QuestionDropdownModel.choicesLazyLoadEnabled
+   * @see QuestionDropdownModel.choicesLazyLoadPageSize
+   */
   public onChoicesLazyLoad: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+
+  /**
+   * Use this event to load a display text for the [default choice item](https://surveyjs.io/form-library/documentation/questiondropdownmodel#defaultValue) in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions.
+   *
+   * If you load choices from a server (use [`choicesByUrl`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesByUrl) or [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad)), display texts become available only when data is loaded, which does not happen until a user opens the drop-down menu. However, a display text for a default choice item is required before that. In this case, you can load data individually for the default item within the `onGetChoiceDisplayValue` event handler.
+   *
+   * The event handler accepts the following arguments:
+   *
+   * - `sender` - A Survey instance that raised the event.
+   * - `options.question` - A Question instance for which the event is raised.
+   * - `options.values`- An array of one (in Dropdown) or more (in Tag Box) default values.
+   * - `options.setItems(displayValues: Array<string>)` - A method that you should call to assign display texts to the question.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
+   */
   public onGetChoiceDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
@@ -1015,6 +1052,15 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
+   * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   *
+   * - `sender` - A Survey that raised the event.
+   * - `options.panel` - A Panel whose actions are being modified.
+   * - `options.actions` - An array of panel [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it.
+   * - `options.question` - A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel.
+   */
+  public onGetPanelFooterActions: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    *- `sender` - A survey object that fires the event.
    *- `options.question` - A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired.
@@ -1119,6 +1165,7 @@ export class SurveyModel extends SurveyElementCore
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
+    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1299,6 +1346,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
+      .append(this.css.bodyWithTimer, this.showTimerPanel != "none" && this.state === "running")
       .append(this.css.body + "--" + this.calculatedWidthMode).toString();
   }
   @property() completedCss: string;
@@ -1657,7 +1705,7 @@ export class SurveyModel extends SurveyElementCore
    * - `autogonext` - navigate to the next page automatically but do not submit survey data.
    * - `false` - do not navigate to the next page and do not submit survey data automatically.
    *
-   * > NOTE: If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * > If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
    *
    * @see showNavigationButtons
    *
@@ -1785,7 +1833,18 @@ export class SurveyModel extends SurveyElementCore
       key.substring(0, key.indexOf(postPrefix))
     );
   }
-
+  /**
+   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the choices array.
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @see clearIncorrectValues
+   */
+  public get keepIncorrectValues(): boolean {
+    return this.getPropertyValue("keepIncorrectValues", false);
+  }
+  public set keepIncorrectValues(val: boolean) {
+    this.setPropertyValue("keepIncorrectValues", val);
+  }
   /**
    * Gets or sets the survey locale. The default value it is empty, this means the 'en' locale is used.
    * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
@@ -1958,17 +2017,20 @@ export class SurveyModel extends SurveyElementCore
   public set logoPosition(value: string) {
     this.setPropertyValue("logoPosition", value);
   }
-  public get hasLogo() {
-    return !!this.logo && this.logoPosition !== "none";
+  public get hasLogo(): boolean {
+    return this.getPropertyValue("hasLogo", false);
   }
-  public get isLogoBefore() {
+  private updateHasLogo(): void {
+    this.setPropertyValue("hasLogo", !!this.logo && this.logoPosition !== "none");
+  }
+  public get isLogoBefore(): boolean {
     if (this.isDesignMode) return false;
     return (
       this.renderedHasLogo &&
       (this.logoPosition === "left" || this.logoPosition === "top")
     );
   }
-  public get isLogoAfter() {
+  public get isLogoAfter(): boolean {
     if (this.isDesignMode) return this.renderedHasLogo;
     return (
       this.renderedHasLogo &&
@@ -2489,16 +2551,13 @@ export class SurveyModel extends SurveyElementCore
       this.showPreviewBeforeComplete != "showAllQuestions"
     );
   }
-  /**
-   * Returns the text/HTML that is rendered as a survey title.
-   */
   public get processedTitle() {
     return this.locTitle.renderedHtml;
   }
   /**
    * Gets or sets question title location relative to the input field: `"top"`, `"bottom"`, or `"left"`.
    *
-   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+   * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    *
    * You can override this setting if you specify the `questionTitleLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionTitleLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionTitleLocation) or set the `titleLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#titleLocation).
    */
@@ -4434,7 +4493,7 @@ export class SurveyModel extends SurveyElementCore
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
   }
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, callback: (displayValues: Array<string>) => void }): void {
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
     this.onGetChoiceDisplayValue.fire(this, options);
   }
   matrixBeforeRowAdded(options: any) {
@@ -4567,7 +4626,17 @@ export class SurveyModel extends SurveyElementCore
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
   }
-
+  public getUpdatedPanelFooterActions(
+    panel: PanelModel,
+    actions: Array<IAction>, question?: QuestionPanelDynamicModel): Array<IAction> {
+    var options = {
+      question: question,
+      panel: panel,
+      actions: actions,
+    };
+    this.onGetPanelFooterActions.fire(this, options);
+    return options.actions;
+  }
   getUpdatedElementTitleActions(
     element: ISurveyElement,
     titleActions: Array<IAction>
@@ -4601,7 +4670,6 @@ export class SurveyModel extends SurveyElementCore
     this.onGetPanelTitleActions.fire(this, options);
     return options.titleActions;
   }
-
   private getUpdatedPageTitleActions(
     page: ISurveyElement,
     titleActions: Array<IAction>
@@ -5497,6 +5565,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
+    this.updateHasLogo();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
     this.setCalculatedWidthModeUpdater();
@@ -6410,12 +6479,59 @@ export class SurveyModel extends SurveyElementCore
     if (width && !isNaN(width)) width = width + "px";
     return this.getPropertyValue("calculatedWidthMode") == "static" && width || undefined;
   }
+  public get timerInfo(): { spent: number, limit?: number } {
+    return this.getTimerInfo();
+  }
+  public get timerClock(): { majorText: string, minorText?: string } {
+    let major: string;
+    let minor: string;
+    if(!!this.currentPage) {
+      let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
+      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      else { major = this.getDisplayClockTime(spent); }
+      if(minorSpent !== undefined) {
+        if(minorLimit > 0) {
+          minor = this.getDisplayClockTime(minorLimit - minorSpent);
+        } else {
+          minor = this.getDisplayClockTime(minorSpent);
+        }
+      }
+    }
+    return { majorText: major, minorText: minor };
+  }
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
     var loc = new LocalizableString(this, true);
     loc.text = options.text;
     return loc.textOrHtml;
+  }
+  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
+    let page = this.currentPage;
+    if (!page) return { spent: 0, limit: 0 };
+    let pageSpent = page.timeSpent;
+    let surveySpent = this.timeSpent;
+    let pageLimitSec = this.getPageMaxTimeToFinish(page);
+    let surveyLimit = this.maxTimeToFinish;
+    if (this.showTimerPanelMode == "page") {
+      return { spent: pageSpent, limit: pageLimitSec };
+    }
+    if(this.showTimerPanelMode == "survey") {
+      return { spent: surveySpent, limit: surveyLimit };
+    }
+    else {
+      if(pageLimitSec > 0 && surveyLimit > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
+      } else if(pageLimitSec > 0) {
+        return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
+      }
+      else if(surveyLimit > 0) {
+        return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
+      }
+      else {
+        return { spent: pageSpent, minorSpent: surveySpent };
+      }
+    }
   }
   private getTimerInfoText() {
     var page = this.currentPage;
@@ -6465,6 +6581,15 @@ export class SurveyModel extends SurveyElementCore
   ): string {
     const strName = this.maxTimeToFinish > 0 ? "timerLimitSurvey" : "timerSpentSurvey";
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
+  }
+  private getDisplayClockTime(val: number): string {
+    const min: number = Math.floor(val / 60);
+    const sec: number = val % 60;
+    let secStr = sec.toString();
+    if(sec < 10) {
+      secStr = "0" + secStr;
+    }
+    return `${min}:${secStr}`;
   }
   private getDisplayTime(val: number): string {
     const min: number = Math.floor(val / 60);

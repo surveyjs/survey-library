@@ -8,6 +8,8 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { SurveyError } from "./survey-error";
 import { Base } from "./base";
 import { IAction } from "./actions/action";
+import { PanelModel } from "./panel";
+import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -51,6 +53,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isClearValueOnHidden: boolean;
   isClearValueOnHiddenContainer: boolean;
   questionsOrder: string;
+  keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
   questionAdded(
     question: IQuestion,
@@ -118,6 +121,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ): Array<IAction>;
+  getUpdatedPanelFooterActions(
+    panel: PanelModel,
+    actions: Array<IAction>,
+    question?: QuestionPanelDynamicModel
+  ): Array<IAction>;
   questionStartIndex: string;
   questionTitleLocation: string;
   questionDescriptionLocation: string;
@@ -170,7 +178,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   canChangeChoiceItemsVisibility(): boolean;
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, callback: (displayValues: Array<string>) => void }): void;
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixBeforeRowAdded(options: {
     question: IQuestion,

@@ -14,7 +14,9 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 
 /**
- * The page object. It has elements collection, that contains questions and panels.
+ * The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
  */
 export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
@@ -43,8 +45,9 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && (<any>this.survey).showPageTitles;
   }
   /**
-   * Use this property to show title in navigation buttons. If the value is empty then page name is used.
-   * @see survey.progressBarType
+   * A caption displayed on a navigation button in the progress bar. Applies only when [`showProgressBar`](https://surveyjs.io/form-library/documentation/surveymodel#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is `"buttons"`.
+   *
+   * If this property is undefined, the navigation button displays the page's [`name`](https://surveyjs.io/form-library/documentation/pagemodel#name).
    */
   public get navigationTitle(): string {
     return this.getLocalizableStringText("navigationTitle");
@@ -98,7 +101,9 @@ export class PageModel extends PanelModelBase implements IPage {
     return !this.isDesignMode || this.visibleIndex == 0;
   }
   /**
-   * Returns true, if the page is started page in the survey. It can be shown on the start only and the end-user could not comeback to it after it passed it.
+   * Returns `true` if this page is a start page.
+   *
+   * Refer to the following help topic for more information on how to configure a start page: [Start Page](https://surveyjs.io/form-library/documentation/design-survey-create-a-multi-page-survey#start-page).
    */
   public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
@@ -152,7 +157,7 @@ export class PageModel extends PanelModelBase implements IPage {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
   }
   /**
-   * The property returns true, if the page has been shown to the end-user.
+   * Returns `true` if the respondent has already seen this page during the current session.
    */
   public get wasShown(): boolean {
     return this.hasShownValue;
@@ -173,7 +178,7 @@ export class PageModel extends PanelModelBase implements IPage {
     this.randomizeElements(this.areQuestionsRandomized);
   }
   /**
-   * Call it to scroll to the page top.
+   * Scrolls this page to the top.
    */
   public scrollToTop() {
     if (!!this.survey) {
@@ -181,7 +186,8 @@ export class PageModel extends PanelModelBase implements IPage {
     }
   }
   /**
-   * Time in seconds end-user spent on this page
+   * A time period that a respondent spent on this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   * @see maxTimeToFinish
    */
   public timeSpent = 0;
   // public get timeSpent(): number {
@@ -191,7 +197,9 @@ export class PageModel extends PanelModelBase implements IPage {
   //   this.setPropertyValue("timeSpent", val);
   // }
   /**
-   * Returns the list of all panels in the page
+   * Returns a list of all panels on this page.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
+   * @param includingDesignTime For internal use.
    */
   public getPanels(
     visibleOnly: boolean = false,
@@ -202,9 +210,12 @@ export class PageModel extends PanelModelBase implements IPage {
     return result;
   }
   /**
-   * The maximum time in seconds that end-user has to complete the page. If the value is 0 or less, the end-user has unlimited number of time to finish the page.
-   * @see startTimer
-   * @see SurveyModel.maxTimeToFinishPage
+   * A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * A negative value or 0 sets an unlimited time period.
+   *
+   * Alternatively, you can use the `SurveyModel`'s [`maxTimeToFinishPage`](https://surveyjs.io/form-library/documentation/surveymodel#maxTimeToFinishPage) property to specify identical time periods for all survey pages.
+   * @see timeSpent
    */
   public get maxTimeToFinish(): number {
     return this.getPropertyValue("maxTimeToFinish", 0);

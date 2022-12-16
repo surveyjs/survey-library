@@ -8,6 +8,7 @@ import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell,
+  MatrixDropdownColumn,
   AdaptiveActionContainer,
   Question,
   Base
@@ -18,7 +19,6 @@ import { SurveyPanel } from "./panel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
-import { MatrixDropdownColumn } from "../question_matrixdropdowncolumn";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
@@ -56,9 +56,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    this.question.visibleRowsChangedCallback = undefined;
-    this.question.onRenderedTableResetCallback = undefined;
-    this.question.renderedTable.renderedRowsChangedCallback = undefined;
+    this.question.visibleRowsChangedCallback = () => {};
+    this.question.onRenderedTableResetCallback = () => {};
+    this.question.renderedTable.renderedRowsChangedCallback = () => {};
   }
   protected renderElement(): JSX.Element {
     return this.renderTableDiv();
@@ -71,7 +71,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
-      <div style={divStyle} ref={(root) => (this.control = root)}>
+      <div style={divStyle} ref={(root) => (this.setControl(root))}>
         <table className={this.question.getTableCss()}>
           {header}
           {rows}
@@ -80,7 +80,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </div>
     );
   }
-  renderHeader(): JSX.Element {
+  renderHeader(): JSX.Element | null {
     var table = this.question.renderedTable;
     if (!table.showHeader) return null;
     var headers: any[] = [];
@@ -107,7 +107,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </thead>
     );
   }
-  renderFooter(): JSX.Element {
+  renderFooter(): JSX.Element | null {
     var table = this.question.renderedTable;
     if (!table.showFooter) return null;
     var row = this.renderRow(
@@ -119,7 +119,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   renderRows(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var rows = [];
+    var rows:Array<JSX.Element> = [];
     var renderedRows = this.question.renderedTable.rows;
     for (var i = 0; i < renderedRows.length; i++) {
       rows.push(
@@ -133,7 +133,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     row: QuestionMatrixDropdownRenderedRow,
     cssClasses: any
   ): JSX.Element {
-    var matrixrow = [];
+    var matrixrow:Array<JSX.Element> = [];
     var cells = row.cells;
 
     for (var i = 0; i < cells.length; i++) {
@@ -188,8 +188,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     cell: QuestionMatrixDropdownRenderedCell,
     reason: string,
     cssClasses: any
-  ): JSX.Element {
-    var cellContent = null;
+  ): JSX.Element | null {
+    var cellContent: JSX.Element | null = null;
     var cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
@@ -270,7 +270,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
   protected getStateElement(): Base {
     return this.column;
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): JSX.Element | null {
     if(!this.column.isRenderedRequired) return null;
     return (
       <>
@@ -290,7 +290,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   protected get itemCss(): string {
     return !!this.cell ? this.cell.className : "";
   }
-  protected getQuestion(): Question {
+  protected getQuestion(): Question | any {
     var q = super.getQuestion();
     if (!!q) return q;
     return !!this.cell ? this.cell.question : null;

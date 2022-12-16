@@ -36,7 +36,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     if (!this.locStr) return;
     this.locStr.onStringChanged.add(this.onChangedHandler);
   }
-  render(): JSX.Element {
+  render(): JSX.Element | null {
     if (!this.locStr) return null;
     this.isRendering = true;
     const strEl = this.renderString();

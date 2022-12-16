@@ -266,6 +266,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return isValid;
   }
+  protected convertFuncValuetoQuestionValue(val: any): any {
+    let inpuType = this.inputType.replace("-local", "");
+    return Helpers.convertValToQuestionVal(val, inpuType);
+  }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
     let errorValue = value.toString();
@@ -394,6 +398,53 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return style;
   }
+  //web-based methods
+  private _isWaitingForEnter = false;
+  private updateValueOnEvent(event: any) {
+    const newValue = event.target.value;
+    if (
+      !Helpers.isTwoValueEquals(this.value, newValue)
+    ) {
+      this.value = newValue;
+    }
+  }
+  onCompositionUpdate = (event: any) => {
+    if(this.isInputTextUpdate) {
+      event.persist();
+      setTimeout(() => {
+        this.updateValueOnEvent(event);
+      }, 1);
+    }
+  };
+  public onKeyUp = (event: any) => {
+    if(this.isInputTextUpdate) {
+      if (!this._isWaitingForEnter || event.keyCode === 13) {
+        this.updateValueOnEvent(event);
+        this._isWaitingForEnter = false;
+      }
+    } else {
+      if (event.keyCode === 13) {
+        this.updateValueOnEvent(event);
+      }
+    }
+  };
+  public onKeyDown = (event: any) => {
+    if(this.isInputTextUpdate) {
+      this._isWaitingForEnter = event.keyCode === 229;
+    }
+  }
+  public onChange = (event: any): void => {
+    if (event.target === document.activeElement) {
+      if (this.isInputTextUpdate) {
+        this.updateValueOnEvent(event);
+      }
+    } else {
+      this.updateValueOnEvent(event);
+    }
+  };
+  public onBlur = (event: any): void => {
+    this.updateValueOnEvent(event);
+  };
 }
 
 const minMaxTypes = [

@@ -43,8 +43,7 @@
     "build_vue": "npm run build_vue_dev && npm run build_vue_prod",
     "build_vue_ui": "webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType prod",
     "build_core": "npm run build_core_dev && npm run build_core_prod",
-    "build-core-typings:linux": "tsc --p tsconfig.typing.json && echo \"declare module 'survey-core' { import main = require('entries/core'); export = main; }\" >> build/survey-core/survey.core.d.ts",
-    "build-core-typings:windows": "tsc --p tsconfig.typing.json && echo declare module 'survey-core' { import main = require('entries/core'); export = main; } >> build/survey-core/survey.core.d.ts",
+    "build-plugins": "",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
@@ -78,10 +77,11 @@
     "testcafe:ci:angular": "testcafe -c 4 -q chrome:headless testCafe/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.58",
+  "version": "1.9.64",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@types/babel__traverse": "7.18.2",
     "@angular-devkit/build-angular": "~13.0.0",
     "@angular/cli": "~13.0.0",
     "@angular/common": "~13.0.0",
@@ -96,7 +96,7 @@
     "@types/angular": "^1.6.2",
     "@types/jest": "23.3.3",
     "@types/jquery": "^2.0.39",
-    "@types/node": "7.0.4",
+    "@types/node": "*",
     "@types/papaparse": "^5.0.4",
     "@types/qunit": "2.0.31",
     "@types/react": "17.0.1",
@@ -171,6 +171,7 @@
     "vue-loader": "15.9.8",
     "vue-property-decorator": "9.1.2",
     "vue-template-compiler": "2.6.14",
+    "vue-tsc": "^1.0.8",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
@@ -191,6 +192,7 @@
   },
   "dependencies": {
     "signature_pad": "^2.3.2",
-    "testcafe-angular-selectors": "^0.4.1"
+    "testcafe-angular-selectors": "^0.4.1",
+    "vite": "^3.1.8"
   }
 }

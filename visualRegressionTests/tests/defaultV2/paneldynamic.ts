@@ -91,6 +91,32 @@ frameworks.forEach(framework => {
 });
 
 frameworks.forEach(framework => {
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
+    await applyTheme(theme);
+    await initSurvey(framework, json, {
+      onGetPanelFooterActions: (_, opt) => {
+        opt.actions.push({
+          title: "Duplicate",
+          action: () => {}
+        });
+      }
+    });
+  });
+  test("Check paneldynamic with custom actions", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const paneldynamicRoot = Selector(".sd-question--paneldynamic");
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("paneldynamic-with-custom-actions.png", paneldynamicRoot, t, comparer);
+    });
+  });
+});
+
+frameworks.forEach(framework => {
   const json = {
     elements: [
       {

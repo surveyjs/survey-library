@@ -66,5 +66,4 @@ const surveyJson = {
 }
 ```
 
-[View the "Process Text" Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
-[View the "Survey Options" Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))

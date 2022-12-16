@@ -10,12 +10,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel } from "survey-core";
+import { PopupDropdownViewModel } from "survey-core";
 import { BaseVue } from "../../base";
 
 @Component
 export class PopupPointer extends BaseVue {
-  @Prop() model: PopupBaseViewModel;
+  @Prop() model: PopupDropdownViewModel;
 }
 Vue.component("popup-pointer", PopupPointer);
 export default PopupPointer;

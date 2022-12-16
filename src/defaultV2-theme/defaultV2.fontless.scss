@@ -26,6 +26,7 @@
 @import "blocks/sd-imagepicker.scss";
 @import "blocks/sd-image.scss";
 @import "blocks/sd-html.scss";
+@import "blocks/sd-expression.scss";
 @import "blocks/sd-progress.scss";
 @import "blocks/sd-boolean.scss";
 @import "blocks/sd-paneldynamic.scss";
@@ -41,6 +42,7 @@
 @import "blocks/sd-completedpage.scss";
 @import "blocks/sd-progress-buttons.scss";
 @import "blocks/sd-list.scss";
+@import "blocks/sd-timer.scss";
 @import "../common-styles/sv-actionbar.scss";
 @import "../common-styles/sv-popup.scss";
 @import "../common-styles/sv-buttongroup.scss";
@@ -60,6 +62,7 @@ body {
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
   --sd-imagepicker-gap: 16px;
+  --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: $font-family;
   background-color: $background-dim;
@@ -90,6 +93,9 @@ body {
     border: 2px solid rgba(0, 0, 0, 0);
     background-color: $foreground-light;
   }
+}
+.sd-root-modern--mobile {
+  --sd-timer-size: calc(9 * #{$base-unit});
 }
 
 .sv-popup {

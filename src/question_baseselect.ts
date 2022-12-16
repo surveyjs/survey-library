@@ -12,6 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -480,16 +481,16 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected updateSelectedItemValues(): void {
-    if(!!this.survey && !this.isEmpty() && this.choices.length === 0) {
+    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
       const IsMultipleValue = this.getIsMultipleValue();
 
       this.survey.getChoiceDisplayValue({
         question: this,
         values: IsMultipleValue ? this.value : [this.value],
-        callback: (displayValues: Array<string>) => {
-          if(!displayValues || !displayValues.length) return;
+        setItems: (displayValues: Array<string>) => {
+          if (!displayValues || !displayValues.length) return;
 
-          if(IsMultipleValue) {
+          if (IsMultipleValue) {
             this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
           } else {
             this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
@@ -526,7 +527,7 @@ export class QuestionSelectBase extends Question {
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
    *
-   * [View "Dropdown + RESTful" demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
    * @see choices
    */
   public get choicesByUrl(): ChoicesRestful {
@@ -542,14 +543,16 @@ export class QuestionSelectBase extends Question {
    *
    * ```js
    * {
-   *   "value": any, // A value to be saved in the survey results
+   *   "value": any, // A unique value to be saved in the survey results.
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
-   *   "customProperty": any // Any property that you find useful
+   *   "customProperty": any // Any property that you find useful.
    * }
    * ```
    *
-   * Refer to the following help topic for information on how to add custom properties so that they are serialized into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
+   * To enable Markdown support for the `text` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl
@@ -621,6 +624,12 @@ export class QuestionSelectBase extends Question {
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
+  /**
+   * Specifies whether to keep values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @see clearIncorrectValues
+   */
   public get keepIncorrectValues(): boolean {
     return this.getPropertyValue("keepIncorrectValues", false);
   }
@@ -1236,6 +1245,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected hasValueToClearIncorrectValues(): boolean {
+    if(!!this.survey && this.survey.keepIncorrectValues) return false;
     return !this.keepIncorrectValues && !this.isEmpty();
   }
   protected clearValueIfInvisibleCore(): void {
@@ -1472,6 +1482,10 @@ export class QuestionSelectBase extends Question {
     super.afterRender(el);
     this.rootElement = el;
   }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.rootElement = undefined;
+  }
   private focusOtherComment() {
     if (!!this.rootElement) {
       setTimeout(() => {
@@ -1502,7 +1516,22 @@ export class QuestionSelectBase extends Question {
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
   }
-
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    if(!!this.dropdownListModel) {
+      const listCssClasses = {};
+      mergeValues(css.list, listCssClasses);
+      mergeValues(res.list, listCssClasses);
+      res["list"] = listCssClasses;
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if(this.dropdownListModel) {
+      this.dropdownListModel.updateListCssClasses(classes.list);
+    }
+    return classes;
+  }
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).

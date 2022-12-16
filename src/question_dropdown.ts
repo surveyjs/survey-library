@@ -86,6 +86,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getType(): string {
     return "dropdown";
   }
+  public get ariaRole(): string {
+    return "combobox";
+  }
   public get selectedItem(): ItemValue {
     const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
@@ -205,7 +208,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
+  /**
+   * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
+   * @see choicesLazyLoadPageSize
+   * @see SurveyModel.onChoicesLazyLoad
+   */
   @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  /**
+   * Specifies the number of choice items to load at a time when choices are loaded on demand.
+   * @see choicesLazyLoadEnabled
+   * @see SurveyModel.onChoicesLazyLoad
+   */
   @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   public getControlClass(): string {

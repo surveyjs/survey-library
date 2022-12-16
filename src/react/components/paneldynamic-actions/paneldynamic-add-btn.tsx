@@ -4,11 +4,13 @@ import {
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { ReactSurveyElement } from "../../reactquestion_element";
-import { SurveyQuestionPanelDynamic } from "../../reactquestion_paneldynamic";
 
 export class SurveyQuestionPanelDynamicAction extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
+  }
+  protected get data(): any {
+    return (this.props.item && this.props.item.data) || this.props.data;
   }
   protected get question(): QuestionPanelDynamicModel {
     return (this.props.item && this.props.item.data.question) || this.props.data.question;
@@ -19,7 +21,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
   protected handleClick = (event: any) => {
     this.question.addPanelUI();
   }
-  protected renderElement(): JSX.Element {
+  protected renderElement(): JSX.Element | null {
     if (!this.question.canAddPanel) return null;
     return (
       <button type="button" className={this.question.getAddButtonCss()} onClick={this.handleClick} >

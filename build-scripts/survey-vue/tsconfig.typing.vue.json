@@ -11,21 +11,22 @@
     "baseUrl": ".",
     "paths": {
       "survey-core": [
-        "./src/entries/core.ts"
+        "../../src/entries/core.ts"
       ]
     },
-    "sourceMap": false,
-    "noImplicitAny": false,
-    "importHelpers": false,
-    "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "types": [
+      "vite/client",
+      "node",
+    ],
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "build/survey-core/survey.core.d.ts"
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "Node",
+    "outFile": "../../build/survey-vue/survey-vue.d.ts",
   },
   "include": [
-    "src/entries/core.ts"
+    "../../src/entries/vue.ts"
   ]
 }

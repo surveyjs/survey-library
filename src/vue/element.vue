@@ -84,7 +84,7 @@ import { BaseVue } from "./base";
 export class SurveyElementVue extends BaseVue {
   @Prop() css: any;
   @Prop() survey: SurveyModel;
-  @Prop() element: SurveyElement;
+  @Prop() element: any;
   @Prop() row: QuestionRowModel;
   protected getModel(): Base {
     return this.element;

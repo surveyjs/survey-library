@@ -1,6 +1,5 @@
 import { settings } from "./../settings";
-import { Serializer } from "../jsonobject";
-import { Base } from "src/base";
+
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -154,8 +153,8 @@ function createSvg(
   );
 
   let titleElement = svgElem.getElementsByTagName("title")[0];
-  if(!title) {
-    if(!!titleElement) {
+  if (!title) {
+    if (!!titleElement) {
       svgElem.removeChild(titleElement);
     }
     return;

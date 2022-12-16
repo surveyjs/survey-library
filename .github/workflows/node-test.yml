@@ -1,4 +1,4 @@
-name: NodeJS 10.x
+name: NodeJS Test Build
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [19.2.0]
     
     steps:
     - uses: actions/checkout@v3
@@ -23,4 +23,4 @@ jobs:
     - name: Build
       run: |
         npm install
-        npm run build
+        export NODE_OPTIONS=--openssl-legacy-provider && npm run build

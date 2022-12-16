@@ -35,13 +35,13 @@
           v-bind:class="question.cssClasses.filterStringInput"
           v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
+          :role="model.filterStringEnabled ? question.ariaRole : null"
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"
           :aria-label="question.placeholder"
           :placeholder="question.readOnlyText"
-          @change="inputChange"
-          @keyup="inputKeyHandler"
+          @input="inputChange"
           @blur="blur"
         />
       </div>
@@ -78,7 +78,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question, DropdownListModel, Helpers } from "survey-core";
-import BaseVue from "src/vue/base";
+import BaseVue from "../../base";
 
 @Component
 export class DropdownComponent extends BaseVue {
@@ -93,9 +93,6 @@ export class DropdownComponent extends BaseVue {
   }
 
   inputChange(event: any) {
-    this.model.filterString = event.target.value;
-  }
-  inputKeyHandler(event: any) {
     this.model.filterString = event.target.value;
   }
 

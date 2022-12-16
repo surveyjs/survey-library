@@ -5,7 +5,7 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { doKey2ClickBlur, doKey2ClickUp, mergeValues } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -36,8 +36,8 @@ export class DropdownListModel extends Base {
     this.updateListItems();
   }
 
-  private updateQuestionChoices(): void {
-    if(this.isRunningLoadQuestionChoices) return;
+  private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
+    if (this.isRunningLoadQuestionChoices) return;
 
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
     if(!this.itemsSettings.skip || isUpdate) {
@@ -49,8 +49,11 @@ export class DropdownListModel extends Base {
         take: this.itemsSettings.take,
         setItems: (items: Array<any>, totalCount: number) => {
           this.isRunningLoadQuestionChoices = false;
-          this.setItems(items, totalCount);
+          this.setItems(items || [], totalCount || 0);
           this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
+          if (!!callbackAfterItemsLoaded) {
+            callbackAfterItemsLoaded();
+          }
         }
       });
       this.itemsSettings.skip += this.itemsSettings.take;
@@ -138,7 +141,9 @@ export class DropdownListModel extends Base {
       }
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
-    model.cssClasses = this.question.survey?.getCss().list;
+  }
+  public updateListCssClasses(listCssClasses: any) {
+    this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
     if(!!this.filterString) {
@@ -149,9 +154,19 @@ export class DropdownListModel extends Base {
     if(!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setFilterStringToListModel(this.filterString);
     this.setInputHasValue(!!this.filterString);
-    this.popupRecalculatePosition(true);
+
+    const updateAfterFilterStringChanged = () => {
+      this.setFilterStringToListModel(this.filterString);
+      this.popupRecalculatePosition(true);
+    };
+
+    if (this.question.choicesLazyLoadEnabled) {
+      this.resetItemsSettings();
+      this.updateQuestionChoices(updateAfterFilterStringChanged);
+    } else {
+      updateAfterFilterStringChanged();
+    }
   }
 
   setInputHasValue(newValue: boolean): void {
@@ -190,6 +205,9 @@ export class DropdownListModel extends Base {
   }
   public get inputReadOnly(): boolean {
     return this.question.isInputReadOnly || this.searchEnabled;
+  }
+  public get filterStringEnabled(): boolean {
+    return !this.question.isInputReadOnly && this.searchEnabled;
   }
 
   public setSearchEnabled(newValue: boolean) {

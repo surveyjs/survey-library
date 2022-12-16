@@ -51,11 +51,11 @@
           "Title": "Conditional Logic and Dynamic Texts"
         },
         {
-          "Name": "design-survey-question-titles",
+          "Name": "design-survey-configure-question-titles",
           "Title": "Configure Question Titles"
         },
         {
-          "Name": "design-survey-predefine-answers",
+          "Name": "design-survey-pre-populate-form-fields",
           "Title": "Populate Form Fields"
         },
         {
@@ -87,12 +87,12 @@
       "Title": "Data Validation"
     },
     {
-      "Name": "localization",
+      "Name": "survey-localization",
       "Title": "Localization & Globalization"
     },
     {
       "Name": "icons",
-      "Title": "Icons"
+      "Title": "UI Icons"
     },
     {
       "Name": "Troubleshooting",

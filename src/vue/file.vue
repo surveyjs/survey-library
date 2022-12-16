@@ -3,6 +3,7 @@
     <input
       :class="question.cssClasses.fileInput"
       v-if="!question.isReadOnly"
+      tabindex="-1"
       type="file"
       :id="question.inputId"
       @change="question.doChange"
@@ -18,6 +19,7 @@
       v-if="question.isReadOnly"
       type="file"
       disabled
+      :id="question.inputId"
       :class="question.getReadOnlyFileCss()"
       :multiple="question.multipleRendered"
       :placeholder="question.title"
@@ -37,6 +39,7 @@
         <div :class="question.cssClasses.wrapper">
           <label
             role="button"
+            tabindex="0"
             :class="question.getChooseFileCss()"
             :for="question.inputId"
             v-bind:aria-label="question.chooseButtonCaption"

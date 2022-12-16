@@ -237,10 +237,12 @@ export class Base {
    *
    * Parameters:
    *
-   * - `sender` - A SurveyJS object whose property has changed.
-   * - `options.name` - The name of the changed property.
-   * - `options.oldValue` - An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
-   * - `options.newValue` - A new value for the property.
+   * | Parameter | Type | Description |
+   * | --------- | ---- | ----------- |
+   * | `sender`  | `this` | A SurveyJS object whose property has changed. |
+   * | `options.name` | `string` | The name of the changed property. |
+   * | `options.newValue` | `any` | A new value for the property. |
+   * | `options.oldValue` | `any` | An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does. |
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**

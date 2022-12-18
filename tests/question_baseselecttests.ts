@@ -190,6 +190,23 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
   settings.showItemsInOrder = "row";
   settings.supportCreatorV2 = false;
 });
+QUnit.test("settings.selectNoneItemValue", function (assert) {
+  settings.selectNoneItemValue = "n/a";
+  const json = {
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3], showNoneItem: true },
+      { name: "q1", type: "checkbox", choices: [1, 2, 3], showNoneItem: true }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionSelectBase>survey.getAllQuestions()[0];
+  q1.value = "n/a";
+  assert.equal(q1.isNoneSelected, true);
+  const q2 = <QuestionSelectBase>survey.getAllQuestions()[1];
+  q2.value = [1, "n/a"];
+  assert.equal(q2.isNoneSelected, true);
+  settings.selectNoneItemValue = "none";
+});
 
 QUnit.test("Set ", function (assert) {
   var json = {

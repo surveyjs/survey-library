@@ -921,3 +921,23 @@ QUnit.test("lazy loading + change filter string", assert => {
     done1();
   }, 550);
 });
+QUnit.test("show comment and show other together", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "showOtherItem": true,
+      "showCommentArea": true,
+      "choices": [1, 2, 3]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.showOtherItem, true, "showOtherItem is true");
+  assert.equal(question.showCommentArea, true, "hasComment is true");
+  assert.equal(question.getStoreOthersAsComment(), false, "we have show comment");
+  question.showCommentArea = false;
+  assert.equal(question.getStoreOthersAsComment(), true, "show comment is hidden");
+  question.showCommentArea = true;
+  assert.equal(question.getStoreOthersAsComment(), false, "show comment again");
+});

@@ -23,8 +23,8 @@ export class QuestionSelectBase extends Question {
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
-  private commentValue: string;
-  private prevCommentValue: string;
+  private otherValue: string;
+  private prevOtherValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
@@ -225,7 +225,7 @@ export class QuestionSelectBase extends Question {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
   }
@@ -367,10 +367,10 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("autoOtherMode", val);
   }
   protected getQuestionComment(): string {
-    if (!!this.commentValue) return this.commentValue;
+    if (!!this.otherValue) return this.otherValue;
     if (this.hasComment || this.getStoreOthersAsComment())
       return super.getQuestionComment();
-    return this.commentValue;
+    return this.otherValue;
   }
   protected selectOtherValueFromComment(val: boolean): void {
     this.value = val ? this.otherItem.value : undefined;
@@ -378,7 +378,7 @@ export class QuestionSelectBase extends Question {
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
     if (this.autoOtherMode) {
-      this.prevCommentValue = undefined;
+      this.prevOtherValue = undefined;
       const isSelected = this.isOtherSelected;
       if (!isSelected && !!newValue || isSelected && !newValue) {
         this.selectOtherValueFromComment(!!newValue);
@@ -387,9 +387,9 @@ export class QuestionSelectBase extends Question {
     if (this.hasComment || this.getStoreOthersAsComment())
       super.setQuestionComment(newValue);
     else {
-      if (!this.isSettingComment && newValue != this.commentValue) {
+      if (!this.isSettingComment && newValue != this.otherValue) {
         this.isSettingComment = true;
-        this.commentValue = newValue;
+        this.otherValue = newValue;
         if (this.isOtherSelected && !this.isRenderedValueSetting) {
           this.value = this.rendredValueToData(this.renderedValue);
         }
@@ -400,11 +400,11 @@ export class QuestionSelectBase extends Question {
   }
   public clearValue() {
     super.clearValue();
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
   }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
@@ -430,14 +430,14 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
-    if (isOtherSel && !!this.prevCommentValue) {
-      var oldComment = this.prevCommentValue;
-      this.prevCommentValue = undefined;
+    if (isOtherSel && !!this.prevOtherValue) {
+      var oldComment = this.prevOtherValue;
+      this.prevOtherValue = undefined;
       this.comment = oldComment;
     }
     if (!isOtherSel && !!this.comment) {
       if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
-        this.prevCommentValue = this.comment;
+        this.prevOtherValue = this.comment;
       }
       this.comment = "";
     }
@@ -996,8 +996,9 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
-  public getStoreOthersAsComment() {
+  public getStoreOthersAsComment(): boolean {
     if (this.isSettingDefaultValue) return false;
+    if(this.showCommentArea) return false;
     return (
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&

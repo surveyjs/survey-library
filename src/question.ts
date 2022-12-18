@@ -1020,7 +1020,6 @@ export class Question extends SurveyElement<Question>
   public set showCommentArea(val: boolean) {
     if (!this.supportComment()) return;
     this.setPropertyValue("showCommentArea", val);
-    if (this.showCommentArea) this.hasOther = false;
   }
 
   public get hasComment(): boolean {
@@ -1059,7 +1058,6 @@ export class Question extends SurveyElement<Question>
   public set showOtherItem(val: boolean) {
     if (!this.supportOther() || this.showOtherItem == val) return;
     this.setPropertyValue("showOtherItem", val);
-    if (this.showOtherItem) this.hasComment = false;
     this.hasOtherChanged();
   }
 

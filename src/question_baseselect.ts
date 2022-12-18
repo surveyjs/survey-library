@@ -132,7 +132,7 @@ export class QuestionSelectBase extends Question {
     return this.hasOther && this.getHasOther(this.renderedValue);
   }
   public get isNoneSelected(): boolean {
-    return this.hasNone && this.selectedItem === this.noneItem;
+    return this.hasNone && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -347,7 +347,10 @@ export class QuestionSelectBase extends Question {
     );
   }
   protected getHasOther(val: any): boolean {
-    return val === this.otherItem.value;
+    return this.getIsItemValue(val, this.otherItem);
+  }
+  protected getIsItemValue(val: any, item: ItemValue): boolean {
+    return val === item.value;
   }
   get validatedValue(): any {
     return this.rendredValueToDataCore(this.value);

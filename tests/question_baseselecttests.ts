@@ -201,10 +201,10 @@ QUnit.test("settings.selectNoneItemValue", function (assert) {
   const survey = new SurveyModel(json);
   const q1 = <QuestionSelectBase>survey.getAllQuestions()[0];
   q1.value = "n/a";
-  assert.equal(q1.isNoneSelected, true);
+  assert.equal(q1.isNoneSelected, true, "dropdown none is selected");
   const q2 = <QuestionSelectBase>survey.getAllQuestions()[1];
-  q2.value = [1, "n/a"];
-  assert.equal(q2.isNoneSelected, true);
+  q2.value = ["n/a"];
+  assert.equal(q2.isNoneSelected, true, "checkbox none is selected");
   settings.selectNoneItemValue = "none";
 });
 

@@ -4,6 +4,7 @@ import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
+import { settings } from "./settings";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
@@ -35,7 +36,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         this.resetFilterString();
         if(item.id === "selectall") {
           this.selectAllItems();
-        } else if(status === "added" && item.id == "none") {
+        } else if(status === "added" && item.id === settings.selectNoneItemValue) {
           this.selectNoneItem();
         } else if(status === "added") {
           this.selectItem(item.id);
@@ -56,7 +57,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.syncSelectedItemsFromQuestion();
   }
   public selectNoneItem(): void {
-    this.question.renderedValue = ["none"];
+    this.question.renderedValue = [settings.selectNoneItemValue];
     this.syncSelectedItemsFromQuestion();
   }
   public selectItem(id: string): void {

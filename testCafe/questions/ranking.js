@@ -75,23 +75,19 @@ frameworks.forEach((framework) => {
     }
   );
 
+  const PriceItem = Selector("span")
+    .withText("Please rank the following smartphone features in order of importance:")
+    .parent("[aria-labelledby]")
+    .find("span")
+    .withText("Price");
+
+  const BatteryItem = Selector("span")
+    .withText("Please rank the following smartphone features in order of importance:")
+    .parent("[aria-labelledby]")
+    .find("span")
+    .withText("Battery life");
+
   test("ranking: simple using", async (t) => {
-    const PriceItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Price");
-
-    const BatteryItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Battery life");
-
     await t.dragToElement(PriceItem, BatteryItem);
 
     let data = await getData();
@@ -107,22 +103,6 @@ frameworks.forEach((framework) => {
   });
 
   test("ranking: predeficed data", async (t) => {
-    const PriceItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Price");
-
-    const BatteryLifeItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Battery life");
-
     await setData({
       "smartphone-features": [
         "Price",
@@ -135,7 +115,7 @@ frameworks.forEach((framework) => {
       ],
     });
 
-    await t.dragToElement(PriceItem, BatteryLifeItem);
+    await t.dragToElement(PriceItem, BatteryItem);
 
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -150,7 +130,7 @@ frameworks.forEach((framework) => {
 
     await setData(null);
 
-    await t.dragToElement(PriceItem, BatteryLifeItem);
+    await t.dragToElement(PriceItem, BatteryItem);
 
     data = await getData();
     await t.expect(data["smartphone-features"]).eql([
@@ -165,16 +145,8 @@ frameworks.forEach((framework) => {
   });
 
   test("ranking: carry forward", async (t) => {
-    const rankPriceItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Price");
-
-    await t.hover(rankPriceItem);
-    await t.drag(rankPriceItem, 0, -350, {
+    await t.hover(PriceItem);
+    await t.drag(PriceItem, 0, -300, {
       offsetX: 7,
       offsetY: 8
     });
@@ -241,14 +213,6 @@ frameworks.forEach((framework) => {
   });
 
   test("ranking: keyborad", async (t) => {
-    const PriceItem = Selector("span")
-      .withText(
-        "Please rank the following smartphone features in order of importance:"
-      )
-      .parent("[aria-labelledby]")
-      .find("span")
-      .withText("Price");
-
     await t.pressKey("tab").pressKey("tab").pressKey("up");
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([

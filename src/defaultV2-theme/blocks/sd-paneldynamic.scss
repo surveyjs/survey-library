@@ -85,6 +85,7 @@
     margin-right: calcSize(-1);
 }
 .sd-paneldynamic__progress-text {
+    font-size: calcSize(2);
     color: $foreground-light;
     margin: 0;
     margin-right: calcSize(3);
@@ -132,7 +133,7 @@
     justify-content: flex-end;
 }
 .sd-paneldynamic__panel-footer {
-    .sv-action:not(.sv-action--hidden) {   
+    .sv-action:not(.sv-action--hidden) {
         margin-bottom: calcSize(-1);
     }
 }

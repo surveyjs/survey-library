@@ -37,7 +37,7 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
           <SvgIcon
             className={this.question.cssClasses.cleanItemButtonSvg}
             iconName={this.question.cssClasses.cleanItemButtonIconId}
-            size={16}
+            size={"auto"}
           ></SvgIcon>
         </div>
       </div>

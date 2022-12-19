@@ -506,7 +506,7 @@ export var defaultV2Css = {
     rootDesignMode: "sv-ranking--design-mode",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
-    itemIndex: "sv-ranking-item__index",
+    itemIndex: "sv-ranking-item__index sd-ranking-item__index",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",

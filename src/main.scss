@@ -160,8 +160,10 @@ body {
     color: white;
     background-color: rgb(26, 179, 148);
   }
-  .sv_q_tagbox-item_clean-button-svg use {
+  .sv_q_tagbox-item_clean-button-svg {
     fill: white;
+    width: 16px;
+    height: 16px;
   }
   .sv_select_wrapper {
     background-color: $body-background-color;

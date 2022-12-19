@@ -184,6 +184,7 @@ Serializer.addClass(
       name: "rows:itemvalue[]", uniqueProperty: "value"
     },
     "rowsVisibleIf:condition",
+    "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
     "hideIfRowsEmpty:boolean"
   ],

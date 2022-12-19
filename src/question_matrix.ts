@@ -634,6 +634,7 @@ export class QuestionMatrixModel
 Serializer.addClass(
   "matrix",
   [
+    "rowTitleWidth",
     {
       name: "columns:itemvalue[]", uniqueProperty: "value",
       baseValue: function() {

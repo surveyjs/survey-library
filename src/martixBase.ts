@@ -348,7 +348,6 @@ Serializer.addClass(
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
     "columnMinWidth",
-    "rowTitleWidth",
     { name: "showHeader:boolean", default: true },
     {
       name: "verticalAlign",

@@ -273,100 +273,100 @@ frameworks.forEach(framework => {
       await resetFocusToBody();
       await takeElementScreenshot("responsiveness-checkbox-col-count-2.png", Selector(".sd-question"), t, comparer);
     });
+  });
 
-    test("Check image question", async (t) => {
-      await wrapVisualTest(t, async (t, comparer) => {
-        await t.resizeWindow(1920, 1080);
-        await initSurvey(framework, {
-          questions: [
-            {
-              type: "image",
-              name: "image_question",
-              imageLink: imageSource
-            },
-          ]
-        });
-        await takeElementScreenshot("responsiveness-image-max-width.png", Selector(".sd-question"), t, comparer);
-
-        await t.resizeWindow(500, 1080);
-        await takeElementScreenshot("responsiveness-image.png", Selector(".sd-question"), t, comparer);
-      });
-    });
-
-    test("Check ranking question on small screen", async (t) => {
-      await wrapVisualTest(t, async (t, comparer) => {
-        await t.resizeWindow(600, 1080);
-        await initSurvey(framework, {
-          showQuestionNumbers: "off",
-          questions: [
-            {
-              type: "ranking",
-              title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
-              name: "ranking_question",
-              choices: ["item1", "item2", "item3", "item4"]
-            }
-          ]
-        });
-        await takeElementScreenshot("responsiveness-ranking.png", Selector(".sd-question"), t, comparer);
-
-        await t.hover(".sv-ranking-item");
-        await takeElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t, comparer);
-      });
-    });
-    test("check survey layout in mobile mode", async(t) => {
-      await wrapVisualTest(t, async (t, comparer) => {
-        await t.resizeWindow(600, 1080);
-        await initSurvey(framework,
+  test("Check image question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
           {
-            description: "Survey Description",
-            title: "Title",
-            widthMode: "static",
-            pages: [{
-              name: "page1",
-              title: "Page1",
-              description: "description",
-              elements: [{
-                type: "text",
-                name: "q1",
-                title: "Question 1",
-              },
-              {
-                type: "text",
-                name: "q2",
-                title: "Question 2",
-              },
+            type: "image",
+            name: "image_question",
+            imageLink: imageSource
+          },
+        ]
+      });
+      await takeElementScreenshot("responsiveness-image-max-width.png", Selector(".sd-question"), t, comparer);
 
-              ]
+      await t.resizeWindow(500, 1080);
+      await takeElementScreenshot("responsiveness-image.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 
+  test("Check ranking question on small screen", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"]
+          }
+        ]
+      });
+      await takeElementScreenshot("responsiveness-ranking.png", Selector(".sd-question"), t, comparer);
+
+      await t.hover(".sv-ranking-item");
+      await takeElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("check survey layout in mobile mode", async(t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework,
+        {
+          description: "Survey Description",
+          title: "Title",
+          widthMode: "static",
+          pages: [{
+            name: "page1",
+            title: "Page1",
+            description: "description",
+            elements: [{
+              type: "text",
+              name: "q1",
+              title: "Question 1",
             },
             {
-              name: "page2",
-              title: "Page2",
-              description: "description",
-              elements: [{
-                type: "text",
-                name: "q3",
-                title: "Question 3",
-              },
-              {
-                type: "text",
-                name: "q2",
-                title: "Question 4",
-              },
-              ]
-            }
+              type: "text",
+              name: "q2",
+              title: "Question 2",
+            },
+
+            ]
+
+          },
+          {
+            name: "page2",
+            title: "Page2",
+            description: "description",
+            elements: [{
+              type: "text",
+              name: "q3",
+              title: "Question 3",
+            },
+            {
+              type: "text",
+              name: "q2",
+              title: "Question 4",
+            },
             ]
           }
-        );
-        //in mobile mode static = responsive
-        await takeElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t, comparer);
-        await ClientFunction(() => { (window as any).survey.widthMode = "responsive"; })();
-        await takeElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t, comparer);
-        await ClientFunction(() => { (window as any).survey.nextPage(); })();
-        await takeElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t, comparer);
-        await ClientFunction(() => { (window as any).survey.widthMode = "static"; })();
-        await takeElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t, comparer);
-      });
+          ]
+        }
+      );
+      //in mobile mode static = responsive
+      await takeElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.widthMode = "responsive"; })();
+      await takeElementScreenshot("responsiveness-survey-layout-page1.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.nextPage(); })();
+      await takeElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.widthMode = "static"; })();
+      await takeElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 });

@@ -359,7 +359,7 @@ const json = {
     await setData();
     assert.equal(await isSelectAllChecked(), true);
   });
-  test.only("showOtherItem&showCommentArea", async (t) => {
+  test("showOtherItem&showCommentArea", async (t) => {
     const getOtherInput = Selector(
       () => document.querySelectorAll("textarea")[0]
     );

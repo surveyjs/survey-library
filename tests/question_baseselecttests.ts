@@ -780,3 +780,46 @@ QUnit.test("check renamed has... properties", (assert) => {
   assert.notOk(question.showCommentArea);
   assert.notOk(question.hasComment);
 });
+QUnit.test("selectbase and otherValue/comment", (assert) => {
+  const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", showOtherItem: true, choices: [1, 2, 3] }] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.notOk(question.otherValue, "otherValue, #1");
+  assert.notOk(question.comment, "comment, #2");
+  question.otherValue = "val1";
+  assert.equal("val1", question.otherValue, "other value, #3");
+  assert.equal("val1", question.comment, "comment, #4");
+  question.comment = "val2";
+  assert.equal("val2", question.otherValue, "other value, #5");
+  assert.equal("val2", question.comment, "comment, #6");
+  question.showCommentArea = true;
+  assert.equal(true, question.showCommentArea, "showCommentArea is true");
+  assert.equal(true, question.showOtherItem, "showOtherItem is true");
+  assert.equal(false, question.getStoreOthersAsComment(), "getStoreOthersAsComment() is false");
+  assert.notOk(question.otherValue, "other value, #7");
+  assert.equal("val2", question.comment, "comment, #8");
+  question.value = "other";
+  question.otherValue = "val3";
+  assert.equal("val3", question.otherValue, "other value, #9");
+  assert.equal("val3", question.value, "question value, #10");
+  assert.equal("val2", question.comment, "comment, #11");
+  question.comment = "val4";
+  assert.equal("val3", question.otherValue, "other value, #12");
+  assert.equal("val3", question.value, "question value, #13");
+  assert.equal("val4", question.comment, "comment, #14");
+
+  question.otherValue = "";
+  question.value = "other";
+  assert.equal(true, question.isOtherSelected, "isOtherSelected, #1");
+  assert.notOk(question.otherValue, "other value, #15");
+  assert.equal(false, question.supportGoNextPageError(), "supportGoNextPageError, #1");
+  question.comment = "";
+  assert.equal(false, question.supportGoNextPageError(), "supportGoNextPageError, #2");
+  question.otherValue = "val5";
+  assert.equal(true, question.supportGoNextPageError(), "supportGoNextPageError, #3");
+
+  question.comment = "test";
+  survey.data = { q1: "val6" };
+  assert.equal("val6", question.otherValue, "other value, #16");
+  assert.equal("val6", question.value, "question value, #17");
+  assert.equal("", question.comment, "comment, #18");
+});

@@ -23,7 +23,6 @@ export class QuestionSelectBase extends Question {
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
-  private otherValue: string;
   private prevOtherValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue>;
@@ -99,7 +98,7 @@ export class QuestionSelectBase extends Question {
     return Serializer.createClass(this.getItemValueType(), value);
   }
   public supportGoNextPageError() {
-    return !this.isOtherSelected || !!this.comment;
+    return !this.isOtherSelected || !!this.otherValue;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -116,6 +115,24 @@ export class QuestionSelectBase extends Question {
       ItemValue.locStrsChanged(this.choicesFromUrl);
       ItemValue.locStrsChanged(this.visibleChoices);
     }
+  }
+  public get otherValue(): string {
+    if(!this.showCommentArea) return this.comment;
+    return this.otherValueCore;
+  }
+  public set otherValue(val: string) {
+    if(!this.showCommentArea) {
+      this.comment = val;
+    } else {
+      this.setOtherValueInternally(val);
+    }
+  }
+  private _otherValue: string;
+  protected get otherValueCore(): string {
+    return this._otherValue;
+  }
+  protected set otherValueCore(val: string) {
+    this._otherValue = val;
   }
   /**
    * Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
@@ -367,36 +384,46 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("autoOtherMode", val);
   }
   protected getQuestionComment(): string {
-    if (!!this.otherValue) return this.otherValue;
+    if(this.showCommentArea) return super.getQuestionComment();
+    if (!!this.otherValueCore) return this.otherValueCore;
     if (this.hasComment || this.getStoreOthersAsComment())
       return super.getQuestionComment();
-    return this.otherValue;
+    return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
     this.value = val ? this.otherItem.value : undefined;
   }
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
-    if (this.autoOtherMode) {
-      this.prevOtherValue = undefined;
-      const isSelected = this.isOtherSelected;
-      if (!isSelected && !!newValue || isSelected && !newValue) {
-        this.selectOtherValueFromComment(!!newValue);
-      }
+    if(this.showCommentArea) {
+      super.setQuestionComment(newValue);
+      return;
     }
-    if (this.hasComment || this.getStoreOthersAsComment())
+    this.onUpdateCommentOnAutoOtherMode(newValue);
+    if (this.getStoreOthersAsComment())
       super.setQuestionComment(newValue);
     else {
-      if (!this.isSettingComment && newValue != this.otherValue) {
-        this.isSettingComment = true;
-        this.otherValue = newValue;
-        if (this.isOtherSelected && !this.isRenderedValueSetting) {
-          this.value = this.rendredValueToData(this.renderedValue);
-        }
-        this.isSettingComment = false;
-      }
+      this.setOtherValueInternally(newValue);
     }
     this.updateChoicesDependedQuestions();
+  }
+  private onUpdateCommentOnAutoOtherMode(newValue: string): void {
+    if (!this.autoOtherMode) return;
+    this.prevOtherValue = undefined;
+    const isSelected = this.isOtherSelected;
+    if (!isSelected && !!newValue || isSelected && !newValue) {
+      this.selectOtherValueFromComment(!!newValue);
+    }
+  }
+  private setOtherValueInternally(newValue: string): void {
+    if (!this.isSettingComment && newValue != this.otherValueCore) {
+      this.isSettingComment = true;
+      this.otherValueCore = newValue;
+      if (this.isOtherSelected && !this.isRenderedValueSetting) {
+        this.value = this.rendredValueToData(this.renderedValue);
+      }
+      this.isSettingComment = false;
+    }
   }
   public clearValue() {
     super.clearValue();
@@ -431,15 +458,15 @@ export class QuestionSelectBase extends Question {
     if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevOtherValue) {
-      var oldComment = this.prevOtherValue;
+      var oldOtherValue = this.prevOtherValue;
       this.prevOtherValue = undefined;
-      this.comment = oldComment;
+      this.otherValue = oldOtherValue;
     }
-    if (!isOtherSel && !!this.comment) {
+    if (!isOtherSel && !!this.otherValue) {
       if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
-        this.prevOtherValue = this.comment;
+        this.prevOtherValue = this.otherValue;
       }
-      this.comment = "";
+      this.otherValue = "";
     }
   }
   protected setNewValue(newValue: any) {
@@ -471,12 +498,12 @@ export class QuestionSelectBase extends Question {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true, false)) return this.valueFromData(val);
-    this.comment = val;
+    this.otherValue = val;
     return this.otherItem.value;
   }
   protected rendredValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.getQuestionComment()) {
-      val = this.getQuestionComment();
+    if (val == this.otherItem.value && this.otherValue) {
+      val = this.otherValue;
     }
     return val;
   }
@@ -847,7 +874,7 @@ export class QuestionSelectBase extends Question {
           }
           if (this.isOtherSelected && this.otherItemValue === choice) {
             choiceDataItem.isOther = true;
-            choiceDataItem.displayValue = this.comment;
+            choiceDataItem.displayValue = this.otherValue;
           }
           return choiceDataItem;
         })
@@ -863,7 +890,7 @@ export class QuestionSelectBase extends Question {
   }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
-      return this.comment ? this.comment : this.locOtherText.textOrHtml;
+      return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
@@ -978,7 +1005,7 @@ export class QuestionSelectBase extends Question {
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (!this.hasOther || !this.isOtherSelected || this.comment) return;
+    if (!this.hasOther || !this.isOtherSelected || this.otherValue) return;
     const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
     otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
     errors.push(otherEmptyError);
@@ -1290,7 +1317,10 @@ export class QuestionSelectBase extends Question {
   }
   clearUnusedValues() {
     super.clearUnusedValues();
-    if (!this.isOtherSelected && !this.hasComment) {
+    if (!this.isOtherSelected) {
+      this.otherValue = "";
+    }
+    if(!this.hasComment) {
       this.comment = "";
     }
   }

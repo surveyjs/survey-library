@@ -72,15 +72,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }
-  /**
-   * A width for the column that displays row titles (first column). Accepts CSS values.
-   */
-  public get rowTitleWidth(): string {
-    return this.getPropertyValue("rowTitleWidth", "");
-  }
-  public set rowTitleWidth(val: string) {
-    this.setPropertyValue("rowTitleWidth", val);
-  }
   public getRowTitleWidth(): string {
     return this.rowTitleWidth;
   }
@@ -193,7 +184,6 @@ Serializer.addClass(
       name: "rows:itemvalue[]", uniqueProperty: "value"
     },
     "rowsVisibleIf:condition",
-    "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
     "hideIfRowsEmpty:boolean"
   ],

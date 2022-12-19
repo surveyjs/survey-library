@@ -10,7 +10,7 @@
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
               :class="question.cssClasses.headerCell"
-              :style="{minWidth: question.columnMinWidth, width: question.columnMinWidth}
+              :style="{minWidth: question.columnMinWidth, width: question.columnMinWidth}"
             >
               <survey-string :locString="column.locText" />
             </th>
@@ -23,7 +23,7 @@
             :class="row.rowClasses || undefined"
           >
             <td :class="question.cssClasses.rowTextCell" v-show="question.hasRows"
-              :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}> 
+              :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
               <survey-string :locString="row.locText" />
             </td>
             <td

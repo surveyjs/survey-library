@@ -31,7 +31,7 @@ const json = {
   ],
 };
 
-frameworks.forEach((framework) => {
+["react"].forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (ctx) => {
       await initSurvey(framework, json);
@@ -358,6 +358,26 @@ frameworks.forEach((framework) => {
     await enableHasSelectAll();
     await setData();
     assert.equal(await isSelectAllChecked(), true);
+  });
+  test.only("showOtherItem&showCommentArea", async (t) => {
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
+    );
+    const getCommentInput = Selector(
+      () => document.querySelectorAll("textarea")[1]
+    );
+    let surveyResult;
+
+    await setOptions("car", { showOtherItem: true, showCommentArea: true, commentText: "Comment on question", otherText: "Other text" });
+    await t
+      .click(Selector("span").withText("Other text"))
+      .typeText(getOtherInput, "Other value")
+      .typeText(getCommentInput, "Comment value")
+      .click("input[value=Complete]");
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.car, "Other value");
+    assert.equal(surveyResult["car-Comment"], "Comment value");
   });
 });
 

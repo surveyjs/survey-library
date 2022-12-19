@@ -489,7 +489,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !val.length) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) {
-        if (this.otherValue) {
+        if (this.needConvertRenderedOtherToDataValue()) {
           var newVal = val.slice();
           newVal[i] = this.otherValue;
           return newVal;

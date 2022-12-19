@@ -502,10 +502,17 @@ export class QuestionSelectBase extends Question {
     return this.otherItem.value;
   }
   protected rendredValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.otherValue) {
+    if (val == this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
       val = this.otherValue;
     }
     return val;
+  }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    let val = this.otherValue;
+    if(!val) return false;
+    val = val.trim();
+    if(!val) return false;
+    return this.hasUnknownValue(val, true, false);
   }
   protected updateSelectedItemValues(): void {
     if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
@@ -1072,6 +1079,23 @@ export class QuestionSelectBase extends Question {
   }
   protected setOtherValueIntoValue(newValue: any): any {
     return this.otherItem.value;
+  }
+  public onOtherValueInput(event: any): void {
+    if (this.isInputTextUpdate) {
+      if (event.target) {
+        this.otherValue = event.target.value;
+      }
+    }
+    else {
+      //TODO
+      //this.updateCommentElement();
+    }
+  }
+  public onOtherValueChange(event: any): void {
+    this.otherValue = event.target.value;
+    if (this.otherValue !== event.target.value) {
+      event.target.value = this.otherValue;
+    }
   }
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {

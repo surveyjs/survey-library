@@ -47,18 +47,28 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.props.question;
   }
+  protected onCommentChange(event: any): void {
+    this.props.question.onCommentChange(event);
+  }
+  protected onCommentInput(event: any): void {
+    this.props.question.onCommentInput(event);
+  }
+  protected getComment(): string {
+    return this.props.question.comment;
+  }
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
-      question.onCommentChange(event);
+      this.onCommentChange(event);
     };
+    const questionComment = this.getComment();
     let stateComment: string = !!this.state ? this.state.comment : undefined;
-    if(stateComment !== undefined && stateComment.trim() !== question.comment) {
-      stateComment = question.comment;
+    if(stateComment !== undefined && stateComment.trim() !== questionComment) {
+      stateComment = questionComment;
     }
-    let comment = stateComment !== undefined ? stateComment : question.comment || "";
+    let comment = stateComment !== undefined ? stateComment : questionComment || "";
 
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
@@ -71,13 +81,24 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={question.commentOrOtherPlaceholder}
         onChange={handleOnChange}
-        onBlur={(e) => { question.onCommentChange(e); handleOnChange(e); } }
-        onInput={(e) => question.onCommentInput(e)}
+        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); } }
+        onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}
         style={{ resize: question.resizeStyle }}
       />
     );
+  }
+}
+export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
+  protected onCommentChange(event: any): void {
+    this.props.question.onOtherValueChange(event);
+  }
+  protected onCommentInput(event: any): void {
+    this.props.question.onOtherValueInput(event);
+  }
+  protected getComment(): string {
+    return this.props.question.otherValue;
   }
 }
 

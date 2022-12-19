@@ -11,7 +11,6 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   public locOwner: ILocalizableOwner;
   constructor(expression: string = null) {
     super();
-    this.createLocalizableString("html", this);
     this.expression = expression;
   }
   public getType(): string {

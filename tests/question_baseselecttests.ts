@@ -822,4 +822,12 @@ QUnit.test("selectbase and otherValue/comment", (assert) => {
   assert.equal("val6", question.otherValue, "other value, #16");
   assert.equal("val6", question.value, "question value, #17");
   assert.equal("", question.comment, "comment, #18");
+  assert.deepEqual(survey.data, { q1: "val6" }, "survey data, #1");
+  question.showCommentArea = false;
+  question.storeOthersAsComment = false;
+  survey.data = { q1: "val7" };
+  assert.equal("val7", question.otherValue, "other value, #19");
+  assert.equal("val7", question.value, "question value, #20");
+  assert.equal("val7", question.comment, "comment, #21");
+  assert.deepEqual(survey.data, { q1: "val7" }, "survey data, #2");
 });

@@ -1320,7 +1320,7 @@ export class QuestionSelectBase extends Question {
     if (!this.isOtherSelected) {
       this.otherValue = "";
     }
-    if(!this.hasComment) {
+    if(!this.hasComment && this.getStoreOthersAsComment()) {
       this.comment = "";
     }
   }

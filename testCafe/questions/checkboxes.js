@@ -371,6 +371,12 @@ const json = {
     await setOptions("car", { showOtherItem: true, showCommentArea: true, commentText: "Comment on question", otherText: "Other text" });
     await t
       .click(Selector("span").withText("Other text"))
+      .typeText(getOtherInput, " ")
+      .selectText(getOtherInput)
+      .pressKey("delete")
+      .typeText(getOtherInput, "Audi")
+      .selectText(getOtherInput)
+      .pressKey("delete")
       .typeText(getOtherInput, "Other value")
       .typeText(getCommentInput, "Comment value")
       .click("input[value=Complete]");

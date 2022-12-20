@@ -31,7 +31,7 @@ const json = {
   ],
 };
 
-["react"].forEach((framework) => {
+frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (ctx) => {
       await initSurvey(framework, json);

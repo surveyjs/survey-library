@@ -1344,7 +1344,7 @@ export class QuestionSelectBase extends Question {
     if (!this.isOtherSelected) {
       this.otherValue = "";
     }
-    if(!this.hasComment && this.getStoreOthersAsComment()) {
+    if(!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
       this.comment = "";
     }
   }

@@ -867,3 +867,19 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   assert.deepEqual(["item33"], q2.value, "q2 value, #5");
   assert.equal("item33", q2.otherValue, "q2 otherValue, #6");
 });
+QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },
+    { type: "checkbox", name: "q2", showOtherItem: true, choices: ["item1", "item2", "item3"] }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  q1.renderedValue = "other";
+  q1.otherValue = "val1";
+  q2.renderedValue = ["other"];
+  q2.otherValue = "val2";
+  const data = { q1: "other", "q1-Comment": "val1", q2: ["other"], "q2-Comment": "val2" };
+  assert.deepEqual(survey.data, data, "before complete");
+  survey.doComplete();
+  assert.deepEqual(survey.data, data, "after complete");
+});

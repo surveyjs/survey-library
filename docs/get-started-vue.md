@@ -29,6 +29,7 @@ The SurveyJS Form Library for Vue consists of two npm packages: [`survey-core`](
 ```cmd
 npm install survey-vue-ui --save
 ```
+> SurveyJS requires Vue 2.7 or earlier.
 
 ## Configure Styles
 

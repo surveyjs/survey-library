@@ -233,6 +233,37 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
+  test("open popup and blur", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json);
+
+    await t
+      .click(questionDropdownSelect)
+      .click(questionDropdownSelect)
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
+      .expect(questionValueText.exists).notEql();
+  });
+
   test("click on question title state editable", async (t) => {
     const json = {
       questions: [

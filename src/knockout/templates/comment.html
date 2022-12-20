@@ -13,3 +13,18 @@
 <div data-bind="text: question.comment"></div>
 <!--/ko-->
 </script>
+<script type="text/html" id="survey-other">
+  <!--ko if: !question.isReadOnlyRenderDiv() -->
+<textarea data-bind="attr: { maxLength: question.getOthersMaxLength(), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, placeholder: question.commentOrOtherPlaceholder }, 
+        event: { input: function(s, e) { $data.question.onOtherValueInput(s, e); } }, 
+        value: $data.question.otherValue, 
+        visible: $data.visible,
+        disable: $data.question.isInputReadOnly,
+        style: { resize: question.resizeStyle },
+        css: $data.question.koCss().other"></textarea>
+<!--/ko-->
+
+<!--ko if: question.isReadOnlyRenderDiv() -->
+<div data-bind="text: question.otherValue"></div>
+<!--/ko-->
+</script>

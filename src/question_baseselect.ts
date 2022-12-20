@@ -127,12 +127,11 @@ export class QuestionSelectBase extends Question {
       this.setOtherValueInternally(val);
     }
   }
-  private _otherValue: string;
   protected get otherValueCore(): string {
-    return this._otherValue;
+    return this.getPropertyValue("otherValue");
   }
   protected set otherValueCore(val: string) {
-    this._otherValue = val;
+    this.setPropertyValue("otherValue", val);
   }
   /**
    * Returns the "Other" choice item. Use this property to change the item's `value` or `text`.

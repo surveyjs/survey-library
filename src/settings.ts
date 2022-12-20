@@ -180,7 +180,10 @@ export var settings = {
    * Set it "column", and items will be ordered in columns.
    */
   showItemsInOrder: "default",
-  selectNoneItemValue: "none",
+  /**
+   * A value to save in survey results when respondents select the None choice item.
+   */
+  noneItemValue: "none",
   /**
    * Supported validators by question types. You can modify this variable to add validators for new question types or add/remove for existing question types.
    */

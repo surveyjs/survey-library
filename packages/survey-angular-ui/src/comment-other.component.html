@@ -1,0 +1,9 @@
+<textarea *ngIf="!question.isReadOnlyRenderDiv()" [attr.max-length]="question.getOthersMaxLength()"  [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.placeholder]="question.commentOrOtherPlaceholder" 
+  [value]="otherValue"
+  [style.resize]="question.resizeStyle"
+  [disabled]="question.isInputReadOnly"
+  (change)="question.onOtherValueChange($event)"
+  (input)="question.onOtherValueInput($event)"
+  [class]="question.cssClasses.other">
+</textarea>
+<div *ngIf="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>

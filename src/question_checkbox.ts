@@ -433,9 +433,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected setDefaultValueWithOthers() {
     this.value = this.renderedValueFromDataCore(this.defaultValue);
   }
-  protected getHasOther(val: any): boolean {
+  protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;
-    return val.indexOf(this.otherItem.value) >= 0;
+    return val.indexOf(item.value) >= 0;
   }
   protected valueFromData(val: any): any {
     if (!val) return val;

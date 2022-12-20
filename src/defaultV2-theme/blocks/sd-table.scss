@@ -17,7 +17,7 @@
         background-color: $primary-foreground;
       }
       .sd-item__decorator {
-        --sd-item-default-background: $primary-foreground;
+        --sd-item-default-background: var(--primary-foreground, #fff);
       }
     }
   }

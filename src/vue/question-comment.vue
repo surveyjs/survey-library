@@ -23,10 +23,10 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "survey-core";
 
 @Component
-export class OtherChoice extends Vue {
+export class QuestionComment extends Vue {
   @Prop() question: Question;
   @Prop() commentClass: any;
 }
-Vue.component("survey-other-choice", OtherChoice);
-export default OtherChoice;
+Vue.component("survey-question-comment", QuestionComment);
+export default QuestionComment;
 </script>

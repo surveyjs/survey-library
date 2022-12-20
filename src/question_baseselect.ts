@@ -31,7 +31,7 @@ export class QuestionSelectBase extends Question {
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
-  private noneItemValue: ItemValue = new ItemValue(settings.selectNoneItemValue);
+  private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   @property() protected selectedItemValues: any;

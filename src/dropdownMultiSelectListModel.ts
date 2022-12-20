@@ -36,7 +36,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         this.resetFilterString();
         if(item.id === "selectall") {
           this.selectAllItems();
-        } else if(status === "added" && item.id === settings.selectNoneItemValue) {
+        } else if(status === "added" && item.id === settings.noneItemValue) {
           this.selectNoneItem();
         } else if(status === "added") {
           this.selectItem(item.id);
@@ -57,7 +57,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.syncSelectedItemsFromQuestion();
   }
   public selectNoneItem(): void {
-    this.question.renderedValue = [settings.selectNoneItemValue];
+    this.question.renderedValue = [settings.noneItemValue];
     this.syncSelectedItemsFromQuestion();
   }
   public selectItem(id: string): void {

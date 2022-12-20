@@ -56,6 +56,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected getComment(): string {
     return this.props.question.comment;
   }
+  protected getId(): string {
+    return this.props.question.commentId;
+  }
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
@@ -75,6 +78,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     }
     return (
       <textarea
+        id={this.getId()}
         className={className}
         value={comment}
         disabled={this.isDisplayMode}
@@ -99,6 +103,9 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   }
   protected getComment(): string {
     return this.props.question.otherValue;
+  }
+  protected getId(): string {
+    return this.props.question.commentId;
   }
 }
 

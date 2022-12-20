@@ -74,7 +74,7 @@ export class Question extends SurveyElement<Question>
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
-  private commentElement: HTMLElement;
+  private commentElements: Array<HTMLElement>;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -642,8 +642,12 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
-  public updateCommentElement(): void {
-    if (this.commentElement && this.autoGrowComment) increaseHeightByContent(this.commentElement);
+  protected updateCommentElements(): void {
+    if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
+    for(let i = 0; i < this.commentElements.length; i ++) {
+      const el = this.commentElements[i];
+      if (el) increaseHeightByContent(el);
+    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -652,7 +656,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     else {
-      this.updateCommentElement();
+      this.updateCommentElements();
     }
   }
   public onCommentChange(event: any): void {
@@ -673,13 +677,20 @@ export class Question extends SurveyElement<Question>
     }
 
     if (this.supportComment() || this.supportOther()) {
-      this.commentElement = (document.getElementById(this.id) && document.getElementById(this.id).querySelector("textarea")) || null;
-      this.updateCommentElement();
+      this.commentElements = [];
+      this.getCommentElementsId().forEach(id => {
+        let el = document.getElementById(id);
+        if(el) this.commentElements.push(el);
+      });
+      this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
   }
+  protected getCommentElementsId(): Array<string> {
+    return [this.commentId];
+  }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
-    this.commentElement = undefined;
+    this.commentElements = undefined;
   }
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
@@ -1040,6 +1051,9 @@ export class Question extends SurveyElement<Question>
   }
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
+  }
+  public get commentId(): string {
+    return this.id + "_comment";
   }
   public get ariaRole(): string {
     return "textbox";
@@ -1569,7 +1583,7 @@ export class Question extends SurveyElement<Question>
     }
     if (this.comment == newValue) return;
     this.setQuestionComment(newValue);
-    this.updateCommentElement();
+    this.updateCommentElements();
   }
   protected getQuestionComment(): string {
     return this.questionComment;

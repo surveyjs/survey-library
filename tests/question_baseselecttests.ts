@@ -900,3 +900,8 @@ QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   survey.doComplete();
   assert.deepEqual(survey.data, data, "after complete");
 });
+QUnit.test("quesstion commentId/otherId", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  assert.equal(q1.commentId, q1.id + "_comment", "Comment id");
+  assert.equal(q1.otherId, q1.id + "_other", "Other id");
+});

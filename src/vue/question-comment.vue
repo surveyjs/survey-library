@@ -2,6 +2,7 @@
   <div class="form-group">
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
+      :id="element.commentId"
       :readonly="question.isInputReadOnly"
       :disabled="question.isInputReadOnly"
       :class="question.cssClasses.other || commentClass"

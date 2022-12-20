@@ -19,4 +19,7 @@ export class SurveyCommentOtherComponent {
   public onOtherValueInput(event: any): void {
     (<QuestionSelectBase>this.question).onOtherValueInput(event);
   }
+  public get otherId(): string {
+    return (<QuestionSelectBase>this.question).otherId;
+  }
 }

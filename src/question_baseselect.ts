@@ -91,7 +91,13 @@ export class QuestionSelectBase extends Question {
     }
     this.removeFromDependedQuestion(this.getQuestionWithChoices());
   }
-  protected getItemValueType() {
+  public get otherId(): string {
+    return this.id + "_other";
+  }
+  protected getCommentElementsId(): Array<string> {
+    return [this.commentId, this.otherId];
+  }
+  protected getItemValueType(): string {
     return "itemvalue";
   }
   public createItemValue(value: any): ItemValue {
@@ -1089,8 +1095,7 @@ export class QuestionSelectBase extends Question {
       }
     }
     else {
-      //TODO
-      //this.updateCommentElement();
+      this.updateCommentElements();
     }
   }
   public onOtherValueChange(event: any): void {

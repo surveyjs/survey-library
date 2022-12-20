@@ -2,8 +2,8 @@
   [value]="otherValue"
   [style.resize]="question.resizeStyle"
   [disabled]="question.isInputReadOnly"
-  (change)="question.onOtherValueChange($event)"
-  (input)="question.onOtherValueInput($event)"
+  (change)="onOtherValueChange($event)"
+  (input)="onOtherValueInput($event)"
   [class]="question.cssClasses.other">
 </textarea>
-<div *ngIf="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>
+<div *ngIf="question.isReadOnlyRenderDiv()">{{ otherValue }}</div>

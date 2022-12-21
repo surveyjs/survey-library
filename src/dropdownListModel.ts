@@ -5,6 +5,7 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
+import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp, mergeValues } from "./utils/utils";
 
 export class DropdownListModel extends Base {
@@ -284,7 +285,7 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
-    if(this.popupModel.isVisible) {
+    if(this.popupModel.isVisible && (IsTouch || !!this.filterString)) {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();

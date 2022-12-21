@@ -85,6 +85,24 @@ function init() {
         ]
       },
       {
+        type: "tagbox",
+        name: "cars2",
+        title: "Tagbox",
+        showNoneItem: true,
+        choices: [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen",
+          "Nissan",
+          "Audi",
+          "Mercedes-Benz",
+          "BMW",
+          "Peugeot",
+          "Toyota",
+          "Citroen"
+        ]
+      },
+      {
         type: "checkbox",
         name: "car",
         title: "Checkbox",
@@ -741,6 +759,20 @@ function init() {
         title: "Rating",
         minRateDescription: "Not Satisfied",
         maxRateDescription: "Completely satisfied"
+      },
+      {
+        type: "ranking",
+        name: "smartphone-features",
+        title: "Please rank the following smartphone features in order of importance:",
+        choices: [
+          "Battery life",
+          "Screen size",
+          "Storage space",
+          "Camera quality",
+          "Durability",
+          "Processor power",
+          "Price",
+        ],
       },
       {
         type: "comment",

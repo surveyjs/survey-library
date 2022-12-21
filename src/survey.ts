@@ -1593,7 +1593,7 @@ export class SurveyModel extends SurveyElementCore
     );
     var url = !!item ? (<UrlConditionItem>item).url : this.navigateToUrl;
     if (!!url) {
-      url = this.processText(url, true);
+      url = this.processText(url, false);
     }
     return url;
   }

@@ -1137,17 +1137,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (value < 0 || value > 4) return;
     this.setPropertyValue("columnColCount", value);
   }
-  /**
-   * Minimum column width in CSS values.
-   *
-   * @see width
-   */
-  public get columnMinWidth(): string {
-    return this.getPropertyValue("columnMinWidth", "");
-  }
-  public set columnMinWidth(val: string) {
-    this.setPropertyValue("columnMinWidth", val);
-  }
   public get horizontalScroll(): boolean {
     return this.getPropertyValue("horizontalScroll", false);
   }
@@ -1442,8 +1431,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * {
    *   "value": any, // A value to be saved in survey results
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   *   "customProperty": any // Any property that you find useful.
    * }
    * ```
+   *
+   * To enable Markdown support for the `text` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see cellType

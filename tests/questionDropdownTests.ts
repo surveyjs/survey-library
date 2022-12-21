@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { ListModel } from "../src/list";
 import { createListContainerHtmlElement } from "./utilstests";
+import { settings } from "../src/settings";
 
 export default QUnit.module("choicesRestful");
 

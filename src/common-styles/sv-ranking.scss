@@ -1,0 +1,173 @@
+$base-unit: var(--base-unit, 8px);
+$primary: var(--primary, #19b394);
+$foreground: var(--foreground, #161616);
+$foreground-light: var(--foreground-light, #909090);
+$background: var(--background, #fff);
+$background-light: var(--background-light, rgba(25, 179, 148, 0.1));
+//todo: discuss this variable
+$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
+
+@function calcSize($multiplier) {
+  $result: calc(#{$multiplier} * #{$base-unit});
+  @return $result;
+}
+
+.sv-ranking {
+  outline: none;
+  user-select: none;
+}
+
+.sv-ranking-item {
+  cursor: pointer;
+  position: relative;
+}
+
+.sv-ranking-item:focus .sv-ranking-item__icon--hover {
+  visibility: hidden;
+}
+
+.sv-ranking-item:hover .sv-ranking-item__icon--hover {
+  visibility: visible;
+}
+
+.sv-question--disabled .sv-ranking-item:hover .sv-ranking-item__icon--hover {
+  visibility: hidden;
+}
+
+.sv-ranking-item:focus {
+  outline: none;
+}
+
+.sv-ranking-item:focus .sv-ranking-item__icon--focus {
+  visibility: visible;
+  top: 15px;
+}
+
+.sv-ranking-item:focus .sv-ranking-item__index {
+  background: $background;
+  border: calcSize(0.25) solid $primary;
+}
+
+.sv-ranking-item__content.sv-ranking-item__content {
+  display: flex;
+  align-items: center;
+  line-height: 1em;
+  padding: calcSize(0.5) 0px;
+  border-radius: calcSize(12.5);
+}
+
+.sv-ranking-item__icon-container {
+  position: relative;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  flex-shrink: 0;
+  width: calcSize(3);
+  height: calcSize(4);
+  margin-right: calcSize(1);
+  margin-left: calcSize(1);
+}
+
+.sv-ranking-item__icon.sv-ranking-item__icon {
+  visibility: hidden;
+  fill: $primary;
+  position: absolute;
+  top: calcSize(1);
+  margin-right: calcSize(1);
+  margin-left: calcSize(1);
+  width: calcSize(1.75);
+  height: calcSize(2);
+}
+
+.sv-ranking-item__index.sv-ranking-item__index {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  background: $background-light;
+  color: $foreground;
+  font-size: calcSize(2);
+  border-radius: 100%;
+  border: calcSize(0.25) solid transparent;
+  width: calcSize(5);
+  height: calcSize(5);
+  line-height: calcSize(3);
+}
+
+.sv-ranking-item__text {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $foreground;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
+  margin: 0 calcSize(2);
+}
+
+.sd-ranking--disabled .sv-ranking-item__text {
+  color: $foreground-disabled;
+}
+
+.sv-ranking-item__ghost.sv-ranking-item__ghost {
+  display: none;
+  background-color: $background-dim;
+  border-radius: calcSize(12.5);
+  padding: calcSize(0.5) 0px;
+  width: calcSize(25);
+  height: calcSize(5);
+  z-index: 1;
+  position: absolute;
+  left: calcSize(5);
+}
+
+[dir="rtl"] .sv-ranking-item__ghost {
+  left: initilal;
+  right: calcSize(5);
+}
+
+.sv-ranking-item--ghost .sv-ranking-item__ghost {
+  display: block;
+}
+
+.sv-ranking-item--ghost .sv-ranking-item__content {
+  visibility: hidden;
+}
+
+.sv-ranking-item--drag .sv-ranking-item__content {
+  box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
+  border-radius: calcSize(12.5);
+}
+
+.sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon {
+  visibility: hidden;
+}
+
+.sv-ranking-item--drag .sv-ranking-item__icon--hover {
+  visibility: visible;
+}
+
+.sv-ranking--mobile .sv-ranking-item__icon--hover {
+  visibility: visible;
+  fill: $foreground-light;
+}
+
+.sv-ranking--mobile.sv-ranking--drag .sv-ranking-item--ghost .sv-ranking-item__icon.sv-ranking-item__icon--hover {
+  visibility: hidden;
+}
+
+.sv-ranking--mobile.sv-ranking-shortcut {
+  max-width: 80%;
+}
+
+.sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon {
+  visibility: hidden;
+}
+
+.sv-ranking--disabled {
+  opacity: 0.8;
+}
+
+.sv-ranking-shortcut .sv-ranking-item__icon {
+  fill: $primary;
+}

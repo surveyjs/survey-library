@@ -330,6 +330,9 @@ export var defaultV2Css = {
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
     itemNoImageSvgIconId: "#icon-no-image",
     column: "sd-selectbase__column sd-imagepicker__column",
+    checkedItemDecorator: "sd-imagepicker__check-decorator",
+    checkedItemSvgIcon: "sd-imagepicker__check-icon",
+    checkedItemSvgIconId: "icon-v2check_24x24",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -438,7 +441,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     onError: "sd-input--error"
   },
-  expression: "",
+  expression: "sd-expression",
   file: {
     root: "sd-file",
     other: "sd-input sd-comment",
@@ -513,7 +516,7 @@ export var defaultV2Css = {
     rootDesignMode: "sv-ranking--design-mode",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
-    itemIndex: "sv-ranking-item__index",
+    itemIndex: "sv-ranking-item__index sd-ranking-item__index",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",

@@ -292,8 +292,16 @@ export class Helpers {
     };
     return date.getFullYear() + "-" + toStr(date.getMonth() + 1) + "-" + toStr(date.getDate());
   }
-  public static convertValToQuestionVal(val: any): any {
+  public static convertDateTimeToString(date: Date): string {
+    const toStr = (val: number): string => {
+      if(val < 10) return "0" + val.toString();
+      return val.toString();
+    };
+    return this.convertDateToString(date) + " " + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+  }
+  public static convertValToQuestionVal(val: any, inputType?: string): any {
     if (val instanceof Date) {
+      if(inputType === "datetime") return Helpers.convertDateTimeToString(val);
       return Helpers.convertDateToString(val);
     }
     return val;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionRadiogroupModel, ItemValue, Base, SurveyModel } from "survey-core";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
@@ -99,7 +99,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}

@@ -37,6 +37,7 @@ export * from "./components/action-bar/action-bar-item-dropdown.component";
 export * from "./questions/selectbase-item";
 export * from "./questions/selectbase.component";
 export * from "./comment.component";
+export * from "./comment-other.component";
 export * from "./components/element-header/element-header.component";
 export * from "./components/element-title/element-title.component";
 export * from "./components/survey-header/survey-header.component";

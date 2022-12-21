@@ -3,7 +3,7 @@ import { Helpers, Question, DropdownListModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
@@ -133,11 +133,12 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    protected renderOther(cssClasses: any): JSX.Element {
      return (
        <div className="form-group">
-         <SurveyQuestionCommentItem
+         <SurveyQuestionOtherValueItem
            question={this.question}
            otherCss={cssClasses.other}
            cssClasses={cssClasses}
            isDisplayMode={this.isDisplayMode}
+           isOther={true}
          />
        </div>
      );

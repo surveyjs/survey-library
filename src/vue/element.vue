@@ -35,7 +35,7 @@
       />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
         <div>{{ element.commentText }}</div>
-        <survey-other-choice :commentClass="css.comment" :question="element" />
+        <survey-question-comment :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors
         v-if="hasErrorsOnBottom"

@@ -22,4 +22,7 @@ export class SurveyCommentOtherComponent {
   public get otherId(): string {
     return (<QuestionSelectBase>this.question).otherId;
   }
+  public get otherPlaceholder(): string {
+    return (<QuestionSelectBase>this.question).otherPlaceholder;
+  }
 }

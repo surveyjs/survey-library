@@ -198,13 +198,12 @@ export class StylesManager {
     ".sv-ranking-item:focus .sv-ranking-item__index":
       "background: white; border: 2px solid var(--primary, #19b394);",
     ".sv-ranking-item__content": "display: flex; align-items: center; line-height: 1em; padding: 5px 0px; border-radius: 100px;",
-    ".sv-ranking-item__icon-container":
-      "left: 0;top: 0;bottom: 0;width: 25px; flex-shrink: 0;",
+    ".sv-ranking-item__icon-container": "left: 0;top: 0;bottom: 0;width: calc(3 * var(--base-unit, 8px)); flex-shrink: 0;",
     ".sv-ranking-item__icon":
       "visibility: hidden;top:20px; fill: var(--primary, #19b394); position: absolute;",
     ".sv-ranking-item__index":
-      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--primary-light, rgba(25, 179, 148, 0.1)); color: var(--foreground); border-radius: 100%; border:2px solid transparent; margin-right: 16px; width: 40px; height: 40px; line-height: 1em;",
-    ".sv-ranking-item__text": "display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;",
+      "display: flex; flex-shrink: 0; align-items: center; justify-content: center; background: var(--primary-light, rgba(25, 179, 148, 0.1)); color: var(--foreground); border-radius: 100%; border:2px solid transparent; width: 40px; height: 40px; line-height: 1em;",
+    ".sv-ranking-item__text": "display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0 calc(2 * var(--base-unit, 8px));",
     ".sv-ranking-item__ghost": "display: none; background-color: var(--background-dim, #f3f3f3); border-radius: 100px;width: 200px;height: 55px;z-index: 1;position: absolute;left: 25px;",
     "[dir='rtl'] .sv-ranking-item__ghost": "left: initilal; right: 25px;",
     ".sv-ranking-item--ghost .sv-ranking-item__ghost": "display: block;",
@@ -391,7 +390,7 @@ export class StylesManager {
     ".sv-popup__scrolling-content": "height: 100%; overflow: auto; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
-    ".sv-popup__content": "min-width: 100%; height: 100%;",
+    ".sv-popup__content": "min-width: 100%; height: 100%; display: flex; flex-direction: column; min-height: 0;",
     ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px))) rotate(180deg);",
     ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));",
     ".sv-popup--show-pointer.sv-popup--right": "transform: translate(calc(1 * var(--base-unit, 8px)));",
@@ -415,7 +414,7 @@ export class StylesManager {
     ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",
     ".sv-list__item--with-icon": "padding-top: 12px; padding-bottom: 12px;",
     ".sv-list__item": "width: 100%; box-sizing: border-box; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
-    ".sv-list__item-body": "width: 100%; box-sizing: border-box; padding-top: 8px; padding-bottom: 8px; padding-inline-end: 64px; padding-inline-start: 16px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
+    ".sv-list__item-body": "width: 100%; box-sizing: border-box; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); padding-top: calc(1 * var(--base-unit, 8px)); padding-bottom: calc(1 * var(--base-unit, 8px)); padding-inline-end: calc(8 * var(--base-unit, 8px)); padding-inline-start: calc(2 * var(--base-unit, 8px)); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;",
     ".sv-list__item-icon":
       "float: left; width: calc(3 * 8px); height: calc(3 * 8px); margin-right: calc(2 * 8px);",
     ".sv-list__item-icon svg": "display: block;",

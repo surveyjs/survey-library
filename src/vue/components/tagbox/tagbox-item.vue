@@ -7,7 +7,7 @@
       <sv-svg-icon
         v-bind:class="question.cssClasses.cleanItemButtonSvg"
         :iconName="question.cssClasses.cleanItemButtonIconId"
-        :size="16"
+        :size="'auto'"
       ></sv-svg-icon>
     </div>
   </div>

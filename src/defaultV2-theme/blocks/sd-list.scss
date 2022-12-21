@@ -11,6 +11,9 @@
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
     border-radius: 3px;
+    font-size: calcSize(2);
+    line-height: calcSize(3);
+    padding-inline: calcSize(2) calcSize(8);
   }
 }
 
@@ -20,7 +23,6 @@
 }
 
 .sd-list__item--selected {
-
   &:hover,
   &:focus {
     .sd-list__item-body {

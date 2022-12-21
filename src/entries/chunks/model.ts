@@ -86,6 +86,7 @@ export {
   propertyArray
 } from "../../jsonobject";
 export {
+  IMatrixDropdownData,
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase

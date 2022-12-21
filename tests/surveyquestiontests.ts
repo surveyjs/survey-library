@@ -149,10 +149,10 @@ QUnit.test("Comment and other could not be set together", function (assert) {
 
   questionDropDown.hasComment = true;
   assert.equal(questionDropDown.hasComment, true, "After set comment to true");
-  assert.equal(questionDropDown.hasOther, false, "After set comment to true");
+  assert.equal(questionDropDown.hasOther, true, "After set comment to true, behavior is changed");
 
   questionDropDown.hasOther = true;
-  assert.equal(questionDropDown.hasComment, false, "After set other to true");
+  assert.equal(questionDropDown.hasComment, true, "After set other to true, behavior is changed");
   assert.equal(questionDropDown.hasOther, true, "After set other to true");
 });
 QUnit.test("Keep comment if question value is null", function (assert) {

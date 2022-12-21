@@ -481,7 +481,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
       if (this.hasUnknownValue(val[i], true, false)) {
-        this.comment = val[i];
+        this.otherValue = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;
         return newVal;
@@ -493,9 +493,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !val.length) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) {
-        if (this.getQuestionComment()) {
+        if (this.needConvertRenderedOtherToDataValue()) {
           var newVal = val.slice();
-          newVal[i] = this.getQuestionComment();
+          newVal[i] = this.otherValue;
           return newVal;
         }
       }

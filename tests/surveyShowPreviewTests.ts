@@ -504,8 +504,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event",
+QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event",
   function(assert) {
     var survey = new SurveyModel({
       elements: [
@@ -526,6 +525,28 @@ QUnit.test(
     assert.equal(survey.state, "preview", "We allow to show preview");
   }
 );
+QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event, use options.allow",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+      ],
+    });
+    var allowShowPreview = false;
+    survey.onShowingPreview.add((sender, options) => {
+      options.allow = allowShowPreview;
+    });
+    survey.showPreview();
+    assert.equal(survey.state, "running", "We do not allow to show preview");
+    allowShowPreview = true;
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We allow to show preview");
+  }
+);
+
 QUnit.test(
   "onShowingPreview && onServerValidateQuestions events",
   function(assert) {

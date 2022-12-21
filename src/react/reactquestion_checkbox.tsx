@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Base, ItemValue, SurveyModel, QuestionCheckboxModel } from "survey-core";
@@ -110,7 +110,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     let cssClasses = this.question.cssClasses;
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}

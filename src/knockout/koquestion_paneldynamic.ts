@@ -40,14 +40,14 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koIsPrevButton",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.isPrevButtonShowing;
+        return this.question.isPrevButtonVisible;
       })
     );
     this.setObservaleObj(
       "koIsNextButton",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.isNextButtonShowing;
+        return this.question.isNextButtonVisible;
       })
     );
     this.setObservaleObj(

@@ -157,6 +157,13 @@ export class PageModel extends PanelModelBase implements IPage {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
   }
   /**
+   * Returns `true` if this is the current page.
+   * @see SurveyModel.currentPage
+   */
+  public get isActive(): boolean {
+    return !!this.survey && <PageModel>this.survey.currentPage === this;
+  }
+  /**
    * Returns `true` if the respondent has already seen this page during the current session.
    */
   public get wasShown(): boolean {

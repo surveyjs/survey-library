@@ -904,13 +904,6 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  /**
-   * Returns `true` if this is the current page.
-   * @see SurveyModel.currentPage
-   */
-  public get isActive(): boolean {
-    return !this.survey || <PageModel>this.survey.currentPage == this.root;
-  }
   public updateCustomWidgets() {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].updateCustomWidgets();

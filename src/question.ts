@@ -609,11 +609,6 @@ export class Question extends SurveyElement<Question>
   public set commentPlaceHolder(newValue: string) {
     this.commentPlaceholder = newValue;
   }
-
-  public get commentOrOtherPlaceholder(): string {
-    return this.otherPlaceholder || this.commentPlaceholder;
-  }
-
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }

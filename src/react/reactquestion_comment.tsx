@@ -59,6 +59,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected getId(): string {
     return this.props.question.commentId;
   }
+  protected getPlaceholder(): string {
+    return this.props.question.commentPlaceholder;
+  }
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
@@ -83,7 +86,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         value={comment}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
-        placeholder={question.commentOrOtherPlaceholder}
+        placeholder={this.getPlaceholder()}
         onChange={handleOnChange}
         onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); } }
         onInput={(e) => this.onCommentInput(e)}
@@ -106,6 +109,9 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   }
   protected getId(): string {
     return this.props.question.otherId;
+  }
+  protected getPlaceholder(): string {
+    return this.props.question.otherPlaceholder;
   }
 }
 

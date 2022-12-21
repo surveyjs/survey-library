@@ -8,7 +8,7 @@
       :class="question.cssClasses.other || commentClass"
       :value="question.comment"
       :maxlength="question.getOthersMaxLength()"
-      :placeholder="question.commentOrOtherPlaceholder"
+      :placeholder="question.commentPlaceholder"
       :aria-label="question.ariaLabel"
       :aria-required="question.ariaRequired"
       v-bind:style="{ resize: question.resizeStyle }"

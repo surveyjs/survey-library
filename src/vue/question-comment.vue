@@ -2,7 +2,7 @@
   <div class="form-group">
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
-      :id="element.commentId"
+      :id="question.commentId"
       :readonly="question.isInputReadOnly"
       :disabled="question.isInputReadOnly"
       :class="question.cssClasses.other || commentClass"
@@ -24,10 +24,10 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "survey-core";
 
 @Component
-export class QuestionComment extends Vue {
+export class OtherComment extends Vue {
   @Prop() question: Question;
   @Prop() commentClass: any;
 }
-Vue.component("survey-question-comment", QuestionComment);
-export default QuestionComment;
+Vue.component("survey-question-comment", OtherComment);
+export default OtherComment;
 </script>

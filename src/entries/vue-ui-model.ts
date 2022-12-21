@@ -9,7 +9,7 @@ export { Page } from "../vue/page.vue";
 export { Radiogroup } from "../vue/radiogroup.vue";
 export { RadiogroupItem } from "../vue/radiogroupitem.vue";
 export { OtherChoice } from "../vue/question-other.vue";
-export { QuestionComment } from "../vue/question-comment.vue";
+export { OtherComment } from "../vue/question-comment.vue";
 export { Rating } from "../vue/rating.vue";
 export { RatingDropdown } from "../vue/rating-dropdown.vue";
 export { Comment } from "../vue/comment.vue";

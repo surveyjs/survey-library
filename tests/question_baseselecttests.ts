@@ -797,3 +797,21 @@ QUnit.test("check renamed has... properties", (assert) => {
   assert.notOk(question.showCommentArea);
   assert.notOk(question.hasComment);
 });
+QUnit.test("checkbox selectAllItem isEnabled and maxSelectedChoices", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        "showSelectAllItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.selectAllItem.isEnabled, true, "selectAllItem is enabled");
+  q.maxSelectedChoices = 2;
+  assert.equal(q.selectAllItem.isEnabled, false, "selectAllItem is disabled");
+  q.maxSelectedChoices = 0;
+  assert.equal(q.selectAllItem.isEnabled, true, "selectAllItem is enabled again");
+});

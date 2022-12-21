@@ -390,7 +390,7 @@ export class StylesManager {
     ".sv-popup__scrolling-content": "height: 100%; overflow: auto; display: flex; flex-direction: column;",
     ".sv-popup__scrolling-content::-webkit-scrollbar": "height: 6px; width: 6px; background-color: var(--background-dim, #f3f3f3);",
     ".sv-popup__scrolling-content::-webkit-scrollbar-thumb": "background: var(--primary-light, rgba(25, 179, 148, 0.1));",
-    ".sv-popup__content": "min-width: 100%; height: 100%;",
+    ".sv-popup__content": "min-width: 100%; height: 100%; display: flex; flex-direction: column; min-height: 0;",
     ".sv-popup--show-pointer.sv-popup--top .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px))) rotate(180deg);",
     ".sv-popup--show-pointer.sv-popup--bottom .sv-popup__pointer": "transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));",
     ".sv-popup--show-pointer.sv-popup--right": "transform: translate(calc(1 * var(--base-unit, 8px)));",

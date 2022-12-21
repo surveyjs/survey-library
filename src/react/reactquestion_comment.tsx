@@ -105,7 +105,7 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
     return this.props.question.otherValue;
   }
   protected getId(): string {
-    return this.props.question.commentId;
+    return this.props.question.otherId;
   }
 }
 

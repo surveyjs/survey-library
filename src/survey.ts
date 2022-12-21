@@ -107,9 +107,9 @@ export class SurveyModel extends SurveyElementCore
   public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
-   * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
+   * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allow` to `false`
    *- `sender` - the survey object that fires the event.
-   *- `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
+   *- `options.allow` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
    *- `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
    * @see onComplete
    */
@@ -134,9 +134,9 @@ export class SurveyModel extends SurveyElementCore
   public onComplete: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired before the survey is going to preview mode, state equals to `preview`. It happens when a user click on "Preview" button. It shows when "showPreviewBeforeComplete" proeprty equals to "showAllQuestions" or "showAnsweredQuestions".
-   * You can prevent showing it by setting allowShowPreview to `false`.
+   * You can prevent showing it by setting allow to `false`.
    *- `sender` - the survey object that fires the event.
-   *- `options.allowShowPreview` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
+   *- `options.allow` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
    * @see showPreviewBeforeComplete
    */
   public onShowingPreview: EventBase<SurveyModel> = this.addEvent<
@@ -168,7 +168,7 @@ export class SurveyModel extends SurveyElementCore
    *- `sender` - the survey object that fires the event.
    *- `option.oldCurrentPage` - the previous current/active page.
    *- `option.newCurrentPage` - a new current/active page.
-   *- `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
+   *- `option.allow` - set it to `false` to disable the current page changing. It is `true` by default.
    *- `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
    *- `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
@@ -3188,14 +3188,16 @@ export class SurveyModel extends SurveyElementCore
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
       allowChanging: true,
+      allow: true,
       isNextPage: this.isNextPage(newValue, oldValue),
       isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
-    if (options.allowChanging) {
+    const allow = options.allowChanging && options.allow;
+    if (allow) {
       this.isCurrentPageRendering = true;
     }
-    return options.allowChanging;
+    return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
     const isNextPage: boolean = this.isNextPage(newValue, oldValue);
@@ -3737,9 +3739,9 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   private showPreviewCore(): void {
-    var options = { allowShowPreview: true };
+    var options = { allowShowPreview: true, allow: true };
     this.onShowingPreview.fire(this, options);
-    this.isShowingPreview = options.allowShowPreview;
+    this.isShowingPreview = options.allowShowPreview && options.allow;
   }
   /**
    * Cancels preview and switches back to the "running" state.
@@ -4068,12 +4070,7 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
-    var onCompletingOptions = {
-      allowComplete: true,
-      isCompleteOnTrigger: isCompleteOnTrigger,
-    };
-    this.onCompleting.fire(this, onCompletingOptions);
-    if (!onCompletingOptions.allowComplete) {
+    if(!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4109,6 +4106,15 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
     return true;
+  }
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
+    var options = {
+      allowComplete: true,
+      allow: true,
+      isCompleteOnTrigger: isCompleteOnTrigger,
+    };
+    this.onCompleting.fire(this, options);
+    return options.allowComplete && options.allow;
   }
   /**
    * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.

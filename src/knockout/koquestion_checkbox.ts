@@ -4,6 +4,7 @@ import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionCheckboxModel } from "survey-core";
 import { Question } from "survey-core";
+import { ImplementorBase } from "./kobase";
 
 export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
@@ -21,6 +22,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
   private _implementor: QuestionCheckboxImplementor;
+  private _selectAllItemImpl: ImplementorBase = undefined;
+  private _otherItemImpl: ImplementorBase = undefined;
   constructor(name: string) {
     super(name);
     this.koAllSelected = ko.observable(this.isAllSelected);
@@ -29,6 +32,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
       if (newValue) this.selectAll();
       else this.clearValue();
     });
+    this._selectAllItemImpl = new ImplementorBase(this.selectAllItem);
+    this._otherItemImpl = new ImplementorBase(this.otherItem);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
@@ -48,6 +53,14 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.isAllSelectedUpdating = false;
   }
   public dispose() {
+    if(this._selectAllItemImpl) {
+      this._selectAllItemImpl.dispose();
+      this._selectAllItemImpl = undefined;
+    }
+    if(this._otherItemImpl) {
+      this._otherItemImpl.dispose();
+      this._otherItemImpl = undefined;
+    }
     this._implementor.dispose();
     this._implementor = undefined;
     this.koAllSelected = undefined;

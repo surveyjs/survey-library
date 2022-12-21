@@ -211,7 +211,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.isItemSelected(item);
   }
   protected onAfterRunItemsEnableCondition() {
-    if (this.maxSelectedChoices < 1) return;
+    if (this.maxSelectedChoices < 1) {
+      this.selectAllItem.setIsEnabled(true);
+      this.otherItem.setIsEnabled(true);
+      return;
+    }
     if (this.hasSelectAll) {
       this.selectAllItem.setIsEnabled(
         this.maxSelectedChoices >= this.activeChoices.length

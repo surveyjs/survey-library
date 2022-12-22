@@ -25,12 +25,6 @@ const arrayOptions = [{
   importName: "bootstrapmaterial/index"
 },
 {        
-  tsConfigPath: "./build-scripts/survey-core/tsconfig.plugins.modern.theme.typing.json",
-  filePath: "build/survey-core/plugins/survey-modern-theme.d.ts",
-  moduleName: "survey-core/plugins/survey-modern-theme",
-  importName: "modern/index"
-},
-{        
   tsConfigPath: "./build-scripts/survey-core/tsconfig.plugins.orange.theme.typing.json",
   filePath: "build/survey-core/plugins/survey-orange-theme.d.ts",
   moduleName: "survey-core/plugins/survey-orange-theme",
@@ -71,7 +65,6 @@ const config = {
   entry: {
     ["survey-bootstrap-theme"]: path.resolve(__dirname, "../../src/plugins/themes/bootstrap/index.ts"),
     ["survey-bootstrapmaterial-theme"]: path.resolve(__dirname, "../../src/plugins/themes/bootstrapmaterial/index.ts"),
-    ["survey-modern-theme"]: path.resolve(__dirname, "../../src/plugins/themes/modern/index.ts"),
     ["survey-default-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/standard.ts"),
     ["survey-orange-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/orange.ts"),
     ["survey-darkblue-theme"]: path.resolve(__dirname, "../../src/plugins/themes/legacy-default/darkblue.ts"),

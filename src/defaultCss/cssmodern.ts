@@ -1,3 +1,5 @@
+import { surveyCss } from "./defaultV2Css";
+
 export var modernCss = {
   root: "sv-root-modern",
   timerRoot: "sv-body__timer",
@@ -414,3 +416,4 @@ export var modernCss = {
     themeMark: "--sv-modern-mark"
   }
 };
+(<any>surveyCss)["modern"] = modernCss;

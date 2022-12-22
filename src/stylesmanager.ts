@@ -1,5 +1,42 @@
 import { surveyCss } from "./defaultCss/defaultV2Css";
 import { Logger } from "./utils/utils";
+
+export const modernThemeColors: { [key: string]: string } = {
+  "$main-color": "#1ab394",
+  "$add-button-color": "#1948b3",
+  "$remove-button-color": "#ff1800",
+  "$disable-color": "#dbdbdb",
+  "$progress-text-color": "#9d9d9d",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-slider-color": "#cfcfcf",
+  "$error-color": "#d52901",
+  "$text-color": "#404040",
+  "$light-text-color": "#fff",
+  "$checkmark-color": "#fff",
+  "$progress-buttons-color": "#8dd9ca",
+  "$inputs-background-color": "transparent",
+  "$main-hover-color": "#9f9f9f",
+  "$body-container-background-color": "#f4f4f4",
+  "$text-border-color": "#d4d4d4",
+  "$disabled-text-color": "rgba(64, 64, 64, 0.5)",
+  "$border-color": "rgb(64, 64, 64, 0.5)",
+  "$header-background-color": "#e7e7e7",
+  "$answer-background-color": "rgba(26, 179, 148, 0.2)",
+  "$error-background-color": "rgba(213, 41, 1, 0.2)",
+  "$radio-checked-color": "#404040",
+  "$clean-button-color": "#1948b3",
+  "$body-background-color": "#ffffff",
+  "$foreground-light": "#909090",
+};
+
+function setCssVariables(vars: { [key: string]: string }, element: HTMLElement): void {
+  Object.keys(vars || {}).forEach(sassVarName => {
+    const name = sassVarName.substring(1);
+    element.style.setProperty("--" + name, vars[sassVarName]);
+  });
+}
+
 export class StylesManager {
   private static SurveyJSStylesSheetId = "surveyjs-styles";
   private sheet: CSSStyleSheet = null;
@@ -7,9 +44,14 @@ export class StylesManager {
   public static Logger: Logger;
   public static Styles: { [key: string]: string } = {};
   public static Media: { [key: string]: { media: string, style: string } } = { };
-  public static ThemeColors: { [key: string]: { [key: string]: string } } = { };
+  public static ThemeColors: { [key: string]: { [key: string]: string } } = {
+    "modern": modernThemeColors
+  };
   public static ThemeCss: { [key: string]: { [key: string]: string } } = { };
-  public static ThemeSelector: { [key: string]: string } = { "default": ".sv_main" };
+  public static ThemeSelector: { [key: string]: string } = {
+    "default": ".sv_main ",
+    "modern": ".sv-root-modern "
+  };
 
   static findSheet(styleSheetId: string): any {
     if (typeof document === "undefined") return null;
@@ -47,6 +89,12 @@ export class StylesManager {
     }
 
     if (StylesManager.Enabled) {
+
+      if(themeName === "modern") {
+        setCssVariables(StylesManager.ThemeColors[themeName], document.body);
+        return;
+      }
+
       const styleSheetId = (themeName + currentThemeSelector).trim();
       let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {

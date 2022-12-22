@@ -1,5 +1,3 @@
-export * from "../plugins/themes/modern/cssmodern";
-export * from "../plugins/themes/modern/theme-settings";
 export * from "../plugins/themes/bootstrap/cssbootstrap";
 export * from "../plugins/themes/bootstrap/theme-settings";
 export * from "../plugins/themes/bootstrapmaterial/cssbootstrapmaterial";

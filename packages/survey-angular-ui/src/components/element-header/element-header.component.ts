@@ -12,6 +12,8 @@ export class ElementHeaderComponent {
     return this.element.cssHeader;
   }
   @HostListener("click") click(): void {
-    this.element.clickTitleFunction();
+    if(this.element.clickTitleFunction !== undefined) {
+      this.element.clickTitleFunction();
+    }
   }
 }

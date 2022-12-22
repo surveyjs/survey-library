@@ -416,22 +416,20 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       !!changedQuestion &&
       !this.isTwoValueEquals(changingValue, changedValue)
     ) {
+      this.isSettingValue = true;
       if (isComment) {
         changedQuestion.comment = changingValue;
       } else {
         changedQuestion.value = changingValue;
       }
-    } else {
-      if (
-        this.data.isValidateOnValueChanging &&
-        this.hasQuestonError(changedQuestion)
-      )
-        return;
-      const isDeleting = newColumnValue == null && !changedQuestion ||
-        isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
-      this.data.onRowChanged(this, changedName, newValue, isDeleting);
-      this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+      this.isSettingValue = false;
+      newValue = this.value;
     }
+    if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
+    const isDeleting = newColumnValue == null && !changedQuestion ||
+      isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+    this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
   }
 
   private updateQuestionsValue(

@@ -5,7 +5,7 @@
     appearance: none;
     border: none;
     border-radius: 1.214em;
-    color: #ffffff;
+    color: $button-text-color;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.875em;
@@ -13,4 +13,7 @@
     outline: none;
     padding: 0.5em 2.786em 0.6em;
     text-align: left;
+}
+.sv-btn--navigation {
+    background-color: $main-color;
 }

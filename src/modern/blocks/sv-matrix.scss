@@ -20,7 +20,7 @@
   cursor: pointer;
 }
 .sv-matrix__text--checked {
-  color: #ffffff;
+  color: $matrix-text-checked-color;
   background-color: $main-color;
 }
 .sv-matrix__text--disabled {

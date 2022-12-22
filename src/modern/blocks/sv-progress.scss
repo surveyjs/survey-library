@@ -22,3 +22,33 @@
     margin-left: 10px;
   }
 }
+
+.sv_progress-buttons__list li:before {
+  border-color: $progress-buttons-color;
+  background-color: $progress-buttons-color;
+}
+.sv_progress-buttons__list li:after {
+  background-color: $progress-buttons-line-color;
+}
+.sv_progress-buttons__list .sv_progress-buttons__page-title {
+  color: $text-color;
+}
+.sv_progress-buttons__list .sv_progress-buttons__page-description {
+  color: $text-color;
+}
+.sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before {
+  border-color: $main-color;
+  background-color: $main-color;
+}
+.sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after {
+  background-color: $progress-buttons-color;
+}
+.sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before {
+  border-color: $main-color;
+  background-color: white;
+}
+.sv_progress-buttons__list
+  li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before {
+  border-color: $main-color;
+  background-color: white;
+}

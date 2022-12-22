@@ -7,3 +7,10 @@
 .sv-root-modern ::-webkit-scrollbar-thumb {
   background: $main-color;
 }
+
+::-webkit-scrollbar {
+  background-color: $main-hover-color;
+}
+::-webkit-scrollbar-thumb {
+  background: $main-color;
+}

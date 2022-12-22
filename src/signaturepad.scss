@@ -1,14 +1,22 @@
 .sjs_sp_container {
     position: relative;
 }
-.sjs_sp_controls { position: absolute; left: 0; bottom: 0; }
-.sjs_sp_controls > button { user-select: none; }
-.sjs_sp_container>div>canvas:focus { outline: none; }
+.sjs_sp_controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+.sjs_sp_controls > button {
+    user-select: none;
+}
+.sjs_sp_container > div > canvas:focus {
+    outline: none;
+}
 
 .sjs_sp_placeholder {
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     position: absolute;
     z-index: 0;

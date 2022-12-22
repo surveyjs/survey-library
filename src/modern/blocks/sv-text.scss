@@ -24,15 +24,15 @@
 }
 .sv-text::placeholder {
   opacity: 1;
-  color: $text-color;
+  color: $text-input-color;
 }
 .sv-text:-ms-input-placeholder {
   opacity: 1;
-  color: $text-color;
+  color: $text-input-color;
 }
 .sv-text::-ms-input-placeholder {
   opacity: 1;
-  color: $text-color;
+  color: $text-input-color;
 }
 .sv-text[type="date"] {
   padding-right: 2px;
@@ -65,6 +65,10 @@
 .sv-text--error::-ms-input-placeholder {
   color: $error-color;
 }
-.sv-text--error::-ms-input-placeholder {
-  color: $error-color;
+
+input.sv-text,
+textarea.sv-comment,
+select.sv-dropdown {
+  color: $text-input-color;
+  background-color: $inputs-background-color;
 }

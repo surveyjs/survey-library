@@ -9,7 +9,7 @@
   background-position: right 0.7em top 50%, 0 0;
   background-size: 0.57em 100%;
   border: none;
-  border-bottom: 0.06em solid #d4d4d4;
+  border-bottom: 0.06em solid $text-border-color;
   box-sizing: border-box;
   font-family: inherit;
   font-size: inherit;
@@ -39,7 +39,8 @@
   color: $error-color;
 }
 
-.sv-dropdown--error::placeholder {
+.sv-dropdown--error::placeholder,
+.sv-dropdown--error::-ms-input-placeholder {
   color: $error-color;
 }
 

@@ -76,3 +76,20 @@
   pointer-events: none;
   color: $main-hover-color;
 }
+
+.sv-tagbox {
+  border-bottom: 0.06em solid $text-border-color;
+}
+.sv-tagbox:focus {
+  border-color: $dropdown-border-color;
+}
+.sv-tagbox--error {
+  border-color: $error-color;
+  color: $error-color;
+}
+.sv-tagbox--error::placeholder {
+  color: $error-color;
+}
+.sv-tagbox--error::-ms-input-placeholder {
+  color: $error-color;
+}

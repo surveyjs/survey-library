@@ -74,6 +74,11 @@
     }
   }
 
+  .sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text {
+    background-color: $disable-color;
+    color: $body-background-color;
+  }
+
   .sv-rating__item--selected {
     .sv-rating__item-text {
       background-color: $disable-color;

@@ -523,7 +523,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (index < 0) return;
       value = index;
     }
-    this.removeRow(value, this.isRequireConfirmOnRowDelete(index));
+    this.removeRow(value);
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -545,6 +545,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
+    if(confirmDelete === undefined) {
+      confirmDelete = this.isRequireConfirmOnRowDelete(index);
+    }
     if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();

@@ -1,6 +1,6 @@
 .sjs_sp_container {
-  border: 1px dashed $disable-color;
+  border: 1px dashed var(--disable-color, $disable-color);
 }
 .sjs_sp_placeholder {
-  color: $foreground-light;
+  color: var(--foreground-light, $foreground-light);
 }

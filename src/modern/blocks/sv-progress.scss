@@ -1,17 +1,17 @@
 .sv-progress {
   height: 0.19em;
-  background-color: $header-background-color;
+  background-color: var(--header-background-color, $header-background-color);
   position: relative;
 }
 .sv-progress__bar {
   position: relative;
   height: 100%;
-  background-color: $main-color;
+  background-color: var(--main-color, $main-color);
 }
 .sv-progress__text {
   position: absolute;
   margin-top: 0.69em;
-  color: $progress-text-color;
+  color: var(--progress-text-color, $progress-text-color);
   font-size: 0.87em;
   font-weight: bold;
   padding-left: 0.6321em;
@@ -24,31 +24,31 @@
 }
 
 .sv_progress-buttons__list li:before {
-  border-color: $progress-buttons-color;
-  background-color: $progress-buttons-color;
+  border-color: var(--progress-buttons-color, $progress-buttons-color);
+  background-color: var(--progress-buttons-color, $progress-buttons-color);
 }
 .sv_progress-buttons__list li:after {
-  background-color: $progress-buttons-line-color;
+  background-color: var(--text-border-color, $text-border-color);
 }
 .sv_progress-buttons__list .sv_progress-buttons__page-title {
-  color: $text-color;
+  color: var(--text-color, $text-color);
 }
 .sv_progress-buttons__list .sv_progress-buttons__page-description {
-  color: $text-color;
+  color: var(--text-color, $text-color);
 }
 .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed:before {
-  border-color: $main-color;
-  background-color: $main-color;
+  border-color: var(--main-color, $main-color);
+  background-color: var(--main-color, $main-color);
 }
 .sv_progress-buttons__list li.sv_progress-buttons__list-element--passed + li:after {
-  background-color: $progress-buttons-color;
+  background-color: var(--progress-buttons-color, $progress-buttons-color);
 }
 .sv_progress-buttons__list li.sv_progress-buttons__list-element--current:before {
-  border-color: $main-color;
+  border-color: var(--main-color, $main-color);
   background-color: white;
 }
 .sv_progress-buttons__list
   li.sv_progress-buttons__list-element--passed.sv_progress-buttons__list-element--current:before {
-  border-color: $main-color;
+  border-color: var(--main-color, $main-color);
   background-color: white;
 }

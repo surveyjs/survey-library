@@ -7,8 +7,8 @@
   padding-top: 4.5em;
   padding-bottom: 4.5em;
   text-align: center;
-  color: $text-color;
-  background-color: $body-container-background-color;
+  color: var(--text-color, $text-color);
+  background-color: var(--body-container-background-color, $body-container-background-color);
 }
 .sv-completedpage:before {
   display: block;

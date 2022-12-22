@@ -17,23 +17,23 @@
 }
 
 .sv-boolean__switch {
-  background-color: $main-color;
+  background-color: var(--main-color, $main-color);
 }
 .sv-boolean__slider {
-  background-color: $slider-color;
+  background-color: var(--slider-color, $slider-color);
 }
 .sv-boolean__label--disabled {
-  color: $disabled-label-color;
+  color: var(--disabled-label-color, $disabled-label-color);
 }
 .sv-boolean--disabled .sv-boolean__switch {
-  background-color: $disabled-switch-color;
+  background-color: var(--main-hover-color, $main-hover-color);
 }
 .sv-boolean--disabled .sv-boolean__slider {
-  background-color: $disabled-slider-color;
+  background-color: var(--disabled-slider-color, $disabled-slider-color);
 }
 
 .sv-boolean input:focus ~ .sv-boolean__switch {
-  outline: 1px solid $main-color;
+  outline: 1px solid var(--main-color, $main-color);
   outline-offset: 1px;
 }
 
@@ -98,21 +98,21 @@
 }
 
 .sv-boolean__switch {
-  background-color: $main-color;
+  background-color: var(--main-color, $main-color);
 }
 
 .sv-boolean__slider {
-  background-color: $slider-color;
+  background-color: var(--slider-color, $slider-color);
 }
 
 .sv-boolean__label--disabled {
-  color: $disabled-label-color;
+  color: var(--disabled-label-color, $disabled-label-color);
 }
 
 .sv-boolean--disabled .sv-boolean__switch {
-  background-color: $disabled-switch-color;
+  background-color: var(--main-hover-color, $main-hover-color);
 }
 
 .sv-boolean--disabled .sv-boolean__slider {
-  background-color: $disabled-slider-color;
+  background-color: var(--disabled-slider-color, $disabled-slider-color);
 }

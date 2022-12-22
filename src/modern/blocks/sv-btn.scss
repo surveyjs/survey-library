@@ -5,7 +5,7 @@
     appearance: none;
     border: none;
     border-radius: 1.214em;
-    color: $button-text-color;
+    color: var(--body-background-color, $body-background-color);
     cursor: pointer;
     font-family: inherit;
     font-size: 0.875em;
@@ -15,5 +15,5 @@
     text-align: left;
 }
 .sv-btn--navigation {
-    background-color: $main-color;
+    background-color: var(--main-color, $main-color);
 }

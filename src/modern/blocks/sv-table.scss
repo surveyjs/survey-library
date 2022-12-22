@@ -1,6 +1,6 @@
 .sv-table {
   width: 100%;
-  background-color: rgba($main-hover-color, 0.1);
+  background-color: rgba(var(--main-hover-color, $main-hover-color), 0.1);
   border-collapse: separate;
   border-spacing: 0;
 
@@ -32,11 +32,11 @@
   }
 }
 .sv-table__row--detail {
-  background-color: $header-background-color;
+  background-color: var(--header-background-color, $header-background-color);
 
   td {
-    border-top: 1px solid $text-border-color;
-    border-bottom: 1px solid $text-border-color;
+    border-top: 1px solid var(--text-border-color, $text-border-color);
+    border-bottom: 1px solid var(--text-border-color, $text-border-color);
     padding: 1em 0;
   }
 }
@@ -74,7 +74,7 @@
 .sv-table__cell--detail-button {
   appearance: none;
   position: relative;
-  border: 3px solid $border-color;
+  border: 3px solid var(--border-color, $border-color);
   border-radius: 50px;
   text-align: center;
   vertical-align: middle;

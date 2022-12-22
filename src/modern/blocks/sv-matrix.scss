@@ -20,15 +20,15 @@
   cursor: pointer;
 }
 .sv-matrix__text--checked {
-  color: $matrix-text-checked-color;
-  background-color: $main-color;
+  color: var(--body-background-color, $body-background-color);
+  background-color: var(--main-color, $main-color);
 }
 .sv-matrix__text--disabled {
   cursor: default;
   &.sv-matrix__text--checked {
-    background-color: $disable-color;
+    background-color: var(--disable-color, $disable-color);
   }
 }
 .sv-matrix__row--error {
-  background-color: $error-background-color;
+  background-color: var(--error-background-color, $error-background-color);
 }

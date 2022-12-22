@@ -5,14 +5,14 @@
   padding: 0.25em 0 0.25em 0.87em;
   border: none;
   border-radius: 0;
-  border-bottom: 0.07em solid $text-border-color;
+  border-bottom: 0.07em solid var(--text-border-color, $text-border-color);
   box-shadow: none;
   background-color: transparent;
   font-family: inherit;
   font-size: 1em;
 }
 .sv-text:focus {
-  border-color: $main-color;
+  border-color: var(--main-color, $main-color);
   outline: none;
   box-shadow: none;
 }
@@ -24,15 +24,15 @@
 }
 .sv-text::placeholder {
   opacity: 1;
-  color: $text-input-color;
+  color: var(--text-color, $text-color);
 }
 .sv-text:-ms-input-placeholder {
   opacity: 1;
-  color: $text-input-color;
+  color: var(--text-color, $text-color);
 }
 .sv-text::-ms-input-placeholder {
   opacity: 1;
-  color: $text-input-color;
+  color: var(--text-color, $text-color);
 }
 .sv-text[type="date"] {
   padding-right: 2px;
@@ -56,19 +56,19 @@
   display: none;
 }
 .sv-text--error {
-  color: $error-color;
-  border-color: $error-color;
+  color: var(--error-color, $error-color);
+  border-color: var(--error-color, $error-color);
 }
 .sv-text--error::placeholder {
-  color: $error-color;
+  color: var(--error-color, $error-color);
 }
 .sv-text--error::-ms-input-placeholder {
-  color: $error-color;
+  color: var(--error-color, $error-color);
 }
 
 input.sv-text,
 textarea.sv-comment,
 select.sv-dropdown {
-  color: $text-input-color;
-  background-color: $inputs-background-color;
+  color: var(--text-color, $text-color);
+  background-color: var(--inputs-background-color, $inputs-background-color);
 }

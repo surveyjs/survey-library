@@ -389,14 +389,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Creates and add a new row and focus the cell in the first column.
    */
-  public addRowUI() {
-    var oldRowCount = this.rowCount;
-    this.addRow();
-    if (oldRowCount === this.rowCount) return;
-    var q = this.getQuestionToFocusOnAddingRow();
-    if (!!q) {
-      q.focus();
-    }
+  public addRowUI(): void {
+    this.addRow(true);
   }
   private getQuestionToFocusOnAddingRow(): Question {
     var row = this.visibleRows[this.visibleRows.length - 1];
@@ -409,9 +403,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return null;
   }
   /**
-   * Creates and add a new row.
+   * Creates and add a new row. Optionally focus the cell in the first column.
+   * @param setFocus set this parameter to true to focus the cell in the first column.
    */
-  public addRow() {
+  public addRow(setFocus?: boolean): void {
+    const oldRowCount = this.rowCount;
     var options = { question: this, canAddRow: this.canAddRow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
@@ -422,6 +418,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onEndRowAdding();
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
+    }
+    if (setFocus && oldRowCount !== this.rowCount) {
+      const q = this.getQuestionToFocusOnAddingRow();
+      if (!!q) {
+        q.focus();
+      }
     }
   }
   /**
@@ -528,12 +530,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (index < 0) return;
       value = index;
     }
-    if (
-      !this.isRequireConfirmOnRowDelete(value) ||
-      confirmAction(this.confirmDeleteText)
-    ) {
-      this.removeRow(value);
-    }
+    this.removeRow(value, this.isRequireConfirmOnRowDelete(index));
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -546,20 +543,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Removes a row by it's index.
    * @param index a row index, from 0 to rowCount - 1
+   * @param confirmDelete set this parameter to true to show a confirmation dialog
    */
-  public removeRow(index: number) {
+  public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     var row =
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
-    if (
-      !!row &&
-      !!this.survey &&
-      !this.survey.matrixRowRemoving(this, index, row)
-    )
-      return;
+    if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
+    if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);

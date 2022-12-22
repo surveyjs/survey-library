@@ -31,6 +31,12 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
+$progress-buttons-line-color: #d4d4d4;
+$text-input-color: #6d7072;
+$disabled-switch-color: #9f9f9f;
+$background-dim: #f3f3f3;
+$foreground-disabled: #161616;
+
 body {
   --sv-default-mark: true;
 }

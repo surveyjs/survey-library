@@ -2,7 +2,7 @@
 export * from "./chunks/model";
 
 // css standard classes
-// export { defaultStandardCss } from "../defaultCss/cssstandard";
+export { defaultStandardCss } from "../defaultCss/cssstandard";
 
 // css modern classes
 export { modernCss } from "../defaultCss/cssmodern";

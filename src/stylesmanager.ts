@@ -29,6 +29,209 @@ export const modernThemeColors: { [key: string]: string } = {
   "$body-background-color": "#ffffff",
   "$foreground-light": "#909090",
 };
+export const defaultThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#e7e7e7",
+  "$body-container-background-color": "#f4f4f4",
+
+  "$main-color": "#1ab394",
+  "$main-hover-color": "#0aa384",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#6d7072",
+  "$text-input-color": "#6d7072",
+  "$header-color": "#6d7072",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$progress-text-color": "#9d9d9d",
+  "$disable-color": "#dbdbdb",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#8dd9ca",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const orangeThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#4a4a4a",
+  "$body-container-background-color": "#f8f8f8",
+
+  "$main-color": "#f78119",
+  "$main-hover-color": "#e77109",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#4a4a4a",
+  "$text-input-color": "#4a4a4a",
+  "$header-color": "#f78119",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$progress-text-color": "#9d9d9d",
+  "$disable-color": "#dbdbdb",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#f7b781",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const darkblueThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#d9d8dd",
+  "$body-container-background-color": "#f6f7f2",
+
+  "$main-color": "#3c4f6d",
+  "$main-hover-color": "#2c3f5d",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#4a4a4a",
+  "$text-input-color": "#4a4a4a",
+  "$header-color": "#6d7072",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$progress-text-color": "#9d9d9d",
+  "$disable-color": "#dbdbdb",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#839ec9",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const darkroseThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#ddd2ce",
+  "$body-container-background-color": "#f7efed",
+
+  "$main-color": "#68656e",
+  "$main-hover-color": "#58555e",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#4a4a4a",
+  "$text-input-color": "#4a4a4a",
+  "$header-color": "#6d7072",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$progress-text-color": "#9d9d9d",
+  "$disable-color": "#dbdbdb",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#c6bed4",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const stoneThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#cdccd2",
+  "$body-container-background-color": "#efedf4",
+
+  "$main-color": "#0f0f33",
+  "$main-hover-color": "#191955",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#0f0f33",
+  "$text-input-color": "#0f0f33",
+  "$header-color": "#0f0f33",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$progress-text-color": "#9d9d9d",
+  "$disable-color": "#dbdbdb",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#747491",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const winterThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#82b8da",
+  "$body-container-background-color": "#dae1e7",
+
+  "$main-color": "#3c3b40",
+  "$main-hover-color": "#1e1d20",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#000",
+  "$text-input-color": "#000",
+  "$header-color": "#000",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$disable-color": "#dbdbdb",
+  "$progress-text-color": "#9d9d9d",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#d1c9f5",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
+export const winterstoneThemeColors: { [key: string]: string } = {
+  "$header-background-color": "#323232",
+  "$body-container-background-color": "#f8f8f8",
+
+  "$main-color": "#5ac8fa",
+  "$main-hover-color": "#06a1e7",
+  "$body-background-color": "white",
+  "$inputs-background-color": "white",
+  "$text-color": "#000",
+  "$text-input-color": "#000",
+  "$header-color": "#000",
+  "$border-color": "#e7e7e7",
+
+  "$error-color": "#ed5565",
+  "$error-background-color": "#fd6575",
+
+  "$disable-color": "#dbdbdb",
+  "$progress-text-color": "#9d9d9d",
+  "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+  "$slider-color": "white",
+  "$disabled-switch-color": "#9f9f9f",
+  "$disabled-slider-color": "#cfcfcf",
+  "$foreground-light": "#909090",
+  "$foreground-disabled": "#161616",
+  "$background-dim": "#f3f3f3",
+
+  "$progress-buttons-color": "#acdcf2",
+  "$progress-buttons-line-color": "#d4d4d4"
+};
 
 function setCssVariables(vars: { [key: string]: string }, element: HTMLElement): void {
   Object.keys(vars || {}).forEach(sassVarName => {
@@ -45,7 +248,14 @@ export class StylesManager {
   public static Styles: { [key: string]: string } = {};
   public static Media: { [key: string]: { media: string, style: string } } = { };
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
-    "modern": modernThemeColors
+    "modern": modernThemeColors,
+    "default": defaultThemeColors,
+    "orange": orangeThemeColors,
+    "darkblue": darkblueThemeColors,
+    "darkrose": darkroseThemeColors,
+    "stone": stoneThemeColors,
+    "winter": winterThemeColors,
+    "winterstone": winterstoneThemeColors,
   };
   public static ThemeCss: { [key: string]: { [key: string]: string } } = { };
   public static ThemeSelector: { [key: string]: string } = {
@@ -90,7 +300,7 @@ export class StylesManager {
 
     if (StylesManager.Enabled) {
 
-      if(themeName === "modern") {
+      if(themeName !== "bootstrap" && themeName !== "bootstrapmaterial") {
         setCssVariables(StylesManager.ThemeColors[themeName], document.body);
         return;
       }

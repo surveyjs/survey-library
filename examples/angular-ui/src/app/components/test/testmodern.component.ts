@@ -1,6 +1,5 @@
 import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { StylesManager } from "survey-core";
-import { modernThemeName } from "survey-core/plugins/survey-modern-theme";
 import { TestComponent } from "./test.component";
 @Component({
   selector: "test-modern",
@@ -11,6 +10,6 @@ import { TestComponent } from "./test.component";
 export class TestModernComponent extends TestComponent {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
-    StylesManager.applyTheme(modernThemeName);
+    StylesManager.applyTheme("modern");
   }
 }

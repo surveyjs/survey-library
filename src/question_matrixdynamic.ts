@@ -112,6 +112,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a row.
+   *
+   * Default value: `false`
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
@@ -386,9 +388,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       row
     );
   }
-  /**
-   * Creates and add a new row and focus the cell in the first column.
-   */
   public addRowUI(): void {
     this.addRow(true);
   }
@@ -403,8 +402,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return null;
   }
   /**
-   * Creates and add a new row. Optionally focus the cell in the first column.
-   * @param setFocus set this parameter to true to focus the cell in the first column.
+   * Creates and adds a new row to the matrix.
+   * @param setFocus *Optional.* Pass `true` to focus the cell in the first column.
    */
   public addRow(setFocus?: boolean): void {
     const oldRowCount = this.rowCount;
@@ -518,12 +517,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  /**
-   * Removes a row by it's index. If confirmDelete is true, show a confirmation dialog
-   * @param index a row index, from 0 to rowCount - 1
-   * @see removeRow
-   * @see confirmDelete
-   */
   public removeRowUI(value: any) {
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
@@ -541,9 +534,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !this.isValueEmpty(value[index]);
   }
   /**
-   * Removes a row by it's index.
-   * @param index a row index, from 0 to rowCount - 1
-   * @param confirmDelete set this parameter to true to show a confirmation dialog
+   * Removes a matrix row with a specified index.
+   * @param index A zero-based row index.
+   * @param confirmDelete *Optional.* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
   public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;

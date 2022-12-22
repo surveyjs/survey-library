@@ -63,7 +63,6 @@ import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
-import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
 
 export default QUnit.module("Survey");
 
@@ -5837,7 +5836,7 @@ QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
 QUnit.test(
   "onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333",
   function (assert) {
-    StylesManager.applyTheme(defaultThemeName);
+    StylesManager.applyTheme("default");
     var css = surveyCss.getCss();
     var survey = new SurveyModel();
     survey.onUpdatePanelCssClasses.add(function (survey, options) {
@@ -12066,7 +12065,7 @@ QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {
 });
 
 QUnit.test("Survey logoClassNames", function (assert) {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({});
   assert.equal(survey.logoPosition, "left");
 
@@ -14482,7 +14481,7 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   assert.equal(element.style.height, "95px");
 });
 QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -15106,7 +15105,7 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   assert.notOk(isProcessed);
 });
 QUnit.test("Check addNavigationItem", function (assert) {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     "elements": [
       {

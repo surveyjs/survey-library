@@ -1,4 +1,4 @@
-import { defaultThemeName } from "../../src/entries/plugins";
+import { "default" } from "../../src/entries/plugins";
 import { StylesManager } from "survey-core";
 
 export var markupTests = [];
@@ -86,7 +86,7 @@ export function testQuestionMarkup(assert, test, platform) {
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   var done = assert.async();
   if (test.before)
     test.before();

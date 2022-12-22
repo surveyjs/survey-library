@@ -15,7 +15,6 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
 import { StylesManager } from "../src/stylesmanager";
-import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -3845,7 +3844,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
 });
 
 QUnit.test("getPanelWrapperCss", function(assert) {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -3871,7 +3870,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {

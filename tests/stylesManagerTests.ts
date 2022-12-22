@@ -1,4 +1,4 @@
-import { defaultThemeName } from "../src/entries/plugins";
+import { "default" } from "../src/entries/plugins";
 import { StylesManager } from "../src/stylesmanager";
 import { Logger } from "../src/utils/utils";
 
@@ -8,7 +8,7 @@ function clearStyles() {
   document.querySelectorAll("style").forEach(el => el.parentNode.removeChild(el));
 }
 function resetTheme() {
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   clearStyles();
 }
 

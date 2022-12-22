@@ -3,7 +3,6 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
-import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
 import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_QuestionFile");
@@ -744,7 +743,7 @@ QUnit.test("Question File responsive", (assert) => {
       },
     ],
   };
-  StylesManager.applyTheme(defaultThemeName);
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel(json);
   survey.locale = "";
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");

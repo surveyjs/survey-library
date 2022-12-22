@@ -1,7 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
-import { defaultThemeName } from "../src/plugins/themes/legacy-default/standard-theme-settings";
 import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("SurveyShowPreviewTests");
@@ -319,7 +318,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions'", function(
 QUnit.test(
   "showPreviewBeforeComplete = 'showAllQuestions', edit page",
   function(assert) {
-    StylesManager.applyTheme(defaultThemeName);
+    StylesManager.applyTheme("default");
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },

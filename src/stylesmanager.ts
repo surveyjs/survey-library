@@ -294,6 +294,9 @@ export class StylesManager {
 
       if(themeName !== "bootstrap" && themeName !== "bootstrapmaterial") {
         setCssVariables(StylesManager.ThemeColors[themeName], document.body);
+        if (!!StylesManager.Logger) {
+          StylesManager.Logger.log("apply theme " + themeName + " completed");
+        }
         return;
       }
 

@@ -2,7 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { SurveyModule } from "src/angular-ui.module";
 import { SurveyComponent } from "src/survey.component";
 import { SurveyModel, StylesManager } from "survey-core";
-import { "default" } from "../../../src/entries/plugins";
 
 describe("event tests", () => {
   beforeEach(async () => {

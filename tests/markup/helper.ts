@@ -1,4 +1,3 @@
-import { "default" } from "../../src/entries/plugins";
 import { StylesManager } from "survey-core";
 
 export var markupTests = [];

@@ -55,7 +55,7 @@
             "index": "../../examples/angular-ui/src/index.html",
             "main": "../../examples/angular-ui/src/main.ts",
             "polyfills": "../../examples/angular-ui/src/polyfills.ts",
-            "tsConfig": "../../examples/angular-ui/tsconfig.app.json",
+            "tsConfig": "./tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "../../examples/angular-ui/src/favicon.ico",

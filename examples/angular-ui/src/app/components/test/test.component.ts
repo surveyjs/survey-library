@@ -9,7 +9,7 @@ import "survey-core/survey.i18n";
 })
 export class TestComponent {
   public model?: SurveyModel | Survey.PopupSurveyModel;
-  public isPopup: boolean;
+  public isPopup: boolean = true;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     (window as any).Survey = Survey;
     (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel, isPopup: boolean) => {

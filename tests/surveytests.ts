@@ -832,6 +832,24 @@ QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   survey.progressBarType = "requiredQuestions";
   assert.equal(survey.progressText, "Answered 0/2 questions");
 });
+QUnit.test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    progressBarType: "requiredQuestions",
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "matrixdropdown", name: "q2", isRequired: true,
+        columns: [{ name: "col1", cellType: "text" }], rows: ["row1"] }
+    ]
+  });
+  assert.equal(survey.progressText, "Answered 0/2 questions");
+  survey.setValue("q1", "1");
+  assert.equal(survey.progressText, "Answered 1/2 questions");
+  const rows = survey.getQuestionByName("q2").visibleRows;
+  rows[0].cells[0].question.value = "2";
+  assert.equal(survey.progressText, "Answered 2/2 questions");
+});
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460",
   function (assert) {

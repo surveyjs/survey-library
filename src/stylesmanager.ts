@@ -289,14 +289,6 @@ export class StylesManager {
 
   public static applyTheme(themeName: string = "default", themeSelector?: string): void {
     surveyCss.currentType = themeName;
-    // const themeCssRules = StylesManager.ThemeCss[themeName + "ThemeCss"];
-    const currentThemeSelector = themeSelector || StylesManager.ThemeSelector[themeName] || StylesManager.ThemeSelector["default"];
-    const themeCss = StylesManager.ThemeCss[themeName];
-
-    if(!themeCss) {
-      surveyCss.currentType = "defaultV2";
-      return;
-    }
 
     if (StylesManager.Enabled) {
 
@@ -305,6 +297,13 @@ export class StylesManager {
         return;
       }
 
+      const themeCss = StylesManager.ThemeCss[themeName];
+      if(!themeCss) {
+        surveyCss.currentType = "defaultV2";
+        return;
+      }
+
+      const currentThemeSelector = themeSelector || StylesManager.ThemeSelector[themeName] || StylesManager.ThemeSelector["default"];
       const styleSheetId = (themeName + currentThemeSelector).trim();
       let sheet = StylesManager.findSheet(styleSheetId);
       if (!sheet) {

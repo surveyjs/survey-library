@@ -84,7 +84,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  background: $background-light;
+  background: $primary-light;
   color: $foreground;
   font-size: calcSize(2);
   border-radius: 100%;

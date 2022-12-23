@@ -71,7 +71,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
-      <div style={divStyle} ref={(root) => (this.setControl(root))}>
+      <div style={divStyle} className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
         <table className={this.question.getTableCss()}>
           {header}
           {rows}

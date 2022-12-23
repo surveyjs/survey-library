@@ -315,5 +315,33 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-columns-rows-width.png", questionRoot, t, comparer);
     });
   });
+  test.only("Matrix with description under input", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "matrix",
+                "description": "matrix-description",
+                "descriptionLocation": "underInput",
+                "columns": ["col1", "col2"],
+                "rows": [
+                  "item1",
+                  "item2"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-description-under-input.png", questionRoot, t, comparer);
+    });
+  });
 
 });

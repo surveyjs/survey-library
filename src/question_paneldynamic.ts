@@ -1910,7 +1910,7 @@ export class QuestionPanelDynamicModel extends Question
 Serializer.addClass(
   "paneldynamic",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true },
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
       name: "templateElements",
       alternativeName: "questions",

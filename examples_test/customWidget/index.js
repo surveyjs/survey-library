@@ -1,4 +1,4 @@
 function init() {
   Survey.StylesManager.applyTheme("default");
 }
-init();
+document.addEventListener("DOMContentLoaded", init);

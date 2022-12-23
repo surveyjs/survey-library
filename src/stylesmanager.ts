@@ -275,12 +275,13 @@ export class StylesManager {
       .filter(themeName => ["defaultV2", "modern", "default"].indexOf(themeName) !== -1)
       .map(themeName => { return { name: themeName, theme: surveyCss[themeName] }; });
 
-    const res = [];
     if (!!document && !!document.body) {
       const styles = getComputedStyle(document.body);
-      res.push(themeMapper.filter(item => item.theme.variables && styles.getPropertyValue(item.theme.variables.themeMark))[0]);
+      if(styles.length) {
+        return themeMapper.filter(item => item.theme.variables && styles.getPropertyValue(item.theme.variables.themeMark));
+      }
     }
-    return res;
+    return [];
   }
 
   static findSheet(styleSheetId: string): any {

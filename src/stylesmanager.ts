@@ -263,6 +263,26 @@ export class StylesManager {
     "modern": ".sv-root-modern "
   };
 
+  static autoApplyTheme(): void {
+    const includedThemeCss = StylesManager.getIncludedThemeCss();
+    if(includedThemeCss.length === 1) {
+      StylesManager.applyTheme(includedThemeCss[0].name);
+    }
+  }
+
+  static getIncludedThemeCss(): Array<any> {
+    const themeMapper = (surveyCss.getAvailableThemes() as Array<string>)
+      .filter(themeName => ["defaultV2", "modern", "default"].indexOf(themeName) !== -1)
+      .map(themeName => { return { name: themeName, theme: surveyCss[themeName] }; });
+
+    const res = [];
+    if (!!document && !!document.body) {
+      const styles = getComputedStyle(document.body);
+      res.push(themeMapper.filter(item => item.theme.variables && styles.getPropertyValue(item.theme.variables.themeMark))[0]);
+    }
+    return res;
+  }
+
   static findSheet(styleSheetId: string): any {
     if (typeof document === "undefined") return null;
     for (let i = 0; i < document.styleSheets.length; i++) {
@@ -344,6 +364,7 @@ export class StylesManager {
         this.initializeStyles(this.sheet);
       }
     }
+    StylesManager.autoApplyTheme();
   }
 
   public initializeStyles(sheet: CSSStyleSheet): any {

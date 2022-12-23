@@ -149,11 +149,11 @@ export class QuestionBooleanModel extends Question {
   @property()
   valueFalse: any;
 
-  private getValueTrue(): any {
-    return this.valueTrue ? this.valueTrue : true;
+  public getValueTrue(): any {
+    return this.valueTrue !== undefined ? this.valueTrue : true;
   }
-  private getValueFalse(): any {
-    return this.valueFalse ? this.valueFalse : false;
+  public getValueFalse(): any {
+    return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);

@@ -135,6 +135,23 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
-
+  {
+    name: "Test Boolean Radio with true/false values question markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          defaultValue: true,
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          "valueTrue": "true_val",
+          "valueFalse": "false_val",
+          renderAs: "radio"
+        }
+      ]
+    },
+    snapshot: "boolean-radio-values",
+  },
   ]
 );

@@ -715,7 +715,14 @@ export class SurveyModel extends SurveyElementCore
    * - `options.skip`- The number of choice items to skip.
    * - `options.take` - The number of choice items to load. You can use the question's [`choicesLazyLoadPageSize`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadPageSize) property to change this number.
    * - `options.filter` - A search string used to filter choices.
-   * - `options.setItems(items: Array<any>, totalCount: Number)` - A method that you should call to assign loaded items to the question.
+   * - `options.setItems(items: Array<any>, totalCount: Number)` - A method that you should call to assign loaded items to the question. The `items` object is an array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   "value": any, // A unique value to be saved in the survey results.
+   *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   * }
+   * ```
    *
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    * @see QuestionDropdownModel.choicesLazyLoadEnabled

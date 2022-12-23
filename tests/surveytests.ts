@@ -8480,6 +8480,27 @@ QUnit.test("Survey get full title with values", function (assert) {
   assert.equal(q1.getProcessedText("{q1}"), 1, "Get question value");
 });
 
+QUnit.test("Survey get full title with values, bug#5383", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [
+          { value: 1, text: "One" },
+          { value: 2, text: "Two" },
+        ],
+        useDisplayValuesInDynamicTexts: false,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = 1;
+
+  assert.equal(survey.getProcessedText("{q1}"), 1, "Get question value");
+});
+
 QUnit.test(
   "Survey radioGroup remove data on visible items change even if there are other visible questions here, Bug# T1239",
   function (assert) {

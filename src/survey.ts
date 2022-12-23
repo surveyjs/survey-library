@@ -5715,12 +5715,13 @@ export class SurveyModel extends SurveyElementCore
     }
     var question = this.getFirstName(name);
     if (question) {
+      const questionUseDisplayText = (<Question>question).useDisplayValuesInDynamicTexts;
       textValue.isExists = true;
       const firstName = question.getValueName().toLowerCase();
       name = firstName + name.substring(firstName.length);
       name = name.toLocaleLowerCase();
       var values: { [index: string]: any } = {};
-      values[firstName] = textValue.returnDisplayValue
+      values[firstName] = textValue.returnDisplayValue && questionUseDisplayText
         ? question.getDisplayValue(false, undefined)
         : question.value;
       textValue.value = new ProcessValue().getValue(name, values);

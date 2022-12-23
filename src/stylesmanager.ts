@@ -270,10 +270,14 @@ export class StylesManager {
     }
   }
 
-  static getIncludedThemeCss(): Array<any> {
+  static getAvailableThemes(): Array<any> {
     const themeMapper = (surveyCss.getAvailableThemes() as Array<string>)
       .filter(themeName => ["defaultV2", "modern", "default"].indexOf(themeName) !== -1)
       .map(themeName => { return { name: themeName, theme: surveyCss[themeName] }; });
+    return themeMapper;
+  }
+  static getIncludedThemeCss(): Array<any> {
+    const themeMapper = StylesManager.getAvailableThemes();
 
     if (!!document && !!document.body) {
       const styles = getComputedStyle(document.body);

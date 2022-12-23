@@ -1744,6 +1744,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       );
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
+    if(res.requiredQuestionCount === 0 && this.isRequired) {
+      res.requiredQuestionCount = 1;
+      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
+    }
     return res;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }

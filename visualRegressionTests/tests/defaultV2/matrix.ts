@@ -315,7 +315,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-columns-rows-width.png", questionRoot, t, comparer);
     });
   });
-  test.only("Matrix with description under input", async (t) => {
+  test("Matrix with description under input", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {

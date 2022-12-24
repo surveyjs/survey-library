@@ -155,7 +155,6 @@
 }
 .sd-table-wrapper {
   display: flex;
-  padding-top: calcSize(2.5);
   margin: 0 calc(-1 * var(--sd-base-padding));
   width: fit-content;
   min-width: calc(100% + 2 * var(--sd-base-padding));
@@ -187,6 +186,7 @@
     left: 0;
   }
   .sd-question__content {
+    padding-top: calcSize(2.5);
     min-width: min-content;
   }
   &:not(.sd-element--with-frame) {
@@ -205,8 +205,10 @@
 }
 
 @mixin table_responsive {
-  .sd-table-wrapper {
+  .sd-question.sd-question--table {
+    & > .sd-question__content {
       padding-top: 0;
+    }
   }
   .sd-question--table,
   .sd-question--scroll {
@@ -314,8 +316,5 @@
     tr:last-child:after {
       content: none;
     }
-  }
-  .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
-    margin-left: calcSize(-2);
   }
 }

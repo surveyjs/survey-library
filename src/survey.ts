@@ -4432,8 +4432,11 @@ export class SurveyModel extends SurveyElementCore
   private isFirstPageRendering: boolean = true;
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
-    if (!this.isDesignMode) {
+    if (!this.isDesignMode && !this.isFocusingQuestion) {
       setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
+    }
+    while(this.afterRenderPageTasks.length > 0) {
+      this.afterRenderPageTasks.shift()();
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -6736,7 +6739,7 @@ export class SurveyModel extends SurveyElementCore
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
   private isFocusingQuestion: boolean;
-
+  private afterRenderPageTasks: Array<() => void> = [];
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
     this.isMovingQuestion = true;
@@ -6755,10 +6758,18 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;
+    const isNeedWaitForPageRendered = this.currentPage !== question.page;
+    const focusQuestionFunc = () => {
+      question.focus();
+      this.isFocusingQuestion = false;
+      this.isCurrentPageRendering = false;
+    };
+    this.afterRenderPageTasks.push(focusQuestionFunc);
     this.currentPage = <PageModel>question.page;
-    question.focus();
-    this.isFocusingQuestion = false;
-    this.isCurrentPageRendering = false;
+    if(!isNeedWaitForPageRendered) {
+      focusQuestionFunc();
+      this.afterRenderPageTasks.splice(this.afterRenderPageTasks.indexOf(focusQuestionFunc), 1);
+    }
     return true;
   }
   public getElementWrapperComponentName(element: any, reason?: string): string {

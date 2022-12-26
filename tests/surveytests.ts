@@ -14254,6 +14254,9 @@ QUnit.test(
         },
       ],
     });
+    survey.onCurrentPageChanged.add((s, o) => {
+      survey.afterRenderPage(undefined as any);
+    });
     survey.getQuestionByName("q1").value = "item2";
     assert.equal(survey.currentPage.name, "page2", "We moved to another page");
     assert.equal(focusedQuestions.length, 1, "Only one question was focused");
@@ -15894,3 +15897,49 @@ QUnit.test("selectbase.keepIncorrectValues & survey.keepIncorrectValues", functi
   assert.equal(true, question.isEmpty(), "clear incorrect value, #5");
 });
 
+QUnit.test("no scrolling to page top after focus a question on another page - https://github.com/surveyjs/survey-library/issues/5346", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 3"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "question66",
+            "choices": [
+              "Item 1",
+            ]
+          }
+        ]
+      }
+    ]
+  });
+
+  let log = "";
+  const qName = "question66";
+  survey.onScrollingElementToTop.add((s, o) => {
+    log += "->" + o.element.name;
+  });
+  survey.onCurrentPageChanged.add((s, o) => {
+    setTimeout(() => survey.afterRenderPage(undefined as any), 1);
+  });
+  assert.equal(log, "", "initially no scrolling");
+  survey.focusQuestion(qName);
+  setTimeout(() => {
+    assert.equal(log, "->" + qName, "no scrolling after page changed and focused a question, scroll to the question only");
+    done();
+  }, 100);
+});

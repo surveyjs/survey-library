@@ -1,4 +1,4 @@
-export var defaultBootstrapMaterialCss = {
+export var defaultCss = {
   root: "sv_main sv_bootstrapmaterial_css",
   container: "sv_container",
   header: "card-heading",

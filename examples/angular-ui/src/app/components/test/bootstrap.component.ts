@@ -1,7 +1,7 @@
 import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import {  StylesManager } from "survey-core";
 import { TestComponent } from "./test.component";
-import { bootstrapThemeName } from "survey-core/plugins/survey-bootstrap-theme";
+import "survey-core/plugins/bootstrap-integration";
 
 @Component({
   selector: "test-bootstap",
@@ -12,6 +12,6 @@ import { bootstrapThemeName } from "survey-core/plugins/survey-bootstrap-theme";
 export class TestBootstrapComponent extends TestComponent {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
-    StylesManager.applyTheme(bootstrapThemeName);
+    StylesManager.applyTheme("bootstrap");
   }
 }

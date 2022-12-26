@@ -23,7 +23,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outFile": "../../build/survey-core/plugins/survey-bootstrapmaterial-theme.d.ts"
+    "outFile": "../../build/survey-core/plugins/bootstrap-material-integration.d.ts"
   },
   "include": [
     "../../src/plugins/themes/bootstrapmaterial/index.ts"

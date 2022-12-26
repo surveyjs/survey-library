@@ -1,9 +1,9 @@
 import { StylesManager, surveyCss } from "survey-core";
 import { setMediaStyles, setStyles } from "../common-theme-settings";
-import { defaultBootstrapMaterialCss } from "./cssbootstrapmaterial";
+import { defaultCss } from "./cssbootstrapmaterial";
 
 export const bootstrapMaterialThemeName = "bootstrapmaterial";
-(<any>surveyCss)[bootstrapMaterialThemeName] = defaultBootstrapMaterialCss;
+(<any>surveyCss)[bootstrapMaterialThemeName] = defaultCss;
 
 export const bootstrapMaterialThemeColors: { [key: string]: string } = {
   "$main-color": "#18a689",

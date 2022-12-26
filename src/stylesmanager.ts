@@ -264,6 +264,10 @@ export class StylesManager {
   };
 
   static autoApplyTheme(): void {
+    if(surveyCss.currentType === "bootstrap" || surveyCss.currentType === "bootstrapmaterial") {
+      return;
+    }
+
     const includedThemeCss = StylesManager.getIncludedThemeCss();
     if(includedThemeCss.length === 1) {
       StylesManager.applyTheme(includedThemeCss[0].name);

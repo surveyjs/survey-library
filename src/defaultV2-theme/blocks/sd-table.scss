@@ -185,7 +185,7 @@
     position: sticky;
     left: 0;
   }
-  .sd-question__content {
+  & > .sd-question__content {
     padding-top: calcSize(2.5);
     min-width: min-content;
   }

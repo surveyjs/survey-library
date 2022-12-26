@@ -25,6 +25,7 @@
       <tbody>
         <tr
           v-for="row in table.rows"
+          :data-sv-drop-target-matrix-row="row.row && row.row.id"
           :class="row.className"
           :key="question.inputId + '_' + row.id"
         >

@@ -179,6 +179,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
+        data-responsive-title={cell.headers}
+        title={cell.getTitle()}
       >
         {cellContent}
       </td>

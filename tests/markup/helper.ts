@@ -97,6 +97,16 @@ export function testQuestionMarkup(assert, test, platform) {
         });
       });
     }
+    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
+      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
+        row.row.idValue = `${q.id}row${rowIndex}`;
+        row.cells.forEach((cell: any, cellIndex: number) => {
+          if(cell.hasQuestion) {
+            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
+          }
+        });
+      });
+    }
   });
   platform.survey.getAllPanels().map((p, i) => {
     p.id = "testidp" + i;
@@ -232,9 +242,9 @@ function clearClasses(el: Element) {
       }
     });
     el.classList.remove(...classesToRemove);
-    if(el.className === "") {
-      el.removeAttribute("class");
-    }
+  }
+  if(el.className === "") {
+    el.removeAttribute("class");
   }
 }
 
@@ -248,6 +258,9 @@ function clearAttributes(el: Element) {
   el.removeAttribute("for");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
+  if(el.getAttribute("style") === "") {
+    el.removeAttribute("style");
+  }
   if(el.getAttribute("name") !== "name")
     el.removeAttribute("name");
   if((<any>el).checked) {

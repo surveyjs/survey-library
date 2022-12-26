@@ -76,15 +76,21 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * You can display an additional field (comment field) for the most of questions; users can enter additional comments to their response.
-   * The comment field input is saved as `'question name' + 'commentPrefix'`.
+   * The comment field input is saved as `'question name' + 'commentSuffix'`.
    * @see data
    * @see Question.showCommentArea
    */
+  public get commentSuffix(): string {
+    return settings.commentSuffix;
+  }
+  public set commentSuffix(val: string) {
+    settings.commentSuffix = val;
+  }
   public get commentPrefix(): string {
-    return settings.commentPrefix;
+    return this.commentSuffix;
   }
   public set commentPrefix(val: string) {
-    settings.commentPrefix = val;
+    this.commentSuffix = val;
   }
 
   private valuesHash: HashTable<any> = {};
@@ -1662,7 +1668,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
    * Set this property to `false`, to store the entered text directly in the `"question name"` key.
-   * @see commentPrefix
+   * @see commentSuffix
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1810,7 +1816,7 @@ export class SurveyModel extends SurveyElementCore
     for (var key in data) {
       if (!!this.getQuestionByValueName(key)) continue;
       if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
       )
         continue;
@@ -2859,7 +2865,7 @@ export class SurveyModel extends SurveyElementCore
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
-      if (key.indexOf(this.commentPrefix) > 0) {
+      if (key.indexOf(this.commentSuffix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
       }
     }
@@ -5994,7 +6000,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentPrefix);
+    const res = this.getValue(name + this.commentSuffix);
     return res || "";
   }
   /**
@@ -6010,7 +6016,7 @@ export class SurveyModel extends SurveyElementCore
   ) {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    var commentName = name + this.commentPrefix;
+    var commentName = name + this.commentSuffix;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {

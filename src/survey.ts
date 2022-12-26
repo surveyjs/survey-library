@@ -3684,9 +3684,17 @@ export class SurveyModel extends SurveyElementCore
   public prevPage(): boolean {
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage);
-    this.currentPage = vPages[index - 1];
+
+    const skipped = this.skippedPages.find(sp => sp.to == this.currentPage);
+    if (skipped) {
+      this.currentPage = skipped.from;
+      this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
+    }
+    else {
+      const vPages = this.visiblePages;
+      const index = vPages.indexOf(this.currentPage);
+      this.currentPage = vPages[index - 1];
+    }
     return true;
   }
   /**
@@ -6746,6 +6754,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private needRenderIcons = true;
 
+  private skippedPages: Array<{from: any, to: any}> = [];
+
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
@@ -6755,12 +6765,14 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;
+    this.skippedPages.push({ from: this.currentPage, to: question.page });
     this.currentPage = <PageModel>question.page;
     question.focus();
     this.isFocusingQuestion = false;
     this.isCurrentPageRendering = false;
     return true;
   }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";

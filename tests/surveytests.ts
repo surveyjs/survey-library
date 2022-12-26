@@ -14265,6 +14265,72 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+
+QUnit.test(
+  "Skip trigger test and navigate back",
+  function (assert) {
+    var focusedQuestions = [];
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestions.push(elId);
+      return true;
+    };
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q2",
+            }
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+      ],
+      triggers: [
+        {
+          type: "skip",
+          expression: "{q1} = 'item2'",
+          gotoName: "q3",
+        },
+      ],
+    });
+    debugger;
+    survey.getQuestionByName("q1").value = "item2";
+    assert.equal(survey.currentPage.name, "page3", "We moved to another page");
+    survey.prevPage();
+    assert.equal(survey.currentPage.name, "page1", "We returned to first page skipping second");
+    survey.getQuestionByName("q1").value = "item1";
+    survey.nextPage();
+    assert.equal(survey.currentPage.name, "page2", "We moved to second page");
+    survey.nextPage();
+    assert.equal(survey.currentPage.name, "page3", "We moved to third page");
+    survey.prevPage();
+    assert.equal(survey.currentPage.name, "page2", "We returned to second page");
+
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+
 QUnit.test("Two skip triggers test", function (assert) {
   var focusedQuestions: Array<string> = [];
   var oldFunc = SurveyElement.FocusElement;

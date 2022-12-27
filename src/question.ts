@@ -1416,7 +1416,7 @@ export class Question extends SurveyElement<Question>
             name: 0,
             isComment: true,
             title: "Comment",
-            value: settings.commentPrefix,
+            value: settings.commentSuffix,
             displayValue: this.comment,
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,

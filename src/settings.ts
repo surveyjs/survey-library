@@ -17,11 +17,13 @@ export var settings = {
    * By default it uses setHours function, with local date
    */
   useLocalTimeZone: true,
+  get commentPrefix(): string { return settings.commentSuffix; },
+  set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
-   * The prefix that uses to store the question comment, as "questionName + commentPrefix".
+   * The suffix that uses to store the question comment, as "questionName + commentSuffix".
    * The default value is "-Comment"
    */
-  commentPrefix: "-Comment",
+  commentSuffix: "-Comment",
   /**
    * Encode parameter on calling restful web API
    */

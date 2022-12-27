@@ -151,11 +151,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentPrefix);
+    var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
   public setComment(name: string, newValue: string, locNotification: any) {
-    this.setValue(name + settings.commentPrefix, newValue);
+    this.setValue(name + settings.commentSuffix, newValue);
   }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
@@ -1168,7 +1168,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = panel.getQuestionByName(key);
       if (!!q) continue;
       if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(
           panel,
           key,
@@ -1612,7 +1612,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
       q.updateCommentFromSurvey(
-        values[q.getValueName() + settings.commentPrefix]
+        values[q.getValueName() + settings.commentSuffix]
       );
     }
   }

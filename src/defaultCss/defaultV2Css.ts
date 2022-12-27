@@ -1,4 +1,14 @@
-import { surveyCss } from "./cssstandard";
+export var surveyCss: any = {
+  currentType: "",
+  getCss: function () {
+    var loc = this.currentType ? this[this.currentType] : defaultV2Css;
+    if (!loc) loc = defaultV2Css;
+    return loc;
+  },
+  getAvailableThemes: function() {
+    return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
+  }
+};
 
 export var defaultV2Css = {
   root: "sd-root-modern",
@@ -583,4 +593,5 @@ export var defaultV2Css = {
   },
 };
 
-surveyCss["defaultV2"] = defaultV2Css;
+export const defaultV2ThemeName = "defaultV2";
+surveyCss[defaultV2ThemeName] = defaultV2Css;

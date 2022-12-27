@@ -1,3 +1,5 @@
+import { StylesManager } from "survey-core";
+
 export var markupTests = [];
 
 export function registerMarkupTest(t) {
@@ -83,6 +85,7 @@ export function testQuestionMarkup(assert, test, platform) {
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
+  StylesManager.applyTheme("default");
   var done = assert.async();
   if (test.before)
     test.before();

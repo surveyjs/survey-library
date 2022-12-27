@@ -3,9 +3,9 @@ import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
-import { surveyCss } from "../src/defaultCss/cssstandard";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("SurveyElement");
 
@@ -54,6 +54,7 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
 });
 
 QUnit.test("element check that title classes are updated after element state updated", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     questions: [
       {
@@ -127,6 +128,7 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
 });
 
 QUnit.test("Check errors location", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",
@@ -178,6 +180,7 @@ QUnit.test("Check errors location", function (assert) {
   assert.ok(questionInMatrix.isErrorsModeTooltip);
 });
 QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -223,6 +226,7 @@ QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert)
 });
 
 QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
+  StylesManager.applyTheme("default");
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget(
     {
@@ -290,6 +294,7 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
 });
 
 QUnit.test("allowRootStyle", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",

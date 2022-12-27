@@ -1,8 +1,8 @@
 .sv-matrixdynamic__add-btn {
-  background-color: $add-button-color;
+  background-color: var(--add-button-color, $add-button-color);
 }
 .sv-matrixdynamic__remove-btn {
-  background-color: $remove-button-color;
+  background-color: var(--remove-button-color, $remove-button-color);
 }
 
 .sv-detail-panel__icon {

@@ -36,7 +36,7 @@
 }
 
 .sv-question__erbox {
-  color: $error-color;
+  color: var(--error-color, $error-color);
   font-size: 0.74em;
   font-weight: bold;
 }
@@ -54,11 +54,11 @@
 }
 
 .sv-question__title--answer {
-  background-color: $answer-background-color;
+  background-color: var(--answer-background-color, $answer-background-color);
 }
 
 .sv-question__title--error {
-  background-color: $error-background-color;
+  background-color: var(--error-background-color, $error-background-color);
 }
 
 .sv-question__header--location--top {
@@ -97,7 +97,7 @@
 
 .sv-question--disabled {
   .sv-question__header {
-    color: $disabled-text-color;
+    color: var(--disabled-text-color, $disabled-text-color);
   }
 }
 

@@ -22,23 +22,20 @@
 }
 .sv-imagepicker__item--allowhover:hover {
   .sv-imagepicker__image {
-    background-color: $main-hover-color;
-    border-color: $main-hover-color;
+    background-color: var(--main-hover-color, $main-hover-color);
+    border-color: var(--main-hover-color, $main-hover-color);
   }
 }
 
-.sv-imagepicker__item:not(.sv-imagepicker__item--checked)
-  .sv-imagepicker__control:focus
-  ~ div
-  .sv-imagepicker__image {
-  background-color: $main-hover-color;
-  border-color: $main-hover-color;
+.sv-imagepicker__item:not(.sv-imagepicker__item--checked) .sv-imagepicker__control:focus ~ div .sv-imagepicker__image {
+  background-color: var(--main-hover-color, $main-hover-color);
+  border-color: var(--main-hover-color, $main-hover-color);
 }
 
 .sv-imagepicker__item--checked {
   .sv-imagepicker__image {
-    background-color: $main-color;
-    border-color: $main-color;
+    background-color: var(--main-color, $main-color);
+    border-color: var(--main-color, $main-color);
   }
 }
 .sv-imagepicker__item {
@@ -49,7 +46,7 @@
 }
 .sv-imagepicker__item--disabled.sv-imagepicker__item--checked {
   .sv-imagepicker__image {
-    background-color: $disable-color;
-    border-color: $disable-color;
+    background-color: var(--disable-color, $disable-color);
+    border-color: var(--disable-color, $disable-color);
   }
 }

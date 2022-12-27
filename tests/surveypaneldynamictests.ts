@@ -3844,6 +3844,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
 });
 
 QUnit.test("getPanelWrapperCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -3869,6 +3870,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {

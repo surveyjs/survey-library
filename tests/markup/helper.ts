@@ -1,3 +1,5 @@
+import { StylesManager } from "survey-core";
+
 export var markupTests = [];
 
 export function registerMarkupTest(t) {
@@ -83,6 +85,7 @@ export function testQuestionMarkup(assert, test, platform) {
     reportElement.id = id+"_report";
     document.body.appendChild(reportElement);
   }
+  StylesManager.applyTheme("default");
   var done = assert.async();
   if (test.before)
     test.before();
@@ -94,6 +97,16 @@ export function testQuestionMarkup(assert, test, platform) {
         p.id = q.id + "panel" + j;
         p.questions.forEach((pq, k)=> {
           pq.id = p.id + "question" + k;
+        });
+      });
+    }
+    if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
+      q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
+        row.row.idValue = `${q.id}row${rowIndex}`;
+        row.cells.forEach((cell: any, cellIndex: number) => {
+          if(cell.hasQuestion) {
+            cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
+          }
         });
       });
     }
@@ -232,9 +245,9 @@ function clearClasses(el: Element) {
       }
     });
     el.classList.remove(...classesToRemove);
-    if(el.className === "") {
-      el.removeAttribute("class");
-    }
+  }
+  if(el.className === "") {
+    el.removeAttribute("class");
   }
 }
 
@@ -248,6 +261,9 @@ function clearAttributes(el: Element) {
   el.removeAttribute("for");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
+  if(el.getAttribute("style") === "") {
+    el.removeAttribute("style");
+  }
   if(el.getAttribute("name") !== "name")
     el.removeAttribute("name");
   if((<any>el).checked) {

@@ -249,7 +249,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[question.getValueName() + settings.commentPrefix] =
+        result[question.getValueName() + Base.commentSuffix] =
           question.comment;
       }
     }
@@ -264,7 +264,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var val = this.getCellValue(value, question.getValueName());
       var oldComment = question.comment;
       var comment = !!value
-        ? value[question.getValueName() + settings.commentPrefix]
+        ? value[question.getValueName() + Base.commentSuffix]
         : "";
       if (comment == undefined) comment = "";
       question.updateValueFromSurvey(val);
@@ -408,7 +408,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
     var newValue = this.value;
-    var changedName = isComment ? name + settings.commentPrefix : name;
+    var changedName = isComment ? name + Base.commentSuffix : name;
     var changedValue = newColumnValue;
     var changedQuestion = this.getQuestionByName(name);
     var changingValue = this.data.onRowChanging(this, changedName, newValue);
@@ -673,7 +673,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var cellValue = this.getCellValue(value, column.name);
       if (!Helpers.isValueEmpty(cellValue)) {
         cell.question.value = cellValue;
-        var commentKey = column.name + settings.commentPrefix;
+        var commentKey = column.name + Base.commentSuffix;
         if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
           cell.question.comment = value[commentKey];
         }

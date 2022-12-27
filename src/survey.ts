@@ -16,7 +16,7 @@ import {
   IFindElement,
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
-import { surveyCss } from "./defaultCss/cssstandard";
+import { surveyCss } from "./defaultCss/defaultV2Css";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -76,15 +76,21 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * You can display an additional field (comment field) for the most of questions; users can enter additional comments to their response.
-   * The comment field input is saved as `'question name' + 'commentPrefix'`.
+   * The comment field input is saved as `'question name' + 'commentSuffix'`.
    * @see data
    * @see Question.showCommentArea
    */
+  public get commentSuffix(): string {
+    return settings.commentSuffix;
+  }
+  public set commentSuffix(val: string) {
+    settings.commentSuffix = val;
+  }
   public get commentPrefix(): string {
-    return settings.commentPrefix;
+    return this.commentSuffix;
   }
   public set commentPrefix(val: string) {
-    settings.commentPrefix = val;
+    this.commentSuffix = val;
   }
 
   private valuesHash: HashTable<any> = {};
@@ -1662,7 +1668,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
    * Set this property to `false`, to store the entered text directly in the `"question name"` key.
-   * @see commentPrefix
+   * @see commentSuffix
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1810,7 +1816,7 @@ export class SurveyModel extends SurveyElementCore
     for (var key in data) {
       if (!!this.getQuestionByValueName(key)) continue;
       if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
       )
         continue;
@@ -2859,7 +2865,7 @@ export class SurveyModel extends SurveyElementCore
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
-      if (key.indexOf(this.commentPrefix) > 0) {
+      if (key.indexOf(this.commentSuffix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
       }
     }
@@ -4078,7 +4084,7 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
-    if(!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4440,8 +4446,11 @@ export class SurveyModel extends SurveyElementCore
   private isFirstPageRendering: boolean = true;
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
-    if (!this.isDesignMode) {
+    if (!this.isDesignMode && !this.isFocusingQuestion) {
       setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
+    }
+    while (this.afterRenderPageTasks.length > 0) {
+      this.afterRenderPageTasks.shift()();
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -6002,7 +6011,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentPrefix);
+    const res = this.getValue(name + this.commentSuffix);
     return res || "";
   }
   /**
@@ -6018,7 +6027,7 @@ export class SurveyModel extends SurveyElementCore
   ) {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    var commentName = name + this.commentPrefix;
+    var commentName = name + this.commentSuffix;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
@@ -6500,12 +6509,12 @@ export class SurveyModel extends SurveyElementCore
   public get timerClock(): { majorText: string, minorText?: string } {
     let major: string;
     let minor: string;
-    if(!!this.currentPage) {
+    if (!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      if (limit > 0) major = this.getDisplayClockTime(limit - spent);
       else { major = this.getDisplayClockTime(spent); }
-      if(minorSpent !== undefined) {
-        if(minorLimit > 0) {
+      if (minorSpent !== undefined) {
+        if (minorLimit > 0) {
           minor = this.getDisplayClockTime(minorLimit - minorSpent);
         } else {
           minor = this.getDisplayClockTime(minorSpent);
@@ -6521,7 +6530,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
+  private getTimerInfo(): { spent: number, limit?: number, minorSpent?: number, minorLimit?: number } {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6531,16 +6540,16 @@ export class SurveyModel extends SurveyElementCore
     if (this.showTimerPanelMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
     }
-    if(this.showTimerPanelMode == "survey") {
+    if (this.showTimerPanelMode == "survey") {
       return { spent: surveySpent, limit: surveyLimit };
     }
     else {
-      if(pageLimitSec > 0 && surveyLimit > 0) {
+      if (pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
-      } else if(pageLimitSec > 0) {
+      } else if (pageLimitSec > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
       }
-      else if(surveyLimit > 0) {
+      else if (surveyLimit > 0) {
         return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
       }
       else {
@@ -6601,7 +6610,7 @@ export class SurveyModel extends SurveyElementCore
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
     let secStr = sec.toString();
-    if(sec < 10) {
+    if (sec < 10) {
       secStr = "0" + secStr;
     }
     return `${min}:${secStr}`;
@@ -6744,7 +6753,7 @@ export class SurveyModel extends SurveyElementCore
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
   private isFocusingQuestion: boolean;
-
+  private afterRenderPageTasks: Array<() => void> = [];
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
     this.isMovingQuestion = true;
@@ -6754,7 +6763,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private needRenderIcons = true;
 
-  private skippedPages: Array<{from: any, to: any}> = [];
+  private skippedPages: Array<{ from: any, to: any }> = [];
 
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
@@ -6766,10 +6775,18 @@ export class SurveyModel extends SurveyElementCore
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;
     this.skippedPages.push({ from: this.currentPage, to: question.page });
+    const isNeedWaitForPageRendered = this.currentPage !== question.page;
+    const focusQuestionFunc = () => {
+      question.focus();
+      this.isFocusingQuestion = false;
+      this.isCurrentPageRendering = false;
+    };
+    this.afterRenderPageTasks.push(focusQuestionFunc);
     this.currentPage = <PageModel>question.page;
-    question.focus();
-    this.isFocusingQuestion = false;
-    this.isCurrentPageRendering = false;
+    if (!isNeedWaitForPageRendered) {
+      focusQuestionFunc();
+      this.afterRenderPageTasks.splice(this.afterRenderPageTasks.indexOf(focusQuestionFunc), 1);
+    }
     return true;
   }
 

@@ -1,11 +1,4 @@
-export var surveyCss: any = {
-  currentType: "",
-  getCss: function () {
-    var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
-    if (!loc) loc = defaultStandardCss;
-    return loc;
-  }
-};
+import { surveyCss } from "./defaultV2Css";
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
@@ -363,4 +356,10 @@ export var defaultStandardCss = {
   },
 };
 
-surveyCss["standard"] = defaultStandardCss;
+(<any>surveyCss)["default"] = defaultStandardCss;
+(<any>surveyCss)["orange"] = defaultStandardCss;
+(<any>surveyCss)["darkblue"] = defaultStandardCss;
+(<any>surveyCss)["darkrose"] = defaultStandardCss;
+(<any>surveyCss)["stone"] = defaultStandardCss;
+(<any>surveyCss)["winter"] = defaultStandardCss;
+(<any>surveyCss)["winterstone"] = defaultStandardCss;

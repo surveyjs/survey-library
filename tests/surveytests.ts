@@ -39,7 +39,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
-import { surveyCss } from "../src/defaultCss/cssstandard";
+import { surveyCss } from "../src/defaultCss/defaultV2Css";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
@@ -5892,6 +5892,7 @@ QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
 QUnit.test(
   "onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333",
   function (assert) {
+    StylesManager.applyTheme("default");
     var css = surveyCss.getCss();
     var survey = new SurveyModel();
     survey.onUpdatePanelCssClasses.add(function (survey, options) {
@@ -12141,6 +12142,7 @@ QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {
 });
 
 QUnit.test("Survey logoClassNames", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({});
   assert.equal(survey.logoPosition, "left");
 
@@ -14254,6 +14256,9 @@ QUnit.test(
         },
       ],
     });
+    survey.onCurrentPageChanged.add((s, o) => {
+      survey.afterRenderPage(undefined as any);
+    });
     survey.getQuestionByName("q1").value = "item2";
     assert.equal(survey.currentPage.name, "page2", "We moved to another page");
     assert.equal(focusedQuestions.length, 1, "Only one question was focused");
@@ -14621,6 +14626,7 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   assert.equal(element.style.height, "95px");
 });
 QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -15244,6 +15250,7 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   assert.notOk(isProcessed);
 });
 QUnit.test("Check addNavigationItem", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     "elements": [
       {
@@ -15959,3 +15966,49 @@ QUnit.test("selectbase.keepIncorrectValues & survey.keepIncorrectValues", functi
   assert.equal(true, question.isEmpty(), "clear incorrect value, #5");
 });
 
+QUnit.test("no scrolling to page top after focus a question on another page - https://github.com/surveyjs/survey-library/issues/5346", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 3"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "question66",
+            "choices": [
+              "Item 1",
+            ]
+          }
+        ]
+      }
+    ]
+  });
+
+  let log = "";
+  const qName = "question66";
+  survey.onScrollingElementToTop.add((s, o) => {
+    log += "->" + o.element.name;
+  });
+  survey.onCurrentPageChanged.add((s, o) => {
+    setTimeout(() => survey.afterRenderPage(undefined as any), 1);
+  });
+  assert.equal(log, "", "initially no scrolling");
+  survey.focusQuestion(qName);
+  setTimeout(() => {
+    assert.equal(log, "->" + qName, "no scrolling after page changed and focused a question, scroll to the question only");
+    done();
+  }, 100);
+});

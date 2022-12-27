@@ -14314,7 +14314,6 @@ QUnit.test(
         },
       ],
     });
-    debugger;
     survey.getQuestionByName("q1").value = "item2";
     assert.equal(survey.currentPage.name, "page3", "We moved to another page");
     survey.prevPage();

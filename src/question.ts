@@ -796,10 +796,10 @@ export class Question extends SurveyElement<Question>
   }
   public get cssDescription(): string {
     this.ensureElementCss();
-    return this.cssClasses.description;
+    return this.getPropertyValue("cssDescription", "");
   }
   protected setCssDescription(val: string): void {
-    this.setPropertyValue("cssDescription", "");
+    this.setPropertyValue("cssDescription", val);
   }
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()

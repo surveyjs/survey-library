@@ -1,7 +1,5 @@
 <template>
-  <div :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' }">
     <survey-matrixtable :question="question" />
-  </div>
 </template>
 
 <script lang="ts">

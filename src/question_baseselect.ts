@@ -183,6 +183,17 @@ export class QuestionSelectBase extends Question {
     return this.noneItemValue;
   }
   /**
+   * Gets or sets a value for the "None" choice item.
+   * @see showNoneItem
+   */
+  public get noneValue(): string {
+    return this.getPropertyValue("noneValue");
+  }
+  public set noneValue(val: string) {
+    this.setPropertyValue("noneValue",val);
+    this.noneItem.value = val
+  }
+  /**
    * Gets or sets a caption for the "None" choice item.
    * @see showNoneItem
    */
@@ -1721,6 +1732,13 @@ Serializer.addClass(
     {
       name: "noneText",
       serializationProperty: "locNoneText",
+      dependsOn: "showNoneItem",
+      visibleIf: function (obj: any) {
+        return obj.hasNone;
+      },
+    },
+    {
+      name: "noneValue",
       dependsOn: "showNoneItem",
       visibleIf: function (obj: any) {
         return obj.hasNone;

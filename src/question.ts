@@ -544,6 +544,7 @@ export class Question extends SurveyElement<Question>
   }
   public set descriptionLocation(val: string) {
     this.setPropertyValue("descriptionLocation", val);
+    this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
     return this.getDescriptionLocation() == "underTitle";
@@ -803,8 +804,8 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
-      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
       .toString();
   }
   protected getIsErrorsModeTooltip() {

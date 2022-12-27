@@ -15947,3 +15947,32 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
     done();
   }, 100);
 });
+
+QUnit.test("check descriptionLocation change css classes", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "descriptionLocation": "hidden",
+            "name": "question1",
+          }
+        ]
+      },
+    ]
+  });
+  survey.css = {
+    question: {
+      description: "description_under_title",
+      descriptionUnderInput: "description_under_input"
+    }
+  };
+  const question = survey.getAllQuestions()[0];
+  assert.equal(question.cssDescription, "");
+  question.descriptionLocation = "underTitle";
+  assert.equal(question.cssDescription, "description_under_title");
+  question.descriptionLocation = "underInput";
+  assert.equal(question.cssDescription, "description_under_input");
+});

@@ -3690,9 +3690,17 @@ export class SurveyModel extends SurveyElementCore
   public prevPage(): boolean {
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage);
-    this.currentPage = vPages[index - 1];
+
+    const skipped = this.skippedPages.find(sp => sp.to == this.currentPage);
+    if (skipped) {
+      this.currentPage = skipped.from;
+      this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
+    }
+    else {
+      const vPages = this.visiblePages;
+      const index = vPages.indexOf(this.currentPage);
+      this.currentPage = vPages[index - 1];
+    }
     return true;
   }
   /**
@@ -4076,7 +4084,7 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
-    if(!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4441,7 +4449,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isDesignMode && !this.isFocusingQuestion) {
       setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
     }
-    while(this.afterRenderPageTasks.length > 0) {
+    while (this.afterRenderPageTasks.length > 0) {
       this.afterRenderPageTasks.shift()();
     }
     this.isFirstPageRendering = false;
@@ -6501,12 +6509,12 @@ export class SurveyModel extends SurveyElementCore
   public get timerClock(): { majorText: string, minorText?: string } {
     let major: string;
     let minor: string;
-    if(!!this.currentPage) {
+    if (!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      if (limit > 0) major = this.getDisplayClockTime(limit - spent);
       else { major = this.getDisplayClockTime(spent); }
-      if(minorSpent !== undefined) {
-        if(minorLimit > 0) {
+      if (minorSpent !== undefined) {
+        if (minorLimit > 0) {
           minor = this.getDisplayClockTime(minorLimit - minorSpent);
         } else {
           minor = this.getDisplayClockTime(minorSpent);
@@ -6522,7 +6530,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
+  private getTimerInfo(): { spent: number, limit?: number, minorSpent?: number, minorLimit?: number } {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6532,16 +6540,16 @@ export class SurveyModel extends SurveyElementCore
     if (this.showTimerPanelMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
     }
-    if(this.showTimerPanelMode == "survey") {
+    if (this.showTimerPanelMode == "survey") {
       return { spent: surveySpent, limit: surveyLimit };
     }
     else {
-      if(pageLimitSec > 0 && surveyLimit > 0) {
+      if (pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
-      } else if(pageLimitSec > 0) {
+      } else if (pageLimitSec > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
       }
-      else if(surveyLimit > 0) {
+      else if (surveyLimit > 0) {
         return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
       }
       else {
@@ -6602,7 +6610,7 @@ export class SurveyModel extends SurveyElementCore
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
     let secStr = sec.toString();
-    if(sec < 10) {
+    if (sec < 10) {
       secStr = "0" + secStr;
     }
     return `${min}:${secStr}`;
@@ -6755,6 +6763,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private needRenderIcons = true;
 
+  private skippedPages: Array<{ from: any, to: any }> = [];
+
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
    * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
@@ -6764,6 +6774,7 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;
+    this.skippedPages.push({ from: this.currentPage, to: question.page });
     const isNeedWaitForPageRendered = this.currentPage !== question.page;
     const focusQuestionFunc = () => {
       question.focus();
@@ -6772,12 +6783,13 @@ export class SurveyModel extends SurveyElementCore
     };
     this.afterRenderPageTasks.push(focusQuestionFunc);
     this.currentPage = <PageModel>question.page;
-    if(!isNeedWaitForPageRendered) {
+    if (!isNeedWaitForPageRendered) {
       focusQuestionFunc();
       this.afterRenderPageTasks.splice(this.afterRenderPageTasks.indexOf(focusQuestionFunc), 1);
     }
     return true;
   }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";

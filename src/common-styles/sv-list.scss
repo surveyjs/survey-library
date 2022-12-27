@@ -63,6 +63,8 @@ $base-unit: var(--base-unit, 8px);
   padding-inline-end: calcSize(8);
   padding-inline-start: calcSize(2);
   color: $foreground;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,7 +88,7 @@ $base-unit: var(--base-unit, 8px);
   }
 }
 .sv-list__item-icon {
-  float: inline-start; // float: left;
+  float: left;
   width: calcSize(3);
   height: calcSize(3);
   svg {
@@ -152,7 +154,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   display: block;
   position: absolute;
   top: calcSize(1.5);
-  inset-block-start: calcSize(2); //left: calcSize(2);
+  inset-inline-start: calcSize(2); //left: calcSize(2);
   .sv-svg-icon {
     width: calcSize(3);
     height: calcSize(3);
@@ -175,6 +177,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   color: $foreground;
   padding: calcSize(1.5) calcSize(3) calcSize(1.5) calcSize(7);
   line-height: calcSize(3);
+  border: none;
 }
 
 .sv-list__input::placeholder {

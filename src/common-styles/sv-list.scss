@@ -88,7 +88,7 @@ $base-unit: var(--base-unit, 8px);
   }
 }
 .sv-list__item-icon {
-  float: left;
+  float: inline-start; // float: left;
   width: calcSize(3);
   height: calcSize(3);
   svg {

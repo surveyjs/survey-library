@@ -85,13 +85,14 @@ $base-unit: var(--base-unit, 8px);
   .sv-list__item-body {
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
+    gap: calcSize(2);
+    display: flex;
   }
 }
 .sv-list__item-icon {
   float: left;
   width: calcSize(3);
   height: calcSize(3);
-  margin: 0 calcSize(2);
 
   svg {
     display: block;
@@ -176,7 +177,8 @@ li:focus .sv-list__item.sv-list__item--selected {
   outline: none;
   font-size: 1em;
   color: $foreground;
-  padding: calcSize(1.5) calcSize(3) calcSize(1.5) calcSize(7);
+  padding: calcSize(1.5) calcSize(3);
+  padding-inline-start: calcSize(7);
   line-height: calcSize(3);
   border: none;
 }

@@ -1,9 +1,10 @@
 $base-unit: var(--base-unit, 8px);
 $primary: var(--primary, #19b394);
+$main-color: $primary;
 $foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);
 $background: var(--background, #fff);
-$background-light: var(--background-light, rgba(25, 179, 148, 0.1));
+$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
@@ -84,7 +85,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  background: $background-light;
+  background: $primary-light;
   color: $foreground;
   font-size: calcSize(2);
   border-radius: 100%;

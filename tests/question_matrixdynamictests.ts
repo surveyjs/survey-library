@@ -832,6 +832,27 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Matrixdropdown onMatrixValueChanging, bug#5396", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  survey.onMatrixCellValueChanging.add(function (sender, options) {
+    options.value += "!";
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  cellQuestion.value = "test";
+  assert.equal(cellQuestion.value, "test!", "Value has been changed");
+  assert.deepEqual(survey.data, { q1: { row1: { col1: "test!" } } }, "Correct survey data");
+});
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");

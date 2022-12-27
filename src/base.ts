@@ -189,11 +189,17 @@ export class Base {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
+  public static get commentSuffix(): string {
+    return settings.commentSuffix;
+  }
+  public static set commentSuffix(val: string) {
+    settings.commentSuffix = val;
+  }
   public static get commentPrefix(): string {
-    return settings.commentPrefix;
+    return Base.commentSuffix;
   }
   public static set commentPrefix(val: string) {
-    settings.commentPrefix = val;
+    Base.commentSuffix = val;
   }
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;

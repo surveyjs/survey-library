@@ -889,23 +889,23 @@ QUnit.test("PanelDynamic, renderMode", function(assert) {
     "list mode doesn't support currentPanel"
   );
   assert.equal(
-    panel.isPrevButtonShowing,
+    panel.isPrevButtonVisible,
     false,
     "currentIndex = 0, prevButton is hidden"
   );
   assert.equal(
-    panel.isNextButtonShowing,
+    panel.isNextButtonVisible,
     true,
     "currentIndex = 0, nextButton is visible"
   );
   panel.currentIndex++;
   assert.equal(
-    panel.isPrevButtonShowing,
+    panel.isPrevButtonVisible,
     true,
     "currentIndex = 1, prevButton is visible"
   );
   assert.equal(
-    panel.isNextButtonShowing,
+    panel.isNextButtonVisible,
     false,
     "currentIndex = 1, nextButton is hidden"
   );
@@ -3844,6 +3844,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
 });
 
 QUnit.test("getPanelWrapperCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -3869,6 +3870,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {

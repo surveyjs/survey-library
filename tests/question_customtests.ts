@@ -14,6 +14,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("custom questions");
 
@@ -426,6 +427,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
   survey.css.dropdown.small = "small";
   survey.css.dropdown.title = "title";
@@ -473,6 +475,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
   survey.css.question.small = "small";
   survey.css.question.title = "title";
@@ -1655,6 +1658,7 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
     name: "newquestion",
     questionJSON: { type: "text" },
   };
+  StylesManager.applyTheme("default");
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],

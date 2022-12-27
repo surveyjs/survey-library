@@ -29,7 +29,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
-import { SurveyModel } from "survey-core";
+import { SurveyModel } from "./survey";
 
 export class DragDropInfo {
   constructor(
@@ -574,7 +574,7 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!!this.data) {
         var comment = this.data.getComment(valueName);
         if (!!comment) {
-          data[valueName + settings.commentPrefix] = comment;
+          data[valueName + Base.commentSuffix] = comment;
         }
       }
     }
@@ -903,13 +903,6 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
     }
-  }
-  /**
-   * Returns `true` if this is the current page.
-   * @see SurveyModel.currentPage
-   */
-  public get isActive(): boolean {
-    return !this.survey || <PageModel>this.survey.currentPage == this.root;
   }
   public updateCustomWidgets() {
     for (var i = 0; i < this.elements.length; i++) {

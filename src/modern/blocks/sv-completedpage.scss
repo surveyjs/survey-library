@@ -7,8 +7,8 @@
   padding-top: 4.5em;
   padding-bottom: 4.5em;
   text-align: center;
-  color: #404040;
-  background-color: #f5f5f5;
+  color: var(--text-color, $text-color);
+  background-color: var(--body-container-background-color, $body-container-background-color);
 }
 .sv-completedpage:before {
   display: block;
@@ -20,7 +20,7 @@
 }
 .sv-completedpage {
   @media only screen and (min-width: 1000px) {
-    margin-right: 5% ;
+    margin-right: 5%;
     margin-left: calc(5% + 0.293em);
   }
   @media only screen and (max-width: 1000px) {

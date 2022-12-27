@@ -397,6 +397,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       <td
         ref={this.cellRef}
         className={this.itemCss}
+        colSpan={this.props.cell.colSpans}
         data-responsive-title={this.getHeaderText()}
         title={this.props.cell.getTitle()}
         style={style}

@@ -249,7 +249,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[question.getValueName() + settings.commentPrefix] =
+        result[question.getValueName() + Base.commentSuffix] =
           question.comment;
       }
     }
@@ -264,7 +264,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var val = this.getCellValue(value, question.getValueName());
       var oldComment = question.comment;
       var comment = !!value
-        ? value[question.getValueName() + settings.commentPrefix]
+        ? value[question.getValueName() + Base.commentSuffix]
         : "";
       if (comment == undefined) comment = "";
       question.updateValueFromSurvey(val);
@@ -408,7 +408,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
     var newValue = this.value;
-    var changedName = isComment ? name + settings.commentPrefix : name;
+    var changedName = isComment ? name + Base.commentSuffix : name;
     var changedValue = newColumnValue;
     var changedQuestion = this.getQuestionByName(name);
     var changingValue = this.data.onRowChanging(this, changedName, newValue);
@@ -416,22 +416,20 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       !!changedQuestion &&
       !this.isTwoValueEquals(changingValue, changedValue)
     ) {
+      this.isSettingValue = true;
       if (isComment) {
         changedQuestion.comment = changingValue;
       } else {
         changedQuestion.value = changingValue;
       }
-    } else {
-      if (
-        this.data.isValidateOnValueChanging &&
-        this.hasQuestonError(changedQuestion)
-      )
-        return;
-      const isDeleting = newColumnValue == null && !changedQuestion ||
-        isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
-      this.data.onRowChanged(this, changedName, newValue, isDeleting);
-      this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+      this.isSettingValue = false;
+      newValue = this.value;
     }
+    if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
+    const isDeleting = newColumnValue == null && !changedQuestion ||
+      isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+    this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
   }
 
   private updateQuestionsValue(
@@ -675,7 +673,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var cellValue = this.getCellValue(value, column.name);
       if (!Helpers.isValueEmpty(cellValue)) {
         cell.question.value = cellValue;
-        var commentKey = column.name + settings.commentPrefix;
+        var commentKey = column.name + Base.commentSuffix;
         if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
           cell.question.comment = value[commentKey];
         }
@@ -1746,6 +1744,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       );
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
+    if(res.requiredQuestionCount === 0 && this.isRequired) {
+      res.requiredQuestionCount = 1;
+      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
+    }
     return res;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }

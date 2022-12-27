@@ -19,7 +19,7 @@ import { SurveyPanel } from "./panel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
@@ -71,7 +71,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
     return (
-      <div style={divStyle} ref={(root) => (this.setControl(root))}>
+      <div style={divStyle} className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
         <table className={this.question.getTableCss()}>
           {header}
           {rows}
@@ -179,6 +179,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         key={key}
         style={cellStyle}
         colSpan={cell.colSpans}
+        data-responsive-title={cell.headers}
+        title={cell.getTitle()}
       >
         {cellContent}
       </td>
@@ -345,7 +347,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   private renderOtherComment(): JSX.Element {
     const question = this.cell.question;
     const cssClasses = question.cssClasses || {};
-    return <SurveyQuestionCommentItem question={question} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
+    return <SurveyQuestionOtherValueItem question={question} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
   }
   private renderCellCheckboxButton(): JSX.Element {
     var key = this.cell.question.id + "item" + this.cell.choiceIndex;

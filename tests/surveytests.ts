@@ -39,7 +39,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionRatingModel } from "../src/question_rating";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
-import { surveyCss } from "../src/defaultCss/cssstandard";
+import { surveyCss } from "../src/defaultCss/defaultV2Css";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
@@ -831,6 +831,24 @@ QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   assert.equal(survey.progressText, "Answered 0/4 questions");
   survey.progressBarType = "requiredQuestions";
   assert.equal(survey.progressText, "Answered 0/2 questions");
+});
+QUnit.test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    progressBarType: "requiredQuestions",
+    elements: [
+      { type: "text", name: "q1", isRequired: true },
+      { type: "matrixdropdown", name: "q2", isRequired: true,
+        columns: [{ name: "col1", cellType: "text" }], rows: ["row1"] }
+    ]
+  });
+  assert.equal(survey.progressText, "Answered 0/2 questions");
+  survey.setValue("q1", "1");
+  assert.equal(survey.progressText, "Answered 1/2 questions");
+  const rows = survey.getQuestionByName("q2").visibleRows;
+  rows[0].cells[0].question.value = "2";
+  assert.equal(survey.progressText, "Answered 2/2 questions");
 });
 QUnit.test(
   "survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460",
@@ -2745,11 +2763,49 @@ QUnit.test("survey.onCurrentPageChanging, allowChanging option", function (
   assert.equal(survey.currentPageNo, 0, "The second page again");
 });
 
+QUnit.test("survey.onCurrentPageChanging, allow option (use it instead of allowChanging)", function (
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  //get current Page
+  survey.currentPage;
+  var allowChanging = false;
+  survey.onCurrentPageChanging.add(function (survey, options) {
+    options.allow = allowChanging;
+  });
+  assert.equal(survey.currentPageNo, 0, "The first page");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Still the first page");
+  allowChanging = true;
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "The second page");
+  allowChanging = false;
+  survey.prevPage();
+  assert.equal(survey.currentPageNo, 1, "Still the second page");
+  allowChanging = true;
+  survey.prevPage();
+  assert.equal(survey.currentPageNo, 0, "The second page again");
+});
+
 QUnit.test("survey.onCompleting, allowComplete option", function (assert) {
   var survey = twoPageSimplestSurvey();
   var allowComplete = false;
   survey.onCompleting.add(function (survey, options) {
     options.allowComplete = allowComplete;
+  });
+  assert.equal(survey.state, "running", "It is running");
+  survey.doComplete();
+  assert.equal(survey.state, "running", "It is still running");
+  allowComplete = true;
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "It is completed now");
+});
+
+QUnit.test("survey.onCompleting, allow option (use it instead of allowComplete)", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  var allowComplete = false;
+  survey.onCompleting.add(function (survey, options) {
+    options.allow = allowComplete;
   });
   assert.equal(survey.state, "running", "It is running");
   survey.doComplete();
@@ -5836,6 +5892,7 @@ QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
 QUnit.test(
   "onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333",
   function (assert) {
+    StylesManager.applyTheme("default");
     var css = surveyCss.getCss();
     var survey = new SurveyModel();
     survey.onUpdatePanelCssClasses.add(function (survey, options) {
@@ -8440,6 +8497,27 @@ QUnit.test("Survey get full title with values", function (assert) {
   q1.value = 1;
 
   assert.equal(q1.getProcessedText("{q1}"), 1, "Get question value");
+});
+
+QUnit.test("Survey get full title with values, bug#5383", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [
+          { value: 1, text: "One" },
+          { value: 2, text: "Two" },
+        ],
+        useDisplayValuesInDynamicTexts: false,
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = 1;
+
+  assert.equal(survey.getProcessedText("{q1}"), 1, "Get question value");
 });
 
 QUnit.test(
@@ -12064,6 +12142,7 @@ QUnit.test("Survey isLogoBefore/isLogoAfter", function (assert) {
 });
 
 QUnit.test("Survey logoClassNames", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({});
   assert.equal(survey.logoPosition, "left");
 
@@ -14177,6 +14256,9 @@ QUnit.test(
         },
       ],
     });
+    survey.onCurrentPageChanged.add((s, o) => {
+      survey.afterRenderPage(undefined as any);
+    });
     survey.getQuestionByName("q1").value = "item2";
     assert.equal(survey.currentPage.name, "page2", "We moved to another page");
     assert.equal(focusedQuestions.length, 1, "Only one question was focused");
@@ -14188,6 +14270,71 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+
+QUnit.test(
+  "Skip trigger test and navigate back",
+  function (assert) {
+    var focusedQuestions = [];
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestions.push(elId);
+      return true;
+    };
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "text",
+              name: "q2",
+            }
+          ],
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              type: "text",
+              name: "q3",
+            },
+          ],
+        },
+      ],
+      triggers: [
+        {
+          type: "skip",
+          expression: "{q1} = 'item2'",
+          gotoName: "q3",
+        },
+      ],
+    });
+    survey.getQuestionByName("q1").value = "item2";
+    assert.equal(survey.currentPage.name, "page3", "We moved to another page");
+    survey.prevPage();
+    assert.equal(survey.currentPage.name, "page1", "We returned to first page skipping second");
+    survey.getQuestionByName("q1").value = "item1";
+    survey.nextPage();
+    assert.equal(survey.currentPage.name, "page2", "We moved to second page");
+    survey.nextPage();
+    assert.equal(survey.currentPage.name, "page3", "We moved to third page");
+    survey.prevPage();
+    assert.equal(survey.currentPage.name, "page2", "We returned to second page");
+
+    SurveyElement.FocusElement = oldFunc;
+  }
+);
+
 QUnit.test("Two skip triggers test", function (assert) {
   var focusedQuestions: Array<string> = [];
   var oldFunc = SurveyElement.FocusElement;
@@ -14479,6 +14626,7 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   assert.equal(element.style.height, "95px");
 });
 QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
       {
@@ -15102,6 +15250,7 @@ QUnit.test("Check isMobile set via processResponsiveness method", function (asse
   assert.notOk(isProcessed);
 });
 QUnit.test("Check addNavigationItem", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     "elements": [
       {
@@ -15817,3 +15966,78 @@ QUnit.test("selectbase.keepIncorrectValues & survey.keepIncorrectValues", functi
   assert.equal(true, question.isEmpty(), "clear incorrect value, #5");
 });
 
+QUnit.test("no scrolling to page top after focus a question on another page - https://github.com/surveyjs/survey-library/issues/5346", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 3"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "question66",
+            "choices": [
+              "Item 1",
+            ]
+          }
+        ]
+      }
+    ]
+  });
+
+  let log = "";
+  const qName = "question66";
+  survey.onScrollingElementToTop.add((s, o) => {
+    log += "->" + o.element.name;
+  });
+  survey.onCurrentPageChanged.add((s, o) => {
+    setTimeout(() => survey.afterRenderPage(undefined as any), 1);
+  });
+  assert.equal(log, "", "initially no scrolling");
+  survey.focusQuestion(qName);
+  setTimeout(() => {
+    assert.equal(log, "->" + qName, "no scrolling after page changed and focused a question, scroll to the question only");
+    done();
+  }, 100);
+});
+
+QUnit.test("check descriptionLocation change css classes", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "descriptionLocation": "hidden",
+            "name": "question1",
+          }
+        ]
+      },
+    ]
+  });
+  survey.css = {
+    question: {
+      description: "description_under_title",
+      descriptionUnderInput: "description_under_input"
+    }
+  };
+  const question = survey.getAllQuestions()[0];
+  assert.equal(question.cssDescription, "");
+  question.descriptionLocation = "underTitle";
+  assert.equal(question.cssDescription, "description_under_title");
+  question.descriptionLocation = "underInput";
+  assert.equal(question.cssDescription, "description_under_input");
+});

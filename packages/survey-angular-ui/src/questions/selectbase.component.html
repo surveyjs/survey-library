@@ -29,7 +29,7 @@
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </ng-container>
-  <div *ngIf="model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment></div>
+  <div *ngIf="model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment-other></div>
   <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"

@@ -797,3 +797,129 @@ QUnit.test("check renamed has... properties", (assert) => {
   assert.notOk(question.showCommentArea);
   assert.notOk(question.hasComment);
 });
+QUnit.test("checkbox selectAllItem isEnabled and maxSelectedChoices", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        "showSelectAllItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.selectAllItem.isEnabled, true, "selectAllItem is enabled");
+  q.maxSelectedChoices = 2;
+  assert.equal(q.selectAllItem.isEnabled, false, "selectAllItem is disabled");
+  q.maxSelectedChoices = 0;
+  assert.equal(q.selectAllItem.isEnabled, true, "selectAllItem is enabled again");
+});
+QUnit.test("selectbase and otherValue/comment", (assert) => {
+  const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", showOtherItem: true, choices: [1, 2, 3] }] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.notOk(question.otherValue, "otherValue, #1");
+  assert.notOk(question.comment, "comment, #2");
+  question.otherValue = "val1";
+  assert.equal("val1", question.otherValue, "other value, #3");
+  assert.equal("val1", question.comment, "comment, #4");
+  question.comment = "val2";
+  assert.equal("val2", question.otherValue, "other value, #5");
+  assert.equal("val2", question.comment, "comment, #6");
+  question.showCommentArea = true;
+  assert.equal(true, question.showCommentArea, "showCommentArea is true");
+  assert.equal(true, question.showOtherItem, "showOtherItem is true");
+  assert.equal(false, question.getStoreOthersAsComment(), "getStoreOthersAsComment() is false");
+  assert.notOk(question.otherValue, "other value, #7");
+  assert.equal("val2", question.comment, "comment, #8");
+  question.value = "other";
+  question.otherValue = "val3";
+  assert.equal("val3", question.otherValue, "other value, #9");
+  assert.equal("val3", question.value, "question value, #10");
+  assert.equal("val2", question.comment, "comment, #11");
+  question.comment = "val4";
+  assert.equal("val3", question.otherValue, "other value, #12");
+  assert.equal("val3", question.value, "question value, #13");
+  assert.equal("val4", question.comment, "comment, #14");
+
+  question.otherValue = "";
+  question.value = "other";
+  assert.equal(true, question.isOtherSelected, "isOtherSelected, #1");
+  assert.notOk(question.otherValue, "other value, #15");
+  assert.equal(false, question.supportGoNextPageError(), "supportGoNextPageError, #1");
+  question.comment = "";
+  assert.equal(false, question.supportGoNextPageError(), "supportGoNextPageError, #2");
+  question.otherValue = "val5";
+  assert.equal(true, question.supportGoNextPageError(), "supportGoNextPageError, #3");
+
+  question.comment = "test";
+  survey.data = { q1: "val6" };
+  assert.equal("val6", question.otherValue, "other value, #16");
+  assert.equal("val6", question.value, "question value, #17");
+  assert.equal("", question.comment, "comment, #18");
+  assert.deepEqual(survey.data, { q1: "val6" }, "survey data, #1");
+
+  question.showCommentArea = false;
+  question.storeOthersAsComment = false;
+  survey.data = { q1: "val7" };
+  assert.equal("val7", question.otherValue, "other value, #19");
+  assert.equal("val7", question.value, "question value, #20");
+  assert.equal("val7", question.comment, "comment, #21");
+  assert.deepEqual(survey.data, { q1: "val7" }, "survey data, #2");
+
+  question.showCommentArea = true;
+  question.value = "other";
+  question.otherValue = " ";
+  assert.equal(" ", question.otherValue, "other value, #22");
+  assert.equal("other", question.value, "question value, #23");
+  assert.equal("", question.comment, "comment, #24");
+});
+QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", showOtherItem: true, showCommentArea: true, choices: ["item1", "item2", "item3"] },
+    { type: "checkbox", name: "q2", showOtherItem: true, showCommentArea: true, choices: ["item1", "item2", "item3"] }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  q1.renderedValue = "other";
+  q1.otherValue = " ";
+  assert.equal("other", q1.value, "q1 value, #1");
+  assert.equal(" ", q1.otherValue, "q1 otherValue, #2");
+  q1.otherValue = "item2";
+  assert.equal("other", q1.value, "q1 value, #3");
+  assert.equal("item2", q1.otherValue, "q1 otherValue, #4");
+  q1.otherValue = "item22";
+  assert.equal("item22", q1.value, "q1 value, #5");
+  assert.equal("item22", q1.otherValue, "q1 otherValue, #6");
+  q2.renderedValue = ["other"];
+  q2.otherValue = " ";
+  assert.deepEqual(["other"], q2.value, "q2 value, #1");
+  assert.equal(" ", q2.otherValue, "q2 otherValue, #2");
+  q2.otherValue = "item3";
+  assert.deepEqual(["other"], q2.value, "q2 value, #3");
+  assert.equal("item3", q2.otherValue, "q2 otherValue, #4");
+  q2.otherValue = "item33";
+  assert.deepEqual(["item33"], q2.value, "q2 value, #5");
+  assert.equal("item33", q2.otherValue, "q2 otherValue, #6");
+});
+QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", showOtherItem: true, choices: ["item1", "item2", "item3"] },
+    { type: "checkbox", name: "q2", showOtherItem: true, choices: ["item1", "item2", "item3"] }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  q1.renderedValue = "other";
+  q1.otherValue = "val1";
+  q2.renderedValue = ["other"];
+  q2.otherValue = "val2";
+  const data = { q1: "other", "q1-Comment": "val1", q2: ["other"], "q2-Comment": "val2" };
+  assert.deepEqual(survey.data, data, "before complete");
+  survey.doComplete();
+  assert.deepEqual(survey.data, data, "after complete");
+});
+QUnit.test("quesstion commentId/otherId", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  assert.equal(q1.commentId, q1.id + "_comment", "Comment id");
+  assert.equal(q1.otherId, q1.id + "_other", "Other id");
+});

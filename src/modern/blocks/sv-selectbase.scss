@@ -51,7 +51,7 @@
 
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;
-  background-color: $clean-button-color;
+  background-color: var(--clean-button-color, $clean-button-color);
 }
 
 .sv-selectbase .sv-selectbase__item.sv-q-col-1 {

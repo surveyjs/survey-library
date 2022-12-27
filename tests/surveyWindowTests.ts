@@ -1,5 +1,5 @@
 import { PopupSurveyModel } from "../src/popup-survey";
-import { surveyCss } from "../src/defaultCss/cssstandard";
+import { surveyCss } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("PopupSurvey");
 

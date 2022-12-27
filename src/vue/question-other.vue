@@ -2,18 +2,19 @@
   <div class="form-group">
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
+      :id="question.otherId"
       :readonly="question.isInputReadOnly"
       :disabled="question.isInputReadOnly"
       :class="question.cssClasses.other || commentClass"
-      :value="question.comment"
+      :value="question.otherValue"
       :maxlength="question.getOthersMaxLength()"
-      :placeholder="question.commentOrOtherPlaceholder"
+      :placeholder="question.otherPlaceholder"
       :aria-label="question.ariaLabel"
       :aria-required="question.ariaRequired"
       v-bind:style="{ resize: question.resizeStyle }"
-      @change="(e) => { question.onCommentChange(e) }"
-      @input="(e) => { question.onCommentInput(e) }"
-    /><div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+      @change="(e) => { question.onOtherValueChange(e) }"
+      @input="(e) => { question.onOtherValueInput(e) }"
+    /><div v-if="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>
   </div>
 </template>
 

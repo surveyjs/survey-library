@@ -1031,7 +1031,7 @@ function init() {
 
   //Survey.StylesManager.applyTheme("default");
   //Survey.StylesManager.applyTheme("modern");
-  Survey.StylesManager.applyTheme("defaultV2");
+  // Survey.StylesManager.applyTheme("defaultV2");
 
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
@@ -1047,7 +1047,8 @@ function init() {
       }));
     });
 
-  model.render("surveyElement");
+  //model.render("surveyElement");
+  ko.applyBindings({model});
 }
 
 if (!window["%hammerhead%"]) {

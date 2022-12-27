@@ -151,11 +151,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentPrefix);
+    var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
   public setComment(name: string, newValue: string, locNotification: any) {
-    this.setValue(name + settings.commentPrefix, newValue);
+    this.setValue(name + settings.commentSuffix, newValue);
   }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
@@ -494,7 +494,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Previous button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
-   * @see isPrevButtonShowing
+   * @see isPrevButtonVisible
    */
   public get panelPrevText(): string {
     return this.getLocalizableStringText("panelPrevText");
@@ -508,7 +508,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Next button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
-   * @see isNextButtonShowing
+   * @see isNextButtonVisible
    */
   public get panelNextText(): string {
     return this.getLocalizableStringText("panelNextText");
@@ -562,18 +562,18 @@ export class QuestionPanelDynamicModel extends Question
    * @see currentPanel
    * @see panelPrevText
    */
-  public get isPrevButtonShowing(): boolean {
-    return this.currentIndex > 0;
-  }
+  public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
+  public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
   /**
    * Indicates whether the Next button is visible.
    * @see currentIndex
    * @see currentPanel
    * @see panelNextText
    */
-  public get isNextButtonShowing(): boolean {
+  public get isNextButtonVisible(): boolean {
     return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1;
   }
+  public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   /**
    * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and panelCount is >= 2.
    */
@@ -1168,7 +1168,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = panel.getQuestionByName(key);
       if (!!q) continue;
       if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(
           panel,
           key,
@@ -1612,7 +1612,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
       q.updateCommentFromSurvey(
-        values[q.getValueName() + settings.commentPrefix]
+        values[q.getValueName() + settings.commentSuffix]
       );
     }
   }
@@ -1800,13 +1800,13 @@ export class QuestionPanelDynamicModel extends Question
   public getPrevButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonShowing)
+      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
       .toString();
   }
   public getNextButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonShowing)
+      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
       .toString();
   }
   /**
@@ -1910,6 +1910,7 @@ export class QuestionPanelDynamicModel extends Question
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
       name: "templateElements",
       alternativeName: "questions",

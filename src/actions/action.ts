@@ -1,4 +1,4 @@
-import { ILocalizableOwner, LocalizableString } from "survey-core";
+import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base } from "../base";
 import { surveyLocalization } from "../surveyStrings";
 import { property } from "../jsonobject";

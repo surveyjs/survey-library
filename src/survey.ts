@@ -16,7 +16,7 @@ import {
   IFindElement,
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
-import { surveyCss } from "./defaultCss/cssstandard";
+import { surveyCss } from "./defaultCss/defaultV2Css";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -76,15 +76,21 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * You can display an additional field (comment field) for the most of questions; users can enter additional comments to their response.
-   * The comment field input is saved as `'question name' + 'commentPrefix'`.
+   * The comment field input is saved as `'question name' + 'commentSuffix'`.
    * @see data
    * @see Question.showCommentArea
    */
+  public get commentSuffix(): string {
+    return settings.commentSuffix;
+  }
+  public set commentSuffix(val: string) {
+    settings.commentSuffix = val;
+  }
   public get commentPrefix(): string {
-    return settings.commentPrefix;
+    return this.commentSuffix;
   }
   public set commentPrefix(val: string) {
-    settings.commentPrefix = val;
+    this.commentSuffix = val;
   }
 
   private valuesHash: HashTable<any> = {};
@@ -107,9 +113,9 @@ export class SurveyModel extends SurveyElementCore
   public onTriggerExecuted: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
 
   /**
-   * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allowComplete` to `false`
+   * The event is fired before the survey is completed and the `onComplete` event is fired. You can prevent the survey from completing by setting `options.allow` to `false`
    *- `sender` - the survey object that fires the event.
-   *- `options.allowComplete` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
+   *- `options.allow` - Specifies whether a user can complete a survey. Set this property to `false` to prevent the survey from completing. The default value is `true`.
    *- `options.isCompleteOnTrigger` - returns true if the survey is completing on "complete" trigger.
    * @see onComplete
    */
@@ -134,9 +140,9 @@ export class SurveyModel extends SurveyElementCore
   public onComplete: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * The event is fired before the survey is going to preview mode, state equals to `preview`. It happens when a user click on "Preview" button. It shows when "showPreviewBeforeComplete" proeprty equals to "showAllQuestions" or "showAnsweredQuestions".
-   * You can prevent showing it by setting allowShowPreview to `false`.
+   * You can prevent showing it by setting allow to `false`.
    *- `sender` - the survey object that fires the event.
-   *- `options.allowShowPreview` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
+   *- `options.allow` - Specifies whether a user can see a preview. Set this property to `false` to prevent from showing the preview. The default value is `true`.
    * @see showPreviewBeforeComplete
    */
   public onShowingPreview: EventBase<SurveyModel> = this.addEvent<
@@ -168,7 +174,7 @@ export class SurveyModel extends SurveyElementCore
    *- `sender` - the survey object that fires the event.
    *- `option.oldCurrentPage` - the previous current/active page.
    *- `option.newCurrentPage` - a new current/active page.
-   *- `option.allowChanging` - set it to `false` to disable the current page changing. It is `true` by default.
+   *- `option.allow` - set it to `false` to disable the current page changing. It is `true` by default.
    *- `option.isNextPage` - commonly means, that end-user press the next page button. In general, it means that options.newCurrentPage is the next page after options.oldCurrentPage
    *- `option.isPrevPage` - commonly means, that end-user press the previous page button. In general, it means that options.newCurrentPage is the previous page before options.oldCurrentPage
    * @see currentPage
@@ -1662,7 +1668,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
    * Set this property to `false`, to store the entered text directly in the `"question name"` key.
-   * @see commentPrefix
+   * @see commentSuffix
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1810,7 +1816,7 @@ export class SurveyModel extends SurveyElementCore
     for (var key in data) {
       if (!!this.getQuestionByValueName(key)) continue;
       if (
-        this.iscorrectValueWithPostPrefix(key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
       )
         continue;
@@ -2859,7 +2865,7 @@ export class SurveyModel extends SurveyElementCore
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
-      if (key.indexOf(this.commentPrefix) > 0) {
+      if (key.indexOf(this.commentSuffix) > 0) {
         result[key] = this.getDataValueCore(this.valuesHash, key);
       }
     }
@@ -3188,14 +3194,16 @@ export class SurveyModel extends SurveyElementCore
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
       allowChanging: true,
+      allow: true,
       isNextPage: this.isNextPage(newValue, oldValue),
       isPrevPage: this.isPrevPage(newValue, oldValue),
     };
     this.onCurrentPageChanging.fire(this, options);
-    if (options.allowChanging) {
+    const allow = options.allowChanging && options.allow;
+    if (allow) {
       this.isCurrentPageRendering = true;
     }
-    return options.allowChanging;
+    return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
     const isNextPage: boolean = this.isNextPage(newValue, oldValue);
@@ -3682,9 +3690,17 @@ export class SurveyModel extends SurveyElementCore
   public prevPage(): boolean {
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage);
-    this.currentPage = vPages[index - 1];
+
+    const skipped = this.skippedPages.find(sp => sp.to == this.currentPage);
+    if (skipped) {
+      this.currentPage = skipped.from;
+      this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
+    }
+    else {
+      const vPages = this.visiblePages;
+      const index = vPages.indexOf(this.currentPage);
+      this.currentPage = vPages[index - 1];
+    }
     return true;
   }
   /**
@@ -3737,9 +3753,9 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   private showPreviewCore(): void {
-    var options = { allowShowPreview: true };
+    var options = { allowShowPreview: true, allow: true };
     this.onShowingPreview.fire(this, options);
-    this.isShowingPreview = options.allowShowPreview;
+    this.isShowingPreview = options.allowShowPreview && options.allow;
   }
   /**
    * Cancels preview and switches back to the "running" state.
@@ -4068,12 +4084,7 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
-    var onCompletingOptions = {
-      allowComplete: true,
-      isCompleteOnTrigger: isCompleteOnTrigger,
-    };
-    this.onCompleting.fire(this, onCompletingOptions);
-    if (!onCompletingOptions.allowComplete) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4109,6 +4120,15 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
     return true;
+  }
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
+    var options = {
+      allowComplete: true,
+      allow: true,
+      isCompleteOnTrigger: isCompleteOnTrigger,
+    };
+    this.onCompleting.fire(this, options);
+    return options.allowComplete && options.allow;
   }
   /**
    * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.
@@ -4426,8 +4446,11 @@ export class SurveyModel extends SurveyElementCore
   private isFirstPageRendering: boolean = true;
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
-    if (!this.isDesignMode) {
+    if (!this.isDesignMode && !this.isFocusingQuestion) {
       setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
+    }
+    while (this.afterRenderPageTasks.length > 0) {
+      this.afterRenderPageTasks.shift()();
     }
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
@@ -5709,12 +5732,13 @@ export class SurveyModel extends SurveyElementCore
     }
     var question = this.getFirstName(name);
     if (question) {
+      const questionUseDisplayText = (<Question>question).useDisplayValuesInDynamicTexts;
       textValue.isExists = true;
       const firstName = question.getValueName().toLowerCase();
       name = firstName + name.substring(firstName.length);
       name = name.toLocaleLowerCase();
       var values: { [index: string]: any } = {};
-      values[firstName] = textValue.returnDisplayValue
+      values[firstName] = textValue.returnDisplayValue && questionUseDisplayText
         ? question.getDisplayValue(false, undefined)
         : question.value;
       textValue.value = new ProcessValue().getValue(name, values);
@@ -5987,7 +6011,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentPrefix);
+    const res = this.getValue(name + this.commentSuffix);
     return res || "";
   }
   /**
@@ -6003,7 +6027,7 @@ export class SurveyModel extends SurveyElementCore
   ) {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    var commentName = name + this.commentPrefix;
+    var commentName = name + this.commentSuffix;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
@@ -6485,12 +6509,12 @@ export class SurveyModel extends SurveyElementCore
   public get timerClock(): { majorText: string, minorText?: string } {
     let major: string;
     let minor: string;
-    if(!!this.currentPage) {
+    if (!!this.currentPage) {
       let { spent, limit, minorSpent, minorLimit } = this.getTimerInfo();
-      if(limit > 0) major = this.getDisplayClockTime(limit - spent);
+      if (limit > 0) major = this.getDisplayClockTime(limit - spent);
       else { major = this.getDisplayClockTime(spent); }
-      if(minorSpent !== undefined) {
-        if(minorLimit > 0) {
+      if (minorSpent !== undefined) {
+        if (minorLimit > 0) {
           minor = this.getDisplayClockTime(minorLimit - minorSpent);
         } else {
           minor = this.getDisplayClockTime(minorSpent);
@@ -6506,7 +6530,7 @@ export class SurveyModel extends SurveyElementCore
     loc.text = options.text;
     return loc.textOrHtml;
   }
-  private getTimerInfo() : { spent: number, limit?: number, minorSpent?: number, minorLimit?: number} {
+  private getTimerInfo(): { spent: number, limit?: number, minorSpent?: number, minorLimit?: number } {
     let page = this.currentPage;
     if (!page) return { spent: 0, limit: 0 };
     let pageSpent = page.timeSpent;
@@ -6516,16 +6540,16 @@ export class SurveyModel extends SurveyElementCore
     if (this.showTimerPanelMode == "page") {
       return { spent: pageSpent, limit: pageLimitSec };
     }
-    if(this.showTimerPanelMode == "survey") {
+    if (this.showTimerPanelMode == "survey") {
       return { spent: surveySpent, limit: surveyLimit };
     }
     else {
-      if(pageLimitSec > 0 && surveyLimit > 0) {
+      if (pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
-      } else if(pageLimitSec > 0) {
+      } else if (pageLimitSec > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
       }
-      else if(surveyLimit > 0) {
+      else if (surveyLimit > 0) {
         return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
       }
       else {
@@ -6586,7 +6610,7 @@ export class SurveyModel extends SurveyElementCore
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
     let secStr = sec.toString();
-    if(sec < 10) {
+    if (sec < 10) {
       secStr = "0" + secStr;
     }
     return `${min}:${secStr}`;
@@ -6729,7 +6753,7 @@ export class SurveyModel extends SurveyElementCore
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
   private isFocusingQuestion: boolean;
-
+  private afterRenderPageTasks: Array<() => void> = [];
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
     this.isMovingQuestion = true;
@@ -6738,6 +6762,8 @@ export class SurveyModel extends SurveyElementCore
     this.isMovingQuestion = false;
   }
   private needRenderIcons = true;
+
+  private skippedPages: Array<{ from: any, to: any }> = [];
 
   /**
    * Focus question by its name. If needed change the current page on the page where question is located.
@@ -6748,12 +6774,22 @@ export class SurveyModel extends SurveyElementCore
     var question = this.getQuestionByName(name, true);
     if (!question || !question.isVisible || !question.page) return false;
     this.isFocusingQuestion = true;
+    this.skippedPages.push({ from: this.currentPage, to: question.page });
+    const isNeedWaitForPageRendered = this.currentPage !== question.page;
+    const focusQuestionFunc = () => {
+      question.focus();
+      this.isFocusingQuestion = false;
+      this.isCurrentPageRendering = false;
+    };
+    this.afterRenderPageTasks.push(focusQuestionFunc);
     this.currentPage = <PageModel>question.page;
-    question.focus();
-    this.isFocusingQuestion = false;
-    this.isCurrentPageRendering = false;
+    if (!isNeedWaitForPageRendered) {
+      focusQuestionFunc();
+      this.afterRenderPageTasks.splice(this.afterRenderPageTasks.indexOf(focusQuestionFunc), 1);
+    }
     return true;
   }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";

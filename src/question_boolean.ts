@@ -149,11 +149,11 @@ export class QuestionBooleanModel extends Question {
   @property()
   valueFalse: any;
 
-  private getValueTrue(): any {
-    return this.valueTrue ? this.valueTrue : true;
+  public getValueTrue(): any {
+    return this.valueTrue !== undefined ? this.valueTrue : true;
   }
-  private getValueFalse(): any {
-    return this.valueFalse ? this.valueFalse : false;
+  public getValueFalse(): any {
+    return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
@@ -280,6 +280,7 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
       name: "labelTrue:text",

@@ -14,7 +14,7 @@
     </div>
     <!-- /ko -->
     <div
-      data-bind="visible: question.koTable().showTable, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
+      data-bind="visible: question.koTable().showTable, css: question.koCss().tableWrapper, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
     >
       <table data-bind="css: question.getTableCss()">
         <!-- ko if: question.koTable().showHeader -->
@@ -52,7 +52,7 @@
             </td>
             <!-- /ko -->
             <!-- ko if: $data.isActionsCell -->
-            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
+            <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
               <!-- ko component: { name: 'sv-action-bar', params: { model: $data.item.getData(), handleClick: false } } -->
               <!-- /ko -->
             </td>
@@ -139,7 +139,7 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle() }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }"
   >
     <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
       <!-- ko if: $data.showErrorOnTop-->
@@ -147,7 +147,7 @@
       <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: $data.isOtherChoice -->
-        <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
+        <div class="form-group" data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->
       <!-- ko if: $data.isCheckbox -->
         <!-- ko template: {name: 'survey-checkbox-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->

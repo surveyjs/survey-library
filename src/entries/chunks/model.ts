@@ -86,6 +86,7 @@ export {
   propertyArray
 } from "../../jsonobject";
 export {
+  IMatrixDropdownData,
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase
@@ -210,7 +211,7 @@ export {
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 
-export { surveyCss } from "../../defaultCss/cssstandard";
+export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
 

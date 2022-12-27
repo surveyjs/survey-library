@@ -1,6 +1,6 @@
 .sv-footer.sv-action-bar {
   display: block;
-  min-height: $base-line-height;
+  min-height: var(--base-line-height, $base-line-height);
   padding: 2.5em 0 0.87em 0;
   margin-left: auto;
 
@@ -18,7 +18,7 @@
 .sv-btn--navigation {
   margin: 0 1em;
   float: right;
-  background-color: $main-color;
+  background-color: var(--main-color, $main-color);
 }
 
 .sv-footer__complete-btn,

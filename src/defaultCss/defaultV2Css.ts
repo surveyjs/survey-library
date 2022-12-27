@@ -1,4 +1,14 @@
-import { surveyCss } from "./cssstandard";
+export var surveyCss: any = {
+  currentType: "",
+  getCss: function () {
+    var loc = this.currentType ? this[this.currentType] : defaultV2Css;
+    if (!loc) loc = defaultV2Css;
+    return loc;
+  },
+  getAvailableThemes: function() {
+    return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
+  }
+};
 
 export var defaultV2Css = {
   root: "sd-root-modern",
@@ -139,7 +149,7 @@ export var defaultV2Css = {
     requiredText: "sd-question__required-text",
     number: "sd-element__num",
     description: "sd-description sd-question__description",
-    descriptionUnderInput: "sd-description sd-question__description",
+    descriptionUnderInput: "sd-description sd-question__description sd-question__description--under-input",
     comment: "sd-input sd-comment",
     other: "sd-input sd-comment",
     required: "sd-question--required",
@@ -326,7 +336,7 @@ export var defaultV2Css = {
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
-    tableWrapper: "sd-matrix",
+    tableWrapper: "sd-matrix sd-table-wrapper",
     root: "sd-table sd-matrix__table",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
@@ -355,6 +365,7 @@ export var defaultV2Css = {
     root: "sd-table sd-matrixdropdown",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
+    tableWrapper: "sd-table-wrapper",
     rootAlternateRows: "sd-table--alternate-rows",
     cell: "sd-table__cell",
     row: "sd-table__row",
@@ -377,6 +388,7 @@ export var defaultV2Css = {
     rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
+    tableWrapper: "sd-table-wrapper",
     cell: "sd-table__cell",
     row: "sd-table__row",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -581,4 +593,5 @@ export var defaultV2Css = {
   },
 };
 
-surveyCss["defaultV2"] = defaultV2Css;
+export const defaultV2ThemeName = "defaultV2";
+surveyCss[defaultV2ThemeName] = defaultV2Css;

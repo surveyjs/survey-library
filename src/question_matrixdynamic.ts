@@ -112,6 +112,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a row.
+   *
+   * Default value: `false`
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
@@ -386,17 +388,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       row
     );
   }
-  /**
-   * Creates and add a new row and focus the cell in the first column.
-   */
-  public addRowUI() {
-    var oldRowCount = this.rowCount;
-    this.addRow();
-    if (oldRowCount === this.rowCount) return;
-    var q = this.getQuestionToFocusOnAddingRow();
-    if (!!q) {
-      q.focus();
-    }
+  public addRowUI(): void {
+    this.addRow(true);
   }
   private getQuestionToFocusOnAddingRow(): Question {
     var row = this.visibleRows[this.visibleRows.length - 1];
@@ -409,9 +402,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return null;
   }
   /**
-   * Creates and add a new row.
+   * Creates and adds a new row to the matrix.
+   * @param setFocus *Optional.* Pass `true` to focus the cell in the first column.
    */
-  public addRow() {
+  public addRow(setFocus?: boolean): void {
+    const oldRowCount = this.rowCount;
     var options = { question: this, canAddRow: this.canAddRow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
@@ -422,6 +417,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onEndRowAdding();
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
+    }
+    if (setFocus && oldRowCount !== this.rowCount) {
+      const q = this.getQuestionToFocusOnAddingRow();
+      if (!!q) {
+        q.focus();
+      }
     }
   }
   /**
@@ -516,24 +517,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  /**
-   * Removes a row by it's index. If confirmDelete is true, show a confirmation dialog
-   * @param index a row index, from 0 to rowCount - 1
-   * @see removeRow
-   * @see confirmDelete
-   */
   public removeRowUI(value: any) {
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
       if (index < 0) return;
       value = index;
     }
-    if (
-      !this.isRequireConfirmOnRowDelete(value) ||
-      confirmAction(this.confirmDeleteText)
-    ) {
-      this.removeRow(value);
-    }
+    this.removeRow(value);
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -544,22 +534,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !this.isValueEmpty(value[index]);
   }
   /**
-   * Removes a row by it's index.
-   * @param index a row index, from 0 to rowCount - 1
+   * Removes a matrix row with a specified index.
+   * @param index A zero-based row index.
+   * @param confirmDelete *Optional.* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
-  public removeRow(index: number) {
+  public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     var row =
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
-    if (
-      !!row &&
-      !!this.survey &&
-      !this.survey.matrixRowRemoving(this, index, row)
-    )
-      return;
+    if(confirmDelete === undefined) {
+      confirmDelete = this.isRequireConfirmOnRowDelete(index);
+    }
+    if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
+    if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);

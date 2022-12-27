@@ -88,16 +88,17 @@ $base-unit: var(--base-unit, 8px);
   }
 }
 .sv-list__item-icon {
-  float: inline-start; // float: left;
+  float: left;
   width: calcSize(3);
   height: calcSize(3);
+  margin: 0 calcSize(2);
+
   svg {
     display: block;
   }
   use {
     fill: $foreground-light;
   }
-  margin-inline-end: calcSize(2); //margin-right: calcSize(2);
 }
 .sv-list__item-separator {
   margin: calcSize(1) 0;

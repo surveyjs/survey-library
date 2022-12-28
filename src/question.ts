@@ -1471,6 +1471,12 @@ export class Question extends SurveyElement<Question>
       ? 1
       : 0;
   }
+  /**
+  * Returns `true` if a question answer matches the `correctAnswer` property value.
+  * @see [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)
+  * @see correctAnswer
+  * @see SurveyModel.getQuizQuestions
+  */
   public isAnswerCorrect(): boolean {
     return this.correctAnswerCount == this.quizQuestionCount;
   }
@@ -1654,7 +1660,7 @@ export class Question extends SurveyElement<Question>
     return json;
   }
   /**
-   * Returns true if there is a validation error(s) in the question.
+   * Returns `true` if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {

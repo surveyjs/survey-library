@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { PanelModel, Base, doKey2ClickUp, ISurvey, QuestionRowModel } from "survey-core";
-import { defineSurveyComponent } from "../base";
+import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
@@ -40,7 +40,7 @@ export default defineSurveyComponent({
       isCollapsedValue: false,
       getModel: () => { return vm.question; },
       cancelPreview: () => {
-        this.question.cancelPreview();
+        vm.question.cancelPreview();
       }
     }
   },

@@ -4,13 +4,13 @@
 
 <script lang="ts">
 import { SurveyElement, Question, PanelModel } from "survey-core";
-import { defineSurveyComponent } from "../../base";
+import { defineSurveyComponent } from "../base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-skeleton",
   props: {
-    element: Question | PanelModel,
+    element: Object,
   },
   data: (vm: any) => {
     return {

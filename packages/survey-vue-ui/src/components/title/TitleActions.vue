@@ -26,7 +26,7 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "survey-element-title",
   props: {
-    element: Question | PanelModel,
+    element: Object,
     css: Object,
   },
   data: (vm: any) => {

@@ -20,7 +20,7 @@
 import { SurveyModel } from "survey-core";
 import { PageModel } from "survey-core";
 import { Base } from "survey-core";
-import { defineSurveyComponent } from "../base";
+import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line

@@ -3,7 +3,7 @@ import HelloWorld from './components/HelloWorld.vue'
 
 import { defineComponent } from "vue";
 import { Model, StylesManager } from "survey-core";
-import Survey from "./components/Survey.vue";
+import Survey from "./Survey.vue";
 
 const json = {
  "logoPosition": "right",

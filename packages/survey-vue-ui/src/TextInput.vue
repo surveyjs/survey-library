@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { QuestionTextModel } from "survey-core";
-import { defineSurveyComponent } from "../base";
+import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line

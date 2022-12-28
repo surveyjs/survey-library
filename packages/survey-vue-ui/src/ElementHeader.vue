@@ -18,7 +18,7 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "sv-brand-info",
   props: {
-    element: Question | PanelModel,
+    element: Object,
     css: Object,
   },
   data: (vm: any) => {

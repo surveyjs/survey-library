@@ -1,22 +1,22 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 // import Survey from "./components/Survey.vue";
-import Header from "./components/Header.vue";
-import Page from "./components/Page.vue";
-import Row from "./components/Row.vue";
-import Element from "./components/Element.vue";
-import Panel from "./components/Panel.vue";
-import ElementHeader from "./components/ElementHeader.vue";
-import String from "./components/String.vue";
-import StringViewer from "./components/StringViewer.vue";
-import Skeleton from "./components/components/Skeleton.vue";
-import QuestionText from "./components/Text.vue";
-import QuestionTextInput from "./components/TextInput.vue";
+import Header from "./Header.vue";
+import Page from "./Page.vue";
+import Row from "./Row.vue";
+import Element from "./Element.vue";
+import Panel from "./Panel.vue";
+import ElementHeader from "./ElementHeader.vue";
+import String from "./String.vue";
+import StringViewer from "./StringViewer.vue";
+import Skeleton from "./components/Skeleton.vue";
+import QuestionText from "./Text.vue";
+import QuestionTextInput from "./TextInput.vue";
 
-import TitleElement from "./components/components/title/TitleElement.vue";
-import TitleContent from "./components/components/title/TitleContent.vue";
-import TitleActions from "./components/components/title/TitleActions.vue";
-import BrandInfo from "./components/components/BrandInfo.vue";
+import TitleElement from "./components/title/TitleElement.vue";
+import TitleContent from "./components/title/TitleContent.vue";
+import TitleActions from "./components/title/TitleActions.vue";
+import BrandInfo from "./components/BrandInfo.vue";
 
 import "./assets/main.css";
 import "survey-core/defaultV2.css";

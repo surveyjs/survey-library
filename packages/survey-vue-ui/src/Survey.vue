@@ -87,7 +87,7 @@
 
 <script lang="ts">
 import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp, IAttachKey2clickOptions } from "survey-core";
-import { defineSurveyComponent } from "../base";
+import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line

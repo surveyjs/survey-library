@@ -28,13 +28,13 @@ export default defineComponent({
   data: (vm: any) => {
     return {
       onInput: (event: any) => {
-        this.locString.text = event.target.innerText;
+        vm.locString.text = event.target.innerText;
       },
       onClick: (event: any) => {
         event.preventDefault();
         event.stopPropagation();
       }
-    },
+    }
   }
 });
 

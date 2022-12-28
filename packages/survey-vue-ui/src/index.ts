@@ -1,6 +1,6 @@
 import App from "./App.vue";
-import Survey from "./components/Survey.vue";
-import Page from "./components/Page.vue";
+import Survey from "./Survey.vue";
+import Page from "./Page.vue";
 
 export { App };
 export { Survey };

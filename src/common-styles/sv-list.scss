@@ -101,6 +101,14 @@ $base-unit: var(--base-unit, 8px);
     fill: $foreground-light;
   }
 }
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+  .sv-list__item-icon {
+    float: right;
+  }
+}
 .sv-list__item-separator {
   margin: calcSize(1) 0;
   height: 1px;
@@ -142,7 +150,6 @@ li:focus .sv-list__item.sv-list__item--selected {
   height: 100%;
   flex-direction: column;
   display: flex;
-  flex-direction: column;
   min-height: 0;
 }
 

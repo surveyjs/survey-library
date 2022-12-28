@@ -6,7 +6,7 @@ $background-dim: var(--background-dim, #f3f3f3);
 
 $foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);
-
+$border: var(--border, #d6d6d6);
 $base-unit: var(--base-unit, 8px);
 
 @function calcSize($multiplier) {

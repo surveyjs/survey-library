@@ -57,7 +57,8 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
    */
   onCreated?(question: Question): void;
   /**
@@ -65,7 +66,8 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
    */
   onLoaded?(question: Question): void;
   /**
@@ -73,8 +75,10 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
-   * - `htmlElement`: any - An HTML element that represents the custom question.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
+   * - `htmlElement`: `any`\
+   * An HTML element that represents the custom question.
    */
   onAfterRender?(question: Question, htmlElement: any): void;
   /**
@@ -82,9 +86,12 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The composite question.
-   * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - A nested question.
-   * - `htmlElement`: any - An HTML element that represents the nested question.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The composite question.
+   * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A nested question.
+   * - `htmlElement`: `any`\
+   * An HTML element that represents the nested question.
    */
   onAfterRenderContentElement?(
     question: Question,
@@ -96,9 +103,12 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
-   * - `propertyName`: string - The name of the changed property.
-   * - `newValue`: any - A new value for the property.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
+   * - `propertyName`: `String`\
+   * The name of the changed property.
+   * - `newValue`: `any`\
+   * A new value for the property.
    */
   onPropertyChanged?(
     question: Question,
@@ -110,9 +120,12 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
-   * - `name`: string -  The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
-   * - `newValue`: any - A new value for the question.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
+   * - `name`: `String`\
+   * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
+   * - `newValue`: `any`\
+   * A new value for the question.
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
@@ -120,11 +133,16 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * Parameters:
    *
-   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question) - The custom question.
-   * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) - An `ItemValue` object.
-   * - `options.propertyName`: string - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
-   * - `options.name`: string - The name of the changed property: `"text"` or `"value"`.
-   * - `options.newValue`: any - A new value for the property.
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * The custom question.
+   * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue)\
+   * An `ItemValue` object.
+   * - `options.propertyName`: `String`\
+   * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+   * - `options.name`: `String`\
+   * The name of the changed property: `"text"` or `"value"`.
+   * - `options.newValue`: `any`\
+   * A new value for the property.
    */
   onItemValuePropertyChanged?(
     question: Question,

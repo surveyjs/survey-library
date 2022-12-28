@@ -1,9 +1,9 @@
 import { SurveyModel } from "../src/survey";
-
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
@@ -922,4 +922,18 @@ QUnit.test("quesstion commentId/otherId", (assert) => {
   const q1 = new QuestionCheckboxModel("q1");
   assert.equal(q1.commentId, q1.id + "_comment", "Comment id");
   assert.equal(q1.otherId, q1.id + "_other", "Other id");
+});
+QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", showNoneItem: true, choices: [1, 2, 3], noneText: "Not Available" }
+  ] });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  q1.noneItem.value = "no value";
+  const item = q1.dropdownListModel["listModel"].actions[3];
+  assert.equal(item.id, "no value", "choice item is correct");
+  q1.renderedValue = item.id;
+  assert.equal(q1.isItemSelected(q1.noneItem), true, "non item is selected");
+  survey.clearIncorrectValues();
+  assert.equal(q1.value, "no value", "question value is correct");
+  assert.deepEqual(survey.data, { q1: "no value" }, "survey.data is correct");
 });

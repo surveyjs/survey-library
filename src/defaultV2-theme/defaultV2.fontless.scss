@@ -1,4 +1,5 @@
 @import "./variables.scss";
+@import "../common-styles/common-styles.scss";
 
 @import "blocks/sd-element.scss";
 @import "blocks/sd-question.scss";
@@ -43,17 +44,8 @@
 @import "blocks/sd-progress-buttons.scss";
 @import "blocks/sd-list.scss";
 @import "blocks/sd-timer.scss";
-@import "../common-styles/sv-actionbar.scss";
-@import "../common-styles/sv-popup.scss";
-@import "../common-styles/sv-buttongroup.scss";
-@import "../common-styles/sv-visuallyhidden.scss";
-@import "../common-styles/sv-hidden.scss";
-@import "../common-styles/sv-titleactions.scss";
-@import "../common-styles/window.scss";
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
-@import "../common-styles/sv-brand-info.scss";
-@import "../common-styles/sv-ranking.scss";
 
 body {
   --sv-defaultV2-mark: true;

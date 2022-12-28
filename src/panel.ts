@@ -806,7 +806,7 @@ export class PanelModelBase extends SurveyElement<Question>
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
-      if (!el.isVisible) continue;
+      if (!el.isVisible || !ignoreCollapseState && el.isCollapsed) continue;
       if (el.isPanel) {
         var res = (<PanelModelBase>(<any>el)).getFirstQuestionToFocus(withError, ignoreCollapseState);
         if (!!res) return res;

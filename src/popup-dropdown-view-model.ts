@@ -3,14 +3,21 @@ import { PopupUtils, IPosition } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
+import { IsTouch } from "./utils/devices";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
-  private isAutoScroll = true;
-  private scrollEventCallBack = () => {
-    if(!this.isAutoScroll) {
-      this.hidePopup();
-    } else {
-      this.isAutoScroll = false;
+  private scrollEventCallBack = (event: any) => {
+    if(this.isOverlay && IsTouch) {
+      event.stopPropagation();
+      event.preventDefault();
+      return;
+    }
+    this.hidePopup();
+  }
+  private resizeEventCallback = () => {
+    if(this.isOverlay && IsTouch) {
+      const doc = document.documentElement;
+      doc.style.setProperty("--sv-popup-overlay-height", `${window.innerHeight}px`);
     }
   }
 
@@ -109,11 +116,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return actualHorizontalPosition;
   }
 
-  protected hidePopup(): void {
-    super.hidePopup();
-    this.isAutoScroll = true;
-  }
-
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)
@@ -133,7 +135,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
-      this.updatePosition(options.isResetHeight);
+      if(!this.isOverlay) {
+        this.updatePosition(options.isResetHeight);
+      }
     });
   }
 
@@ -151,7 +155,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-
+    window.addEventListener("resize", this.resizeEventCallback);
+    this.resizeEventCallback();
     window.addEventListener("scroll", this.scrollEventCallBack);
   }
 
@@ -171,7 +176,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
-
+    window.removeEventListener("resize", this.resizeEventCallback);
     window.removeEventListener("scroll", this.scrollEventCallBack);
 
     if(!this.isDisposed) {

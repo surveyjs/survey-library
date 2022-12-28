@@ -71,22 +71,23 @@ sv-popup {
     padding: calcSize(4);
   }
 }
-
-.sv-popup--overlay {
+$popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
+.sv-popup--overlay.sv-popup--overlay {
   width: 100%;
+  height: $popup-overlay-height;
 
   .sv-popup__container {
     background: $background-semitransparent;
     max-width: 100vw;
-    max-height: calc(100vh - 1 * #{$base-unit});
-    height: calc(100vh - 1 * #{$base-unit});
+    max-height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
+    height: calc(#{$popup-overlay-height} - 1 * #{$base-unit});
     width: 100%;
     padding-top: calcSize(2);
     border: unset;
   }
 
   .sv-popup__body-content {
-    max-height: 100vh;
+    max-height: $popup-overlay-height;
     max-width: 100vw;
     border-radius: calcSize(2) calcSize(2) 0px 0px;
     background: $background;

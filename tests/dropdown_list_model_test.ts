@@ -1,7 +1,9 @@
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
+import { PopupModel } from "../src/popup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { SurveyModel } from "../src/survey";
+import { _setIsTouch } from "../src/utils/devices";
 
 export default QUnit.module("DropdownListModel");
 
@@ -247,4 +249,22 @@ QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (asser
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
+});
+
+QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
+  _setIsTouch(true);
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const popup: PopupModel = dropdownListModel.popupModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.searchEnabled, true);
+  assert.equal(popup.displayMode, "overlay");
+  assert.ok(popup.isFocusedContent);
+  assert.notOk(popup.setWidthByTarget);
+  popup.isVisible = true;
+  assert.ok(popup.isVisible);
+  dropdownListModel.onBlur(null);
+  assert.ok(popup.isVisible);
+  _setIsTouch(false);
 });

@@ -4794,3 +4794,34 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
   assert.equal(actions.length, 2);
   assert.equal(actions[0].visible, false);
 });
+QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "templateElements": [{
+          "type": "paneldynamic",
+          "name": "childPanel",
+          "title": "childPanel",
+          "state": "collapsed",
+          "templateElements": [{
+            "type": "multipletext",
+            "name": "question1",
+            "items": [{
+              "name": "mtom",
+              "isRequired": true,
+              "inputType": "number"
+            }]
+          }],
+          "panelCount": 1
+        }],
+        "panelCount": 1
+      }]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
+  survey.completeLastPage();
+  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
+});

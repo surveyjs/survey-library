@@ -937,7 +937,7 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode) return;
 
     if (!!this.survey) {
-      this.expandAllPanels(this.parent);
+      this.expandAllParents(this);
       this.survey.scrollElementToTop(this, this, null, this.id);
     }
     var id = !onError
@@ -947,13 +947,13 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-  private expandAllPanels(panel: IPanel) {
-    if (!!panel && !!panel.parent) {
-      if (panel.isCollapsed) {
-        panel.expand();
-      }
-      this.expandAllPanels(panel.parent);
+  private expandAllParents(element: IElement) {
+    if(!element) return;
+    if(element.isCollapsed) {
+      element.expand();
     }
+    this.expandAllParents((<any>element).parent);
+    this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenQuestionFocusIn(this);

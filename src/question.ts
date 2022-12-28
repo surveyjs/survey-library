@@ -1473,7 +1473,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
   * Returns `true` if a question answer matches the `correctAnswer` property value.
-  * @see [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
   * @see correctAnswer
   * @see SurveyModel.getQuizQuestions
   */

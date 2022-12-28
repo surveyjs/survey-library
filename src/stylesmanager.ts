@@ -276,7 +276,7 @@ export class StylesManager {
 
   static getAvailableThemes(): Array<any> {
     const themeMapper = (surveyCss.getAvailableThemes() as Array<string>)
-      .filter(themeName => ["defaultV2", "modern", "default"].indexOf(themeName) !== -1)
+      .filter(themeName => ["defaultV2", "default", "modern"].indexOf(themeName) !== -1)
       .map(themeName => { return { name: themeName, theme: surveyCss[themeName] }; });
     return themeMapper;
   }

@@ -4,7 +4,11 @@
         "outDir": "../../build/survey-vue3-ui/types",
         "declaration": true,
         "emitDeclarationOnly": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "types": [
+            "node",
+            "vite/client",
+        ]
     },
     "include": [
         "src/**/*"

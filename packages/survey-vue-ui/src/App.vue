@@ -1,10 +1,26 @@
 <script lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
 
 import { defineComponent } from "vue";
-import { Model } from "survey-core";
+import { Model, StylesManager } from "survey-core";
 import Survey from "./components/Survey.vue";
+
+const json = {
+ "logoPosition": "right",
+ "pages": [
+  {
+   "name": "page1",
+   "elements": [
+    {
+     "type": "text",
+     "name": "question1"
+    }
+   ]
+  }
+ ]
+};
+
+StylesManager.applyTheme("defaultV2");
 
 export default defineComponent({
   name: "App",
@@ -13,9 +29,9 @@ export default defineComponent({
     Survey,
   },
   data() {
-    const survey = new Model({});
+    const survey = new Model(json);
     survey.title = "It works!";
-    survey.description = "Survey description";
+    survey.description = "This is the first survey in Vue3";
     survey.surveyId = "Survey1";
     return {
       survey: survey as any,
@@ -30,13 +46,12 @@ export default defineComponent({
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
-      <Survey :model="survey" />
-      <HelloWorld msg="You did it!" />
+      <HelloWorld msg="We did it!" />
     </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <survey :survey="survey" />
   </main>
 </template>
 

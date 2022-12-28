@@ -1,0 +1,50 @@
+<template>
+  <input :disabled="question.isInputReadOnly"
+  :class="question.getControlClass()"
+  :type="question.inputType"
+  :maxlength="question.getMaxLength()"
+  :min="question.renderedMin"
+  :max="question.renderedMax"
+  :step="question.renderedStep"
+  :size="question.renderedInputSize"
+  :style="inputStyle"
+  :id="question.inputId"
+  :list="question.dataListId"
+  :placeholder="question.renderedPlaceholder"
+  :autocomplete="question.autocomplete"
+  :value="question.value"
+  @change="question.onChange"
+  @keyup="question.onKeyUp"
+  @keydown="question.onKeyDown"
+  @composition-update="question.onCompositionUpdate"
+  @blur="question.onBlur"
+  :aria-required="question.ariaRequired"
+  :aria-label="question.ariaLabel"
+  :aria-invalid="question.ariaInvalid"
+  :aria-describedby="question.ariaDescribedBy"
+/>
+</template>
+
+<script lang="ts">
+import { QuestionTextModel } from "survey-core";
+import { defineSurveyComponent } from "../base";
+
+export default defineSurveyComponent({
+  // eslint-disable-next-line
+  name: "survey-text-input",
+  props: {
+    question: QuestionTextModel,
+  },
+  data: (vm: any) => {
+    return {
+      getModel: () => { return vm.question; }
+    }
+  },
+  computed: {
+    inputStyle(): any {
+      return this.question.inputStyle;
+    }
+  }
+});
+
+</script>

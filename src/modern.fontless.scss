@@ -35,20 +35,9 @@
 @import "./modern/blocks/sv-completedpage.scss";
 @import "./modern/blocks/sv-header.scss";
 @import "./modern/blocks/sv-signaturepad.scss";
-@import "./common-styles/sv-list.scss";
-@import "./common-styles/sv-buttongroup.scss";
-@import "./common-styles/sv-visuallyhidden.scss";
-@import "./common-styles/sv-hidden.scss";
-@import "./common-styles/sv-ranking.scss";
-
+@import "./common-styles/common-styles.scss";
 @import "./signaturepad.scss";
-
-@import "./common-styles/window.scss";
-
 @import "./boolean-checkbox.scss";
-@import "./common-styles/sv-actionbar.scss";
-@import "./common-styles/sv-titleactions.scss";
-@import "./common-styles/sv-brand-info.scss";
 
 //@import "./main.rtl.scss";
 @import "./modern.m600.scss";

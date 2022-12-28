@@ -27,7 +27,13 @@
     "survey.core.js",
     "survey.core.min.js",
     "survey.i18n.js",
-    "survey.i18n.min.js"
+    "survey.i18n.min.js",
+    "bootstrap-integration.d.ts",
+    "bootstrap-integration.js",
+    "bootstrap-integration.min.js",
+    "bootstrap-material-integration.d.ts",
+    "bootstrap-material-integration.js",
+    "bootstrap-material-integration.min.js"
   ],
   "main": "survey.core.js",
   "repository": {

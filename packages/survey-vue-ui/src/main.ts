@@ -12,6 +12,11 @@ import StringViewer from "./StringViewer.vue";
 import Skeleton from "./components/Skeleton.vue";
 import QuestionText from "./Text.vue";
 import QuestionTextInput from "./TextInput.vue";
+import Checkbox from "./Checkbox.vue";
+import CheckboxItem from "./CheckboxItem.vue";
+import Radiogroup from "./Radiogroup.vue";
+import RadiogroupItem from "./RadiogroupItem.vue";
+import Signaturepad from "./Signaturepad.vue";
 
 import TitleElement from "./components/title/TitleElement.vue";
 import TitleContent from "./components/title/TitleContent.vue";
@@ -35,6 +40,11 @@ app.component("sv-string-viewer", StringViewer);
 app.component("sv-skeleton", Skeleton);
 app.component("survey-text", QuestionText);
 app.component("survey-text-input", QuestionTextInput);
+app.component("survey-checkbox", Checkbox);
+app.component("survey-checkbox-item", CheckboxItem);
+app.component("survey-radiogroup", Radiogroup);
+app.component("survey-radiogroup-item", RadiogroupItem);
+app.component("survey-signaturepad", Signaturepad);
 
 app.component("survey-element-title", TitleElement);
 app.component("survey-element-title-content", TitleContent);

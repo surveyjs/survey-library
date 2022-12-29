@@ -200,7 +200,7 @@ frameworks.forEach(async framework => {
   });
 
   test("hide popup after scroll", async t => {
-    let choices = [];
+    let choices: Array<string> = [];
     for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;
     }
@@ -214,15 +214,12 @@ frameworks.forEach(async framework => {
       .click(clickButton)
       .expect(popupSelector.visible).ok()
 
-      .scroll(0, 500)
-      .expect(popupSelector.visible).ok()
-
       .scroll(0, 1000)
       .expect(popupSelector.visible).notOk();
   });
 
   test("not hide modal popup after scroll", async t => {
-    let choices = [];
+    let choices:Array<string> = [];
     for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;
     }
@@ -242,7 +239,7 @@ frameworks.forEach(async framework => {
 
   test("navigate between list items", async t => {
     const currentAddDropdownTitleAction = (_, opt) => {
-      let items = [];
+      let items: Array<any> = [];
       for (let index = 0; index < 10; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }
@@ -276,7 +273,7 @@ frameworks.forEach(async framework => {
   });
   test("check popup on the same click", async t => {
     const currentAddDropdownTitleAction = (_, opt) => {
-      let items = [];
+      let items: Array<any> = [];
       for (let index = 0; index < 20; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }

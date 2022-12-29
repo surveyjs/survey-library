@@ -1,0 +1,56 @@
+<template>
+    <textarea
+      v-if="!question.isReadOnlyRenderDiv()"
+      :readonly="question.isInputReadOnly"
+      :disabled="question.renderedInputDisabled"
+      :value="question.value"
+      :id="question.inputId"
+      :maxlength="question.getMaxLength()"
+      :cols="question.cols"
+      :rows="question.rows"
+      :placeholder="question.renderedPlaceholder"
+      :class="question.className"
+      @change="change"
+      @input="(e) => { question.onInput(e) }"
+      @keydown="(e) => { question.onKeyDown(e) }"
+      :aria-required="question.ariaRequired"
+      :aria-label="question.ariaLabel"
+      :aria-invalid="question.ariaInvalid"
+      :aria-describedby="question.ariaDescribedBy"
+      v-bind:style="{ resize: question.resizeStyle }"
+    ></textarea>
+    <div v-else>{{ question.value }}</div>
+</template>
+
+<script lang="ts">
+import { QuestionCommentModel } from "survey-core";
+import { defineSurveyComponent } from "./base";
+
+export default defineSurveyComponent({
+  // eslint-disable-next-line
+  name: "survey-comment",
+  props: {
+    question: QuestionCommentModel,
+    css: Object,
+  },
+  data: (vm: any) => {
+    return {
+      getModel: () => { return vm.question; },
+      change(event: any) {
+        vm.question.value = event.target.value;
+      }
+    }
+  },
+  mounted() {
+    if (this.question) {
+      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
+    }
+  },
+  unmounted() {
+    if (this.question) {
+      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
+    }
+  }
+});
+
+</script>

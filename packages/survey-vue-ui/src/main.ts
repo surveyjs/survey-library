@@ -17,11 +17,21 @@ import CheckboxItem from "./CheckboxItem.vue";
 import Radiogroup from "./Radiogroup.vue";
 import RadiogroupItem from "./RadiogroupItem.vue";
 import Signaturepad from "./Signaturepad.vue";
+import Html from "./Html.vue";
+import Image from "./Image.vue";
+import Expression from "./Expression.vue";
+import File from "./File.vue";
+import ImagePicker from "./Imagepicker.vue";
+import ImagePickerItem from "./ImagepickerItem.vue";
+import Comment from "./Comment.vue";
 
+import Errors from "./Errors.vue";
+import QuestionComment from "./QuestionComment.vue";
 import TitleElement from "./components/title/TitleElement.vue";
 import TitleContent from "./components/title/TitleContent.vue";
 import TitleActions from "./components/title/TitleActions.vue";
 import BrandInfo from "./components/BrandInfo.vue";
+import SvgIcon from "./components/svg-icon/SvgIcon.vue";
 
 import "./assets/main.css";
 import "survey-core/defaultV2.css";
@@ -45,10 +55,20 @@ app.component("survey-checkbox-item", CheckboxItem);
 app.component("survey-radiogroup", Radiogroup);
 app.component("survey-radiogroup-item", RadiogroupItem);
 app.component("survey-signaturepad", Signaturepad);
+app.component("survey-html", Html);
+app.component("survey-image", Image);
+app.component("survey-expression", Expression);
+app.component("survey-file", File);
+app.component("survey-imagepicker", ImagePicker);
+app.component("survey-imagepicker-item", ImagePickerItem);
+app.component("survey-comment", Comment);
 
+app.component("survey-errors", Errors);
+app.component("survey-question-comment", QuestionComment);
 app.component("survey-element-title", TitleElement);
 app.component("survey-element-title-content", TitleContent);
 app.component("sv-title-actions", TitleActions);
 app.component("sv-brand-info", BrandInfo);
+app.component("sv-svg-icon", SvgIcon);
 
 const mountedApp = app.mount("#app");

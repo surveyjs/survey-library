@@ -27,7 +27,7 @@ export class QuestionFileModel extends Question {
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.state`: `String`\
-   * Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
+   * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
   public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel

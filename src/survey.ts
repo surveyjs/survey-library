@@ -81,7 +81,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Many question types allow respondents to leave comments. To enable this functionality, set a question's [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#showCommentArea) property to `true`. Comment values are saved in a separate property. The property name is composed of the question `name` and `commentSuffix`.
    *
-   * Respondents can also leave a comment when they select "Other" in a single- or multi-select question, such as Dropdown or Checkboxes. The property name for the comment value is composed by the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
+   * Respondents can also leave a comment when they select "Other" in a single- or multi-select question, such as Dropdown or Checkboxes. The property name for the comment value is composed according to the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
    */
@@ -178,7 +178,7 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
-   * An event that is raised before the survey navigates to a specified URL. Use this event change the URL or cancel the navigation.
+   * An event that is raised before the survey navigates to a specified URL. Use this event to change the URL or cancel the navigation.
    *
    * Parameters:
    *
@@ -219,7 +219,7 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.oldCurrentPage`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * A page used to be current.
+   * The current page.
    * - `options.newCurrentPage`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
    * A page that will be current.
    * - `options.allow`: `Boolean`\
@@ -243,9 +243,9 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.oldCurrentPage`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * A page used to be current.
+   * A page that used to be current.
    * - `options.newCurrentPage`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * A page that became current.
+   * The current page.
    * - `options.isNextPage`: `Boolean`\
    * Returns `true` if the respondent is going forward along the survey.
    * - `options.isPrevPage`: `Boolean`\
@@ -267,7 +267,7 @@ export class SurveyModel extends SurveyElementCore
    * - `options.name`: `String`\
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
-   * The question whose value is being changed. If you use `valueName`, and it is the same for several questions, this parameter contains the first question.
+   * The question whose value is being changed. If you use `valueName` and it is the same for several questions, this parameter contains the first question.
    * - `options.oldValue`: `any`\
    * A previous value.
    * - `options.value`: `any`\
@@ -364,7 +364,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised when the survey creates any new object derived from [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question).
    *
-   * In a survey, complex elements ([Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/), [Multiple Text](https://surveyjs.io/form-library/examples/questiontype-multipletext/), [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)) are composed from questions. Use this event to customize any question regardless of which survey element it belongs to.
+   * In a survey, complex elements ([Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/), [Multiple Text](https://surveyjs.io/form-library/examples/questiontype-multipletext/), and [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)) are composed of questions. Use this event to customize any question regardless of which survey element it belongs to.
    *
    * Parameters:
    *
@@ -875,7 +875,7 @@ export class SurveyModel extends SurveyElementCore
    * - `options.item`\
    * The choice item as specified in the [choices](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choices) array.
    * - `options.visible`\
-   * A Boolean value that specifies the item visibility. Set it to `false` to hide the item.
+   * A Boolean value that specifies item visibility. Set it to `false` to hide the item.
    */
   public onShowingChoiceItem: EventBase<SurveyModel> = this.addEvent<
     SurveyModel
@@ -1167,7 +1167,7 @@ export class SurveyModel extends SurveyElementCore
    * - `options.question`: [`QuestionPanelDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)\
    * A Dynamic Panel question.
    * - `options.panel`: [`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panel-model)\
-   * A panel that nests the item with changed value.
+   * A panel that nests the item with a changed value.
    * - `options.name`: `String`\
    * The item's name.
    * - `options.value`: `any`\
@@ -1785,7 +1785,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An array of objects that allows you to navigate respondents to different URLs after survey completion.
    *
-   * Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#url) and [`url`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#expression) properties. When an `expression` evaluates to `true`, the survey navigates to the corresponding `url`. Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
+   * Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#url) and [`url`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#expression) properties. When `expression` evaluates to `true`, the survey navigates to the corresponding `url`. Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see onNavigateToUrl
    * @see navigateToUrl
    */

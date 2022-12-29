@@ -67,7 +67,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The custom question.
+   * A custom question.
    */
   onLoaded?(question: Question): void;
   /**
@@ -76,7 +76,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The custom question.
+   * A custom question.
    * - `htmlElement`: `any`\
    * An HTML element that represents the custom question.
    */
@@ -87,11 +87,11 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The composite question.
+   * A composite question.
    * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
    * A nested question.
    * - `htmlElement`: `any`\
-   * An HTML element that represents the nested question.
+   * An HTML element that represents a nested question.
    */
   onAfterRenderContentElement?(
     question: Question,
@@ -104,7 +104,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The custom question.
+   * A custom question.
    * - `propertyName`: `String`\
    * The name of the changed property.
    * - `newValue`: `any`\
@@ -121,7 +121,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The custom question.
+   * A custom question.
    * - `name`: `String`\
    * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
    * - `newValue`: `any`\
@@ -134,7 +134,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Parameters:
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-   * The custom question.
+   * A custom question.
    * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue)\
    * An `ItemValue` object.
    * - `options.propertyName`: `String`\

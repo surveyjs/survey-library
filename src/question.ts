@@ -81,9 +81,12 @@ export class Question extends SurveyElement<Question>
    *
    * Parameters:
    *
-   * - `sender` - A survey that contains the question whose ready state has changed.
-   * - `options.isReady` - A Boolean value that indicates whether the question is ready.
-   * - `options.oldIsReady` - A Boolean value that indicates the previous ready state.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that contains the question whose ready state has changed.
+   * - `options.isReady`: `Boolean`\
+   * Indicates whether the question is ready.
+   * - `options.oldIsReady`: `Boolean`\
+   * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 

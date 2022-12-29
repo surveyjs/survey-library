@@ -77,9 +77,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A suffix added to the name of the property that stores comments.
    *
-   * Default value: "Comment"
+   * Default value: "-Comment"
    *
-   * Many question types allow respondents to leave comments. To enable this functionality, set a question's [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#showCommentArea) property to `true`. Comment values are saved in a separate property. The property name is composed of the question `name`, a hyphen, and `commentSuffix`.
+   * Many question types allow respondents to leave comments. To enable this functionality, set a question's [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#showCommentArea) property to `true`. Comment values are saved in a separate property. The property name is composed of the question `name` and `commentSuffix`.
    *
    * Respondents can also leave a comment when they select "Other" in a single- or multi-select question, such as Dropdown or Checkboxes. The property name for the comment value is composed by the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
    *

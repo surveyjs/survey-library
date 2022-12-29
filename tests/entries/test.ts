@@ -56,6 +56,7 @@ export * from "../multi_select_list_model_tests";
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";
 export * from "../components/actionbartests";
+export * from "../components/liststests";
 export * from "../responsivityTests";
 export * from "../svgRegistryTests";
 export * from "../utilstests";

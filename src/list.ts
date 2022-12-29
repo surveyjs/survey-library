@@ -180,8 +180,11 @@ export class ListModel extends ActionContainer {
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
-      ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement.nextElementSibling.firstElementChild));
-      event.preventDefault();
+      const listElement = currentElement.parentElement.querySelector("ul");
+      if(!!listElement && !!listElement.firstElementChild) {
+        ElementHelper.focusElement(listElement.firstElementChild);
+        event.preventDefault();
+      }
     }
   }
   public onMouseMove(event: MouseEvent): void {

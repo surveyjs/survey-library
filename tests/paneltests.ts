@@ -1743,3 +1743,29 @@ QUnit.test("Check panel footer actions event", function(assert) {
   assert.equal(actions.length, 1);
   assert.equal(actions[0].title, "test");
 });
+QUnit.test("Expand panel on error in multiple text question", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text", name: "q1",
+      },
+      {
+        type: "panel",
+        name: "panel",
+        title: "title",
+        state: "collapsed",
+        elements: [
+          {
+            "type": "multipletext",
+            "name": "q2",
+            "items": [{ "name": "item1", "isRequired": true }]
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  assert.equal(panel.state, "collapsed", "the panel is collapsed by default");
+  survey.completeLastPage();
+  assert.equal(panel.state, "expanded", "the panel is expanded");
+});

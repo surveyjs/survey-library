@@ -243,24 +243,31 @@ export class Base {
    *
    * Parameters:
    *
-   * | Parameter | Type | Description |
-   * | --------- | ---- | ----------- |
-   * | `sender`  | `this` | A SurveyJS object whose property has changed. |
-   * | `options.name` | `string` | The name of the changed property. |
-   * | `options.newValue` | `any` | A new value for the property. |
-   * | `options.oldValue` | `any` | An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does. |
+   * - `sender`: `this`\
+   * A SurveyJS object whose property has changed.
+   * - `options.name`: `String`\
+   * The name of the changed property.
+   * - `options.newValue`: `any`\
+   * A new value for the property.
+   * - `options.oldValue`: `any`\
+   * An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
-   * An event that is raised when an [ItemValue](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
+   * An event that is raised when an [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
    *
    * Parameters:
    *
-   * - `sender` - A SurveyJS object whose property contains an array of `ItemValue` objects.
-   * - `options.obj` - An `ItemValue` object.
-   * - `options.propertyName` - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
-   * - `options.name` - The name of the changed property: `"text"` or `"value"`.
-   * - `options.newValue` - A new value for the property.
+   * - `sender`: `this`\
+   * A SurveyJS object whose property contains an array of `ItemValue` objects.
+   * - `options.obj`: [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue)\
+   * An `ItemValue` object.
+   * - `options.propertyName`: `String`\
+   * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+   * - `options.name`: `"text"` | `"value"`\
+   * The name of the changed property.
+   * - `options.newValue: `any`\
+   * A new value for the property.
    */
   public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,

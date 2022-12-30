@@ -2,9 +2,9 @@
   <span
     class="sv-string-viewer"
     v-if="locString.hasHtml"
-    v-html="locString.renderedHtml"
+    v-html="renderedHtml"
   ></span>
-  <span class="sv-string-viewer" v-else>{{ locString.renderedHtml }}</span>
+  <span class="sv-string-viewer" v-else>{{ renderedHtml }}</span>
 </template>
 
 <script lang="ts">
@@ -18,17 +18,16 @@ export default defineComponent({
     locString: LocalizableString
   },
   data: (vm: any) => {
-    if (!vm.locString) return;
-    vm.locString.onChanged = () => {
-      // vm.$forceUpdate();
-    };
-    vm.locString.onChanged();
-
+    if (!!vm.locString) {
+      vm.locString.onChanged = () => {
+        vm.renderedHtml = vm.locString.renderedHtml
+      };
+      vm.locString.onChanged();
+    }
     return {
+      renderedHtml: vm.locString.renderedHtml
     }
   }
 });
 
-// Vue.component(LocalizableString.defaultRenderer, SurveyStringViewer);
-// export default SurveyStringViewer;
 </script>

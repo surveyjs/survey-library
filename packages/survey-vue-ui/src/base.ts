@@ -1,5 +1,5 @@
 import type { Base } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+import { ref, defineComponent, type ComponentOptions, unref, isRef } from "vue";
 
 function makeReactive(surveyElement: Base) {
   surveyElement.iteratePropertiesHash((propertiesHash: any, name: any) => {
@@ -23,7 +23,7 @@ function makeReactive(surveyElement: Base) {
     val: any
   ) => {
     // eslint-disable-next-line no-prototype-builtins
-    if (!propertiesHash.hasOwnProperty(name)) {
+    if (!isRef(propertiesHash[name])) {
       propertiesHash[name] = ref(propertiesHash[name]);
     } else propertiesHash[name].value = val;
   };

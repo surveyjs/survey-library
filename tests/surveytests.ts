@@ -16054,3 +16054,20 @@ QUnit.test("Get first focused question on collapsed question", function (assert)
   page.hasErrors(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
 });
+QUnit.test("Check getProgressCssClasses method", function (assert) {
+  const survey = new SurveyModel({
+    "showProgressBar": "top",
+    elements: [
+      { type: "text", name: "q1", state: "collapsed", isRequired: true },
+      { type: "text", name: "q2" }
+    ],
+  });
+  survey.css = {
+    progress: "test_progress",
+    progressTop: "test_progress_top",
+    progressBottom: "test_progress_bottom"
+  };
+  assert.equal(survey.getProgressCssClasses(), "test_progress test_progress_top");
+  survey.showProgressBar = "bottom";
+  assert.equal(survey.getProgressCssClasses(), "test_progress test_progress_bottom");
+});

@@ -5,7 +5,7 @@ import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
 @Component({
   selector: "sv-ng-popup-container, '[sv-ng-popup-container]'",
   templateUrl: "./popup-container.component.html"
-})
+  })
 
 export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
   private prevIsVisible: boolean = false;
@@ -46,16 +46,13 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
   }
 
   protected override afterUpdate(): void {
+    super.afterUpdate();
     if (!this.prevIsVisible && this.model.isVisible) {
-      setTimeout(() => {
-        this.model.updateOnShowing();
-        this.isShow = true;
-        this.changeDetectorRef.detectChanges();
-      });
+      this.model.updateOnShowing();
+      this.isShow = true;
     }
     if (this.prevIsVisible !== this.model.isVisible) {
       this.prevIsVisible = this.model.isVisible;
     }
-    super.afterUpdate();
   }
 }

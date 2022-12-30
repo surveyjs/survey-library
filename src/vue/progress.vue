@@ -1,5 +1,5 @@
 <template>
-  <div :class="css.progress">
+  <div :class="survey.getProgressCssClasses()">
     <div
       :class="css.progressBar"
       :style="{ width: progress }"

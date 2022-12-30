@@ -52,6 +52,11 @@
 .sd-body__progress {
   margin-bottom: calcSize(4);
 }
+.sd-body__progress--top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
 
 .sd-body--empty {
   min-height: 400px;

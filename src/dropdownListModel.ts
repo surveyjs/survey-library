@@ -6,7 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { IsTouch } from "./utils/devices";
-import { doKey2ClickBlur, doKey2ClickUp, mergeValues } from "./utils/utils";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -66,10 +66,11 @@ export class DropdownListModel extends Base {
   }
 
   private createPopup() {
-    this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
+    this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
-    this._popupModel.isFocusedContent = false;
-    this._popupModel.setWidthByTarget = true;
+    this._popupModel.isFocusedContent = IsTouch;
+    this._popupModel.setWidthByTarget = !IsTouch;
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
@@ -212,7 +213,7 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean) {
-    this.listModel.searchEnabled = false;
+    this.listModel.searchEnabled = IsTouch;
     this.searchEnabled = newValue;
   }
   public updateItems(): void {
@@ -285,7 +286,11 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
-    if(this.popupModel.isVisible && (IsTouch || !!this.filterString)) {
+    if(this.popupModel.isVisible && IsTouch) {
+      this._popupModel.isVisible = true;
+      return;
+    }
+    if(this.popupModel.isVisible && !!this.filterString) {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();

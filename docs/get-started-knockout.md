@@ -72,10 +72,10 @@ const surveyJson = {
 };
 ```
 
-To instantiate a model, pass the model schema to the `SurveyKnockout.Survey` constructor as shown in the code below. The model instance will be later used to render the survey.
+To instantiate a model, pass the model schema to the [`Survey.Model`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model) constructor as shown in the code below. The model instance will be later used to render the survey.
 
 ```js
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 ```
 
 <details>
@@ -121,25 +121,29 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 ```
 </details> 
 
 ## Render the Survey
 
-A survey should be rendered in a page element. Add this element to your page:
+A survey should be rendered in a `<survey>` page element. Bind its `survey` parameter to a view model property that contains the survey model (`model` in the code below):
 
 ```html
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 ```
 
-To render a survey in the page element, call the `render(containerId)` method on the model instance you created in the previous step:
+To render a survey in the page element, activate Knockout bindings:
 
 ```js
+const survey = new Survey.Model(surveyJson);
+
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 
@@ -169,7 +173,7 @@ If you replicate the code correctly, you should see the following survey:
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 </html>
 ```
@@ -191,10 +195,12 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 </details>
@@ -226,7 +232,7 @@ function saveSurveyResults(url, json) {
     request.send(JSON.stringify(json));
 }
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 survey.onComplete.add(surveyComplete);
 ```
@@ -239,7 +245,7 @@ function alertResults (sender) {
     alert(results);
 }
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 survey.onComplete.add(alertResults);
 ```
@@ -270,7 +276,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 </html>
 ```
@@ -292,7 +298,7 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 function alertResults (sender) {
     const results = JSON.stringify(sender.data);
@@ -302,7 +308,9 @@ function alertResults (sender) {
 survey.onComplete.add(alertResults);
 
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 </details>

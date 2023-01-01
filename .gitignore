@@ -3,6 +3,7 @@
 node_modules
 build
 src/**/*.js
+!src/localization/update_translations.js
 doc_generator/**/*.json
 docs/classes.json
 docs/pmes.json

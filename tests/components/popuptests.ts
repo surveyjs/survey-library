@@ -5,6 +5,8 @@ import { createPopupViewModel } from "../../src/popup-utils";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../../src/popup-modal-view-model";
+import { englishStrings } from "../../src/localization/english";
+import { germanSurveyStrings } from "../../src/localization/german";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -1036,6 +1038,17 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
   model.displayMode = "overlay";
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
+  viewModel.dispose();
+});
+
+QUnit.test("PopupModel and locale", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
+  viewModel.initializePopupContainer();
+  assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), englishStrings.modalApplyButtonText, "en Apply text");
+  viewModel.locale = "de";
+  assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), germanSurveyStrings.modalApplyButtonText, "de Apply text");
   viewModel.dispose();
 });
 

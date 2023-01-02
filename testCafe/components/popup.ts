@@ -159,6 +159,7 @@ frameworks.forEach(async framework => {
       .expect(popupModalSelector.visible).ok()
 
       .pressKey("esc")
+      .wait(1000)
       .expect(popupModalSelector.exists).notOk();
   });
 

@@ -1,3 +1,4 @@
+//There 8 untranslated keys. You can find them in uncommented lines.
 import { surveyLocalization } from "survey-core";
 
 export var macedonianSurveyStrings = {
@@ -11,14 +12,15 @@ export var macedonianSurveyStrings = {
   noneItemText: "Ништо",
   selectAllItemText: "Селектирај се",
   progressText: "Страница {0} од {1}",
+  //indexText: "{0} of {1}",
   panelDynamicProgressText: "Сними {0} од {1}",
   questionsProgressText: "Одговорени на {0} / {1} прашања",
   emptySurvey: "Нема видлива страница или прашање во истражувањето.",
   completingSurvey: "Ви благодариме што го завршивте истражувањето!",
-  completingSurveyBefore:
-    "Нашите записи покажуваат дека веќе сте го завршиле ова истражување.",
+  completingSurveyBefore: "Нашите записи покажуваат дека веќе сте го завршиле ова истражување.",
   loadingSurvey: "Анкетата се вчитува ...",
   placeholder: "Изберете ...",
+  //ratingOptionsCaption: "Tap to rate here...",
   value: "вредност",
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
@@ -32,23 +34,20 @@ export var macedonianSurveyStrings = {
   minRowCountError: "Пополнете најмалку {0} ред(ови).",
   minSelectError: "Ве молиме изберете најмалку {0} варијанта(и).",
   maxSelectError: "Изберете не повеќе од {0} варијанта(и).",
-  numericMinMax:
-    "'{0}' треба да биде најмалку {1} и најмногу {2}",
+  numericMinMax: "'{0}' треба да биде најмалку {1} и најмногу {2}",
   numericMin: "'{0}' треба да биде најмалку {1}",
   numericMax: "'{0}' треба да биде најмногу {1}",
   invalidEmail: "Ве молиме внесете валидна е-маил адреса.",
   invalidExpression: "Изразот: {0} треба да се врати 'true'.",
   urlRequestError: "Барањето врати грешка '{0}'. {1} ",
-  urlGetChoicesError:
-    "Барањето врати празни податоци или својството 'path' е неточно",
+  urlGetChoicesError: "Барањето врати празни податоци или својството 'path' е неточно",
   exceedMaxSize: "Големината на датотеката не треба да надминува {0}.",
   otherRequiredError: "Внесете ја другата вредност.",
-  uploadingFile:
-    "Вашата датотека се поставува. Ве молиме почекајте неколку секунди и обидете се повторно.",
+  uploadingFile: "Вашата датотека се поставува. Ве молиме почекајте неколку секунди и обидете се повторно.",
   loadingFile: "Се вчитува ...",
   chooseFile: "Изберете датотека (и) ...",
-  fileDragAreaPlaceholder: "Пуштете датотека овде или кликнете на копчето подолу за да ја вчитате датотеката.",
   noFileChosen: "Не се избрани датотеки",
+  fileDragAreaPlaceholder: "Пуштете датотека овде или кликнете на копчето подолу за да ја вчитате датотеката.",
   confirmDelete: "Дали сакате да го избришете записот?",
   keyDuplicationError: "Оваа вредност треба да биде единствена.",
   addColumn: "Додај колона",
@@ -60,6 +59,7 @@ export var macedonianSurveyStrings = {
   choices_Item: "ставка",
   matrix_column: "Колона",
   matrix_row: "Ред",
+  //multipletext_itemname: "text",
   savingData: "Резултатите се зачувуваат на серверот ...",
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   savingDataSuccess: "Резултатите беа успешно зачувани!",
@@ -69,11 +69,11 @@ export var macedonianSurveyStrings = {
   timerSpentAll: "Поминавте {0} на оваа страница и вкупно {1}.",
   timerSpentPage: "Поминавте {0} на оваа страница.",
   timerSpentSurvey: "Вие потрошивте вкупно {0}.",
-  timerLimitAll:
-    "Поминавте {0} од {1} на оваа страница и {2} од {3} вкупно.",
+  timerLimitAll: "Поминавте {0} од {1} на оваа страница и {2} од {3} вкупно.",
   timerLimitPage: "Поминавте {0} од {1} на оваа страница.",
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
   clearCaption: "Да расчисти",
+  //signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Изберете датотека",
   removeFileCaption: "Отстранете ја оваа датотека",
   booleanCheckedLabel: "Да",
@@ -83,6 +83,10 @@ export var macedonianSurveyStrings = {
   questionTitlePatternText: "Наслов на прашањето",
   modalCancelButtonText: "Откажи",
   modalApplyButtonText: "Аплицирај",
+  //filterStringPlaceholder: "Type to search...",
+  //emptyMessage: "No data to display",
+  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  //more: "More"
 };
 
 surveyLocalization.locales["mk"] = macedonianSurveyStrings;

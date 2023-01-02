@@ -1,3 +1,4 @@
+//There 14 untranslated keys. You can find them in uncommented lines.
 import { surveyLocalization } from "survey-core";
 
 export var lithuaniaSurveyStrings = {
@@ -11,6 +12,7 @@ export var lithuaniaSurveyStrings = {
   noneItemText: "Nėra",
   selectAllItemText: "Pasirinkti visus",
   progressText: "Puslapis {0} iš {1}",
+  //indexText: "{0} of {1}",
   panelDynamicProgressText: "Įrašyti {0} iš {1}",
   questionsProgressText: "Atsakė į {0} / {1} klausimus",
   emptySurvey: "Apklausoje nėra matomo puslapio ar klausimo.",
@@ -18,44 +20,46 @@ export var lithuaniaSurveyStrings = {
   completingSurveyBefore: "Mūsų įrašai rodo, kad jau atlikote šią apklausą.",
   loadingSurvey: "Prašome palaukti...",
   placeholder: "Pasirinkti...",
+  //ratingOptionsCaption: "Tap to rate here...",
   value: "reikšmė",
   requiredError: "Būtina atsakyti į šį klausimą.",
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",
   requiredInAllRowsError: "Prašome atsakyti į klausimus visose eilutėse.",
   numericError: "Turi būti skaičiai.",
+  //minError: "The value should not be less than {0}",
+  //maxError: "The value should not be greater than {0}",
   textMinLength: "Prašome suvesti bent {0} simbolius.",
   textMaxLength: "Prašome suvesti mažiau nei {0} simbolių.",
-  textMinMaxLength:
-    "Prašome suvesti daugiau nei {0} ir mažiau nei {1} simbolių.",
+  textMinMaxLength: "Prašome suvesti daugiau nei {0} ir mažiau nei {1} simbolių.",
   minRowCountError: "Prašome suvesti ne mažiau nei {0} eilučių.",
   minSelectError: "Prašome pasirinkti bent {0} variantų.",
   maxSelectError: "Pasirinkite ne daugiau kaip {0} variantus.",
-  numericMinMax:
-    "'{0}' turi būti lygus arba didesnis nei {1} ir lygus arba mažesnis nei {2}",
+  numericMinMax: "'{0}' turi būti lygus arba didesnis nei {1} ir lygus arba mažesnis nei {2}",
   numericMin: "'{0}' turėtų būti lygus arba didesnis nei {1}",
   numericMax: "'{0}' turėtų būti lygus ar mažesnis už {1}",
   invalidEmail: "Prašome įvesti galiojantį elektroninio pašto adresą.",
   invalidExpression: "Reikšmė: {0} turi grąžinti 'true'.",
   urlRequestError: "Užklausa grąžino klaidą'{0}'. {1}",
-  urlGetChoicesError:
-    "Užklausa grąžino tuščius duomenis arba 'path' savybė yra neteisinga",
+  urlGetChoicesError: "Užklausa grąžino tuščius duomenis arba 'path' savybė yra neteisinga",
   exceedMaxSize: "Failo dydis neturi viršyti {0}.",
   otherRequiredError: "Įveskite kitą reikšmę.",
-  uploadingFile:
-    "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
+  uploadingFile: "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
   loadingFile: "Prašome palaukti...",
   chooseFile: "Pasirinkti failą(us)...",
   noFileChosen: "Nepasirinktas joks failas",
+  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Ar norite ištrinti įrašą?",
   keyDuplicationError: "Ši reikšmė turėtų būti unikali.",
   addColumn: "Pridėti stulpelį",
   addRow: "Pridėti eilutę",
   removeRow: "Ištrinti",
+  //emptyRowsText: "There are no rows.",
   addPanel: "Pridėti naują",
   removePanel: "Ištrinti",
   choices_Item: "elementas",
   matrix_column: "Stulpelis",
   matrix_row: "Eilutė",
+  //multipletext_itemname: "text",
   savingData: "Rezultatai saugomi serveryje...",
   savingDataError: "Įvyko klaida ir mes negalėjome išsaugoti rezultatų.",
   savingDataSuccess: "Rezultatai buvo išsaugoti sėkmingai!",
@@ -69,6 +73,7 @@ export var lithuaniaSurveyStrings = {
   timerLimitPage: "Praleidote {0} iš {1} šiame puslapyje.",
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
   clearCaption: "Valyti",
+  //signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Pasirinkti failą",
   removeFileCaption: "Ištrinti šį failą",
   booleanCheckedLabel: "Taip",
@@ -76,6 +81,12 @@ export var lithuaniaSurveyStrings = {
   confirmRemoveFile: "Ar tikrai norite pašalinti šį failą: {0}?",
   confirmRemoveAllFiles: "Ar tikrai norite pašalinti visus failus?",
   questionTitlePatternText: "Klausimo pavadinimas",
+  //modalCancelButtonText: "Cancel",
+  //modalApplyButtonText: "Apply",
+  //filterStringPlaceholder: "Type to search...",
+  //emptyMessage: "No data to display",
+  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  //more: "More"
 };
 
 surveyLocalization.locales["lt"] = lithuaniaSurveyStrings;

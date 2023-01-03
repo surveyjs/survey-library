@@ -23,7 +23,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.onModelChanged();
       this.previousModel = this.getModel();
     }
-    this.beforeUpdate();
+    this.setIsRendering(true);
   }
 
   protected onModelChanged() {}
@@ -118,6 +118,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {
-    this.afterUpdate();
+    this.setIsRendering(false);
   }
 }

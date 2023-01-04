@@ -35,6 +35,7 @@ import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey_Questions");
 
@@ -5543,6 +5544,34 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
+QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question) => {
+      return question.name == "question1";
+    },
+  });
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2, 3]
+      },
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.equal(q1.visibleChoices.length, 3, "Show only 3 choice items");
+  settings.supportCreatorV2 = false;
+  CustomWidgetCollection.Instance.clear();
+});
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {

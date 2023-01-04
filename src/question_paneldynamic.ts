@@ -1064,7 +1064,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.panels[this.panelCount - 1];
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors());
+    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
   }
   private copyValue(src: any, dest: any) {
     for (var key in dest) {

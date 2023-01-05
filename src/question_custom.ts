@@ -6,7 +6,8 @@ import {
   ISurvey,
   ITextProcessor,
   IPanel,
-  IElement
+  IElement,
+  IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { PanelModel } from "./panel";
@@ -376,6 +377,19 @@ export abstract class QuestionCustomModelBase extends Question
       el.onFirstRendering();
     }
     super.onFirstRendering();
+  }
+  public getProgressInfo(): IProgressInfo {
+    let res = super.getProgressInfo();
+    if (!!this.getElement()) {
+      res = this.getElement().getProgressInfo();
+    }
+    if(this.isRequired && res.requiredQuestionCount == 0) {
+      res.requiredQuestionCount = 1;
+      if(!this.isEmpty()) {
+        res.answeredQuestionCount = 1;
+      }
+    }
+    return res;
   }
   protected abstract getElement(): SurveyElement;
   protected initElement(el: SurveyElement) {

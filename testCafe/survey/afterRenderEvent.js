@@ -117,7 +117,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(async () => {
     await prepare(framework);
   });
-  (framework === "angular" || framework === "react" ? test.only : test.skip)("Check that survey calls afterRender if model changed", async (t) => {
+  (framework === "angular" || framework === "react" ? test : test.skip)("Check that survey calls afterRender if model changed", async (t) => {
     await setSurvey({}, "model1");
     await t.expect(await checkResizeObserverExists("model1")).ok();
     await setSurvey({}, "model2");

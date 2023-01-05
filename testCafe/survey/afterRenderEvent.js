@@ -99,12 +99,14 @@ frameworks.forEach((framework) => {
           let [survey, setSurvey] = window["React"].useState(undefined);
           window.setSurvey = setSurvey;
           if(!!survey) {
+            // eslint-disable-next-line react/react-in-jsx-scope, no-undef, react/jsx-no-undef
             return <Survey.Survey model={survey}></Survey.Survey>;
           } else {
             return null;
           }
         };
         window["ReactDOM"].render(
+          // eslint-disable-next-line react/react-in-jsx-scope
           <App></App>,
           document.getElementById("surveyElement")
         );

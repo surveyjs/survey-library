@@ -4620,7 +4620,7 @@ export class SurveyModel extends SurveyElementCore
       return true;
     }
   }
-  private destroyResizeObserver() {
+  public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;

@@ -624,6 +624,7 @@ var orderJSON = {
     {
       name: "qty",
       title: "Qty",
+      isRequired: true,
       cellType: "dropdown",
       optionsCaption: "0",
       choices: [1, 2, 3, 4, 5],
@@ -1781,5 +1782,116 @@ QUnit.test("Single: isContentElement property", function (assert) {
     true,
     "Design is disabled for contentQuestion"
   );
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Single: matrixdropdown & getProgressInfo", function (assert) {
+  var json = {
+    name: "order",
+    questionJSON: orderJSON,
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "order", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var rows = q.contentQuestion.visibleRows;
+  assert.deepEqual(q.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 0,
+  });
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: text & getProgressInfo", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test1",
+    questionJSON: { type: "text" }
+  });
+  ComponentCollection.Instance.add({
+    name: "test2",
+    questionJSON: { type: "text", isRequired: true }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1", isRequired: true },
+      { type: "test2", name: "q2" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const q2 = <QuestionCustomModel>survey.getAllQuestions()[1];
+  assert.deepEqual(q1.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q1");
+  assert.deepEqual(q2.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: getProgressInfo", function (assert) {
+  ComponentCollection.Instance.add(<any>{
+    name: "test1",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+        isRequired: true
+      },
+      {
+        type: "text",
+        name: "lastName",
+      }]
+  });
+  ComponentCollection.Instance.add(<any>{
+    name: "test2",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+      },
+      {
+        type: "text",
+        name: "lastName",
+      }]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1", isRequired: true },
+      { type: "test1", name: "q2" },
+      { type: "test2", name: "q3" },
+      { type: "test2", name: "q4", isRequired: true }]
+  });
+  const q1 = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const q2 = <QuestionCustomModel>survey.getAllQuestions()[1];
+  const q3 = <QuestionCustomModel>survey.getAllQuestions()[2];
+  const q4 = <QuestionCustomModel>survey.getAllQuestions()[3];
+  assert.deepEqual(q1.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q1");
+  assert.deepEqual(q2.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q2");
+  assert.deepEqual(q3.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  }, "q3");
+  assert.deepEqual(q4.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q4");
   ComponentCollection.Instance.clear();
 });

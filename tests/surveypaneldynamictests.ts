@@ -4859,3 +4859,20 @@ QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop"
   assert.equal(rootPanel.panelCount, 1, "There is still one panel");
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
+QUnit.test("Skip unknown questions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          { "type": "textqqq", "name": "q1" },
+          { "type": "text", "name": "q2" },
+          { "name": "q3" }
+        ],
+        "panelCount": 1
+      }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panels[0].elements.length, 1, "There is one quesiton in panel");
+});

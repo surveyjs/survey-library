@@ -1914,8 +1914,9 @@ Serializer.addClass(
     {
       name: "templateElements",
       alternativeName: "questions",
+      baseClassName: "question",
       visible: false,
-      isLightSerializable: false,
+      isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
     {

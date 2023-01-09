@@ -8,7 +8,7 @@
       v-bind:aria-required="model.isRequired"
       v-bind:aria-label="model.caption.renderedHtml"
       v-bind:aria-invalid="model.hasErrors"
-      v-bind:aria-describedby="model.describeBy"
+      v-bind:aria-describedby="model.describedBy"
       :value="model.value"
       v-model="model.question.renderedValue"
       :disabled="model.readOnly"

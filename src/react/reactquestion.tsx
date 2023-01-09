@@ -16,7 +16,7 @@ import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
 
 export interface ISurveyCreator {
-  createQuestionElement(question: Question): JSX.Element;
+  createQuestionElement(question: Question): JSX.Element | null;
   renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
@@ -27,7 +27,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   public static renderQuestionBody(
     creator: ISurveyCreator,
     question: Question
-  ): JSX.Element {
+  ): JSX.Element | any {
     if (!question.isVisible) return null;
     var customWidget = question.customWidget;
     if (!customWidget) {
@@ -165,7 +165,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           role={question.ariaRole}
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
-          aria-labelledby={question.hasTitle ? question.ariaTitleId : null}
+          aria-labelledby={question.ariaLabelledBy}
         >
           {errorsAboveQuestion}
           {headerTop}
@@ -178,7 +178,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected wrapElement(element: JSX.Element): JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element;
+    let wrapper: JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
     }
@@ -186,7 +186,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   protected wrapQuestionContent(element: JSX.Element): JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element;
+    let wrapper: JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapQuestionContent(survey, element, this.question);
     }
@@ -196,10 +196,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderDescription(): JSX.Element {
-    var descriptionText = SurveyElementBase.renderLocString(
-      this.question.locDescription
-    );
-    return <div className={this.question.cssDescription}>{descriptionText}</div>;
+    return SurveyElementBase.renderQuestionDescription(this.question);
   }
   protected renderComment(cssClasses: any): JSX.Element {
     var commentText = SurveyElementBase.renderLocString(
@@ -261,7 +258,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
   }
-  private tooltipManager: TooltipManager;
+  private tooltipManager: TooltipManager | undefined;
   private tooltipRef: React.RefObject<HTMLDivElement>;
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -280,11 +277,11 @@ export class SurveyElementErrors extends ReactSurveyElement {
     }
   }
   private disposeTooltipManager() {
-    this.tooltipManager.dispose();
+    this.tooltipManager?.dispose();
     this.tooltipManager = undefined;
   }
   protected renderElement(): JSX.Element {
-    const errors = [];
+    const errors:Array<JSX.Element> = [];
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(
@@ -400,6 +397,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       <td
         ref={this.cellRef}
         className={this.itemCss}
+        colSpan={this.props.cell.colSpans}
         data-responsive-title={this.getHeaderText()}
         title={this.props.cell.getTitle()}
         style={style}
@@ -428,7 +426,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
-    let wrapper: JSX.Element;
+    let wrapper: JSX.Element | null = null;
     if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell);
     }

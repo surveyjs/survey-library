@@ -76,19 +76,24 @@ export class QuestionBooleanModel extends Question {
       : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
-    return this.showTitle || this.isValueEmpty(this.locLabel.text)
-      ? this.getLocalizableString("title")
-      : this.locLabel;
+    const original = this.getLocalizableString("title");
+    if (!this.isValueEmpty(this.locLabel.text) && (this.isValueEmpty(original.text) || this.isLabelRendered && !this.showTitle)) return this.locLabel;
+    return original;
+  }
+  public get labelRenderedAriaID(): string {
+    return this.isLabelRendered ? this.ariaTitleId : null;
   }
 
-  @property({ localizable: true })
-  label: string;
-
-  get locDisplayLabel(): LocalizableString {
-    if (this.locLabel.text) return this.locLabel;
-    return this.showTitle ? this.locLabel : this.locTitle;
+  //Obsolete
+  @property() showTitle: boolean;
+  //Obsolete, use title
+  @property({ localizable: true }) label: string;
+  get isLabelRendered(): boolean {
+    return this.titleLocation === "hidden";
   }
-
+  get canRenderLabelDescription(): boolean {
+    return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);
+  }
   /**
    * Gets or sets a text label that corresponds to a positive answer.
    *
@@ -125,10 +130,6 @@ export class QuestionBooleanModel extends Question {
   get locLabelFalse(): LocalizableString {
     return this.getLocalizableString("labelFalse");
   }
-
-  @property()
-  showTitle: boolean;
-
   /**
    * A value to save in survey results when respondents give a positive answer.
    *
@@ -148,18 +149,18 @@ export class QuestionBooleanModel extends Question {
   @property()
   valueFalse: any;
 
-  private getValueTrue(): any {
-    return this.valueTrue ? this.valueTrue : true;
+  public getValueTrue(): any {
+    return this.valueTrue !== undefined ? this.valueTrue : true;
   }
-  private getValueFalse(): any {
-    return this.valueFalse ? this.valueFalse : false;
+  public getValueFalse(): any {
+    return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
     if (this.isDefaultValueSet("false", this.valueFalse)) this.setBooleanValue(false);
     if (this.defaultValue == "indeterminate") this.setBooleanValue(null);
   }
-  private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any) : boolean {
+  private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any): boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -199,9 +200,9 @@ export class QuestionBooleanModel extends Question {
   }
 
   public get svgIcon(): string {
-    if(this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
-    if(this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
-    if(!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
+    if (this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
+    if (this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
 
@@ -248,7 +249,7 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
-    if(event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       preventDefaults(event);
       this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
       return;
@@ -259,11 +260,11 @@ export class QuestionBooleanModel extends Question {
 
   public getRadioItemClass(css: any, value: any): string {
     let className = undefined;
-    if(css.radioItem) {
+    if (css.radioItem) {
       className = css.radioItem;
     }
-    if(css.radioItemChecked && value === this.value) {
-      className = (className?className+" ":"") + css.radioItemChecked;
+    if (css.radioItemChecked && value === this.value) {
+      className = (className ? className + " " : "") + css.radioItemChecked;
     }
     return className;
   }
@@ -279,7 +280,8 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
-    { name: "label:text", serializationProperty: "locLabel" },
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
       name: "labelTrue:text",
       serializationProperty: "locLabelTrue",
@@ -288,7 +290,6 @@ Serializer.addClass(
       name: "labelFalse:text",
       serializationProperty: "locLabelFalse",
     },
-    "showTitle:boolean",
     "valueTrue",
     "valueFalse",
     { name: "renderAs", default: "default", visible: false },

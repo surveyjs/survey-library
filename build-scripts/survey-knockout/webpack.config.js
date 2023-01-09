@@ -1,6 +1,7 @@
 "use strict";
 
 const webpackCommonConfigCreator = require("../webpack.common");
+const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var path = require("path");
@@ -18,7 +19,15 @@ const config = {
       commonjs: "knockout",
       amd: "knockout"
     }
-  }
+  },
+  plugins: [
+    new DtsGeneratorPlugin({
+      tsConfigPath: "./build-scripts/survey-knockout/tsconfig.typing.ko.json",
+      filePath: "build/survey-knockout/survey-knockout.d.ts",
+      moduleName: "survey-knockout",
+      importName: "entries/knockout"
+    }),
+  ],
 };
 
 module.exports = function (options) {

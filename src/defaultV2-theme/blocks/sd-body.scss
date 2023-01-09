@@ -29,7 +29,17 @@
     .sd-body__navigation {
       padding: calcSize(2) var(--sd-page-vertical-padding);
     }
+    &.sd-body--with-timer {
+      max-width: calc(100% + var(--sd-timer-size) * ( -1  - 64 / 144 ) + 6 * #{$base-unit});
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
+}
+.sd-root-modern--mobile .sd-body.sd-body--with-timer.sd-body--responsive {
+  max-width: initial;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .sd-body__navigation.sd-action-bar {
@@ -41,6 +51,11 @@
 
 .sd-body__progress {
   margin-bottom: calcSize(4);
+}
+.sd-body__progress--top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .sd-body--empty {

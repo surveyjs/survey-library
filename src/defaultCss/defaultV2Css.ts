@@ -1,11 +1,31 @@
-import { surveyCss } from "./cssstandard";
+export var surveyCss: any = {
+  currentType: "",
+  getCss: function () {
+    var loc = this.currentType ? this[this.currentType] : defaultV2Css;
+    if (!loc) loc = defaultV2Css;
+    return loc;
+  },
+  getAvailableThemes: function() {
+    return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
+  }
+};
 
 export var defaultV2Css = {
   root: "sd-root-modern",
   rootMobile: "sd-root-modern--mobile",
+  rootReadOnly: "sd-root--readonly",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   body: "sd-body",
+  bodyWithTimer: "sd-body--with-timer",
+  clockTimerRoot: "sd-timer",
+  clockTimerRootTop: "sd-timer--top",
+  clockTimerRootBottom: "sd-timer--bottom",
+  clockTimerProgress: "sd-timer__progress",
+  clockTimerProgressAnimation: "sd-timer__progress--animation",
+  clockTimerTextContainer: "sd-timer__text-container",
+  clockTimerMinorText: "sd-timer__text--minor",
+  clockTimerMajorText: "sd-timer__text--major",
   bodyEmpty: "sd-body sd-body--empty",
   footer: "sd-footer sd-body__navigation sd-clearfix",
   title: "sd-title",
@@ -31,6 +51,7 @@ export var defaultV2Css = {
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
+    titleDisabled: "sd-element__title--disabled",
     titleOnExpand: "sd-panel__title--expanded",
     titleOnError: "sd-panel__title--error",
     titleBar: "sd-action-title-bar",
@@ -69,12 +90,15 @@ export var defaultV2Css = {
     separator: "sd-paneldynamic__separator",
     panelWrapper: "sd-paneldynamic__panel-wrapper",
     footer: "sd-paneldynamic__footer",
+    panelFooter: "sd-paneldynamic__panel-footer",
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder"
   },
   progress: "sd-progress sd-body__progress",
+  progressTop: "sd-body__progress--top",
+  progressBottom: "sd-body__progress--bottom",
   progressBar: "sd-progress__bar",
   progressText: "sd-progress__text",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
@@ -122,11 +146,12 @@ export var defaultV2Css = {
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
+    titleDisabled: "sd-element__title--disabled",
     titleBar: "sd-action-title-bar",
     requiredText: "sd-question__required-text",
     number: "sd-element__num",
     description: "sd-description sd-question__description",
-    descriptionUnderInput: "sd-description sd-question__description",
+    descriptionUnderInput: "sd-description sd-question__description sd-question__description--under-input",
     comment: "sd-input sd-comment",
     other: "sd-input sd-comment",
     required: "sd-question--required",
@@ -140,6 +165,7 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     composite: "sd-element--complex",
+    disabled: "sd-question--disabled",
   },
   image: {
     mainRoot: "sd-question sd-question--image",
@@ -306,10 +332,13 @@ export var defaultV2Css = {
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
     itemNoImageSvgIconId: "#icon-no-image",
     column: "sd-selectbase__column sd-imagepicker__column",
+    checkedItemDecorator: "sd-imagepicker__check-decorator",
+    checkedItemSvgIcon: "sd-imagepicker__check-icon",
+    checkedItemSvgIconId: "icon-v2check_24x24",
   },
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
-    tableWrapper: "sd-matrix",
+    tableWrapper: "sd-matrix sd-table-wrapper",
     root: "sd-table sd-matrix__table",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
@@ -338,6 +367,7 @@ export var defaultV2Css = {
     root: "sd-table sd-matrixdropdown",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
+    tableWrapper: "sd-table-wrapper",
     rootAlternateRows: "sd-table--alternate-rows",
     cell: "sd-table__cell",
     row: "sd-table__row",
@@ -360,6 +390,7 @@ export var defaultV2Css = {
     rootScroll: "sd-question--scroll",
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
+    tableWrapper: "sd-table-wrapper",
     cell: "sd-table__cell",
     row: "sd-table__row",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -414,7 +445,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     onError: "sd-input--error"
   },
-  expression: "",
+  expression: "sd-expression",
   file: {
     root: "sd-file",
     other: "sd-input sd-comment",
@@ -489,7 +520,7 @@ export var defaultV2Css = {
     rootDesignMode: "sv-ranking--design-mode",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
-    itemIndex: "sv-ranking-item__index",
+    itemIndex: "sv-ranking-item__index sd-ranking-item__index",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
@@ -564,4 +595,5 @@ export var defaultV2Css = {
   },
 };
 
-surveyCss["defaultV2"] = defaultV2Css;
+export const defaultV2ThemeName = "defaultV2";
+surveyCss[defaultV2ThemeName] = defaultV2Css;

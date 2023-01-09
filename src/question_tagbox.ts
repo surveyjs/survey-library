@@ -9,6 +9,8 @@ import { EventBase } from "./base";
 
 /**
  * A Model for a tagbox question
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))
  */
 export class QuestionTagboxModel extends QuestionCheckboxModel {
   dropdownListModel: DropdownMultiSelectListModel;
@@ -16,7 +18,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("cleanCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
   }
 
   protected getDefaultItemComponent(): string {
@@ -62,6 +64,18 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   })
   hideSelectedItems: boolean;
+  /**
+   * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
+   * @see choicesLazyLoadPageSize
+   * @see SurveyModel.onChoicesLazyLoad
+   */
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  /**
+   * Specifies the number of choice items to load at a time when choices are loaded on demand.
+   * @see choicesLazyLoadEnabled
+   * @see SurveyModel.onChoicesLazyLoad
+   */
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -76,18 +90,21 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.getLocalizableString("placeholder");
   }
 
-  public get cleanCaption(): string {
-    return this.getLocalizableStringText("cleanCaption");
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
   }
-  public set cleanCaption(value: string) {
-    this.setLocalizableStringText("cleanCaption", value);
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
   }
-  get locCleanCaption(): LocalizableString {
-    return this.getLocalizableString("cleanCaption");
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {
     return "tagbox";
+  }
+  public get ariaRole(): string {
+    return "combobox";
   }
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
@@ -128,6 +145,8 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean", default: true, visible: false },
     { name: "itemComponent", visible: false, default: "" }

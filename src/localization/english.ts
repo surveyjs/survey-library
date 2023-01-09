@@ -15,7 +15,7 @@ export var englishStrings = {
   indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "Answered {0}/{1} questions",
-  emptySurvey: "There is no visible page or question in the survey.",
+  emptySurvey: "The survey doesn't contain visible pages or questions.",
   completingSurvey: "Thank you for completing the survey",
   completingSurveyBefore:
     "Our records show that you have already completed this survey.",
@@ -77,7 +77,6 @@ export var englishStrings = {
     "You have spent {0} of {1} on this page and {2} of {3} in total.",
   timerLimitPage: "You have spent {0} of {1} on this page.",
   timerLimitSurvey: "You have spent {0} of {1} in total.",
-  cleanCaption: "Clean",
   clearCaption: "Clear",
   signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Choose file",

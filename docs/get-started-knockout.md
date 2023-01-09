@@ -1,6 +1,10 @@
+---
+title: Knockout Form Library | Getting Started Guide
+description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Knockout application.
+---
 # Add a Survey to a Knockout Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a Knockout application. To add a survey to your Knockout application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Knockout application. To add a survey to your Knockout application, follow the steps below:
 
 - [Link SurveyJS Resources](#link-surveyjs-resources)
 - [Create a Model](#create-a-model)
@@ -15,13 +19,13 @@ As a result, you will create a survey displayed below:
 </p>
 <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">Get Started with SurveyJS - Knockout</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout (linkStyle))
 
 ## Link SurveyJS Resources
 
-The SurveyJS Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
+The SurveyJS Form Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Insert links to the scripts and style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
 
@@ -68,14 +72,14 @@ const surveyJson = {
 };
 ```
 
-To instantiate a model, pass the model schema to the `SurveyKnockout.Survey` constructor as shown in the code below. The model instance will be later used to render the survey.
+To instantiate a model, pass the model schema to the [`Survey.Model`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model) constructor as shown in the code below. The model instance will be later used to render the survey.
 
 ```js
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -117,25 +121,29 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 ```
 </details> 
 
 ## Render the Survey
 
-A survey should be rendered in a page element. Add this element to your page:
+A survey should be rendered in a `<survey>` page element. Bind its `survey` parameter to a view model property that contains the survey model (`model` in the code below):
 
 ```html
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 ```
 
-To render a survey in the page element, call the `render(containerId)` method on the model instance you created in the previous step:
+To render a survey in the page element, activate Knockout bindings:
 
 ```js
+const survey = new Survey.Model(surveyJson);
+
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 
@@ -144,7 +152,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -165,7 +173,7 @@ If you replicate the code correctly, you should see the following survey:
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 </html>
 ```
@@ -187,10 +195,12 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 </details>
@@ -222,7 +232,7 @@ function saveSurveyResults(url, json) {
     request.send(JSON.stringify(json));
 }
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 survey.onComplete.add(surveyComplete);
 ```
@@ -235,7 +245,7 @@ function alertResults (sender) {
     alert(results);
 }
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 survey.onComplete.add(alertResults);
 ```
@@ -245,7 +255,7 @@ survey.onComplete.add(alertResults);
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```html
 <!DOCTYPE html>
@@ -266,7 +276,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
     <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <div id="surveyContainer"></div>
+    <survey params="survey: model"></survey>
 </body>
 </html>
 ```
@@ -288,7 +298,7 @@ const surveyJson = {
     }]
 };
 
-const survey = new SurveyKnockout.Survey(surveyJson);
+const survey = new Survey.Model(surveyJson);
 
 function alertResults (sender) {
     const results = JSON.stringify(sender.data);
@@ -298,12 +308,14 @@ function alertResults (sender) {
 survey.onComplete.add(alertResults);
 
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/knockout (linkStyle))
 
 ## Further Reading
 

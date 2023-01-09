@@ -6,6 +6,7 @@
 
 @import "./common-styles/window.scss";
 @import "./common-styles/sv-brand-info.scss";
+@import "./common-styles/sv-drag-drop.scss";
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
@@ -31,6 +32,12 @@ $base-line-height: 2em;
 $slider-color: $body-background-color;
 $label-disabled-color: rgba(64, 64, 64, 0.5);
 
+$progress-buttons-line-color: #d4d4d4;
+$text-input-color: #6d7072;
+$disabled-switch-color: #9f9f9f;
+$background-dim: #f3f3f3;
+$foreground-disabled: #161616;
+
 body {
   --sv-default-mark: true;
 }
@@ -49,19 +56,19 @@ body {
 }
 
 .sv_main {
-  background-color: $body-container-background-color;
+  background-color: var(--body-container-background-color, $body-container-background-color);
 
   hr {
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid var(--border-color, $border-color);
   }
 
   input[type="button"],
   button {
-    color: $body-background-color;
-    background-color: $main-color;
+    color: var(--body-background-color, $body-background-color);
+    background-color: var(--main-color, $main-color);
 
     &:hover {
-      background-color: $main-hover-color;
+      background-color: var(--main-hover-color, $main-hover-color);
     }
   }
 
@@ -74,19 +81,19 @@ body {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    border: 1px solid $border-color;
-    color: $text-color;
-    background-color: $inputs-background-color;
+    border: 1px solid var(--border-color, $border-color);
+    color: var(--text-color, $text-color);
+    background-color: var(--inputs-background-color, $inputs-background-color);
     opacity: 1;
     &:focus {
-      border: 1px solid $main-color;
+      border: 1px solid var(--main-color, $main-color);
     }
   }
 
   .sv_q_dropdown_control {
     display: flex;
     justify-content: space-between;
-    padding-right: 1em;
+    padding-inline-end: 1em; //padding-right: 1em;
   }
   .sv_q_dropdown__value {
     overflow: hidden;
@@ -108,7 +115,7 @@ body {
 
   .sv_q_dropdown__filter-string-input {
     position: absolute;
-    left: 0;
+    inset-inline-start: 0; //left: 0;
     top: 0;
     height: 100%;
     width: 100%;
@@ -157,69 +164,71 @@ body {
     position: relative;
     display: flex;
     border-radius: 2px;
-    color: white;
-    background-color: rgb(26, 179, 148);
+    color: var(--body-background-color, $body-background-color);
+    background-color: var(--main-color, $main-color);
   }
-  .sv_q_tagbox-item_clean-button-svg use {
-    fill: white;
+  .sv_q_tagbox-item_clean-button-svg {
+    fill: var(--body-background-color, $body-background-color);
+    width: 16px;
+    height: 16px;
   }
   .sv_select_wrapper {
-    background-color: $body-background-color;
+    background-color: var(--body-background-color, $body-background-color);
     &:before {
-      background-color: $main-color;
+      background-color: var(--main-color, $main-color);
     }
   }
 
   .sv_header {
-    color: $header-color;
+    color: var(--header-color, $header-color);
   }
 
   .sv_custom_header {
-    background-color: $header-background-color;
+    background-color: var(--header-background-color, $header-background-color);
   }
 
   .sv_container {
-    color: $text-color;
+    color: var(--text-color, $text-color);
   }
 
   .sv_body {
-    background-color: $body-background-color;
-    border-top: 2px solid $main-color;
+    background-color: var(--body-background-color, $body-background-color);
+    border-top: 2px solid var(--main-color, $main-color);
   }
 
   .sv_progress {
-    background-color: $border-color;
+    background-color: var(--border-color, $border-color);
     margin-bottom: 2em;
   }
 
   .sv_progress_bar {
-    background-color: $main-color;
+    background-color: var(--main-color, $main-color);
   }
 
   .sv_p_root {
     & > .sv_row {
-      border-bottom: 1px solid $border-color;
+      border-bottom: 1px solid var(--border-color, $border-color);
 
       &:nth-child(odd) {
-        background-color: $body-background-color;
+        background-color: var(--body-background-color, $body-background-color);
       }
       &:nth-child(even) {
-        background-color: $body-container-background-color;
+        background-color: var(--body-container-background-color, $body-container-background-color);
       }
     }
   }
 
   .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
-    border: 1px solid $error-color;
-    background-color: $error-background-color;
-    color: $error-color;
+    border: 1px solid var(--error-color, $error-color);
+    background-color: var(--error-background-color, $error-background-color);
+    color: var(--error-color, $error-color);
 
     & + input,
     & + textarea,
     & + .sv_select_wrapper select {
-      border: 1px solid $error-color;
+      border: 1px solid var(--error-color, $error-color);
       &:focus {
-        outline: $error-color auto 5px;
+        outline: var(--error-color, $error-color) auto 5px;
       }
     }
   }
@@ -228,7 +237,7 @@ body {
   table.sv_q_matrix_dropdown,
   table.sv_q_matrix_dynamic {
     tr {
-      border-bottom: 1px solid $border-color;
+      border-bottom: 1px solid var(--border-color, $border-color);
     }
   }
 
@@ -262,55 +271,55 @@ body {
     vertical-align: middle;
   }
   .sv_q_m_cell_selected {
-    color: $body-background-color;
-    background-color: $main-hover-color;
+    color: var(--body-background-color, $body-background-color);
+    background-color: var(--main-hover-color, $main-hover-color);
   }
 
   .sv_q_rating_item {
     &.active {
       .sv_q_rating_item_text {
-        background-color: $main-hover-color;
-        border-color: $main-hover-color;
-        color: $body-background-color;
+        background-color: var(--main-hover-color, $main-hover-color);
+        border-color: var(--main-hover-color, $main-hover-color);
+        color: var(--body-background-color, $body-background-color);
       }
     }
     .sv_q_rating_item_text {
-      border: 1px solid $border-color;
+      border: 1px solid var(--border-color, $border-color);
       &:hover {
-        border: 1px solid $main-hover-color;
+        border: 1px solid var(--main-hover-color, $main-hover-color);
       }
     }
   }
 
   .sv_q_imgsel.checked label > div {
-    background-color: $main-color;
+    background-color: var(--main-color, $main-color);
   }
 
   .sv_q_file_remove:hover {
-    color: $main-color;
+    color: var(--main-color, $main-color);
   }
   .sv-boolean__switch {
-    background-color: $main-color;
-    outline-color: $main-color;
+    background-color: var(--main-color, $main-color);
+    outline-color: var(--main-color, $main-color);
   }
   .sv-boolean__slider {
-    background-color: $slider-color;
+    background-color: var(--slider-color, $slider-color);
   }
   .sv-boolean__label--disabled {
-    color: $label-disabled-color;
+    color: var(--label-disabled-color, $label-disabled-color);
   }
 }
 
 .sv_main {
   position: relative;
   width: 100%;
-  //background-color: $body-container-background-color;
-  font-family: $font-family, "Helvetica Neue", Arial, sans-serif;
-  font-size: $font-size;
+  //background-color: var(--body-container-background-color, $body-container-background-color);
+  font-family: var(--font-family, $font-family);
+  font-size: var(--font-size, $font-size);
 
   hr {
     border: none;
-    //border-bottom: 1px solid $header-background-color;
+    //border-bottom: 1px solid var(--header-background-color, $header-background-color);
   }
 
   input[type="button"],
@@ -320,9 +329,9 @@ body {
     -moz-appearance: none;
     font-size: 0.85em;
     font-weight: bold;
-    //color: $body-background-color;
-    line-height: $base-line-height;
-    //background-color: $main-color;
+    //color: var(--body-background-color, $body-background-color);
+    line-height: var(--base-line-height, $base-line-height);
+    //background-color: var(--main-color, $main-color);
     border: none;
     min-width: 100px;
     cursor: pointer;
@@ -330,20 +339,20 @@ body {
     border-radius: 2px;
 
     &:hover {
-      //background-color: $main-hover-color;
+      //background-color: var(--main-hover-color, $main-hover-color);
     }
   }
 
   .sv_custom_header {
     position: absolute;
     width: 100%;
-    height: $header-height;
+    height: var(--header-height, $header-height);
     max-height: 275px;
-    //background-color: $header-background-color;
+    //background-color: var(--header-background-color, $header-background-color);
   }
   .sv_container {
     position: relative;
-    //color: $text-color;
+    //color: var(--text-color, $text-color);
   }
 
   .sv_header {
@@ -367,19 +376,19 @@ body {
     }
   }
   .sv_body {
-    //background-color: $body-background-color;
+    //background-color: var(--body-background-color, $body-background-color);
     padding: 1em 1em 1.6428em 1em;
-    //border-top: 2px solid $main-color;
+    //border-top: 2px solid var(--main-color, $main-color);
   }
 
   .sv_progress {
     height: 0.3em;
-    //background-color: $header-background-color;
+    //background-color: var(--header-background-color, $header-background-color);
 
     .sv_progress_bar {
       height: 100%;
       min-width: 100px;
-      //background-color: $main-color;
+      //background-color: var(--main-color, $main-color);
       position: relative;
       margin-top: 2em;
       > span {
@@ -407,14 +416,14 @@ body {
       margin: 0 0 1.5em 0;
     }
     & > .sv_row {
-      //border-bottom: 1px solid $header-background-color;
+      //border-bottom: 1px solid var(--header-background-color, $header-background-color);
       padding: 0;
 
       &:nth-child(odd) {
-        //background-color: $body-background-color;
+        //background-color: var(--body-background-color, $body-background-color);
       }
       &:nth-child(even) {
-        //background-color: $body-container-background-color;
+        //background-color: var(--body-container-background-color, $body-container-background-color);
       }
     }
 
@@ -425,7 +434,7 @@ body {
     }
 
     .sv_q--disabled .sv_q_title {
-      color: $label-disabled-color;
+      color: var(--label-disabled-color, $label-disabled-color);
     }
 
     .sv_q--disabled .sv_q_file .sv_q_file_choose_button {
@@ -440,7 +449,7 @@ body {
       .sv_q_checkbox_inline,
       .sv_q_radiogroup_inline,
       .sv_q_imagepicker_inline {
-        line-height: $base-line-height;
+        line-height: var(--base-line-height, $base-line-height);
         display: inline-block;
       }
     }
@@ -464,18 +473,18 @@ body {
       }
 
       .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
-        //border: 1px solid $error-color;
-        //background-color: $error-background-color;
+        //border: 1px solid var(--error-color, $error-color);
+        //background-color: var(--error-background-color, $error-background-color);
         margin: 1em 0;
-        //color: $error-color;
+        //color: var(--error-color, $error-color);
         padding: 1em;
 
         & + input,
         & + textarea,
         & + .sv_select_wrapper select {
-          //border: 1px solid $error-color;
+          //border: 1px solid var(--error-color, $error-color);
           &:focus {
-            //outline: $error-color auto 5px;
+            //outline: var(--error-color auto 5px, $error-color auto 5px);
           }
         }
       }
@@ -489,17 +498,17 @@ body {
         position: relative;
         width: 100%;
         box-sizing: border-box;
-        //border: 1px solid $header-background-color;
+        //border: 1px solid var(--header-background-color, $header-background-color);
         font-size: 1em;
-        line-height: $base-line-height;
-        //color: $text-color;
-        padding-left: 1em;
-        //background-color: $inputs-background-color;
+        line-height: var(--base-line-height, $base-line-height);
+        //color: var(--text-color, $text-color);
+        padding-inline-start: 1em; //padding-left: 1em;
+        //background-color: var(--inputs-background-color, $inputs-background-color);
 
         &:focus {
-          //border-color: $main-color;
+          //border-color: var(--main-color, $main-color);
           outline: none;
-          //border: 1px solid $main-color;
+          //border: 1px solid var(--main-color, $main-color);
         }
       }
 
@@ -524,7 +533,7 @@ body {
         width: 100%;
         position: relative;
         display: inline-block;
-        //background-color: $body-background-color;
+        //background-color: var(--body-background-color, $body-background-color);
 
         select {
           display: block;
@@ -542,10 +551,9 @@ body {
         &:before {
           padding: 1em;
           position: absolute;
-          right: 1px;
-          right: 0;
+          inset-inline-end: 0; //right
           top: 1px;
-          //background-color: $main-color;
+          //background-color: var(--main-color, $main-color);
           background-image: url("data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCXZpZXdCb3g9IjAgMCAzNCAzNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzQgMzQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCgk8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCQkuc3QwIHsNCgkJCWZpbGw6ICNGRkZGRkY7DQoJCX0NCgk8L3N0eWxlPg0KCTxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMTIsMTYgMTQsMTQgMTcsMTcgMjAsMTQgMjIsMTYgMTcsMjEgIiAvPg0KPC9zdmc+");
           @include svg-icon();
           //height: 2em;
@@ -560,7 +568,7 @@ body {
       }
 
       input[type="color"] {
-        min-height: $base-line-height;
+        min-height: var(--base-line-height, $base-line-height);
         padding: 0;
       }
 
@@ -575,7 +583,7 @@ body {
         margin-top: -0.1em;
 
         &:focus {
-          outline: 1px dotted $main-color;
+          outline: 1px dotted var(--main-color, $main-color);
         }
       }
 
@@ -601,10 +609,10 @@ body {
 
       // .sv_q_radiogroup,
       // .sv_q_checkbox {
-      //   $total-columns: 5;
+      //   var(--total-columns: 5, $total-columns: 5);
       //   @for $i from 1 through $total-columns {
       //     &.sv-q-col-#{$i} {
-      //       width: 100% / $i;
+      //       width: 100% / var(--i, $i);
       //       display: inline-block;
       //       @media only screen and (max-width: 480px) {
       //         width: 100%;
@@ -620,7 +628,7 @@ body {
       .sv_q_checkbox_inline,
       .sv_q_radiogroup_inline,
       .sv_q_imagepicker_inline {
-        line-height: $base-line-height;
+        line-height: var(--base-line-height, $base-line-height);
         display: inline-block;
       }
 
@@ -640,7 +648,7 @@ body {
           padding: 0.3em 2em;
         }
         tr {
-          //border-bottom: 1px solid $header-background-color;
+          //border-bottom: 1px solid var(--header-background-color, $header-background-color);
         }
       }
       &.sv_q_matrix {
@@ -691,7 +699,7 @@ body {
     }
 
     fieldset.sv_qcbc {
-      line-height: $base-line-height;
+      line-height: var(--base-line-height, $base-line-height);
       padding-top: 0.1em;
     }
 
@@ -711,7 +719,7 @@ body {
     }
 
     .sv_q_rating {
-      line-height: $base-line-height;
+      line-height: var(--base-line-height, $base-line-height);
 
       .sv_q_rating_item {
         cursor: pointer;
@@ -728,20 +736,20 @@ body {
 
         &.active {
           .sv_q_rating_item_text {
-            //background-color: $main-hover-color;
-            //border-color: $main-hover-color;
-            //color: $body-background-color;
+            //background-color: var(--main-hover-color, $main-hover-color);
+            //border-color: var(--main-hover-color, $main-hover-color);
+            //color: var(--body-background-color, $body-background-color);
           }
         }
         .sv_q_rating_item_text {
           display: inline-block;
-          min-width: $base-line-height;
+          min-width: var(--base-line-height, $base-line-height);
           padding: 0 0.3em;
           margin-left: -1px;
-          //border: 1px solid $header-background-color;
+          //border: 1px solid var(--header-background-color, $header-background-color);
           text-align: center;
           &:hover {
-            //border: 1px solid $main-color;
+            //border: 1px solid var(--main-color, $main-color);
           }
         }
         &:not(:nth-child(2)) {
@@ -762,7 +770,7 @@ body {
   .sv_nav {
     display: block;
     padding: 1em 0;
-    min-height: $base-line-height;
+    min-height: var(--base-line-height, $base-line-height);
     .sv_nav_btn {
       float: right;
       margin: 0 16px;
@@ -796,13 +804,13 @@ body {
   }
 }
 .sv_main.sv_main .sv-action-bar-item.sv_edit_btn {
-  color: $body-background-color;
-  background-color: $main-color;
+  color: var(--body-background-color, $body-background-color);
+  background-color: var(--main-color, $main-color);
   float: left;
   margin-bottom: 7px;
 }
 .sv_main.sv_main .sv-action-bar-item.sv_edit_btn:hover {
-  background-color: $main-hover-color;
+  background-color: var(--main-hover-color, $main-hover-color);
 }
 
 // https://github.com/surveyjs/survey-library/issues/2559
@@ -890,3 +898,6 @@ body {
     transform: translate(0, 0);
   }
 }
+
+@import "./main-default-theme.scss";
+@import "./default-styles.scss";

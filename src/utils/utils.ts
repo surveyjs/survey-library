@@ -1,6 +1,5 @@
 import { settings } from "./../settings";
-import { Serializer } from "../jsonobject";
-import { Base } from "src/base";
+
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
@@ -154,14 +153,16 @@ function createSvg(
   );
 
   let titleElement = svgElem.getElementsByTagName("title")[0];
-  if(!title) {
-    if(!!titleElement) {
+  if (!title) {
+    if (!!titleElement) {
       svgElem.removeChild(titleElement);
     }
     return;
   } else {
-    titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    svgElem.appendChild(titleElement);
+    if (!titleElement) {
+      titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      svgElem.appendChild(titleElement);
+    }
   }
   titleElement.textContent = title;
 }
@@ -307,6 +308,16 @@ function mergeValues(src: any, dest: any) {
   }
 }
 
+export class Logger {
+  private _result = "";
+  public log(action: string) {
+    this._result += "->" + action;
+  }
+  public get result() {
+    return this._result;
+  }
+}
+
 export {
   mergeValues,
   getElementWidth,
@@ -326,5 +337,5 @@ export {
   increaseHeightByContent,
   getOriginalEvent,
   preventDefaults,
-  findParentByClassNames
+  findParentByClassNames,
 };

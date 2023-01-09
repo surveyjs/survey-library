@@ -38,6 +38,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
+        npm run build-plugins
       displayName: "Build Core"
 
 
@@ -62,6 +63,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
+        npm run build-plugins
         npm run build_knockout_ui
         npm run build_knockout_prod
       displayName: "Build Knockout"
@@ -98,6 +100,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
+        npm run build-plugins
         npm run build_react_ui
         npm run build_react_prod
       displayName: "Build React"
@@ -129,6 +132,7 @@ jobs:
         cd $(Build.SourcesDirectory)/survey-library
         npm run build_core
         npm run build_i18n
+        npm run build-plugins
         npm run build_vue_ui
         npm run build_vue_prod
       displayName: "Build Vue"

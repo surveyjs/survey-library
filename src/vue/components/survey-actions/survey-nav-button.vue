@@ -15,7 +15,7 @@ import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
 import { Action } from "survey-core";
 import { Base } from "survey-core";
-import { BaseVue } from "src/vue/base";
+import { BaseVue } from "../../base";
 
 @Component
 export class SurveyNavigationButton extends BaseVue {

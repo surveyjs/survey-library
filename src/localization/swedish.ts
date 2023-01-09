@@ -75,7 +75,6 @@ export var swedishSurveyStrings = {
     "Du har spenderat {0} av {1} på den här sidan och {2} av {3} totalt.",
   timerLimitPage: "Du har spenderat {0} av {1} på den här sidan.",
   timerLimitSurvey: "Du har spenderat {0} av {1} totalt.",
-  cleanCaption: "Rensa",
   clearCaption: "Klar",
   signaturePlaceHolder: "Signera här",
   chooseFileCaption: "Välj fil",

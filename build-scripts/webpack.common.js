@@ -9,8 +9,8 @@ var TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var DashedNamePlugin = require("./webpack-dashed-name");
+var CamelCaseNamePlugin = require("./webpack-camel-name");
 
-var rimraf = require("rimraf");
 var packageJsonWithVersion = require("../package.json");
 var fs = require("fs");
 var replace = require("replace-in-file");
@@ -19,7 +19,7 @@ var svgStoreUtils = require(path.resolve(
   "../node_modules/webpack-svgstore-plugin/src/helpers/utils.js"
 ));
 
-module.exports = function (options, packageJson, chunkName) {
+module.exports = function (options, packageJson, chunkName, buildFolderName) {
   packageJson.version = packageJsonWithVersion.version;
   const today = new Date();
   const year = today.getFullYear();
@@ -29,8 +29,7 @@ module.exports = function (options, packageJson, chunkName) {
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
   ].join("\n");
 
-  var buildPath = __dirname + "/../build/" + packageJson.name + "/";
-  var dts_generator = __dirname + "/" + packageJson.name + "/d_ts_generator.js";
+  var buildPath = __dirname + "/../build/" + (buildFolderName || packageJson.name) + "/";
   var isProductionBuild = options.buildType === "prod";
 
   function createSVGBundle() {
@@ -96,11 +95,6 @@ module.exports = function (options, packageJson, chunkName) {
       console.log("Build started... good luck!");
     } else if (1 == percentage) {
       if (isProductionBuild) {
-        console.log("Generating d.ts file: " + dts_generator);
-        require(dts_generator);
-
-        rimraf.sync(buildPath + "typings");
-
         if (fs.existsSync(buildPath + "survey.vue.js"))
           fs.copyFileSync(
             buildPath + "survey.vue.js",
@@ -122,12 +116,6 @@ module.exports = function (options, packageJson, chunkName) {
 
   var config = {
     mode: isProductionBuild ? "production" : "development",
-    entry: {
-      [packageName]: path.resolve(
-        __dirname,
-        "../src/entries/" + options.platform + ".ts"
-      ),
-    },
     resolve: {
       extensions: [".ts", ".js", ".tsx", ".scss"],
       plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
@@ -141,10 +129,6 @@ module.exports = function (options, packageJson, chunkName) {
           test: /\.(ts|tsx)$/,
           loader: "ts-loader",
           options: {
-            compilerOptions: {
-              declaration: isProductionBuild,
-              outDir: buildPath + "typings/",
-            },
             //transpileOnly: options.buildType !== "prod",
             appendTsSuffixTo: [/\.vue$/],
           },
@@ -214,7 +198,6 @@ module.exports = function (options, packageJson, chunkName) {
       umdNamedDefine: true,
     },
     plugins: [
-      new webpack.ProgressPlugin(percentage_handler),
       new webpack.DefinePlugin({
         "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version),
@@ -229,19 +212,32 @@ module.exports = function (options, packageJson, chunkName) {
       }),
       new RemoveCoreFromName(),
       new FixStyleOnlyEntriesPlugin(),
-      new DashedNamePlugin()
+      new DashedNamePlugin(),
+      new CamelCaseNamePlugin()
     ],
   };
 
+  if(!!options.platform) {
+    config.plugins.unshift(new webpack.ProgressPlugin(percentage_handler));
+    config.entry = {
+      [packageName]: path.resolve(
+        __dirname,
+        "../src/entries/" + options.platform + ".ts"
+      ),
+    };
+  }
+
   if (isProductionBuild) {
-    config.plugins.push(
-      new GenerateJsonPlugin(
-        /*buildPath +*/ "package.json",
-        packageJson,
-        undefined,
-        2
-      )
-    );
+    if(!!options.platform) {
+      config.plugins.push(
+        new GenerateJsonPlugin(
+          /*buildPath +*/ "package.json",
+          packageJson,
+          undefined,
+          2
+        )
+      );
+    }
   } else {
     config.devtool = "inline-source-map";
     config.plugins = config.plugins.concat([

@@ -4,6 +4,7 @@ import { DragDropChoices } from "../src/dragdrop/choices";
 import { DragDropRankingChoices } from "../src/dragdrop/ranking-choices";
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
+import { ImageItemValue } from "../src/question_imagepicker";
 import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { DragDropCore } from "../src/dragdrop/core";
@@ -559,4 +560,22 @@ QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic 2", function (
   ddHelper["calcTargetRowMultiple"]();
 
   assert.ok(ddHelper.dropTarget.__page);
+});
+
+QUnit.test("createImagePickerShortcut", function (assert) {
+  let ddHelper = new DragDropChoices();
+  let item = new ImageItemValue("a");
+
+  const createImagePickerShortcut = ddHelper["createImagePickerShortcut"];
+  const testElement = document.body.appendChild(document.createElement("div"));
+  testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><div class=\"sd-imagepicker__no-image\"></div><div class=\"svc-image-item-value-controls\"></div>";
+  const draggedElement1 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
+  let result1 = createImagePickerShortcut(item, "", draggedElement1, null);
+  assert.equal(result1.querySelectorAll(".sd-imagepicker__no-image").length, 1);
+
+  item.imageLink = "#";
+  testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><img src=\"#\"></div><div class=\"svc-image-item-value-controls\"></div>";
+  const draggedElement2 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
+  let result2 = createImagePickerShortcut(item, "", draggedElement2, null);
+  assert.equal(result2.querySelectorAll("img").length, 1);
 });

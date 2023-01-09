@@ -34,7 +34,9 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 }
 
 /**
- * A Model for signature pad question.
+ * A class that describes the Signature Page question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
@@ -127,13 +129,18 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   /**
-   * Use it to set the specific dataFormat for the signature pad image data.
-   * formats: "" (default) - png, "image/jpeg" - jpeg, "image/svg+xml" - svg
+   * Specifies the format in which to store the signature image.
+   *
+   * Possible values:
+   *
+   * - `""` (default) - PNG
+   * - `"image/jpeg"` - JPEG
+   * - `"image/svg+xml"` - SVG
    */
   @property({ defaultValue: "" }) dataFormat: string;
 
   /**
-   * Use it to set the specific width for the signature pad.
+   * Specifies the width of the signature area. Accepts positive integer numbers.
    */
   public get signatureWidth(): number {
     return this.getPropertyValue("signatureWidth");
@@ -142,7 +149,7 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("signatureWidth", val);
   }
   /**
-   * Use it to set the specific height for the signature pad.
+   * Specifies the height of the signature area. Accepts positive integer numbers.
    */
   public get signatureHeight(): number {
     return this.getPropertyValue("signatureHeight");
@@ -160,7 +167,9 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   /**
-   * Use it to clear content of the signature pad.
+   * Specifies whether to display a button that clears the signature area.
+   *
+   * Default value: `true`
    */
   public get allowClear(): boolean {
     return this.getPropertyValue("allowClear");
@@ -172,7 +181,8 @@ export class QuestionSignaturePadModel extends Question {
     return !this.isInputReadOnly && this.allowClear;
   }
   /**
-   * Use it to set pen color for the signature pad.
+   * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * @see backgroundColor
    */
   public get penColor(): string {
     return this.getPropertyValue("penColor");
@@ -181,7 +191,8 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("penColor", val);
   }
   /**
-   * Use it to set background color for the signature pad.
+   * Specifies a color for the signature area background.  Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * @see penColor
    */
   public get backgroundColor(): string {
     return this.getPropertyValue("backgroundColor");
@@ -189,9 +200,6 @@ export class QuestionSignaturePadModel extends Question {
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
   }
-  /**
-   * The clear signature button caption.
-   */
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
   }

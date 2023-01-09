@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "1.9.53",
+  "version": "1.9.67",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -21,9 +21,7 @@
     "@angular/cdk": "*",
     "@angular/core": "*",
     "@angular/forms": "*",
-    "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.11.4",
     "survey-core": "^1.9.46"
   },
   "devDependencies": {
@@ -62,6 +60,6 @@
     "build:example": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test survey-angular-ui",
     "test:single": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
-    "release": "standard-version --message \"Release: %s [skip ci]\" "
+    "release": "standard-version --message \"Release: %s [azurepipelines skip]\" "
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { AfterViewInit, Component, Input } from "@angular/core";
 import { ListModel, Action } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"],
 })
 
-export class ListItemComponent extends BaseAngular {
+export class ListItemComponent extends BaseAngular implements AfterViewInit {
   @Input() element: any;
   @Input() model!: Action;
   @Input() listModel!: ListModel;
@@ -33,6 +33,10 @@ export class ListItemComponent extends BaseAngular {
 
   getModel() {
     return this.model;
+  }
+
+  ngAfterViewInit(): void {
+    this.listModel.onLastItemRended(this.model);
   }
 }
 

@@ -118,6 +118,7 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
   assert.equal(Helpers.isTwoValueEquals("Abc", "aBc"), true, "CaseSensitive (false) case 2");
   assert.equal(Helpers.isTwoValueEquals("abc", "ABC"), true, "CaseSensitive (false) case 3");
   assert.equal(Helpers.isTwoValueEquals("abc ", " ABC"), true, "CaseSensitive and trim");
+  assert.equal(Helpers.isTwoValueEquals({ text1: "Text1", text2: "Text2" }, { text1: "text1", text2: "text2" }), true, "CaseSensitive (true) for object");
   settings.comparator.trimStrings = false;
   settings.comparator.caseSensitive = true;
   assert.equal(Helpers.isTwoValueEquals("abc ", "abc"), false, "trimString = false");
@@ -416,4 +417,18 @@ QUnit.test("convertArrayValueToObject function", function(assert) {
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
   assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name", [{ name: 1, test: 2 }]), [{ name: 1, test: 2 }, { name: 2 }], "#1");
+});
+QUnit.test("getUnbindValue function", function(assert) {
+  assert.deepEqual(Helpers.getUnbindValue(1), 1, "do not convert number");
+  const obj = { val: 1 };
+  const unbindObj = Helpers.getUnbindValue(obj);
+  assert.notStrictEqual(obj, unbindObj, "new objects are not strict equal");
+  assert.deepEqual(obj, unbindObj, "objects are deep equal");
+  const dateVal = new Date(2004, 5, 7);
+  assert.strictEqual(Helpers.getUnbindValue(dateVal), dateVal, "do not convert date");
+});
+QUnit.test("convertDateToString/convertDateTimeToString functions", function(assert) {
+  const d = new Date(2022, 11, 24, 10, 55, 33, 3);
+  assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");
+  assert.equal(Helpers.convertDateTimeToString(d), "2022-12-24 10:55", "convertDateTimeToString");
 });

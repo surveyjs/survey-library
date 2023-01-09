@@ -4,6 +4,7 @@ const addBtnTemplate = require("./paneldynamic-add-btn.html");
 const nextBtnTemplate = require("./paneldynamic-next-btn.html");
 const prevBtnTemplate = require("./paneldynamic-prev-btn.html");
 const progressTextTemplate = require("./paneldynamic-progress-text.html");
+const removeBtnTemplate = require("./paneldynamic-remove-btn.html");
 
 export var SurveyQuestionPaneldynamicActioons: any;
 
@@ -31,4 +32,7 @@ ko.components.register("sv-paneldynamic-progress-text", {
   viewModel: getPaneldynamicActionViewModel(),
   template: progressTextTemplate,
 });
-
+ko.components.register("sv-paneldynamic-remove-btn", {
+  viewModel: getPaneldynamicActionViewModel(),
+  template: removeBtnTemplate,
+});

@@ -85,6 +85,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public getTitleToolbar(): AdaptiveActionContainer { return null; }
   public getTitleOwner(): ITitleOwner { return undefined; }
   public get isTitleOwner(): boolean { return !!this.getTitleOwner(); }
+  public get isTitleRenderedAsString(): boolean { return this.getIsTitleRenderedAsString(); }
   public toggleState(): boolean { return undefined; }
   public get cssClasses(): any { return {}; }
   public get cssTitle(): string { return ""; }
@@ -97,6 +98,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get titleAriaLabel(): string | null {
     return this.ariaLabel;
   }
+  protected getIsTitleRenderedAsString(): boolean { return !this.isTitleOwner; }
   //ILocalizableOwner
   public abstract getLocale(): string;
   public abstract getMarkdownHtml(text: string, name: string): string;
@@ -394,6 +396,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
       this.setSurveyCore(null);
+      this.surveyDataValue = null;
     } else {
       this.surveyDataValue = this.surveyImplValue.getSurveyData();
       this.setSurveyCore(this.surveyImplValue.getSurvey());
@@ -531,6 +534,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * A survey element identifier.
+   *
+   * > Question names must be unique.
    */
   public get name(): string {
     return this.getPropertyValue("name", "");
@@ -675,11 +680,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getProcessedText(text: string): string {
     if (this.isLoadingFromJson) return text;
     if (this.textProcessor)
-      return this.textProcessor.processText(text, this.getUseDisplayValuesInTitle());
+      return this.textProcessor.processText(text, this.getUseDisplayValuesInDynamicTexts());
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
-  protected getUseDisplayValuesInTitle(): boolean { return true; }
+  protected getUseDisplayValuesInDynamicTexts(): boolean { return true; }
   protected removeSelfFromList(list: Array<any>) {
     if (!list || !Array.isArray(list)) return;
     const index: number = list.indexOf(this);
@@ -747,7 +752,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     keys.push("description");
   }
 
-  protected get isDefaultV2Theme() {
+  public get isDefaultV2Theme() {
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
 
@@ -755,7 +760,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getIsErrorsModeTooltip();
   }
   protected getIsErrorsModeTooltip() {
-    return this.isDefaultV2Theme && this.hasParent;
+    return this.isDefaultV2Theme && this.hasParent && this.getIsTooltipErrorSupportedByParent();
+  }
+  protected getIsTooltipErrorSupportedByParent(): boolean {
+    return (<any>this.parent)?.getIsTooltipErrorInsideSupported();
+  }
+  protected getIsTooltipErrorInsideSupported(): boolean {
+    return false;
   }
 
   public get hasParent() {
@@ -822,7 +833,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   /**
-   * Increases or decreases indent of the survey element content from the left edge. Accepts positive integer values and 0.
+   * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
    * @see rightIndent
    */
   public get indent(): number {
@@ -832,7 +843,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("indent", val);
   }
   /**
-   * Increases or decreases indent of the survey element content from the right edge. Accepts positive integer values and 0.
+   * Increases or decreases an indent of survey element content from the right edge. Accepts positive integer values and 0. Does not apply in the Default V2 theme.
    * @see indent
    */
   public get rightIndent(): number {

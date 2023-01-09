@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="surveyWindow.isShowing"
-    style="position: fixed; bottom: 3px; right: 10px; max-width: 60%"
+    style="position: fixed; bottom: 3px; right: 10px"
+    :style="{maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth}"
     :class="surveyWindow.cssRoot"
   >
     <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">
@@ -19,16 +20,15 @@
       </span>
     </div>
     <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody">
-      <survey :survey="windowSurvey"></survey>
+      <component :is="getSurveyComponentName()" :survey="windowSurvey"> </component>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
-import { SurveyModel } from "survey-core";
-import { Base, PopupSurveyModel } from "survey-core";
+import { Component, Prop } from "vue-property-decorator";
+import { Base, PopupSurveyModel, SurveyModel } from "survey-core";
 import { BaseVue } from "./base";
 
 @Component
@@ -81,6 +81,9 @@ export class PopupSurvey extends BaseVue {
   }
   doExpand() {
     this.surveyWindow.changeExpandCollapse();
+  }
+  getSurveyComponentName() {
+    return "survey";
   }
 }
 

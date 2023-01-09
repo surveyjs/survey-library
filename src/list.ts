@@ -7,6 +7,7 @@ import { ElementHelper } from "./element-helper";
 export let defaultListCss = {
   root: "sv-list__container",
   item: "sv-list__item",
+  loadingIndicator: "sv-list__loading-indicator",
   itemSelected: "sv-list__item--selected",
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
@@ -29,6 +30,9 @@ export interface IListModel {
   onFilterStringChangedCallback?: (text: string) => void;
 }
 export class ListModel extends ActionContainer {
+  private listContainerHtmlElement: HTMLElement;
+  private loadingIndicatorValue: Action;
+
   @property({
     defaultValue: true,
     onSet: (newValue: boolean, target: ListModel) => {
@@ -48,9 +52,12 @@ export class ListModel extends ActionContainer {
       target.onFilterStringChanged(target.filterString);
     }
   }) filterString: string;
+  @property({ defaultValue: false }) hasVerticalScroller: boolean;
+  @property({ defaultValue: true }) isAllDataLoaded: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
+  public scrollHandler: (e?: any) => void;
 
   private hasText(item: Action, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
@@ -86,6 +93,12 @@ export class ListModel extends ActionContainer {
     this.selectedItem = selectedItem;
   }
 
+  public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
+    super.setItems(items, sortByVisibleIndex);
+    if(!this.isAllDataLoaded && !!this.actions.length) {
+      this.actions.push(this.loadingIndicator);
+    }
+  }
   protected onSet(): void {
     this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
     super.onSet();
@@ -131,6 +144,7 @@ export class ListModel extends ActionContainer {
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
+      .append(itemValue.css)
       .toString();
   };
 
@@ -145,12 +159,32 @@ export class ListModel extends ActionContainer {
   public get emptyMessage(): string {
     return this.getLocalizationString("emptyMessage");
   }
+  public get scrollableContainer(): HTMLElement {
+    return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
+  }
+  public get loadingText(): string {
+    return this.getLocalizationString("loadingFile");
+  }
+  public get loadingIndicator(): Action {
+    if(!this.loadingIndicatorValue) {
+      this.loadingIndicatorValue = new Action({
+        id: "loadingIndicator",
+        title: this.loadingText,
+        action: () => { },
+        css: this.cssClasses.loadingIndicator
+      });
+    }
+    return this.loadingIndicatorValue;
+  }
 
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
-      ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement.nextElementSibling.firstElementChild));
-      event.preventDefault();
+      const listElement = currentElement.parentElement.querySelector("ul");
+      if(!!listElement && !!listElement.firstElementChild) {
+        ElementHelper.focusElement(listElement.firstElementChild);
+        event.preventDefault();
+      }
     }
   }
   public onMouseMove(event: MouseEvent): void {
@@ -216,6 +250,40 @@ export class ListModel extends ActionContainer {
     }
   }
   public selectFocusedItem(): void {
-    this.onItemClick(this.focusedItem);
+    !!this.focusedItem && this.onItemClick(this.focusedItem);
+  }
+  public initListContainerHtmlElement(htmlElement: HTMLElement): void {
+    this.listContainerHtmlElement = htmlElement;
+  }
+  public onLastItemRended(item: Action): void {
+    if(this.isAllDataLoaded) return;
+
+    if(item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
+      this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
+    }
+  }
+  public scrollToFocusedItem(): void {
+    setTimeout(() => {
+      if(!this.listContainerHtmlElement) return;
+
+      const item = this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemFocused);
+      if(item) {
+        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      }
+    }, 0);
+  }
+
+  public addScrollEventListener(handler: (e?: any) => void): void {
+    if(!!handler) {
+      this.scrollHandler = handler;
+    }
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.addEventListener("scroll", this.scrollHandler);
+    }
+  }
+  public removeScrollEventListener(): void {
+    if(!!this.scrollHandler) {
+      this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
+    }
   }
 }

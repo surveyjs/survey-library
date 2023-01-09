@@ -70,7 +70,6 @@ export var romanianSurveyStrings: any = {
     "Ați petrecut {0} din {1} pe această pagină și {2} din {3} în total.",
   timerLimitPage: "Ați petrecut {0} din {1} pe această pagină.",
   timerLimitSurvey: "Ați petrecut {0} din {1} în total.",
-  cleanCaption: "Curat",
   clearCaption: "clar",
   chooseFileCaption: "Alege fișierul",
   removeFileCaption: "Eliminați acest fișier",

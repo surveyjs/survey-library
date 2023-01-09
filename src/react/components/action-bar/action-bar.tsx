@@ -4,7 +4,6 @@ import {
   Action,
   ActionContainer
 } from "survey-core";
-import { AdaptiveActionContainer } from "../../../actions/adaptive-container";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyAction } from "./action-bar-item";
@@ -36,8 +35,10 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
   componentDidMount() {
     super.componentDidMount();
     if (!this.model.hasActions) return;
-    const container: HTMLDivElement = this.rootRef.current;
-    this.model.initResponsivityManager(container);
+    const container: HTMLDivElement | null = this.rootRef.current;
+    if(!!container) {
+      this.model.initResponsivityManager(container);
+    }
   }
   componentWillUnmount() {
     super.componentWillUnmount();

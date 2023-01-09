@@ -4,6 +4,10 @@
   "compilerOptions": {
     "outDir": "../../build/angular-ui",
     "baseUrl": ".",
+    "noImplicitAny": false,
+    "types": [
+      "node"
+    ],
     "paths": {
       "survey-core": [
         "../../build/survey-core"
@@ -15,8 +19,8 @@
     }
   },
   "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
+    "../../examples/angular-ui/src/main.ts",
+    "../../examples/angular-ui/src/polyfills.ts",
   ],
   "include": [
     "src/**/*.d.ts"

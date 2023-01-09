@@ -9,13 +9,16 @@
 }
 
 .sd-element--with-frame .sv-ranking-item__icon {
-  margin-left: 7px;
+  margin-left: calcSize(1);
+  width: calcSize(1.75);
+  height: calcSize(2);
+  top: calcSize(1);
 }
 
 .sd-element--with-frame .sv-ranking-item__icon-container {
+  position: relative;
   width: calcSize(3);
-  height: calcSize(3);
-
+  height: calcSize(4);
   margin-right: calcSize(1);
   margin-left: calcSize(1);
 }
@@ -38,12 +41,6 @@
   .sv-ranking-item__icon-container {
     margin-left: 0;
     margin-right: 0;
-  }
-}
-
-.sd-ranking--disabled {
-  .sv-ranking-item__text {
-    color: $foreground-disabled;
   }
 }
 

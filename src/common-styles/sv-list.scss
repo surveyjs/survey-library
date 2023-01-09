@@ -58,8 +58,13 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   align-items: center;
   box-sizing: border-box;
-  padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
+  // padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
+  padding-block: calcSize(1);
+  padding-inline-end: calcSize(8);
+  padding-inline-start: calcSize(2);
   color: $foreground;
+  font-size: calcSize(2);
+  line-height: calcSize(3);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -80,19 +85,29 @@ $base-unit: var(--base-unit, 8px);
   .sv-list__item-body {
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
+    gap: calcSize(2);
+    display: flex;
   }
 }
 .sv-list__item-icon {
   float: left;
   width: calcSize(3);
   height: calcSize(3);
+
   svg {
     display: block;
   }
   use {
     fill: $foreground-light;
   }
-  margin-right: calcSize(2);
+}
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+  .sv-list__item-icon {
+    float: right;
+  }
 }
 .sv-list__item-separator {
   margin: calcSize(1) 0;
@@ -135,7 +150,6 @@ li:focus .sv-list__item.sv-list__item--selected {
   height: 100%;
   flex-direction: column;
   display: flex;
-  flex-direction: column;
   min-height: 0;
 }
 
@@ -149,7 +163,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   display: block;
   position: absolute;
   top: calcSize(1.5);
-  left: calcSize(2);
+  inset-inline-start: calcSize(2); //left: calcSize(2);
   .sv-svg-icon {
     width: calcSize(3);
     height: calcSize(3);
@@ -170,8 +184,10 @@ li:focus .sv-list__item.sv-list__item--selected {
   outline: none;
   font-size: 1em;
   color: $foreground;
-  padding: calcSize(1.5) calcSize(3) calcSize(1.5) calcSize(7);
+  padding: calcSize(1.5) calcSize(3);
+  padding-inline-start: calcSize(7);
   line-height: calcSize(3);
+  border: none;
 }
 
 .sv-list__input::placeholder {
@@ -181,4 +197,11 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-list__input:disabled,
 .sv-list__input:disabled::placeholder {
   color: $foreground-light;
+}
+
+.sv-list__loading-indicator {
+  pointer-events: none;
+}
+.sv-list__loading-indicator .sv-list__item-body {
+  background-color: transparent;
 }

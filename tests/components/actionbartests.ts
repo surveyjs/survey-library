@@ -185,3 +185,12 @@ QUnit.test("Action title in list model", (assert) => {
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
   survey.locale = "";
 });
+QUnit.test(
+  "ariaChecked",
+  (assert) => {
+    const action = new Action(<any>{});
+    assert.notOk(action.ariaChecked, "default is undefined");
+    action.ariaChecked = true;
+    assert.ok(action.ariaChecked, "property exists");
+  }
+);

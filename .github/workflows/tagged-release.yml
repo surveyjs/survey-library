@@ -13,14 +13,33 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        
+      - name: Build
+        run: |
+          npm install
+          npm run build
+          
+      - name: Zip Build
+        uses: montudor/action-zip@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          args: zip -qq -r build.zip build
+
+      - name: Create Release
+        uses: taiki-e/create-gh-release-action@v1
+        with:
+          # (Optional)
+#           changelog: CHANGELOG.md
+          # (Optional) Format of title.
+          # [default value: $tag]
+          # [possible values: variables $tag, $version, and any string]
+          title: $version
+          # (Required) GitHub token for creating GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add Zip Build Artifact
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'build.zip'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.ref_name }}
+

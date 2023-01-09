@@ -42,7 +42,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.hasOther && question.isOtherSelected -->
-      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
+      <div class="form-group" data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
       <!-- /ko -->
     </fieldset>
 </script>
@@ -50,10 +50,10 @@
   <div role="presentation" data-bind="css: question.getItemClass(item)">
       <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }">
           <!-- ko if: item == question.selectAllItem -->
-          <input type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input role="option" type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
+          <input role="option" type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"/>
           <!-- /ko -->
               <!-- ko if: question.koCss().materialDecorator -->
               <span data-bind="css: question.koCss().materialDecorator">

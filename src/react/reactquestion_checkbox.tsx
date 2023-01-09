@@ -3,11 +3,10 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { QuestionCheckboxModel } from "../question_checkbox";
-import { Base, ItemValue, SurveyModel } from "survey-core";
+import { Base, ItemValue, SurveyModel, QuestionCheckboxModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
@@ -23,7 +22,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       <fieldset
         role="presentation"
         className={this.question.getSelectBaseRootCss()}
-        ref={(fieldset) => (this.control = fieldset)}
+        ref={(fieldset) => (this.setControl(fieldset))}
       >
         <legend role="presentation" className={"sv-hidden"}></legend>
         {this.getHeader()}
@@ -43,8 +42,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
           "item_h" + ii,
           item,
           false,
-          this.question.cssClasses,
-          null
+          this.question.cssClasses
         )
       );
     }
@@ -56,8 +54,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
           "item_f" + ii,
           item,
           false,
-          this.question.cssClasses,
-          null
+          this.question.cssClasses
         )
       );
     }
@@ -89,18 +86,20 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 
   protected getBody(cssClasses: any): JSX.Element {
-    if(this.question.blockedRow) {
+    if (this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
     }
     else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
   }
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    var renderedItems = [];
+    var renderedItems:Array<JSX.Element> = [];
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
       var key = "item" + i;
       var renderedItem = this.renderItem(key, item, i == 0, cssClasses, "" + i);
-      renderedItems.push(renderedItem);
+      if(!!renderedItem) {
+        renderedItems.push(renderedItem);
+      }
     }
     return renderedItems;
   }
@@ -111,7 +110,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     let cssClasses = this.question.cssClasses;
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}
@@ -125,7 +124,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     item: any,
     isFirst: boolean,
     cssClasses: any,
-    index: string
+    index?: string
   ): JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       key: key,
@@ -138,8 +137,8 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       isFirst: isFirst,
     });
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem = null;
-    if(!!survey) {
+    let wrappedItem: JSX.Element | null = null;
+    if (!!survey && !!renderedItem) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -180,7 +179,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     );
   }
   handleOnChange = (event: any) => {
-    var newValue = [].concat(this.question.renderedValue || []);
+    var newValue: Array<any> = [].concat(this.question.renderedValue || []);
     var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
       if (index < 0) {
@@ -208,7 +207,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderCheckbox(
     isChecked: boolean,
-    otherItem: JSX.Element
+    otherItem: JSX.Element | null
   ): JSX.Element {
     var id = this.question.getItemId(this.item);
     var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
@@ -226,6 +225,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             className={this.cssClasses.itemControl}
+            role="option"
             type="checkbox"
             name={this.question.name}
             value={this.item.value != "selectall" ? this.item.value : undefined}
@@ -239,12 +239,12 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator}>
-                { this.question.itemSvgIcon ?
+                {this.question.itemSvgIcon ?
                   <svg
                     className={this.cssClasses.itemDecorator}
                   >
                     <use xlinkHref={this.question.itemSvgIcon}></use>
-                  </svg>:
+                  </svg> :
                   null
                 }
               </span> :

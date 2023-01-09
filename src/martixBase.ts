@@ -7,7 +7,7 @@ import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
- * A Model for a matrix base question.
+ * A base class for all matrix question types.
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected filteredColumns: Array<TColumn>;
@@ -38,7 +38,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
   /**
-   * Set this property to false, to hide table header. The default value is true.
+   * Specifies whether to display the table header that contains column captions.
+   *
+   * Default value: `true`
    */
   public get showHeader(): boolean {
     return this.getPropertyValue("showHeader");
@@ -47,7 +49,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("showHeader", val);
   }
   /**
-   * The list of columns. A column has a value and an optional text
+   * An array of matrix columns.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    */
   get columns(): Array<any> {
     return this.getPropertyValue("columns");
@@ -59,7 +65,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return !!this.filteredColumns ? this.filteredColumns : this.columns;
   }
   /**
-   * The list of rows. A row has a value and an optional text
+   * An array of matrix rows.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    */
   get rows(): Array<any> {
     return this.getPropertyValue("rows");
@@ -76,16 +86,22 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return [];
   }
   /**
-   * Returns the list of visible rows as model objects.
+   * Returns an array of visible matrix rows.
    * @see rowsVisibleIf
    */
   public get visibleRows(): Array<TRow> {
     return this.getVisibleRows();
   }
-
   /**
-   * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
-   * @see visibleIf
+   * A Boolean expression that is evaluated against each matrix row. If the expression evaluates to `false`, the row becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current row in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see visibleRows
+   * @see columnsVisibleIf
    */
   public get rowsVisibleIf(): string {
     return this.getPropertyValue("rowsVisibleIf", "");
@@ -95,7 +111,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.filterItems();
   }
   /**
-   * An expression that returns true or false. It runs against each column item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
+   * A Boolean expression that is evaluated against each matrix column. If the expression evaluates to `false`, the column becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{item}` placeholder to reference the current column in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see rowsVisibleIf
    */
   public get columnsVisibleIf(): string {
@@ -296,13 +318,37 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Specifies whether to apply shading to alternate matrix rows.
    */
   @property({ defaultValue: false }) alternateRows: boolean;
+
+  /**
+   * Minimum column width in CSS values.
+   *
+   * @see width
+   */
+  public get columnMinWidth(): string {
+    return this.getPropertyValue("columnMinWidth", "");
+  }
+  public set columnMinWidth(val: string) {
+    this.setPropertyValue("columnMinWidth", val);
+  }
+
+  /**
+   * A width for the column that displays row titles (first column). Accepts CSS values.
+   */
+  public get rowTitleWidth(): string {
+    return this.getPropertyValue("rowTitleWidth", "");
+  }
+  public set rowTitleWidth(val: string) {
+    this.setPropertyValue("rowTitleWidth", val);
+  }
 }
 
 Serializer.addClass(
   "matrixbase",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
+    "columnMinWidth",
     { name: "showHeader:boolean", default: true },
     {
       name: "verticalAlign",

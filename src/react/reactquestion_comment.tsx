@@ -8,7 +8,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var onBlur = !this.question.isInputTextUpdate ? this.updateValueOnEvent : null;
+    var onBlur:((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
     var onInput = (event: any) => {
       if (this.question.isInputTextUpdate)
         this.updateValueOnEvent(event);
@@ -25,7 +25,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         className={this.question.className}
         disabled={ this.question.isInputReadOnly }
         readOnly={ this.question.isInputReadOnly }
-        ref={(tetxarea) => (this.control = tetxarea)}
+        ref={(textarea) => (this.setControl(textarea))}
         maxLength={this.question.getMaxLength()}
         placeholder={placeholder}
         onBlur={onBlur}
@@ -47,37 +47,71 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.props.question;
   }
+  protected onCommentChange(event: any): void {
+    this.props.question.onCommentChange(event);
+  }
+  protected onCommentInput(event: any): void {
+    this.props.question.onCommentInput(event);
+  }
+  protected getComment(): string {
+    return this.props.question.comment;
+  }
+  protected getId(): string {
+    return this.props.question.commentId;
+  }
+  protected getPlaceholder(): string {
+    return this.props.question.commentPlaceholder;
+  }
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
-      question.onCommentChange(event);
+      this.onCommentChange(event);
     };
+    const questionComment = this.getComment();
     let stateComment: string = !!this.state ? this.state.comment : undefined;
-    if(stateComment !== undefined && stateComment.trim() !== question.comment) {
-      stateComment = question.comment;
+    if(stateComment !== undefined && stateComment.trim() !== questionComment) {
+      stateComment = questionComment;
     }
-    let comment = stateComment !== undefined ? stateComment : question.comment || "";
+    let comment = stateComment !== undefined ? stateComment : questionComment || "";
 
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
     }
     return (
       <textarea
+        id={this.getId()}
         className={className}
         value={comment}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
-        placeholder={question.commentOrOtherPlaceholder}
+        placeholder={this.getPlaceholder()}
         onChange={handleOnChange}
-        onBlur={(e) => { question.onCommentChange(e); handleOnChange(e); } }
-        onInput={(e) => question.onCommentInput(e)}
+        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); } }
+        onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}
         style={{ resize: question.resizeStyle }}
       />
     );
+  }
+}
+export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
+  protected onCommentChange(event: any): void {
+    this.props.question.onOtherValueChange(event);
+  }
+  protected onCommentInput(event: any): void {
+    this.props.question.onOtherValueInput(event);
+  }
+  protected getComment(): string {
+    return this.props.question.otherValue;
+  }
+  protected getId(): string {
+    return this.props.question.otherId;
+  }
+  protected getPlaceholder(): string {
+    return this.props.question.otherPlaceholder;
   }
 }
 

@@ -26,7 +26,7 @@
   transform: translate(-50%, -50%);
 }
 .sv-item__control:focus + .sv-item__decorator {
-  border-color: $main-color;
+  border-color: var(--main-color, $main-color);
   outline: none;
 }
 .sv-item__control-label {

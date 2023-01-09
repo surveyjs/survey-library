@@ -35,7 +35,7 @@
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
           :iconName="question.cssClasses.cleanButtonIconId"
-          :title="question.cleanCaption"
+          :title="question.clearCaption"
           size="auto"
         >
         </sv-svg-icon>
@@ -52,7 +52,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question, DropdownMultiSelectListModel } from "survey-core";
-import BaseVue from "src/vue/base";
+import BaseVue from "../../base";
 
 @Component
 export class TagboxComponent extends BaseVue {

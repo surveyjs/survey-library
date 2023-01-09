@@ -3,7 +3,7 @@
     *ngIf="model.renderedMode === 'image'"
     [class]="model.getImageCss()"
     [attr.src]="model.locImageLink.renderedHtml"
-    [attr.alt]="model.text || model.title"
+    [attr.alt]="model.altText || model.title"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"

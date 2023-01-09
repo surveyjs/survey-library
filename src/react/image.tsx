@@ -27,13 +27,13 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit };
-    var control = null;
+    var control: JSX.Element | null = null;
     if (this.question.renderedMode === "image") {
       control = (
         <img
           className={cssClasses}
           src={this.question.locImageLink.renderedHtml}
-          alt={this.question.text || this.question.title}
+          alt={this.question.altText || this.question.title}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           //alt={item.text || item.value}

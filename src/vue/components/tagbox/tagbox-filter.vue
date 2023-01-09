@@ -6,6 +6,8 @@
     v-bind:class="question.cssClasses.filterStringInput"
     v-bind:placeholder="model.filterStringPlaceholder"
     v-bind:disabled="question.isInputReadOnly"
+    :role="model.filterStringEnabled ? question.ariaRole : null"
+    :aria-label="question.placeholder"
     :id="question.getInputId()"
     :readonly="!model.searchEnabled ? true : null"
     :size="!model.filterString ? 1 : null"
@@ -19,7 +21,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
-import BaseVue from "src/vue/base";
+import BaseVue from "../../base";
 
 @Component
 export class TagboxFilterComponent extends BaseVue {

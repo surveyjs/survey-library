@@ -14,6 +14,8 @@
     "
     v-bind:disabled="item.enabled !== undefined && !item.enabled"
     v-bind:title="item.tooltip || item.title"
+    v-bind:aria-label="item.ariaChecked"
+    v-bind:role="item.ariaRole"
     v-bind:tabindex="item.disableTabStop ? -1 : 0"
   >
     <sv-svg-icon

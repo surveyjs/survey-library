@@ -35,6 +35,7 @@ import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey_Questions");
 
@@ -149,10 +150,10 @@ QUnit.test("Comment and other could not be set together", function (assert) {
 
   questionDropDown.hasComment = true;
   assert.equal(questionDropDown.hasComment, true, "After set comment to true");
-  assert.equal(questionDropDown.hasOther, false, "After set comment to true");
+  assert.equal(questionDropDown.hasOther, true, "After set comment to true, behavior is changed");
 
   questionDropDown.hasOther = true;
-  assert.equal(questionDropDown.hasComment, false, "After set other to true");
+  assert.equal(questionDropDown.hasComment, true, "After set other to true, behavior is changed");
   assert.equal(questionDropDown.hasOther, true, "After set other to true");
 });
 QUnit.test("Keep comment if question value is null", function (assert) {
@@ -773,6 +774,17 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function (
     { text1: "val1", text2: "val2" },
     "set the value from the text item"
   );
+});
+QUnit.test("Multiple Text Question: get/set for id", function (
+  assert
+) {
+  var mText = new QuestionMultipleTextModel("q1");
+  mText.items.push(new MultipleTextItemModel("text1"));
+  mText.items.push(new MultipleTextItemModel("text2"));
+  mText.id = "testid";
+  assert.equal(mText.id, "testid", "id is returned correctly");
+  assert.equal(mText.items[0].editor.id, "testid_0", "id for first multipletext editor");
+  assert.equal(mText.items[1].editor.id, "testid_1", "id for second multipletext editor");
 });
 QUnit.test(
   "Multiple Text Question: get/set values and properties via question text",
@@ -2147,6 +2159,17 @@ QUnit.test("Rating question, renderedRateItems", function (assert) {
   );
   assert.notOk(rate.hasMinLabel, "Rating has no min label");
   assert.notOk(rate.hasMaxLabel, "Rating has no max label");
+});
+
+QUnit.test("Rating question, renderedRateItems. Update renderedRateItems on changing rateValues", function (assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
+  rate.rateValues.push(new ItemValue("item1"));
+  assert.equal(rate.visibleRateValues.length, 1, "There is on item now");
+  rate.rateValues.push(new ItemValue("item2"));
+  assert.equal(rate.visibleRateValues.length, 2, "There is on two now");
+  rate.rateValues.splice(0, 2);
+  assert.equal(rate.visibleRateValues.length, 5, "There are 5 default default items again");
 });
 
 QUnit.test(
@@ -5121,12 +5144,18 @@ QUnit.test("text question renderedStep", function (assert) {
     elements: [
       { type: "text", inputType: "number", name: "q1" },
       { type: "text", inputType: "number", name: "q2", step: 0.2 },
+      { type: "text", inputType: "time", name: "q3" },
+      { type: "text", inputType: "time", name: "q4", step: 1 },
     ],
   });
   var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   var q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  var q3 = <QuestionTextModel>survey.getQuestionByName("q3");
+  var q4 = <QuestionTextModel>survey.getQuestionByName("q4");
   assert.equal(q1.renderedStep, "any", "Default value is 'any'");
   assert.equal(q2.renderedStep, 0.2, "get value from step");
+  assert.equal(q3.renderedStep, undefined, "time: step is empty if not set");
+  assert.equal(q4.renderedStep, 1, "time: step is set");
 });
 QUnit.test("text question inputSize and inputWidth", function (assert) {
   var survey = new SurveyModel({
@@ -5515,6 +5544,34 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
+QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question) => {
+      return question.name == "question1";
+    },
+  });
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2, 3]
+      },
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.equal(q1.visibleChoices.length, 3, "Show only 3 choice items");
+  settings.supportCreatorV2 = false;
+  CustomWidgetCollection.Instance.clear();
+});
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {
@@ -5912,6 +5969,39 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
   survey.locale = "";
   assert.equal(question.optionsCaption, "Select...", "default locale, #2");
 });
+QUnit.test("multipletext placeholder localization", function (assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        "type": "multipletext",
+        "name": "question1",
+        "items": [
+          {
+            "name": "text1",
+            "placeholder": {
+              "de": "placeholder de",
+              "default": "placeholder default"
+            }
+          }
+        ]
+      }]
+  });
+  survey.locale = "";
+  const question = <QuestionMultipleTextModel>survey.getAllQuestions()[0];
+  const editor = question.items[0].editor;
+  let counter = 0;
+  assert.equal(editor.placeholder, "placeholder default", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "renderedPlaceholder, default locale");
+  editor.locPlaceHolder.onStringChanged.add((sender, options) => counter ++);
+  survey.locale = "de";
+  assert.equal(counter, 1, "Changed one time");
+  assert.equal(editor.placeholder, "placeholder de", "default locale");
+  assert.equal(editor.renderedPlaceholder, "placeholder de", "renderedPlaceholder, de locale");
+  survey.locale = "";
+  assert.equal(counter, 2, "Changed second time");
+  assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
+  assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
+});
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [
@@ -6123,4 +6213,95 @@ QUnit.test("Do not allow question to start with #", function (assert) {
   assert.equal(questions[0].name, "q2", "change #q2 to q2");
   questions[1].valueName = "#q3";
   assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
+});
+QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        defaultValue: 55,
+        choicesByUrl: {
+          url: "some url"
+        }
+      },
+    ]
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+  assert.equal(question.selectedItem.value, 55);
+  assert.equal(question.selectedItem.text, "DisplayText_55");
+});
+QUnit.test("remove reference to DOM elements", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "q1",
+      },
+    ]
+  });
+  const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+
+  const el = document.createElement("div");
+  el.id = question.id;
+  question.afterRenderQuestionElement(el);
+  assert.equal(question["element"], el);
+  question.beforeDestroyQuestionElement(el);
+  assert.equal(question["element"], undefined);
+});
+QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1"],
+      rows: ["row1"],
+      cells: { row1: { col1: "text!!" } }
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  const cellLocStr = matrix.cells.getCellDisplayLocText(0, 0);
+  assert.equal(cellLocStr.textOrHtml, "text!!");
+  survey.onTextMarkdown.add((sender, options) => {
+    if(options.text === "text!!") {
+      options.html = "!!text";
+    }
+  });
+  assert.equal(cellLocStr.textOrHtml, "!!text");
+});
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text",
+      "inputType": "datetime-local",
+      "defaultValueExpression": "currentDate()"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "inputType": "date",
+      "defaultValueExpression": "currentDate()"
+    }
+    ] });
+  const d = new Date();
+  let prefix = d.getFullYear() + "-";
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q1");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
 });

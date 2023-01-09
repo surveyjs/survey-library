@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
@@ -24,22 +24,27 @@ export class QuestionFileModel extends Question {
    *
    * Parameters:
    *
-   * - `sender` - A question instance that raised the event.
-   * - `options.state` - Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that raised the event.
+   * - `options.state`: `String`\
+   * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
+  public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
+    QuestionFileModel
+  >();
   public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
   >();
-  public previewValue: any[] = [];
+  @propertyArray({}) public previewValue: any[];
   @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
-  private prevFileAction: Action;
-  private nextFileAction: Action;
-  private fileIndexAction: Action;
+  protected prevFileAction: Action;
+  protected nextFileAction: Action;
+  protected fileIndexAction: Action;
 
   get mobileFileNavigatorVisible(): boolean {
     return this.isMobile && this.containsMultiplyFiles;
@@ -70,7 +75,6 @@ export class QuestionFileModel extends Question {
     });
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
-
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
@@ -93,9 +97,10 @@ export class QuestionFileModel extends Question {
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   /**
-   * Specifies whether to show a preview of image files.
+   * Disable this property only to implement a custom preview.
    *
-   * Default value: `true`
+   * [View Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
+   * @see allowImagesPreview
    */
   public get showPreview() {
     return this.getPropertyValue("showPreview");
@@ -164,7 +169,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
   /**
-   * Set it to false if you want to disable images preview.
+   * Specifies whether to show a preview of image files.
    */
   public get allowImagesPreview(): boolean {
     return this.getPropertyValue("allowImagesPreview");
@@ -201,7 +206,7 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  @property({ localizable: { defaultStr: "cleanCaption" } }) cleanButtonCaption: string;
+  @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
@@ -225,6 +230,8 @@ export class QuestionFileModel extends Question {
           this.value = undefined;
           this.errors = [];
           !!doneCallback && doneCallback();
+          this.indexToShow = 0;
+          this.fileIndexAction.title = this.getFileIndexCaption();
         }
       }
     );
@@ -241,9 +248,6 @@ export class QuestionFileModel extends Question {
   }
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;
-  }
-  get imageWidthRendered() {
-    return this.imageWidth + "px";
   }
 
   /**
@@ -284,9 +288,8 @@ export class QuestionFileModel extends Question {
       return;
     }
 
-    this.stateChanged("loading");
-
     var loadFilesProc = () => {
+      this.stateChanged("loading");
       var content = <Array<any>>[];
       if (this.storeDataAsText) {
         files.forEach((file) => {
@@ -332,15 +335,7 @@ export class QuestionFileModel extends Question {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
   protected loadPreview(newValue: any): void {
-    this.previewValue = [];
-    var state =
-      (!Array.isArray(newValue) && !!newValue) ||
-        (Array.isArray(newValue) && newValue.length > 0)
-        ? this.showPreview
-          ? "loading"
-          : "loaded"
-        : "empty";
-    this.stateChanged(state);
+    this.previewValue.splice(0, this.previewValue.length);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -351,35 +346,40 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach((value) => {
         var content = value.content || value;
-        this.previewValue = this.previewValue.concat([
+        this.previewValue.push(
           {
             name: value.name,
             type: value.type,
             content: content,
           },
-        ]);
+        );
       });
-      if (state === "loading") this.stateChanged("loaded");
     } else {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
+      this.isReadyValue = false;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
-          this.previewValue = loaded;
+          loaded.forEach((val) => {
+            this.previewValue.push(val);
+          });
         }
-        this.stateChanged("loaded");
+        this.isReadyValue = true;
+        this.onReadyChanged &&
+        this.onReadyChanged.fire(this, {
+          question: this,
+          isReady: true,
+          oldIsReady: false,
+        });
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });
       this._previewLoader.load(newValues);
     }
+    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
-  }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
-    super.setQuestionValue(newValue, updateIsAnswered);
-    this.loadPreview(newValue);
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -396,6 +396,9 @@ export class QuestionFileModel extends Question {
     }
   }
   protected stateChanged(state: string) {
+    if(this.currentState == state) {
+      return;
+    }
     if (state === "loading") {
       this.isUploading = true;
     }
@@ -407,6 +410,7 @@ export class QuestionFileModel extends Question {
     }
     this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
+    this.onUploadStateChanged.fire(this, { state: state });
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
@@ -505,6 +509,13 @@ export class QuestionFileModel extends Question {
     src.value = "";
     this.loadFiles(files);
   }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    this.stateChanged(this.isEmpty() ? "empty" : "loaded");
+    this.loadPreview(newValue);
+  }
+
   //#region
   // web-based methods
   private rootElement: HTMLElement;
@@ -567,7 +578,8 @@ export class QuestionFileModel extends Question {
       );
       if (!isConfirmed) return;
     }
-    this.removeFileByContent(data);
+    const previewIndex = this.previewValue.indexOf(data);
+    this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
   }
   doDownloadFile = (event: any, data: any) => {
     if (detectIEOrEdge()) {
@@ -580,7 +592,7 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true },
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
       name: "commentText",
       dependsOn: "showCommentArea",

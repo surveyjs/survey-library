@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.67](https://github.com/surveyjs/survey-library/compare/v1.9.66...v1.9.67) (2023-01-05)
+
+### [1.9.66](https://github.com/surveyjs/survey-library/compare/v1.9.65...v1.9.66) (2022-12-30)
+
+
+### Bug Fixes
+
+* **matrix:** export IMatrixDropdownData to allow extending MatrixDynamicRowModel ([#5394](https://github.com/surveyjs/survey-library/issues/5394)) ([6376506](https://github.com/surveyjs/survey-library/commit/63765064cbfe51c00380f7f1daaf69cffed93395))
+
+### [1.9.65](https://github.com/surveyjs/survey-library/compare/v1.9.64...v1.9.65) (2022-12-20)
+
+### [1.9.64](https://github.com/surveyjs/survey-library/compare/v1.9.63...v1.9.64) (2022-12-13)
+
+### [1.9.63](https://github.com/surveyjs/survey-library/compare/v1.9.62...v1.9.63) (2022-12-08)
+
+### [1.9.62](https://github.com/surveyjs/survey-library/compare/v1.9.61...v1.9.62) (2022-12-06)
+
+### [1.9.61](https://github.com/surveyjs/survey-library/compare/v1.9.60...v1.9.61) (2022-11-30)
+
+### [1.9.60](https://github.com/surveyjs/survey-library/compare/v1.9.59...v1.9.60) (2022-11-24)
+
+### [1.9.59](https://github.com/surveyjs/survey-library/compare/v1.9.58...v1.9.59) (2022-11-22)
+
+### [1.9.58](https://github.com/surveyjs/survey-library/compare/v1.9.57...v1.9.58) (2022-11-16)
+
+### [1.9.57](https://github.com/surveyjs/survey-library/compare/v1.9.56...v1.9.57) (2022-11-08)
+
+### [1.9.56](https://github.com/surveyjs/survey-library/compare/v1.9.55...v1.9.56) (2022-11-01)
+
+### [1.9.55](https://github.com/surveyjs/survey-library/compare/v1.9.54...v1.9.55) (2022-10-25)
+
+### [1.9.54](https://github.com/surveyjs/survey-library/compare/v1.9.53...v1.9.54) (2022-10-18)
+
 ### [1.9.53](https://github.com/surveyjs/survey-library/compare/v1.9.52...v1.9.53) (2022-10-11)
 
 ### [1.9.52](https://github.com/surveyjs/survey-library/compare/v1.9.51...v1.9.52) (2022-10-04)

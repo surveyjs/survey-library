@@ -41,9 +41,9 @@ export class ExampleComponent {
   constructor() {
     StylesManager.applyTheme("defaultV2");
     this.model = new SurveyModel(json);
-    this.model.onGetQuestionTitleActions.add((_, opt) => {
-      opt.titleActions = this.getActions();
-    });
+    // this.model.onGetQuestionTitleActions.add((_, opt) => {
+    //   opt.titleActions = this.getActions();
+    // });
     (<any>window).survey = this.model;
   }
 }

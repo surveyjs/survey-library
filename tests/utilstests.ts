@@ -1,6 +1,7 @@
 import { IAction } from "../src/actions/action";
+import { defaultListCss } from "../src/list";
 import { Question } from "../src/question";
-import { sanitizeEditableContent } from "../src/utils/utils";
+import { createSvg, sanitizeEditableContent } from "../src/utils/utils";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -59,3 +60,42 @@ export function createIActionArray(count: number): Array<IAction> {
   }
   return result;
 }
+
+export function createListContainerHtmlElement(): HTMLElement {
+  const element = document.createElement("div");
+  const innerElement = document.createElement("div");
+  innerElement.className = defaultListCss.itemsContainer;
+  innerElement.style.width = "200px";
+  innerElement.style.height = "100px";
+
+  const listContainerElement = document.createElement("div");
+  listContainerElement.style.width = "200px";
+  listContainerElement.style.height = "1000px";
+  listContainerElement.scrollTop = 0;
+  listContainerElement.scrollLeft = 0;
+
+  document.body.appendChild(element);
+  element.appendChild(innerElement);
+  innerElement.appendChild(listContainerElement);
+  return element;
+}
+
+QUnit.test(
+  "utils: createSvg",
+  function (assert) {
+    var element: HTMLSpanElement = document.createElement("svg");
+    element.innerHTML = "<use></use>";
+    document.body.appendChild(element);
+    createSvg(16, 0, 0, "test", element, "titletext");
+    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
+    assert.equal(element.querySelectorAll("title").length, 1);
+    assert.equal(element.querySelector("title")?.innerHTML, "titletext");
+
+    createSvg(16, 0, 0, "test", element, "titletext2");
+    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#test");
+    assert.equal(element.querySelectorAll("title").length, 1);
+    assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
+
+    element.remove();
+  }
+);

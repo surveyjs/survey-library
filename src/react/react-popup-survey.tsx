@@ -24,9 +24,12 @@ export class PopupSurvey extends Survey {
     let style: React.CSSProperties = {
       position: "fixed",
       bottom: 3,
-      right: 10,
-      maxWidth: "60%",
+      right: 10
     };
+    if (!!this.popup.renderedWidth) {
+      style.width = this.popup.renderedWidth;
+      style.maxWidth = this.popup.renderedWidth;
+    }
     return (
       <div className={this.popup.cssRoot} style={style}>
         {header}

@@ -12,6 +12,7 @@ import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { mergeValues } from "./utils/utils";
 
 /**
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -22,17 +23,18 @@ export class QuestionSelectBase extends Question {
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
-  private commentValue: string;
-  private prevCommentValue: string;
+  private prevOtherValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
-  private noneItemValue: ItemValue = new ItemValue("none");
+  private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
+  @property() protected selectedItemValues: any;
+
   constructor(name: string) {
     super(name);
     var noneItemText = this.createLocalizableString("noneText", this.noneItemValue, true, "noneItemText");
@@ -89,14 +91,20 @@ export class QuestionSelectBase extends Question {
     }
     this.removeFromDependedQuestion(this.getQuestionWithChoices());
   }
-  protected getItemValueType() {
+  public get otherId(): string {
+    return this.id + "_other";
+  }
+  protected getCommentElementsId(): Array<string> {
+    return [this.commentId, this.otherId];
+  }
+  protected getItemValueType(): string {
     return "itemvalue";
   }
   public createItemValue(value: any): ItemValue {
     return Serializer.createClass(this.getItemValueType(), value);
   }
   public supportGoNextPageError() {
-    return !this.isOtherSelected || !!this.comment;
+    return !this.isOtherSelected || !!this.otherValue;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -114,6 +122,23 @@ export class QuestionSelectBase extends Question {
       ItemValue.locStrsChanged(this.visibleChoices);
     }
   }
+  public get otherValue(): string {
+    if(!this.showCommentArea) return this.comment;
+    return this.otherValueCore;
+  }
+  public set otherValue(val: string) {
+    if(!this.showCommentArea) {
+      this.comment = val;
+    } else {
+      this.setOtherValueInternally(val);
+    }
+  }
+  protected get otherValueCore(): string {
+    return this.getPropertyValue("otherValue");
+  }
+  protected set otherValueCore(val: string) {
+    this.setPropertyValue("otherValue", val);
+  }
   /**
    * Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
    * @see showOtherItem
@@ -127,6 +152,9 @@ export class QuestionSelectBase extends Question {
    */
   public get isOtherSelected(): boolean {
     return this.hasOther && this.getHasOther(this.renderedValue);
+  }
+  public get isNoneSelected(): boolean {
+    return this.hasNone && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -219,7 +247,7 @@ export class QuestionSelectBase extends Question {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
   }
@@ -341,7 +369,10 @@ export class QuestionSelectBase extends Question {
     );
   }
   protected getHasOther(val: any): boolean {
-    return val === this.otherItem.value;
+    return this.getIsItemValue(val, this.otherItem);
+  }
+  protected getIsItemValue(val: any, item: ItemValue): boolean {
+    return val === item.value;
   }
   get validatedValue(): any {
     return this.rendredValueToDataCore(this.value);
@@ -361,44 +392,54 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("autoOtherMode", val);
   }
   protected getQuestionComment(): string {
-    if (!!this.commentValue) return this.commentValue;
+    if(this.showCommentArea) return super.getQuestionComment();
+    if (!!this.otherValueCore) return this.otherValueCore;
     if (this.hasComment || this.getStoreOthersAsComment())
       return super.getQuestionComment();
-    return this.commentValue;
+    return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
     this.value = val ? this.otherItem.value : undefined;
   }
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
-    if (this.autoOtherMode) {
-      this.prevCommentValue = undefined;
-      const isSelected = this.isOtherSelected;
-      if (!isSelected && !!newValue || isSelected && !newValue) {
-        this.selectOtherValueFromComment(!!newValue);
-      }
+    if(this.showCommentArea) {
+      super.setQuestionComment(newValue);
+      return;
     }
-    if (this.hasComment || this.getStoreOthersAsComment())
+    this.onUpdateCommentOnAutoOtherMode(newValue);
+    if (this.getStoreOthersAsComment())
       super.setQuestionComment(newValue);
     else {
-      if (!this.isSettingComment && newValue != this.commentValue) {
-        this.isSettingComment = true;
-        this.commentValue = newValue;
-        if (this.isOtherSelected && !this.isRenderedValueSetting) {
-          this.value = this.rendredValueToData(this.renderedValue);
-        }
-        this.isSettingComment = false;
-      }
+      this.setOtherValueInternally(newValue);
     }
     this.updateChoicesDependedQuestions();
   }
+  private onUpdateCommentOnAutoOtherMode(newValue: string): void {
+    if (!this.autoOtherMode) return;
+    this.prevOtherValue = undefined;
+    const isSelected = this.isOtherSelected;
+    if (!isSelected && !!newValue || isSelected && !newValue) {
+      this.selectOtherValueFromComment(!!newValue);
+    }
+  }
+  private setOtherValueInternally(newValue: string): void {
+    if (!this.isSettingComment && newValue != this.otherValueCore) {
+      this.isSettingComment = true;
+      this.otherValueCore = newValue;
+      if (this.isOtherSelected && !this.isRenderedValueSetting) {
+        this.value = this.rendredValueToData(this.renderedValue);
+      }
+      this.isSettingComment = false;
+    }
+  }
   public clearValue() {
     super.clearValue();
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
   }
   updateCommentFromSurvey(newValue: any): any {
     super.updateCommentFromSurvey(newValue);
-    this.prevCommentValue = undefined;
+    this.prevOtherValue = undefined;
   }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
@@ -424,19 +465,20 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
-    if (isOtherSel && !!this.prevCommentValue) {
-      var oldComment = this.prevCommentValue;
-      this.prevCommentValue = undefined;
-      this.comment = oldComment;
+    if (isOtherSel && !!this.prevOtherValue) {
+      var oldOtherValue = this.prevOtherValue;
+      this.prevOtherValue = undefined;
+      this.otherValue = oldOtherValue;
     }
-    if (!isOtherSel && !!this.comment) {
+    if (!isOtherSel && !!this.otherValue) {
       if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
-        this.prevCommentValue = this.comment;
+        this.prevOtherValue = this.otherValue;
       }
-      this.comment = "";
+      this.otherValue = "";
     }
   }
   protected setNewValue(newValue: any) {
+    this.resetSelectedItemValues();
     newValue = this.valueFromData(newValue);
     if (
       (!this.choicesByUrl.isRunning &&
@@ -464,14 +506,43 @@ export class QuestionSelectBase extends Question {
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true, false)) return this.valueFromData(val);
-    this.comment = val;
+    this.otherValue = val;
     return this.otherItem.value;
   }
   protected rendredValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.getQuestionComment()) {
-      val = this.getQuestionComment();
+    if (val == this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
+      val = this.otherValue;
     }
     return val;
+  }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    let val = this.otherValue;
+    if(!val) return false;
+    val = val.trim();
+    if(!val) return false;
+    return this.hasUnknownValue(val, true, false);
+  }
+  protected updateSelectedItemValues(): void {
+    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
+      const IsMultipleValue = this.getIsMultipleValue();
+
+      this.survey.getChoiceDisplayValue({
+        question: this,
+        values: IsMultipleValue ? this.value : [this.value],
+        setItems: (displayValues: Array<string>) => {
+          if (!displayValues || !displayValues.length) return;
+
+          if (IsMultipleValue) {
+            this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
+          } else {
+            this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
+          }
+        }
+      });
+    }
+  }
+  protected resetSelectedItemValues(): void {
+    this.selectedItemValues = null;
   }
   protected hasUnknownValue(
     val: any,
@@ -498,7 +569,7 @@ export class QuestionSelectBase extends Question {
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
    *
-   * [View "Dropdown + RESTful" demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
    * @see choices
    */
   public get choicesByUrl(): ChoicesRestful {
@@ -514,14 +585,16 @@ export class QuestionSelectBase extends Question {
    *
    * ```js
    * {
-   *   "value": any, // A value to be saved in the survey results
+   *   "value": any, // A unique value to be saved in the survey results.
    *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "imageLink": String // A link to the image or video that represents this choice value. Applies only to Image Picker questions.
-   *   "customProperty": any // Any property that you find useful
+   *   "customProperty": any // Any property that you find useful.
    * }
    * ```
    *
-   * Refer to the following help topic for information on how to add custom properties so that they are serialized into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
+   * To enable Markdown support for the `text` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl
@@ -593,6 +666,12 @@ export class QuestionSelectBase extends Question {
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
+  /**
+   * Specifies whether to keep values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @see clearIncorrectValues
+   */
   public get keepIncorrectValues(): boolean {
     return this.getPropertyValue("keepIncorrectValues", false);
   }
@@ -767,9 +846,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return (
-      settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 && this.isDesignMode && !this.isContentElement
-    );
+    return !this.customWidget && settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
+      this.isDesignMode && !this.isContentElement;
   }
   public getPlainData(
     options: {
@@ -810,7 +888,7 @@ export class QuestionSelectBase extends Question {
           }
           if (this.isOtherSelected && this.otherItemValue === choice) {
             choiceDataItem.isOther = true;
-            choiceDataItem.displayValue = this.comment;
+            choiceDataItem.displayValue = this.otherValue;
           }
           return choiceDataItem;
         })
@@ -826,7 +904,7 @@ export class QuestionSelectBase extends Question {
   }
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
-      return this.comment ? this.comment : this.locOtherText.textOrHtml;
+      return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
@@ -941,7 +1019,7 @@ export class QuestionSelectBase extends Question {
     isOnValueChanged: boolean
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
-    if (!this.hasOther || !this.isOtherSelected || this.comment) return;
+    if (!this.hasOther || !this.isOtherSelected || this.otherValue) return;
     const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
     otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
     errors.push(otherEmptyError);
@@ -959,8 +1037,9 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
-  public getStoreOthersAsComment() {
+  public getStoreOthersAsComment(): boolean {
     if (this.isSettingDefaultValue) return false;
+    if(this.showCommentArea) return false;
     return (
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&
@@ -1007,6 +1086,22 @@ export class QuestionSelectBase extends Question {
   }
   protected setOtherValueIntoValue(newValue: any): any {
     return this.otherItem.value;
+  }
+  public onOtherValueInput(event: any): void {
+    if (this.isInputTextUpdate) {
+      if (event.target) {
+        this.otherValue = event.target.value;
+      }
+    }
+    else {
+      this.updateCommentElements();
+    }
+  }
+  public onOtherValueChange(event: any): void {
+    this.otherValue = event.target.value;
+    if (this.otherValue !== event.target.value) {
+      event.target.value = this.otherValue;
+    }
   }
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
@@ -1208,6 +1303,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected hasValueToClearIncorrectValues(): boolean {
+    if(!!this.survey && this.survey.keepIncorrectValues) return false;
     return !this.keepIncorrectValues && !this.isEmpty();
   }
   protected clearValueIfInvisibleCore(): void {
@@ -1251,7 +1347,10 @@ export class QuestionSelectBase extends Question {
   }
   clearUnusedValues() {
     super.clearUnusedValues();
-    if (!this.isOtherSelected && !this.hasComment) {
+    if (!this.isOtherSelected) {
+      this.otherValue = "";
+    }
+    if(!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
       this.comment = "";
     }
   }
@@ -1444,6 +1543,10 @@ export class QuestionSelectBase extends Question {
     super.afterRender(el);
     this.rootElement = el;
   }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.rootElement = undefined;
+  }
   private focusOtherComment() {
     if (!!this.rootElement) {
       setTimeout(() => {
@@ -1474,7 +1577,22 @@ export class QuestionSelectBase extends Question {
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
   }
-
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    if(!!this.dropdownListModel) {
+      const listCssClasses = {};
+      mergeValues(css.list, listCssClasses);
+      mergeValues(res.list, listCssClasses);
+      res["list"] = listCssClasses;
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if(this.dropdownListModel) {
+      this.dropdownListModel.updateListCssClasses(classes.list);
+    }
+    return classes;
+  }
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
@@ -1514,7 +1632,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 Serializer.addClass(
   "selectbase",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true },
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
       name: "commentText",
       dependsOn: "showCommentArea",

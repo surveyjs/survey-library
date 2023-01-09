@@ -3,9 +3,9 @@ import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Serializer } from "../src/jsonobject";
-import { surveyCss } from "../src/defaultCss/cssstandard";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("SurveyElement");
 
@@ -54,6 +54,7 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
 });
 
 QUnit.test("element check that title classes are updated after element state updated", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     questions: [
       {
@@ -127,6 +128,7 @@ QUnit.test("creator v1: https://github.com/surveyjs/survey-creator/issues/1744",
 });
 
 QUnit.test("Check errors location", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",
@@ -177,8 +179,54 @@ QUnit.test("Check errors location", function (assert) {
   assert.notOk(questionInMatrix.showErrorsAboveQuestion);
   assert.ok(questionInMatrix.isErrorsModeTooltip);
 });
+QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "p1",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorOnTop);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorOnBottom);
+
+  survey.css = defaultV2Css;
+  survey.questionErrorLocation = "top";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsBelowQuestion);
+  assert.ok(q1.showErrorsAboveQuestion);
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.isErrorsModeTooltip);
+  assert.notOk(q1.showErrorOnBottom);
+  assert.notOk(q1.showErrorOnTop);
+  assert.notOk(q1.showErrorsAboveQuestion);
+  assert.ok(q1.showErrorsBelowQuestion);
+});
 
 QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
+  StylesManager.applyTheme("default");
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget(
     {
@@ -246,6 +294,7 @@ QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
 });
 
 QUnit.test("allowRootStyle", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [{
       type: "text",

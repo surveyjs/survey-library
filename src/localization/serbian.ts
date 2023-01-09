@@ -75,7 +75,6 @@ export var serbianStrings = {
         "Proveli ste {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
   timerLimitPage: "Proveli ste {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
-  cleanCaption: "Očisti",
   clearCaption: "Poništi",
   chooseFileCaption: "Izaberi fajl",
   removeFileCaption: "Ukloni ovaj fajl",

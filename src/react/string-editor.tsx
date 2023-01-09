@@ -31,7 +31,7 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
     event.preventDefault();
     event.stopPropagation();
   };
-  render(): JSX.Element {
+  render(): JSX.Element | null {
     if (!this.locStr) {
       return null;
     }

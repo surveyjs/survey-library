@@ -1,7 +1,4 @@
 import React from "react";
-import {
-  QuestionPanelDynamicModel
-} from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { ReactSurveyElement } from "../../reactquestion_element";
 import { SurveyQuestionPanelDynamic } from "../../reactquestion_paneldynamic";
@@ -9,7 +6,7 @@ import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelDynamicAction {
   protected handleClick = (event: any) => {
-    this.question.removePanelUI(this.props.data.index);
+    this.question.removePanelUI(this.data.panel);
   }
   protected renderElement(): JSX.Element {
     return (

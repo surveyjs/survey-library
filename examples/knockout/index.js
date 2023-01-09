@@ -85,6 +85,24 @@ function init() {
         ]
       },
       {
+        type: "tagbox",
+        name: "cars2",
+        title: "Tagbox",
+        showNoneItem: true,
+        choices: [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen",
+          "Nissan",
+          "Audi",
+          "Mercedes-Benz",
+          "BMW",
+          "Peugeot",
+          "Toyota",
+          "Citroen"
+        ]
+      },
+      {
         type: "checkbox",
         name: "car",
         title: "Checkbox",
@@ -743,6 +761,20 @@ function init() {
         maxRateDescription: "Completely satisfied"
       },
       {
+        type: "ranking",
+        name: "smartphone-features",
+        title: "Please rank the following smartphone features in order of importance:",
+        choices: [
+          "Battery life",
+          "Screen size",
+          "Storage space",
+          "Camera quality",
+          "Durability",
+          "Processor power",
+          "Price",
+        ],
+      },
+      {
         type: "comment",
         name: "suggestions",
         title: "Comment"
@@ -999,7 +1031,7 @@ function init() {
 
   //Survey.StylesManager.applyTheme("default");
   //Survey.StylesManager.applyTheme("modern");
-  Survey.StylesManager.applyTheme("defaultV2");
+  // Survey.StylesManager.applyTheme("defaultV2");
 
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
@@ -1015,7 +1047,8 @@ function init() {
       }));
     });
 
-  model.render("surveyElement");
+  //model.render("surveyElement");
+  ko.applyBindings({model});
 }
 
 if (!window["%hammerhead%"]) {

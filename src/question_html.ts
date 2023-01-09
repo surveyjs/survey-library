@@ -4,7 +4,9 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
 /**
- * A Model for html question. Unlike other questions it doesn't have value and title.
+  * A class that describes the Html question type. Unlike other question types, Html cannot have a title or value.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/questiontype-html/ (linkStyle))
  */
 export class QuestionHtmlModel extends QuestionNonValue {
   public ignoreHtmlProgressing: boolean;
@@ -28,7 +30,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
     return super.getProcessedText(text);
   }
   /**
-   * Set html to display it
+   * HTML markup to display.
+   *
+   * > IMPORTANT: If you get the markup from a third party, ensure that it does not contain malicious code.
    */
   public get html(): string {
     return this.getLocalizableStringText("html", "");

@@ -1,6 +1,7 @@
 "use strict";
 
 const webpackCommonConfigCreator = require("../webpack.common");
+const DtsGeneratorPlugin = require("../webpack-dts-generator");
 const { merge } = require("webpack-merge");
 var packageJson = require("./package.json");
 var path = require("path");
@@ -18,7 +19,16 @@ const config = {
         commonjs: "vue",
         amd: "vue"
       }
-  }
+  },
+  plugins: [
+    new DtsGeneratorPlugin({
+      tsCommand: "vue-tsc --project",
+      tsConfigPath: "./build-scripts/survey-vue/tsconfig.typing.vue.json",
+      filePath: "build/survey-vue/survey-vue.d.ts",
+      moduleName: "survey-vue",
+      importName: "entries/vue"
+    }),
+  ],
 };
 
 module.exports = function (options) {

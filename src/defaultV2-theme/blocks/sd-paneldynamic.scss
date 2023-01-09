@@ -10,9 +10,6 @@
     & > .sd-panel {
         padding-top: 1px;
         padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-        & + .sd-paneldynamic__remove-btn {
-            margin-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-        }
     }
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
         padding-bottom: 0;
@@ -60,13 +57,6 @@
     flex-direction: row;
     align-items: center;
 }
-.sd-paneldynamic__remove-btn {
-    float: right;
-    position: relative;
-    top: calc(0.5 * var(--sd-base-vertical-padding));
-    margin-bottom: calcSize(-1);
-    margin-right: calcSize(-3);
-}
 .sd-paneldynamic__footer {
     clear: both;
     .sd-paneldynamic__prev-btn,
@@ -95,6 +85,7 @@
     margin-right: calcSize(-1);
 }
 .sd-paneldynamic__progress-text {
+    font-size: calcSize(2);
     color: $foreground-light;
     margin: 0;
     margin-right: calcSize(3);
@@ -133,4 +124,16 @@
     width: 100%;
     margin: 0 calcSize(-3);
     width: calc(100% + 6 * #{$base-unit});
+}
+.sd-paneldynamic__panel-footer {
+    border-top: none;
+    position: relative;
+    top: calc(0.5 * var(--sd-base-vertical-padding));
+    margin-right: calcSize(-3);
+    justify-content: flex-end;
+}
+.sd-paneldynamic__panel-footer {
+    .sv-action:not(.sv-action--hidden) {
+        margin-bottom: calcSize(-1);
+    }
 }

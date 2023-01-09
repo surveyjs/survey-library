@@ -1,7 +1,7 @@
-<!-- ko ifnot: element.isTitleOwner -->
+<!-- ko if: element.isTitleRenderedAsString -->
   <!-- ko template: { name: 'survey-string', data: element.locTitle } --><!-- /ko -->
 <!-- /ko -->
-<!-- ko if: element.isTitleOwner -->
+<!-- ko ifnot: element.isTitleRenderedAsString -->
   <!-- ko if: element.isRequireTextOnStart -->
   <span
     data-bind="css: element.koCss().requiredText || (element.koCss().panel && element.koCss().panel.requiredText), text: element.requiredText, attr: { 'aria-hidden': true }"

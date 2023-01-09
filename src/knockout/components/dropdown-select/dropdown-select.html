@@ -6,7 +6,7 @@
     optionsText: 'koText', 
     optionsCaption: question.allowClear ? question.locPlaceholder.koRenderedHtml : undefined, 
     optionsAfterRender: question.koDisableOption, 
-    attr: {id: question.inputId, autoComplete: question.autoComplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy},
+    attr: {id: question.inputId, autocomplete: question.autocomplete, required: question.isRequired, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy},
     click: click,
     event: { keyup: keyup },
     disable: question.isInputReadOnly, 
@@ -23,7 +23,7 @@
   </div>
   <!-- ko if: question.isOtherSelected -->
   <div class="form-group"
-    data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">
+    data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">
   </div>
   <!-- /ko -->
 </div>

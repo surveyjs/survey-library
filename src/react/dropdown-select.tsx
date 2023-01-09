@@ -1,9 +1,8 @@
 import * as React from "react";
-import { RendererFactory } from "survey-core";
+import { RendererFactory, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { SurveyQuestionOptionItem } from "./dropdown-item";
-import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {
@@ -25,8 +24,8 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
       (<select
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        ref={(select) => (this.control = select)}
-        autoComplete={this.question.autoComplete}
+        ref={(select) => (this.setControl(select))}
+        autoComplete={this.question.autocomplete}
         onChange={this.updateValueOnEvent}
         onInput={this.updateValueOnEvent}
         onClick={click}

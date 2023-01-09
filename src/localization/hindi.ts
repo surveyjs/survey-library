@@ -64,7 +64,6 @@ export var hindiStrings = {
   timerLimitAll: "आपने इस पृष्ठ पर {1} की {0} और कुल {3} की {2} खर्च की है।",
   timerLimitPage: "आपने इस पृष्ठ पर {1} का {0} खर्च किया है",
   timerLimitSurvey: "आपने कुल {1} की {0} खर्च की है",
-  cleanCaption: "साफ",
   clearCaption: "स्पष्ट",
   chooseFileCaption: "फ़ाइल चुनें",
   removeFileCaption: "इस फाइल को निकालें",

@@ -55,7 +55,7 @@ export class QuestionTextBase extends Question {
    * - `"onTyping"` - Updates the value on every key press.
    * - `"default"` (default) - Inherits the value from the `SurveyModel`'s [`textUpdateMode`](https://surveyjs.io/form-library/documentation/surveymodel#textUpdateMode) property.
    *
-   * > NOTE: Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are reevaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
+   * > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are reevaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
    */
   public get textUpdateMode(): string {
     return this.getPropertyValue("textUpdateMode");

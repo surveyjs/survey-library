@@ -94,6 +94,8 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onClick={() => this.item.action(this.item)}
         title={title}
         tabIndex={tabIndex}
+        aria-checked={this.item.ariaChecked}
+        role={this.item.ariaRole}
       >
         {buttonContent}
       </button>, null, { processEsc: false });

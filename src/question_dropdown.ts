@@ -16,13 +16,18 @@ import { settings } from "./settings";
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModel: DropdownListModel;
+  lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
-    let result = this.placeholder;
-    if (this.hasOther && this.isOtherSelected) {
-      result = this.otherText;
-    } else if (!!this.selectedItem) {
-      result = this.renderAs == "select" ? this.selectedItemText : "";
+    let result = !!this.selectedItem ? "" : this.placeholder;
+    if(this.renderAs == "select") {
+      if (this.isOtherSelected) {
+        result = this.otherText;
+      } else if (this.isNoneSelected) {
+        result = this.noneText;
+      } else if (!!this.selectedItem) {
+        result = this.selectedItemText;
+      }
     }
     this.readOnlyText = result;
   }
@@ -30,11 +35,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("cleanCaption", this, false, true);
+    this.createLocalizableString("clearCaption", this, false, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();
@@ -68,22 +73,32 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getLocalizableString("placeholder");
   }
 
-  public get cleanCaption(): string {
-    return this.getLocalizableStringText("cleanCaption");
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
   }
-  public set cleanCaption(value: string) {
-    this.setLocalizableStringText("cleanCaption", value);
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
   }
-  get locCleanCaption(): LocalizableString {
-    return this.getLocalizableString("cleanCaption");
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {
     return "dropdown";
   }
+  public get ariaRole(): string {
+    return "combobox";
+  }
   public get selectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
-    return ItemValue.getItemByValue(this.visibleChoices, this.value);
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    if(!!itemValue) {
+      this.lastSelectedItemValue = itemValue;
+    } else if(!selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return this.lastSelectedItemValue || selectedItemValues || new ItemValue(this.value);
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -167,14 +182,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (val < 1) val = 1;
     this.setPropertyValue("choicesStep", val);
   }
-  /**
-   * An [autocomplete](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute value for the underlying `<input>` element.
-   */
-  public get autoComplete(): string {
-    return this.getPropertyValue("autoComplete", "");
+
+  public get autocomplete(): string {
+    return this.getPropertyValue("autocomplete", "");
   }
-  public set autoComplete(val: string) {
-    this.setPropertyValue("autoComplete", val);
+  public set autocomplete(val: string) {
+    this.setPropertyValue("autocomplete", val);
   }
 
   /**
@@ -195,6 +208,18 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
+  /**
+   * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
+   * @see choicesLazyLoadPageSize
+   * @see SurveyModel.onChoicesLazyLoad
+   */
+  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  /**
+   * Specifies the number of choice items to load at a time when choices are loaded on demand.
+   * @see choicesLazyLoadEnabled
+   * @see SurveyModel.onChoicesLazyLoad
+   */
+  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -248,6 +273,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getInputId() {
     return this.inputId + "_0";
   }
+  public clearValue() {
+    super.clearValue();
+    this.lastSelectedItemValue = null;
+  }
 
   onClick(e: any): void {
     !!this.onOpenedCallBack && this.onOpenedCallBack();
@@ -270,9 +299,11 @@ Serializer.addClass(
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
-    { name: "autoComplete", choices: settings.questions.dataList, },
+    { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }
   ],

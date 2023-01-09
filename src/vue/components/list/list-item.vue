@@ -15,7 +15,7 @@
       />
 
     <div
-      :style="{ paddingLeft: model.getItemIndent(item) }"
+      :style="{ paddingInlineStart: model.getItemIndent(item) }"
       v-bind:class="model.cssClasses.itemBody"
     >
       <sv-svg-icon
@@ -33,15 +33,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base, ListModel } from "survey-core";
-import { BaseVue } from "../../base";
-import { attachKey2click } from "../../survey.vue";
+import { Base, ListModel, Action } from "survey-core";
+import { BaseVue, attachKey2click } from "../../base";
 
 export * from "./list.vue";
 
 @Component
 export class ListItem extends BaseVue {
-  @Prop() item: Base;
+  @Prop() item: Action;
   @Prop() model: ListModel;
   constructor() {
     super();
@@ -55,6 +54,9 @@ export class ListItem extends BaseVue {
   public click(event: any) {
     this.model.onItemClick(this.item as any);
     event.stopPropagation();
+  }
+  protected onMounted() {
+    this.model.onLastItemRended(<any>this.item);
   }
 }
 

@@ -233,6 +233,37 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
+  test("open popup and blur", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    await initSurvey(framework, json);
+
+    await t
+      .click(questionDropdownSelect)
+      .click(questionDropdownSelect)
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
+      .expect(questionValueText.exists).notEql();
+  });
+
   test("click on question title state editable", async (t) => {
     const json = {
       questions: [
@@ -678,6 +709,43 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.nth(1).textContent).eql("item21");
   });
 
+  test("Select item after switching focus", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+
+    await t
+      .expect(popupContainer.visible).notOk()
+
+      .pressKey("a")
+      .expect(popupContainer.visible).ok()
+
+      .pressKey("u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueText.textContent).eql("Vauxhall");
+  });
+
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
       questions: [
@@ -893,7 +961,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Check dropdown reset filter string", async (t) => {
-    const jsonWithDropDown = {
+    const jsonWithDropdown = {
       questions: [
         {
           type: "dropdown",
@@ -930,7 +998,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    await initSurvey(framework, jsonWithDropDown);
+    await initSurvey(framework, jsonWithDropdown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
     const listItems = Selector(".sv-list__item");
 
@@ -945,7 +1013,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
 
-      .pressKey("tab")
+      .pressKey("esc")
       .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
       .expect(clearButton.visible).notOk();
@@ -1192,5 +1260,246 @@ frameworks.forEach((framework) => {
       .resizeWindow(1300, 600)
       .click(questionDropdownV2Select)
       .expect(popupContainer.clientWidth).gte(850);
+  });
+
+  function choicesLazyLoad(_, opt) {
+    var getNumberArray = (skip = 1, count = 25) => {
+      const result = [];
+      for(let index = skip; index < (skip + count); index++) {
+        result.push(index);
+      }
+      return result;
+    };
+
+    const total = 55;
+    setTimeout(() => {
+      if(opt.skip + opt.take < total) {
+        opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+      } else {
+        opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+      }
+    }, 500);
+  }
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "country",
+          title: "Select the country...",
+          choicesLazyLoadEnabled: true
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "dropdown",
+          name: "kids",
+          title: "Dropdown page 30",
+          choicesLazyLoadEnabled: true,
+          choicesLazyLoadPageSize: 30
+        }
+      ]
+    };
+    await initSurvey(framework, json, { onChoicesLazyLoad: choicesLazyLoad });
+    const popupContainer = Selector(".sv-popup__container");
+    const dropdown1 = popupContainer.nth(0);
+    const dropdown2 = popupContainer.nth(1);
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("enter")
+      .expect(dropdown1.find(".sv-list__empty-container").visible).ok()
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).eql(0)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(1200, 1300)
+      .expect(listItems.filterVisible().count).eql(26)
+
+      .scrollBy(dropdown1.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(560, 570)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2400, 2500)
+      .expect(listItems.filterVisible().count).eql(51)
+
+      .scrollBy(dropdown1.find(".sv-list"), 0, 2300)
+      .wait(500)
+      .expect(dropdown1.offsetTop).lt(200)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(1700, 1800)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2600, 2700)
+      .expect(listItems.filterVisible().count).eql(55)
+
+      .click(getListItemByText("55"))
+      .click(Selector(".sd-dropdown").nth(1))
+      .expect(dropdown2.find(".sv-list__empty-container").visible).ok()
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+      .expect(listItems.filterVisible().count).eql(0)
+
+      .wait(500)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(0)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1500)
+      .expect(listItems.filterVisible().count).eql(31)
+
+      .scrollBy(dropdown2.find(".sv-list"), 0, 1000)
+      .wait(500)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(0)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-list").scrollTop).within(750, 850)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(2600, 2650)
+      .expect(listItems.filterVisible().count).eql(55)
+      .click(getListItemByText("55"))
+
+      .resizeWindow(1280, 1100);
+  });
+
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+    await applyTheme(theme);
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "country",
+          title: "Select the country...",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }, {
+          type: "checkbox",
+          name: "question1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6"
+          ]
+        }, {
+          type: "dropdown",
+          name: "kids",
+          title: "dropdown page 30",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+    const popupContainer = Selector(".sv-popup__container");
+    const dropdown1 = popupContainer.nth(0);
+    const dropdown2 = popupContainer.nth(1);
+    const listItems = Selector(".sv-list__item span");
+
+    await t
+      .resizeWindow(1280, 900)
+
+      .pressKey("2")
+      .expect(dropdown1.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+
+      .pressKey("enter")
+      .expect(dropdown1.visible).notOk()
+
+      .click(Selector(".sd-dropdown").nth(1))
+      .pressKey("2")
+      .expect(dropdown2.visible).ok()
+      .expect(listItems.filterVisible().count).eql(10)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).within(230, 240)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
+
+      .pressKey("3")
+      .expect(listItems.filterVisible().count).eql(1)
+      .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
+      .expect(dropdown2.offsetTop).eql(776)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
+
+      .pressKey("enter")
+      .expect(dropdown2.visible).notOk()
+
+      .resizeWindow(1280, 1100);
   });
 });

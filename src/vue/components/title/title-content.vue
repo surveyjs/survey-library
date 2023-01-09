@@ -1,31 +1,31 @@
 <template>
   <div class="sv-vue-title-additional-div">
-    <survey-string v-if="!element.isTitleOwner" :locString="element.locTitle" />
+    <survey-string v-if="element.isTitleRenderedAsString" :locString="element.locTitle" />
     <span
-      v-if="element.isTitleOwner && element.isRequireTextOnStart"
+      v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
     <span
-      v-if="element.isTitleOwner && element.no"
+      v-if="!element.isTitleRenderedAsString && element.no"
       style="position: static"
       :class="element.cssClasses.number"
       :aria-hidden="true"
       >{{ element.no }}</span
     >
-    <span v-if="element.isTitleOwner && element.no">&nbsp;</span>
+    <span v-if="!element.isTitleRenderedAsString && element.no">&nbsp;</span>
     <span
-      v-if="element.isTitleOwner && element.isRequireTextBeforeTitle"
+      v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
     >
-    <span v-if="element.isTitleOwner && element.isRequireTextBeforeTitle">&nbsp;</span>
-    <survey-string v-if="element.isTitleOwner" :locString="element.locTitle" />
-    <span v-if="element.isTitleOwner && element.isRequireTextAfterTitle">&nbsp;</span>
+    <span v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle">&nbsp;</span>
+    <survey-string v-if="!element.isTitleRenderedAsString" :locString="element.locTitle" />
+    <span v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle">&nbsp;</span>
     <span
-      v-if="element.isTitleOwner && element.isRequireTextAfterTitle"
+      v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
       :class="element.cssClasses.requiredText"
       :aria-hidden="true"
       >{{ element.requiredText }}</span
@@ -40,7 +40,7 @@ import Vue from "vue";
 import { SurveyElementCore } from "survey-core";
 @Component
 export class TitleContent extends Vue {
-  @Prop() element: SurveyElementCore;
+  @Prop() element: any;
   @Prop() css: any;
 
 }

@@ -3,6 +3,7 @@
     <input
       :class="question.cssClasses.fileInput"
       v-if="!question.isReadOnly"
+      tabindex="-1"
       type="file"
       :id="question.inputId"
       @change="question.doChange"
@@ -18,6 +19,7 @@
       v-if="question.isReadOnly"
       type="file"
       disabled
+      :id="question.inputId"
       :class="question.getReadOnlyFileCss()"
       :multiple="question.multipleRendered"
       :placeholder="question.title"
@@ -37,6 +39,7 @@
         <div :class="question.cssClasses.wrapper">
           <label
             role="button"
+            tabindex="0"
             :class="question.getChooseFileCss()"
             :for="question.inputId"
             v-bind:aria-label="question.chooseButtonCaption"
@@ -57,8 +60,8 @@
         :class="question.cssClasses.removeButton"
         @click="question.doClean"
       >
-        <span>{{ question.cleanButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.cleanButtonCaption"></sv-svg-icon>
+        <span>{{ question.clearButtonCaption }}</span>
+        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
       </button>
       <div :class="question.cssClasses.fileList || undefined" v-if="!question.isEmpty()">
         <span
@@ -73,7 +76,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>
@@ -81,8 +84,7 @@
             <img
               v-if="question.canPreviewImage(val)"
               :src="val.content"
-              :height="question.imageHeight"
-              :width="question.imageWidth"
+              :style="{height: question.imageHeight, width: question.imageWidth}"
               alt="File preview"
             />
             <sv-svg-icon v-if="question.defaultImage(val)" 
@@ -101,7 +103,7 @@
               :href="val.content"
               :title="val.name"
               :download="val.name"
-              :width="question.imageWidth"
+              :style="{width: question.imageWidth}"
               >{{ val.name }}</a
             >
           </div>
@@ -113,8 +115,8 @@
         :class="question.showRemoveButtonBottom"
         @click="question.doClean"
       >
-        <span>{{ question.cleanButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.cleanButtonCaption"></sv-svg-icon>
+        <span>{{ question.clearButtonCaption }}</span>
+        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
       </button>
       <sv-action-bar v-if="question.mobileFileNavigatorVisible" :model="question.mobileFileNavigator"></sv-action-bar>
     </div>

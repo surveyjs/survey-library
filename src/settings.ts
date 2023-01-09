@@ -17,11 +17,13 @@ export var settings = {
    * By default it uses setHours function, with local date
    */
   useLocalTimeZone: true,
+  get commentPrefix(): string { return settings.commentSuffix; },
+  set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
-   * The prefix that uses to store the question comment, as "questionName + commentPrefix".
+   * The suffix that uses to store the question comment, as "questionName + commentSuffix".
    * The default value is "-Comment"
    */
-  commentPrefix: "-Comment",
+  commentSuffix: "-Comment",
   /**
    * Encode parameter on calling restful web API
    */
@@ -181,6 +183,10 @@ export var settings = {
    */
   showItemsInOrder: "default",
   /**
+   * A value to save in survey results when respondents select the None choice item.
+   */
+  noneItemValue: "none",
+  /**
    * Supported validators by question types. You can modify this variable to add validators for new question types or add/remove for existing question types.
    */
   supportedValidators: {
@@ -207,7 +213,7 @@ export var settings = {
       cssClass?: string,
       title?: string,
       displayMode?: "popup" | "overlay"
-    ) => void
+    ) => any
     >undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,

@@ -2,7 +2,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border: 0.06em solid $text-border-color;
+  border: 0.06em solid var(--text-border-color, $text-border-color);
   border-radius: 0;
   box-sizing: border-box;
   padding: 0.25em 0.87em;
@@ -10,7 +10,8 @@
   font-size: 1em;
   outline: none;
   width: 100%;
+  max-width: 100%;
 }
 .sv-comment:focus {
-  border-color: $main-color;
+  border-color: var(--main-color, $main-color);
 }

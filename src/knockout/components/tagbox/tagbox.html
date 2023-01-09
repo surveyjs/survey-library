@@ -15,7 +15,7 @@
       'aria-describedby': question.ariaDescribedBy 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
-      <!-- ko foreach: question.renderedValue -->
+      <!-- ko foreach: question.selectedChoices -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
@@ -24,6 +24,8 @@
        attr: { 
         size: !model.filterString ? 1 : null, 
         id: question.getInputId(), 
+        role: model.filterStringEnabled ? question.ariaRole : undefined,
+        'aria-label': question.placeholder,
         placeholder: model.filterStringPlaceholder, 
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 
@@ -32,7 +34,7 @@
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
-      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.cleanCaption } } -->
+      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>
     <!-- /ko -->

@@ -46,9 +46,12 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
 }
 
 /**
- * A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
- * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
- */
+  * A class that describes the Dynamic Matrix question type.
+  *
+  * Dynamic Matrix allows respondents to add and delete matrix rows. You can use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
+  */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   public onGetValueForNewRowCallBack: (
@@ -89,7 +92,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!this.allowRowsDragAndDrop) return;
+    if (!row || !this.allowRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     if (row.isDetailPanelShowing) return;
     this.draggedRow = row;
@@ -108,8 +111,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   /**
-   * Set it to true, to show a confirmation dialog on removing a row
-   * @see ConfirmDeleteText
+   * Specifies whether to display a confirmation dialog when a respondent wants to delete a row.
+   *
+   * Default value: `false`
+   * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
     return this.getPropertyValue("confirmDelete", false);
@@ -118,7 +123,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("confirmDelete", val);
   }
   /**
-   * Set it to a column name and the library shows duplication error, if there are same values in different rows in the column.
+   * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
    */
   public get keyName(): string {
@@ -139,10 +144,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("defaultRowValue", val);
   }
   /**
-   * Set it to true to copy the value into new added row from the last row. If defaultRowValue is set and this property equals to true,
-   * then the value for new added row is merging.
+   * Specifies whether default values for a new row/column should be copied from the last row/column.
+   *
+   * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
-   * @see defaultRowValue
    */
   public get defaultValueFromLastRow(): boolean {
     return this.getPropertyValue("defaultValueFromLastRow", false);
@@ -242,7 +247,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   /**
-   * Set this property to true, to allow rows drag and drop.
+   * Specifies whether users can drag and drop matrix rows to reorder them.
+   *
+   * Default value: `false`
    */
   public get allowRowsDragAndDrop(): boolean {
     if (this.readOnly) return false;
@@ -267,10 +274,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("rowCount", val);
   }
   /**
-   * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
+   * A minimum number of rows in the matrix. Users cannot delete rows if `rowCount` equals `minRowCount`.
+   *
+   * Default value: 0
    * @see rowCount
    * @see maxRowCount
-   * @see allowAddRows
+   * @see allowRemoveRows
    */
   public get minRowCount(): number {
     return this.getPropertyValue("minRowCount");
@@ -282,7 +291,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.rowCount < val) this.rowCount = val;
   }
   /**
-   * The maximum row count. A user could not add a row if the rowCount equals to maxRowCount
+   * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
+   *
+   * Default value: 1000 (inherited from [`settings.matrixMaximumRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
@@ -300,7 +311,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.rowCount > val) this.rowCount = val;
   }
   /**
-   * Set this property to false to disable ability to add new rows. "Add new Row" button becomes invsible in UI
+   * Specifies whether users are allowed to add new rows.
+   *
+   * Default value: `true`
    * @see canAddRow
    * @see allowRemoveRows
    */
@@ -311,7 +324,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("allowAddRows", val);
   }
   /**
-   * Set this property to false to disable ability to remove rows. "Remove" row buttons become invsible in UI
+   * Specifies whether users are allowed to delete rows.
+   *
+   * Default value: `true`
    * @see canRemoveRows
    * @see allowAddRows
    */
@@ -325,11 +340,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   /**
-   * Returns true, if a new row can be added.
+   * Indicates whether it is possible to add a new row.
+   *
+   * This property returns `true` when all of the following conditions apply:
+   *
+   * - Users are allowed to add new rows (`allowAddRows` is `true`).
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` is less than `maxRowCount`.
    * @see allowAddRows
+   * @see isReadOnly
+   * @see rowCount
    * @see maxRowCount
    * @see canRemoveRows
-   * @see rowCount
    */
   public get canAddRow(): boolean {
     return (
@@ -338,10 +360,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
   /**
-   * Returns true, if row can be removed.
+   * Indicates whether it is possible to delete rows.
+   *
+   * This property returns `true` when all of the following conditions apply:
+   *
+   * - Users are allowed to delete rows (`allowRemoveRows` is `true`).
+   * - The question, its parent panel, or survey is not in read-only state.
+   * - `rowCount` exceeds `minRowCount`.
+   * @see allowRemoveRows
+   * @see isReadOnly
+   * @see rowCount
    * @see minRowCount
    * @see canAddRow
-   * @see rowCount
    */
   public get canRemoveRows(): boolean {
     var res =
@@ -358,17 +388,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       row
     );
   }
-  /**
-   * Creates and add a new row and focus the cell in the first column.
-   */
-  public addRowUI() {
-    var oldRowCount = this.rowCount;
-    this.addRow();
-    if (oldRowCount === this.rowCount) return;
-    var q = this.getQuestionToFocusOnAddingRow();
-    if (!!q) {
-      q.focus();
-    }
+  public addRowUI(): void {
+    this.addRow(true);
   }
   private getQuestionToFocusOnAddingRow(): Question {
     var row = this.visibleRows[this.visibleRows.length - 1];
@@ -381,9 +402,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return null;
   }
   /**
-   * Creates and add a new row.
+   * Creates and adds a new row to the matrix.
+   * @param setFocus *Optional.* Pass `true` to focus the cell in the first column.
    */
-  public addRow() {
+  public addRow(setFocus?: boolean): void {
+    const oldRowCount = this.rowCount;
     var options = { question: this, canAddRow: this.canAddRow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
@@ -395,9 +418,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
+    if (setFocus && oldRowCount !== this.rowCount) {
+      const q = this.getQuestionToFocusOnAddingRow();
+      if (!!q) {
+        q.focus();
+      }
+    }
   }
   /**
-   * Set this property to true to show detail panel immediately on adding a new row.
+   * Specifies whether to expand the detail section immediately when a respondent adds a new row.
    * @see detailPanelMode
    */
   public get detailPanelShowOnAdding(): boolean {
@@ -435,17 +464,19 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
-      var row = this.visibleRows[this.rowCount - 1];
-      if (!this.isValueEmpty(row.value)) {
-        if (!newValue) {
-          newValue = this.createNewValue();
-        }
-        if (
-          !this.isValueSurveyElement(newValue) &&
-          !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
-        ) {
-          newValue[newValue.length - 1] = row.value;
-          this.value = newValue;
+      if(this.isValueEmpty(defaultValue)) {
+        const row = this.visibleRows[this.rowCount - 1];
+        if (!this.isValueEmpty(row.value)) {
+          if (!newValue) {
+            newValue = this.createNewValue();
+          }
+          if (
+            !this.isValueSurveyElement(newValue) &&
+            !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
+          ) {
+            newValue[newValue.length - 1] = row.value;
+            this.value = newValue;
+          }
         }
       }
     }
@@ -486,24 +517,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  /**
-   * Removes a row by it's index. If confirmDelete is true, show a confirmation dialog
-   * @param index a row index, from 0 to rowCount - 1
-   * @see removeRow
-   * @see confirmDelete
-   */
   public removeRowUI(value: any) {
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
       if (index < 0) return;
       value = index;
     }
-    if (
-      !this.isRequireConfirmOnRowDelete(value) ||
-      confirmAction(this.confirmDeleteText)
-    ) {
-      this.removeRow(value);
-    }
+    this.removeRow(value);
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
@@ -514,22 +534,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !this.isValueEmpty(value[index]);
   }
   /**
-   * Removes a row by it's index.
-   * @param index a row index, from 0 to rowCount - 1
+   * Removes a matrix row with a specified index.
+   * @param index A zero-based row index.
+   * @param confirmDelete *Optional.* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
-  public removeRow(index: number) {
+  public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     var row =
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
-    if (
-      !!row &&
-      !!this.survey &&
-      !this.survey.matrixRowRemoving(this, index, row)
-    )
-      return;
+    if(confirmDelete === undefined) {
+      confirmDelete = this.isRequireConfirmOnRowDelete(index);
+    }
+    if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
+    if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);
@@ -561,7 +581,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   /**
-   * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
+   * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
+   * @see confirmDelete
    */
   public get confirmDeleteText() {
     return this.getLocalizableStringText("confirmDeleteText");
@@ -573,7 +594,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("confirmDeleteText");
   }
   /**
-   * Use this property to change the default value of add row button text.
+   * A caption for the Add Row button.
+   * @see addRowLocation
    */
   public get addRowText() {
     return this.getLocalizableStringText("addRowText", this.defaultAddRowText);
@@ -590,9 +612,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   /**
-   * By default the 'Add Row' button is shown on bottom if columnLayout is horizontal and on top if columnLayout is vertical.
-   * You may set it to "top", "bottom" or "topBottom" (to show on top and bottom).
+   * Specifies the location of the Add Row button.
+   *
+   * Possible values:
+   *
+   * - `"top"` - Displays the Add Row button at the top of the matrix.
+   * - `"bottom"` - Displays the Add Row button at the bottom of the matrix.
+   * - `"topBottom"` - Displays the Add Row button at the top and bottom of the matrix.
+   *
+   * Default value: `"top"` if `columnLayout` is `vertical`; `"bottom"` if `columnLayout` is `"horizontal"` or the matrix is in compact mode.
    * @see columnLayout
+   * @see addRowText
    */
   public get addRowLocation(): string {
     return this.getPropertyValue("addRowLocation");
@@ -604,7 +634,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.addRowLocation;
   }
   /**
-   * Set this property to true to hide matrix columns when there is no any row.
+   * Specifies whether to hide columns when the matrix does not contain any rows. If you enable this property, the matrix displays the `emptyRowsText` message and the Add Row button.
+   *
+   * Default value: `false`
+   * @see emptyRowsText
    */
   public get hideColumnsIfEmpty(): boolean {
     return this.getPropertyValue("hideColumnsIfEmpty");
@@ -628,7 +661,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("removeRowText");
   }
   /**
-   * Use this property to change the default value of remove row button text.
+   * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
+   * @see hideColumnsIfEmpty
    */
   public get emptyRowsText() {
     return this.getLocalizableStringText("emptyRowsText");

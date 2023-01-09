@@ -1,9 +1,9 @@
 .sv-rating {
-  color: $text-color;
+  color: var(--text-color, $text-color);
   padding-bottom: 3px;
   input:focus + .sv-rating__min-text + .sv-rating__item-text,
   input:focus + .sv-rating__item-text {
-    outline: 1px solid $main-color;
+    outline: 1px solid var(--main-color, $main-color);
     outline-offset: 2px;
   }
 }
@@ -17,9 +17,9 @@
   min-width: 2.3125em;
   height: 2.3125em;
   display: inline-block;
-  color: $main-hover-color;
+  color: var(--main-hover-color, $main-hover-color);
   padding: 0 0.3125em;
-  border: solid 0.1875em $main-hover-color;
+  border: solid 0.1875em var(--main-hover-color, $main-hover-color);
   text-align: center;
   font-size: 1em;
   font-weight: bold;
@@ -35,19 +35,19 @@
   }
 
   &:hover {
-    background-color: $main-hover-color;
-    color: $body-background-color;
+    background-color: var(--main-hover-color, $main-hover-color);
+    color: var(--body-background-color, $body-background-color);
   }
 }
 
 .sv-rating__item--selected {
   .sv-rating__item-text {
-    background-color: $main-color;
-    color: $body-background-color;
-    border-color: $main-color;
+    background-color: var(--main-color, $main-color);
+    color: var(--body-background-color, $body-background-color);
+    border-color: var(--main-color, $main-color);
 
     &:hover {
-      background-color: $main-color;
+      background-color: var(--main-color, $main-color);
     }
   }
 }
@@ -67,17 +67,22 @@
 .sv-question--disabled {
   .sv-rating__item-text {
     cursor: default;
-    color: $disable-color;
-    border-color: $disable-color;
+    color: var(--disable-color, $disable-color);
+    border-color: var(--disable-color, $disable-color);
     &:hover {
       background-color: transparent;
     }
   }
 
+  .sv-rating--disabled .sv-rating__item-text:hover .sv-rating__item--selected .sv-rating__item-text {
+    background-color: var(--disable-color, $disable-color);
+    color: var(--body-background-color, $body-background-color);
+  }
+
   .sv-rating__item--selected {
     .sv-rating__item-text {
-      background-color: $disable-color;
-      color: $body-background-color;
+      background-color: var(--disable-color, $disable-color);
+      color: var(--body-background-color, $body-background-color);
     }
   }
 

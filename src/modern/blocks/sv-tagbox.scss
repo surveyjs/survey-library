@@ -1,7 +1,7 @@
 .sv-input.sv-tagbox:not(.sv-tagbox--empty):not(.sv-input--disabled) {
   height: auto;
   padding: 0.5em;
-  padding-right: 2em;
+  padding-inline-end: 2em; // padding-right
 }
 
 .sv-tagbox_clean-button {
@@ -24,20 +24,23 @@
 .sv-tagbox__item {
   position: relative;
   display: flex;
-  color: $text-color;
+  color: var(--text-color, $text-color);
   height: 1.5em;
-  padding: 0.25em 0.4em 0.25em 0.87em;
+  // padding: 0.25em 0.4em 0.25em 0.87em;
+  padding-block: 0.25em;
+  padding-inline-end: 0.4em;
+  padding-inline-start: 0.87em;
   border: solid 0.1875em #9f9f9f;
   border-radius: 2px;
   min-width: 2.3125em;
 }
 
 .sv-tagbox__item:hover {
-  background-color: $main-hover-color;
-  color: $body-background-color;
+  background-color: var(--main-hover-color, $main-hover-color);
+  color: var(--body-background-color, $body-background-color);
 
   .sv-tagbox__item_clean-button-svg use {
-    fill: $body-background-color;
+    fill: var(--body-background-color, $body-background-color);
   }
 }
 
@@ -48,9 +51,11 @@
 
 .sv-tagbox__item_clean-button-svg {
   margin: 0.3125em;
+  width: 1em;
+  height: 1em;
 }
 .sv-tagbox__item_clean-button-svg use {
-  fill: $text-color;
+  fill: var(--text-color, $text-color);
 }
 
 .sv-tagbox__filter-string-input {
@@ -69,5 +74,22 @@
   text-align: left;
   cursor: text;
   pointer-events: none;
-  color: $main-hover-color;
+  color: var(--main-hover-color, $main-hover-color);
+}
+
+.sv-tagbox {
+  border-bottom: 0.06em solid var(--text-border-color, $text-border-color);
+}
+.sv-tagbox:focus {
+  border-color: var(--text-border-color, $text-border-color);
+}
+.sv-tagbox--error {
+  border-color: var(--error-color, $error-color);
+  color: var(--error-color, $error-color);
+}
+.sv-tagbox--error::placeholder {
+  color: var(--error-color, $error-color);
+}
+.sv-tagbox--error::-ms-input-placeholder {
+  color: var(--error-color, $error-color);
 }

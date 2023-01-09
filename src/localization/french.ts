@@ -66,7 +66,6 @@ export var frenchSurveyStrings = {
   timerLimitAll: "Vous avez passé {0} sur {1} sur cette page et {2} sur {3} au total.",
   timerLimitPage: "Vous avez passé {0} sur {1} sur cette page.",
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
-  cleanCaption: "Nettoyer",
   clearCaption: "Vider",
   chooseFileCaption: "Ajouter un fichier",
   removeFileCaption: "Enlever ce fichier",

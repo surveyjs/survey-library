@@ -1,14 +1,14 @@
-<div *ngIf="!!model && model.isShowing" [class]="model.cssRoot" style="position: fixed; bottom: 3px; right: 10px; max-width: 60%;">
-  <div [class]="model.cssHeaderRoot">
-      <span (click)="model.changeExpandCollapse()" style="width: 100%; cursor: pointer;">
-          <span style="padding-right:10px" [class]="model.cssHeaderTitle">{{model.locTitle.renderedHtml}}</span>
-          <span aria-hidden="true" [class]="model.cssButton"></span>
+<div *ngIf="!!popup && popup.isShowing" [class]="popup.cssRoot" style="position: fixed; bottom: 3px; right: 10px;" [style.width]="popup.renderedWidth" [style.maxWidth]="popup.renderedWidth">
+  <div [class]="popup.cssHeaderRoot">
+      <span (click)="popup.changeExpandCollapse()" style="width: 100%; cursor: pointer;">
+          <span style="padding-right:10px" [class]="popup.cssHeaderTitle">{{popup.locTitle.renderedHtml}}</span>
+          <span aria-hidden="true" [class]="popup.cssButton"></span>
       </span>
-      <span *ngIf="model.isExpanded" (click)="model.changeExpandCollapse()" style="float: right; cursor: pointer;">
-          <span style="padding-right:10px" [class]="model.cssHeaderTitle">X</span>
+      <span *ngIf="popup.isExpanded" (click)="popup.changeExpandCollapse()" style="float: right; cursor: pointer;">
+          <span style="padding-right:10px" [class]="popup.cssHeaderTitle">X</span>
       </span>
   </div>
-  <div *ngIf="model.isExpanded" [class]="model.cssBody">
-    <survey [model]="model.survey"></survey>
+  <div *ngIf="popup.isExpanded" [class]="popup.cssBody">
+    <survey [model]="popup.survey"></survey>
   </div>
 </div>

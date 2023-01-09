@@ -1,10 +1,8 @@
 import * as React from "react";
 import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
-import { QuestionRadiogroupModel } from "survey-core";
-import { ItemValue } from "survey-core";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { QuestionRadiogroupModel, ItemValue, Base, SurveyModel } from "survey-core";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { Base, SurveyModel } from "survey-core";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
 
@@ -17,7 +15,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var clearButton = null;
+    var clearButton: JSX.Element | null = null;
     if (this.question.showClearButtonInContent) {
       clearButton = (
         <div>
@@ -34,7 +32,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       <fieldset
         className={this.question.getSelectBaseRootCss()}
         role="presentation"
-        ref={(fieldset) => (this.control = fieldset)}
+        ref={(fieldset) => (this.setControl(fieldset))}
       >
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
@@ -52,8 +50,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           "item_f" + ii,
           item,
           false,
-          this.question.cssClasses,
-          null
+          this.question.cssClasses
         )
       );
     }
@@ -87,7 +84,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
 
   protected getItems(cssClasses: any, choices: Array <ItemValue>): Array<any> {
-    var items = [];
+    var items:Array<JSX.Element> = [];
     var value = this.getStateValue();
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
@@ -102,7 +99,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}
@@ -116,7 +113,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     item: ItemValue,
     value: any,
     cssClasses: any,
-    index: string
+    index?: string
   ): JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       key: key,
@@ -129,7 +126,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       isChecked: value === item.value,
     });
     const survey = this.question.survey as SurveyModel;
-    let wrappedItem = null;
+    let wrappedItem: JSX.Element | null = null;
     if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }

@@ -74,6 +74,32 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check dropdown question input", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            optionsCaption: "Select country here...",
+            allowClear: false,
+            choices: ["Greece"],
+          },
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await t
+        .click(".sd-dropdown__filter-string-input")
+        .pressKey("G r e e c e")
+        .wait(500);
+      await takeElementScreenshot("dropdown-input-position.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check dropdown select question popup", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
@@ -407,4 +433,60 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("dropdown-with-markdown-popup.png", popupContainer, t, comparer);
     });
   });
+
+  test("Check rtl dropdown question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "dropdown",
+            showTitle: false,
+            name: "dropdown_question",
+            defaultValue: "item10",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item13",
+              "item14",
+              "item15",
+              "item16",
+              "item17",
+              "item18",
+              "item19"
+            ],
+          },
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+
+      await resetFocusToBody();
+      await takeElementScreenshot("dropdown-rtl-question-answered.png", questionRoot, t, comparer);
+
+      await t.click(".sd-dropdown_clean-button");
+      await resetFocusToBody();
+      await takeElementScreenshot("dropdown-rtl-question.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "ltr");
+      })();
+    });
+
+  });
+
 });

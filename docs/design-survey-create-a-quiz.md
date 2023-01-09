@@ -1,9 +1,13 @@
+---
+title: Create a Quiz | SurveyJS Form Libraries
+description: Learn how to build your own interactive timed quizzes and tests with SurveyJS. A step-by-step tutorial plus access to the full demo source code.
+---
 # Create a Quiz
 
 This tutorial shows you how to create the following quiz&mdash;a multi-page survey that limits response time and tracks correct/incorrect answers. 
 
-<iframe src="https://surveyjs.github.io/code-examples/quiz/jquery/"
-    style="width:100%; height:650px; border:0; border-radius: 4px; overflow:hidden;"
+<iframe src="/proxy/github/code-examples/quiz/jquery/index.html"
+    style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
 
 Follow the steps below:
@@ -14,11 +18,11 @@ Follow the steps below:
 - [Display Quiz Results](#display-quiz-results)
 - [Render the Quiz](#render-the-quiz)
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">Quiz</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
 
 ## Configure Questions
 
-Quizzes can include any question type supported by the SurveyJS library. The following code sets up three [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) questions. Note that for each question, the [`correctAnswer`](https://surveyjs.io/Documentation/Library?id=Question#correctAnswer) property is specified.
+Quizzes can include any question type supported by the SurveyJS Form Library. The following code sets up three [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel) questions. Note that for each question, the [`correctAnswer`](https://surveyjs.io/Documentation/Library?id=Question#correctAnswer) property is specified.
 
 ```js
 const surveyJson = {
@@ -104,7 +108,7 @@ const surveyJson = {
 ```
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -187,7 +191,7 @@ const surveyJson = {
 ```
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -279,7 +283,7 @@ const surveyJson = {
 The `completedHtml` and `completedHtmlOnCondition` properties can be used together. In this case, if none of the `completedHtmlOnCondition` expressions evaluate to `true`, the complete page displays the HTML markup from the `completedHtml` property.
 
 <details>
-  <summary>View full survey model</summary>
+  <summary>View Full Survey Model</summary>
 
 ```js
 const surveyJson = {
@@ -358,10 +362,11 @@ Refer to the following platform-specific articles for information on how to rend
 - [Render the Survey - Knockout](https://surveyjs.io/form-library/documentation/get-started-knockout#render-the-survey)
 - [Render the Survey - jQuery](https://surveyjs.io/form-library/documentation/get-started-jquery#render-the-survey)
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/quiz" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/quiz/ (linkStyle))
 
 ## See Also
 
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
 - [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
 - [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)
+- [Review Quiz Results demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle))

@@ -71,5 +71,5 @@
   padding-bottom: 1.875em;
 }
 .sv-panel__title--error {
-  background-color: $error-background-color;
+  background-color: var(--error-background-color, $error-background-color);
 }

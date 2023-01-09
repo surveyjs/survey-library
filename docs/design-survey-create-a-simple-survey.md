@@ -1,3 +1,7 @@
+---
+title: Create a Simple Survey | SurveyJS Form Libraries
+description: The guide describes a basic survey structure and its elements and offers code examples of how to display an on-page form or a pop-up survey in a web app.
+---
 # Create a Simple Survey
 
 This article illustrates a SurveyJS survey structure and the different ways you can describe this structure using a survey model. The article also contains code examples that show how to display the survey inside your page or in an expandable window. 
@@ -26,7 +30,7 @@ Use this approach if you want to add or remove survey elements at runtime.
 
 ### Define a Static Survey Model in JSON
 
-Static survey models are specified by model schemas (JSON objects). For example, the following model schema declares a [page](https://surveyjs.io/Documentation/Library?id=pagemodel) that contains two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel) and an expandable panel with two more textual questions. All survey elements have [names](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name) that can be used to identify the elements in code. The panel and questions also have [titles](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) that are displayed on screen.
+Static survey models are specified by model schemas (JSON objects). For example, the following model schema declares a [page](https://surveyjs.io/Documentation/Library?id=pagemodel) that contains two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel) and an expandable panel with two more textual questions. All survey elements have unique [names](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name) that can be used to identify the elements in code. The panel and questions also have [titles](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) that are displayed on screen.
 
 ```js
 const surveyJson = {
@@ -170,12 +174,16 @@ You can embed the survey inside your page or display it as a pop-up survey:
     <summary>Angular</summary> 
 
 ```html
-<div id="surveyContainer"></div>
+<!-- Render the survey inside the page -->
+<survey [model]="surveyModel"></survey>
+
+<!-- Render the survey in a pop-up window -->
+<popup-survey [model]="surveyModel" [isExpanded]="true"></popup-survey>
 ```
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { Model, SurveyNG, PopupSurveyNG } from "survey-angular";
+import { Model } from "survey-core";
 
 const surveyJson = {
   // ...
@@ -187,14 +195,10 @@ const surveyJson = {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  surveyModel: Model;
   ngOnInit() {
     const survey = new Model(surveyJson);
-
-    // Render the survey inside the page
-    SurveyNG.render("surveyContainer", { model: survey });
-
-    // Render the survey in a pop-up window
-    PopupSurveyNG.render("surveyContainer", { model: survey, isExpanded: true });
+    this.surveyModel = survey;
   }
 }
 ```
@@ -268,7 +272,7 @@ export default App;
     <summary>Knockout</summary> 
 
 ```html
-<div id="surveyContainer"></div>
+<survey params="survey: model"></survey>
 ```
 
 ```js
@@ -279,7 +283,9 @@ const surveyJson = {
 // Render the survey inside the page
 const survey = new Survey.Model(surveyJson);
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 
 // Render the survey in a pop-up window
@@ -316,7 +322,7 @@ $(function() {
 ```
 </details>
 
-[View Pop-Up Survey example](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=survey-window (linkStyle))
 
 ## See Also
 

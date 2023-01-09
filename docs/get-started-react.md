@@ -1,6 +1,10 @@
+---
+title: React Form Library | Getting Started Guide
+description: A step-by-step tutorial on how to add the SurveyJS Form Library to a React application.
+---
 # Add a Survey to a React Application
 
-This step-by-step tutorial will help you get started with the SurveyJS Library in a React application. To add a survey to your React application, follow the steps below:
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a survey to your React application, follow the steps below:
 
 - [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
@@ -16,11 +20,11 @@ As a result, you will create a survey displayed below:
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-You can find the full code in the following GitHub repository: <a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">Get Started with SurveyJS - React</a>.
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
 
 ## Install the `survey-react-ui` npm Package
 
-The SurveyJS Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
+The SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
 
 ```cmd
 npm install survey-react-ui --save
@@ -30,7 +34,7 @@ npm install survey-react-ui --save
 
 SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
 
-![Themes in SurveyJS Library](images/survey-library-themes.png)
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
 Open the React component in which your survey will be and import a style sheet that implements the required theme.
 
@@ -82,7 +86,7 @@ function App() {
 ```
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -113,6 +117,7 @@ export default App;
 </details>
 
 ## Render the Survey
+
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
 
 ```js
@@ -132,7 +137,7 @@ If you replicate the code correctly, you should see the following survey:
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -225,7 +230,7 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 <details>
-    <summary>View full code</summary>  
+    <summary>View Full Code</summary>  
 
 ```js
 import { useCallback } from 'react';
@@ -264,7 +269,7 @@ export default App;
 ```
 </details>
 
-<a href="https://github.com/surveyjs/code-examples/tree/main/get-started-library/react" target="_blank">View full code on GitHub</a>
+[View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/react (linkStyle))
 
 ## Further Reading
 

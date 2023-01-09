@@ -26,6 +26,19 @@ export interface IConditionObject {
   context?: Question;
 }
 
+export interface IQuestionPlainData {
+  name: string | number;
+  title: string;
+  value: any;
+  displayValue: any;
+  isNode: boolean;
+  isComment?: boolean;
+  questionType?: string;
+  data?: Array<IQuestionPlainData>;
+  getString: (val: any) => string;
+  [key: string]: any;
+}
+
 /**
  * A base class for all questions.
  */
@@ -61,16 +74,19 @@ export class Question extends SurveyElement<Question>
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
-  private commentElement: HTMLElement;
+  private commentElements: Array<HTMLElement>;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
    *
    * Parameters:
    *
-   * - `sender` - A survey that contains the question whose ready state has changed.
-   * - `options.isReady` - A Boolean value that indicates whether the question is ready.
-   * - `options.oldIsReady` - A Boolean value that indicates the previous ready state.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that contains the question whose ready state has changed.
+   * - `options.isReady`: `Boolean`\
+   * Indicates whether the question is ready.
+   * - `options.oldIsReady`: `Boolean`\
+   * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
@@ -190,6 +206,13 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     return this.errors.length > 0 ? "true" : "false";
   }
+  public get ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
@@ -245,19 +268,27 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * Specifies whether to use display names for question values interpolated in the title. To interpolate question values, use curly brackets (`{}`).
-   *
-   * This property is useful when interpolated question values have both the `value` and `text` properties.
+   * Specifies whether to use display names for question values in placeholders.
    *
    * Default value: `true`
+   *
+   * This property applies to questions whose values are defined as objects with the `value` and `text` properties (for example, [choice items](https://surveyjs.io/form-library/documentation/questionradiogroupmodel#choices) in Radiogroup, Checkbox, and Dropdown questions).
+   *
+   * You can use question values as placeholders in the following places:
+   *
+   * - Survey element titles and descriptions
+   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
+   * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
+   *
+   * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
    */
-  public get useDisplayValuesInTitle(): boolean {
-    return this.getPropertyValue("useDisplayValuesInTitle");
+  public get useDisplayValuesInDynamicTexts(): boolean {
+    return this.getPropertyValue("useDisplayValuesInDynamicTexts");
   }
-  public set useDisplayValuesInTitle(val: boolean) {
-    this.setPropertyValue("useDisplayValuesInTitle", val);
+  public set useDisplayValuesInDynamicTexts(val: boolean) {
+    this.setPropertyValue("useDisplayValuesInDynamicTexts", val);
   }
-  protected getUseDisplayValuesInTitle(): boolean { return this.useDisplayValuesInTitle; }
+  protected getUseDisplayValuesInDynamicTexts(): boolean { return this.useDisplayValuesInDynamicTexts; }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
    *
@@ -324,6 +355,7 @@ export class Question extends SurveyElement<Question>
    * - [*"checkbox"*](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)
    * - [*"comment"*](https://surveyjs.io/Documentation/Library?id=questioncommentmodel)
    * - [*"dropdown"*](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel)
+   * - [*"tagbox"*](https://surveyjs.io/form-library/documentation/questiontagboxmodel)
    * - [*"expression"*](https://surveyjs.io/Documentation/Library?id=questionexpressionmodel)
    * - [*"file"*](https://surveyjs.io/Documentation/Library?id=questionfilemodel)
    * - [*"html"*](https://surveyjs.io/Documentation/Library?id=questionhtmlmodel)
@@ -407,13 +439,13 @@ export class Question extends SurveyElement<Question>
    *
    * Possible values:
    *
-   * - `"default"` - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
+   * - `"default"` (default) - Inherits the setting from the `questionTitleLocation` property specified for the question's container.
    * - `"top"` - Displays the title above the input field.
    * - `"bottom"` - Displays the title below the input field.
    * - `"left"` - Displays the title to the left of the input field.
    * - `"hidden"` - Hides the question title.
    *
-   * > NOTE: Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+   * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    * @see SurveyModel.questionTitleLocation
    * @see getTitleLocation
    * @see isAllowTitleLeft
@@ -431,6 +463,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public getTitleOwner(): ITitleOwner { return this; }
+  protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
@@ -514,6 +547,7 @@ export class Question extends SurveyElement<Question>
   }
   public set descriptionLocation(val: string) {
     this.setPropertyValue("descriptionLocation", val);
+    this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
     return this.getDescriptionLocation() == "underTitle";
@@ -579,11 +613,6 @@ export class Question extends SurveyElement<Question>
   public set commentPlaceHolder(newValue: string) {
     this.commentPlaceholder = newValue;
   }
-
-  public get commentOrOtherPlaceholder(): string {
-    return this.otherPlaceholder || this.commentPlaceholder;
-  }
-
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
@@ -612,8 +641,12 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
-  public updateCommentElement(): void {
-    if (this.commentElement && this.autoGrowComment) increaseHeightByContent(this.commentElement);
+  protected updateCommentElements(): void {
+    if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
+    for(let i = 0; i < this.commentElements.length; i ++) {
+      const el = this.commentElements[i];
+      if (el) increaseHeightByContent(el);
+    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -622,7 +655,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     else {
-      this.updateCommentElement();
+      this.updateCommentElements();
     }
   }
   public onCommentChange(event: any): void {
@@ -643,12 +676,21 @@ export class Question extends SurveyElement<Question>
     }
 
     if (this.supportComment() || this.supportOther()) {
-      this.commentElement = (document.getElementById(this.id) && document.getElementById(this.id).querySelector("textarea")) || null;
-      this.updateCommentElement();
+      this.commentElements = [];
+      this.getCommentElementsId().forEach(id => {
+        let el = document.getElementById(id);
+        if(el) this.commentElements.push(el);
+      });
+      this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
   }
-  public beforeDestroyQuestionElement(el: HTMLElement): void { }
+  protected getCommentElementsId(): Array<string> {
+    return [this.commentId];
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.commentElements = undefined;
+  }
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;
@@ -751,21 +793,22 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.titleExpandable, this.state !== "default")
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isReadOnly)
       .append(cssClasses.titleOnError, this.containsErrors)
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
   public get cssDescription(): string {
     this.ensureElementCss();
-    return this.cssClasses.description;
+    return this.getPropertyValue("cssDescription", "");
   }
   protected setCssDescription(val: string): void {
-    this.setPropertyValue("cssDescription", "");
+    this.setPropertyValue("cssDescription", val);
   }
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
-      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
       .toString();
   }
   protected getIsErrorsModeTooltip() {
@@ -782,11 +825,21 @@ export class Question extends SurveyElement<Question>
   public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
   }
+  protected getIsTooltipErrorSupportedByParent(): boolean {
+    if (this.parentQuestion) {
+      return this.parentQuestion.getIsTooltipErrorInsideSupported();
+    } else {
+      return super.getIsTooltipErrorSupportedByParent();
+    }
+  }
+  private get showErrorsOutsideQuestion(): boolean {
+    return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
+  }
   public get showErrorsAboveQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.isDefaultV2Theme && !this.hasParent && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
   }
 
   public get cssError(): string {
@@ -887,7 +940,7 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode) return;
 
     if (!!this.survey) {
-      this.expandAllPanels(this.parent);
+      this.expandAllParents(this);
       this.survey.scrollElementToTop(this, this, null, this.id);
     }
     var id = !onError
@@ -897,13 +950,13 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-  private expandAllPanels(panel: IPanel) {
-    if(!!panel && !!panel.parent) {
-      if(panel.isCollapsed) {
-        panel.expand();
-      }
-      this.expandAllPanels(panel.parent);
+  private expandAllParents(element: IElement) {
+    if(!element) return;
+    if(element.isCollapsed) {
+      element.expand();
     }
+    this.expandAllParents((<any>element).parent);
+    this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
@@ -977,7 +1030,6 @@ export class Question extends SurveyElement<Question>
   public set showCommentArea(val: boolean) {
     if (!this.supportComment()) return;
     this.setPropertyValue("showCommentArea", val);
-    if (this.showCommentArea) this.hasOther = false;
   }
 
   public get hasComment(): boolean {
@@ -999,6 +1051,9 @@ export class Question extends SurveyElement<Question>
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
+  public get commentId(): string {
+    return this.id + "_comment";
+  }
   public get ariaRole(): string {
     return "textbox";
   }
@@ -1016,7 +1071,6 @@ export class Question extends SurveyElement<Question>
   public set showOtherItem(val: boolean) {
     if (!this.supportOther() || this.showOtherItem == val) return;
     this.setPropertyValue("showOtherItem", val);
-    if (this.showOtherItem) this.hasComment = false;
     this.hasOtherChanged();
   }
 
@@ -1078,10 +1132,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   /**
-   * A question number or letter (depends on SurveyModel's `questionStartIndex` property).
+   * A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
    *
-   * For invisible questions, this property returns an empty string.
+   * When the question number, title, or the entire question is invisible, this property returns an empty string.
    * @see SurveyModel.questionStartIndex
+   * @see hideNumber
+   * @see titleLocation
+   * @see visibleIf
    */
   public get no(): string {
     return this.getPropertyValue("no");
@@ -1334,12 +1391,12 @@ export class Question extends SurveyElement<Question>
         propertyName: string,
       }>,
     }
-  ): any {
+  ): IQuestionPlainData {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false };
     }
     if (options.includeEmpty || !this.isEmpty()) {
-      var questionPlainData = <any>{
+      var questionPlainData: IQuestionPlainData = {
         name: this.name,
         title: this.locTitle.renderedHtml,
         value: this.value,
@@ -1363,7 +1420,7 @@ export class Question extends SurveyElement<Question>
             name: 0,
             isComment: true,
             title: "Comment",
-            value: settings.commentPrefix,
+            value: settings.commentSuffix,
             displayValue: this.comment,
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
@@ -1413,10 +1470,17 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true, true)
+    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
       ? 1
       : 0;
   }
+  /**
+  * Returns `true` if a question answer matches the `correctAnswer` property value.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
+  * @see correctAnswer
+  * @see SurveyModel.getQuizQuestions
+  */
   public isAnswerCorrect(): boolean {
     return this.correctAnswerCount == this.quizQuestionCount;
   }
@@ -1478,8 +1542,11 @@ export class Question extends SurveyElement<Question>
       func(defaultValue);
     }
   }
+  protected convertFuncValuetoQuestionValue(val: any): any {
+    return Helpers.convertValToQuestionVal(val);
+  }
   private runExpressionSetValue(val: any, setFunc?: (val: any) => void): void {
-    setFunc(Helpers.convertValToQuestionVal(val));
+    setFunc(this.convertFuncValuetoQuestionValue(val));
   }
   private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
     properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
@@ -1522,7 +1589,7 @@ export class Question extends SurveyElement<Question>
     }
     if (this.comment == newValue) return;
     this.setQuestionComment(newValue);
-    this.updateCommentElement();
+    this.updateCommentElements();
   }
   protected getQuestionComment(): string {
     return this.questionComment;
@@ -1597,7 +1664,7 @@ export class Question extends SurveyElement<Question>
     return json;
   }
   /**
-   * Returns true if there is a validation error(s) in the question.
+   * Returns `true` if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
@@ -1807,12 +1874,19 @@ export class Question extends SurveyElement<Question>
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
+  protected onChangeQuestionValue(newValue: any): void { }
+  protected setValueChangedDirectly(): void {
+    this.isValueChangedDirectly = true;
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.isValueChangedDirectly = true;
+      this.setValueChangedDirectly();
     }
     this.questionValue = newValue;
+    if (!isEqual) {
+      this.onChangeQuestionValue(newValue);
+    }
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
@@ -1844,7 +1918,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > NOTE: This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
    *
    * @see hasErrors
    */
@@ -2017,7 +2091,7 @@ Serializer.addClass("question", [
     choices: ["default", "collapsed", "expanded"],
   },
   { name: "visible:switch", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
+  { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", default: settings.minWidth },
@@ -2121,6 +2195,6 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment" }
+  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment", category: "general" }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

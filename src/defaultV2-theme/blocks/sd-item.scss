@@ -20,18 +20,22 @@
 .sd-item--checked .sd-item__decorator {
   box-shadow: none;
 }
-.sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover:hover .sd-item__decorator {
+
+.sd-item__control:focus+.sd-item__decorator,
+.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
   outline: none;
 }
-.sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover:hover .sd-item__decorator {
+
+.sd-item__control:focus+.sd-item__decorator,
+.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   background: $background;
 }
+
 .sd-item--checked .sd-item__decorator {
   background: $primary;
 }
+
 .sd-item__control-label {
   font-family: $font-family;
   font-style: normal;
@@ -41,10 +45,18 @@
   color: $foreground;
   white-space: normal;
   word-break: break-word;
+  width: 100%;
+  text-align: left;
 }
+
 .sd-item--disabled .sd-item__control-label {
   color: $foreground-disabled-for-editors;
 }
+
+.sd-root--readonly .sd-item--disabled .sd-item__control-label {
+  color: $foreground;
+}
+
 .sd-item--error .sd-item__decorator {
   background: $red-light;
 }

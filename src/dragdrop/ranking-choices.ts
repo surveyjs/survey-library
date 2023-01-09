@@ -21,9 +21,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           border-radius: 36px;
           min-width: 100px;
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-          background-color: white;
-          padding-right: 16px;
-          padding-left: 20px;
+          background-color: var(--background, white);
           font-family: "Open Sans";
         `;
 

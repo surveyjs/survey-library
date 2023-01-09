@@ -1,12 +1,14 @@
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
+import { property } from "./jsonobject";
 
 /**
  * A Model for a survey running in the Popup Window.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
  */
 export class PopupSurveyModel extends Base {
-  public static surveyElementName = "PopupSurveyJS";
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 
@@ -29,15 +31,17 @@ export class PopupSurveyModel extends Base {
       this.onSurveyComplete();
     });
     this.registerPropertyChangedHandlers(["isShowing"], () => {
-      if(!!this.showingChangedCallback) this.showingChangedCallback();
+      if (!!this.showingChangedCallback) this.showingChangedCallback();
     });
     this.registerPropertyChangedHandlers(["isExpanded"], () => {
       this.onExpandedChanged();
     });
+    this.width = <any>new ComputedUpdater<string>(() => this.survey.width);
+    this.width = this.survey.width;
     this.updateCss();
     this.onCreating();
   }
-  protected onCreating(): void {}
+  protected onCreating(): void { }
   public getType(): string {
     return "popupsurvey";
   }
@@ -141,24 +145,31 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderTitle(): string {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
+  public get renderedWidth(): string {
+    let width = this.getPropertyValue("width", "60%");
+    if (width && !isNaN(width)) width = width + "px";
+    return width;
+  }
+  @property() width: string;
+
   private updateCss() {
-    if(!this.css || !this.css.window) return;
+    if (!this.css || !this.css.window) return;
     const cssWindow = this.css.window;
     this.setPropertyValue("cssRoot", cssWindow.root);
     this.setPropertyValue("cssBody", cssWindow.body);
     const cssHeader = cssWindow.header;
-    if(!cssHeader) return;
+    if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
     this.setPropertyValue("cssHeaderTitle", cssHeader.title);
     this.updateCssButton();
   }
   private updateCssButton() {
     const cssHeader = !!this.css.window ? this.css.window.header : null;
-    if(!cssHeader) return;
+    if (!cssHeader) return;
     this.setCssButton(this.isExpanded ? cssHeader.buttonExpanded : cssHeader.buttonCollapsed);
   }
   private setCssButton(val: string): void {
-    if(!val) return;
+    if (!val) return;
     this.setPropertyValue("cssButton", val);
   }
   protected createSurvey(jsonObj: any): SurveyModel {
@@ -187,4 +198,4 @@ export class PopupSurveyModel extends Base {
 /**
  * Obsolete. Please use PopupSurvey
  */
-export class SurveyWindowModel extends PopupSurveyModel {}
+export class SurveyWindowModel extends PopupSurveyModel { }

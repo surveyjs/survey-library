@@ -14,11 +14,16 @@
         <span class="check"></span>
       </span>
       <span
-        data-bind="if: question.titleLocation === 'hidden', css: question.koCss().checkboxControlLabel"
+        data-bind="if: question.isLabelRendered, css: question.koCss().checkboxControlLabel, attr: {id: question.labelRenderedAriaID}"
       >
-        <!-- ko template: { name: 'survey-string', data: question.locDisplayLabel } -->
-        <!-- /ko -->
+        <!-- ko component: { name: 'sv-title-actions', params: {element: question } } --><!-- /ko -->
       </span>
     </label>
+    <!-- ko if: question.canRenderLabelDescription -->
+    <div data-bind="css: question.cssDescription">
+      <!-- ko template: { name: 'survey-string', data: question.locDescription } -->
+      <!-- /ko -->
+    </div>
+    <!-- /ko -->
   </div>
 </div>

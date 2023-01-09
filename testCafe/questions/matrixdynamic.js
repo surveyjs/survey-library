@@ -291,3 +291,36 @@ frameworks.forEach((framework) => {
       .expect(Selector(".sv_matrix_row").count).eql(5);
   });
 });
+const json3 = {
+  "elements": [
+    {
+      "type": "matrixdynamic",
+      "name": "matrix",
+      "allowRowsDragAndDrop": true,
+      "columnLayout": "vertical",
+      "columns": [
+        { cellType: "text", name: "col1" },
+        { cellType: "text", name: "col2" },
+      ],
+      "rowCount": 2,
+      defaultValue: [{ col1: 1 }, { col1: 2 }]
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json3);
+    }
+  );
+  test("bindings rowCount", async (t) => {
+    const removeButton = Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Remove");
+    await t.resizeWindow(1920, 1080);
+    await t
+      .click(removeButton)
+      .click(completeButton);
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.matrix.length).eql(1);
+  });
+});

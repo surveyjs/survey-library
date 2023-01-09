@@ -862,10 +862,10 @@ QUnit.test(
       jsObj,
       {
         "items": [{ "value": 7, "text": "Item 1" },
-        { "value": 5, text: "5" },
-        { "value": "item", text: "item" },
-        { "value": "A", text: "A" },
-        { "value": "a", text: "A" }]
+          { "value": 5, text: "5" },
+          { "value": "item", text: "item" },
+          { "value": "A", text: "A" },
+          { "value": "a", text: "A" }]
       },
       "serialize ItemValueListOwner with text"
     );
@@ -877,7 +877,7 @@ QUnit.test(
       "serialize ItemValueListOwner without text");
   });
 QUnit.test(
-  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true, do not serialiye ",
+  "ItemValue and settings.itemValueAlwaysSerializeAsObject = true, do not serialize",
   function (assert) {
     settings.itemValueAlwaysSerializeText = true;
     const list = new ItemValueListOwner();
@@ -888,7 +888,7 @@ QUnit.test(
       jsObj,
       {
         "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
-        { val: 1, text: "Item1" }]
+          { val: 1, text: "Item1" }]
       }, "Do not serialize objects");
     settings.itemValueAlwaysSerializeText = false;
   });
@@ -2694,7 +2694,7 @@ QUnit.test("Creator custom ItemValue class, and a property an array of custom It
   Serializer.addClass("coloritemvalue", [
     { name: "text", visible: false },
     { name: "color", type: "color" }],
-    null, "itemvalue");
+  null, "itemvalue");
   Serializer.addProperty("car", {
     name: "colors",
     default: [{ value: "A1", color: "#ff0000" }, { value: "A2", color: "#00ff00" }],
@@ -2900,4 +2900,15 @@ QUnit.test("default value inheritance", function (assert) {
   const rankingProp = Serializer.findProperty("ranking", "itemComponent");
   assert.equal(checkboxProp.defaultValue, "survey-checkbox-item", "survey-checkbox-item default");
   assert.equal(rankingProp.defaultValue, "", "ranking default is empty");
+});
+QUnit.test("Do not load choices and rows without value", function (assert) {
+  const q = new QuestionCheckboxModel("q1");
+  q.fromJSON({
+    name: "q2",
+    choices: [1, { value: 2 }, { text: "abc" }]
+  });
+  assert.equal(q.choices.length, 3,);
+  assert.equal(q.choices[0].value, 1, "First choice");
+  assert.equal(q.choices[1].value, 2, "Second choice");
+  assert.equal(q.choices[2].value, "abc", "Third choice");
 });

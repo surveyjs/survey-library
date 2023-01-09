@@ -14,7 +14,10 @@
         </svg>
         <span class="check"></span>
       </span>
-      <span *ngIf="model.titleLocation === 'hidden'" [class]="model.cssClasses.checkboxControlLabel" [model]="model.locDisplayLabel" sv-ng-string></span>
+      <span *ngIf="model.isLabelRendered" [class]="model.cssClasses.checkboxControlLabel" [id]="model.labelRenderedAriaID">
+        <sv-ng-element-title-actions [element]="model"></sv-ng-element-title-actions>
+      </span>
     </label>
+    <div *ngIf="model.canRenderLabelDescription" [class]="model.cssDescription" [model]="model.locDescription" sv-ng-string></div>
   </div>
 </div>

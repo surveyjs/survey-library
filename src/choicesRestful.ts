@@ -55,6 +55,7 @@ class XmlParser {
  *   titleName: "title", // Specifies which field contains display texts for choice values.
  *   imageLinkName: "imageUrl", // Specifies which field contains image URLs. Used in Image Picker questions.
  *   // Path to the array of choices. Specify `path` only if the array of choices is nested within the object returned by the service.
+ *   // The following path separators are allowed: semicolon `;`, comma `,`.
  *   path: "myNestedArray"
  * }
  * ```
@@ -239,7 +240,7 @@ export class ChoicesRestful extends Base {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     var loadingObjHash = this.objHash;
-    xhr.onload = function() {
+    xhr.onload = function () {
       self.beforeLoadRequest();
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
@@ -336,7 +337,7 @@ export class ChoicesRestful extends Base {
    * url: "https://surveyjs.io/api/CountriesExample?region={region}"
    * ```
    *
-   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
+   * [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
    * @see path
    * @see valueName
    * @see titleName
@@ -357,7 +358,7 @@ export class ChoicesRestful extends Base {
     }
   }
   /**
-   * Path to the array of choices.
+   * Path to the array of choices. The following path separators are allowed: semicolon `;`, comma `,`.
    *
    * Specify this property only if the array of choices is nested within the object returned by the service. For example, the service returns the following object:
    *
@@ -383,7 +384,7 @@ export class ChoicesRestful extends Base {
   /**
    * Specifies which property in the obtained data object contains choice values.
    *
-   * [View Example](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
+   * [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
    *
    * @see url
    * @see path
@@ -635,14 +636,14 @@ Serializer.addClass(
     "titleName",
     {
       name: "imageLinkName",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return !!obj && !!obj.owner && obj.owner.getType() == "imagepicker";
       },
     },
     { name: "allowEmptyResponse:boolean" },
     { name: "attachOriginalItems:boolean", visible: false },
   ],
-  function() {
+  function () {
     return new ChoicesRestful();
   }
 );

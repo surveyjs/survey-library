@@ -15,6 +15,6 @@ export class TestCustomWidgetComponent extends TestComponent {
     super(changeDetectorRef);
     StylesManager.applyTheme("default");
     widgets.sortablejs(SurveyCore);
-    widgets.icheck(SurveyCore, window.jQuery);
+    widgets.icheck(SurveyCore, (<any>window).jQuery);
   }
 }

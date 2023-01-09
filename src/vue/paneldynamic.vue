@@ -6,7 +6,7 @@
       </span>
       <sv-paneldynamic-add-btn :data="{ question }" />
     </div>
-    <div :class="question.cssClasses.progress" v-if="!question.showLegacyNavigation && question.isProgressTopShowing && question.isRangeShowing">
+    <div :class="question.cssClasses.progress" v-if="!showLegacyNavigation && question.isProgressTopShowing && question.isRangeShowing">
       <div
         :class="question.cssClasses.progressBar"
         :style="{ width: question.progress }"
@@ -14,24 +14,22 @@
       ></div>
     </div>
     <survey-paneldynamicprogress
-      v-if="question.showLegacyNavigation && question.isProgressTopShowing"
+      v-if="showLegacyNavigation && question.isProgressTopShowing"
       :question="question"
     />
     <template v-for="(panel, index) in renderedPanels">
       <div :class="question.getPanelWrapperCss()" :key="panel.id">
         <survey-panel :question="panel" :css="css" />
-        <survey-paneldynamicremove :question="question" :panel="panel" />
+        <sv-paneldynamic-remove-btn v-if="question.panelRemoveButtonLocation === 'right' && question.canRemovePanel && panel.state !== 'collapsed'" :data="{ question, panel }" />
       </div>
       <hr :class="question.cssClasses.separator" v-if="question.isRenderModeList && index < question.panelCount - 1" :key="'separator' + panel.id" />
     </template>
     <survey-paneldynamicprogress
-      v-if="question.showLegacyNavigation && question.isProgressBottomShowing"
+      v-if="showLegacyNavigation && question.isProgressBottomShowing"
       :question="question"
     />
-    <sv-paneldynamic-add-btn v-if="question.showLegacyNavigation && question.isRenderModeList" :data="{ question }" />
-    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0 && !question.showLegacyNavigation"
-      :question="question"
-    />
+    <sv-paneldynamic-add-btn v-if="showLegacyNavigation && question.isRenderModeList" :data="{ question }" />
+    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0 && !showLegacyNavigation" :question="question" />
   </div>
 </template>
 
@@ -50,6 +48,9 @@ export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
       panels.push(this.question.currentPanel);
     }
     return panels;
+  }
+  get showLegacyNavigation() {
+    return this.question["showLegacyNavigation"];
   }
 }
 Vue.component("survey-paneldynamic", PanelDynamic);

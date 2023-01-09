@@ -20,12 +20,28 @@
               :xlink:href="question.svgIcon"
             ></use>
           </svg><span class="check"></span></span><span
-          v-if="question.titleLocation === 'hidden'"
+          v-if="question.isLabelRendered"
+          :id="question.labelRenderedAriaID"
           :class="question.cssClasses.checkboxControlLabel"
         >
-          <survey-string :locString="question.locDisplayLabel" />
+          <survey-element-title-content
+            v-if="!question.hasTitleActions"
+            :element="question"
+            :css="css"
+          ></survey-element-title-content>
+          <sv-title-actions
+            v-if="question.hasTitleActions"
+            :element="question"
+            :css="css"
+          ></sv-title-actions>
         </span>
       </label>
+    <div
+      v-if="question.canRenderLabelDescription"
+      :class="question.cssDescription"
+    >
+      <survey-string :locString="question.locDescription" />
+    </div>
     </div>
   </div>
 </template>

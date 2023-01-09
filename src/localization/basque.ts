@@ -68,7 +68,6 @@ export var basqueSurveyStrings = {
   timerLimitAll: "{0} gastatu duzu {1}-(e)tik orrialde honetan eta orotara {2} {3}-(e)tik.",
   timerLimitPage: "{0} gastatu duzu orrialde honetan {1}-(e)tik.",
   timerLimitSurvey: "Zuk orotara {0} gastatu duzu {1}-(e)tik.",
-  cleanCaption: "Garbitu",
   clearCaption: "Hustu",
   signaturePlaceHolder: "Sinatu hemen",
   chooseFileCaption: "Fitxategia hautatu",

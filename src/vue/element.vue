@@ -1,11 +1,12 @@
 <template>
   <div :class="!element.isPanel ? element.getRootCss() : null" 
         v-if="row.isNeedRender"
+        v-on:focusin="element.focusIn()"
         :id="element.id"
         :role="element.ariaRole"
         :aria-required="element.ariaRequired"
         :aria-invalid="element.ariaInvalid"
-        :aria-labelledby="element.hasTitle ? element.ariaTitleId : null"
+        :aria-labelledby="element.ariaLabelledBy"
         :data-name="element.name">
     <survey-errors
       v-if="!element.isPanel && element.showErrorsAboveQuestion"
@@ -34,7 +35,7 @@
       />
       <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
         <div>{{ element.commentText }}</div>
-        <survey-other-choice :commentClass="css.comment" :question="element" />
+        <survey-question-comment :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors
         v-if="hasErrorsOnBottom"
@@ -68,7 +69,7 @@
   <component
   v-else-if="!!element.skeletonComponentName"
   :is="element.skeletonComponentName"
-  :question="element"
+  :element="element"
   :css="css"
 ></component>
 </template>
@@ -83,7 +84,7 @@ import { BaseVue } from "./base";
 export class SurveyElementVue extends BaseVue {
   @Prop() css: any;
   @Prop() survey: SurveyModel;
-  @Prop() element: SurveyElement;
+  @Prop() element: any;
   @Prop() row: QuestionRowModel;
   protected getModel(): Base {
     return this.element;

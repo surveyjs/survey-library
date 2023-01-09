@@ -1,7 +1,6 @@
 import * as React from "react";
-import { PageModel } from "survey-core";
+import { PageModel, PanelModelBase } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
-import { PanelModelBase } from "survey-core";
 import { SurveyPanelBase } from "./panel-base";
 import { TitleElement } from "./components/title/title-element";
 
@@ -30,7 +29,7 @@ export class SurveyPage extends SurveyPanelBase {
   protected renderTitle(): JSX.Element {
     return <TitleElement element={this.page}></TitleElement>;
   }
-  protected renderDescription(): JSX.Element {
+  protected renderDescription(): JSX.Element | null {
     if (!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
     return (

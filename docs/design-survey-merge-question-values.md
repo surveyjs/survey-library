@@ -1,3 +1,7 @@
+---
+title: Merge Question Values | SurveyJS Form Libraries
+description: You can get values from one question of a form and display it in another question to avoid re-entering data.
+---
 # Merge Question Values
 
 You can merge values from multiple questions into a single array or object. This functionality enables you to split complex forms into connected parts. For example, you can create a form where users enter a list of employees in one question and fill out details about them in another question. If you associate the questions with each other, their values will be merged into a single array.
@@ -69,7 +73,7 @@ const surveyJson = {
 }
 ```
 
-[View example](https://surveyjs.io/Examples/Library?id=survey-shareddata (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=survey-shareddata (linkStyle))
 
 ## See Also
 

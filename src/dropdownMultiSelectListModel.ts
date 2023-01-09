@@ -4,15 +4,16 @@ import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
+import { settings } from "./settings";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
-  private syncFilterStringPlacholder(actions?: Array<Action>) {
+  private syncFilterStringPlaceholder(actions?: Array<Action>) {
     const selectedActions = actions || this.getSelectedActions();
-    if(selectedActions.length) {
+    if(selectedActions.length || this.question.selectedItems.length) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -23,13 +24,8 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   private syncSelectedItemsFromQuestion() {
     const selectedActions = this.getSelectedActions();
-    (<MultiSelectListModel>this.listModel).setSelectedItems(this.getSelectedActions());
-    this.syncFilterStringPlacholder(selectedActions);
-  }
-  private popupTargetModified() {
-    setTimeout(() => {
-      this.popupModel.targetModified();
-    }, 1);
+    (<MultiSelectListModel>this.listModel).setSelectedItems(selectedActions);
+    this.syncFilterStringPlaceholder(selectedActions);
   }
 
   protected override createListModel(): MultiSelectListModel {
@@ -40,14 +36,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         this.resetFilterString();
         if(item.id === "selectall") {
           this.selectAllItems();
-        } else if(status === "added" && item.id == "none") {
+        } else if(status === "added" && item.id === settings.noneItemValue) {
           this.selectNoneItem();
         } else if(status === "added") {
           this.selectItem(item.id);
         } else if(status === "removed") {
           this.deselectItem(item.id);
         }
-        this.popupTargetModified();
+        this.popupRecalculatePosition(false);
         if(this.closeOnSelect) {
           this.popupModel.isVisible = false;
         }
@@ -55,17 +51,13 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
   }
-  protected onSetFilterString(): void {
-    super.onSetFilterString();
-    this.popupTargetModified();
-  }
 
   public selectAllItems(): void {
     this.question.toggleSelectAll();
     this.syncSelectedItemsFromQuestion();
   }
   public selectNoneItem(): void {
-    this.question.renderedValue = ["none"];
+    this.question.renderedValue = [settings.noneItemValue];
     this.syncSelectedItemsFromQuestion();
   }
   public selectItem(id: string): void {
@@ -90,13 +82,13 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
   public removeLastSelectedItem() {
     this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
-    this.popupTargetModified();
+    this.popupRecalculatePosition(false);
   }
 
   constructor(question: Question, onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super(question, onSelectionChanged);
     this.setHideSelectedItems(question.hideSelectedItems);
-    this.syncFilterStringPlacholder();
+    this.syncFilterStringPlaceholder();
     this.closeOnSelect = question.closeOnSelect;
   }
 

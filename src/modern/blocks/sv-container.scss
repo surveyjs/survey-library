@@ -1,7 +1,7 @@
 .sv-container-modern {
-  color: $text-color;
-  font-size: $font-size;
-  font-family: $font-family;
+  color: var(--text-color, $text-color);
+  font-size: var(--font-size, $font-size);
+  font-family: var(--font-family, $font-family);
 }
 
 .sv-container-modern__title {
@@ -14,7 +14,7 @@
     margin-right: 10px;
     margin-left: 10px;
   }
-  color: $main-color;
+  color: var(--main-color, $main-color);
   padding-top: 5em;
   padding-bottom: 0.9375em;
 }

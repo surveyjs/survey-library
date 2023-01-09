@@ -14,6 +14,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -32,7 +33,7 @@ QUnit.test("Create panels based on template on setting value", function(
     2,
     "There are two elements in the first panel"
   );
-  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel")
+  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel");
 });
 
 QUnit.test("Synhronize panelCount and value array length", function(assert) {
@@ -888,23 +889,23 @@ QUnit.test("PanelDynamic, renderMode", function(assert) {
     "list mode doesn't support currentPanel"
   );
   assert.equal(
-    panel.isPrevButtonShowing,
+    panel.isPrevButtonVisible,
     false,
     "currentIndex = 0, prevButton is hidden"
   );
   assert.equal(
-    panel.isNextButtonShowing,
+    panel.isNextButtonVisible,
     true,
     "currentIndex = 0, nextButton is visible"
   );
   panel.currentIndex++;
   assert.equal(
-    panel.isPrevButtonShowing,
+    panel.isPrevButtonVisible,
     true,
     "currentIndex = 1, prevButton is visible"
   );
   assert.equal(
-    panel.isNextButtonShowing,
+    panel.isNextButtonVisible,
     false,
     "currentIndex = 1, nextButton is hidden"
   );
@@ -3843,6 +3844,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
 });
 
 QUnit.test("getPanelWrapperCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -3868,6 +3870,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel({
     elements: [
       {
@@ -4633,4 +4636,226 @@ QUnit.test("Incorrect default value in panel dynamic", (assert) => {
   assert.equal(panel.panelCount, 2, "There are two panels");
   const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
   assert.equal(p1_q1.name, "panel_q1", "question name is correct");
+});
+
+QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          {
+            type: "file",
+            name: "file1",
+            storeDataAsText: false,
+          }
+        ],
+        panelCount: 1
+      }
+    ],
+  });
+  const panel = survey.getAllQuestions()[0];
+  const question = panel.panels[0].questions[0];
+  let done = assert.async();
+  let log = "";
+  survey.onDownloadFile.add((survey, options) => {
+    assert.equal(options.question.isReady, false);
+    setTimeout(() => {
+      log += "->" + options.fileValue.name;
+      options.callback("success", (<string>options.content).replace("url", "content"));
+    });
+  });
+  panel.onReadyChanged.add((_, opt) => {
+    if(opt.isReady) {
+      assert.equal(log, "->file1.png->file2.png");
+      assert.equal(question.isReady, true);
+      assert.equal(question.onReadyChanged.isEmpty, true);
+      assert.deepEqual(panel.panels[0].questions[0].previewValue, [{
+        content: "content1",
+        name: "file1.png",
+        type: "image/png"
+      }, {
+        content: "content2",
+        name: "file2.png",
+        type: "image/png"
+      }]);
+      assert.ok(panel.isReady);
+      done();
+    }
+  });
+  survey.data = { panel: [{
+    "file1": [{
+      content: "url1",
+      name: "file1.png",
+      type: "image/png"
+    }, {
+      content: "url2",
+      name: "file2.png",
+      type: "image/png"
+    }]
+  }] };
+  assert.equal(panel.isReady, false);
+});
+QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, Bug#5206", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          {
+            name: "q1",
+            type: "radiogroup",
+            choices: [1, 2, 3],
+          },
+          {
+            name: "panel1",
+            type: "paneldynamic",
+            visibleIf: "{panel.q1} = 1",
+            panelCount: 1,
+            allowAddPanel: false,
+            allowRemovePanel: false,
+            templateElements: [
+              {
+                type: "text",
+                name: "panel1_q1",
+              },
+            ],
+          },
+          {
+            name: "panel2",
+            type: "paneldynamic",
+            visibleIf: "{panel.q1} = 1",
+            panelCount: 1,
+            allowAddPanel: false,
+            allowRemovePanel: false,
+            templateElements: [
+              {
+                type: "text",
+                name: "panel2_q1",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  rootPanel.panels[0].getQuestionByName("q1").value = 2;
+  survey.completeLastPage();
+  assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
+});
+
+QUnit.test("Check paneldynamic panel actions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+        minPanelCount: 1,
+        panelCount: 2,
+        panelRemoveText: "Remove Panel"
+      }
+    ]
+  });
+  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  let updatedPanels: any[] = [];
+  survey.onGetPanelFooterActions.add((sender, opt) => {
+    assert.equal(sender, survey);
+    assert.equal(opt.question, paneldynamic);
+    assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);
+    updatedPanels.push(opt.panel);
+    opt.actions.push({
+      id: "test",
+      title: "test",
+      action: () => {}
+    });
+  });
+  assert.equal(paneldynamic.panels[0].footerActions.length, 0);
+  assert.equal(paneldynamic.panels[0]["footerToolbarValue"], undefined);
+
+  //panel actions should be created only after footerToolbar is requested
+
+  const actions = paneldynamic.panels[0].getFooterToolbar().actions;
+  paneldynamic.panels[1].getFooterToolbar();
+  assert.deepEqual(updatedPanels, paneldynamic.panels);
+
+  assert.equal(actions.length, 2);
+  assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
+  assert.equal(actions[1].title, "test");
+
+  paneldynamic.removePanel(paneldynamic.panels[1]);
+
+  assert.equal(actions.length, 2);
+  assert.equal(actions[0].visible, false);
+});
+QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "templateElements": [{
+          "type": "paneldynamic",
+          "name": "childPanel",
+          "title": "childPanel",
+          "state": "collapsed",
+          "templateElements": [{
+            "type": "multipletext",
+            "name": "question1",
+            "items": [{
+              "name": "mtom",
+              "isRequired": true,
+              "inputType": "number"
+            }]
+          }],
+          "panelCount": 1
+        }],
+        "panelCount": 1
+      }]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
+  survey.completeLastPage();
+  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
+});
+QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "templateElements": [{
+          "type": "paneldynamic",
+          "name": "childPanel",
+          "title": "childPanel",
+          "state": "collapsed",
+          "templateElements": [{
+            "type": "multipletext",
+            "name": "question1",
+            "items": [{
+              "name": "mtom",
+              "isRequired": true,
+              "inputType": "number"
+            }]
+          }],
+          "panelCount": 1
+        }],
+        "panelCount": 1,
+        "renderMode": "progressTop"
+      }]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
+  assert.equal(rootPanel.panelCount, 1, "There is one panel");
+  rootPanel.addPanelUI();
+  assert.equal(rootPanel.panelCount, 1, "There is still one panel");
+  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });

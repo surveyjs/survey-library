@@ -2,6 +2,8 @@ import * as React from "react";
 import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
+import { TitleActions } from "./components/title/title-actions";
+import { SurveyElementBase } from "./reactquestion_element";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   constructor(props: any) {
@@ -10,6 +12,8 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;
     const itemClass = this.question.getCheckboxItemCss();
+    const description = this.question.canRenderLabelDescription ?
+      SurveyElementBase.renderQuestionDescription(this.question) : null;
     return (
       <div className={cssClasses.rootCheckbox}>
         <div className={itemClass}>
@@ -34,21 +38,22 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               aria-describedby={this.question.ariaDescribedBy}
             />
             <span className={cssClasses.checkboxMaterialDecorator}>
-              { this.question.svgIcon ?
+              {this.question.svgIcon ?
                 <svg
                   className={cssClasses.checkboxItemDecorator}
                 >
                   <use xlinkHref={this.question.svgIcon}></use>
-                </svg>:null
+                </svg> : null
               }
               <span className="check" />
             </span>
-            {this.question.titleLocation === "hidden" && (
-              <span className={cssClasses.checkboxControlLabel}>
-                {this.renderLocString(this.question.locDisplayLabel)}
+            {this.question.isLabelRendered && (
+              <span className={cssClasses.checkboxControlLabel} id={this.question.labelRenderedAriaID}>
+                <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
               </span>
             )}
           </label>
+          {description}
         </div>
       </div>
     );

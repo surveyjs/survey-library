@@ -46,7 +46,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
-  public onTargetModified: EventBase<Base> = this.addEvent<Base>();
+  public onRecalculatePosition: EventBase<Base> = this.addEvent<Base>();
 
   constructor(
     contentComponentName: string,
@@ -96,8 +96,8 @@ export class PopupModel<T = any> extends Base {
   public toggleVisibility(): void {
     this.isVisible = !this.isVisible;
   }
-  public targetModified(): void {
-    this.onTargetModified.fire(this, {});
+  public recalculatePosition(isResetHeight: boolean): void {
+    this.onRecalculatePosition.fire(this, { isResetHeight: isResetHeight });
   }
 }
 

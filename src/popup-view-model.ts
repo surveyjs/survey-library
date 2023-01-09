@@ -17,9 +17,14 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) isVisible: boolean;
+  @property() locale: string;
 
   public container: HTMLElement;
 
+  public getLocale(): string {
+    if(!!this.locale) return this.locale;
+    return super.getLocale();
+  }
   protected hidePopup(): void {
     this.model.isVisible = false;
   }
@@ -187,7 +192,7 @@ export class PopupBaseViewModel extends Base {
     this.unmountPopupContainer();
     this.container = undefined;
     this.model.onVisibilityChanged.clear();
-    this.model.onTargetModified.clear();
+    this.model.onRecalculatePosition.clear();
   }
   public initializePopupContainer(): void {
     if (!this.container) {

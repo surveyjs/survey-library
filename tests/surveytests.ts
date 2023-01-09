@@ -8113,7 +8113,7 @@ QUnit.test("Compete trigger and allowComplete false, Bug #3184", function (
   assert.equal(survey.currentPageNo, 0);
   survey.nextPage();
   assert.equal(survey.state, "running", "Survey is not completed");
-  assert.equal(survey.currentPageNo, 0, "stay on the same page");
+  assert.equal(survey.currentPageNo, 1, "go next page");
 });
 
 QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (

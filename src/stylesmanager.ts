@@ -43,7 +43,7 @@ export const defaultThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$progress-text-color": "#9d9d9d",
   "$disable-color": "#dbdbdb",
@@ -72,7 +72,7 @@ export const orangeThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$progress-text-color": "#9d9d9d",
   "$disable-color": "#dbdbdb",
@@ -101,7 +101,7 @@ export const darkblueThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$progress-text-color": "#9d9d9d",
   "$disable-color": "#dbdbdb",
@@ -130,7 +130,7 @@ export const darkroseThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$progress-text-color": "#9d9d9d",
   "$disable-color": "#dbdbdb",
@@ -159,7 +159,7 @@ export const stoneThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$progress-text-color": "#9d9d9d",
   "$disable-color": "#dbdbdb",
@@ -188,7 +188,7 @@ export const winterThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$disable-color": "#dbdbdb",
   "$progress-text-color": "#9d9d9d",
@@ -217,7 +217,7 @@ export const winterstoneThemeColors: { [key: string]: string } = {
   "$border-color": "#e7e7e7",
 
   "$error-color": "#ed5565",
-  "$error-background-color": "#fd6575",
+  "$error-background-color": "#fcdfe2",
 
   "$disable-color": "#dbdbdb",
   "$progress-text-color": "#9d9d9d",

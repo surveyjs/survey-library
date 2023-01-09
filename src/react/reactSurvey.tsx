@@ -38,31 +38,45 @@ export class Survey extends SurveyElementBase<any, any>
   protected getStateElement(): Base {
     return this.survey;
   }
+  private isSurveyUpdated = false;
+  private onSurveyUpdated() {
+    if (!!this.survey) {
+      const el = this.rootRef.current;
+      if (!!el) this.survey.afterRenderSurvey(el);
+      this.survey.startTimerFromUI();
+    }
+  }
   shouldComponentUpdate(nextProps: any, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (this.isModelJSONChanged(nextProps)) {
+      this.destroySurvey();
       this.createSurvey(nextProps);
       this.updateSurvey(nextProps, {});
+      this.isSurveyUpdated = true;
     }
     return true;
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.updateSurvey(this.props, prevProps);
+    if(this.isSurveyUpdated) {
+      this.onSurveyUpdated();
+      this.isSurveyUpdated = false;
+    }
   }
   componentDidMount() {
     super.componentDidMount();
-    var el = this.rootRef.current;
-    if (el && this.survey) this.survey.afterRenderSurvey(el);
+    this.onSurveyUpdated();
+  }
+  destroySurvey() {
     if (this.survey) {
-      this.survey.startTimerFromUI();
+      this.survey.stopTimer();
+      this.survey.destroyResizeObserver();
     }
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if (this.survey) {
-      this.survey.stopTimer();
-    }
+    this.destroySurvey();
   }
   doRender(): JSX.Element {
     if(this.survey["needRenderIcons"]) {

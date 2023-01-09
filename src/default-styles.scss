@@ -11,6 +11,8 @@ $header-background-color: #e7e7e7;
 }
 
 .sv_row {
+  display: flex; 
+  flex-wrap: wrap;
   clear: both;
   min-width: 300px;
 }

@@ -369,3 +369,4 @@ Refer to the following platform-specific articles for information on how to rend
 - [Create a Multi-Page Survey](https://surveyjs.io/Documentation/Library?id=design-survey-create-a-multi-page-survey)
 - [Conditional Logic and Dynamic Texts](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic)
 - [Access Survey Results](https://surveyjs.io/Documentation/Library?id=handle-survey-results-access)
+- [Review Quiz Results demo](https://surveyjs.io/form-library/examples/survey-quiz-results/ (linkStyle))

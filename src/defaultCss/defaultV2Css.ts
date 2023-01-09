@@ -97,6 +97,8 @@ export var defaultV2Css = {
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder"
   },
   progress: "sd-progress sd-body__progress",
+  progressTop: "sd-body__progress--top",
+  progressBottom: "sd-body__progress--bottom",
   progressBar: "sd-progress__bar",
   progressText: "sd-progress__text",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",

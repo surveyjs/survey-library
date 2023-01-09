@@ -272,7 +272,7 @@ export default App;
     <summary>Knockout</summary> 
 
 ```html
-<div id="surveyContainer"></div>
+<survey params="survey: model"></survey>
 ```
 
 ```js
@@ -283,7 +283,9 @@ const surveyJson = {
 // Render the survey inside the page
 const survey = new Survey.Model(surveyJson);
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 
 // Render the survey in a pop-up window

@@ -6,17 +6,20 @@ import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey-content",
   templateUrl: "./survey-content.component.html"
-})
+  })
 export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
+  private isSurveyUpdated: boolean = false;
   protected getModel(): SurveyModel {
     return this.model;
   }
   protected override onModelChanged(): void {
+    this.previousModel?.destroyResizeObserver();
     this.model.renderCallback = () => {
       this.detectChanges();
     };
+    this.isSurveyUpdated = true;
   }
   override ngOnInit(): void {
     super.ngOnInit();
@@ -29,7 +32,13 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     this.model.renderCallback = <any>undefined;
   }
   ngAfterViewInit(): void {
-    this.model.afterRenderSurvey(this.rootEl.nativeElement);
+    this.isSurveyUpdated = true;
+  }
+  override ngAfterViewChecked(): void {
+    if(this.isSurveyUpdated) {
+      this.model.afterRenderSurvey(this.rootEl.nativeElement);
+    }
+    super.ngAfterViewChecked();
   }
 }
 

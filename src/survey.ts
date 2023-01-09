@@ -2754,6 +2754,13 @@ export class SurveyModel extends SurveyElementCore
     if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
   }
+  public getProgressCssClasses(): string {
+    return new CssClassBuilder()
+      .append(this.css.progress)
+      .append(this.css.progressTop, this.isShowProgressBarOnTop)
+      .append(this.css.progressBottom, this.isShowProgressBarOnBottom)
+      .toString();
+  }
   private canShowProresBar(): boolean {
     return (
       !this.isShowingPreview ||
@@ -4613,7 +4620,7 @@ export class SurveyModel extends SurveyElementCore
       return true;
     }
   }
-  private destroyResizeObserver() {
+  public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;

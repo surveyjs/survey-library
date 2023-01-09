@@ -117,6 +117,7 @@ export default App;
 </details>
 
 ## Render the Survey
+
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
 
 ```js

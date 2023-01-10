@@ -1,5 +1,4 @@
-//Created on behalf https://github.com/Frank13
-//Modified on behalf Roeland Verbakel
+//There 12 untranslated keys. You can find them in uncommented lines.
 import { surveyLocalization } from "survey-core";
 
 export var dutchSurveyStrings = {
@@ -13,38 +12,38 @@ export var dutchSurveyStrings = {
   noneItemText: "Geen",
   selectAllItemText: "Selecteer Alles",
   progressText: "Pagina {0} van {1}",
+  //indexText: "{0} of {1}",
   panelDynamicProgressText: "Record {0} of {1}",
   questionsProgressText: "Geantwoord {0}/{1} vragen",
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
   completingSurvey: "Bedankt voor het invullen van de vragenlijst",
-  completingSurveyBefore:
-        "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
+  completingSurveyBefore: "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
   loadingSurvey: "De vragenlijst is aan het laden...",
   placeholder: "Kies...",
+  //ratingOptionsCaption: "Tap to rate here...",
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
   requiredInAllRowsError: "Deze vraag vereist één antwoord per rij",
   numericError: "Het antwoord moet een getal zijn",
+  //minError: "The value should not be less than {0}",
+  //maxError: "The value should not be greater than {0}",
   textMinLength: "Vul minstens {0} karakters in",
   textMaxLength: "Gelieve minder dan {0} karakters in te vullen.",
   textMinMaxLength: "Gelieve meer dan {0} en minder dan {1} karakters in te vullen.",
   minRowCountError: "Gelieve ten minste {0} rijen in te vullen.",
   minSelectError: "Selecteer minimum {0} antwoorden",
   maxSelectError: "Selecteer niet meer dan {0} antwoorden",
-  numericMinMax:
-        "Uw antwoord '{0}' moet groter of gelijk zijn aan {1} en kleiner of gelijk aan {2}",
+  numericMinMax: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1} en kleiner of gelijk aan {2}",
   numericMin: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1}",
   numericMax: "Uw antwoord '{0}' moet groter of gelijk zijn aan {1}",
   invalidEmail: "Vul een geldig e-mailadres in",
   invalidExpression: "De uitdrukking: {0} moet 'waar' teruggeven.",
   urlRequestError: "De vraag keerde een fout terug '{0}'. {1}",
-  urlGetChoicesError:
-        "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
+  urlGetChoicesError: "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
-  uploadingFile:
-        "Uw bestand wordt opgeladen. Gelieve enkele seconden te wachten en opnieuw te proberen.",
+  uploadingFile: "Uw bestand wordt opgeladen. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   loadingFile: "Opladen...",
   chooseFile: "Kies uw bestand(en)...",
   noFileChosen: "Geen bestand gekozen",
@@ -54,11 +53,13 @@ export var dutchSurveyStrings = {
   addColumn: "Voeg kolom toe",
   addRow: "Voeg rij toe",
   removeRow: "Verwijder",
+  //emptyRowsText: "There are no rows.",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
   choices_Item: "onderwerp",
   matrix_column: "Kolom",
   matrix_row: "Rij",
+  //multipletext_itemname: "text",
   savingData: "De resultaten worden bewaard op de server...",
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   savingDataSuccess: "De resultaten werden succesvol bewaard!",
@@ -68,8 +69,7 @@ export var dutchSurveyStrings = {
   timerSpentAll: "U heeft {0} gespendeerd op deze pagina en {1} in totaal.",
   timerSpentPage: "U heeft {0} op deze pagina gespendeerd.",
   timerSpentSurvey: "U heeft in totaal {0} gespendeerd.",
-  timerLimitAll:
-        "U heeft {0} van {1} op deze pagina gespendeerd en {2} van {3} in totaal.",
+  timerLimitAll: "U heeft {0} van {1} op deze pagina gespendeerd en {2} van {3} in totaal.",
   timerLimitPage: "U heeft {0} van {1} gespendeerd op deze pagina.",
   timerLimitSurvey: "U heeft {0} van {1} in het totaal.",
   clearCaption: "Kuis op",
@@ -81,6 +81,12 @@ export var dutchSurveyStrings = {
   confirmRemoveFile: "Bent u zeker dat u deze file wilt verwijderen: {0}?",
   confirmRemoveAllFiles: "Bent u zeker dat u al deze files wilt verwijderen?",
   questionTitlePatternText: "Titel van de vraag",
+  //modalCancelButtonText: "Cancel",
+  //modalApplyButtonText: "Apply",
+  //filterStringPlaceholder: "Type to search...",
+  //emptyMessage: "No data to display",
+  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  //more: "More"
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;

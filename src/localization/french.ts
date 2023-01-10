@@ -1,3 +1,4 @@
+//There 2 untranslated keys. You can find them in uncommented lines.
 import { surveyLocalization } from "survey-core";
 
 export var frenchSurveyStrings = {
@@ -11,6 +12,7 @@ export var frenchSurveyStrings = {
   noneItemText: "Aucun",
   selectAllItemText: "Tout sélectionner",
   progressText: "Page {0} sur {1}",
+  indexText: "{0} sur {1}",
   panelDynamicProgressText: "Enregistrement {0} sur {1}",
   questionsProgressText: "{0}/{1} question(s) répondue(s)",
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
@@ -24,6 +26,8 @@ export var frenchSurveyStrings = {
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
   requiredInAllRowsError: "Toutes les lignes sont obligatoires",
   numericError: "La réponse doit être un nombre.",
+  minError: "La valeur ne doit pas être inférieure à {0}",
+  maxError: "La valeur ne doit pas être supérieure à {0}",
   textMinLength: "Merci de saisir au moins {0} caractères.",
   textMaxLength: "Merci de saisir moins de {0} caractères.",
   textMinMaxLength: "Merci de saisir entre {0} et {1} caractères.",
@@ -42,18 +46,20 @@ export var frenchSurveyStrings = {
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
   chooseFile: "Ajouter des fichiers...",
-  fileDragAreaPlaceholder: "Déposez un fichier ici ou cliquez sur le bouton ci-dessous pour charger le fichier.",
   noFileChosen: "Aucun fichier ajouté",
+  fileDragAreaPlaceholder: "Déposez un fichier ici ou cliquez sur le bouton ci-dessous pour charger le fichier.",
   confirmDelete: "Voulez-vous supprimer cet enregistrement ?",
   keyDuplicationError: "Cette valeur doit être unique.",
   addColumn: "Ajouter une colonne",
   addRow: "Ajouter une ligne",
   removeRow: "Supprimer",
+  emptyRowsText: "Il n'y a pas de lignes.",
   addPanel: "Ajouter",
   removePanel: "Supprimer",
   choices_Item: "item",
   matrix_column: "Colonne",
   matrix_row: "Ligne",
+  multipletext_itemname: "texte",
   savingData: "Les résultats sont en cours de sauvegarde sur le serveur...",
   savingDataError: "Une erreur est survenue et a empêché la sauvegarde des résultats.",
   savingDataSuccess: "Les résultats ont bien été enregistrés !",
@@ -67,6 +73,7 @@ export var frenchSurveyStrings = {
   timerLimitPage: "Vous avez passé {0} sur {1} sur cette page.",
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
   clearCaption: "Vider",
+  signaturePlaceHolder: "Signez ici",
   chooseFileCaption: "Ajouter un fichier",
   removeFileCaption: "Enlever ce fichier",
   booleanCheckedLabel: "Oui",
@@ -74,16 +81,12 @@ export var frenchSurveyStrings = {
   confirmRemoveFile: "Êtes-vous certains de vouloir supprimer ce fichier : {0}?",
   confirmRemoveAllFiles: "Êtes-vous certains de vouloir supprimer tous les fichiers?",
   questionTitlePatternText: "Titre de la question",
-  emptyRowsText: "Il n'y a pas de lignes.",
-  filterStringPlaceholder: "Tapez pour rechercher...",
-  indexText: "{0} sur {1}",
-  minError: "La valeur ne doit pas être inférieure à {0}",
-  maxError: "La valeur ne doit pas être supérieure à {0}",
-  modalApplyButtonText: "Appliquer",
   modalCancelButtonText: "Annuler",
-  multipletext_itemname: "texte",
+  modalApplyButtonText: "Appliquer",
+  filterStringPlaceholder: "Tapez pour rechercher...",
+  //emptyMessage: "No data to display",
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
-  signaturePlaceHolder: "Signez ici",
+  //more: "More"
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;

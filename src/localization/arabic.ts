@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var arabicSurveyStrings = {
@@ -12,7 +13,7 @@ export var arabicSurveyStrings = {
   noneItemText: "لا شيء",
   selectAllItemText: "اختر الكل",
   progressText: "{1} صفحة {0} من",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "سجل {0} من {1}",
   questionsProgressText: "تمت الإجابة على أسئلة {0} / {1}",
   emptySurvey: "لا توجد صفحة مرئية أو سؤال في النموذج",
@@ -20,14 +21,14 @@ export var arabicSurveyStrings = {
   completingSurveyBefore: "تظهر سجلاتنا أنك قد أكملت هذا الاستطلاع بالفعل.",
   loadingSurvey: "...يتم تحميل النموذج",
   placeholder: "...اختر",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "القيمة",
   requiredError: ".يرجى الإجابة على السؤال",
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
   requiredInAllRowsError: "يرجى الإجابة على الأسئلة في جميع الصفوف",
   numericError: "يجب أن تكون القيمة رقمية.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "الرجاء إدخال ما لا يقل عن {0} حروف",
   textMaxLength: "الرجاء إدخال أقل من {0} حروف",
   textMinMaxLength: "يرجى إدخال أكثر من {0} وأقل من {1} حروف",
@@ -47,19 +48,19 @@ export var arabicSurveyStrings = {
   loadingFile: "جار التحميل...",
   chooseFile: "اختر الملفات...",
   noFileChosen: "لم تقم باختيار ملف",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "هل تريد حذف السجل؟",
   keyDuplicationError: "يجب أن تكون هذه القيمة فريدة.",
   addColumn: "أضف العمود",
   addRow: "اضافة صف",
   removeRow: "إزالة صف",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   choices_Item: "بند",
   matrix_column: "عمود",
   matrix_row: "صف",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "يتم حفظ النتائج على الخادم ...",
   savingDataError: "حدث خطأ ولم نتمكن من حفظ النتائج.",
   savingDataSuccess: "تم حفظ النتائج بنجاح!",
@@ -73,7 +74,7 @@ export var arabicSurveyStrings = {
   timerLimitPage: "لقد أنفقت {0} من {1} في هذه الصفحة.",
   timerLimitSurvey: "لقد أنفقت {0} من إجمالي {1}.",
   clearCaption: "واضح",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "اختر ملف",
   removeFileCaption: "قم بإزالة هذا الملف",
   booleanCheckedLabel: "نعم",
@@ -81,12 +82,12 @@ export var arabicSurveyStrings = {
   confirmRemoveFile: "هل أنت متأكد أنك تريد إزالة هذا الملف: {0}؟",
   confirmRemoveAllFiles: "هل أنت متأكد أنك تريد إزالة كافة الملفات؟",
   questionTitlePatternText: "عنوان السؤال",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["ar"] = arabicSurveyStrings;

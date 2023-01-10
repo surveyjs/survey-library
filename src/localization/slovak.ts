@@ -1,4 +1,5 @@
-//There 4 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 4 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var slovakSurveyStrings = {
@@ -12,7 +13,7 @@ export var slovakSurveyStrings = {
   noneItemText: "Žiadne",
   selectAllItemText: "Vybrať všetky",
   progressText: "Strana {0} z {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Záznam {0} z {1}",
   questionsProgressText: "Zodpovedané otázky {0}/{1}",
   emptySurvey: "V prieskume nie je žiadna vidieľná stránka ani otázka.",
@@ -20,7 +21,7 @@ export var slovakSurveyStrings = {
   completingSurveyBefore: "Podľa našich záznamov ste už tento prieskum dokončili.",
   loadingSurvey: "Načítanie prieskumu...",
   placeholder: "Vybrať...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "hodnota",
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
@@ -84,9 +85,9 @@ export var slovakSurveyStrings = {
   modalCancelButtonText: "Zrušiť",
   modalApplyButtonText: "Použiť",
   filterStringPlaceholder: "Vyhľadávanie písaním...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie.",
-  //more: "More"
+  // more: "More"
 };
 
 surveyLocalization.locales["sk"] = slovakSurveyStrings;

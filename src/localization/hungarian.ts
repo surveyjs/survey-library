@@ -1,4 +1,5 @@
-//There 13 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 13 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var hungarianSurveyStrings = {
@@ -12,7 +13,7 @@ export var hungarianSurveyStrings = {
   noneItemText: "Egyik sem",
   selectAllItemText: "Mindet kiválaszt",
   progressText: "{0}./{1} oldal",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} / {1} rekord",
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
   emptySurvey: "The survey doesn't contain visible pages or questions.",
@@ -20,14 +21,14 @@ export var hungarianSurveyStrings = {
   completingSurveyBefore: "Már kitöltötte a felmérést.",
   loadingSurvey: "Felmérés betöltése...",
   placeholder: "Válasszon...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "érték",
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",
   requiredInAllRowsError: "Kérjük adjon választ minden sorban!",
   numericError: "Az érték szám kell, hogy legyen!",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Adjon meg legalább {0} karaktert!",
   textMaxLength: "Legfeljebb {0} karaktert adjon meg!",
   textMinMaxLength: "Adjon meg legalább {0}, de legfeljebb {1} karaktert!",
@@ -53,13 +54,13 @@ export var hungarianSurveyStrings = {
   addColumn: "Oszlop hozzáadása",
   addRow: "Sor hozzáadása",
   removeRow: "Eltávolítás",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Új hozzáadása",
   removePanel: "Eltávolítás",
   choices_Item: "elem",
   matrix_column: "Oszlop",
   matrix_row: "Sor",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Eredmény mentése a szerverre...",
   savingDataError: "Egy hiba folytán nem tudtuk elmenteni az eredményt.",
   savingDataSuccess: "Eredmény sikeresen mentve!",
@@ -73,7 +74,7 @@ export var hungarianSurveyStrings = {
   timerLimitPage: "Ön {0} / {1} összeget költött ezen az oldalon.",
   timerLimitSurvey: "Összesen {0} / {1} összeget költött el.",
   clearCaption: "Egyértelmű",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Válassz fájlt",
   removeFileCaption: "Távolítsa el ezt a fájlt",
   booleanCheckedLabel: "Igen",
@@ -81,12 +82,12 @@ export var hungarianSurveyStrings = {
   confirmRemoveFile: "Biztosan eltávolítja ezt a fájlt: {0}?",
   confirmRemoveAllFiles: "Biztosan el akarja távolítani az összes fájlt?",
   questionTitlePatternText: "Kérdés címe",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["hu"] = hungarianSurveyStrings;

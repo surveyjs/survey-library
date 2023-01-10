@@ -1,4 +1,5 @@
-//There 1 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 1 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var koreanStrings = {
@@ -84,7 +85,7 @@ export var koreanStrings = {
   modalCancelButtonText: "취소",
   modalApplyButtonText: "적용",
   filterStringPlaceholder: "검색 유형...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
   more: "더보기"
 };

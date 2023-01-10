@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var norwegianSurveyStrings = {
@@ -12,7 +13,7 @@ export var norwegianSurveyStrings = {
   noneItemText: "Ingen",
   selectAllItemText: "Velg alle",
   progressText: "Side {0} av {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Ta opp {0} av {1}",
   questionsProgressText: "Besvarte {0} / {1} spørsmål",
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
@@ -20,14 +21,14 @@ export var norwegianSurveyStrings = {
   completingSurveyBefore: "Våre data viser at du allerede har gjennomført denne undersøkelsen.",
   loadingSurvey: "Undersøkelsen laster...",
   placeholder: "Velg...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
   requiredInAllRowsError: "Vennligst svar på spørsmål i alle rader.",
   numericError: "Verdien skal være numerisk.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Vennligst skriv inn minst {0} tegn.",
   textMaxLength: "Vennligst skriv inn mindre enn {0} tegn.",
   textMinMaxLength: "Vennligst skriv inn mer enn {0} og mindre enn {1} tegn.",
@@ -47,19 +48,19 @@ export var norwegianSurveyStrings = {
   loadingFile: "Laster inn ...",
   chooseFile: "Velg fil (er) ...",
   noFileChosen: "Ingen fil valgt",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Ønsker du å slette posten?",
   keyDuplicationError: "Denne verdien skal være unik.",
   addColumn: "Legg til kolonne",
   addRow: "Legg til rad",
   removeRow: "Fjern",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
   choices_Item: "element",
   matrix_column: "Kolonne",
   matrix_row: "Rad",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Resultatene lagres på serveren ...",
   savingDataError: "Det oppsto en feil, og vi kunne ikke lagre resultatene.",
   savingDataSuccess: "Resultatene ble lagret!",
@@ -73,7 +74,7 @@ export var norwegianSurveyStrings = {
   timerLimitPage: "Du har tilbrakt {0} av {1} på denne siden.",
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
   clearCaption: "Klar",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Velg Fil",
   removeFileCaption: "Fjern denne filen",
   booleanCheckedLabel: "Ja",
@@ -81,12 +82,12 @@ export var norwegianSurveyStrings = {
   confirmRemoveFile: "Er du sikker på at du vil fjerne denne filen: {0}?",
   confirmRemoveAllFiles: "Er du sikker på at du vil fjerne alle filene?",
   questionTitlePatternText: "Spørsmålstittel",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["no"] = norwegianSurveyStrings;

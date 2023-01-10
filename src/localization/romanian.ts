@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var romanianSurveyStrings: any = {
@@ -12,7 +13,7 @@ export var romanianSurveyStrings: any = {
   noneItemText: "Nici unul",
   selectAllItemText: "Selectează tot",
   progressText: "Pagina {0} din {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Înregistrare {0} din {1}",
   questionsProgressText: "Răspunsuri la {0} / {1} întrebări",
   emptySurvey: "Nu sunt întrebări pentru acest chestionar",
@@ -20,14 +21,14 @@ export var romanianSurveyStrings: any = {
   completingSurveyBefore: "Din înregistrările noastre reiese că ați completat deja acest chestionar.",
   loadingSurvey: "Chestionarul se încarcă...",
   placeholder: "Alegeţi...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "valoare",
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",
   requiredInAllRowsError: "Toate răspunsurile sunt obligatorii",
   numericError: "Răspunsul trebuie să fie numeric.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Trebuie să introduceți minim {0} caractere.",
   textMaxLength: "Trebuie să introduceți maxim {0} caractere.",
   textMinMaxLength: "Trebuie să introduceți mai mult de {0} și mai puțin de {1} caractere.",
@@ -47,19 +48,19 @@ export var romanianSurveyStrings: any = {
   loadingFile: "Se încarcă...",
   chooseFile: "Alege fisierele...",
   noFileChosen: "Niciun fișier ales",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Sunteți sigur că doriți să ștergeți înregistrarea?",
   keyDuplicationError: "Valoarea trebuie să fie unică.",
   addColumn: "Adăugați coloană",
   addRow: "Adăugare rând",
   removeRow: "Ștergere",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Adăugare",
   removePanel: "Ștergere",
   choices_Item: "opțiune",
   matrix_column: "Coloană",
   matrix_row: "Rând",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Rezultatele sunt în curs de salvare...",
   savingDataError: "A intervenit o eroare, rezultatele nu au putut fi salvate.",
   savingDataSuccess: "Rezultatele au fost salvate cu succes!",
@@ -73,7 +74,7 @@ export var romanianSurveyStrings: any = {
   timerLimitPage: "Ați petrecut {0} din {1} pe această pagină.",
   timerLimitSurvey: "Ați petrecut {0} din {1} în total.",
   clearCaption: "clar",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Alege fișierul",
   removeFileCaption: "Eliminați acest fișier",
   booleanCheckedLabel: "da",
@@ -81,12 +82,12 @@ export var romanianSurveyStrings: any = {
   confirmRemoveFile: "Sigur doriți să eliminați acest fișier: {0}?",
   confirmRemoveAllFiles: "Sigur doriți să eliminați toate fișierele?",
   questionTitlePatternText: "Titlul intrebarii",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["ro"] = romanianSurveyStrings;

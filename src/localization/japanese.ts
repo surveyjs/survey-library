@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var japaneseSurveyStrings = {
@@ -12,7 +13,7 @@ export var japaneseSurveyStrings = {
   noneItemText: "なし",
   selectAllItemText: "すべて選択",
   progressText: "{0}/{1}頁",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "{1}の{0}を記録する",
   questionsProgressText: "{0}/{1}の質問に回答しました。",
   emptySurvey: "この調査に表示できるページや質問はありません",
@@ -20,14 +21,14 @@ export var japaneseSurveyStrings = {
   completingSurveyBefore: "当社の記録によると、この調査はすでに完了しています。",
   loadingSurvey: "調査をダウンロード中",
   placeholder: "選択",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "値打ち",
   requiredError: "質問にお答え下さい",
   requiredErrorInPanel: "最低でも1つの質問に答えてください。",
   requiredInAllRowsError: "質問には全列で回答してください。",
   numericError: "数字でご記入下さい",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "{0} 文字以上で入力して下さい",
   textMaxLength: "{0}文字以下で入力してください。",
   textMinMaxLength: "{0}以上{1}未満の文字を入力してください。",
@@ -47,19 +48,19 @@ export var japaneseSurveyStrings = {
   loadingFile: "読み込み中",
   chooseFile: "ファイルを選択",
   noFileChosen: "選択されたファイルはありません",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "レコードを削除しますか？",
   keyDuplicationError: "この値は一意でなければなりません。",
   addColumn: "列の追加",
   addRow: "追加行",
   removeRow: "除去",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "新規追加",
   removePanel: "除去",
   choices_Item: "品目",
   matrix_column: "コラム",
   matrix_row: "行",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "結果はサーバーに保存されています...。",
   savingDataError: "エラーが発生し、結果を保存できませんでした。",
   savingDataSuccess: "結果は無事に保存されました",
@@ -73,7 +74,7 @@ export var japaneseSurveyStrings = {
   timerLimitPage: "このページで{1}の{0}を使ったことがあります。",
   timerLimitSurvey: "合計で{1}の{0}を使ったことがあります。",
   clearCaption: "空白",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "ファイルを選択",
   removeFileCaption: "このファイルを削除",
   booleanCheckedLabel: "噫",
@@ -81,12 +82,12 @@ export var japaneseSurveyStrings = {
   confirmRemoveFile: "このファイルを削除してもよろしいですか？{0}?",
   confirmRemoveAllFiles: "すべてのファイルを削除してもよろしいですか？",
   questionTitlePatternText: "質問名",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["ja"] = japaneseSurveyStrings;

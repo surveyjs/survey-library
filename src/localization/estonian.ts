@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var estonianSurveyStrings = {
@@ -12,7 +13,7 @@ export var estonianSurveyStrings = {
   noneItemText: "Mitte midagi",
   selectAllItemText: "Vali kõik",
   progressText: "Lehekülg {0}/{1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Kirje {0}/{1}",
   questionsProgressText: "Vastatud {0} küsimust {1}-st",
   emptySurvey: "Selles uuringus ei ole ühtki nähtavat lehekülge või küsimust.",
@@ -20,14 +21,14 @@ export var estonianSurveyStrings = {
   completingSurveyBefore: "Meie andmetel oled sa sellele ankeedile juba vastanud.",
   loadingSurvey: "Laen ankeeti...",
   placeholder: "Vali...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "väärtus",
   requiredError: "Palun vasta küsimusele.",
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",
   requiredInAllRowsError: "Palun anna vastus igal real.",
   numericError: "See peaks olema numbriline väärtus.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Palun sisesta vähemalt {0} tähemärki.",
   textMaxLength: "Palun ära sisesta rohkem kui {0} tähemärki.",
   textMinMaxLength: "Sisesta palun {0} - {1} tähemärki.",
@@ -47,19 +48,19 @@ export var estonianSurveyStrings = {
   loadingFile: "Laen...",
   chooseFile: "Vali fail(id)...",
   noFileChosen: "Faili pole valitud",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Kas tahad kirje kustutada?",
   keyDuplicationError: "See väärtus peab olema unikaalne.",
   addColumn: "Lisa veerg",
   addRow: "Lisa rida",
   removeRow: "Eemalda",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
   choices_Item: "üksus",
   matrix_column: "Veerg",
   matrix_row: "Rida",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Salvestan andmed serveris...",
   savingDataError: "Tekkis viga ning me ei saanud vastuseid salvestada.",
   savingDataSuccess: "Vastuste salvestamine õnnestus!",
@@ -73,7 +74,7 @@ export var estonianSurveyStrings = {
   timerLimitPage: "Oled kulutanud {0} võimalikust {1} sellel lehel.",
   timerLimitSurvey: "Oled kulutanud {0} võimalikust {1} koguajast.",
   clearCaption: "Puhasta",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Vali fail",
   removeFileCaption: "Eemalda see fail",
   booleanCheckedLabel: "Jah",
@@ -81,12 +82,12 @@ export var estonianSurveyStrings = {
   confirmRemoveFile: "Oled sa kindel, et soovid selle faili eemaldada: {0}?",
   confirmRemoveAllFiles: "Oled sa kindel, et soovid eemaldada kõik failid?",
   questionTitlePatternText: "Küsimuse pealkiri",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["et"] = estonianSurveyStrings;

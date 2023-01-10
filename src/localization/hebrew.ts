@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var hebrewSurveyStrings = {
@@ -12,7 +13,7 @@ export var hebrewSurveyStrings = {
   noneItemText: "אף אחד",
   selectAllItemText: "בחר הכל",
   progressText: "דף {1} מתוך {0}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "הקלטה {0} מתוך {1}",
   questionsProgressText: "ענה על שאלות",
   emptySurvey: "אין שאלות",
@@ -20,14 +21,14 @@ export var hebrewSurveyStrings = {
   completingSurveyBefore: "הרשומות שלנו מראות שכבר סיימת את הסקר הזה.",
   loadingSurvey: "טעינה מהשרת...",
   placeholder: "בחר...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "ערך",
   requiredError: "אנא השב על השאלה",
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
   requiredInAllRowsError: "אנא ענה על שאלות בכל השורות.",
   numericError: "התשובה צריכה להיות מספר.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "הזן לפחות {0} תווים.",
   textMaxLength: "הזן פחות מ- {0} תווים.",
   textMinMaxLength: "הזן יותר מ- {0} ופחות מ- {1} תווים.",
@@ -47,19 +48,19 @@ export var hebrewSurveyStrings = {
   loadingFile: "טוען...",
   chooseFile: "לבחור קבצים...",
   noFileChosen: "לא נבחר קובץ",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "האם אתה רוצה למחוק את הרשומה?",
   keyDuplicationError: "ערך זה צריך להיות ייחודי.",
   addColumn: "הוסף עמודה",
   addRow: "להוסיף שורה",
   removeRow: "לְהַסִיר",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   choices_Item: "פריט",
   matrix_column: "טור",
   matrix_row: "שׁוּרָה",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "התוצאות נשמרות בשרת ...",
   savingDataError: "אירעה שגיאה ולא הצלחנו לשמור את התוצאות.",
   savingDataSuccess: "התוצאות נשמרו בהצלחה!",
@@ -73,7 +74,7 @@ export var hebrewSurveyStrings = {
   timerLimitPage: "הוצאת {0} מתוך {1} בדף זה.",
   timerLimitSurvey: "הוצאת סכום כולל של {0} מתוך {1}.",
   clearCaption: "ברור",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "בחר קובץ",
   removeFileCaption: "הסר קובץ זה",
   booleanCheckedLabel: "כן",
@@ -81,12 +82,12 @@ export var hebrewSurveyStrings = {
   confirmRemoveFile: "האם אתה בטוח שברצונך להסיר קובץ זה: {0}?",
   confirmRemoveAllFiles: "האם אתה בטוח שברצונך להסיר את כל הקבצים?",
   questionTitlePatternText: "כותרת שאלה",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["he"] = hebrewSurveyStrings;

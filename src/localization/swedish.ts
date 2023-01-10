@@ -1,4 +1,5 @@
-//There 2 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var swedishSurveyStrings = {
@@ -47,13 +48,13 @@ export var swedishSurveyStrings = {
   loadingFile: "Laddar...",
   chooseFile: "Välj fil(er) ...",
   noFileChosen: "Ingen fil vald",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Vill du radera posten?",
   keyDuplicationError: "Detta värde ska vara unikt.",
   addColumn: "Lägg till kolumn",
   addRow: "Lägg till rad",
   removeRow: "Ta bort",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
   choices_Item: "Artikel",

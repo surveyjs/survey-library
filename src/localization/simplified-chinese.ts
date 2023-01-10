@@ -1,4 +1,5 @@
-//There 8 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 8 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var simplifiedChineseSurveyStrings = {
@@ -12,7 +13,7 @@ export var simplifiedChineseSurveyStrings = {
   noneItemText: "无",
   selectAllItemText: "选择全部",
   progressText: "第 {0} 页, 共 {1} 页",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} of {1}",
   questionsProgressText: "第 {0}/{1} 题",
   emptySurvey: "问卷中没有问题或页面",
@@ -20,7 +21,7 @@ export var simplifiedChineseSurveyStrings = {
   completingSurveyBefore: "你已完成问卷.",
   loadingSurvey: "问卷正在加载中...",
   placeholder: "请选择...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "值",
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",
@@ -47,7 +48,7 @@ export var simplifiedChineseSurveyStrings = {
   loadingFile: "加载...",
   chooseFile: "选择文件...",
   noFileChosen: "未选择文件",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "删除记录?",
   keyDuplicationError: "主键不能重复",
   addColumn: "添加列",
@@ -73,7 +74,7 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitPage: "本页用时 {0} 共 {1} .",
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   clearCaption: "清除",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "选择文件",
   removeFileCaption: "移除文件",
   booleanCheckedLabel: "是",
@@ -83,10 +84,10 @@ export var simplifiedChineseSurveyStrings = {
   questionTitlePatternText: "标题",
   modalCancelButtonText: "取消",
   modalApplyButtonText: "确定",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;

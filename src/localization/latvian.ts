@@ -1,4 +1,5 @@
-//There 2 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var latvianSurveyStrings = {
@@ -84,9 +85,9 @@ export var latvianSurveyStrings = {
   modalCancelButtonText: "Atcelt",
   modalApplyButtonText: "Pielietot",
   filterStringPlaceholder: "Ierakstiet, lai meklētu...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
-  //more: "More"
+  // more: "More"
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;

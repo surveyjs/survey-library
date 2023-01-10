@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var turkishSurveyStrings = {
@@ -12,7 +13,7 @@ export var turkishSurveyStrings = {
   noneItemText: "Yok",
   selectAllItemText: "Hepsini seç",
   progressText: "Sayfa {0} / {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Kayıt {0} / {1}",
   questionsProgressText: "Soruları cevapladı {0} / {1}",
   emptySurvey: "Ankette görüntülenecek sayfa ya da soru mevcut değil.",
@@ -20,14 +21,14 @@ export var turkishSurveyStrings = {
   completingSurveyBefore: "Kayıtlarımız, bu anketi zaten tamamladığınızı gösteriyor.",
   loadingSurvey: "Anket sunucudan yükleniyor ...",
   placeholder: "Seçiniz ...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "değer",
   requiredError: "Lütfen soruya cevap veriniz",
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
   requiredInAllRowsError: "Lütfen tüm satırlardaki soruları cevaplayınız.",
   numericError: "Girilen değer numerik olmalıdır",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "En az {0} sembol giriniz.",
   textMaxLength: "Lütfen {0} karakterden az girin.",
   textMinMaxLength: "Lütfen {0} ’den fazla ve {1} ’den az karakter girin.",
@@ -47,19 +48,19 @@ export var turkishSurveyStrings = {
   loadingFile: "Yükleniyor...",
   chooseFile: "Dosyaları seçin ...",
   noFileChosen: "Dosya seçili değil",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Kaydı silmek istiyor musunuz?",
   keyDuplicationError: "Bu değer benzersiz olmalıdır.",
   addColumn: "Sütun ekleyin",
   addRow: "Satır Ekle",
   removeRow: "Kaldır",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Yeni ekle",
   removePanel: "Kaldırmak",
   choices_Item: "eşya",
   matrix_column: "Sütun",
   matrix_row: "Kürek çekmek",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Sonuçlar sunucuya kaydediliyor ...",
   savingDataError: "Bir hata oluştu ve sonuçları kaydedemedik.",
   savingDataSuccess: "Sonuçlar başarıyla kaydedildi!",
@@ -73,7 +74,7 @@ export var turkishSurveyStrings = {
   timerLimitPage: "Bu sayfaya {0} / {1} harcadınız.",
   timerLimitSurvey: "Toplamda {0} / {1} harcadınız.",
   clearCaption: "Açık",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Dosya seçin",
   removeFileCaption: "Bu dosyayı kaldır",
   booleanCheckedLabel: "Evet",
@@ -81,12 +82,12 @@ export var turkishSurveyStrings = {
   confirmRemoveFile: "Bu dosyayı kaldırmak istediğinizden emin misiniz: {0}?",
   confirmRemoveAllFiles: "Tüm dosyaları kaldırmak istediğinizden emin misiniz?",
   questionTitlePatternText: "Soru başlığı",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["tr"] = turkishSurveyStrings;

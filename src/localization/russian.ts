@@ -1,4 +1,5 @@
-//There 2 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var russianSurveyStrings = {
@@ -84,9 +85,9 @@ export var russianSurveyStrings = {
   modalCancelButtonText: "Отменить",
   modalApplyButtonText: "Применять",
   filterStringPlaceholder: "Введите для поиска...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
-  //more: "More"
+  // more: "More"
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;

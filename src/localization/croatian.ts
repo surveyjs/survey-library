@@ -1,4 +1,5 @@
-//There 12 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 12 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var croatianStrings = {
@@ -12,7 +13,7 @@ export var croatianStrings = {
   noneItemText: "Nitko",
   selectAllItemText: "Select All",
   progressText: "Stranica {0} od {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Zapisa {0} od {1}",
   questionsProgressText: "Odgovorio na {0}/{1} pitanja",
   emptySurvey: "U anketi nema vidljive stranice ili pitanja.",
@@ -20,14 +21,14 @@ export var croatianStrings = {
   completingSurveyBefore: "Naši zapisi pokazuju da ste već završili ovu anketu.",
   loadingSurvey: "Anketa o učitavanje...",
   placeholder: "Odaberite...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "vrijednost",
   requiredError: "Molim vas odgovorite na pitanje.",
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",
   requiredInAllRowsError: "Odgovorite na pitanja u svim redovima.",
   numericError: "Vrijednost bi trebala biti brojčana.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Unesite najmanje {0} znak(ova).",
   textMaxLength: "Unesite manje od {0} znak(ova).",
   textMinMaxLength: "Unesite više od {0} i manje od {1} znakova.",
@@ -47,19 +48,19 @@ export var croatianStrings = {
   loadingFile: "Učitavanje...",
   chooseFile: "Odaberite datoteku...",
   noFileChosen: "Nije odabrana datoteka",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Želite li izbrisati zapis?",
   keyDuplicationError: "Ta bi vrijednost trebala biti jedinstvena.",
   addColumn: "Dodavanje stupca",
   addRow: "Dodavanje redaka",
   removeRow: "Ukloniti",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Dodavanje novih",
   removePanel: "Ukloniti",
   choices_Item: "stavku",
   matrix_column: "Stupca",
   matrix_row: "Redak",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Rezultati se spremaju na poslužitelju...",
   savingDataError: "Došlo je do pogreške i nismo mogli spremiti rezultate.",
   savingDataSuccess: "Rezultati su uspješno spremljeni!",
@@ -73,7 +74,7 @@ export var croatianStrings = {
   timerLimitPage: "Potrošio si {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Ukupno ste potrošili {0} od {1}.",
   clearCaption: "Očistiti",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Odaberite datoteku",
   removeFileCaption: "Uklonite ovu datoteku",
   booleanCheckedLabel: "Da",
@@ -83,10 +84,10 @@ export var croatianStrings = {
   questionTitlePatternText: "Naslov pitanja",
   modalCancelButtonText: "Otkazati",
   modalApplyButtonText: "Primijeniti",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["hr"] = croatianStrings;

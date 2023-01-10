@@ -1,15 +1,26 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, Model, SurveyModel, PanelModel } from "survey-core";
+export interface MarkupTestDescriptor {
+  name: string;
+  json: any;
+  event?: string;
+  before?: () => void;
+  after?: () => void;
+  snapshot?: string;
+  excludePlatform?: string;
+  etalon?: string;
+  initSurvey?: (survey: Model) => void;
+}
 
-export var markupTests = [];
+export var markupTests: Array<MarkupTestDescriptor> = [];
 
-export function registerMarkupTest(t) {
+export function registerMarkupTest(t: MarkupTestDescriptor): void {
   markupTests.push(t);
 }
-export function registerMarkupTests(tests) {
+export function registerMarkupTests(tests: Array<MarkupTestDescriptor>): void {
   tests.forEach(t => markupTests.push(t));
 }
 
-function format(html) {
+function format(html: string) {
   var tab = "\t";
   var result = "";
   var indent = "";
@@ -29,7 +40,7 @@ function format(html) {
   return result.substring(1, result.length - 3);
 }
 
-function sortAttributes(elements) {
+function sortAttributes(elements: Array<HTMLElement>) {
   for (var j = 0; j < elements.length; j++) {
     var attributes = [];
     for (var i = 0; i < elements[j].attributes.length; i++) {
@@ -69,7 +80,7 @@ function sortAttributes(elements) {
   }
 }
 
-export function testQuestionMarkup(assert, test, platform) {
+export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, platform: any): void {
   var id = "surveyElement" + platform.name;
   var surveyElement = document.getElementById(id);
   var reportElement = document.getElementById(id+"_report");
@@ -111,11 +122,11 @@ export function testQuestionMarkup(assert, test, platform) {
       });
     }
   });
-  platform.survey.getAllPanels().map((p, i) => {
+  platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
     p.id = "testidp" + i;
   });
   platform.survey.textUpdateMode = "onTyping";
-  platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey, options) {
+  platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(()=>{
       const htmlElement = options.htmlElement;
       var all = htmlElement.getElementsByTagName("*");
@@ -149,7 +160,7 @@ export function testQuestionMarkup(assert, test, platform) {
       if(platform.finish)
         platform.finish(surveyElement);
       if(newstr != oldStr) {
-        var form =document.createElement("form");
+        var form = document.createElement("form");
         form.action = "https://text-compare.com/";
         form.target = "_blank";
         form.method = "post";

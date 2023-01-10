@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var ukrainianSurveyStrings = {
@@ -12,7 +13,7 @@ export var ukrainianSurveyStrings = {
   noneItemText: "Жоден",
   selectAllItemText: "Вибрати все",
   progressText: "Сторінка {0} з {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Запис {0} із {1}",
   questionsProgressText: "Відповіли на {0}/{1} питань",
   emptySurvey: "Немає жодного питання.",
@@ -20,14 +21,14 @@ export var ukrainianSurveyStrings = {
   completingSurveyBefore: "Ви вже проходили це опитування.",
   loadingSurvey: "Завантаження опитування...",
   placeholder: "Вибрати...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "значення",
   requiredError: "Будь ласка, дайте відповідь.",
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",
   requiredInAllRowsError: "Будь ласка, дайте відповідь на питання в кожному рядку.",
   numericError: "Відповідь повинна бути числом.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Будь ласка введіть більше {0} символів.",
   textMaxLength: "Будь ласка введіть менше {0} символів.",
   textMinMaxLength: "Будь ласка введіть більше {0} и менше {1} символів.",
@@ -47,19 +48,19 @@ export var ukrainianSurveyStrings = {
   loadingFile: "Завантаження...",
   chooseFile: "Виберіть файл(и)...",
   noFileChosen: "Файл не вибрано",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Ви хочете видалити запис?",
   keyDuplicationError: "Це значення повинно бути унікальним.",
   addColumn: "Додати колонку",
   addRow: "Додати рядок",
   removeRow: "Видалити",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Додати нову",
   removePanel: "Видалити",
   choices_Item: "Варіант",
   matrix_column: "Колонка",
   matrix_row: "Рядок",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Результати зберігаються на сервер...",
   savingDataError: "Відбулася помилка, результат не був збережений.",
   savingDataSuccess: "Резвультат успішно збережений!",
@@ -73,7 +74,7 @@ export var ukrainianSurveyStrings = {
   timerLimitPage: "Ви витратили {0} з {1} на цій сторінці.",
   timerLimitSurvey: "Ви витратили {0} з {1} для всього тесту.",
   clearCaption: "Очистити",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Виберіть файл",
   removeFileCaption: "Видалити файл",
   booleanCheckedLabel: "Так",
@@ -81,12 +82,12 @@ export var ukrainianSurveyStrings = {
   confirmRemoveFile: "Ви впевнені, що хочете видалити цей файл: {0}?",
   confirmRemoveAllFiles: "Ви впевнені, що хочете видалити всі файли?",
   questionTitlePatternText: "Назва запитання",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["ua"] = ukrainianSurveyStrings;

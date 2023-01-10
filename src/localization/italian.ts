@@ -1,4 +1,5 @@
-//There 2 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var italianSurveyStrings = {
@@ -84,9 +85,9 @@ export var italianSurveyStrings = {
   modalCancelButtonText: "Annulla",
   modalApplyButtonText: "Applicare",
   filterStringPlaceholder: "Digita per cercare...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
-  //more: "More"
+  // more: "More"
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;

@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var swahiliStrings = {
@@ -12,7 +13,7 @@ export var swahiliStrings = {
   noneItemText: "Hakuna",
   selectAllItemText: "Chagua Zote",
   progressText: "Ukurasa {0} wa {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Rekodi {0} ya {1}",
   questionsProgressText: "Yaliyojibiwa {0}/{1} maswali",
   emptySurvey: "Hakuna ukurasa unaoonekana au swali katika utafiti.",
@@ -20,14 +21,14 @@ export var swahiliStrings = {
   completingSurveyBefore: "Recodi zetu zinatuonyesha tayari umekamilisha utafiti.",
   loadingSurvey: "Tunaandaa utafiti...",
   placeholder: "Chagua...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "thamani",
   requiredError: "Tafadhali jibu hili swali.",
   requiredErrorInPanel: "Tafadhali jibu swali angalau moja.",
   requiredInAllRowsError: "Tafadhali jibu maswali katika safu zote.",
   numericError: "Thamani inapaswa kuwa ya nambari.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Tafadhali ingiza angalau{0} husika.",
   textMaxLength: "Tafadhali ingiza isiozidi {0} husika.",
   textMinMaxLength: "Tafadhali ingiza kiwango zaidi ya {0} na kisichopungua {1} husika.",
@@ -47,19 +48,19 @@ export var swahiliStrings = {
   loadingFile: "Inapakia...",
   chooseFile: "Chagua faili...",
   noFileChosen: "Hujachagua faili",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Je! Unataka kufuta rekodi?",
   keyDuplicationError: "Thamani hii inapaswa kuwa ya kipekee.",
   addColumn: "Ongeza Kolamu",
   addRow: "Ongeza safu",
   removeRow: "Toa",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Ongeza mpya",
   removePanel: "Toa",
   choices_Item: "kitu",
   matrix_column: "Kolamu",
   matrix_row: "Safu",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Matokeo yamehifadhiwa kwa seva...",
   savingDataError: "Kosa limetokea na hatukuweza kuhifadhi matokeo.",
   savingDataSuccess: "Matokeo yamehifadhiwa!",
@@ -73,7 +74,7 @@ export var swahiliStrings = {
   timerLimitPage: "Umetumia {0} ya {1} kwenye ukurasa huu.",
   timerLimitSurvey: "Umetumia {0} ya {1} kwa jumla.",
   clearCaption: "Ondoa",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Chagua faili",
   removeFileCaption: "Ondoa faili",
   booleanCheckedLabel: "Ndio",
@@ -81,12 +82,12 @@ export var swahiliStrings = {
   confirmRemoveFile: "Je! Una uhakika kuwa unataka kuondoa faili hii: {0}?",
   confirmRemoveAllFiles: "Je! Una uhakika kuwa unataka kuondoa faili zote?",
   questionTitlePatternText: "Kichwa cha Swali",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["sw"] = swahiliStrings;

@@ -1,4 +1,5 @@
-//There 8 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 8 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var serbianStrings = {
@@ -12,7 +13,7 @@ export var serbianStrings = {
   noneItemText: "Ništa",
   selectAllItemText: "Izaberi sve",
   progressText: "Stranica {0} od {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Upis {0} od {1}",
   questionsProgressText: "Odgovoreno na {0}/{1} pitanja",
   emptySurvey: "Nema vidljivih stranica ili pitanja u anketi.",
@@ -20,7 +21,7 @@ export var serbianStrings = {
   completingSurveyBefore: "Prema našim podacima, već ste popunili ovu anketu.",
   loadingSurvey: "Učitavam anketu...",
   placeholder: "Izaberi...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "vrednost",
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
@@ -47,7 +48,7 @@ export var serbianStrings = {
   loadingFile: "Učitavanje...",
   chooseFile: "Izaberite fajlove...",
   noFileChosen: "Nije izabran nijedan fajl",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Da li želite da izbrišete unos?",
   keyDuplicationError: "Ova vrednost treba da bude jedinstvena.",
   addColumn: "Dodaj kolonu",
@@ -73,7 +74,7 @@ export var serbianStrings = {
   timerLimitPage: "Proveli ste {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   clearCaption: "Poništi",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Izaberi fajl",
   removeFileCaption: "Ukloni ovaj fajl",
   booleanCheckedLabel: "Da",
@@ -83,10 +84,10 @@ export var serbianStrings = {
   questionTitlePatternText: "Naslov pitanja",
   modalCancelButtonText: "Otkaži",
   modalApplyButtonText: "Primeni",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

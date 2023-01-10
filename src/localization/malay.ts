@@ -1,4 +1,5 @@
-//There 4 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 4 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var malaySurveyStrings = {
@@ -12,7 +13,7 @@ export var malaySurveyStrings = {
   noneItemText: "Tiada",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} daripada {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Rekod {0} daripada {1}",
   questionsProgressText: "{0}/{1} soalan telah dijawab",
   emptySurvey: "Tiada halaman atau soalan boleh dilihat dalam tinjauan.",
@@ -20,7 +21,7 @@ export var malaySurveyStrings = {
   completingSurveyBefore: "Rekod kami menunjukkan yang anda telah melengkapkan tinjauan ini.",
   loadingSurvey: "Memuatkan Tinjauan...",
   placeholder: "Pilih...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "nilai",
   requiredError: "Respons diperlukan.",
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
@@ -84,9 +85,9 @@ export var malaySurveyStrings = {
   modalCancelButtonText: "Batal",
   modalApplyButtonText: "Guna",
   filterStringPlaceholder: "Taip untuk membuat carian...",
-  //emptyMessage: "No data to display",
+  // emptyMessage: "No data to display",
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri.",
-  //more: "More"
+  // more: "More"
 };
 
 surveyLocalization.locales["ms"] = malaySurveyStrings;

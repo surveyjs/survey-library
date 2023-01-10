@@ -1,4 +1,5 @@
-//There 6 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 6 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var urduSurveyStrings = {
@@ -12,7 +13,7 @@ export var urduSurveyStrings = {
   noneItemText: "کوئی نہیں",
   selectAllItemText: "تمام منتخب کریں",
   progressText: "صفحہ {0} از {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "ریکارڈ {0} {1}",
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
   emptySurvey: "سروے میں کوئی نظر آنے والا صفحہ یا سوال نہیں ہے۔",
@@ -20,7 +21,7 @@ export var urduSurveyStrings = {
   completingSurveyBefore: "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
   placeholder: "...منتخب کریں ",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
@@ -83,10 +84,10 @@ export var urduSurveyStrings = {
   questionTitlePatternText: "سوال کا عنوان۔",
   modalCancelButtonText: "منسوخ کریں",
   modalApplyButtonText: "درخواست دیں",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

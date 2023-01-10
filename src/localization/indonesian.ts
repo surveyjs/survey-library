@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var indonesianStrings = {
@@ -12,7 +13,7 @@ export var indonesianStrings = {
   noneItemText: "Tidak Ada",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} dari {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Rekam {0} dari {1}",
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
@@ -20,14 +21,14 @@ export var indonesianStrings = {
   completingSurveyBefore: "Catatan kami menunjukkan bahwa Anda telah menyelesaikan survei ini.",
   loadingSurvey: "Memuat survei...",
   placeholder: "Pilih...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "nilai",
   requiredError: "Silahkan jawab pertanyaan berikut.",
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",
   requiredInAllRowsError: "Silahkan jawab pertanyaan pada semua baris.",
   numericError: "Nilai harus berupa angka.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Silahkan masukkan setidaknya {0} karakter.",
   textMaxLength: "Silahkan masukkan kurang {0} karakter.",
   textMinMaxLength: "PSilahkan masukkan lebih dari {0} dan kurang dari {1} karakter.",
@@ -47,19 +48,19 @@ export var indonesianStrings = {
   loadingFile: "Memuat...",
   chooseFile: "Pilih berkas...",
   noFileChosen: "Tidak ada file yang dipilih",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Apakah Anda ingin menghapus catatan?",
   keyDuplicationError: "Nilai harus unik.",
   addColumn: "Tambah kolom",
   addRow: "Tambah baris",
   removeRow: "Hapus",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Tambah baru",
   removePanel: "Hapus",
   choices_Item: "item",
   matrix_column: "Kolom",
   matrix_row: "Baris",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Hasil sedang disimpan pada server...",
   savingDataError: "Kesalahan terjadi dan kami tidak dapat menyimpan hasil.",
   savingDataSuccess: "Hasil telah sukses disimpan!",
@@ -73,7 +74,7 @@ export var indonesianStrings = {
   timerLimitPage: "Anda telah menghabiskan {0} dari {1} pada halaman ini.",
   timerLimitSurvey: "Anda telah menghabiskan {0} dari {1} secara keseluruhan.",
   clearCaption: "Bersihkan",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Pilih File",
   removeFileCaption: "Hapus berkas ini",
   booleanCheckedLabel: "Iya",
@@ -81,12 +82,12 @@ export var indonesianStrings = {
   confirmRemoveFile: "Anda yakin ingin menghapus file ini: {0}?",
   confirmRemoveAllFiles: "Anda yakin ingin menghapus semua file?",
   questionTitlePatternText: "Judul pertanyaan",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["id"] = indonesianStrings;

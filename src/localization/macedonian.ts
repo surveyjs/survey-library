@@ -1,4 +1,5 @@
-//There 8 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 8 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var macedonianSurveyStrings = {
@@ -12,7 +13,7 @@ export var macedonianSurveyStrings = {
   noneItemText: "Ништо",
   selectAllItemText: "Селектирај се",
   progressText: "Страница {0} од {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Сними {0} од {1}",
   questionsProgressText: "Одговорени на {0} / {1} прашања",
   emptySurvey: "Нема видлива страница или прашање во истражувањето.",
@@ -20,7 +21,7 @@ export var macedonianSurveyStrings = {
   completingSurveyBefore: "Нашите записи покажуваат дека веќе сте го завршиле ова истражување.",
   loadingSurvey: "Анкетата се вчитува ...",
   placeholder: "Изберете ...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "вредност",
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
@@ -59,7 +60,7 @@ export var macedonianSurveyStrings = {
   choices_Item: "ставка",
   matrix_column: "Колона",
   matrix_row: "Ред",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Резултатите се зачувуваат на серверот ...",
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   savingDataSuccess: "Резултатите беа успешно зачувани!",
@@ -73,7 +74,7 @@ export var macedonianSurveyStrings = {
   timerLimitPage: "Поминавте {0} од {1} на оваа страница.",
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
   clearCaption: "Да расчисти",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Изберете датотека",
   removeFileCaption: "Отстранете ја оваа датотека",
   booleanCheckedLabel: "Да",
@@ -83,10 +84,10 @@ export var macedonianSurveyStrings = {
   questionTitlePatternText: "Наслов на прашањето",
   modalCancelButtonText: "Откажи",
   modalApplyButtonText: "Аплицирај",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["mk"] = macedonianSurveyStrings;

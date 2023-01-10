@@ -1,4 +1,5 @@
-//There 15 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 15 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var teluguStrings = {
@@ -9,10 +10,10 @@ export var teluguStrings = {
   editText: "మార్పులు చెయ్యి",
   startSurveyText: "ప్రారంభించు",
   otherItemText: "ఇతరమైన(వివరించండి)",
-  //noneItemText: "None",
+  // noneItemText: "None",
   selectAllItemText: "అన్ని ఎంచుకో",
   progressText: "పేజీ{0}/{1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "దాఖలాలు{0}/{1}",
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
   emptySurvey: "ఈ సర్వేలో పేజీలు గాని ప్రశ్నలు గాని కనబడుట లేదు",
@@ -20,14 +21,14 @@ export var teluguStrings = {
   completingSurveyBefore: " మీరు ఇప్పటికే సర్వేను ముగించినట్లు మా రికార్డులు చూపిస్తున్నాయి",
   loadingSurvey: "సర్వే లోడ్ అవుతుంది",
   placeholder: "ఎన్నుకోండి",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "విలువ",
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   requiredInAllRowsError: "దయచేసి అన్ని వరుసలలో ఉన్న ప్రశ్నలకు జవాబు ఇవ్వండి",
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "దయచేసి కనీసం {0} అక్షరాలను నమోదు చేయండి",
   textMaxLength: "దయచేసి {0} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
   textMinMaxLength: "దయచేసి {0} కన్నా ఎక్కువ మరియు{1} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
@@ -47,19 +48,19 @@ export var teluguStrings = {
   loadingFile: "లోడ్ అవుతున్నది",
   chooseFile: "ఫైళ్లను ఎన్నుకోండి",
   noFileChosen: "ఏ ఫైల్ ఎన్నుకో లేదు",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "మీరు రికార్డులను తొలగించాలని అనుకుంటున్నారా",
   keyDuplicationError: "విలువ ప్రత్యేకంగా ఉండాలి",
   addColumn: "కాలం చేర్పించండి",
   addRow: "వరుసలు చేర్పించండి",
   removeRow: "తీసేయండి",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   removePanel: "తీసేయండి",
   choices_Item: "వస్తువులు",
   matrix_column: "కాలం ",
   matrix_row: "వరుస",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "ఫలితాంశాలు సర్వర్లో సేవ్ అవుతున్నాయి",
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
@@ -73,7 +74,7 @@ export var teluguStrings = {
   timerLimitPage: "ఈ పేజీలో మీరు {1}లోని{0} ని ఉపయోగించారు",
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
   clearCaption: "స్పష్టమ్",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",
   booleanCheckedLabel: "అవును",
@@ -81,12 +82,12 @@ export var teluguStrings = {
   confirmRemoveFile: " ఈ ఫైల్ని తీయించాలని మీరు ఖచ్చితంగా అనుకుంటున్నారా:{0} ?",
   confirmRemoveAllFiles: "అన్ని ఫైళ్లను తీసేయాలని మీరు ఖచ్చితంగా అనుకుంటున్నారా",
   questionTitlePatternText: "ప్రశ్న శీర్షిక",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["tel"] = teluguStrings;

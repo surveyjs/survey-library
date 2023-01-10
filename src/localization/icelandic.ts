@@ -1,4 +1,5 @@
-//There 14 untranslated keys. You can find them in uncommented lines.
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var icelandicSurveyStrings = {
@@ -12,7 +13,7 @@ export var icelandicSurveyStrings = {
   noneItemText: "Enginn",
   selectAllItemText: "Velja allt",
   progressText: "Síða {0} of {1}",
-  //indexText: "{0} of {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Taka upp {0} af {1}",
   questionsProgressText: "Svarað {0} / {1} spurningum",
   emptySurvey: "Það er enginn síða eða spurningar í þessari könnun.",
@@ -20,14 +21,14 @@ export var icelandicSurveyStrings = {
   completingSurveyBefore: "Skrár okkar sýna að þú hefur þegar lokið þessari könnun.",
   loadingSurvey: "Könnunin er að hlaða...",
   placeholder: "Veldu...",
-  //ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "gildi",
   requiredError: "Vinsamlegast svarið spurningunni.",
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
   requiredInAllRowsError: "Vinsamlegast svarið spurningum í öllum röðum.",
   numericError: "Þetta gildi verður að vera tala.",
-  //minError: "The value should not be less than {0}",
-  //maxError: "The value should not be greater than {0}",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Það ætti að vera minnst {0} tákn.",
   textMaxLength: "Það ætti að vera mest {0} tákn.",
   textMinMaxLength: "Það ætti að vera fleiri en {0} og færri en {1} tákn.",
@@ -47,19 +48,19 @@ export var icelandicSurveyStrings = {
   loadingFile: "Hleður ...",
   chooseFile: "Veldu skrár ...",
   noFileChosen: "Engin skrá valin",
-  //fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Viltu eyða skránni?",
   keyDuplicationError: "Þetta gildi ætti að vera einstakt.",
   addColumn: "Bæta við dálki",
   addRow: "Bæta við röð",
   removeRow: "Fjarlægja",
-  //emptyRowsText: "There are no rows.",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
   choices_Item: "hlutur",
   matrix_column: "Dálkur",
   matrix_row: "Röð",
-  //multipletext_itemname: "text",
+  // multipletext_itemname: "text",
   savingData: "Niðurstöðurnar eru að spara á netþjóninum ... ",
   savingDataError: "Villa kom upp og við gátum ekki vistað niðurstöðurnar.",
   savingDataSuccess: "Árangurinn var vistaður með góðum árangri!",
@@ -73,7 +74,7 @@ export var icelandicSurveyStrings = {
   timerLimitPage: "Þú hefur eytt {0} af {1} á þessari síðu.",
   timerLimitSurvey: "Þú hefur eytt {0} af {1} samtals.",
   clearCaption: "Hreinsa",
-  //signaturePlaceHolder: "Sign here",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Veldu skrá",
   removeFileCaption: "Fjarlægðu þessa skrá",
   booleanCheckedLabel: "Já",
@@ -81,12 +82,12 @@ export var icelandicSurveyStrings = {
   confirmRemoveFile: "Ertu viss um að þú viljir fjarlægja þessa skrá: {0}?",
   confirmRemoveAllFiles: "Ertu viss um að þú viljir fjarlægja allar skrár?",
   questionTitlePatternText: "Spurningartitill",
-  //modalCancelButtonText: "Cancel",
-  //modalApplyButtonText: "Apply",
-  //filterStringPlaceholder: "Type to search...",
-  //emptyMessage: "No data to display",
-  //noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  //more: "More"
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["is"] = icelandicSurveyStrings;

@@ -4289,13 +4289,14 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
+    if(this.isCompleted) return;
     if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
     let previousCookie = this.hasCookie;
     this.stopTimer();
-    this.setCompleted();
+    this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
     var self = this;
@@ -4463,7 +4464,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public setCompleted(): void {
-    this.isCompleted = true;
+    this.doComplete(true);
   }
   canBeCompleted(): void {
     if (!settings.changeNavigationButtonsOnCompleteTrigger) return;

@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -185,7 +185,9 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.url`: `String`\
-   * A URL to which respondents should be navigated. Set this property to an empty string to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * A URL to which respondents should be navigated. You can modify it.
+   * - `options.allow`: `Boolean`\
+   * Set this property to false to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
@@ -1808,11 +1810,10 @@ export class SurveyModel extends SurveyElementCore
   }
   private navigateTo() {
     var url = this.getNavigateToUrl();
-    var options = { url: url };
+    var options = { url: url, allow: true };
     this.onNavigateToUrl.fire(this, options);
-    if (!options.url || typeof window === "undefined" || !window.location)
-      return;
-    window.location.href = options.url;
+    if(!options.url || !options.allow) return;
+    navigateToUrl(options.url);
   }
   /**
    * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.

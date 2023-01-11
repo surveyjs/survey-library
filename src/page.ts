@@ -208,13 +208,16 @@ export class PageModel extends PanelModelBase implements IPage {
    * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
    * @param includingDesignTime For internal use.
    */
-  public getPanels(
+  public getAllPanels(
     visibleOnly: boolean = false,
     includingDesignTime: boolean = false
   ): Array<IPanel> {
     var result = new Array<IPanel>();
     this.addPanelsIntoList(result, visibleOnly, includingDesignTime);
     return result;
+  }
+  public getPanels(visibleOnly: boolean = false, includingDesignTime: boolean = false): Array<IPanel> {
+    return this.getAllPanels(visibleOnly, includingDesignTime);
   }
   /**
    * A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).

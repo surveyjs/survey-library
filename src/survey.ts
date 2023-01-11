@@ -148,7 +148,7 @@ export class SurveyModel extends SurveyElementCore
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    * - `options.showSaveInProgress(text?: string)`\
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
-   * - `options.showSaveSuccess(text?: string)`\
+   * - `options.showSaveError(text?: string)`\
    * Call this method to indicate that an error occurred during the save operation. You can use the `text` parameter to display a custom error message.
    * - `options.showSaveSuccess(text?: string)`\
    * Call this method to indicate that survey results are successfully saved. You can use the `text` parameter to display a custom message.
@@ -157,7 +157,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
-   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSaveInProgress...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
    * @see allowCompleteSurveyAutomatic

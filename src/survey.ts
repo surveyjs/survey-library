@@ -146,18 +146,18 @@ export class SurveyModel extends SurveyElementCore
    * A survey instance that raised the event. Use `sender.data` to access survey results.
    * - `options.isCompleteOnTrigger`: `Boolean`\
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
-   * - `options.showDataSaving(text?: string)`\
+   * - `options.showSaveInProgress(text?: string)`\
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingError(text?: string)`\
+   * - `options.showSaveSuccess(text?: string)`\
    * Call this method to indicate that an error occurred during the save operation. You can use the `text` parameter to display a custom error message.
-   * - `options.showDataSavingSuccess(text?: string)`\
+   * - `options.showSaveSuccess(text?: string)`\
    * Call this method to indicate that survey results are successfully saved. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingClear()`\
+   * - `options.clearSaveMessages()`\
    * Call this method to hide the save operation messages.
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
-   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSaveInProgress...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
@@ -4278,7 +4278,7 @@ export class SurveyModel extends SurveyElementCore
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
    * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
    * It calls `navigateToUrl` after calling `onComplete` event.
-   * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
+   * In case calling `options.showSaveInProgress` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showSaveSuccess` callback.
    * @see completeLastPage
    * @see onCompleting
    * @see cookieName
@@ -4300,24 +4300,32 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
-    var self = this;
+    const showSaveInProgress = (text: string) => {
+      savingDataStarted = true;
+      this.setCompletedState("saving", text);
+    };
+    const showSaveError = (text: string) => {
+      this.setCompletedState("error", text);
+    };
+    const showSaveSuccess = (text: string) => {
+      this.setCompletedState("success", text);
+      this.navigateTo();
+    };
+    const clearSaveMessages = (text: string) => {
+      this.setCompletedState("", "");
+    };
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function (text: string) {
-        savingDataStarted = true;
-        self.setCompletedState("saving", text);
-      },
-      showDataSavingError: function (text: string) {
-        self.setCompletedState("error", text);
-      },
-      showDataSavingSuccess: function (text: string) {
-        self.setCompletedState("success", text);
-        self.navigateTo();
-      },
-      showDataSavingClear: function (text: string) {
-        self.setCompletedState("", "");
-      },
+      showSaveInProgress: showSaveInProgress,
+      showSaveError: showSaveError,
+      showSaveSuccess: showSaveSuccess,
+      clearSaveMessages: clearSaveMessages,
+      //Obsolete functions
+      showDataSaving: showSaveInProgress,
+      showDataSavingError: showSaveError,
+      showDataSavingSuccess: showSaveSuccess,
+      showDataSavingClear: clearSaveMessages
     };
     this.onComplete.fire(this, onCompleteOptions);
     if (!previousCookie && this.surveyPostId) {

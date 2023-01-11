@@ -1172,9 +1172,9 @@ export class SurveyModel extends SurveyElementCore
    * The item's name.
    * - `options.value`: `any`\
    * The item's new value.
-   * - `options.itemIndex`: `Number`\
+   * - `options.panelIndex`: `Number`\
    * The panel's index within Dynamic Panel.
-   * - `options.itemValue`: `Object`\
+   * - `options.panelData`: `Object`\
    * The panel's data object that includes all item values.
    */
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel> = this.addEvent<
@@ -4842,6 +4842,8 @@ export class SurveyModel extends SurveyElementCore
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;
+    options.panelIndex = options.itemIndex;
+    options.panelData = options.itemValue;
     this.onDynamicPanelItemValueChanged.fire(this, options);
   }
   dragAndDropAllow(options: any): boolean {

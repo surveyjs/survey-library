@@ -937,7 +937,7 @@ export class QuestionSelectBase extends Question {
   private getQuestionWithChoices(): QuestionSelectBase {
     if (!this.choicesFromQuestion || !this.survey) return null;
     var res: any = this.survey.getQuestionByName(this.choicesFromQuestion);
-    return !!res && !!res.visibleChoices && res !== this ? res : null;
+    return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   protected getChoicesFromQuestion(
     question: QuestionSelectBase

@@ -5119,6 +5119,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "rating", name: "q1", "rateValues": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choicesFromQuestion: "q1",
+          choices: ["item1", "item2"]
+        },
+      ],
+    });
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+    assert.equal(
+      q2["activeChoices"].length,
+      2,
+      "We do not duplicate selectedAll, none and other"
+    );
+  }
+);
 QUnit.test("text question dataList", function (assert) {
   var survey = new SurveyModel({
     elements: [

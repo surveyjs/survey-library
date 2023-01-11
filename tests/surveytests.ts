@@ -7674,6 +7674,23 @@ QUnit.test(
     assert.equal(q3.isVisible, true, "q1=3, q3 is visible");
   }
 );
+QUnit.test("survey.onVisibleChanged & survey.onQuestionVisibleChanged are same events", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.onVisibleChanged.length, 0, "#1 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#1 onQuestionVisibleChanged.length");
+  survey.onQuestionVisibleChanged.add((sender, options) => {});
+  assert.equal(survey.onVisibleChanged.length, 1, "#2 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 1, "#2 onQuestionVisibleChanged.length");
+  survey.onQuestionVisibleChanged.clear();
+  assert.equal(survey.onVisibleChanged.length, 0, "#3 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#3 onQuestionVisibleChanged.length");
+  survey.onVisibleChanged.add((sender, options) => {});
+  assert.equal(survey.onVisibleChanged.length, 1, "#4 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 1, "#4 onQuestionVisibleChanged.length");
+  survey.onVisibleChanged.clear();
+  assert.equal(survey.onVisibleChanged.length, 0, "#5 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#5 onQuestionVisibleChanged.length");
+});
 
 QUnit.test(
   "Process text with question name containing '-' and '+', Bug #1080",

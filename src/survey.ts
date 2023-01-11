@@ -326,9 +326,12 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onVisibleChanged: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onQuestionVisibleChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * Obsolete. Please use onQuestionVisibleChanged event.
+   * @see onQuestionVisibleChanged
+   */
+  public onVisibleChanged: EventBase<SurveyModel> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -5730,7 +5733,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
       this.isRunningConditions &&
-      this.onVisibleChanged.isEmpty &&
+      this.onQuestionVisibleChanged.isEmpty &&
       this.onPageVisibleChanged.isEmpty
     ) {
       //Run update visible index only one time on finishing running conditions
@@ -6295,7 +6298,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.onVisibleChanged.fire(this, {
+    this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,
       visible: newValue,

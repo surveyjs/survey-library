@@ -413,9 +413,9 @@ export class SurveyModel extends SurveyElementCore
    * The question's name.
    * - `options.index`: `Number`\
    * The question's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added question.
    *
    * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
@@ -466,9 +466,9 @@ export class SurveyModel extends SurveyElementCore
    * The panel's name.
    * - `options.index`: `Number`\
    * The panel's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added panel.
    */
   public onPanelAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
@@ -6352,6 +6352,8 @@ export class SurveyModel extends SurveyElementCore
         question: question,
         name: question.name,
         index: index,
+        parent: parentPanel,
+        page: rootPanel,
         parentPanel: parentPanel,
         rootPanel: rootPanel,
       });
@@ -6480,6 +6482,8 @@ export class SurveyModel extends SurveyElementCore
       panel: panel,
       name: panel.name,
       index: index,
+      parent: parentPanel,
+      page: rootPanel,
       parentPanel: parentPanel,
       rootPanel: rootPanel,
     });

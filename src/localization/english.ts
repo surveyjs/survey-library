@@ -91,6 +91,7 @@ export var englishStrings = {
   filterStringPlaceholder: "Type to search...",
   emptyMessage: "No data to display",
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  noEntriesReadonlyText: "There are no entries.",
   more: "More"
 };
 

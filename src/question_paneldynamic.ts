@@ -1263,7 +1263,14 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < this.panels.length; i++) {
       this.panels[i].readOnly = readOnly;
     }
+    this.updateNoEntriesTextDefaultLoc();
     super.onReadOnlyChanged();
+  }
+  private updateNoEntriesTextDefaultLoc(): void {
+    const loc = this.getLocalizableString("noEntriesText");
+    if(!loc) return;
+    loc.localizationName = this.isReadOnly ? "noEntriesReadonlyText" : "noEntriesText";
+    loc.strChanged();
   }
   public onSurveyLoad() {
     this.template.readOnly = this.isReadOnly;
@@ -1283,6 +1290,9 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.recalculateIsReadyValue();
+    if(this.isReadOnly) {
+      this.updateNoEntriesTextDefaultLoc();
+    }
     super.onSurveyLoad();
   }
   public onFirstRendering() {

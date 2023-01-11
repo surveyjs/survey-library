@@ -185,9 +185,9 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.url`: `String`\
-   * A URL to which respondents should be navigated. You can modify it.
+   * A URL to which respondents should be navigated. You can modify this parameter's value.
    * - `options.allow`: `Boolean`\
-   * Set this property to false to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */

@@ -125,6 +125,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.getAllPanels().map((p: PanelModel, i: number) => {
     p.id = "testidp" + i;
   });
+  platform.survey.pages.map((p: PanelModel, i: number) => {
+    p.id = "testidpage" + i;
+  });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(()=>{

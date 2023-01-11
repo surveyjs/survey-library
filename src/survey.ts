@@ -3102,7 +3102,7 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   private isPageInVisibleList(page: PageModel): boolean {
-    return this.isDesignMode || page.isVisible && !page.isStarted;
+    return this.isDesignMode || page.isVisible && !page.isStartPage;
   }
   /**
    * Returns `true` if the survey contains no pages. The survey is empty.
@@ -5763,7 +5763,7 @@ export class SurveyModel extends SurveyElementCore
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];
-      const isPageVisible = page.isVisible && (i > 0 || !page.isStarted);
+      const isPageVisible = page.isVisible && (i > 0 || !page.isStartPage);
       page.visibleIndex = isPageVisible ? index++ : -1;
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }

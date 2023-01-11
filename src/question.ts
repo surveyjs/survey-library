@@ -1257,7 +1257,7 @@ export class Question extends SurveyElement<Question>
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
-    if (!!this.page && this.page.isStarted) return false;
+    if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }

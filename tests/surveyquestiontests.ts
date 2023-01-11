@@ -5179,8 +5179,8 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q3.inputWidth, "", "q3 inputWidth is empty");
 
   assert.equal(q1.inputStyle.width, "auto", "q1 inputStyle width is auto");
-  assert.equal(q2.inputStyle.width, undefined, "q2 inputStyle width is undefined");
-  assert.equal(q3.inputStyle.width, undefined, "q3 inputStyle width is undefined");
+  assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
+  assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
 QUnit.test("Multiple Text Question: itemSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
@@ -6123,6 +6123,14 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   assert.equal(q1.isMinMaxType, false);
   q1.inputType = "datetime";
   assert.equal(q1.isMinMaxType, true);
+});
+QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
+  const q1 = new QuestionTextModel("q1");
+  assert.deepEqual(q1.inputStyle, { width: undefined });
+  q1.size = 5;
+  assert.deepEqual(q1.inputStyle, { width: "auto" });
+  q1.size = 0;
+  assert.deepEqual(q1.inputStyle, { width: "" });
 });
 QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) {
   const survey = new SurveyModel({

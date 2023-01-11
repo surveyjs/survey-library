@@ -393,9 +393,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   get inputStyle(): any {
     var style: any = {};
-    if (!!this.inputWidth) {
-      style.width = this.inputWidth;
-    }
+    style.width = this.inputWidth;
     return style;
   }
   //web-based methods

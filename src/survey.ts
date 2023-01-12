@@ -3754,7 +3754,7 @@ export class SurveyModel extends SurveyElementCore
     var firstErrorPage = null;
     var res = false;
     for (var i = 0; i < visPages.length; i++) {
-      if (visPages[i].hasErrors(fireCallback, false)) {
+      if (!visPages[i].validate(fireCallback, false)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
         res = true;
       }
@@ -3870,7 +3870,7 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    var res = page.hasErrors(true, isFocuseOnFirstError);
+    var res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -5363,7 +5363,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    var res = question.hasErrors(true, {
+    var res = !question.validate(true, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
     const isCheckErrorOnChanged = this.checkErrorsMode.indexOf("Value") > -1;
@@ -6202,7 +6202,7 @@ export class SurveyModel extends SurveyElementCore
         (!question.visible || !question.supportGoNextPageAutomatic()))
     )
       return;
-    if (question.hasErrors(false) && !question.supportGoNextPageError()) return;
+    if (!question.validate(false) && !question.supportGoNextPageError()) return;
     var questions = this.getCurrentPageQuestions();
     if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {

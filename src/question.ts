@@ -1666,6 +1666,7 @@ export class Question extends SurveyElement<Question>
   /**
    * Returns `true` if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
+   * @see validate
    */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var oldHasErrors = this.errors.length > 0;
@@ -1684,6 +1685,13 @@ export class Question extends SurveyElement<Question>
       this.expand();
     }
     return errors.length > 0;
+  }
+  /**
+   * Returns `true` if there is no validation errors in the question.
+   * @param fireCallback set it to true to show an error in UI.
+   */
+  public validate(fireCallback: boolean = true, rec: any = null): boolean {
+    return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;
@@ -1918,9 +1926,9 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
    *
-   * @see hasErrors
+   * @see validate
    */
   public clearIncorrectValues(): void { }
   public clearOnDeletingContainer(): void { }

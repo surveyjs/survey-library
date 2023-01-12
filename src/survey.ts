@@ -39,7 +39,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -146,18 +146,18 @@ export class SurveyModel extends SurveyElementCore
    * A survey instance that raised the event. Use `sender.data` to access survey results.
    * - `options.isCompleteOnTrigger`: `Boolean`\
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
-   * - `options.showDataSaving(text?: string)`\
+   * - `options.showSaveInProgress(text?: string)`\
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingError(text?: string)`\
+   * - `options.showSaveError(text?: string)`\
    * Call this method to indicate that an error occurred during the save operation. You can use the `text` parameter to display a custom error message.
-   * - `options.showDataSavingSuccess(text?: string)`\
+   * - `options.showSaveSuccess(text?: string)`\
    * Call this method to indicate that survey results are successfully saved. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingClear()`\
+   * - `options.clearSaveMessages()`\
    * Call this method to hide the save operation messages.
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
-   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
@@ -185,7 +185,9 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.url`: `String`\
-   * A URL to which respondents should be navigated. Set this property to an empty string to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * A URL to which respondents should be navigated. You can modify this parameter's value.
+   * - `options.allow`: `Boolean`\
+   * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
@@ -324,9 +326,12 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onVisibleChanged: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onQuestionVisibleChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * Obsolete. Please use onQuestionVisibleChanged event.
+   * @see onQuestionVisibleChanged
+   */
+  public onVisibleChanged: EventBase<SurveyModel> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -408,9 +413,9 @@ export class SurveyModel extends SurveyElementCore
    * The question's name.
    * - `options.index`: `Number`\
    * The question's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added question.
    *
    * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
@@ -461,9 +466,9 @@ export class SurveyModel extends SurveyElementCore
    * The panel's name.
    * - `options.index`: `Number`\
    * The panel's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added panel.
    */
   public onPanelAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
@@ -1172,9 +1177,9 @@ export class SurveyModel extends SurveyElementCore
    * The item's name.
    * - `options.value`: `any`\
    * The item's new value.
-   * - `options.itemIndex`: `Number`\
+   * - `options.panelIndex`: `Number`\
    * The panel's index within Dynamic Panel.
-   * - `options.itemValue`: `Object`\
+   * - `options.panelData`: `Object`\
    * The panel's data object that includes all item values.
    */
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel> = this.addEvent<
@@ -1808,11 +1813,10 @@ export class SurveyModel extends SurveyElementCore
   }
   private navigateTo() {
     var url = this.getNavigateToUrl();
-    var options = { url: url };
+    var options = { url: url, allow: true };
     this.onNavigateToUrl.fire(this, options);
-    if (!options.url || typeof window === "undefined" || !window.location)
-      return;
-    window.location.href = options.url;
+    if(!options.url || !options.allow) return;
+    navigateToUrl(options.url);
   }
   /**
    * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.
@@ -3098,7 +3102,7 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   private isPageInVisibleList(page: PageModel): boolean {
-    return this.isDesignMode || page.isVisible && !page.isStarted;
+    return this.isDesignMode || page.isVisible && !page.isStartPage;
   }
   /**
    * Returns `true` if the survey contains no pages. The survey is empty.
@@ -4277,7 +4281,7 @@ export class SurveyModel extends SurveyElementCore
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
    * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
    * It calls `navigateToUrl` after calling `onComplete` event.
-   * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
+   * In case calling `options.showSaveInProgress` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showSaveSuccess` callback.
    * @see completeLastPage
    * @see onCompleting
    * @see cookieName
@@ -4299,24 +4303,32 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
-    var self = this;
+    const showSaveInProgress = (text: string) => {
+      savingDataStarted = true;
+      this.setCompletedState("saving", text);
+    };
+    const showSaveError = (text: string) => {
+      this.setCompletedState("error", text);
+    };
+    const showSaveSuccess = (text: string) => {
+      this.setCompletedState("success", text);
+      this.navigateTo();
+    };
+    const clearSaveMessages = (text: string) => {
+      this.setCompletedState("", "");
+    };
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function (text: string) {
-        savingDataStarted = true;
-        self.setCompletedState("saving", text);
-      },
-      showDataSavingError: function (text: string) {
-        self.setCompletedState("error", text);
-      },
-      showDataSavingSuccess: function (text: string) {
-        self.setCompletedState("success", text);
-        self.navigateTo();
-      },
-      showDataSavingClear: function (text: string) {
-        self.setCompletedState("", "");
-      },
+      showSaveInProgress: showSaveInProgress,
+      showSaveError: showSaveError,
+      showSaveSuccess: showSaveSuccess,
+      clearSaveMessages: clearSaveMessages,
+      //Obsolete functions
+      showDataSaving: showSaveInProgress,
+      showDataSavingError: showSaveError,
+      showDataSavingSuccess: showSaveSuccess,
+      showDataSavingClear: clearSaveMessages
     };
     this.onComplete.fire(this, onCompleteOptions);
     if (!previousCookie && this.surveyPostId) {
@@ -4842,6 +4854,8 @@ export class SurveyModel extends SurveyElementCore
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;
+    options.panelIndex = options.itemIndex;
+    options.panelData = options.itemValue;
     this.onDynamicPanelItemValueChanged.fire(this, options);
   }
   dragAndDropAllow(options: any): boolean {
@@ -5729,7 +5743,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
       this.isRunningConditions &&
-      this.onVisibleChanged.isEmpty &&
+      this.onQuestionVisibleChanged.isEmpty &&
       this.onPageVisibleChanged.isEmpty
     ) {
       //Run update visible index only one time on finishing running conditions
@@ -5759,7 +5773,7 @@ export class SurveyModel extends SurveyElementCore
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];
-      const isPageVisible = page.isVisible && (i > 0 || !page.isStarted);
+      const isPageVisible = page.isVisible && (i > 0 || !page.isStartPage);
       page.visibleIndex = isPageVisible ? index++ : -1;
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
@@ -6294,7 +6308,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.onVisibleChanged.fire(this, {
+    this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,
       visible: newValue,
@@ -6346,6 +6360,8 @@ export class SurveyModel extends SurveyElementCore
         question: question,
         name: question.name,
         index: index,
+        parent: parentPanel,
+        page: rootPanel,
         parentPanel: parentPanel,
         rootPanel: rootPanel,
       });
@@ -6474,6 +6490,8 @@ export class SurveyModel extends SurveyElementCore
       panel: panel,
       name: panel.name,
       index: index,
+      parent: parentPanel,
+      page: rootPanel,
       parentPanel: parentPanel,
       rootPanel: rootPanel,
     });

@@ -4876,3 +4876,17 @@ QUnit.test("Skip unknown questions", (assert) => {
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.equal(panel.panels[0].elements.length, 1, "There is one quesiton in panel");
 });
+QUnit.test("NoentriesText and readOnly", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { "type": "paneldynamic", "name": "panel1" },
+      { "type": "paneldynamic", "name": "panel2", readOnly: true },
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  assert.equal(panel1.noEntriesText.indexOf("There are no entries yet."), 0, "panel1: text for editing");
+  assert.equal(panel2.noEntriesText.indexOf("There are no entries."), 0, "panel2: text for readonly");
+  survey.mode = "display";
+  assert.equal(panel1.noEntriesText.indexOf("There are no entries."), 0, "panel1: text for readonly");
+});

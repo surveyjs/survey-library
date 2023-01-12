@@ -5119,6 +5119,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "rating", name: "q1", "rateValues": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choicesFromQuestion: "q1",
+          choices: ["item1", "item2"]
+        },
+      ],
+    });
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+    assert.equal(
+      q2["activeChoices"].length,
+      2,
+      "We do not duplicate selectedAll, none and other"
+    );
+  }
+);
 QUnit.test("text question dataList", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -5179,8 +5207,8 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q3.inputWidth, "", "q3 inputWidth is empty");
 
   assert.equal(q1.inputStyle.width, "auto", "q1 inputStyle width is auto");
-  assert.equal(q2.inputStyle.width, undefined, "q2 inputStyle width is undefined");
-  assert.equal(q3.inputStyle.width, undefined, "q3 inputStyle width is undefined");
+  assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
+  assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
 QUnit.test("Multiple Text Question: itemSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
@@ -6123,6 +6151,14 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   assert.equal(q1.isMinMaxType, false);
   q1.inputType = "datetime";
   assert.equal(q1.isMinMaxType, true);
+});
+QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
+  const q1 = new QuestionTextModel("q1");
+  assert.deepEqual(q1.inputStyle, { width: undefined });
+  q1.size = 5;
+  assert.deepEqual(q1.inputStyle, { width: "auto" });
+  q1.size = 0;
+  assert.deepEqual(q1.inputStyle, { width: "" });
 });
 QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) {
   const survey = new SurveyModel({

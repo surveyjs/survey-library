@@ -4,7 +4,7 @@ import { BaseAngular } from "./base-angular";
 @Component({
   selector: "page, sv-ng-page",
   templateUrl: "./page.component.html",
-  styleUrls: ["./page.component.scss"]
+  styleUrls: ["./hide-host.scss"]
   })
 export class PageComponent extends BaseAngular<PageModel> {
   @Input() model!: PageModel;

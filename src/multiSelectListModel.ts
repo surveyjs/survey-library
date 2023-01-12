@@ -22,8 +22,8 @@ export class MultiSelectListModel extends ListModel {
   public onItemClick = (item: Action) => {
     this.isExpanded = false;
     if (this.isItemSelected(item)) {
-      const removedItem = this.selectedItems.splice(this.selectedItems.indexOf(item), 1)[0];
-      !!this.onSelectionChanged && (this.onSelectionChanged(<Action>removedItem, "removed"));
+      this.selectedItems.splice(this.selectedItems.indexOf(item), 1)[0];
+      !!this.onSelectionChanged && (this.onSelectionChanged(<Action>item, "removed"));
     } else {
       this.selectedItems.push(item);
       !!this.onSelectionChanged && (this.onSelectionChanged(item, "added"));
@@ -37,24 +37,19 @@ export class MultiSelectListModel extends ListModel {
   public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
     return !!this.allowSelection && this.selectedItems.filter(item => item.id == itemValue.id).length > 0;
   };
-
-  public setSelectedItems(newItems: Array<IAction>) : void {
-    this.selectedItems = newItems;
+  public updateState(): void {
     this.updateItemState();
     this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
 
-  public initFocusedItem() {
-    if(this.hideSelectedItems || !this.selectedItems.length) {
-      this.focusFirstVisibleItem();
-    } else if(!!this.selectedItems.length) {
-      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItems[0].id)[0];
-    }
+  public setSelectedItems(newItems: Array<IAction>): void {
+    this.selectedItems = newItems;
+    this.updateState();
   }
 
   public selectFocusedItem(): void {
     super.selectFocusedItem();
-    if(this.hideSelectedItems) {
+    if (this.hideSelectedItems) {
       this.focusNextVisibleItem();
     }
   }

@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, initSurvey, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
+import { frameworks, url, url_test, initSurvey, explicitErrorHandler, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -53,6 +53,7 @@ var jsonRadio = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
+      await explicitErrorHandler();
       await initSurvey(framework, json);
     }
   );

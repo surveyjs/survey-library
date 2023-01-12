@@ -34,7 +34,7 @@ export class QuestionRatingModel extends Question {
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
     this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
-      () => this.createRenderedRateItems());
+    () => this.createRenderedRateItems());
     this.createLocalizableString(
       "minRateDescription",
       this,

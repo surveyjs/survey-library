@@ -560,8 +560,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   /**
-   * Validation errors. Call the `hasErrors()` method to validate survey element data.
-   * @see hasErrors
+   * Validation errors. Call the `validate()` method to validate survey element data.
+   * @see validate
    */
   public get errors(): Array<SurveyError> {
     return this.getPropertyValue("errors");
@@ -580,7 +580,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   /**
    * Returns `true` if the survey element or its child elements have validation errors.
    *
-   * This property contains the result of the most recent validation. This result may be outdated. Call the `hasErrors` method to get an up-to-date value.
+   * This property contains the result of the most recent validation. This result may be outdated. Call the `validate` method to get an up-to-date value.
    * @see errors
    */
   public get containsErrors(): boolean {

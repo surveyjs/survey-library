@@ -122,7 +122,7 @@ registerMarkupTests(
     snapshot: "paneldynamic-remove-btn-action-bar",
     before: () => { StylesManager.applyTheme("defaultV2"); },
     initSurvey: survey => {
-      survey.getAllQuestions()[0].panels[0].allowAdaptiveActions = false;
+      survey.getAllQuestions()[0]["panels"][0].allowAdaptiveActions = false;
     },
     after: () => StylesManager.applyTheme("default"),
   },

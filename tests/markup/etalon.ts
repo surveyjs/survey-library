@@ -19,6 +19,7 @@ export * from "./etalon_page_panel";
 export * from "./etalon_matrix";
 export * from "./etalon_matrixdynamic";
 export * from "./etalon_question";
+export * from "./etalon_survey";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

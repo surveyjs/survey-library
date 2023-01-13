@@ -326,6 +326,9 @@ export class Action extends Base implements IAction, ILocalizableOwner {
       .append(this.innerCss)
       .toString();
   }
+  public getTooltip(): string {
+    return this.tooltip || this.title;
+  }
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
   getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name) : undefined; }

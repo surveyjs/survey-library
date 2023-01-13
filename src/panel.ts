@@ -697,18 +697,14 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>this.elements[i])).searchText(text, founded);
     }
   }
-  /**
-   * Returns true, if there is an error on this Page or inside the current Panel
-   * @param fireCallback set it to true, to show errors in UI
-   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
-   */
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
     return !this.validate(fireCallback, focusOnFirstError, rec);
   }
   /**
-   * Returns true, if there is no errors on this Page or inside the current Panel
-   * @param fireCallback set it to true, to show errors in UI
-   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
+   * Validates questions within this panel or page and returns `false` if the validation fails.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @param focusOnFirstError *Optional.* Pass `true` if you want to focus the first question with a validation error.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
     rec = !!rec

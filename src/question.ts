@@ -1663,11 +1663,6 @@ export class Question extends SurveyElement<Question>
     json["type"] = this.getType();
     return json;
   }
-  /**
-   * Returns `true` if there is a validation error(s) in the question.
-   * @param fireCallback set it to true to show an error in UI.
-   * @see validate
-   */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var oldHasErrors = this.errors.length > 0;
     var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
@@ -1687,8 +1682,9 @@ export class Question extends SurveyElement<Question>
     return errors.length > 0;
   }
   /**
-   * Returns `true` if there is no validation errors in the question.
-   * @param fireCallback set it to true to show an error in UI.
+   * Validates this question and returns `false` if the validation fails.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, rec: any = null): boolean {
     return !this.hasErrors(fireCallback, rec);

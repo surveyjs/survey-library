@@ -59,6 +59,7 @@ Serializer.addClass(
     { name: "requiredIf", visible: false },
     { name: "validators", visible: false },
     { name: "titleLocation", visible: false },
+    { name: "showCommentArea", visible: false },
     { name: "useDisplayValuesInDynamicTexts", alternativeName: "useDisplayValuesInTitle", visible: false },
   ],
   function () {

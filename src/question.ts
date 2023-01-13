@@ -988,7 +988,8 @@ export class Question extends SurveyElement<Question>
     ];
   }
   public supportComment(): boolean {
-    return false;
+    const prop = Serializer.findProperty(this.getType(), "showCommentArea");
+    return !prop || prop.visible;
   }
   public supportOther(): boolean {
     return false;

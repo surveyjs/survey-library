@@ -10,7 +10,7 @@
   <!-- ko if: element.no -->
   <span
     style="position: static;"
-    data-bind="css: element.koCss().number || element.koCss().panel.number, text: element.no, attr: { 'aria-hidden': true }"
+    data-bind="css: element.koCss().number || (element.koCss().panel && element.koCss().panel.number), text: element.no, attr: { 'aria-hidden': true }"
   ></span>
   <span>&nbsp</span>
   <!-- /ko -->

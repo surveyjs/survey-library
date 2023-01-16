@@ -11,7 +11,8 @@
 }
 .sd-table--alternate-rows {
   .sd-table__row:nth-of-type(odd) {
-    &> td, td:first-of-type {
+    & > td,
+    td:first-of-type {
       background-color: $background-dim-light;
       .sd-input {
         background-color: $primary-foreground;
@@ -30,6 +31,11 @@
   padding: calcSize(1);
   color: $foreground;
   text-align: center;
+}
+.sd-table__cell--item {
+  .sd-selectbase__label {
+    justify-content: center;
+  }
 }
 .sd-question--disabled .sd-table__cell {
   opacity: 0.25;

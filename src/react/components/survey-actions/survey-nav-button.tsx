@@ -18,6 +18,7 @@ export class SurveyNavigationButton extends ReactSurveyElement {
         disabled={this.item.disabled}
         onMouseDown={this.item.data && this.item.data.mouseDown}
         onClick={this.item.action}
+        title={this.item.getTooltip()}
         value={this.item.title}
       />
     );

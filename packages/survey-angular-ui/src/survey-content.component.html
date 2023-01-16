@@ -10,13 +10,11 @@
         <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
           <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
         </ng-container>
-        <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth">
+        <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
           <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar>
           <!-- ko if: activePage -->
             <ng-container *ngIf="model.activePage">
-              <div [id]="model.activePage.id">
-                <page [model]="model.activePage" [survey]="model"></page>
-              </div>
+                <sv-ng-page [model]="model.activePage" [survey]="model"></sv-ng-page>
             </ng-container>
             <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
             <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
@@ -33,7 +31,7 @@
         </ng-container>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
-        <div [hidden]="model.completedState === ''" [class]="model.css.saveData.root">
+        <div *ngIf="model.completedState != ''" [class]="model.css.saveData.root">
           <div [class]="model.completedStateCss">
             <span>{{model.completedStateText}}</span>
             <input type="button" [hidden]="model.completedState != 'error'"

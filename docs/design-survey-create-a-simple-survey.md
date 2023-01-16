@@ -16,7 +16,7 @@ This article illustrates a SurveyJS survey structure and the different ways you 
 
 A survey consists of one or several pages. A page can contain panels and questions. Panels are used to group questions and control them as one. A panel can contain other panels and questions (nested panels are supported). The following image illustrates this structure:
 
-<img src="images/survey-structure.svg" width="860" alt="SurveyJS: Survey Structure">
+<img src="../images/survey-structure.svg" width="860" alt="SurveyJS: Survey Structure">
 
 ## Create a Survey Model
 
@@ -272,7 +272,7 @@ export default App;
     <summary>Knockout</summary> 
 
 ```html
-<div id="surveyContainer"></div>
+<survey params="survey: model"></survey>
 ```
 
 ```js
@@ -283,7 +283,9 @@ const surveyJson = {
 // Render the survey inside the page
 const survey = new Survey.Model(surveyJson);
 document.addEventListener("DOMContentLoaded", function() {
-    survey.render("surveyContainer");
+    ko.applyBindings({
+        model: survey
+    });
 });
 
 // Render the survey in a pop-up window

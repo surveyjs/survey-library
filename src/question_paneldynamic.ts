@@ -1064,7 +1064,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.panels[this.panelCount - 1];
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors());
+    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
   }
   private copyValue(src: any, dest: any) {
     for (var key in dest) {
@@ -1263,7 +1263,14 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < this.panels.length; i++) {
       this.panels[i].readOnly = readOnly;
     }
+    this.updateNoEntriesTextDefaultLoc();
     super.onReadOnlyChanged();
+  }
+  private updateNoEntriesTextDefaultLoc(): void {
+    const loc = this.getLocalizableString("noEntriesText");
+    if(!loc) return;
+    loc.localizationName = this.isReadOnly ? "noEntriesReadonlyText" : "noEntriesText";
+    loc.strChanged();
   }
   public onSurveyLoad() {
     this.template.readOnly = this.isReadOnly;
@@ -1283,6 +1290,9 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.recalculateIsReadyValue();
+    if(this.isReadOnly) {
+      this.updateNoEntriesTextDefaultLoc();
+    }
     super.onSurveyLoad();
   }
   public onFirstRendering() {
@@ -1914,8 +1924,9 @@ Serializer.addClass(
     {
       name: "templateElements",
       alternativeName: "questions",
+      baseClassName: "question",
       visible: false,
-      isLightSerializable: false,
+      isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
     {

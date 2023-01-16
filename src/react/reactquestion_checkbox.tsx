@@ -217,8 +217,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       this.item == this.question.selectAllItem
         ? this.selectAllChanged
         : this.handleOnChange;
-
-    var locText: any = this.item.locText;
+    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
       <div className={itemClass} role="presentation">
@@ -250,9 +249,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={this.cssClasses.controlLabel}>
-            {text}
-          </span>
+          {itemLabel}
         </label>
         {otherItem}
       </div>

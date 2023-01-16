@@ -23,7 +23,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.onModelChanged();
       this.previousModel = this.getModel();
     }
-    this.beforeUpdate();
+    this.setIsRendering(true);
   }
 
   protected onModelChanged() {}
@@ -100,24 +100,25 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       });
     }
   }
+  private getChangeDetectorRef() {
+    return this.embeddedView ? this.embeddedView : this.changeDetectorRef;
+  }
   protected getPropertiesToUpdateSync(): Array<string> {
     return [];
   }
   protected detectChanges() {
-    if(!!this.embeddedView) {
-      this.embeddedView.detectChanges();
-    } else {
-      this.changeDetectorRef.detectChanges();
-    }
+    this.getChangeDetectorRef().detectChanges();
   }
 
   protected beforeUpdate(): void {
+    this.getChangeDetectorRef().detach();
     this.setIsRendering(true);
   }
   protected afterUpdate(): void {
+    this.getChangeDetectorRef().reattach();
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {
-    this.afterUpdate();
+    this.setIsRendering(false);
   }
 }

@@ -4825,3 +4825,68 @@ QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
   survey.completeLastPage();
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
+QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "templateElements": [{
+          "type": "paneldynamic",
+          "name": "childPanel",
+          "title": "childPanel",
+          "state": "collapsed",
+          "templateElements": [{
+            "type": "multipletext",
+            "name": "question1",
+            "items": [{
+              "name": "mtom",
+              "isRequired": true,
+              "inputType": "number"
+            }]
+          }],
+          "panelCount": 1
+        }],
+        "panelCount": 1,
+        "renderMode": "progressTop"
+      }]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
+  assert.equal(rootPanel.panelCount, 1, "There is one panel");
+  rootPanel.addPanelUI();
+  assert.equal(rootPanel.panelCount, 1, "There is still one panel");
+  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
+});
+QUnit.test("Skip unknown questions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          { "type": "textqqq", "name": "q1" },
+          { "type": "text", "name": "q2" },
+          { "name": "q3" }
+        ],
+        "panelCount": 1
+      }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panels[0].elements.length, 1, "There is one quesiton in panel");
+});
+QUnit.test("NoentriesText and readOnly", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { "type": "paneldynamic", "name": "panel1" },
+      { "type": "paneldynamic", "name": "panel2", readOnly: true },
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  assert.equal(panel1.noEntriesText.indexOf("There are no entries yet."), 0, "panel1: text for editing");
+  assert.equal(panel2.noEntriesText.indexOf("There are no entries."), 0, "panel2: text for readonly");
+  survey.mode = "display";
+  assert.equal(panel1.noEntriesText.indexOf("There are no entries."), 0, "panel1: text for readonly");
+});

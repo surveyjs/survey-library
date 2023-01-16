@@ -310,7 +310,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   ensureRowsVisibility(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
-  isStarted: boolean;
+  isStartPage: boolean;
 }
 export interface ITitleOwner {
   name: string;

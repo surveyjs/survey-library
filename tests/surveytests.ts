@@ -7674,6 +7674,23 @@ QUnit.test(
     assert.equal(q3.isVisible, true, "q1=3, q3 is visible");
   }
 );
+QUnit.test("survey.onVisibleChanged & survey.onQuestionVisibleChanged are same events", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.onVisibleChanged.length, 0, "#1 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#1 onQuestionVisibleChanged.length");
+  survey.onQuestionVisibleChanged.add((sender, options) => {});
+  assert.equal(survey.onVisibleChanged.length, 1, "#2 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 1, "#2 onQuestionVisibleChanged.length");
+  survey.onQuestionVisibleChanged.clear();
+  assert.equal(survey.onVisibleChanged.length, 0, "#3 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#3 onQuestionVisibleChanged.length");
+  survey.onVisibleChanged.add((sender, options) => {});
+  assert.equal(survey.onVisibleChanged.length, 1, "#4 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 1, "#4 onQuestionVisibleChanged.length");
+  survey.onVisibleChanged.clear();
+  assert.equal(survey.onVisibleChanged.length, 0, "#5 onVisibleChanged.length");
+  assert.equal(survey.onQuestionVisibleChanged.length, 0, "#5 onQuestionVisibleChanged.length");
+});
 
 QUnit.test(
   "Process text with question name containing '-' and '+', Bug #1080",
@@ -8113,7 +8130,7 @@ QUnit.test("Compete trigger and allowComplete false, Bug #3184", function (
   assert.equal(survey.currentPageNo, 0);
   survey.nextPage();
   assert.equal(survey.state, "running", "Survey is not completed");
-  assert.equal(survey.currentPageNo, 0, "stay on the same page");
+  assert.equal(survey.currentPageNo, 1, "go next page");
 });
 
 QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
@@ -16053,4 +16070,21 @@ QUnit.test("Get first focused question on collapsed question", function (assert)
   assert.equal(page.getFirstQuestionToFocus(false, true).name, "q1", "ignore collapsed state");
   page.hasErrors(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
+});
+QUnit.test("Check getProgressCssClasses method", function (assert) {
+  const survey = new SurveyModel({
+    "showProgressBar": "top",
+    elements: [
+      { type: "text", name: "q1", state: "collapsed", isRequired: true },
+      { type: "text", name: "q2" }
+    ],
+  });
+  survey.css = {
+    progress: "test_progress",
+    progressTop: "test_progress_top",
+    progressBottom: "test_progress_bottom"
+  };
+  assert.equal(survey.getProgressCssClasses(), "test_progress test_progress_top");
+  survey.showProgressBar = "bottom";
+  assert.equal(survey.getProgressCssClasses(), "test_progress test_progress_bottom");
 });

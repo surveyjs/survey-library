@@ -19,6 +19,7 @@
     </div>
     <ul
       v-bind:class="model.cssClasses.itemsContainer"
+      v-show="!model.isEmpty"
       role="listbox"
       @mousedown="
         (event) => {

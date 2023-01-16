@@ -62,6 +62,7 @@ function addTitleActions2(_, opt) {
   opt.titleActions = [item1, item2];
 }
 
+const clickButton = Selector(".sv-action").filterVisible();
 const popupSelector = Selector(".sv-popup").filterVisible();
 const visibleItems = Selector(".sv-list__item").filterVisible();
 const listInput = popupSelector.find(".sv-list__input");
@@ -78,6 +79,41 @@ frameworks.forEach(async framework => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addTitleAction });
     await t
       .expect(Selector(".sv-popup__content .my-custom-action-class").withText("Custom Action 29").exists).ok();
+  });
+
+  function addDropdownAction(_, opt) {
+    const getItems = (count: number, startIndex = 0) => {
+      const list: Array<any> = [];
+      for (let index = startIndex; index < count; index++) {
+        list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
+      }
+      return list;
+    };
+    const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+      { title: "List", showTitle: true },
+      { items: getItems(40), showPointer: true }
+    );
+    opt.titleActions = [dropdownWithSearchAction];
+  }
+
+  test("Dropdown popup styles", async (t) => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownAction });
+    await t
+      .wait(1000)
+      .resizeWindow(1000, 600)
+      .wait(1000)
+      .click(clickButton.withText("List"))
+      .expect(popupSelector.visible).ok()
+      .expect(popupSelector.find("ul").visible).ok()
+      .expect(popupSelector.find("ul").getStyleProperty("display")).eql("block")
+      .expect(popupSelector.find(".sv-list__empty-container").visible).notOk()
+      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).eql("none")
+
+      .typeText(listInput, "a")
+      .expect(popupSelector.find("ul").visible).notOk()
+      .expect(popupSelector.find("ul").getStyleProperty("display")).eql("none")
+      .expect(popupSelector.find(".sv-list__empty-container").visible).ok()
+      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).eql("block");
   });
 });
 

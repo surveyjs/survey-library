@@ -18,14 +18,14 @@
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}">
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"
               :model="vueSurvey.navigationBar"
             />
             <survey-page
-              :key="pageId"
+              :key="pageKey"
               :survey="vueSurvey"
               :page="vueSurvey.activePage"
               :css="css"
@@ -97,7 +97,7 @@ export class Survey extends BaseVue {
   @Prop() model: SurveyModel;
   processedCompletedHtmlValue: string;
   updater: number = 1;
-  get pageId() {
+  get pageKey() {
     return "page" + this.getActivePageId();
   }
   get navId() {
@@ -129,8 +129,11 @@ export class Survey extends BaseVue {
   protected onMounted() {
     this.surveyOnMounted();
   }
+  get pageId(): string {
+    return !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+  }
   private getActivePageId(): string {
-    const pageId = !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+    const pageId = this.pageId;
     return !!this.vueSurvey && pageId + this.updater.toString();
   }
   private surveyOnMounted() {

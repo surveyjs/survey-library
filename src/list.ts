@@ -95,7 +95,7 @@ export class ListModel extends ActionContainer {
 
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
-    if(!this.isAllDataLoaded && !!this.actions.length) {
+    if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
   }
@@ -112,7 +112,7 @@ export class ListModel extends ActionContainer {
   }
 
   public onItemClick = (itemValue: Action) => {
-    if(this.isItemDisabled(itemValue)) {
+    if (this.isItemDisabled(itemValue)) {
       return;
     }
 
@@ -166,7 +166,7 @@ export class ListModel extends ActionContainer {
     return this.getLocalizationString("loadingFile");
   }
   public get loadingIndicator(): Action {
-    if(!this.loadingIndicatorValue) {
+    if (!this.loadingIndicatorValue) {
       this.loadingIndicatorValue = new Action({
         id: "loadingIndicator",
         title: this.loadingText,
@@ -180,8 +180,11 @@ export class ListModel extends ActionContainer {
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
-      ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement.nextElementSibling.firstElementChild));
-      event.preventDefault();
+      const listElement = currentElement.parentElement.querySelector("ul");
+      if (!!listElement && !!listElement.firstElementChild) {
+        ElementHelper.focusElement(listElement.firstElementChild);
+        event.preventDefault();
+      }
     }
   }
   public onMouseMove(event: MouseEvent): void {
@@ -212,20 +215,19 @@ export class ListModel extends ActionContainer {
     this.focusedItem = this.visibleItems[this.visibleItems.length - 1];
   }
   public initFocusedItem() {
-    if(!!this.selectedItem) {
-      this.focusedItem = this.visibleItems.filter(item => item.id === this.selectedItem.id)[0];
-    } else {
+    this.focusedItem = this.visibleItems.filter(item => item.visible && this.isItemSelected(item))[0];
+    if (!this.focusedItem) {
       this.focusFirstVisibleItem();
     }
   }
   public focusNextVisibleItem(): void {
-    if(!this.focusedItem) {
+    if (!this.focusedItem) {
       this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);
       const nextItem = items[currentFocusedItemIndex + 1];
-      if(nextItem) {
+      if (nextItem) {
         this.focusedItem = nextItem;
       } else {
         this.focusFirstVisibleItem();
@@ -233,13 +235,13 @@ export class ListModel extends ActionContainer {
     }
   }
   public focusPrevVisibleItem(): void {
-    if(!this.focusedItem) {
+    if (!this.focusedItem) {
       this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);
       const prevItem = items[currentFocusedItemIndex - 1];
-      if(prevItem) {
+      if (prevItem) {
         this.focusedItem = prevItem;
       } else {
         this.focusLastVisibleItem();
@@ -253,33 +255,33 @@ export class ListModel extends ActionContainer {
     this.listContainerHtmlElement = htmlElement;
   }
   public onLastItemRended(item: Action): void {
-    if(this.isAllDataLoaded) return;
+    if (this.isAllDataLoaded) return;
 
-    if(item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
+    if (item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
       this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
     }
   }
   public scrollToFocusedItem(): void {
     setTimeout(() => {
-      if(!this.listContainerHtmlElement) return;
+      if (!this.listContainerHtmlElement) return;
 
       const item = this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemFocused);
-      if(item) {
+      if (item) {
         item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
       }
     }, 0);
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {
-    if(!!handler) {
+    if (!!handler) {
       this.scrollHandler = handler;
     }
-    if(!!this.scrollHandler) {
+    if (!!this.scrollHandler) {
       this.scrollableContainer.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
-    if(!!this.scrollHandler) {
+    if (!!this.scrollHandler) {
       this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
     }
   }

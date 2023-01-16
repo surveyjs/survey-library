@@ -81,9 +81,12 @@ export class Question extends SurveyElement<Question>
    *
    * Parameters:
    *
-   * - `sender` - A survey that contains the question whose ready state has changed.
-   * - `options.isReady` - A Boolean value that indicates whether the question is ready.
-   * - `options.oldIsReady` - A Boolean value that indicates the previous ready state.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that contains the question whose ready state has changed.
+   * - `options.isReady`: `Boolean`\
+   * Indicates whether the question is ready.
+   * - `options.oldIsReady`: `Boolean`\
+   * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
@@ -1254,7 +1257,7 @@ export class Question extends SurveyElement<Question>
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
-    if (!!this.page && this.page.isStarted) return false;
+    if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }
@@ -1660,10 +1663,6 @@ export class Question extends SurveyElement<Question>
     json["type"] = this.getType();
     return json;
   }
-  /**
-   * Returns `true` if there is a validation error(s) in the question.
-   * @param fireCallback set it to true to show an error in UI.
-   */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var oldHasErrors = this.errors.length > 0;
     var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
@@ -1681,6 +1680,14 @@ export class Question extends SurveyElement<Question>
       this.expand();
     }
     return errors.length > 0;
+  }
+  /**
+   * Validates this question and returns `false` if the validation fails.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
+   */
+  public validate(fireCallback: boolean = true, rec: any = null): boolean {
+    return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;
@@ -1915,9 +1922,9 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
    *
-   * @see hasErrors
+   * @see validate
    */
   public clearIncorrectValues(): void { }
   public clearOnDeletingContainer(): void { }

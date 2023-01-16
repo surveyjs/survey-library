@@ -5,7 +5,7 @@
         type="radio"
         :name="question.name"
         :value="value"
-        :checked="value === question.value"
+        :checked="value === question.booleanValue"
         :aria-describedby="question.ariaDescribedBy"
         :disabled="question.isInputReadOnly"
         :class="question.cssClasses.itemRadioControl"

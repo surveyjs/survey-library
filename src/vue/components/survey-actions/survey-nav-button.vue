@@ -5,6 +5,7 @@
     :disabled="item.disabled"
     :value="item.title"
     :class="item.innerCss"
+    :title="item.getTooltip()"
     @mousedown="buttonMouseDown"
     @click="item.action"
   />

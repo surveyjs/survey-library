@@ -1,4 +1,5 @@
-//Uncomment this line on creating a translation file
+// This dictionary contains 6 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var urduSurveyStrings = {
@@ -12,14 +13,15 @@ export var urduSurveyStrings = {
   noneItemText: "کوئی نہیں",
   selectAllItemText: "تمام منتخب کریں",
   progressText: "صفحہ {0} از {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "ریکارڈ {0} {1}",
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
   emptySurvey: "سروے میں کوئی نظر آنے والا صفحہ یا سوال نہیں ہے۔",
   completingSurvey: "سروے مکمل کرنے کے لیے آپ کا شکریہ!",
-  completingSurveyBefore:
-    "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
+  completingSurveyBefore: "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
   placeholder: "...منتخب کریں ",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
@@ -39,17 +41,14 @@ export var urduSurveyStrings = {
   invalidEmail: "برائے مہربانی درست ای میل ایڈریس لکھیں",
   invalidExpression: " کلام: {0} کو 'درست' لوٹنا چاہیے۔",
   urlRequestError: "درخواست نے غلطی '{0}' لوٹائی۔ {1}",
-  urlGetChoicesError:
-    "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
+  urlGetChoicesError: "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
   otherRequiredError: "براہ کرم دوسری عدد درج کریں۔ ",
-  uploadingFile:
-    "آپ کی فائل اپ لوڈ ہو رہی ہے۔ براہ کرم چند سیکنڈ انتظار کریں اور دوبارہ کوشش کریں۔",
+  uploadingFile: "آپ کی فائل اپ لوڈ ہو رہی ہے۔ براہ کرم چند سیکنڈ انتظار کریں اور دوبارہ کوشش کریں۔",
   loadingFile: "..لوڈ ہو رہا ہے۔",
   chooseFile: "..فائلیں منتخب کریں۔ ",
   noFileChosen: "کوئی فائل منتخب نہیں کی گئی ",
-  fileDragAreaPlaceholder:
-    "یہاں فائل ڈراپ کریں یا فائل کو لوڈ کرنے کے لیے نیچے والے بٹن پر کلک کریں۔",
+  fileDragAreaPlaceholder: "یہاں فائل ڈراپ کریں یا فائل کو لوڈ کرنے کے لیے نیچے والے بٹن پر کلک کریں۔",
   confirmDelete: "کیا آپ ریکارڈ حذف کرنا چاہتے ہیں؟",
   keyDuplicationError: "یہ عدد منفرد ہونی چاہیے۔",
   addColumn: "کالم شامل کریں۔",
@@ -71,8 +70,7 @@ export var urduSurveyStrings = {
   timerSpentAll: "آپ نے اس صفحے پر {0} اور مجموعی طور پر {1} خرچ کیا ہے۔",
   timerSpentPage: "آپ نے اس صفحے پر {0} خرچ کیا ہے۔",
   timerSpentSurvey: "آپ نے مجموعی طور پر {0} خرچ کیا ہے۔",
-  timerLimitAll:
-    "آپ نے اس صفحے پر {0} میں سے {1} اور مجموعی طور پر {2} میں سے {3} خرچ کیے ہیں۔",
+  timerLimitAll: "آپ نے اس صفحے پر {0} میں سے {1} اور مجموعی طور پر {2} میں سے {3} خرچ کیے ہیں۔",
   timerLimitPage: "آپ نے اس صفحے پر {0} میں سے {0} خرچ کیا ہے۔",
   timerLimitSurvey: "آپ نے کل {1} میں سے {1} خرچ کیا ہے۔",
   clearCaption: "صاف",
@@ -86,6 +84,10 @@ export var urduSurveyStrings = {
   questionTitlePatternText: "سوال کا عنوان۔",
   modalCancelButtonText: "منسوخ کریں",
   modalApplyButtonText: "درخواست دیں",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

@@ -35,8 +35,7 @@ svg.sd-action--icon {
 .sd-action--disabled {
   color: $foreground;
   cursor: default;
-  opacity: 0.25;
-  cursor: default;
+  opacity: 0.25;  
   pointer-events: none;
 }
 

@@ -105,9 +105,10 @@ export class PageModel extends PanelModelBase implements IPage {
    *
    * Refer to the following help topic for more information on how to configure a start page: [Start Page](https://surveyjs.io/form-library/documentation/design-survey-create-a-multi-page-survey#start-page).
    */
-  public get isStarted(): boolean {
+  public get isStartPage(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
+  public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
     const classes = { page: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "" };
     this.copyCssClasses(classes.page, css.page);
@@ -208,13 +209,16 @@ export class PageModel extends PanelModelBase implements IPage {
    * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
    * @param includingDesignTime For internal use.
    */
-  public getPanels(
+  public getAllPanels(
     visibleOnly: boolean = false,
     includingDesignTime: boolean = false
   ): Array<IPanel> {
     var result = new Array<IPanel>();
     this.addPanelsIntoList(result, visibleOnly, includingDesignTime);
     return result;
+  }
+  public getPanels(visibleOnly: boolean = false, includingDesignTime: boolean = false): Array<IPanel> {
+    return this.getAllPanels(visibleOnly, includingDesignTime);
   }
   /**
    * A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).

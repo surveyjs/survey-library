@@ -17,7 +17,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
           cursor: grabbing;
           position: absolute;
           z-index: 1000;
-          font-family: "Open Sans";
+          font-family: var(--font-family, $font-family);
         `;
 
     const isDeepClone = true;

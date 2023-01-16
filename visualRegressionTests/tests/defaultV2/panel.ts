@@ -369,4 +369,31 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("panel-with-question-errors-below.png", panelRoot, t, comparer);
     });
   });
+  test("Check panel with number", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "panel",
+            name: "delivery_details",
+            title: "Please, specify the delivery details.",
+            width: "708px",
+            showNumber: true,
+            elements: [
+              {
+                type: "text",
+                name: "delivery_agent",
+                isRequired: true,
+                title: "Delivery agent",
+              },
+            ]
+          },
+        ]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await takeElementScreenshot("panel-with-number.png", panelRoot, t, comparer);
+    });
+  });
 });

@@ -2,7 +2,6 @@ $base-unit: var(--base-unit, 8px);
 $font-family: var(--font-family);
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
-$font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});
@@ -28,6 +27,7 @@ $font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 .sv-matrixdynamic__drag-icon {
   padding-top: calcSize(1.75);
 }
+
 .sv-matrixdynamic__drag-icon:after {
   content: " ";
   display: block;
@@ -43,6 +43,7 @@ $font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 .sv-matrix-row--drag-drop-ghost-mod td {
   background-color: $background-dim;
 }
-.sv-matrix-row--drag-drop-ghost-mod td > * {
+
+.sv-matrix-row--drag-drop-ghost-mod td>* {
   visibility: hidden;
 }

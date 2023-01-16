@@ -3,6 +3,9 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+
+$font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
 @import "./common-styles/sv-progress-buttons.scss";
 @import "./common-styles/window.scss";
 @import "./common-styles/sv-brand-info.scss";
@@ -10,8 +13,6 @@
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
-
-$font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 $main-color: #1ab394;
 $main-hover-color: darken($main-color, 5%);
@@ -85,6 +86,7 @@ body {
     color: var(--text-color, $text-color);
     background-color: var(--inputs-background-color, $inputs-background-color);
     opacity: 1;
+
     &:focus {
       border: 1px solid var(--main-color, $main-color);
     }
@@ -95,6 +97,7 @@ body {
     justify-content: space-between;
     padding-inline-end: 1em; //padding-right: 1em;
   }
+
   .sv_q_dropdown__value {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -102,12 +105,15 @@ body {
     width: 100%;
     position: relative;
   }
+
   .sv_q_dropdown_control__input-field-component {
     height: auto;
   }
+
   .sv_q_dropdown_clean-button {
     margin: auto 2em;
   }
+
   .sv_q_dropdown_clean-button-svg {
     width: 1em;
     height: 1em;
@@ -152,6 +158,7 @@ body {
   .sv_q_input.sv_q_input.sv_q_input.sv_q_tagbox.sv_q_tagbox.sv_q_tagbox {
     height: auto;
   }
+
   .sv_q_tagbox__value.sv_q_dropdown__value {
     display: flex;
     flex-wrap: wrap;
@@ -160,6 +167,7 @@ body {
     margin-block: unset;
     gap: 4px;
   }
+
   .sv-tagbox__item {
     position: relative;
     display: flex;
@@ -167,13 +175,16 @@ body {
     color: var(--body-background-color, $body-background-color);
     background-color: var(--main-color, $main-color);
   }
+
   .sv_q_tagbox-item_clean-button-svg {
     fill: var(--body-background-color, $body-background-color);
     width: 16px;
     height: 16px;
   }
+
   .sv_select_wrapper {
     background-color: var(--body-background-color, $body-background-color);
+
     &:before {
       background-color: var(--main-color, $main-color);
     }
@@ -206,12 +217,13 @@ body {
   }
 
   .sv_p_root {
-    & > .sv_row {
+    &>.sv_row {
       border-bottom: 1px solid var(--border-color, $border-color);
 
       &:nth-child(odd) {
         background-color: var(--body-background-color, $body-background-color);
       }
+
       &:nth-child(even) {
         background-color: var(--body-container-background-color, $body-container-background-color);
       }
@@ -223,10 +235,11 @@ body {
     background-color: var(--error-background-color, $error-background-color);
     color: var(--error-color, $error-color);
 
-    & + input,
-    & + textarea,
-    & + .sv_select_wrapper select {
+    &+input,
+    &+textarea,
+    &+.sv_select_wrapper select {
       border: 1px solid var(--error-color, $error-color);
+
       &:focus {
         outline: var(--error-color, $error-color) auto 5px;
       }
@@ -244,6 +257,7 @@ body {
   .sv_matrix_cell {
     vertical-align: top;
   }
+
   .sv_matrix_cell_detail {
     vertical-align: middle;
     text-align: center;
@@ -261,15 +275,19 @@ body {
     padding: 0;
     outline: none;
   }
+
   .sv_matrix_cell_detail_button_expanded {
     background-color: lightgray;
+
     &:hover {
       background-color: darkgray;
     }
   }
+
   .sv_matrix_cell_detail_rowtext {
     vertical-align: middle;
   }
+
   .sv_q_m_cell_selected {
     color: var(--body-background-color, $body-background-color);
     background-color: var(--main-hover-color, $main-hover-color);
@@ -283,28 +301,33 @@ body {
         color: var(--body-background-color, $body-background-color);
       }
     }
+
     .sv_q_rating_item_text {
       border: 1px solid var(--border-color, $border-color);
+
       &:hover {
         border: 1px solid var(--main-hover-color, $main-hover-color);
       }
     }
   }
 
-  .sv_q_imgsel.checked label > div {
+  .sv_q_imgsel.checked label>div {
     background-color: var(--main-color, $main-color);
   }
 
   .sv_q_file_remove:hover {
     color: var(--main-color, $main-color);
   }
+
   .sv-boolean__switch {
     background-color: var(--main-color, $main-color);
     outline-color: var(--main-color, $main-color);
   }
+
   .sv-boolean__slider {
     background-color: var(--slider-color, $slider-color);
   }
+
   .sv-boolean__label--disabled {
     color: var(--label-disabled-color, $label-disabled-color);
   }
@@ -350,6 +373,7 @@ body {
     max-height: 275px;
     //background-color: var(--header-background-color, $header-background-color);
   }
+
   .sv_container {
     position: relative;
     //color: var(--text-color, $text-color);
@@ -369,12 +393,13 @@ body {
     text-align: center;
     padding: 5em 1em;
 
-    > h3 {
+    >h3 {
       margin: 0;
       font-size: 30px;
       font-weight: 300;
     }
   }
+
   .sv_body {
     //background-color: var(--body-background-color, $body-background-color);
     padding: 1em 1em 1.6428em 1em;
@@ -391,7 +416,8 @@ body {
       //background-color: var(--main-color, $main-color);
       position: relative;
       margin-top: 2em;
-      > span {
+
+      >span {
         position: absolute;
         top: -1.5em;
         display: inline-block;
@@ -412,16 +438,19 @@ body {
       font-size: 1.15em;
       margin: 1.5em 0 0 0;
     }
+
     .sv_p_panel {
       margin: 0 0 1.5em 0;
     }
-    & > .sv_row {
+
+    &>.sv_row {
       //border-bottom: 1px solid var(--header-background-color, $header-background-color);
       padding: 0;
 
       &:nth-child(odd) {
         //background-color: var(--body-background-color, $body-background-color);
       }
+
       &:nth-child(even) {
         //background-color: var(--body-container-background-color, $body-container-background-color);
       }
@@ -445,7 +474,9 @@ body {
       margin-top: -0.6em;
       min-height: 0.6em;
     }
+
     .sv_q_flow {
+
       .sv_q_checkbox_inline,
       .sv_q_radiogroup_inline,
       .sv_q_imagepicker_inline {
@@ -453,6 +484,7 @@ body {
         display: inline-block;
       }
     }
+
     .sv_q {
       padding: 0.5em 1em 1.5em 1em;
       box-sizing: border-box;
@@ -479,9 +511,10 @@ body {
         //color: var(--error-color, $error-color);
         padding: 1em;
 
-        & + input,
-        & + textarea,
-        & + .sv_select_wrapper select {
+        &+input,
+        &+textarea,
+        &+.sv_select_wrapper select {
+
           //border: 1px solid var(--error-color, $error-color);
           &:focus {
             //outline: var(--error-color auto 5px, $error-color auto 5px);
@@ -593,14 +626,15 @@ body {
         margin-right: 1.5em;
       }
 
-      .sv_q_imgsel label > div {
+      .sv_q_imgsel label>div {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         padding: 4px;
         border: 1px solid lightgray;
         border-radius: 4px;
-        > img {
+
+        >img {
           display: block;
           pointer-events: none;
           position: relative;
@@ -647,11 +681,14 @@ body {
         .sv_matrix_dynamic_button {
           padding: 0.3em 2em;
         }
+
         tr {
           //border-bottom: 1px solid var(--header-background-color, $header-background-color);
         }
       }
+
       &.sv_q_matrix {
+
         td,
         th {
           padding: 0.5em 1em;
@@ -662,6 +699,7 @@ body {
           @media (min-width: 768px) {
             min-width: 10em;
           }
+
           .sv_q_m_label {
             position: static;
             display: block;
@@ -673,6 +711,7 @@ body {
           }
         }
       }
+
       &.sv_q_matrix_dropdown {
         .sv_qcbc {
           .sv_q_checkbox_control_label {
@@ -727,9 +766,11 @@ body {
         font-weight: normal;
         display: inline;
 
-        > * {
+        >* {
           word-spacing: initial;
-          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+
+          @media all and (-ms-high-contrast: none),
+          (-ms-high-contrast: active) {
             word-spacing: normal;
           }
         }
@@ -741,6 +782,7 @@ body {
             //color: var(--body-background-color, $body-background-color);
           }
         }
+
         .sv_q_rating_item_text {
           display: inline-block;
           min-width: var(--base-line-height, $base-line-height);
@@ -748,19 +790,23 @@ body {
           margin-left: -1px;
           //border: 1px solid var(--header-background-color, $header-background-color);
           text-align: center;
+
           &:hover {
             //border: 1px solid var(--main-color, $main-color);
           }
         }
+
         &:not(:nth-child(2)) {
           .sv_q_rating_item_text:not(:hover) {
             border-left-color: transparent;
           }
         }
       }
+
       .sv_q_rating_min_text {
         margin-right: 0.5em;
       }
+
       .sv_q_rating_max_text {
         margin-left: 0.5em;
       }
@@ -771,29 +817,36 @@ body {
     display: block;
     padding: 1em 0;
     min-height: var(--base-line-height, $base-line-height);
+
     .sv_nav_btn {
       float: right;
       margin: 0 16px;
     }
+
     .sv-action {
       display: block;
     }
+
     .sv-action:not(:last-child) {
       .sv-action__content {
         padding: 0;
       }
     }
+
     .sv-action__content {
       display: block;
     }
+
     .sv_start_btn,
     .sv_next_btn,
     .sv_complete_btn {
       float: right;
     }
+
     .sv_preview_btn {
       float: right;
     }
+
     .sv_prev_btn {
       float: left;
     }
@@ -803,12 +856,14 @@ body {
     display: inline-block;
   }
 }
+
 .sv_main.sv_main .sv-action-bar-item.sv_edit_btn {
   color: var(--body-background-color, $body-background-color);
   background-color: var(--main-color, $main-color);
   float: left;
   margin-bottom: 7px;
 }
+
 .sv_main.sv_main .sv-action-bar-item.sv_edit_btn:hover {
   background-color: var(--main-hover-color, $main-hover-color);
 }
@@ -831,6 +886,7 @@ body {
       position: absolute !important;
       opacity: 0;
     }
+
     .sv_q_file_choose_button {
       display: inline-block;
       box-sizing: border-box;
@@ -843,9 +899,11 @@ body {
       border-radius: 2px;
       cursor: pointer;
     }
+
     .sv_q_file_remove_button {
       padding: 0.25em 2em;
     }
+
     .sv-file__decorator {
       display: inline-block;
       min-width: 250px;
@@ -879,6 +937,7 @@ body {
   0% {
     transform: translate(0, -50px);
   }
+
   100% {
     transform: translate(0, 0);
   }
@@ -894,6 +953,7 @@ body {
   0% {
     transform: translate(0, 50px);
   }
+
   100% {
     transform: translate(0, 0);
   }

@@ -22,13 +22,13 @@ $base-unit: var(--base-unit, 8px);
   margin: 0;
   overflow-y: auto;
   background: $background;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   list-style-type: none;
 }
 
 .sv-list__empty-container {
   width: 100%;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   box-sizing: border-box;
   padding: calcSize(1.5) calcSize(8);
   overflow: hidden;
@@ -54,6 +54,7 @@ $base-unit: var(--base-unit, 8px);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .sv-list__item-body {
   width: 100%;
   align-items: center;
@@ -77,11 +78,13 @@ $base-unit: var(--base-unit, 8px);
   .sv-list__item-body {
     background-color: $background-dim;
   }
+
   outline: none;
 }
 
 .sv-list__item--with-icon.sv-list__item--with-icon {
   padding: 0;
+
   .sv-list__item-body {
     padding-top: calcSize(1.5);
     padding-bottom: calcSize(1.5);
@@ -89,6 +92,7 @@ $base-unit: var(--base-unit, 8px);
     display: flex;
   }
 }
+
 .sv-list__item-icon {
   float: left;
   width: calcSize(3);
@@ -97,6 +101,7 @@ $base-unit: var(--base-unit, 8px);
   svg {
     display: block;
   }
+
   use {
     fill: $foreground-light;
   }
@@ -109,6 +114,7 @@ $base-unit: var(--base-unit, 8px);
     float: right;
   }
 }
+
 .sv-list__item-separator {
   margin: calcSize(1) 0;
   height: 1px;
@@ -120,6 +126,7 @@ $base-unit: var(--base-unit, 8px);
     background-color: $primary;
     color: $background;
   }
+
   .sv-list__item-icon use {
     fill: $background;
   }
@@ -133,6 +140,7 @@ li:focus .sv-list__item.sv-list__item--selected {
     color: $primary-foreground;
   }
 }
+
 .sv-list__item.sv-list__item--disabled {
   .sv-list__item-body {
     cursor: default;
@@ -164,9 +172,11 @@ li:focus .sv-list__item.sv-list__item--selected {
   position: absolute;
   top: calcSize(1.5);
   inset-inline-start: calcSize(2); //left: calcSize(2);
+
   .sv-svg-icon {
     width: calcSize(3);
     height: calcSize(3);
+
     use {
       fill: $foreground-light;
     }
@@ -202,6 +212,7 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-list__loading-indicator {
   pointer-events: none;
 }
+
 .sv-list__loading-indicator .sv-list__item-body {
   background-color: transparent;
 }

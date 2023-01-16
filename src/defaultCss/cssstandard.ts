@@ -317,11 +317,11 @@ export var defaultStandardCss = {
     clearButton: "sjs_sp_clear",
   },
   saveData: {
-    root: "",
-    saving: "",
-    error: "",
-    success: "",
-    saveAgainButton: "",
+    root: "sv-save-data_root",
+    info: "sv-save-data_info",
+    error: "sv-save-data_error",
+    success: "sv-save-data_success",
+    saveAgainButton: "sv-save-data_save-again-button",
   },
   window: {
     root: "sv_window",

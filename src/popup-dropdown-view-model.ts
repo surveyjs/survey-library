@@ -17,7 +17,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   private resizeEventCallback = () => {
     if(this.isOverlay && IsTouch) {
       const doc = document.documentElement;
-      doc.style.setProperty("--sv-popup-overlay-height", `${window.innerHeight}px`);
+      const height = window.visualViewport ? (window.visualViewport.height / window.visualViewport.scale) : window.innerHeight;
+      doc.style.setProperty("--sv-popup-overlay-height", `${height}px`);
     }
   }
 
@@ -155,7 +156,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-    window.addEventListener("resize", this.resizeEventCallback);
+    window.visualViewport.addEventListener("resize", this.resizeEventCallback);
     this.resizeEventCallback();
     window.addEventListener("scroll", this.scrollEventCallBack);
   }

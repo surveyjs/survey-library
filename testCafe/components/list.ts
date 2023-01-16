@@ -105,11 +105,15 @@ frameworks.forEach(async framework => {
       .click(clickButton.withText("List"))
       .expect(popupSelector.visible).ok()
       .expect(popupSelector.find("ul").visible).ok()
+      .expect(popupSelector.find("ul").getStyleProperty("display")).eql("block")
       .expect(popupSelector.find(".sv-list__empty-container").visible).notOk()
+      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).eql("none")
 
       .typeText(listInput, "a")
       .expect(popupSelector.find("ul").visible).notOk()
-      .expect(popupSelector.find(".sv-list__empty-container").visible).ok();
+      .expect(popupSelector.find("ul").getStyleProperty("display")).eql("none")
+      .expect(popupSelector.find(".sv-list__empty-container").visible).ok()
+      .expect(popupSelector.find(".sv-list__empty-container").getStyleProperty("display")).eql("block");
   });
 });
 

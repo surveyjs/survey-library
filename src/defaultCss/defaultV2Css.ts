@@ -47,6 +47,7 @@ export var defaultV2Css = {
     edit: "",
   },
   panel: {
+    number: "sd-element__num",
     title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",

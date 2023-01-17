@@ -58,9 +58,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     });
   }
   public get matrix(): QuestionMatrixDropdownModel { return <QuestionMatrixDropdownModel>this.question; }
-  protected getQuestionTemplate(): string {
-    return "matrixdynamic";
-  }
   private cellAfterRender(elements: any, con: any) {
     if (!this.question.survey) return;
     setTimeout(() => {

@@ -19,12 +19,13 @@
               <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
               <!-- /ko -->
               <!-- /ko -->
-              <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}">
+              <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
                     <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->
                   <!-- ko if: activePage -->
-                    <div data-bind="attr: { id: activePage.id }, template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage }"></div>
+                    <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
+                    <!-- /ko -->
                     <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
                     <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
                     <!-- /ko -->

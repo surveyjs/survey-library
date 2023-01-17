@@ -47,6 +47,7 @@ export var defaultV2Css = {
     edit: "",
   },
   panel: {
+    number: "sd-element__num",
     title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
     titleExpanded: "sd-element__title--expanded",
@@ -370,6 +371,7 @@ export var defaultV2Css = {
     tableWrapper: "sd-table-wrapper",
     rootAlternateRows: "sd-table--alternate-rows",
     cell: "sd-table__cell",
+    itemCell: "sd-table__cell--item",
     row: "sd-table__row",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
@@ -393,6 +395,7 @@ export var defaultV2Css = {
     tableWrapper: "sd-table-wrapper",
     cell: "sd-table__cell",
     row: "sd-table__row",
+    itemCell: "sd-table__cell--item",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-table__cell--row-text",
     cellRequiredText: "sd-question__required-text",

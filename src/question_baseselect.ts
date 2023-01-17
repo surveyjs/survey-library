@@ -999,9 +999,6 @@ export class QuestionSelectBase extends Question {
   protected getChoices(): Array<ItemValue> {
     return this.choices;
   }
-  public supportComment(): boolean {
-    return true;
-  }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }

@@ -1,6 +1,7 @@
 <template>
   <div v-show="model.active" v-bind:class="model.css">
     <span>{{ model.message }}</span>
+    <sv-action-bar :model="model.actionBar"></sv-action-bar>
   </div>
 </template>
 

@@ -501,7 +501,7 @@ export var defaultV2Css = {
     info: "sv-save-data_info",
     error: "sv-save-data_error",
     success: "sv-save-data_success",
-    saveAgainButton: "sv-save-data_save-again-button",
+    button: "sv-save-data_button",
   },
   window: {
     root: "sv_window",

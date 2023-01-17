@@ -322,7 +322,7 @@ export var defaultCss = {
     info: "alert alert-info",
     error: "alert alert-danger",
     success: "alert alert-success",
-    saveAgainButton: "",
+    button: "",
   },
   window: {
     root: "modal-content",

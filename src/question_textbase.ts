@@ -109,7 +109,7 @@ export class QuestionTextBase extends Question {
 }
 Serializer.addClass(
   "textbase",
-  [],
+  [{ name: "showCommentArea", visible: false }],
   function() {
     return new QuestionTextBase("");
   },

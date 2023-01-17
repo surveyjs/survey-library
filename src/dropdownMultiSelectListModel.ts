@@ -1,10 +1,12 @@
 import { Action, IAction } from "./actions/action";
+import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
 import { settings } from "./settings";
+import { IsTouch } from "./utils/devices";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
 
@@ -50,6 +52,37 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       };
     }
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, false);
+  }
+  @property() previousValue: any;
+
+  private get shouldResetAfterCancel() {
+    return IsTouch && !this.closeOnSelect;
+  }
+  protected override createPopup(): void {
+    super.createPopup();
+    this.popupModel.onFooterActionsCreated.add((_, opt) => {
+      if(this.shouldResetAfterCancel) {
+        opt.actions[0].needSpace = true;
+        opt.actions = [{
+          id: "sv-dropdown-done-button",
+          title: "Done",
+          innerCss: "sv-popup__button--done",
+          action: () => { this.popupModel.isVisible = false; },
+          enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))
+        }].concat(opt.actions);
+      }
+    });
+    this.popupModel.onVisibilityChanged.add((_, opt: { isVisible: boolean }) => {
+      if(this.shouldResetAfterCancel && opt.isVisible) {
+        this.previousValue = [].concat(this.question.renderedValue || []);
+      }
+    });
+    this.popupModel.onCancel = () => {
+      if(this.shouldResetAfterCancel) {
+        this.question.renderedValue = this.previousValue;
+        this.updateListState();
+      }
+    };
   }
 
   public selectAllItems(): void {

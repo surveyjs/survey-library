@@ -1,4 +1,5 @@
 import { Base, EventBase } from "./base";
+import { IAction } from "./actions/action";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
 
@@ -46,6 +47,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
+  public onFooterActionsCreated: EventBase<Base> = this.addEvent<Base>();
   public onRecalculatePosition: EventBase<Base> = this.addEvent<Base>();
 
   constructor(
@@ -98,6 +100,11 @@ export class PopupModel<T = any> extends Base {
   }
   public recalculatePosition(isResetHeight: boolean): void {
     this.onRecalculatePosition.fire(this, { isResetHeight: isResetHeight });
+  }
+  public updateFooterActions(footerActions: Array<IAction>): Array<IAction> {
+    const options = { actions: footerActions };
+    this.onFooterActionsCreated.fire(this, options);
+    return options.actions;
   }
 }
 

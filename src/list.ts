@@ -143,7 +143,7 @@ export class ListModel extends ActionContainer {
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
-      .append(this.cssClasses.itemSelected, itemValue.active || this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
       .append(itemValue.css)
       .toString();
   };

@@ -66,7 +66,7 @@ export class DropdownListModel extends Base {
     this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
   }
 
-  private createPopup() {
+  protected createPopup(): void {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";

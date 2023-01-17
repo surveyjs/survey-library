@@ -288,6 +288,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     height: calc(var(--sv-popup-overlay-height, 100vh));
   }
   .sv-popup__body-footer {
+    background-color: #f9f9f9;
     margin-top: 0;
     padding-top: 4px;
     padding-bottom: 4px;
@@ -328,5 +329,10 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     flex-grow: 1;
     padding: 8px 4px;
     background-color: $background;
+  }
+  .sv-popup__button:disabled {
+    pointer-events: none;
+    color: #161616;
+    opacity: 0.25;
   }
 }

@@ -288,8 +288,10 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     height: calc(var(--sv-popup-overlay-height, 100vh));
   }
   .sv-popup__body-footer {
-    margin-top: auto;
-    margin-bottom: 4px;
+    margin-top: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    border-top: 1px solid #eaeaea;
   }
   .sv-popup__scrolling-content {
     height: calc(100% - 6 * var(--base-unit, 8px));
@@ -302,6 +304,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     padding: 0;
   }
   .sv-list {
+    flex-grow: 1;
     padding: 4px;
   }
   .sv-list__filter {
@@ -317,5 +320,13 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   .sv-list__input {
     padding: 0;
     padding-left: 8px;
+  }
+  .sv-list__empty-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 8px 4px;
+    background-color: $background;
   }
 }

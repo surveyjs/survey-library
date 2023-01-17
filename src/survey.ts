@@ -6013,7 +6013,8 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getQuestionsByValueName(valueName);
     if (!questions) return false;
     for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].isVisible && questions[i].isParentVisible) return true;
+      const q = questions[i];
+      if (q.isVisible && q.isParentVisible && !q.parentQuestion) return true;
     }
     return false;
   }

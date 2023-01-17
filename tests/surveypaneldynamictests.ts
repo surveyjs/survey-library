@@ -3322,13 +3322,14 @@ QUnit.test("Panel dynamic, clearInvisibleValues='onHidden' & question valueName,
         type: "paneldynamic",
         templateElements: [
           { name: "q1", type: "text", valueName: "q1_val" },
-          { name: "q2", type: "text", valueName: "q2_val", visibleIf: "{q1_val} = 'a'" }
+          { name: "q2", type: "text", valueName: "q2_val", visibleIf: "{panel.q1_val} = 'a'" }
         ],
         panelCount: 1
       }
     ]
   };
   const survey = new SurveyModel(json);
+  assert.equal(survey.hasVisibleQuestionByValueName("q2_val"), false, "It is in templates");
   const pDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const panel = pDynamic.panels[0];
   panel.getQuestionByName("q1").value = "a";

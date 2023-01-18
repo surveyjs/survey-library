@@ -515,6 +515,30 @@ QUnit.test("Edit choices in matrix", function (assert) {
     "set text property from matrix"
   );
 });
+QUnit.test("Do not re-create rows and rendered table on adding new choice item", function (assert) {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.visibleRows.length, 2, "two choice");
+  const firstRowId = matrix.visibleRows[0].id;
+  question.choices.push(new ItemValue("item3"));
+  assert.equal(matrix.visibleRows[0].id, firstRowId, "row is not recreated");
+  assert.equal(matrix.visibleRows.length, 3, "three choice");
+});
 QUnit.test("Edit choices in matrix", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];

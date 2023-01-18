@@ -224,6 +224,11 @@ export var settings = {
    * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
    */
   customIcons: {},
+  /**
+   * "entireItem" (default) | "icon"
+   * For example: Survey.settings.rankingDragHandleArea = "icon"
+   */
+  rankingDragHandleArea: "entireItem",
   titleTags: {
     survey: "h3",
     page: "h4",

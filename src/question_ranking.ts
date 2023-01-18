@@ -8,6 +8,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { QuestionSelectBase } from "./question_baseselect";
+import { settings } from "../src/settings";
 
 /**
  * A class that describes the Ranking question type.
@@ -185,6 +186,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
+
+    const target:HTMLElement = <HTMLElement>event.target;
+
+    if (
+      settings.rankingDragHandleArea === "icon" &&
+      !target.classList.contains("sv-ranking-item__icon--hover")
+    ) return;
+
     if (this.allowStartDrag) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }

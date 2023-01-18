@@ -463,9 +463,6 @@ export class QuestionFileModel extends Question {
     }
     return questionPlainData;
   }
-  public supportComment(): boolean {
-    return true;
-  }
   public getChooseFileCss(): string {
     const isAnswered = this.isAnswered;
     return new CssClassBuilder()

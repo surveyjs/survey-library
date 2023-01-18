@@ -6341,3 +6341,129 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
   assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
 });
+QUnit.test("Supporting showCommentArea property, Bug#5479", function (
+  assert
+) {
+  const supportedComment = {
+    radiogroup: true,
+    checkbox: true,
+    dropdown: true,
+    matrix: true,
+    rating: true,
+    ranking: true,
+    matrixdropdown: true,
+    matrixdynamic: true,
+    paneldynamic: true,
+    file: true,
+    boolean: true,
+    text: false,
+    comment: false,
+    html: false,
+    image: false,
+    expression: false
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "radiogroup",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "checkbox",
+        "name": "checkbox",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "dropdown",
+        "name": "dropdown",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "rating",
+        "name": "rating",
+        "showCommentArea": true
+      },
+      {
+        "type": "ranking",
+        "name": "ranking",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "boolean",
+        "name": "boolean",
+        "showCommentArea": true
+      },
+      {
+        "type": "matrix",
+        "name": "matrix",
+        "showCommentArea": true,
+        "rows": [1, 2],
+        "columns": [1, 2]
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "matrixdynamic",
+        "showCommentArea": true,
+        "columns": [{ name: "col1" }]
+      },
+      {
+        "type": "matrixdropdown",
+        "name": "matrixdropdown",
+        "showCommentArea": true,
+        "columns": [{ name: "col1" }],
+        "rows": [1, 2]
+      },
+      {
+        "type": "paneldynamic",
+        "name": "paneldynamic",
+        "showCommentArea": true,
+        "templateElements": [
+          { "type": "text", "name": "q7" }
+        ]
+      },
+      {
+        "type": "file",
+        "name": "file",
+        "showCommentArea": true
+      },
+      {
+        "type": "text",
+        "name": "text",
+        "showCommentArea": true
+      },
+      {
+        "type": "comment",
+        "name": "comment",
+        "showCommentArea": true
+      },
+      {
+        "type": "html",
+        "name": "html",
+        "showCommentArea": true
+      },
+      {
+        "type": "image",
+        "name": "image",
+        "showCommentArea": true
+      },
+      {
+        "type": "expression",
+        "name": "expression",
+        "showCommentArea": true
+      },
+    ]
+  });
+  const questions = survey.getAllQuestions();
+  questions.forEach(q => {
+    const typeName = q.getType();
+    const isSupport = supportedComment[typeName];
+    assert.equal(q.showCommentArea, isSupport, "Show comment area is not loaded correctly: " + typeName);
+    const prop = Serializer.findProperty(typeName, "showCommentArea");
+    assert.equal(prop.visible, isSupport, "Show comment area property visibility is incorrect: " + typeName);
+  });
+});

@@ -249,3 +249,29 @@ registerMarkupTest(
     event: "onAfterRenderPage",
     snapshot: "panel-question-headers",
   });
+registerMarkupTest(
+  {
+    name: "Test Panel - Panel title with number",
+    json: {
+      "elements": [
+        {
+          type: "panel",
+          name: "name",
+          title: "panel_title",
+          showNumber: true,
+          startWithNewLine: false,
+          elements: [
+            {
+              type: "html",
+              name: "question1",
+              description: "<div></div>"
+            }
+          ]
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    event: "onAfterRenderPanel",
+    snapshot: "panel-number",
+  });

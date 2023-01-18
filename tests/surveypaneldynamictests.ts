@@ -3313,6 +3313,31 @@ QUnit.test(
     assert.equal(histologicalCategory.value, "foo", "value set correctly");
   }
 );
+QUnit.test("Panel dynamic, clearInvisibleValues='onHidden' & question valueName, Bug#", function(assert) {
+  const json = {
+    clearInvisibleValues: "onHidden",
+    elements: [
+      {
+        name: "panel",
+        type: "paneldynamic",
+        templateElements: [
+          { name: "q1", type: "text", valueName: "q1_val" },
+          { name: "q2", type: "text", valueName: "q2_val", visibleIf: "{panel.q1_val} = 'a'" }
+        ],
+        panelCount: 1
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.hasVisibleQuestionByValueName("q2_val"), false, "It is in templates");
+  const pDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel = pDynamic.panels[0];
+  panel.getQuestionByName("q1").value = "a";
+  panel.getQuestionByName("q2").value = "b";
+  assert.deepEqual(survey.data, { panel: [{ q1_val: "a", q2_val: "b" }] }, "#1");
+  panel.getQuestionByName("q1").value = "c";
+  assert.deepEqual(survey.data, { panel: [{ q1_val: "c" }] }, "#2");
+});
 QUnit.test(
   "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanged",
   function(assert) {

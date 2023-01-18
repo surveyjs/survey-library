@@ -125,7 +125,7 @@
     "github-api": "^3.3.0",
     "html-loader": "0.4.4",
     "http-server": "^0.12.3",
-    "husky": "^7.0.0",
+    "husky": "^8",
     "jest": "^26.1.0",
     "jest-canvas-mock": "^2.2.0",
     "jquery": "^3.5.1",

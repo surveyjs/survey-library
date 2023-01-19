@@ -2857,7 +2857,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
    *
-   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
+   * > If you set the `data` property after creating the survey, consider the following:
+   * > * If you specify a `visibleIf` expression for questions, pages, and panels, you may need to set the `currentPageNo` to `0` to start a survey from the first page.
+   * > * `survey.data` values override question [default values](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValue). If you wish to preserve default question values, use the [survey.mergeData](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeData) function instead of `survey.data`.
    * @see setValue
    * @see getValue
    * @see mergeData
@@ -2882,6 +2884,7 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
+   * For more information and examples of usage, refer to: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
    * @param data data to merge. It should be an object {keyValue: Value, ...}
    * @see data
    * @see setValue

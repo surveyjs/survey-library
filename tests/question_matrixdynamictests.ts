@@ -7947,3 +7947,33 @@ QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", func
   matrix.onPointerDown(<any>undefined, <any>undefined);
 });
 
+QUnit.test("Update expressions on setting matrixdropdown rows, Bug#5526", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        columns: [
+          { cellType: "text", name: "col1", totalType: "sum" },
+          { cellType: "text", name: "col2" },
+          { cellType: "expression", name: "col3", expression: "{row.col1} + {row.col2}", totalType: "sum" },
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  assert.equal(2, rows.length, "2 rows");
+  rows[0].cells[0].value = 1;
+  rows[0].cells[1].value = 2;
+  rows[1].cells[0].value = 3;
+  rows[1].cells[1].value = 4;
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, },
+    row2: { col1: 3, col2: 4, col3: 7 } },
+  "matrix-total": { col1: 4, col3: 10 } }, "#1");
+  matrix.rows = ["row1"];
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, } },
+    "matrix-total": { col1: 1, col3: 3 } }, "#2");
+});
+

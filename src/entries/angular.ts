@@ -3,6 +3,9 @@ import { Survey, PopupSurvey } from "./knockout-ui-model";
 export { Model } from "./knockout-ui-model";
 export * from "./core-wo-model";
 
+// themes settings
+export * from "./plugins";
+
 // localization
 import "./chunks/localization";
 

@@ -19,7 +19,6 @@ import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
-import { AssertionError } from "assert";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 

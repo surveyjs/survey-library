@@ -417,11 +417,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private hasActionsCellInLocaltion(location: "start" | "end"): boolean {
     if(location == "end" && this.hasRemoveRows) return true;
-    var rows = this.matrix.visibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      if (!this.isValueEmpty(this.getRowActions(i, location))) return true;
-    }
-    return false;
+    return this.matrix.visibleRows.some(
+      (row, index) => !this.isValueEmpty(this.getRowActions(index, location)));
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);

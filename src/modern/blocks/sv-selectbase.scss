@@ -57,3 +57,39 @@
 .sv-selectbase .sv-selectbase__item.sv-q-col-1 {
   padding-right: 0;
 }
+.sv-question .sv-q-column-1 {
+  width: 100%;
+  max-width: 100%;
+  display: inline-block;
+  padding-right: 1em;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+.sv-question .sv-q-column-2 {
+  max-width: 50%;
+  display: inline-block;
+  padding-right: 1em;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+.sv-question .sv-q-column-3 {
+  max-width: 33.33333%;
+  display: inline-block;
+  padding-right: 1em;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+.sv-question .sv-q-column-4 {
+  max-width: 25%;
+  display: inline-block;
+  padding-right: 1em;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+.sv-question .sv-q-column-5 {
+  max-width: 20%;
+  display: inline-block;
+  padding-right: 1em;
+  box-sizing: border-box;
+  word-break: break-word;
+}

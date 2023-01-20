@@ -4,6 +4,7 @@ import {
   CustomPropertiesCollection,
   JsonObject,
   JsonObjectProperty,
+  JsonMetadataClass,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
@@ -231,6 +232,7 @@ export class Base {
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
+  private classMetaData: JsonMetadataClass;
   private onPropChangeFunctions: Array<{
     name: string,
     func: (...args: any[]) => void,
@@ -408,7 +410,10 @@ export class Base {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
-    return Serializer.findProperty(this.getType(), propName);
+    if(!this.classMetaData) {
+      this.classMetaData = Serializer.findClass(this.getType());
+    }
+    return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
   }
   public isPropertyVisible(propName: string): boolean {
     const prop = this.getPropertyByName(propName);
@@ -456,20 +461,24 @@ export class Base {
     const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.isPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
-      const prop = this.getPropertyByName(name);
-      if (!!prop && (!prop.isCustom || !this.isCreating)) {
-        if (
-          !this.isPropertyEmpty(prop.defaultValue) &&
-          !Array.isArray(prop.defaultValue)
-        )
-          return prop.defaultValue;
-        if (prop.type == "boolean" || prop.type == "switch") return false;
-        if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
-      }
+      const propDefaultValue = this.getDefaultValueFromProperty(name);
+      if(propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
-  protected getPropertyValueCore(propertiesHash: any, name: string) {
+  private getDefaultValueFromProperty(name: string): any {
+    const prop = this.getPropertyByName(name);
+    if(!prop || prop.isCustom && this.isCreating) return undefined;
+    if (
+      !this.isPropertyEmpty(prop.defaultValue) &&
+      !Array.isArray(prop.defaultValue)
+    )
+      return prop.defaultValue;
+    if (prop.type == "boolean" || prop.type == "switch") return false;
+    if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
+    return undefined;
+  }
+  protected getPropertyValueCore(propertiesHash: any, name: string): any {
     Base.collectDependency(this, name);
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
@@ -478,7 +487,7 @@ export class Base {
   public geValueFromHash(): any {
     return this.propertyHash["value"];
   }
-  protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
+  protected setPropertyValueCore(propertiesHash: any, name: string, val: any): void {
     if (this.setPropertyValueCoreHandler) {
       if (!this.isDisposedValue) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);

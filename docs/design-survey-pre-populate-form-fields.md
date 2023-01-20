@@ -68,7 +68,7 @@ survey.data = {
 }
 ```
 
-The code above *replaces* the old `data` object, default question values, and erases entered data if there was any. If you want to *merge* new data with default and previously entered question values, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method:
+The code above *replaces* the old `data` object and erases default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method:
 
 ```js
 import { Model } from "survey-core";

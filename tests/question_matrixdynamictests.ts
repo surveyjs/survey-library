@@ -3930,6 +3930,32 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   );
 });
 
+QUnit.test("survey.onMatrixAllowRemoveRow, show remove for new rows only, Bug#5533", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 0,
+        columns: [{ name: "col1", cellType: "text" }],
+      },
+    ],
+  });
+  survey.onMatrixAllowRemoveRow.add(function (sender, options) {
+    options.allow = options.row.isEmpty;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.value = [{ col1: 1 }, { col1: 2 }];
+  assert.equal(matrix.canRemoveRows, true, "The row can be removed");
+  const table = matrix.renderedTable;
+  matrix.addRow();
+  assert.equal(3, matrix.visibleRows.length, "3 rows");
+  assert.equal(table.hasRemoveRows, true, "table.hasRemoveRows");
+  assert.equal(table.rows[0].cells[1].isActionsCell, false, "First cell");
+  assert.equal(table.rows[1].cells[1].isActionsCell, false, "Second cell");
+  assert.equal(table.rows[2].cells[1].isActionsCell, true, "Third cell");
+});
+
 QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
   var survey = new SurveyModel({
     questions: [

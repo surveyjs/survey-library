@@ -221,6 +221,7 @@ export class DropdownListModel extends Base {
 
   public setSearchEnabled(newValue: boolean) {
     this.listModel.searchEnabled = IsTouch;
+    this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
   }
   public updateItems(): void {

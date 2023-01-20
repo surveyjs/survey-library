@@ -7,6 +7,7 @@ import { ElementHelper } from "./element-helper";
 export let defaultListCss = {
   root: "sv-list__container",
   item: "sv-list__item",
+  searchClearButtonIcon: "sv-list__filter-clear-button",
   loadingIndicator: "sv-list__loading-indicator",
   itemSelected: "sv-list__item--selected",
   itemWithIcon: "sv-list__item--with-icon",
@@ -54,6 +55,7 @@ export class ListModel extends ActionContainer {
   }) filterString: string;
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
+  @property({ defaultValue: false }) showSearchClearButton: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;

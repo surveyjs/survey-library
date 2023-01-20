@@ -10,6 +10,7 @@ $background-semitransparent: var(--background-semitransparent, rgba(144, 144, 14
 $foreground: var(--foreground, #161616);
 //todo: discuss this variable
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
+$foreground-light: var(--foreground-light, #909090);
 
 $base-unit: var(--base-unit, 8px);
 @function calcSize($multiplier) {
@@ -336,5 +337,21 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     pointer-events: none;
     color: $foreground;
     opacity: 0.25;
+  }
+  .sv-list__filter-clear-button {
+    height: calcSize(3);
+    width: calcSize(3);
+    padding: calcSize(0.5);
+    appearance: none;
+    border: none;
+    border-radius: 100%;
+    background-color: transparent;
+    svg {
+      height: calcSize(2);
+      width: calcSize(2);
+      use {
+        fill: $foreground-light;
+      }
+    }
   }
 }

@@ -640,7 +640,7 @@ frameworks.forEach(framework => {
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
-      await initSurvey(framework, json, { onComplete: (_sender, options) => {
+      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
         let fail = true;

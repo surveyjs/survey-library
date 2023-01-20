@@ -2728,19 +2728,16 @@ QUnit.test(
       newValue,
       "shared correctly to the second question"
     );
-    var rowsChangedCounter = 0;
-    q2.visibleRowsChangedCallback = function () {
-      rowsChangedCounter++;
-    };
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     q1.addRow();
     q1.visibleRows[3].cells[0].value = 4;
     newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }, { col1: 4 }];
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
     assert.deepEqual(
       q2.visibleRows.length,
       4,
       "There are  4 rows in the second question"
     );
+    assert.equal(4, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q1.value,
       newValue,
@@ -2801,8 +2798,9 @@ QUnit.test(
     q2.visibleRowsChangedCallback = function () {
       rowsChangedCounter++;
     };
+    assert.equal(2, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     survey.setValue("copyValue", true);
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q2.value,
       newValue,

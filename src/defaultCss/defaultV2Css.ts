@@ -498,11 +498,11 @@ export var defaultV2Css = {
     clearButtonIconId: "icon-clear"
   },
   saveData: {
-    root: "",
-    saving: "",
-    error: "",
-    success: "",
-    saveAgainButton: ""
+    root: "sv-save-data_root",
+    info: "sv-save-data_info",
+    error: "sv-save-data_error",
+    success: "sv-save-data_success",
+    button: "sv-save-data_button",
   },
   window: {
     root: "sv_window",

@@ -1,0 +1,6 @@
+<ng-template #template>
+  <div [visible]="notifier.active" [class]="notifier.css">
+    <span>{{notifier.message}}</span>
+    <sv-action-bar [model]="notifier.actionBar"></sv-action-bar> 
+  </div>
+</ng-template>

@@ -53,18 +53,6 @@
             v-html="getProcessedCompletedHtml()"
             :class="vueSurvey.completedCss"
           ></div>
-          <div v-if="vueSurvey.completedState != ''" :class="css.saveData.root">
-            <div :class="getCompletedStateClasses()">
-              <span>{{ vueSurvey.completedStateText }}</span>
-              <input
-                type="button"
-                v-if="vueSurvey.completedState == 'error'"
-                :value="vueSurvey.getLocalizationString('saveAgainButton')"
-                @click="doTrySaveAgain"
-                :class="css.saveData.saveAgainButton"
-              />
-            </div>
-          </div>
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"
@@ -82,6 +70,7 @@
       </div>
     </form>
     <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
+    <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
   </div>
 </template>
 
@@ -170,14 +159,8 @@ export class Survey extends BaseVue {
     }
     return this.processedCompletedHtmlValue;
   }
-  getCompletedStateClasses() {
-    return this.css.saveData[this.vueSurvey.completedState];
-  }
   start() {
     this.vueSurvey.start();
-  }
-  doTrySaveAgain() {
-    this.vueSurvey.doComplete();
   }
 }
 

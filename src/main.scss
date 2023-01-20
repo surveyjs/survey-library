@@ -7,6 +7,7 @@
 @import "./common-styles/window.scss";
 @import "./common-styles/sv-brand-info.scss";
 @import "./common-styles/sv-drag-drop.scss";
+@import "./common-styles/sv-save-data.scss";
 
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
@@ -311,7 +312,7 @@ body {
 }
 
 .sv_main {
-  position: relative;
+  // position: relative;
   width: 100%;
   //background-color: var(--body-container-background-color, $body-container-background-color);
   font-family: var(--font-family, $font-family);

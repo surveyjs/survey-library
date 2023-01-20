@@ -456,7 +456,7 @@ export class Base {
     const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.isPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
-      const prop = Serializer.findProperty(this.getType(), name);
+      const prop = this.getPropertyByName(name);
       if (!!prop && (!prop.isCustom || !this.isCreating)) {
         if (
           !this.isPropertyEmpty(prop.defaultValue) &&

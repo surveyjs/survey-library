@@ -1008,7 +1008,7 @@ export class QuestionSelectBase extends Question {
   protected isSupportProperty(propName: string): boolean {
     return (
       !this.isDesignMode ||
-      Serializer.findProperty(this.getType(), propName).visible
+      this.getPropertyByName(propName).visible
     );
   }
   protected onCheckForErrors(

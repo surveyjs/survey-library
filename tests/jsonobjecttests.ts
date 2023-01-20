@@ -264,7 +264,6 @@ Serializer.addClass(
     "name:string",
     { name: "dummyname", layout: "row" },
     "car",
-    "cars",
     "stringArray",
     { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },

@@ -988,7 +988,7 @@ export class Question extends SurveyElement<Question>
     ];
   }
   public supportComment(): boolean {
-    const prop = Serializer.findProperty(this.getType(), "showCommentArea");
+    const prop = this.getPropertyByName("showCommentArea");
     return !prop || prop.visible;
   }
   public supportOther(): boolean {

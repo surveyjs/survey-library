@@ -568,77 +568,78 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check survey notifier error type", async (t) => {
-    const json = {
-      "pages": [
-        {
-          "name": "page1",
-          "elements": [
-            {
-              "type": "rating",
-              "name": "nps_score",
-              "title": "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-              "isRequired": true,
-              "rateMin": 0,
-              "rateMax": 10,
-              "minRateDescription": "(Most unlikely)",
-              "maxRateDescription": "(Most likely)"
-            },
-            {
-              "type": "checkbox",
-              "name": "promoter_features",
-              "visibleIf": "{nps_score} >= 9",
-              "title": "Which of the following features do you value the most?",
-              "description": "Please select no more than three features.",
-              "isRequired": true,
-              "validators": [
-                {
-                  "type": "answercount",
-                  "text": "Please select no more than three features.",
-                  "maxCount": 3
-                }
-              ],
-              "showOtherItem": true,
-              "choices": [
-                "Performance",
-                "Stability",
-                "User interface",
-                "Complete functionality",
-                "Learning materials (documentation, demos, code examples)",
-                "Quality support"
-              ],
-              "otherText": "Other features:",
-              "colCount": 2
-            },
-            {
-              "type": "comment",
-              "name": "passive_experience",
-              "visibleIf": "{nps_score} >= 7  and {nps_score} <= 8",
-              "title": "What can we do to make your experience more satisfying?"
-            },
-            {
-              "type": "comment",
-              "name": "disappointing_experience",
-              "visibleIf": "{nps_score} <= 6",
-              "title": "Please let us know why you had such a disappointing experience with our product"
-            }
-          ]
-        }
-      ],
-      "completedHtml": "<h3>Thank you for your feedback</h3>",
-      "completedHtmlOnCondition": [
-        {
-          "expression": "{nps_score} >= 9",
-          "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you love our product. Your ideas and suggestions will help us make it even better.</h4>"
-        },
-        {
-          "expression": "{nps_score} >= 6  and {nps_score} <= 8",
-          "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you shared your ideas with us. They will help us make our product better.</h4>"
-        }
-      ],
-      "showQuestionNumbers": "off"
-    };
+  const notifierJson = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "rating",
+            "name": "nps_score",
+            "title": "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+            "isRequired": true,
+            "rateMin": 0,
+            "rateMax": 10,
+            "minRateDescription": "(Most unlikely)",
+            "maxRateDescription": "(Most likely)"
+          },
+          {
+            "type": "checkbox",
+            "name": "promoter_features",
+            "visibleIf": "{nps_score} >= 9",
+            "title": "Which of the following features do you value the most?",
+            "description": "Please select no more than three features.",
+            "isRequired": true,
+            "validators": [
+              {
+                "type": "answercount",
+                "text": "Please select no more than three features.",
+                "maxCount": 3
+              }
+            ],
+            "showOtherItem": true,
+            "choices": [
+              "Performance",
+              "Stability",
+              "User interface",
+              "Complete functionality",
+              "Learning materials (documentation, demos, code examples)",
+              "Quality support"
+            ],
+            "otherText": "Other features:",
+            "colCount": 2
+          },
+          {
+            "type": "comment",
+            "name": "passive_experience",
+            "visibleIf": "{nps_score} >= 7  and {nps_score} <= 8",
+            "title": "What can we do to make your experience more satisfying?"
+          },
+          {
+            "type": "comment",
+            "name": "disappointing_experience",
+            "visibleIf": "{nps_score} <= 6",
+            "title": "Please let us know why you had such a disappointing experience with our product"
+          }
+        ]
+      }
+    ],
+    "completedHtml": "<h3>Thank you for your feedback</h3>",
+    "completedHtmlOnCondition": [
+      {
+        "expression": "{nps_score} >= 9",
+        "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you love our product. Your ideas and suggestions will help us make it even better.</h4>"
+      },
+      {
+        "expression": "{nps_score} >= 6  and {nps_score} <= 8",
+        "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you shared your ideas with us. They will help us make our product better.</h4>"
+      }
+    ],
+    "showQuestionNumbers": "off"
+  };
+  test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
       await initSurvey(framework, json, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -652,82 +653,31 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-saving.png", Selector(".sv-save-data_root"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
+    });
+  });
+
+  test("Check survey notifier error type", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
+        options.isCompleteOnTrigger = false;
+        options.showDataSaving();
+        let fail = true;
+
+        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
+          () => { options.showDataSavingSuccess(); },
+          () => { options.showDataSavingError(); }
+        );
+      } });
+      await setData({ nps_score: 4 });
+      await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
     });
   });
 
   test("Check survey notifier success type", async (t) => {
-    const json = {
-      "pages": [
-        {
-          "name": "page1",
-          "elements": [
-            {
-              "type": "rating",
-              "name": "nps_score",
-              "title": "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-              "isRequired": true,
-              "rateMin": 0,
-              "rateMax": 10,
-              "minRateDescription": "(Most unlikely)",
-              "maxRateDescription": "(Most likely)"
-            },
-            {
-              "type": "checkbox",
-              "name": "promoter_features",
-              "visibleIf": "{nps_score} >= 9",
-              "title": "Which of the following features do you value the most?",
-              "description": "Please select no more than three features.",
-              "isRequired": true,
-              "validators": [
-                {
-                  "type": "answercount",
-                  "text": "Please select no more than three features.",
-                  "maxCount": 3
-                }
-              ],
-              "showOtherItem": true,
-              "choices": [
-                "Performance",
-                "Stability",
-                "User interface",
-                "Complete functionality",
-                "Learning materials (documentation, demos, code examples)",
-                "Quality support"
-              ],
-              "otherText": "Other features:",
-              "colCount": 2
-            },
-            {
-              "type": "comment",
-              "name": "passive_experience",
-              "visibleIf": "{nps_score} >= 7  and {nps_score} <= 8",
-              "title": "What can we do to make your experience more satisfying?"
-            },
-            {
-              "type": "comment",
-              "name": "disappointing_experience",
-              "visibleIf": "{nps_score} <= 6",
-              "title": "Please let us know why you had such a disappointing experience with our product"
-            }
-          ]
-        }
-      ],
-      "completedHtml": "<h3>Thank you for your feedback</h3>",
-      "completedHtmlOnCondition": [
-        {
-          "expression": "{nps_score} >= 9",
-          "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you love our product. Your ideas and suggestions will help us make it even better.</h4>"
-        },
-        {
-          "expression": "{nps_score} >= 6  and {nps_score} <= 8",
-          "html": "<h3>Thank you for your feedback</h3> <h4>We are glad that you shared your ideas with us. They will help us make our product better.</h4>"
-        }
-      ],
-      "showQuestionNumbers": "off"
-    };
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, json, { onComplete: (_sender, options) => {
+      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
         let fail = false;

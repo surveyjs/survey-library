@@ -760,7 +760,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if(!this.generatedVisibleRows) return;
     if(newRowCount == this.generatedVisibleRows.length + 1) {
       this.onStartRowAddingRemoving();
-      const newRow = this.createMatrixRow(null);
+      const newValue = this.getRowValueByIndex(val, newRowCount - 1);
+      const newRow = this.createMatrixRow(newValue);
       this.generatedVisibleRows.push(newRow);
       this.onMatrixRowCreated(newRow);
       this.onEndRowAdding();

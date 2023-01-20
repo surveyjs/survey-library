@@ -532,6 +532,9 @@ QUnit.test("Do not re-create rows and rendered table on adding new choice item",
     ],
   });
   survey.editingObj = question;
+  survey.onMatrixAllowRemoveRow.add((sender, options) => {
+    assert.ok(options.row.editingObj, "Editing object is set");
+  });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
   assert.equal(matrix.visibleRows.length, 2, "two choice");
   const firstRowId = matrix.visibleRows[0].id;

@@ -54,7 +54,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return new MultiSelectListModel(visibleItems, _onSelectionChanged, false);
   }
   @property() previousValue: any;
-
+  @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;
   private get shouldResetAfterCancel() {
     return IsTouch && !this.closeOnSelect;
   }
@@ -63,9 +63,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.popupModel.onFooterActionsCreated.add((_, opt) => {
       if(this.shouldResetAfterCancel) {
         opt.actions[0].needSpace = true;
-        opt.actions = [{
+        opt.actions = [<IAction>{
           id: "sv-dropdown-done-button",
-          title: "Done",
+          title: this.doneButtonCaption,
           innerCss: "sv-popup__button--done",
           action: () => { this.popupModel.isVisible = false; },
           enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))

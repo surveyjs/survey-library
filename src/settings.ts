@@ -178,6 +178,12 @@ export var settings = {
   lazyRowsRendering: false,
   lazyRowsRenderingStartRow: 3,
   /**
+   * Notification settings
+   */
+  notifications: {
+    lifetime: 2000
+  },
+  /**
    * By default checkbox and radiogroup items are ordered in rows.
    * Set it "column", and items will be ordered in columns.
    */

@@ -11,7 +11,7 @@ $header-background-color: #e7e7e7;
 }
 
 .sv_row {
-  display: flex; 
+  display: flex;
   flex-wrap: wrap;
   clear: both;
   min-width: 300px;
@@ -359,8 +359,7 @@ $header-background-color: #e7e7e7;
   word-break: break-word;
 }
 
-.sv_qstn .sv-q-column-1,
-.sv-question .sv-q-column-1 {
+.sv_qstn .sv-q-column-1 {
   width: 100%;
   max-width: 100%;
   display: inline-block;
@@ -368,32 +367,28 @@ $header-background-color: #e7e7e7;
   box-sizing: border-box;
   word-break: break-word;
 }
-.sv_qstn .sv-q-column-2,
-.sv-question .sv-q-column-2 {
+.sv_qstn .sv-q-column-2 {
   max-width: 50%;
   display: inline-block;
   padding-right: 1em;
   box-sizing: border-box;
   word-break: break-word;
 }
-.sv_qstn .sv-q-column-3,
-.sv-question .sv-q-column-3 {
+.sv_qstn .sv-q-column-3 {
   max-width: 33.33333%;
   display: inline-block;
   padding-right: 1em;
   box-sizing: border-box;
   word-break: break-word;
 }
-.sv_qstn .sv-q-column-4,
-.sv-question .sv-q-column-4 {
+.sv_qstn .sv-q-column-4 {
   max-width: 25%;
   display: inline-block;
   padding-right: 1em;
   box-sizing: border-box;
   word-break: break-word;
 }
-.sv_qstn .sv-q-column-5,
-.sv-question .sv-q-column-5 {
+.sv_qstn .sv-q-column-5 {
   max-width: 20%;
   display: inline-block;
   padding-right: 1em;

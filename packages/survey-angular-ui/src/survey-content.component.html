@@ -31,14 +31,6 @@
         </ng-container>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
-        <div *ngIf="model.completedState != ''" [class]="model.css.saveData.root">
-          <div [class]="model.completedStateCss">
-            <span>{{model.completedStateText}}</span>
-            <input type="button" [hidden]="model.completedState != 'error'"
-              [value]="model.getLocString('saveAgainButton')" (click)="model.doComplete()"
-              [class]="model.css.saveData.saveAgainButton">
-          </div>
-        </div>
         <div *ngIf="model.state === 'completedbefore'" [class]="model.css.body"
           [innerHtml]="model.processedCompletedBeforeHtml"></div>
         <div *ngIf="model.state === 'loading'" [class]="model.css.body" [innerHtml]="model.processedLoadingHtml"></div>
@@ -46,5 +38,6 @@
       </div>
     </form>
     <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
+    <sv-notifier [notifier]="model.notifier"></sv-notifier>
   </div>
 </ng-template>

@@ -45,6 +45,7 @@ import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { Notifier } from "./notifier";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -74,6 +75,7 @@ export class SurveyModel extends SurveyElementCore
   public get platformName(): string {
     return SurveyModel.platform;
   }
+  public notifier: Notifier;
   /**
    * A suffix added to the name of the property that stores comments.
    *
@@ -1426,6 +1428,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+
+    this.notifier = new Notifier(this.css.saveData);
+    this.notifier.addAction(<IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => { this.doComplete(); }
+    }, "error");
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1562,12 +1571,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() completedCss: string;
   @property() containerCss: string;
-  public get completedStateCss(): string {
-    return this.getPropertyValue("completedStateCss", "");
-  }
-  public getCompletedStateCss(): string {
-    return new CssClassBuilder().append(this.css.saveData[this.completedState], this.completedState !== "").toString();
-  }
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
       .append(btn).toString();
@@ -3343,7 +3346,7 @@ export class SurveyModel extends SurveyElementCore
   get completedStateText(): string {
     return this.getPropertyValue("completedStateText", "");
   }
-  protected setCompletedState(value: string, text: string) {
+  protected setCompletedState(value: string, text: string): void {
     this.setPropertyValue("completedState", value);
     if (!text) {
       if (value == "saving") text = this.getLocalizationString("savingData");
@@ -3351,7 +3354,12 @@ export class SurveyModel extends SurveyElementCore
       if (value == "success") text = this.getLocalizationString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
-    this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
+    if(this.state === "completed" && this.showCompletedPage && !!this.completedState) {
+      this.notify(this.completedStateText, this.completedState);
+    }
+  }
+  public notify(message: string, type: string): void {
+    this.notifier.notify(message, type);
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.

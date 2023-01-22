@@ -2728,19 +2728,16 @@ QUnit.test(
       newValue,
       "shared correctly to the second question"
     );
-    var rowsChangedCounter = 0;
-    q2.visibleRowsChangedCallback = function () {
-      rowsChangedCounter++;
-    };
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     q1.addRow();
     q1.visibleRows[3].cells[0].value = 4;
     newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }, { col1: 4 }];
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
     assert.deepEqual(
       q2.visibleRows.length,
       4,
       "There are  4 rows in the second question"
     );
+    assert.equal(4, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q1.value,
       newValue,
@@ -2801,8 +2798,9 @@ QUnit.test(
     q2.visibleRowsChangedCallback = function () {
       rowsChangedCounter++;
     };
+    assert.equal(2, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     survey.setValue("copyValue", true);
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q2.value,
       newValue,
@@ -3928,6 +3926,32 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
     true,
     "The third row can be removed (in actions cell)"
   );
+});
+
+QUnit.test("survey.onMatrixAllowRemoveRow, show remove for new rows only, Bug#5533", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 0,
+        columns: [{ name: "col1", cellType: "text" }],
+      },
+    ],
+  });
+  survey.onMatrixAllowRemoveRow.add(function (sender, options) {
+    options.allow = options.row.isEmpty;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.value = [{ col1: 1 }, { col1: 2 }];
+  assert.equal(matrix.canRemoveRows, true, "The row can be removed");
+  const table = matrix.renderedTable;
+  matrix.addRow();
+  assert.equal(3, matrix.visibleRows.length, "3 rows");
+  assert.equal(table.hasRemoveRows, true, "table.hasRemoveRows");
+  assert.equal(table.rows[0].cells[1].isActionsCell, false, "First cell");
+  assert.equal(table.rows[1].cells[1].isActionsCell, false, "Second cell");
+  assert.equal(table.rows[2].cells[1].isActionsCell, true, "Third cell");
 });
 
 QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
@@ -7945,5 +7969,35 @@ QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", func
   matrix.columnLayout = "horizontal";
   assert.equal(matrix.renderedTable.allowRowsDragAndDrop, true, "horizontal column layout");
   matrix.onPointerDown(<any>undefined, <any>undefined);
+});
+
+QUnit.test("Update expressions on setting matrixdropdown rows, Bug#5526", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        columns: [
+          { cellType: "text", name: "col1", totalType: "sum" },
+          { cellType: "text", name: "col2" },
+          { cellType: "expression", name: "col3", expression: "{row.col1} + {row.col2}", totalType: "sum" },
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  assert.equal(2, rows.length, "2 rows");
+  rows[0].cells[0].value = 1;
+  rows[0].cells[1].value = 2;
+  rows[1].cells[0].value = 3;
+  rows[1].cells[1].value = 4;
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, },
+    row2: { col1: 3, col2: 4, col3: 7 } },
+  "matrix-total": { col1: 4, col3: 10 } }, "#1");
+  matrix.rows = ["row1"];
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, } },
+    "matrix-total": { col1: 1, col3: 3 } }, "#2");
 });
 

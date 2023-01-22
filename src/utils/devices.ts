@@ -37,8 +37,7 @@ if (typeof window !== "undefined") {
   _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
 }
 
-// export let IsTouch = IsMobile && _isTouch;
-export let IsTouch = true;
+export let IsTouch = IsMobile && _isTouch;
 
 //for tests
 export function _setIsTouch(val: boolean): void {

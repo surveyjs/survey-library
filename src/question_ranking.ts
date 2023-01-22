@@ -42,6 +42,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDisabled, this.isReadOnly)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
+      .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .toString();
   }
 
@@ -189,15 +190,20 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     const target:HTMLElement = <HTMLElement>event.target;
 
-    if (
-      settings.rankingDragHandleArea === "icon" &&
-      !target.classList.contains("sv-ranking-item__icon--hover")
-    ) return;
+    if (!this.isDragStartNodeValid(target)) return;
 
     if (this.allowStartDrag) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
+
+  private isDragStartNodeValid(target: HTMLElement): boolean {
+    if (settings.rankingDragHandleArea === "icon") {
+      return target.classList.contains(this.cssClasses.itemIconHoverMod);
+    }
+
+    return true;
+  }
 
   private get allowStartDrag() {
     return !this.isReadOnly && !this.isDesignMode;

@@ -140,6 +140,7 @@ export var defaultStandardCss = {
     rootMobileMod: "sv-ranking--mobile",
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",

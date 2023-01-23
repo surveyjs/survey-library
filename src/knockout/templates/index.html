@@ -15,7 +15,7 @@
               <!-- ko template: { name: 'survey-timerpanel' } -->
               <!-- /ko -->
               <!-- /ko -->
-              <div data-bind="css: bodyContainerCss">
+              <div data-bind="css: $data.bodyContainerCss">
                   <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->

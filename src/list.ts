@@ -130,7 +130,7 @@ export class ListModel extends ActionContainer {
   };
 
   public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
+    return !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
   public isItemFocused: (itemValue: Action) => boolean = (itemValue: Action) => {

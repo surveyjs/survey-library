@@ -15,22 +15,24 @@
               <!-- ko template: { name: 'survey-timerpanel' } -->
               <!-- /ko -->
               <!-- /ko -->
-              <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
-              <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-              <!-- /ko -->
-              <!-- /ko -->
-              <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
+              <div data-bind="css: bodyContainerCss">
+                  <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
+                  <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
+                  <!-- /ko -->
+                  <!-- /ko -->
                   <!-- ko if: isNavigationButtonsShowingOnTop -->
                     <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
                   <!-- /ko -->
-                  <!-- ko if: activePage -->
-                    <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
-                    <!-- /ko -->
-                    <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
-                    <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
-                    <!-- /ko -->
-                    <!-- /ko -->
-                  <!-- /ko -->
+                  <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
+                      <!-- ko if: activePage -->
+                        <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
+                        <!-- /ko -->
+                        <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
+                        <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
+                        <!-- /ko -->
+                        <!-- /ko -->
+                      <!-- /ko -->
+                  </div>
                   <!-- ko if: isShowProgressBarOnBottom && !isShowStartingPage -->
                   <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
                   <!-- /ko -->

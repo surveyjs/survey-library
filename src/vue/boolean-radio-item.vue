@@ -5,7 +5,7 @@
         type="radio"
         :name="question.name"
         :value="value"
-        :checked="value === question.booleanValue"
+        :checked="value === question.booleanValueRendered"
         :aria-describedby="question.ariaDescribedBy"
         :disabled="question.isInputReadOnly"
         :class="question.cssClasses.itemRadioControl"
@@ -42,7 +42,7 @@ export class BooleanRadioItem extends Vue {
   @Prop() value: any;
 
   handleChange = (event: any) => {
-    this.question.value = event.target.value;
+    this.question.booleanValue = event.target.value;
   }
 }
 Vue.component("sv-boolean-radio-item", BooleanRadioItem);

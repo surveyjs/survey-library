@@ -17,7 +17,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             name = { this.question.name }
             value = { value }
             aria-describedby = { this.question.ariaDescribedBy }
-            checked={value === this.question.booleanValue}
+            checked={value === this.question.booleanValueRendered}
             disabled = { this.question.isInputReadOnly }
             className = { cssClasses.itemRadioControl }
             onChange={ this.handleOnChange }
@@ -37,7 +37,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
     );
   }
   handleOnChange = (event: any) => {
-    this.question.value = event.nativeEvent.target.value;
+    this.question.booleanValue = event.nativeEvent.target.value == "true";
   }
   protected renderElement(): JSX.Element {
     const cssClasses = this.question.cssClasses;

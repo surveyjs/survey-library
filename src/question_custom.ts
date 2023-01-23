@@ -490,7 +490,7 @@ export abstract class QuestionCustomModelBase extends Question
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
   findQuestionByName(name: string): IQuestion {
-    return !!this.survey ? this.survey.findQuestionByName(name): null;
+    return !!this.data ? this.data.findQuestionByName(name): null;
   }
   //IPanel
   addElement(element: IElement, index: number) { }
@@ -731,7 +731,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       const res = this.contentPanel.getQuestionByName(name);
       if(!!res) return res;
     }
-    return !!this.data ? this.data.findQuestionByName(name): null;
+    return super.findQuestionByName(name);
   }
   protected clearValueIfInvisibleCore(): void {
     super.clearValueIfInvisibleCore();

@@ -940,7 +940,7 @@ export class QuestionSelectBase extends Question {
   }
   private getQuestionWithChoices(): QuestionSelectBase {
     if (!this.choicesFromQuestion || !this.data) return null;
-    var res: any = <Question>this.data.findQuestionByName(this.choicesFromQuestion);
+    var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   protected getChoicesFromQuestion(

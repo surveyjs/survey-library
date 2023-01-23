@@ -1275,3 +1275,15 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
 
   viewModel.dispose();
 });
+
+QUnit.test("PopupViewModel remove correct div even if container is changed", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  const container = viewModel.container;
+  viewModel.container.appendChild(document.createElement("div"));
+  viewModel.container = <HTMLElement>viewModel.container.children[0];
+  viewModel.unmountPopupContainer();
+  assert.notOk(container.isConnected);
+});

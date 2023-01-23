@@ -521,6 +521,7 @@ export var defaultV2Css = {
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sd-ranking--disabled",
     rootDesignMode: "sv-ranking--design-mode",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",

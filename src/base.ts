@@ -479,7 +479,9 @@ export class Base {
     return undefined;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    Base.collectDependency(this, name);
+    if(!this.isLoadingFromJson) {
+      Base.collectDependency(this, name);
+    }
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];

@@ -73,21 +73,7 @@ Open the `angular.json` file and reference a style sheet that implements the req
 }
 ```
 
-To apply the referenced theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
-
-```js
-import { Component } from '@angular/core';
-import { StylesManager } from "survey-core";
-
-StylesManager.applyTheme("defaultV2");
-
-@Component({
-  // ...
-})
-export class AppComponent {
-  // ...
-}
-```
+For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
 ## Create a Model
 
@@ -132,9 +118,7 @@ export class AppComponent implements OnInit {
 
 ```js
 import { Component, OnInit } from '@angular/core';
-import { Model, StylesManager } from "survey-core";
-
-StylesManager.applyTheme("defaultV2");
+import { Model } from "survey-core";
 
 const surveyJson = {
   elements: [{
@@ -207,9 +191,7 @@ If you replicate the code correctly, you should see the following survey:
 ```js
 // app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Model, StylesManager } from "survey-core";
-
-StylesManager.applyTheme("defaultV2");
+import { Model } from "survey-core";
 
 const surveyJson = {
   elements: [{
@@ -341,9 +323,7 @@ To view the application, run `ng serve` in a command line and open [http://local
 ```js
 // app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Model, StylesManager } from "survey-core";
-
-StylesManager.applyTheme("defaultV2");
+import { Model } from "survey-core";
 
 const surveyJson = {
   elements: [{

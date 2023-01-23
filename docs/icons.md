@@ -56,6 +56,7 @@ SvgRegistry.registerIconFromSvg("icon-delete", svg);
 
 ## See Also
 
+- [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles)
 - [Conditional Logic and Dynamic Texts](/Documentation/Library?id=design-survey-conditional-logic)
 - [Data Validation](/Documentation/Library?id=data-validation)
 - [Localization & Globalization](/Documentation/Library?id=localization)

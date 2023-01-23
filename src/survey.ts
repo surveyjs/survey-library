@@ -5175,6 +5175,9 @@ export class SurveyModel extends SurveyElementCore
     if (!res) return null;
     return res[0];
   }
+  findQuestionByName(name: string): IQuestion {
+    return this.getQuestionByName(name);
+  }
   /**
    * Returns a question by its value name
    * @param valueName a question name

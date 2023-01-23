@@ -26,6 +26,7 @@ export interface ISurveyData {
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;
+  findQuestionByName(name: string): IQuestion;
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;

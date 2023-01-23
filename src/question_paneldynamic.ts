@@ -157,6 +157,15 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public setComment(name: string, newValue: string, locNotification: any) {
     this.setValue(name + settings.commentSuffix, newValue);
   }
+  findQuestionByName(name: string): IQuestion {
+    if(!name) return undefined;
+    const prefix = QuestionPanelDynamicItem.ItemVariableName + ".";
+    if(name.indexOf(prefix) === 0) {
+      return this.panel.getQuestionByName(name.substring(prefix.length));
+    }
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name): null;
+  }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }

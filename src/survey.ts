@@ -2858,13 +2858,21 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
   }
   /**
-   * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
+   * Gets or sets an object with survey results. You can set this property with an object of the following structure:
    *
-   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
+   * ```js
+   * {
+   *   question1Name: question1Value,
+   *   question2Name: question2Value,
+   *   // ...
+   * }
+   * ```
+   *
+   * When you set this property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
+   *
+   * If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see setValue
    * @see getValue
-   * @see mergeData
-   * @see currentPageNo
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
@@ -2884,9 +2892,11 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(data);
   }
   /**
-   * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
-   * @param data data to merge. It should be an object {keyValue: Value, ...}
-   * @see data
+   * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
+   *
+   * Refer to the following help topic for more information: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
+   *
+   * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
    */
   public mergeData(data: any) {

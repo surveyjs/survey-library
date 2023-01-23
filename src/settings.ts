@@ -231,8 +231,12 @@ export var settings = {
    */
   customIcons: {},
   /**
-   * "entireItem" (default) | "icon"
-   * For example: Survey.settings.rankingDragHandleArea = "icon"
+   * Specifies which part of a choice item item responds to a drag gesture in Ranking questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
    */
   rankingDragHandleArea: "entireItem",
   titleTags: {

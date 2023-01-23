@@ -278,7 +278,7 @@ frameworks.forEach(async framework => {
       })();
     });
   });
-  test.only("Check overlay popup in tagbox question", async (t) => {
+  test("Check overlay popup in tagbox question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 900);
       await ClientFunction(() => {

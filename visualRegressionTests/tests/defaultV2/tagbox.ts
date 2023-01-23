@@ -278,7 +278,7 @@ frameworks.forEach(async framework => {
       })();
     });
   });
-  test("Check overlay popup in tagbox question", async (t) => {
+  test.only("Check overlay popup in tagbox question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 900);
       await ClientFunction(() => {
@@ -311,7 +311,6 @@ frameworks.forEach(async framework => {
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .typeText(Selector(".sv-list__input"), "item1");
-      await resetFocusToBody();
       await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
     });
   });

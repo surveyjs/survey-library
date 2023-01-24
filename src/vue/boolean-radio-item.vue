@@ -42,7 +42,7 @@ export class BooleanRadioItem extends Vue {
   @Prop() value: any;
 
   handleChange = (event: any) => {
-    this.question.booleanValue = event.target.value;
+    this.question.booleanValue = event.target.value == "true";
   }
 }
 Vue.component("sv-boolean-radio-item", BooleanRadioItem);

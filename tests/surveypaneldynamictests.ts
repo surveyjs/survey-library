@@ -4915,3 +4915,27 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   survey.mode = "display";
   assert.equal(panel1.noEntriesText.indexOf("There are no entries."), 0, "panel1: text for readonly");
 });
+QUnit.test("Carry forward in panel dynamic", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        templateElements: [
+          { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+          { type: "dropdown", name: "q2", choicesFromQuestion: "panel.q1", choicesFromQuestionMode: "selected" }
+        ],
+        panelCount: 1
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel").panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  const q2 = panel.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "panel.q1", "choicesFromQuestion is loaded");
+  assert.equal(q2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
+  q1.value = [1, 3, 5];
+  assert.equal(q2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
+});

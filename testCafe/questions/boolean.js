@@ -53,7 +53,6 @@ var jsonRadio = {
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
-      await explicitErrorHandler();
       await initSurvey(framework, json);
     }
   );
@@ -214,6 +213,7 @@ frameworks.forEach((framework) => {
       } });
     });
   test("Check actions", async (t) => {
+    await explicitErrorHandler();
     await t
       .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()

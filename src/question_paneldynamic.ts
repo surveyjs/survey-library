@@ -138,8 +138,8 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public setValue(name: string, newValue: any) {
     const oldItemData = this.data.getPanelItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    if (typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
-    this.data.setPanelItemData(this, name, newValue);
+    if (Helpers.isTwoValueEquals(newValue, oldValue)) return;
+    this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
     const questions = this.panel.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].getValueName() === name) continue;
@@ -1415,14 +1415,14 @@ export class QuestionPanelDynamicModel extends Question
   protected clearValueIfInvisibleCore(): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
-      this.isSetPanelItemData = [];
+      this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
         q.clearValueIfInvisible();
-        this.isSetPanelItemData.push(q.getValueName());
+        this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
     }
-    this.isSetPanelItemData = undefined;
+    this.isSetPanelItemData = {};
     super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {
@@ -1615,6 +1615,7 @@ export class QuestionPanelDynamicModel extends Question
     this.updateIsAnswered();
   }
   public onSurveyValueChanged(newValue: any) {
+    if(newValue === undefined && this.isAllPanelsEmpty()) return;
     super.onSurveyValueChanged(newValue);
     for (var i = 0; i < this.panels.length; i++) {
       this.panelSurveyValueChanged(this.panels[i]);
@@ -1623,6 +1624,13 @@ export class QuestionPanelDynamicModel extends Question
       this.setValueBasedOnPanelCount();
     }
     this.recalculateIsReadyValue();
+  }
+  private isAllPanelsEmpty(): boolean {
+    for (var i = 0; i < this.panels.length; i++) {
+      if(!Helpers.isValueEmpty(this.panels[i].getValue()))
+        return false;
+    }
+    return true;
   }
   private panelUpdateValueFromSurvey(panel: PanelModel) {
     var questions = panel.questions;
@@ -1691,12 +1699,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
     return qValue[index];
   }
-  private isSetPanelItemData: Array<string>;
+  private isSetPanelItemData: HashTable<number> = {};
+  private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any) {
-    if (this.isSetPanelItemData && this.isSetPanelItemData.indexOf(name) > -1)
+    if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
-    if (!this.isSetPanelItemData) this.isSetPanelItemData = [];
-    this.isSetPanelItemData.push(name);
+    if(!this.isSetPanelItemData[name]) {
+      this.isSetPanelItemData[name] = 0;
+    }
+    this.isSetPanelItemData[name] ++;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
@@ -1733,9 +1744,9 @@ export class QuestionPanelDynamicModel extends Question
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
-    var index = this.isSetPanelItemData.indexOf(name);
-    if (index > -1) {
-      this.isSetPanelItemData.splice(index, 1);
+    this.isSetPanelItemData[name] --;
+    if(this.isSetPanelItemData[name] - 1) {
+      delete this.isSetPanelItemData[name];
     }
   }
   getRootData(): ISurveyData {

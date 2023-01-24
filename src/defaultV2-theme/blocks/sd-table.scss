@@ -272,6 +272,7 @@
     padding-top: 0;
     padding-bottom: 0;
     text-align: left;
+    vertical-align: top;
   }
   .sd-table__cell:not(.sd-matrix__cell):not(:first-of-type) {
     margin-top: calcSize(1);

@@ -47,6 +47,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       if (!this.filterItems()) {
         this.onRowsChanged();
       }
+      this.clearIncorrectValues();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();

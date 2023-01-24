@@ -86,6 +86,7 @@ export { PanelDynamicRemoveButton } from "../vue/components/paneldynamic-actions
 export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";
+export { NotifierComponent } from "../vue/components/notifier.vue";
 
 import { SurveyModel } from "survey-core";
 

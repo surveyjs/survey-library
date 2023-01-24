@@ -115,6 +115,10 @@
           "Title": "Popup Survey"
         },
         {
+          "Name": "question",
+          "Title": "Question"
+        },
+        {
           "Name": "questiontextmodel",
           "Title": "Text"
         },

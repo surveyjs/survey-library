@@ -8,6 +8,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
 import { QuestionSelectBase } from "./question_baseselect";
+import { settings } from "../src/settings";
 
 /**
  * A class that describes the Ranking question type.
@@ -41,6 +42,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDisabled, this.isReadOnly)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
+      .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .toString();
   }
 
@@ -185,10 +187,23 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
+
+    const target:HTMLElement = <HTMLElement>event.target;
+
+    if (!this.isDragStartNodeValid(target)) return;
+
     if (this.allowStartDrag) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
+
+  private isDragStartNodeValid(target: HTMLElement): boolean {
+    if (settings.rankingDragHandleArea === "icon") {
+      return target.classList.contains(this.cssClasses.itemIconHoverMod);
+    }
+
+    return true;
+  }
 
   private get allowStartDrag() {
     return !this.isReadOnly && !this.isDesignMode;

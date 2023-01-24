@@ -20,6 +20,7 @@ export class PopupBaseViewModel extends Base {
   @property() locale: string;
 
   public container: HTMLElement;
+  private createdContainer: HTMLElement;
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -174,7 +175,6 @@ export class PopupBaseViewModel extends Base {
   private focusFirstInput() {
     setTimeout(() => {
       if (!this.container) return;
-
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
       else (<HTMLElement>this.container.children[0]).focus();
@@ -195,13 +195,13 @@ export class PopupBaseViewModel extends Base {
     this.model.onRecalculatePosition.clear();
   }
   public initializePopupContainer(): void {
-    if (!this.container) {
+    if (!this.createdContainer) {
       const container: HTMLElement = document.createElement("div");
-      this.container = container;
+      this.container = this.createdContainer = container;
     }
     document.body.appendChild(this.container);
   }
   public unmountPopupContainer(): void {
-    this.container.remove();
+    this.createdContainer.remove();
   }
 }

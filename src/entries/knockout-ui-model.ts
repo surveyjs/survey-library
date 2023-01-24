@@ -72,6 +72,7 @@ export { TooltipErrorViewModel } from "../knockout/components/tooltip-error/tool
 export { SurveyNavigationButton } from "../knockout/components/survey-actions/survey-nav-button";
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 export * from "../knockout/components/brand-info/brand-info";
+export * from "../knockout/components/notifier/notifier";
 
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";

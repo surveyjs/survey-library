@@ -67,27 +67,27 @@ QUnit.test("DropdownListModel with MultiListModel and defaultValue", (assert) =>
 
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
   assert.equal(list.actions.length, 4);
-  assert.equal(list.selectedItems.length, 1);
-  assert.equal(list.actions[0].active, true);
-  assert.equal(list.actions[3].active, false);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
+  assert.equal(list.isItemSelected(list.actions[0]), true);
+  assert.equal(list.isItemSelected(list.actions[3]), false);
   assert.deepEqual(question.value, ["item1"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 0);
-  assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, false);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0);
+  assert.equal(list.isItemSelected(list.actions[0]), false);
+  assert.equal(list.isItemSelected(list.actions[3]), false);
   assert.deepEqual(question.value, []);
 
   list.onItemClick(list.actions[3]);
-  assert.equal(list.selectedItems.length, 1);
-  assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, true);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
+  assert.equal(list.isItemSelected(list.actions[0]), false);
+  assert.equal(list.isItemSelected(list.actions[3]), true);
   assert.deepEqual(question.value, ["item4"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 2);
-  assert.equal(list.actions[0].active, true);
-  assert.equal(list.actions[3].active, true);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 2);
+  assert.equal(list.isItemSelected(list.actions[0]), true);
+  assert.equal(list.isItemSelected(list.actions[3]), true);
   assert.deepEqual(question.value, ["item4", "item1"]);
 });
 
@@ -126,22 +126,22 @@ QUnit.test("Select SelectAll", (assert) => {
   list.onItemClick(selectAllItem); // select all items
   assert.equal(question.selectedItems.length, 5, "question.selectedItems.length");
   assert.deepEqual(question.value, ["item1", "item2", "item3", "item4", "item5"], "question.value isSelectAll");
-  assert.equal(list.selectedItems.length, 6, "list.selectedItems.length");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 6, "list.selectedItems.length");
 
   list.onItemClick(item1); // 4 elements out of 5 are selected
   assert.equal(question.selectedItems.length, 4, "question.selectedItems.length");
   assert.deepEqual(question.value, ["item2", "item3", "item4", "item5"], "question.value");
-  assert.equal(list.selectedItems.length, 4, "list.selectedItems.length");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 4, "list.selectedItems.length");
 
   list.onItemClick(selectAllItem); // select all items
   assert.equal(question.selectedItems.length, 5, "question.selectedItems.length");
   assert.deepEqual(question.value, ["item1", "item2", "item3", "item4", "item5"], "question.value  isSelectAll");
-  assert.equal(list.selectedItems.length, 6, "list.selectedItems.length");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 6, "list.selectedItems.length");
 
   list.onItemClick(selectAllItem); // reset all items
   assert.equal(question.selectedItems.length, 0, "question.selectedItems.length");
   assert.deepEqual(question.value, [], "question.value");
-  assert.equal(list.selectedItems.length, 0, "list.selectedItems.length");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0, "list.selectedItems.length");
 });
 
 QUnit.test("Select None item", (assert) => {
@@ -162,17 +162,17 @@ QUnit.test("Select None item", (assert) => {
   list.onItemClick(item1); // 1 element out of 5 is selected
   assert.equal(question.selectedItems.length, 1, "item1 selected");
   assert.deepEqual(question.value, ["item1"], "item1 selected");
-  assert.equal(list.selectedItems.length, 1, "item1 selected");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "item1 selected");
 
   list.onItemClick(noneItem); // reset all items
   assert.equal(question.selectedItems.length, 1, "none selected");
   assert.deepEqual(question.value, ["none"], "none selected");
-  assert.equal(list.selectedItems.length, 1, "none selected");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "none selected");
 
   list.onItemClick(item1); // 1 element out of 5 is selected
   assert.equal(question.selectedItems.length, 1, "item1 selected");
   assert.deepEqual(question.value, ["item1"], "item1 selected");
-  assert.equal(list.selectedItems.length, 1, "item1 selected");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "item1 selected");
 });
 
 QUnit.test("Tagbox hideSelectedItems property default false", (assert) => {
@@ -194,25 +194,25 @@ QUnit.test("Tagbox hideSelectedItems property default false", (assert) => {
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
   assert.equal(list.actions.length, 4);
-  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, ["item1"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 0);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, []);
 
   list.onItemClick(list.actions[3]);
-  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, ["item4"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 2);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 2);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, ["item4", "item1"]);
@@ -239,33 +239,33 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
   question.hideSelectedItems = true;
 
   assert.equal(list.actions.length, 4);
-  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
   assert.equal(list.actions[0].visible, false);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, ["item1"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 0);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, true);
   assert.deepEqual(question.value, []);
 
   list.onItemClick(list.actions[3]);
-  assert.equal(list.selectedItems.length, 1);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
   assert.equal(list.actions[0].visible, true);
   assert.equal(list.actions[3].visible, false);
   assert.deepEqual(question.value, ["item4"]);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.selectedItems.length, 2);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 2);
   assert.equal(list.actions[0].visible, false);
   assert.equal(list.actions[3].visible, false);
   assert.deepEqual(question.value, ["item4", "item1"]);
 });
 
 function getNumberArray(skip = 1, count = 25): Array<number> {
-  const result:Array<number> = [];
-  for(let index = skip; index < (skip + count); index++) {
+  const result: Array<number> = [];
+  for (let index = skip; index < (skip + count); index++) {
     result.push(index);
   }
   return result;
@@ -274,7 +274,7 @@ function getNumberArray(skip = 1, count = 25): Array<number> {
 const callback = (_, opt) => {
   const total = 70;
   setTimeout(() => {
-    if(opt.skip + opt.take < total) {
+    if (opt.skip + opt.take < total) {
       opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
     } else {
       opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
@@ -330,8 +330,8 @@ QUnit.test("lazy loading: several loading", assert => {
 });
 
 function getObjectArray(skip = 1, count = 25): Array<number> {
-  const result:Array<any> = [];
-  for(let index = skip; index < (skip + count); index++) {
+  const result: Array<any> = [];
+  for (let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
   return result;
@@ -351,7 +351,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -402,7 +402,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);

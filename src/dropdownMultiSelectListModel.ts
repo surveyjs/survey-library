@@ -11,9 +11,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
+  private updateListState() {
+    (<MultiSelectListModel>this.listModel).updateState();
+    this.syncFilterStringPlaceholder();
+  }
+
   private syncFilterStringPlaceholder(actions?: Array<Action>) {
     const selectedActions = actions || this.getSelectedActions();
-    if(selectedActions.length || this.question.selectedItems.length) {
+    if (selectedActions.length || this.question.selectedItems.length) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -22,63 +27,58 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private getSelectedActions(visibleItems?: Array<Action>) {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
-  private syncSelectedItemsFromQuestion() {
-    const selectedActions = this.getSelectedActions();
-    (<MultiSelectListModel>this.listModel).setSelectedItems(selectedActions);
-    this.syncFilterStringPlaceholder(selectedActions);
-  }
 
   protected override createListModel(): MultiSelectListModel {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
-    if(!_onSelectionChanged) {
+    if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction, status: string) => {
         this.resetFilterString();
-        if(item.id === "selectall") {
+        if (item.id === "selectall") {
           this.selectAllItems();
-        } else if(status === "added" && item.id === settings.noneItemValue) {
+        } else if (status === "added" && item.id === settings.noneItemValue) {
           this.selectNoneItem();
-        } else if(status === "added") {
+        } else if (status === "added") {
           this.selectItem(item.id);
-        } else if(status === "removed") {
+        } else if (status === "removed") {
           this.deselectItem(item.id);
         }
         this.popupRecalculatePosition(false);
-        if(this.closeOnSelect) {
+        if (this.closeOnSelect) {
           this.popupModel.isVisible = false;
         }
       };
     }
-    return new MultiSelectListModel(visibleItems, _onSelectionChanged, true, this.getSelectedActions(visibleItems));
+    return new MultiSelectListModel(visibleItems, _onSelectionChanged, false);
   }
 
   public selectAllItems(): void {
     this.question.toggleSelectAll();
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public selectNoneItem(): void {
     this.question.renderedValue = [settings.noneItemValue];
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public selectItem(id: string): void {
     let newValue = [].concat(this.question.renderedValue || []);
     newValue.push(id);
     this.question.renderedValue = newValue;
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public deselectItem(id: string): void {
     let newValue = [].concat(this.question.renderedValue || []);
     newValue.splice(newValue.indexOf(id), 1);
     this.question.renderedValue = newValue;
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public onClear(event: any): void {
     super.onClear(event);
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public setHideSelectedItems(newValue: boolean) {
     (<MultiSelectListModel>this.listModel).hideSelectedItems = newValue;
-    this.syncSelectedItemsFromQuestion();
+    this.updateListState();
   }
   public removeLastSelectedItem() {
     this.deselectItem(this.question.renderedValue[this.question.renderedValue.length - 1]);
@@ -93,7 +93,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   public inputKeyHandler(event: any): void {
-    if(event.keyCode === 8 && !this.filterString) {
+    if (event.keyCode === 8 && !this.filterString) {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();

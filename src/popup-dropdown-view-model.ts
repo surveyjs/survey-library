@@ -25,8 +25,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
+    if(!background) return;
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+    if(!popupContainer) return;
+    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);

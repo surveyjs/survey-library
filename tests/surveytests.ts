@@ -6062,6 +6062,78 @@ QUnit.test("Use send data to custom server", function (assert) {
   );
 });
 
+QUnit.test("Notify the user about the status of sending data to custom server", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  let notifierLog = "";
+  survey.notify = (msg, type) => {
+    notifierLog += msg;
+    if(type) {
+      notifierLog += " - " + type;
+    }
+  };
+
+  let onCompleteOptions: any = null;
+  survey.onComplete.add(function (sender, options) {
+    onCompleteOptions = options;
+    options.showDataSaving();
+  });
+  survey.data = { question1: "sss" };
+  assert.equal(survey.completedState, "", "The complete state is empty");
+  assert.equal(notifierLog, "");
+  notifierLog = "";
+
+  survey.doComplete();
+  assert.equal(survey.completedState, "saving", "The complete state is saving");
+  assert.equal(notifierLog, "The results are being saved on the server... - saving");
+  notifierLog = "";
+
+  onCompleteOptions?.showDataSavingError();
+  assert.equal(survey.completedState, "error", "The complete state is error");
+  assert.equal(notifierLog, "An error occurred and we could not save the results. - error");
+  notifierLog = "";
+
+  onCompleteOptions?.showDataSavingSuccess();
+  assert.equal(survey.completedState, "success", "The complete state is success");
+  assert.equal(notifierLog, "The results were saved successfully! - success");
+  notifierLog = "";
+});
+
+QUnit.test("Notifier button", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  let notifierLog = "";
+  survey.notify = (msg, type) => {
+    notifierLog += msg;
+    if(type) {
+      notifierLog += " - " + type;
+    }
+  };
+
+  let onCompleteOptions: any = null;
+  survey.onComplete.add(function (sender, options) {
+    onCompleteOptions = options;
+    options.showDataSaving();
+  });
+  survey.data = { question1: "sss" };
+  assert.equal(survey.completedState, "", "The complete state is empty");
+  assert.equal(notifierLog, "");
+  notifierLog = "";
+
+  survey.doComplete();
+  assert.equal(survey.completedState, "saving", "The complete state is saving");
+  assert.equal(notifierLog, "The results are being saved on the server... - saving");
+  notifierLog = "";
+
+  onCompleteOptions?.showDataSavingError();
+  assert.equal(survey.completedState, "error", "The complete state is error");
+  assert.equal(notifierLog, "An error occurred and we could not save the results. - error");
+  notifierLog = "";
+
+  onCompleteOptions?.showDataSavingSuccess();
+  assert.equal(survey.completedState, "success", "The complete state is success");
+  assert.equal(notifierLog, "The results were saved successfully! - success");
+  notifierLog = "";
+});
+
 QUnit.test("Pass custom properties to cell question", function (assert) {
   Serializer.addProperty("matrixdropdowncolumn", {
     name: "renderAs",

@@ -66,12 +66,12 @@
         <!-- /ko -->
       </span>
       <!-- /ko -->
-      <span
-        data-bind="visible: !item.hideCaption, css: question.getControlLabelClass(item)"
-      >
+      <!-- ko if: !item.hideCaption -->
+      <span data-bind="css: question.getControlLabelClass(item)">
         <!-- ko template: { name: 'survey-string', data: item.locText } -->
         <!-- /ko -->
       </span>
+      <!-- /ko -->
     </label>
   </div>
 </script>

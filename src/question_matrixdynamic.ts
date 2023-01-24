@@ -757,11 +757,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
-    if (this.generatedVisibleRows) {
+    if(!this.generatedVisibleRows) return;
+    if(newRowCount == this.generatedVisibleRows.length + 1) {
+      this.onStartRowAddingRemoving();
+      const newValue = this.getRowValueByIndex(val, newRowCount - 1);
+      const newRow = this.createMatrixRow(newValue);
+      this.generatedVisibleRows.push(newRow);
+      this.onMatrixRowCreated(newRow);
+      this.onEndRowAdding();
+    } else {
       this.clearGeneratedRows();
       this.generatedVisibleRows = this.visibleRows;
       this.onRowsChanged();
     }
+    this.setRowCountValueFromData = false;
   }
   protected createNewValue(): any {
     var result = this.createValueCopy();

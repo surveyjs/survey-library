@@ -10,7 +10,7 @@
     <span
       v-if="!element.isTitleRenderedAsString && element.no"
       style="position: static"
-      :class="element.cssClasses.number"
+      :class="element.cssClasses.number || element.cssClasses.panel.number"
       :aria-hidden="true"
       >{{ element.no }}</span
     >

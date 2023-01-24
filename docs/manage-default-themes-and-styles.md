@@ -70,7 +70,7 @@ StylesManager.applyTheme("defaultV2");
 
 SurveyJS includes themes designed for use with Bootstrap and Bootstrap Material. However, they are obsolete and no longer receive updates.
 
-Previously, Bootstrap integration was part of the main package. Since v1.9.69, it is shipped as a separate module/script. The following code shows how to apply the Bootstrap or Bootstrap Material theme by importing a module:
+Previously, Bootstrap integrations were part of the main package. Since v1.9.69, they are shipped as separate modules/scripts. The following code shows how to apply the Bootstrap or Bootstrap Material theme by importing a module:
 
 ```js
 // Apply the Bootstrap theme
@@ -106,7 +106,7 @@ Survey.StylesManager.applyTheme("bootstrap");
 Survey.StylesManager.applyTheme("bootstrapmaterial");
 ```
 
-Bootstrap theme customization in code has also changed. Objects that specify applied CSS classes have been moved to the separate module/script.
+Bootstrap theme customization in code has also changed. Objects that specify applied CSS classes have been moved to the integration modules/scripts mentioned above.
 
 **Previously:**
 

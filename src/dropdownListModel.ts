@@ -6,6 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
@@ -76,7 +77,8 @@ export class DropdownListModel extends Base {
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
-    this._popupModel.cssClass = this.popupCssClasses;
+    const className = new CssClassBuilder().append(this.question.cssClasses.popup).append(this.popupCssClasses).toString();
+    this._popupModel.cssClass = className;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];

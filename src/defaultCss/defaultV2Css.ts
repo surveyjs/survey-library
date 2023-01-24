@@ -289,6 +289,7 @@ export var defaultV2Css = {
   },
   dropdown: {
     root: "sd-selectbase",
+    popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",
@@ -569,6 +570,7 @@ export var defaultV2Css = {
   },
   tagbox: {
     root: "sd-selectbase",
+    popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",

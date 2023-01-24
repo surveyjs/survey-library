@@ -260,7 +260,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 }
 
 //styles for dropdown overlay
-.sv-single-select-list.sv-popup--overlay {
+.sv-dropdown-popup.sv-popup--overlay {
   z-index: 2001;
   padding: 0;
   .sv-popup__body-content {

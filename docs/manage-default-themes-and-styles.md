@@ -1,6 +1,6 @@
 # Themes & Styles
 
-This help topic describes how to add SurveyJS themes to your Angular, Vue, React, Knockout, or jQuery application and switch between them if you want to apply multiple themes.
+This help topic describes how to add SurveyJS themes to your Angular, Vue, React, Knockout, or jQuery application and switch between them if you want to allow users to change the active theme.
 
 ## Add SurveyJS Themes to Your Application
 
@@ -30,7 +30,7 @@ If you want to apply custom CSS classes to all survey elements of a specific typ
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-customcss/ (linkStyle))
 
-In addition, the `SurveyModel` object raises events that allow you to override CSS classes for individual questions, panels, pages, and choice items. Refer to event descriptions in the API reference for more information:
+In addition, the `SurveyModel` object raises events that allow you to override CSS classes for individual questions, panels, pages, and choice items. Refer to the following event descriptions in the API reference for more information:
 
 - [`onUpdateQuestionCssClasses`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdateQuestionCssClasses)
 - [`onUpdatePanelCssClasses`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdatePanelCssClasses)
@@ -41,7 +41,7 @@ In addition, the `SurveyModel` object raises events that allow you to override C
 
 ## Switch Between Themes
 
-If you add more than one SurveyJS theme to your application, call the `applyTheme(themeName)` method to specify which of the themes should be applied. Pass one of the following theme names as the method's argument:
+If you add more than one SurveyJS theme to your application, call the `applyTheme(themeName)` method to specify the active theme. Pass one of the following theme names as the method's argument:
 
 - `"defaultV2"`
 - `"modern"`
@@ -68,7 +68,7 @@ StylesManager.applyTheme("defaultV2");
 
 ## Bootstrap Support (Obsolete)
 
-SurveyJS includes themes designed for use with Bootstrap and Bootstrap Material. However, they are considered obsolete and no longer receive updates.
+SurveyJS includes themes designed for use with Bootstrap and Bootstrap Material. However, they are obsolete and no longer receive updates.
 
 Previously, Bootstrap integration was part of the main package. Since v1.9.69, it is shipped as a separate module/script. The following code shows how to apply the Bootstrap or Bootstrap Material theme by importing a module:
 

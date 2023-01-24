@@ -8001,3 +8001,30 @@ QUnit.test("Update expressions on setting matrixdropdown rows, Bug#5526", functi
     "matrix-total": { col1: 1, col3: 3 } }, "#2");
 });
 
+QUnit.test("Carry forward in matrix cells", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        columns: [
+          { cellType: "checkbox", name: "col1", choices: [1, 2, 3, 4, 5] },
+          { cellType: "dropdown", name: "col2", choicesFromQuestion: "row.col1", choicesFromQuestionMode: "selected" }
+        ],
+        rowCount: 1
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const cellQ1 = rows[0].cells[0].question;
+  const cellQ2 = <QuestionDropdownModel>rows[0].cells[1].question;
+  assert.equal("col1", cellQ1.name, "col1 question is correct");
+  assert.equal("col2", cellQ2.name, "col2 question is correct");
+  assert.equal(cellQ2.choicesFromQuestion, "row.col1", "choicesFromQuestion is loaded");
+  assert.equal(cellQ2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(cellQ2.visibleChoices.length, 0, "There is no visible choices");
+  cellQ1.value = [1, 3, 5];
+  assert.equal(cellQ2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(cellQ2.visibleChoices[1].value, 3, "A choice value is correct");
+});

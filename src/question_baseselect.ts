@@ -33,6 +33,7 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
+  private isUsingCarrayForward: boolean;
   @property() protected selectedItemValues: any;
 
   constructor(name: string) {
@@ -236,6 +237,7 @@ export class QuestionSelectBase extends Question {
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
+    if(this.isUsingCarrayForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -463,6 +465,7 @@ export class QuestionSelectBase extends Question {
       return;
     super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
+    this.updateChoicesDependedQuestions();
     if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevOtherValue) {
@@ -927,16 +930,17 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    var question = this.getQuestionWithChoices();
-    if (!!question) {
+    const question = this.getQuestionWithChoices();
+    this.isUsingCarrayForward = !!question;
+    if (this.isUsingCarrayForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   private getQuestionWithChoices(): QuestionSelectBase {
-    if (!this.choicesFromQuestion || !this.survey) return null;
-    var res: any = this.survey.getQuestionByName(this.choicesFromQuestion);
+    if (!this.choicesFromQuestion || !this.data) return null;
+    var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   protected getChoicesFromQuestion(
@@ -1235,17 +1239,15 @@ export class QuestionSelectBase extends Question {
   }
   private isUpdatingChoicesDependedQuestions = false;
   protected updateChoicesDependedQuestions() {
-    if (this.isUpdatingChoicesDependedQuestions) return;
+    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].onVisibleChoicesChanged();
-      this.dependedQuestions[i].updateChoicesDependedQuestions();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
-    if (this.isLoadingFromJson) return;
     this.updateChoicesDependedQuestions();
   }
   protected onVisibleChoicesChanged() {

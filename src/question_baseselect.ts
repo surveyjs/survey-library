@@ -1586,7 +1586,7 @@ export class QuestionSelectBase extends Question {
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
     if(this.dropdownListModel) {
-      this.dropdownListModel.updateListCssClasses(classes.list);
+      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
   }

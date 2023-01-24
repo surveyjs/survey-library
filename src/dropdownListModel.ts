@@ -77,8 +77,7 @@ export class DropdownListModel extends Base {
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
-    const className = new CssClassBuilder().append(this.question.cssClasses.popup).append(this.popupCssClasses).toString();
-    this._popupModel.cssClass = className;
+    this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
@@ -153,7 +152,8 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateListCssClasses(listCssClasses: any) {
+  public updateCssClasses(popupCssClass: string, listCssClasses: any) {
+    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {

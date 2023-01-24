@@ -292,7 +292,7 @@ frameworks.forEach((framework) => {
       .click(Selector(".sv-string-viewer").withText("No"))
       .expect(Selector("input[type=radio]").nth(0).checked).ok()
       .expect(Selector("input[type=radio]").nth(1).checked).notOk()
-      .expect(checkQuestionValue("No")).ok()
+      .expect(checkQuestionValue("No")).ok();
   });
 
 });

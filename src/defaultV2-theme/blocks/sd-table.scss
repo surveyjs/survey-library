@@ -273,9 +273,6 @@
     padding-bottom: 0;
   }
 
-  .sd-table__cell:not(.sd-matrix__cell) {
-    text-align: left;
-  }
   .sd-table__cell:not(.sd-matrix__cell):not(:first-of-type) {
     margin-top: calcSize(1);
   }

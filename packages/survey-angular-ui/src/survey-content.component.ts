@@ -15,7 +15,10 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     return this.model;
   }
   protected override onModelChanged(): void {
-    this.previousModel?.destroyResizeObserver();
+    if(!!this.previousModel) {
+      this.previousModel.destroyResizeObserver();
+      this.previousModel.renderCallback = <any>undefined;
+    }
     if(!!this.model) {
       this.model.renderCallback = () => {
         this.detectChanges();

@@ -157,6 +157,7 @@ export var defaultStandardCss = {
   comment: "",
   dropdown: {
     root: "",
+    popup: "sv-dropdown-popup",
     control: "sv_q_dropdown_control",
     controlInputFieldComponent: "sv_q_dropdown_control__input-field-component",
     selectWrapper: "sv_select_wrapper",
@@ -340,6 +341,7 @@ export var defaultStandardCss = {
   },
   tagbox: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv_q_row__question--small",
     selectWrapper: "sv_select_wrapper sv_q_tagbox_wrapper",
     other: "sv_q_input sv_q_comment sv_q_selectbase__other",

@@ -23,7 +23,7 @@ const config = {
   plugins: [
     new DtsGeneratorPlugin({
       tsConfigPath: "./build-scripts/survey-jquery/tsconfig.typing.jquery.json",
-      filePath: "build/survey-jquery/survey-jquery.d.ts",
+      filePath: "build/survey-jquery/survey.jquery.d.ts",
       moduleName: "survey-jquery",
       importName: "entries/jquery"
     }),

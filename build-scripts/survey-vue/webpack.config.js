@@ -13,18 +13,18 @@ const config = {
     defaultV2: path.resolve(__dirname, "../../src/defaultV2-theme/defaultV2.scss")
   },
   externals: {
-      vue: {
-        root: "Vue",
-        commonjs2: "vue",
-        commonjs: "vue",
-        amd: "vue"
-      }
+    vue: {
+      root: "Vue",
+      commonjs2: "vue",
+      commonjs: "vue",
+      amd: "vue"
+    }
   },
   plugins: [
     new DtsGeneratorPlugin({
       tsCommand: "vue-tsc --project",
       tsConfigPath: "./build-scripts/survey-vue/tsconfig.typing.vue.json",
-      filePath: "build/survey-vue/survey-vue.d.ts",
+      filePath: "build/survey-vue/survey.vue.d.ts",
       moduleName: "survey-vue",
       importName: "entries/vue"
     }),

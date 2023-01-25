@@ -4,7 +4,7 @@
   right: 10px;
   background-color: cadetblue;
   padding: 1px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-family, $font-family);
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -30,6 +30,7 @@
   line-break: auto;
   z-index: 100;
 }
+
 .sv_window_title {
   padding: 8px 14px;
   margin: 0;
@@ -38,12 +39,14 @@
   border-bottom: 1px solid #ebebeb;
   border-radius: 5px 5px 0 0;
 }
+
 .sv_window_content {
   padding: 0;
   margin: 0;
   max-height: 80vh;
   overflow-y: auto;
 }
+
 .sv_window_title a,
 .sv_window_title a:link,
 .sv_window_title a:visited {

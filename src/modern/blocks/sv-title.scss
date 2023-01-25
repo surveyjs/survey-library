@@ -1,5 +1,5 @@
 .sv-title {
-  font-family: "Raleway";
+  font-family: var(--font-family, $font-family);
   font-weight: 700;
   font-style: normal;
   font-stretch: normal;

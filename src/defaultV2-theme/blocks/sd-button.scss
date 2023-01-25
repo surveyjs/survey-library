@@ -12,7 +12,7 @@
   border-radius: calcSize(0.5);
   cursor: pointer;
 
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
   font-size: calcSize(2);
@@ -22,9 +22,12 @@
   border: 2px solid transparent;
   outline: none;
 }
+
 .sd-btn:not(:disabled) {
-  &:hover, &:focus {
-    box-shadow: 0 0 0 2px $primary; 
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 2px $primary;
   }
 }
 
@@ -37,8 +40,11 @@
   background-color: $primary;
   color: $primary-foreground;
 }
+
 .sd-btn--action:not(:disabled) {
-  &:hover, &:focus {
+
+  &:hover,
+  &:focus {
     color: $primary;
     background-color: $background;
   }

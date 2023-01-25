@@ -1,5 +1,5 @@
 .sd-description {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
   color: $foreground-light;

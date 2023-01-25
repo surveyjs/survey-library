@@ -37,7 +37,7 @@
 }
 
 .sd-item__control-label {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
   line-height: calcSize(3);

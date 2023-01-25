@@ -1,5 +1,5 @@
 .sd-completedpage {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-weight: bold;
   box-sizing: border-box;
   text-align: center;

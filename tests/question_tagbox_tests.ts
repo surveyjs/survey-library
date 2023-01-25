@@ -1,6 +1,8 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
+import { PopupBaseViewModel } from "../src/popup-view-model";
+import { _setIsTouch } from "../src/utils/devices";
 
 export default QUnit.module("Tagbox question");
 
@@ -449,4 +451,48 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
     done();
   }, 550);
+});
+
+QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
+  _setIsTouch(true);
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "closeOnSelect": false,
+      "choices": ["Item 1", "Item 2", "Item 3"]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const popupModel = dropdownListModel.popupModel;
+  const popupViewModel = new PopupBaseViewModel(popupModel);
+  const doneAction = popupViewModel.footerToolbar.actions[0];
+  const cancelAction = popupViewModel.footerToolbar.actions[1];
+  const listModel = dropdownListModel["listModel"];
+  const actions = listModel.actions;
+
+  popupModel.toggleVisibility();
+  assert.notOk(doneAction.enabled);
+  listModel.onItemClick(actions[0]);
+  assert.ok(doneAction.enabled);
+  doneAction.action();
+  assert.deepEqual(question.value, ["Item 1"]);
+
+  popupModel.toggleVisibility();
+  assert.notOk(doneAction.enabled);
+  listModel.onItemClick(actions[1]);
+  assert.ok(doneAction.enabled);
+  assert.deepEqual(question.value, ["Item 1", "Item 2"]);
+  cancelAction.action();
+  assert.deepEqual(question.value, ["Item 1"]);
+
+  popupModel.toggleVisibility();
+  assert.notOk(doneAction.enabled);
+  listModel.onItemClick(actions[0]);
+  assert.ok(doneAction.enabled);
+  doneAction.action();
+  assert.deepEqual(question.value, []);
+  _setIsTouch(false);
 });

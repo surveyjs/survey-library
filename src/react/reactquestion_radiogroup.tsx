@@ -179,14 +179,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return !!this.question && !!this.item;
   }
   protected renderElement(): JSX.Element {
-    var itemText = !this.hideCaption
-      ? this.renderLocString(this.item.locText, this.textStyle)
-      : "";
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
-    var locText: any = this.item.locText;
     var controlLabelClass = this.question.getControlLabelClass(this.item);
-
+    const itemLabel = !this.hideCaption ? <span className={controlLabelClass}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
     return (
       <div
         className={itemClass}
@@ -218,9 +214,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={controlLabelClass}>
-            {itemText}
-          </span>
+          {itemLabel}
         </label>
       </div>
     );

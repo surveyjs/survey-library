@@ -10,6 +10,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { BrandInfo } from "./components/brand-info";
+import { NotifierComponent } from "./components/notifier";
 
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
@@ -28,7 +29,6 @@ export class Survey extends SurveyElementBase<any, any>
 
   constructor(props: any) {
     super(props);
-    this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.createSurvey(props);
     this.updateSurvey(props, {});
     this.rootRef = React.createRef();
@@ -120,6 +120,7 @@ export class Survey extends SurveyElementBase<any, any>
           </div>
         </form>
         { this.survey.showBrandInfo ? <BrandInfo/> : null }
+        <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
       </div>
     );
   }
@@ -132,35 +133,9 @@ export class Survey extends SurveyElementBase<any, any>
   public set css(value: any) {
     this.survey.css = value;
   }
-  handleTryAgainClick(event: any) {
-    this.survey.doComplete();
-  }
   protected renderCompleted(): JSX.Element | null {
     if (!this.survey.showCompletedPage) return null;
-    var completedState: JSX.Element | null = null;
-    if (this.survey.completedState) {
-      var tryAgainButton: JSX.Element | null = null;
-      if (this.survey.completedState == "error") {
-        var btnText = this.survey.getLocalizationString("saveAgainButton");
-        tryAgainButton = (
-          <input
-            type={"button"}
-            value={btnText}
-            className={this.css.saveData.saveAgainButton}
-            onClick={this.handleTryAgainClick}
-          />
-        );
-      }
-      var css = this.css.saveData[this.survey.completedState];
-      completedState = (
-        <div className={this.css.saveData.root}>
-          <div className={css}>
-            <span>{this.survey.completedStateText}</span>
-            {tryAgainButton}
-          </div>
-        </div>
-      );
-    }
+
     var htmlValue = { __html: this.survey.processedCompletedHtml };
     return (
       <React.Fragment>
@@ -168,7 +143,6 @@ export class Survey extends SurveyElementBase<any, any>
           dangerouslySetInnerHTML={htmlValue}
           className={this.survey.completedCss}
         />
-        {completedState}
       </React.Fragment>
     );
   }

@@ -5,13 +5,13 @@
         :key="false"
         :question="question"
         :locText="question.locLabelFalse"
-        :value="question.getValueFalse()"
+        :value="false"
       ></sv-boolean-radio-item>
       <sv-boolean-radio-item
         :key="true"
         :question="question"
         :locText="question.locLabelTrue"
-        :value="question.getValueTrue()"
+        :value="true"
       ></sv-boolean-radio-item>
     </fieldset>
   </div>

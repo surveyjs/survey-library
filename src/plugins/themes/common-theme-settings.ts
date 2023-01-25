@@ -264,6 +264,8 @@ export function setStyles(): void {
     ".sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon": "visibility: hidden;",
     ".sv-ranking--disabled": "opacity: 0.8;",
     ".sv-ranking-shortcut .sv-ranking-item__icon": "fill: var(--primary, #19b394); ",
+    ".sv-ranking--drag-handle-area-icon .sv-ranking-item": "cursor: initial",
+    ".sv-ranking--drag-handle-area-icon .sv-ranking-item__icon--hover": "cursor: pointer;",
     // EO ranking
 
     // drag drop

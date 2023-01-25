@@ -7,6 +7,7 @@ import {
   ITextProcessor,
   IPanel,
   IElement,
+  IQuestion,
   IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
@@ -488,6 +489,9 @@ export abstract class QuestionCustomModelBase extends Question
   getFilteredProperties(): any {
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
+  findQuestionByName(name: string): IQuestion {
+    return !!this.data ? this.data.findQuestionByName(name): null;
+  }
   //IPanel
   addElement(element: IElement, index: number) { }
   removeElement(element: IElement): boolean {
@@ -721,6 +725,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   getTextProcessor(): ITextProcessor {
     return this.textProcessing;
+  }
+  findQuestionByName(name: string): IQuestion {
+    if(!!this.contentPanel) {
+      const res = this.contentPanel.getQuestionByName(name);
+      if(!!res) return res;
+    }
+    return super.findQuestionByName(name);
   }
   protected clearValueIfInvisibleCore(): void {
     super.clearValueIfInvisibleCore();

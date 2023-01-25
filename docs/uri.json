@@ -4,6 +4,7 @@
   ],
   "rename": {
     "design-survey-question-titles": "design-survey-configure-question-titles",
+    "design-survey-conditional-display": "design-survey-conditional-logic",
     "design-survey-predefine-answers": "design-survey-pre-populate-form-fields",
     "localization": "survey-localization"
   },

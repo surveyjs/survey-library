@@ -132,6 +132,7 @@ export var defaultCss = {
     rootMobileMod: "sv-ranking--mobile",
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -326,10 +327,10 @@ export var defaultCss = {
   },
   saveData: {
     root: "",
-    saving: "alert alert-info",
+    info: "alert alert-info",
     error: "alert alert-danger",
     success: "alert alert-success",
-    saveAgainButton: "",
+    button: "",
   },
   window: {
     root: "modal-content",

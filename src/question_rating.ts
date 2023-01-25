@@ -196,9 +196,6 @@ export class QuestionRatingModel extends Question {
   supportGoNextPageAutomatic() {
     return true;
   }
-  public supportComment(): boolean {
-    return true;
-  }
   public supportOther(): boolean {
     return false;
   }

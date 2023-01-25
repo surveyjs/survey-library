@@ -39,12 +39,14 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
   renderElement() {
     const items = this.renderItems();
+    const ulStyle = { display: this.model.isEmpty ? "none" : null };
     return (
       <div className={this.model.cssClasses.root} ref={this.listContainerRef}>
         {this.searchElementContent()}
         {this.emptyContent()}
         <ul
           className={this.model.cssClasses.itemsContainer}
+          style={ulStyle as any}
           role="listbox"
           onMouseDown={(e) => {
             e.preventDefault();
@@ -106,9 +108,7 @@ export class List extends SurveyElementBase<IListProps, any> {
     }
   }
   emptyContent() {
-    const style = {
-      display: this.model.isEmpty ? null : "none",
-    };
+    const style = { display: this.model.isEmpty ? null : "none" };
 
     return (<div className={this.model.cssClasses.emptyContainer} style={style as any}>
       <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>

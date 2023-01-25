@@ -243,5 +243,56 @@ frameworks.forEach((framework) => {
       .expect(Selector("input[type=radio]").nth(0).checked).notOk()
       .expect(Selector("input[type=radio]").nth(1).checked).ok();
   });
+});
+frameworks.forEach((framework) => {
+  const theme = "defaultV2";
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`
+    .beforeEach(async t => {
+      await applyTheme(theme);
+      await initSurvey(framework, {
+        "elements": [{
+          "type": "boolean",
+          "name": "q",
+          "title": "Are you 21 or older?",
+          "valueTrue": "Yes",
+          "valueFalse": "No",
+          "renderAs": "radio"
+        }],
+        "showQuestionNumbers": false
+      });
+    }
+    );
+
+  test("test radio boolean with values", async (t) => {
+    const checkQuestionValue = ClientFunction(
+      (val) => {
+        return window["survey"].getQuestionByName("q").value == val;
+      }
+    );
+    await t
+      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
+      .expect(Selector(".sd-item").nth(0).hasClass("sd-radio--checked")).notOk()
+      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
+      .expect(Selector(".sd-item").nth(1).hasClass("sd-radio--checked")).notOk()
+      .expect(checkQuestionValue(null)).ok()
+
+      .click(Selector(".sv-string-viewer").withText("No"))
+      .expect(Selector("input[type=radio]").nth(0).checked).ok()
+      .expect(Selector(".sd-item").nth(0).hasClass("sd-radio--checked")).ok()
+      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
+      .expect(Selector(".sd-item").nth(1).hasClass("sd-radio--checked")).notOk()
+      .expect(checkQuestionValue("No")).ok()
+
+      .click(Selector(".sv-string-viewer").withText("Yes"))
+      .expect(Selector("input[type=radio]").nth(0).checked).notOk()
+      .expect(Selector("input[type=radio]").nth(1).checked).ok()
+      .expect(checkQuestionValue("Yes")).ok()
+
+      .click(Selector(".sv-string-viewer").withText("No"))
+      .expect(Selector("input[type=radio]").nth(0).checked).ok()
+      .expect(Selector("input[type=radio]").nth(1).checked).notOk()
+      .expect(checkQuestionValue("No")).ok();
+  });
 
 });

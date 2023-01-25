@@ -164,6 +164,7 @@ export {
 } from "../../trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
+export { Notifier } from "../../notifier";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";

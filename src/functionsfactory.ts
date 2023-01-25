@@ -239,7 +239,7 @@ function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;
   for (var i = 0; i < questions.length; i++) {
-    if (questions[i].hasErrors(false)) return false;
+    if (!questions[i].validate(false)) return false;
   }
   return true;
 }

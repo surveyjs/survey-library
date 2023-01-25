@@ -1,6 +1,6 @@
 <div [class]="model.cssClasses.rootRadio">
   <fieldset role="presentation" [class]="model.cssClasses.radioFieldset">
-    <sv-ng-boolean-radio-item  [value]="model.getValueFalse()" [locText]="model.locLabelFalse" [question]="model" ></sv-ng-boolean-radio-item>
-    <sv-ng-boolean-radio-item  [value]="model.getValueTrue()" [locText]="model.locLabelTrue" [question]="model" ></sv-ng-boolean-radio-item>
+    <sv-ng-boolean-radio-item  [value]="false" [locText]="model.locLabelFalse" [question]="model" ></sv-ng-boolean-radio-item>
+    <sv-ng-boolean-radio-item  [value]="true" [locText]="model.locLabelTrue" [question]="model" ></sv-ng-boolean-radio-item>
   </fieldset>
 </div>

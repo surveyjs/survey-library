@@ -41,7 +41,7 @@ In addition, the `SurveyModel` object raises events that allow you to override C
 
 ## Switch Between Themes
 
-If you add more than one SurveyJS theme to your application, call the `applyTheme(themeName)` method to specify the active theme. Pass one of the following theme names as the method's argument:
+If you add more than one SurveyJS theme to your application, call the `applyTheme(themeName)` method to specify an active theme. Pass one of the following theme names as the method's argument:
 
 - `"defaultV2"`
 - `"modern"`

@@ -2923,3 +2923,15 @@ QUnit.test("QuestionMatrixModel and commentText property, Bug#5562", function (a
   });
   assert.equal(survey.getQuestionByName("q1").commentText, "comment_text", "Loaded correctly");
 });
+QUnit.test("QuestionMatrixModel and commentPlaceholder property, Bug#5569", function (assert) {
+  const q = new QuestionMatrixModel("q1");
+  const prop = Serializer.findProperty(q.getType(), "commentPlaceholder");
+  assert.ok(prop, "Property is here");
+  assert.equal(prop.isVisible("row", q), false, "commentPlaceholder is invisible by default");
+  q.showCommentArea = true;
+  assert.equal(prop.isVisible("row", q), true, "commentPlaceholder is visible now");
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", commentPlaceholder: "comment_text" }]
+  });
+  assert.equal(survey.getQuestionByName("q1").commentPlaceholder, "comment_text", "Loaded correctly");
+});

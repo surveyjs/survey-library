@@ -2210,6 +2210,14 @@ Serializer.addClass("question", [
     serializationProperty: "locCommentText",
     layout: "row",
   },
-
+  {
+    name: "commentPlaceholder",
+    alternativeName: "commentPlaceHolder",
+    serializationProperty: "locCommentPlaceholder",
+    dependsOn: "showCommentArea",
+    visibleIf: function (obj: any) {
+      return obj.hasComment;
+    }
+  }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

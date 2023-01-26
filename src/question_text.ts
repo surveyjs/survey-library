@@ -408,7 +408,6 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   onCompositionUpdate = (event: any) => {
     if(this.isInputTextUpdate) {
-      event.persist();
       setTimeout(() => {
         this.updateValueOnEvent(event);
       }, 1);
@@ -447,6 +446,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
 const minMaxTypes = [
   "number",
+  "range",
   "date",
   "datetime",
   "datetime-local",
@@ -537,7 +537,7 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType;
+          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
         }
       },
       onSettingValue: (obj: any, val: any): any => {
@@ -556,7 +556,7 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType;
+          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
         }
       },
     },
@@ -597,7 +597,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.inputType === "number";
+        return obj.inputType === "number" || obj.inputType === "range";
       },
     },
     {

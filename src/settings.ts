@@ -178,6 +178,12 @@ export var settings = {
   lazyRowsRendering: false,
   lazyRowsRenderingStartRow: 3,
   /**
+   * Notification settings
+   */
+  notifications: {
+    lifetime: 2000
+  },
+  /**
    * By default checkbox and radiogroup items are ordered in rows.
    * Set it "column", and items will be ordered in columns.
    */
@@ -224,6 +230,15 @@ export var settings = {
    * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
    */
   customIcons: {},
+  /**
+   * Specifies which part of a choice item item responds to a drag gesture in Ranking questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   */
+  rankingDragHandleArea: "entireItem",
   titleTags: {
     survey: "h3",
     page: "h4",

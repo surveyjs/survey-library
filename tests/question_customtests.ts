@@ -1895,3 +1895,26 @@ QUnit.test("Composite: getProgressInfo", function (assert) {
   }, "q4");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: Support carry-forward", function (assert) {
+  const json = {
+    name: "newquestion",
+    elementsJSON: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      { type: "radiogroup", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" }
+    ]
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is loaded");
+  assert.equal(q2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
+  q1.value = [1, 3, 5];
+  assert.equal(q2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
+  ComponentCollection.Instance.clear();
+});

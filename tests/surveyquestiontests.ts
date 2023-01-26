@@ -6148,9 +6148,23 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   assert.equal(q1.inputType, "text");
   assert.equal(q1.isMinMaxType, false);
   q1.inputType = "range";
-  assert.equal(q1.isMinMaxType, false);
+  assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
   assert.equal(q1.isMinMaxType, true);
+  q1.inputType = "tel";
+  assert.equal(q1.isMinMaxType, false);
+});
+QUnit.test("QuestionTextModel range min/max property editor type", function (assert) {
+  const minProperty = Serializer.findProperty("text", "min");
+  const maxProperty = Serializer.findProperty("text", "max");
+  const q1 = new QuestionTextModel("q1");
+  q1.inputType = "range";
+  const minJson = { inputType: "text" };
+  minProperty.onPropertyEditorUpdate(q1, minJson);
+  assert.equal(minJson.inputType, "number");
+  const maxJson = { inputType: "text" };
+  minProperty.onPropertyEditorUpdate(q1, maxJson);
+  assert.equal(maxJson.inputType, "number");
 });
 QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
   const q1 = new QuestionTextModel("q1");

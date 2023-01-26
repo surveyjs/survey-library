@@ -29,7 +29,7 @@
 
 .sd-dropdown option {
   color: $foreground;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
 }
 
@@ -39,7 +39,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
   color: $foreground;
 
@@ -79,7 +79,7 @@
   border: none;
   outline: none;
   padding: 0;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
   background-color: transparent;
   overflow: hidden;
@@ -95,7 +95,7 @@
 }
 
 .sd-dropdown__filter-string-input::placeholder {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
   color: $foreground;
   width: 100%;

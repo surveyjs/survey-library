@@ -6,6 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
@@ -66,7 +67,7 @@ export class DropdownListModel extends Base {
     this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
   }
 
-  private createPopup() {
+  protected createPopup(): void {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
@@ -151,7 +152,8 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateListCssClasses(listCssClasses: any) {
+  public updateCssClasses(popupCssClass: string, listCssClasses: any) {
+    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
@@ -221,6 +223,7 @@ export class DropdownListModel extends Base {
 
   public setSearchEnabled(newValue: boolean) {
     this.listModel.searchEnabled = IsTouch;
+    this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
   }
   public updateItems(): void {

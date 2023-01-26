@@ -45,6 +45,7 @@ import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { Notifier } from "./notifier";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -74,6 +75,7 @@ export class SurveyModel extends SurveyElementCore
   public get platformName(): string {
     return SurveyModel.platform;
   }
+  public notifier: Notifier;
   /**
    * A suffix added to the name of the property that stores comments.
    *
@@ -1426,6 +1428,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+
+    this.notifier = new Notifier(this.css.saveData);
+    this.notifier.addAction(<IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => { this.doComplete(); }
+    }, "error");
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1562,12 +1571,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() completedCss: string;
   @property() containerCss: string;
-  public get completedStateCss(): string {
-    return this.getPropertyValue("completedStateCss", "");
-  }
-  public getCompletedStateCss(): string {
-    return new CssClassBuilder().append(this.css.saveData[this.completedState], this.completedState !== "").toString();
-  }
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
       .append(btn).toString();
@@ -2855,13 +2858,21 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
   }
   /**
-   * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
+   * Gets or sets an object with survey results. You can set this property with an object of the following structure:
    *
-   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
+   * ```js
+   * {
+   *   question1Name: question1Value,
+   *   question2Name: question2Value,
+   *   // ...
+   * }
+   * ```
+   *
+   * When you set this property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
+   *
+   * If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see setValue
    * @see getValue
-   * @see mergeData
-   * @see currentPageNo
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
@@ -2881,9 +2892,11 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(data);
   }
   /**
-   * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
-   * @param data data to merge. It should be an object {keyValue: Value, ...}
-   * @see data
+   * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
+   *
+   * Refer to the following help topic for more information: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
+   *
+   * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
    */
   public mergeData(data: any) {
@@ -3343,7 +3356,7 @@ export class SurveyModel extends SurveyElementCore
   get completedStateText(): string {
     return this.getPropertyValue("completedStateText", "");
   }
-  protected setCompletedState(value: string, text: string) {
+  protected setCompletedState(value: string, text: string): void {
     this.setPropertyValue("completedState", value);
     if (!text) {
       if (value == "saving") text = this.getLocalizationString("savingData");
@@ -3351,7 +3364,12 @@ export class SurveyModel extends SurveyElementCore
       if (value == "success") text = this.getLocalizationString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
-    this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
+    if(this.state === "completed" && this.showCompletedPage && !!this.completedState) {
+      this.notify(this.completedStateText, this.completedState);
+    }
+  }
+  public notify(message: string, type: string): void {
+    this.notifier.notify(message, type);
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
@@ -5166,6 +5184,9 @@ export class SurveyModel extends SurveyElementCore
     var res = hash[name];
     if (!res) return null;
     return res[0];
+  }
+  findQuestionByName(name: string): IQuestion {
+    return this.getQuestionByName(name);
   }
   /**
    * Returns a question by its value name

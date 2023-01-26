@@ -1414,3 +1414,17 @@ QUnit.test("Expression string as ==", function(assert) {
   assert.equal(new ExpressionRunner("'=='").run({}), "==");
   assert.equal(new ExpressionRunner("'aa' + '=='").run({}), "aa==");
 });
+QUnit.test("Arrays and plus operations", function(assert) {
+  const runner1 = new ExpressionRunner("{a} + {b}");
+  const values1 = { a: [1, 2, 3], b: [4, 5] };
+  assert.deepEqual(runner1.run(values1), [1, 2, 3, 4, 5], "Contact arrays");
+  const runner2 = new ExpressionRunner("{a} + ' '");
+  const values2 = { a: ["a", "b", "c"] };
+  assert.equal(runner2.run(values2), "a, b, c ", "Contact strings");
+  const runner3 = new ExpressionRunner("{a} + 4");
+  const values3 = { a: [1, 2, 3] };
+  assert.equal(runner3.run(values3), 10, "summary of numbers");
+  const runner4 = new ExpressionRunner("{a} + ''");
+  const values4 = { a: [1, 2, 3] };
+  assert.equal(runner4.run(values4), "1, 2, 3", "summary of numbers");
+});

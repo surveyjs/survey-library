@@ -15,10 +15,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.hidePopup();
   }
   private resizeEventCallback = () => {
-    if(this.isOverlay && IsTouch) {
-      const doc = document.documentElement;
-      doc.style.setProperty("--sv-popup-overlay-height", `${window.innerHeight}px`);
-    }
+    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${window.visualViewport.height}px`);
   }
 
   private _updatePosition() {
@@ -157,9 +154,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-    window.addEventListener("resize", this.resizeEventCallback);
-    this.resizeEventCallback();
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.addEventListener("resize", this.resizeEventCallback);
+      this.resizeEventCallback();
+    }
     window.addEventListener("scroll", this.scrollEventCallBack);
+  }
+  private get shouldCreateResizeCallback(): boolean {
+    return !!window.visualViewport && this.isOverlay && IsTouch;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
@@ -178,7 +180,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
-    window.removeEventListener("resize", this.resizeEventCallback);
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
+    }
     window.removeEventListener("scroll", this.scrollEventCallBack);
 
     if(!this.isDisposed) {

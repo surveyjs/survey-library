@@ -252,6 +252,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   const popup: PopupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.searchEnabled, true);
+  assert.equal(list.showSearchClearButton, true);
   assert.equal(popup.displayMode, "overlay");
   assert.ok(popup.isFocusedContent);
   assert.notOk(popup.setWidthByTarget);

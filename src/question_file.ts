@@ -591,15 +591,6 @@ Serializer.addClass(
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
-    {
       name: "commentPlaceholder",
       alternativeName: "commentPlaceHolder",
       serializationProperty: "locCommentPlaceholder",

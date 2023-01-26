@@ -229,7 +229,7 @@ export function setStyles(): void {
     ".sv_progress-buttons__image-button--hidden": "visibility: hidden;",
     ".sv_progress-buttons__list-container": "max-width: calc(100% - 36px); display: inline-block; overflow: hidden;",
     ".sv_progress-buttons__list": "display: inline-block; width: max-content; padding-left: 28px; padding-right: 28px; margin-top: 14px; margin-bottom: 14px;",
-    ".sv_progress-buttons__list li": "width: 138px; font-size: 14px; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; text-align: center; vertical-align: top; display: inline-block;",
+    ".sv_progress-buttons__list li": "width: 138px; font-size: 14px; font-family: var(--font-family, $font-family); position: relative; text-align: center; vertical-align: top; display: inline-block;",
     ".sv_progress-buttons__list li:before": "width: 24px; height: 24px; content: ''; line-height: 30px; display: block; margin: 0 auto 10px auto; border: 3px solid; border-radius: 50%; box-sizing: content-box; cursor: pointer;",
     ".sv_progress-buttons__list li:after": "width: 73%; height: 3px; content: ''; position: absolute; top: 15px; left: -36.5%;",
     ".sv_progress-buttons__list li:first-child:after": "content: none;",
@@ -269,7 +269,7 @@ export function setStyles(): void {
     // EO ranking
 
     // drag drop
-    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: 'Open Sans'; font-size: 16px; padding-left: 20px;line-height: 24px;",
+    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: var(--font-family, $font-family); font-size: 16px; padding-left: 20px;line-height: 24px;",
 
     ".sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv-matrixdynamic__drag-icon:after": "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
@@ -409,10 +409,10 @@ export function setStyles(): void {
     ".sv-popup--show-pointer.sv-popup--left .sv-popup__pointer": "transform: translate(-4px, -4px) rotate(90deg);",
     ".sv-popup__pointer": "display: block; position: absolute;",
     ".sv-popup__pointer:after": "content: ' '; display: block; width: 0; height: 0; border-left: calc(1 * var(--base-unit, 8px)) solid transparent; border-right: calc(1 * var(--base-unit, 8px)) solid transparent; border-bottom: calc(1 * var(--base-unit, 8px)) solid var(--background, #fff); align-self: center;",
-    ".sv-popup__body-header": "font-family: Open Sans; font-size: calc(3 * var(--base-unit, 8px)); line-height: calc(4 * var(--base-unit, 8px)); font-style: normal; font-weight: 700; margin-bottom: calc(2 * var(--base-unit, 8px)); color: var(--foreground, #161616);",
+    ".sv-popup__body-header": "font-family: var(--font-family, $font-family); font-size: calc(3 * var(--base-unit, 8px)); line-height: calc(4 * var(--base-unit, 8px)); font-style: normal; font-weight: 700; margin-bottom: calc(2 * var(--base-unit, 8px)); color: var(--foreground, #161616);",
     ".sv-popup__body-footer": "display: flex; margin-top: calc(4 * var(--base-unit, 8px));",
     ".sv-popup__body-footer .sv-action-bar": "gap: calc(1.5 * var(--base-unit, 8px));",
-    ".sv-popup__button": "padding: calc(2 * var(--base-unit, 8px)) calc(6 * var(--base-unit, 8px)); background: var(--background, #fff); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; margin: 2px; cursor: pointer; font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: normal; font-weight: 600; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); text-align: center; color: var(--primary, #19b394); border: none; outline: none;",
+    ".sv-popup__button": "padding: calc(2 * var(--base-unit, 8px)) calc(6 * var(--base-unit, 8px)); background: var(--background, #fff); box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15); border-radius: 4px; margin: 2px; cursor: pointer; font-family: var(--font-family, $font-family); font-style: normal; font-weight: 600; font-size: calc(2 * var(--base-unit, 8px)); line-height: calc(3 * var(--base-unit, 8px)); text-align: center; color: var(--primary, #19b394); border: none; outline: none;",
     ".sv-popup__button:hover": "box-shadow: 0 0 0 2px var(--primary, #19b394);",
     ".sv-popup__button:disabled": "color: var(--foreground-disabled, rgba(#161616, 0.16)); cursor: default;",
     ".sv-popup__button:disabled:hover": "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",

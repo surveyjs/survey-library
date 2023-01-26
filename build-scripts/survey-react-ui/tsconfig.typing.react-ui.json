@@ -24,8 +24,7 @@
     "jsx": "react",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "skipLibCheck": true,
-    "outFile": "../../build/survey-react-ui/survey-react-ui.d.ts"
+    "skipLibCheck": true
   },
   "include": [
     "../../src/entries/react-ui-model.ts"

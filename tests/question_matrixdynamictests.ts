@@ -8028,3 +8028,37 @@ QUnit.test("Carry forward in matrix cells", function (assert) {
   assert.equal(cellQ2.visibleChoices.length, 3, "Choices are here");
   assert.equal(cellQ2.visibleChoices[1].value, 3, "A choice value is correct");
 });
+QUnit.test("Doesn't update value correctly for nested matrix with expressions, bug#5549", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            isRequired: true,
+            inputType: "number",
+          },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "{row.col1} + 10"
+          }
+        ],
+        rowCount: 1,
+      }
+    ]
+  });
+  let questionValue;
+  survey.onValueChanged.add((sender, options) => {
+    questionValue = options.value;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const cell = matrix.visibleRows[0].cells[0].question;
+  cell.value = 10;
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix question value");
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
+});

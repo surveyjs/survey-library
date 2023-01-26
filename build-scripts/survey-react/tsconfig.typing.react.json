@@ -23,8 +23,7 @@
     "jsx": "react",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "skipLibCheck": true,
-    "outFile": "../../build/survey-react/survey-react.d.ts"
+    "skipLibCheck": true
   },
   "include": [
     "../../src/entries/react.ts"

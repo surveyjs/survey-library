@@ -24,6 +24,7 @@
       padding-left: 1.875em;
     }
   }
+
   td,
   th {
     &:last-child {
@@ -31,6 +32,7 @@
     }
   }
 }
+
 .sv-table__row--detail {
   background-color: var(--header-background-color, $header-background-color);
 
@@ -46,31 +48,39 @@
   box-sizing: content-box;
   vertical-align: top;
 }
+
 .sv-table__cell:not(:last-child) {
   padding-right: 1em;
 }
+
 .sv-table__cell:not(:first-child) {
   padding-left: 1em;
 }
+
 .sv-table__cell--header {
-  font-family: Raleway;
+  font-family: var(--font-family, $font-family);
   font-weight: bold;
   text-align: left;
 }
+
 .sv-table__cell--rowText {
   vertical-align: middle;
 }
+
 .sv-table__cell--detail {
   text-align: center;
   vertical-align: middle;
   width: 32px;
 }
+
 .sv-table__cell--detail-rowtext {
   vertical-align: middle;
 }
+
 .sv-table__cell--detail-panel {
   padding-left: 1em;
 }
+
 .sv-table__cell--detail-button {
   appearance: none;
   position: relative;
@@ -86,14 +96,18 @@
   cursor: pointer;
   background: transparent;
 }
+
 .sv-table__empty--rows--section {
   text-align: center;
   vertical-align: middle;
 }
+
 .sv-table__empty--rows--text {
   padding: 20px;
 }
+
 .sv-table__cell--actions {
+
   sv-action-bar,
   .sv-action-bar {
     margin-left: 0;

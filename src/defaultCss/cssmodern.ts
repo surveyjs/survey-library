@@ -242,6 +242,7 @@ export var modernCss = {
   },
   dropdown: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv-row__question--small",
     control: "sv-dropdown",
     selectWrapper: "",
@@ -256,6 +257,7 @@ export var modernCss = {
   },
   tagbox: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv-row__question--small",
     selectWrapper: "sv_select_wrapper sv-tagbox_wrapper",
     other: "sv-input sv-comment sv-selectbase__other",

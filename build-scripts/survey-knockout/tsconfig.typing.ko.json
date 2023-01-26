@@ -22,8 +22,7 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "skipLibCheck": true,
-    "outFile": "../../build/survey-knockout/survey-knockout.d.ts"
+    "skipLibCheck": true
   },
   "include": [
     "../../src/entries/knockout.ts"

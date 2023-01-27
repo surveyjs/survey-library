@@ -14,6 +14,8 @@
     "
     v-bind:disabled="item.enabled !== undefined && item.enabled"
     v-bind:title="item.tooltip || item.title"
+    v-bind:role="item.ariaRole"
+    v-bind:tabindex="item.disableTabStop ? -1 : 0"
   >
     <sv-svg-icon
       v-if="item.iconName"
@@ -24,7 +26,7 @@
     ></sv-svg-icon>
 
     <span
-      v-if="item.showTitle === undefined || item.showTitle || !item.iconName"
+      v-if="item.hasTitle"
       :class="item.getActionBarItemTitleCss()"
       >{{ item.title }}</span
     >

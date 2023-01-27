@@ -8,6 +8,7 @@ export interface MarkupTestDescriptor {
   snapshot?: string;
   excludePlatform?: string;
   etalon?: string;
+  removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
 }
 
@@ -134,7 +135,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       const htmlElement = options.htmlElement;
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
-        clearAttributes(all[i]);
+        clearAttributes(all[i], test.removeIds);
         clearClasses(all[i]);
       }
       sortAttributes(all);
@@ -265,12 +266,14 @@ function clearClasses(el: Element) {
   }
 }
 
-function clearAttributes(el: Element) {
+function clearAttributes(el: Element, removeIds = false) {
   //el.removeAttribute("aria-labelledby");
   el.removeAttribute("data-bind");
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");
-  //el.removeAttribute("id");
+  if(!!removeIds) {
+    el.removeAttribute("id");
+  }
   //el.removeAttribute("aria-describedby");
   el.removeAttribute("for");
   //if(el.getAttribute("list")) el.removeAttribute("list");

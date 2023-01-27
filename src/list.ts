@@ -132,7 +132,7 @@ export class ListModel extends ActionContainer {
   };
 
   public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
+    return !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
   public isItemFocused: (itemValue: Action) => boolean = (itemValue: Action) => {
@@ -206,6 +206,10 @@ export class ListModel extends ActionContainer {
   public refresh(): void { // used in popup
     this.filterString = "";
     this.resetFocusedItem();
+  }
+  public onClickSearchClearButton(event: any) {
+    event.currentTarget.parentElement.querySelector("input").focus();
+    this.refresh();
   }
   public resetFocusedItem(): void {
     this.focusedItem = undefined;

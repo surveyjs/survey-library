@@ -145,8 +145,8 @@ export class QuestionImageModel extends QuestionNonValue {
   }
 
   public getImageCss(): string {
-    const imageHeightProperty = Serializer.findProperty("image", "imageHeight");
-    const imageWidthProperty = Serializer.findProperty("image", "imageWidth");
+    const imageHeightProperty = this.getPropertyByName("imageHeight");
+    const imageWidthProperty = this.getPropertyByName("imageWidth");
     const isDefaultSize = imageHeightProperty.isDefaultValue(this.imageHeight) && imageWidthProperty.isDefaultValue(this.imageWidth);
 
     return new CssClassBuilder()

@@ -247,6 +247,31 @@ export class Helpers {
     }
     return res;
   }
+  public static sumAnyValues(a: any, b: any): any {
+    if (!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
+      if(Array.isArray(a) && Array.isArray(b))
+        return [].concat(a).concat(b);
+      if(Array.isArray(a) || Array.isArray(b)) {
+        const arr = Array.isArray(a) ? a : b;
+        const val = arr === a ? b : a;
+        if(typeof val === "string") {
+          const str = arr.join(", ");
+          return arr === a ? str + val : val + str;
+        }
+        if(typeof val === "number") {
+          let res = 0;
+          for(var i = 0; i < arr.length; i ++) {
+            if(typeof arr[i] === "number") {
+              res = Helpers.correctAfterPlusMinis(res, arr[i], res + arr[i]);
+            }
+          }
+          return Helpers.correctAfterPlusMinis(res, val, res + val);
+        }
+      }
+      return a + b;
+    }
+    return Helpers.correctAfterPlusMinis(a, b, a + b);
+  }
   public static correctAfterMultiple(a: number, b: number, res: number): number {
     const digits = Helpers.countDecimals(a) + Helpers.countDecimals(b);
     if(digits > 0) {

@@ -1012,7 +1012,7 @@ export class QuestionSelectBase extends Question {
   protected isSupportProperty(propName: string): boolean {
     return (
       !this.isDesignMode ||
-      Serializer.findProperty(this.getType(), propName).visible
+      this.getPropertyByName(propName).visible
     );
   }
   protected onCheckForErrors(
@@ -1632,15 +1632,6 @@ Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
     "choicesFromQuestion:question_selectbase",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
@@ -1705,15 +1696,6 @@ Serializer.addClass(
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
-      },
-    },
-    {
-      name: "commentPlaceholder",
-      alternativeName: "commentPlaceHolder",
-      serializationProperty: "locCommentPlaceholder",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
       },
     },
     {

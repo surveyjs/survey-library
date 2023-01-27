@@ -15,7 +15,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.hidePopup();
   }
   private resizeEventCallback = () => {
-    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${window.visualViewport.height}px`);
+    const visualViewport = window.visualViewport;
+    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
 
   private _updatePosition() {

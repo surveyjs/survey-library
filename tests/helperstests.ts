@@ -432,3 +432,12 @@ QUnit.test("convertDateToString/convertDateTimeToString functions", function(ass
   assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");
   assert.equal(Helpers.convertDateTimeToString(d), "2022-12-24 10:55", "convertDateTimeToString");
 });
+QUnit.test("sumAnyValues", function(assert) {
+  assert.equal(Helpers.sumAnyValues(1, 2), 3, "1 + 2");
+  assert.equal(Helpers.sumAnyValues("ab", "cd"), "abcd", "ab + cd");
+  assert.equal(Helpers.sumAnyValues("ab", 1), "ab1", "ab + 1");
+  assert.deepEqual(Helpers.sumAnyValues([1, 2], [3, 4]), [1, 2, 3, 4], "[1, 2] + [3, 4]");
+  assert.equal(Helpers.sumAnyValues([1, 2, 3], 4), 10, "[1, 2, 3] + 10");
+  assert.equal(Helpers.sumAnyValues(["a", "b", "c"], " "), "a, b, c ", "['a', 'b', 'c'] + ' '");
+  assert.equal(Helpers.sumAnyValues(["a", "b", "c"], ""), "a, b, c", "['a', 'b', 'c'] + ''");
+});

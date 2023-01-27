@@ -142,7 +142,8 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   overflow: auto;
   display: flex;
   flex-direction: column;
-  &, * {
+  &,
+  * {
     &::-webkit-scrollbar {
       height: 6px;
       width: 6px;
@@ -333,7 +334,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   .sv-list__filter {
     display: flex;
     align-items: center;
-    padding: calcSize(1) calcSize(2);
+    padding: calcSize(0.5) calcSize(2);
   }
   .sv-list__filter-icon {
     position: static;
@@ -371,8 +372,8 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   }
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcSize(1.5);
-    line-height: calcSize(2);
+    font-size: calcSize(2);
+    line-height: calcSize(3);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
   }

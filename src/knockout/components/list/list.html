@@ -8,7 +8,7 @@
     <input type="text" 
       data-bind="css: model.cssClasses.filterInput, textInput: model.filterString, attr: { placeholder: model.filterStringPlaceholder, 'aria-label': model.filterStringPlaceholder }, event: { keyup: function (model, event) { $data.model.goToItems(event); } }"></input>
     <!-- ko if: $data.model.showSearchClearButton && !!$data.model.filterString -->
-    <button data-bind="event: { click: () => { model.refresh(); } }, css: model.cssClasses.searchClearButtonIcon">
+    <button data-bind="event: { click: (_, event) => { model.onClickSearchClearButton(event); } }, css: model.cssClasses.searchClearButtonIcon">
       <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-searchclear', size: 'auto' }  } -->
       <!-- /ko -->
     </button>

@@ -86,7 +86,7 @@ export class List extends SurveyElementBase<IListProps, any> {
         this.model.goToItems(e);
       };
       const clearButton = this.model.showSearchClearButton && !!this.model.filterString ?
-        <button className={this.model.cssClasses.searchClearButtonIcon} onClick={() => { this.model.refresh(); }}>
+        <button className={this.model.cssClasses.searchClearButtonIcon} onClick={(event) => { this.model.onClickSearchClearButton(event); }}>
           <SvgIcon
             iconName={"icon-searchclear"}
             size={"auto"}

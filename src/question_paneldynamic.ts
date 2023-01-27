@@ -1894,6 +1894,7 @@ export class QuestionPanelDynamicModel extends Question
     const addBtn = new Action({
       id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
+      visible: <any>new ComputedUpdater(() => this.canAddPanel),
       data: { question: this }
     });
     const prevBtnIcon = new Action({

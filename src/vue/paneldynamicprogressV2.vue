@@ -8,7 +8,7 @@
           role="progressbar"
         ></div>
       </div>
-      <div :class="question.cssClasses.footerButtonsContainer">
+      <div :class="question.cssClasses.footerButtonsContainer" v-if="question.footerToolbar.visibleActions.length">
           <sv-action-bar :model="question.footerToolbar"/>
       </div>
   </div>

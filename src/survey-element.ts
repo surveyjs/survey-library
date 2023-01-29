@@ -91,7 +91,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get cssTitle(): string { return ""; }
   public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
-  public get titleAriaExpanded(): boolean { return undefined; }
+  public get titleAriaExpanded(): any { return undefined; }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -388,9 +388,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get titleTabIndex(): number {
     return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
-  public get titleAriaExpanded(): boolean {
+  public get titleAriaExpanded(): any {
     if (this.isPage || this.state === "default") return undefined;
-    return this.state === "expanded";
+    return this.state === "expanded" ? "true" : "false";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;

@@ -361,7 +361,16 @@ export class QuestionMultipleTextModel extends Question
     }
   }
   /**
-   * An array of `MultipleTextItemModel` objects that represent input items.
+   * 	Gets or sets an array of `MultipleTextItemModel` objects that represent input items. This property accepts an array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   "name": any, // A unique value to identify an input field in a list of items and save an item value to survey results.
+   *   "title": String, // An item caption. When `title` is undefined, `name` is used. You can use Markdown to foramt an item caption / display icons using HTML markup.
+   * }
+   * ```
+   * > You can use [Markdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/reactjs) to format titles.
+   *
    * @see addItem
    */
   public get items(): Array<MultipleTextItemModel> {

@@ -510,7 +510,6 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
   const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-  debugger;
 
   popupModel.isVisible = true;
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true && hideSelectedItems = false");

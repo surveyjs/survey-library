@@ -30,7 +30,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
   protected override getFocusFirstInputSelector(): string {
-    debugger;
     if((<MultiSelectListModel>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
       return this.itemSelector;
     } else {

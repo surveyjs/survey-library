@@ -42,7 +42,7 @@ $base-unit: var(--base-unit, 8px);
 }
 
 @mixin smallBold {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
   font-size: calcSize(1.5);
@@ -50,7 +50,7 @@ $base-unit: var(--base-unit, 8px);
 }
 
 @mixin defaultBold {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
   font-size: calcSize(2);
@@ -58,7 +58,7 @@ $base-unit: var(--base-unit, 8px);
 }
 
 @mixin defaultFont {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-size: calcSize(2);
   line-height: calcSize(3);

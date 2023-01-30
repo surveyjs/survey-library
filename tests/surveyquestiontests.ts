@@ -428,18 +428,8 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
   assert.equal(matrix.hasRows, false, "There is now rows by default.");
   assert.equal(
     matrix.visibleRows.length,
-    1,
-    "There is always at least one row"
-  );
-  assert.equal(
-    matrix.visibleRows[0].name,
-    null,
-    "The default row name is empty"
-  );
-  assert.equal(
-    matrix.visibleRows[0].fullName,
-    "q1",
-    "The default row fullName is the question name"
+    0,
+    "There are no rows"
   );
   matrix.rows = ["row1", "row2"];
   assert.equal(matrix.hasRows, true, "There are two rows");
@@ -454,12 +444,9 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
 QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.value, undefined, "the matrix initial value");
   matrix.value = "col1";
-  var rows = matrix.visibleRows;
-  assert.equal(rows[0].value, "col1", "set the row value correctly");
-  rows[0].value = "col2";
-  assert.equal(rows[0].value, "col2", "the row value changed");
-  assert.equal(matrix.value, "col2", "the matrix value changed correctly");
+  assert.equal(matrix.value, "col1", "the matrix value changed correctly");
 });
 QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");

@@ -10,7 +10,7 @@ export class Notifier extends Base {
   @property() message: string;
   @property() css: string;
   timeout = settings.notifications.lifetime;
-  timer: NodeJS.Timeout = undefined;
+  timer: any = undefined;
   private actionsVisibility: { [key: string]: string } = {};
   public actionBar: ActionContainer;
 

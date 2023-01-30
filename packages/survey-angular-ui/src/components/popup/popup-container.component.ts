@@ -46,4 +46,7 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
       this.prevIsVisible = this.model.isVisible;
     }
   }
+  public clickInside(event: any) {
+    event.stopPropagation();
+  }
 }

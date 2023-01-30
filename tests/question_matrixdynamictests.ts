@@ -8001,3 +8001,64 @@ QUnit.test("Update expressions on setting matrixdropdown rows, Bug#5526", functi
     "matrix-total": { col1: 1, col3: 3 } }, "#2");
 });
 
+QUnit.test("Carry forward in matrix cells", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        columns: [
+          { cellType: "checkbox", name: "col1", choices: [1, 2, 3, 4, 5] },
+          { cellType: "dropdown", name: "col2", choicesFromQuestion: "row.col1", choicesFromQuestionMode: "selected" }
+        ],
+        rowCount: 1
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const cellQ1 = rows[0].cells[0].question;
+  const cellQ2 = <QuestionDropdownModel>rows[0].cells[1].question;
+  assert.equal("col1", cellQ1.name, "col1 question is correct");
+  assert.equal("col2", cellQ2.name, "col2 question is correct");
+  assert.equal(cellQ2.choicesFromQuestion, "row.col1", "choicesFromQuestion is loaded");
+  assert.equal(cellQ2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(cellQ2.visibleChoices.length, 0, "There is no visible choices");
+  cellQ1.value = [1, 3, 5];
+  assert.equal(cellQ2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(cellQ2.visibleChoices[1].value, 3, "A choice value is correct");
+});
+QUnit.test("Doesn't update value correctly for nested matrix with expressions, bug#5549", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            isRequired: true,
+            inputType: "number",
+          },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "{row.col1} + 10"
+          }
+        ],
+        rowCount: 1,
+      }
+    ]
+  });
+  let questionValue;
+  survey.onValueChanged.add((sender, options) => {
+    questionValue = options.value;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const cell = matrix.visibleRows[0].cells[0].question;
+  cell.value = 10;
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix question value");
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
+});

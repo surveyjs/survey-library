@@ -15,27 +15,34 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     return this.model;
   }
   protected override onModelChanged(): void {
-    this.previousModel?.destroyResizeObserver();
-    this.model.renderCallback = () => {
-      this.detectChanges();
-    };
+    if(!!this.previousModel) {
+      this.previousModel.destroyResizeObserver();
+      this.previousModel.renderCallback = <any>undefined;
+    }
+    if(!!this.model) {
+      this.model.renderCallback = () => {
+        this.detectChanges();
+      };
+    }
     this.isSurveyUpdated = true;
   }
   override ngOnInit(): void {
     super.ngOnInit();
-    if(this.model["needRenderIcons"]) {
+    if(!!this.model && this.model["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.model.renderCallback = <any>undefined;
+    if(!!this.model) {
+      this.model.renderCallback = <any>undefined;
+    }
   }
   ngAfterViewInit(): void {
     this.isSurveyUpdated = true;
   }
   override ngAfterViewChecked(): void {
-    if(this.isSurveyUpdated) {
+    if(!!this.model && this.isSurveyUpdated) {
       this.model.afterRenderSurvey(this.rootEl.nativeElement);
     }
     super.ngAfterViewChecked();

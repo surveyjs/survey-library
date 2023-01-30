@@ -5,7 +5,7 @@
       <table :class="question.getTableCss()">
         <thead v-if="question.showHeader">
           <tr>
-            <td v-show="question.hasRows"></td>
+            <td v-if="question.hasRows"></td>
             <th
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"

@@ -472,14 +472,17 @@ static unaryFunctions: HashTable<Function> = {
 
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
+      const convertForArithmeticOp = (val: any, second: any): any => {
+        if (!Helpers.isValueEmpty(val)) return val;
+        if(typeof second === "number") return 0;
+        if(typeof val === "string") return val;
+        if(typeof second === "string") return "";
+        if(Array.isArray(second)) return [];
+        return 0;
+      };
       return function(a: any, b: any): any {
-        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) {
-          a = typeof b === "string" ? "" : 0;
-        }
-        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) {
-          b = typeof a === "string" ? "" : 0;
-        }
-
+        a = convertForArithmeticOp(a, b);
+        b = convertForArithmeticOp(b, a);
         let consumer = OperandMaker.binaryFunctions[operatorName];
         return consumer == null ? null : consumer.call(this, a, b);
       };
@@ -491,10 +494,7 @@ static unaryFunctions: HashTable<Function> = {
       return a || b;
     },
     plus: function(a: any, b: any): any {
-      if (!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
-        return a + b;
-      }
-      return Helpers.correctAfterPlusMinis(a, b, a + b);
+      return Helpers.sumAnyValues(a, b);
     },
     minus: function(a: number, b: number): number {
       return Helpers.correctAfterPlusMinis(a, b, a - b);

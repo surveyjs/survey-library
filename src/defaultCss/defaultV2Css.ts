@@ -289,6 +289,7 @@ export var defaultV2Css = {
   },
   dropdown: {
     root: "sd-selectbase",
+    popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",
@@ -521,6 +522,7 @@ export var defaultV2Css = {
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sd-ranking--disabled",
     rootDesignMode: "sv-ranking--design-mode",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",
@@ -569,6 +571,7 @@ export var defaultV2Css = {
   },
   tagbox: {
     root: "sd-selectbase",
+    popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "",
     other: "sd-input sd-comment sd-selectbase__other",

@@ -2545,24 +2545,15 @@ QUnit.test("Generates error on clearIncorrectValue()", function(assert) {
       },
     ],
   });
-  survey.data = {
+  const data = {
     qid1760: "teste",
     qid1761: "tygjhg",
     qid1792: "OUI",
     qid1787: [{ pnd1788: "teste" }],
   };
+  survey.data = data;
   survey.clearIncorrectValues();
-  assert.deepEqual(
-    survey.data,
-    {
-      qid1760: "teste",
-      qid1761: "tygjhg",
-      qid1792: "OUI",
-      qid1787: [{ pnd1788: "teste" }],
-      qid68: [{}],
-    },
-    "Do not touch anything"
-  );
+  assert.deepEqual(survey.data, data, "Do not touch anything");
 });
 
 QUnit.test("Panel dynamic and survey.data setup", function(assert) {
@@ -2591,7 +2582,7 @@ QUnit.test("Panel dynamic and survey.data setup", function(assert) {
   survey.clearIncorrectValues();
   assert.deepEqual(
     survey.data,
-    { p1: [{}, {}] },
+    { },
     "Remove panels if set empty data"
   );
 });
@@ -2747,7 +2738,7 @@ QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
   var lsurvey = new SurveyModel(ljson);
   assert.deepEqual(
     lsurvey.data,
-    { dp1: [{ dp2: [{}] }] },
+    { dp1: [{ }] },
     "Has only one element in they array"
   );
 
@@ -4914,4 +4905,66 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   assert.equal(panel2.noEntriesText.indexOf("There are no entries."), 0, "panel2: text for readonly");
   survey.mode = "display";
   assert.equal(panel1.noEntriesText.indexOf("There are no entries."), 0, "panel1: text for readonly");
+});
+QUnit.test("Carry forward in panel dynamic", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        templateElements: [
+          { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+          { type: "dropdown", name: "q2", choicesFromQuestion: "panel.q1", choicesFromQuestionMode: "selected" }
+        ],
+        panelCount: 1
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel").panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  const q2 = panel.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "panel.q1", "choicesFromQuestion is loaded");
+  assert.equal(q2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
+  q1.value = [1, 3, 5];
+  assert.equal(q2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
+});
+QUnit.test("Doesn't update value correctly for nested matrix with expressions, bug#5549", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            columns: [
+              {
+                name: "col1",
+                cellType: "text",
+                isRequired: true,
+                inputType: "number",
+              },
+              {
+                name: "col2",
+                cellType: "expression",
+                expression: "{row.col1} + 10"
+              }
+            ],
+            rowCount: 1,
+          }
+        ],
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const matrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("matrix");
+  const cell = matrix.visibleRows[0].cells[0].question;
+  cell.value = 10;
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix value");
+  assert.deepEqual(panel.value, [{ matrix: [{ col1: 10, col2: 20 }] }], "panel value");
+  assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 10, col2: 20 }] }] }, "survey.data");
 });

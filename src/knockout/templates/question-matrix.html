@@ -8,7 +8,9 @@
         <!-- ko if: question.showHeader -->
         <thead>
           <tr>
+            <!-- ko if: question.hasRows -->
             <td data-bind="visible: question.hasRows"></td>
+            <!-- /ko -->
             <!-- ko foreach: question.koVisibleColumns -->
             <th data-bind="css: question.koCss().headerCell, style: { minWidth: question.columnMinWidth, width: question.columnMinWidth }">
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->

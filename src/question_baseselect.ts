@@ -33,6 +33,7 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
+  private isUsingCarrayForward: boolean;
   @property() protected selectedItemValues: any;
 
   constructor(name: string) {
@@ -236,6 +237,7 @@ export class QuestionSelectBase extends Question {
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
+    if(this.isUsingCarrayForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -463,6 +465,7 @@ export class QuestionSelectBase extends Question {
       return;
     super.setQuestionValue(newValue, updateIsAnswered);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
+    this.updateChoicesDependedQuestions();
     if (this.hasComment || !updateComment) return;
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevOtherValue) {
@@ -927,16 +930,17 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    var question = this.getQuestionWithChoices();
-    if (!!question) {
+    const question = this.getQuestionWithChoices();
+    this.isUsingCarrayForward = !!question;
+    if (this.isUsingCarrayForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   private getQuestionWithChoices(): QuestionSelectBase {
-    if (!this.choicesFromQuestion || !this.survey) return null;
-    var res: any = this.survey.getQuestionByName(this.choicesFromQuestion);
+    if (!this.choicesFromQuestion || !this.data) return null;
+    var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   protected getChoicesFromQuestion(
@@ -1008,7 +1012,7 @@ export class QuestionSelectBase extends Question {
   protected isSupportProperty(propName: string): boolean {
     return (
       !this.isDesignMode ||
-      Serializer.findProperty(this.getType(), propName).visible
+      this.getPropertyByName(propName).visible
     );
   }
   protected onCheckForErrors(
@@ -1235,17 +1239,15 @@ export class QuestionSelectBase extends Question {
   }
   private isUpdatingChoicesDependedQuestions = false;
   protected updateChoicesDependedQuestions() {
-    if (this.isUpdatingChoicesDependedQuestions) return;
+    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].onVisibleChoicesChanged();
-      this.dependedQuestions[i].updateChoicesDependedQuestions();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
-    if (this.isLoadingFromJson) return;
     this.updateChoicesDependedQuestions();
   }
   protected onVisibleChoicesChanged() {
@@ -1586,7 +1588,7 @@ export class QuestionSelectBase extends Question {
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
     if(this.dropdownListModel) {
-      this.dropdownListModel.updateListCssClasses(classes.list);
+      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
   }
@@ -1630,15 +1632,6 @@ Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
     "choicesFromQuestion:question_selectbase",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
@@ -1703,15 +1696,6 @@ Serializer.addClass(
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
         return obj.hasOther;
-      },
-    },
-    {
-      name: "commentPlaceholder",
-      alternativeName: "commentPlaceHolder",
-      serializationProperty: "locCommentPlaceholder",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
       },
     },
     {

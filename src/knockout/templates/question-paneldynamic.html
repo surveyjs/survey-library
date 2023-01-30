@@ -69,10 +69,12 @@
          <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} -->
          <!-- /ko -->
       <!-- /ko -->
+      <!-- ko if: question.footerToolbar.visibleActions.length -->
       <div data-bind="css: question.koCss().footerButtonsContainer">
         <!-- ko component: { name: "sv-action-bar", params: { model: question.footerToolbar } } -->
         <!-- /ko -->
       </div>
+      <!-- /ko -->
     </div>
     <!-- /ko -->
   </div>

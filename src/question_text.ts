@@ -408,7 +408,6 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   onCompositionUpdate = (event: any) => {
     if(this.isInputTextUpdate) {
-      event.persist();
       setTimeout(() => {
         this.updateValueOnEvent(event);
       }, 1);

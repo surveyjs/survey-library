@@ -404,6 +404,15 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public setComment(name: string, newValue: string, locNotification: any) {
     this.setValueCore(name, newValue, true);
   }
+  findQuestionByName(name: string): IQuestion {
+    if(!name) return undefined;
+    const prefix = MatrixDropdownRowModelBase.RowVariableName + ".";
+    if(name.indexOf(prefix) === 0) {
+      return this.getQuestionByName(name.substring(prefix.length));
+    }
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name): null;
+  }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);

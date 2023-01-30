@@ -2899,11 +2899,13 @@ export class SurveyModel extends SurveyElementCore
    * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
    */
-  public mergeData(data: any) {
+  public mergeData(data: any): void {
     if (!data) return;
-    this.setDataCore(data);
+    const newData = this.data;
+    this.mergeValues(data, newData);
+    this.setDataCore(newData);
   }
-  public setDataCore(data: any) {
+  public setDataCore(data: any): void {
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
@@ -5184,6 +5186,9 @@ export class SurveyModel extends SurveyElementCore
     var res = hash[name];
     if (!res) return null;
     return res[0];
+  }
+  findQuestionByName(name: string): IQuestion {
+    return this.getQuestionByName(name);
   }
   /**
    * Returns a question by its value name

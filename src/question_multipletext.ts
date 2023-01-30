@@ -5,6 +5,7 @@ import {
   ISurvey,
   IPanel,
   IElement,
+  IQuestion,
   ITextProcessor,
   IProgressInfo
 } from "./base-interfaces";
@@ -255,6 +256,10 @@ export class MultipleTextItemModel extends Base
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
+  }
+  findQuestionByName(name: string): IQuestion {
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name): null;
   }
   //IValidatorOwner
   getValidatorTitle(): string {

@@ -39,7 +39,7 @@ export class TitleContent extends React.Component<any, any> {
         <span
           data-key={"q_num"}
           key={"q_num"}
-          className={cssClasses.number}
+          className={cssClasses.number || cssClasses.panel.number}
           style={{ position: "static" }}
           aria-hidden={true}
         >

@@ -23,8 +23,7 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "Node",
-    "outFile": "../../build/survey-vue/survey-vue.d.ts",
+    "moduleResolution": "Node"
   },
   "include": [
     "../../src/entries/vue.ts"

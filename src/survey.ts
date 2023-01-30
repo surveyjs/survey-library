@@ -39,12 +39,13 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId } from "./utils/utils";
+import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { Notifier } from "./notifier";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -74,6 +75,7 @@ export class SurveyModel extends SurveyElementCore
   public get platformName(): string {
     return SurveyModel.platform;
   }
+  public notifier: Notifier;
   /**
    * A suffix added to the name of the property that stores comments.
    *
@@ -146,18 +148,18 @@ export class SurveyModel extends SurveyElementCore
    * A survey instance that raised the event. Use `sender.data` to access survey results.
    * - `options.isCompleteOnTrigger`: `Boolean`\
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
-   * - `options.showDataSaving(text?: string)`\
+   * - `options.showSaveInProgress(text?: string)`\
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingError(text?: string)`\
+   * - `options.showSaveError(text?: string)`\
    * Call this method to indicate that an error occurred during the save operation. You can use the `text` parameter to display a custom error message.
-   * - `options.showDataSavingSuccess(text?: string)`\
+   * - `options.showSaveSuccess(text?: string)`\
    * Call this method to indicate that survey results are successfully saved. You can use the `text` parameter to display a custom message.
-   * - `options.showDataSavingClear()`\
+   * - `options.clearSaveMessages()`\
    * Call this method to hide the save operation messages.
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
-   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showDataSaving...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+   * > Do not disable the [`showCompletedPage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletedPage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
    * @see onPartialSend
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
@@ -185,7 +187,9 @@ export class SurveyModel extends SurveyElementCore
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
    * - `options.url`: `String`\
-   * A URL to which respondents should be navigated. Set this property to an empty string to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * A URL to which respondents should be navigated. You can modify this parameter's value.
+   * - `options.allow`: `Boolean`\
+   * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
@@ -324,9 +328,12 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onVisibleChanged: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onQuestionVisibleChanged: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * Obsolete. Please use onQuestionVisibleChanged event.
+   * @see onQuestionVisibleChanged
+   */
+  public onVisibleChanged: EventBase<SurveyModel> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -408,9 +415,9 @@ export class SurveyModel extends SurveyElementCore
    * The question's name.
    * - `options.index`: `Number`\
    * The question's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added question.
    *
    * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
@@ -461,9 +468,9 @@ export class SurveyModel extends SurveyElementCore
    * The panel's name.
    * - `options.index`: `Number`\
    * The panel's index within the parent container (panel or page).
-   * - `options.parentPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.parent`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * The parent container (panel or page).
-   * - `options.rootPanel`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
+   * - `options.page`: [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase)\
    * A page that nests the added panel.
    */
   public onPanelAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
@@ -1172,9 +1179,9 @@ export class SurveyModel extends SurveyElementCore
    * The item's name.
    * - `options.value`: `any`\
    * The item's new value.
-   * - `options.itemIndex`: `Number`\
+   * - `options.panelIndex`: `Number`\
    * The panel's index within Dynamic Panel.
-   * - `options.itemValue`: `Object`\
+   * - `options.panelData`: `Object`\
    * The panel's data object that includes all item values.
    */
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel> = this.addEvent<
@@ -1421,6 +1428,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+
+    this.notifier = new Notifier(this.css.saveData);
+    this.notifier.addAction(<IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => { this.doComplete(); }
+    }, "error");
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1557,12 +1571,6 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() completedCss: string;
   @property() containerCss: string;
-  public get completedStateCss(): string {
-    return this.getPropertyValue("completedStateCss", "");
-  }
-  public getCompletedStateCss(): string {
-    return new CssClassBuilder().append(this.css.saveData[this.completedState], this.completedState !== "").toString();
-  }
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
       .append(btn).toString();
@@ -1808,11 +1816,10 @@ export class SurveyModel extends SurveyElementCore
   }
   private navigateTo() {
     var url = this.getNavigateToUrl();
-    var options = { url: url };
+    var options = { url: url, allow: true };
     this.onNavigateToUrl.fire(this, options);
-    if (!options.url || typeof window === "undefined" || !window.location)
-      return;
-    window.location.href = options.url;
+    if(!options.url || !options.allow) return;
+    navigateToUrl(options.url);
   }
   /**
    * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.
@@ -2851,13 +2858,21 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
   }
   /**
-   * Gets or sets an object that stores the survey results/data. You can set it directly as `{ 'question name': questionValue, ... }`
+   * Gets or sets an object with survey results. You can set this property with an object of the following structure:
    *
-   * > If you set the `data` property after creating the survey, you may need to set the `currentPageNo` to `0`, if you are using `visibleIf` properties for questions/pages/panels to ensure that you are starting from the first page.
+   * ```js
+   * {
+   *   question1Name: question1Value,
+   *   question2Name: question2Value,
+   *   // ...
+   * }
+   * ```
+   *
+   * When you set this property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
+   *
+   * If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see setValue
    * @see getValue
-   * @see mergeData
-   * @see currentPageNo
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
@@ -2877,16 +2892,20 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(data);
   }
   /**
-   * Merge the values into survey.data. It works as survey.data, except it doesn't clean the existing data, but overrides them.
-   * @param data data to merge. It should be an object {keyValue: Value, ...}
-   * @see data
+   * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
+   *
+   * Refer to the following help topic for more information: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
+   *
+   * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
    */
-  public mergeData(data: any) {
+  public mergeData(data: any): void {
     if (!data) return;
-    this.setDataCore(data);
+    const newData = this.data;
+    this.mergeValues(data, newData);
+    this.setDataCore(newData);
   }
-  public setDataCore(data: any) {
+  public setDataCore(data: any): void {
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
@@ -3098,7 +3117,7 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   private isPageInVisibleList(page: PageModel): boolean {
-    return this.isDesignMode || page.isVisible && !page.isStarted;
+    return this.isDesignMode || page.isVisible && !page.isStartPage;
   }
   /**
    * Returns `true` if the survey contains no pages. The survey is empty.
@@ -3339,7 +3358,7 @@ export class SurveyModel extends SurveyElementCore
   get completedStateText(): string {
     return this.getPropertyValue("completedStateText", "");
   }
-  protected setCompletedState(value: string, text: string) {
+  protected setCompletedState(value: string, text: string): void {
     this.setPropertyValue("completedState", value);
     if (!text) {
       if (value == "saving") text = this.getLocalizationString("savingData");
@@ -3347,7 +3366,12 @@ export class SurveyModel extends SurveyElementCore
       if (value == "success") text = this.getLocalizationString("savingDataSuccess");
     }
     this.setPropertyValue("completedStateText", text);
-    this.setPropertyValue("completedStateCss", this.getCompletedStateCss());
+    if(this.state === "completed" && this.showCompletedPage && !!this.completedState) {
+      this.notify(this.completedStateText, this.completedState);
+    }
+  }
+  public notify(message: string, type: string): void {
+    this.notifier.notify(message, type);
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
@@ -3612,7 +3636,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - if the current page is the last page.
    * - if the current page contains errors (for example, a required question is empty).
-   * @see isCurrentPageHasErrors
+   * @see isCurrentPageValid
    * @see prevPage
    * @see completeLastPage
    */
@@ -3629,9 +3653,9 @@ export class SurveyModel extends SurveyElementCore
     };
     if (this.checkErrorsMode === "onComplete") {
       if (!this.isLastPage) return false;
-      return this.hasErrors(true, true, func) !== false;
+      return this.validate(true, true, func) !== true;
     }
-    return this.hasCurrentPageErrors(func) !== false;
+    return this.validateCurrentPage(func) !== true;
   }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
@@ -3682,63 +3706,89 @@ export class SurveyModel extends SurveyElementCore
     }
     func(false);
   }
-  /**
-   * Returns `true`, if the current page contains errors, for example, the required question is empty or a question validation is failed.
-   * @see nextPage
-   */
   public get isCurrentPageHasErrors(): boolean {
     return this.checkIsCurrentPageHasErrors();
   }
   /**
-   * Returns `true`, if the current page contains any error. If there is an async function in an expression, then the function will return `undefined` value.
-   * In this case, you should use `onAsyncValidation` parameter, which is a callback function: (hasErrors: boolean) => void
-   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
-   * @see hasPageErrors
-   * @see hasErrors
+   * Returns `true` if the current page does not contain errors.
    * @see currentPage
    */
+  public get isCurrentPageValid(): boolean {
+    return !this.checkIsCurrentPageHasErrors();
+  }
   public hasCurrentPageErrors(
     onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
     return this.hasPageErrors(undefined, onAsyncValidation);
   }
   /**
-   * Returns `true`, if a page contains an error. If there is an async function in an expression, then the function will return `undefined` value.
-   * In this case, you should use the second `onAsyncValidation` parameter,  which is a callback function: (hasErrors: boolean) => void
-   * @param page the page that you want to validate. If the parameter is undefined then the `activePage` is using
-   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
-   * @see hasCurrentPageErrors
-   * @see hasErrors
-   * @see activePage
+   * Validates all questions on the current page and returns `false` if the validation fails.
+   *
+   * If you use validation expressions and at least one of them calls an async function, the `validateCurrentPage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
+   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see currentPage
+   * @see validate
+   * @see validateCurrentPage
    */
+  public validateCurrentPage(
+    onAsyncValidation?: (hasErrors: boolean) => void
+  ): boolean {
+    return this.validatePage(undefined, onAsyncValidation);
+  }
   public hasPageErrors(
+    page?: PageModel,
+    onAsyncValidation?: (hasErrors: boolean) => void
+  ): boolean {
+    const res = this.validatePage(page, onAsyncValidation);
+    if(res === undefined) return res;
+    return !res;
+  }
+  /**
+   * Validates all questions on a specified page and returns `false` if the validation fails.
+   *
+   * If you use validation expressions and at least one of them calls an async function, the `validatePage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
+   * @param page Pass the `PageModel` that you want to validate. You can pass `undefined` to validate the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage).
+   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
+   * @see validate
+   * @see validateCurrentPage
+   */
+  public validatePage(
     page?: PageModel,
     onAsyncValidation?: (hasErrors: boolean) => void
   ): boolean {
     if (!page) {
       page = this.activePage;
     }
-    if (!page) return false;
-    if (this.checkIsPageHasErrors(page)) return true;
-    if (!onAsyncValidation) return false;
+    if (!page) return true;
+    if (this.checkIsPageHasErrors(page)) return false;
+    if (!onAsyncValidation) return true;
     return this.checkForAsyncQuestionValidation(
       page.questions,
       (hasErrors: boolean) => onAsyncValidation(hasErrors)
     )
       ? undefined
-      : false;
+      : true;
+  }
+  public hasErrors(
+    fireCallback: boolean = true,
+    focusOnFirstError: boolean = false,
+    onAsyncValidation?: (hasErrors: boolean) => void
+  ): boolean {
+    const res = this.validate(fireCallback, focusOnFirstError, onAsyncValidation);
+    if(res === undefined) return res;
+    return !res;
   }
   /**
-   * Returns `true`, if any of the survey pages contains errors. If there is an async function in an expression, then the function will return `undefined` value.
-   * In this case, you should use  the third `onAsyncValidation` parameter, which is a callback function: (hasErrors: boolean) => void
-   * @param fireCallback set it to `true`, to show errors in UI.
-   * @param focusOnFirstError set it to `true` to focus on the first question that doesn't pass the validation and make the page, where the question is located, the current.
-   * @param onAsyncValidation use this parameter if you use async functions in your expressions. This callback function will be called with hasErrors value equals to `true` or `false`.
-   * @see hasCurrentPageErrors
-   * @see hasPageErrors
+   * Validates all questions and returns `false` if the validation fails.
+   *
+   * If you use validation expressions and at least one of them calls an async function, the `validate` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @param focusOnFirstError *Optional.* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
+   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
+   * @see validateCurrentPage
+   * @see validatePage
    */
-  public hasErrors(
+  public validate(
     fireCallback: boolean = true,
     focusOnFirstError: boolean = false,
     onAsyncValidation?: (hasErrors: boolean) => void
@@ -3748,11 +3798,11 @@ export class SurveyModel extends SurveyElementCore
     }
     var visPages = this.visiblePages;
     var firstErrorPage = null;
-    var res = false;
+    var res = true;
     for (var i = 0; i < visPages.length; i++) {
-      if (visPages[i].hasErrors(fireCallback, false)) {
+      if (!visPages[i].validate(fireCallback, false)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
-        res = true;
+        res = false;
       }
     }
     if (focusOnFirstError && !!firstErrorPage) {
@@ -3765,13 +3815,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
-    if (res || !onAsyncValidation) return res;
+    if (!res || !onAsyncValidation) return res;
     return this.checkForAsyncQuestionValidation(
       this.getAllQuestions(),
       (hasErrors: boolean) => onAsyncValidation(hasErrors)
     )
       ? undefined
-      : false;
+      : true;
   }
   /**
    * Checks whether survey elements (pages, panels, and questions) have unique question names.
@@ -3866,7 +3916,7 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    var res = page.hasErrors(true, isFocuseOnFirstError);
+    var res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -3913,7 +3963,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Completes the survey, if the current page is the last one. It returns `false` if the last page has errors.
    * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
-   * @see isCurrentPageHasErrors
+   * @see isCurrentPageValid
    * @see nextPage
    * @see doComplete
    */
@@ -4277,7 +4327,7 @@ export class SurveyModel extends SurveyElementCore
    * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
    * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
    * It calls `navigateToUrl` after calling `onComplete` event.
-   * In case calling `options.showDataSaving` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showDataSavingSuccess` callback.
+   * In case calling `options.showSaveInProgress` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showSaveSuccess` callback.
    * @see completeLastPage
    * @see onCompleting
    * @see cookieName
@@ -4289,33 +4339,42 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
+    if(this.isCompleted) return;
     if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
       this.isCompleted = false;
       return false;
     }
     let previousCookie = this.hasCookie;
     this.stopTimer();
-    this.setCompleted();
+    this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
-    var self = this;
+    const showSaveInProgress = (text: string) => {
+      savingDataStarted = true;
+      this.setCompletedState("saving", text);
+    };
+    const showSaveError = (text: string) => {
+      this.setCompletedState("error", text);
+    };
+    const showSaveSuccess = (text: string) => {
+      this.setCompletedState("success", text);
+      this.navigateTo();
+    };
+    const clearSaveMessages = (text: string) => {
+      this.setCompletedState("", "");
+    };
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
-      showDataSaving: function (text: string) {
-        savingDataStarted = true;
-        self.setCompletedState("saving", text);
-      },
-      showDataSavingError: function (text: string) {
-        self.setCompletedState("error", text);
-      },
-      showDataSavingSuccess: function (text: string) {
-        self.setCompletedState("success", text);
-        self.navigateTo();
-      },
-      showDataSavingClear: function (text: string) {
-        self.setCompletedState("", "");
-      },
+      showSaveInProgress: showSaveInProgress,
+      showSaveError: showSaveError,
+      showSaveSuccess: showSaveSuccess,
+      clearSaveMessages: clearSaveMessages,
+      //Obsolete functions
+      showDataSaving: showSaveInProgress,
+      showDataSavingError: showSaveError,
+      showDataSavingSuccess: showSaveSuccess,
+      showDataSavingClear: clearSaveMessages
     };
     this.onComplete.fire(this, onCompleteOptions);
     if (!previousCookie && this.surveyPostId) {
@@ -4463,7 +4522,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public setCompleted(): void {
-    this.isCompleted = true;
+    this.doComplete(true);
   }
   canBeCompleted(): void {
     if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
@@ -4841,6 +4900,8 @@ export class SurveyModel extends SurveyElementCore
   }
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;
+    options.panelIndex = options.itemIndex;
+    options.panelData = options.itemValue;
     this.onDynamicPanelItemValueChanged.fire(this, options);
   }
   dragAndDropAllow(options: any): boolean {
@@ -5126,6 +5187,9 @@ export class SurveyModel extends SurveyElementCore
     if (!res) return null;
     return res[0];
   }
+  findQuestionByName(name: string): IQuestion {
+    return this.getQuestionByName(name);
+  }
   /**
    * Returns a question by its value name
    * @param valueName a question name
@@ -5348,7 +5412,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    var res = question.hasErrors(true, {
+    var res = !question.validate(true, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
     const isCheckErrorOnChanged = this.checkErrorsMode.indexOf("Value") > -1;
@@ -5728,7 +5792,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
       this.isRunningConditions &&
-      this.onVisibleChanged.isEmpty &&
+      this.onQuestionVisibleChanged.isEmpty &&
       this.onPageVisibleChanged.isEmpty
     ) {
       //Run update visible index only one time on finishing running conditions
@@ -5758,7 +5822,7 @@ export class SurveyModel extends SurveyElementCore
     var index = 0;
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];
-      const isPageVisible = page.isVisible && (i > 0 || !page.isStarted);
+      const isPageVisible = page.isVisible && (i > 0 || !page.isStartPage);
       page.visibleIndex = isPageVisible ? index++ : -1;
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
@@ -5998,7 +6062,8 @@ export class SurveyModel extends SurveyElementCore
     var questions = this.getQuestionsByValueName(valueName);
     if (!questions) return false;
     for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].isVisible && questions[i].isParentVisible) return true;
+      const q = questions[i];
+      if (q.isVisible && q.isParentVisible && !q.parentQuestion) return true;
     }
     return false;
   }
@@ -6187,7 +6252,7 @@ export class SurveyModel extends SurveyElementCore
         (!question.visible || !question.supportGoNextPageAutomatic()))
     )
       return;
-    if (question.hasErrors(false) && !question.supportGoNextPageError()) return;
+    if (!question.validate(false) && !question.supportGoNextPageError()) return;
     var questions = this.getCurrentPageQuestions();
     if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {
@@ -6293,7 +6358,7 @@ export class SurveyModel extends SurveyElementCore
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();
-    this.onVisibleChanged.fire(this, {
+    this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,
       visible: newValue,
@@ -6345,6 +6410,8 @@ export class SurveyModel extends SurveyElementCore
         question: question,
         name: question.name,
         index: index,
+        parent: parentPanel,
+        page: rootPanel,
         parentPanel: parentPanel,
         rootPanel: rootPanel,
       });
@@ -6473,6 +6540,8 @@ export class SurveyModel extends SurveyElementCore
       panel: panel,
       name: panel.name,
       index: index,
+      parent: parentPanel,
+      page: rootPanel,
       parentPanel: parentPanel,
       rootPanel: rootPanel,
     });

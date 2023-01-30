@@ -1,9 +1,10 @@
 .svc-tab-designer .sd-title {
   display: flex;
 }
+
 .sd-title {
   display: block;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   color: $foreground;
   flex-direction: row;
@@ -16,9 +17,10 @@
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   overflow: auto;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
+
   .sd-logo__image {
     margin-top: calcSize(1);
   }
@@ -29,18 +31,21 @@
   flex-direction: column;
   gap: calcSize(1);
   flex-grow: 1;
+
   h3 {
     font-size: calcSize(4);
     font-weight: 700;
     line-height: calcSize(5);
     color: $primary;
   }
+
   h5 {
     font-size: calcSize(2);
     font-weight: 400;
     line-height: calcSize(3);
   }
 }
+
 //todo: add ability to customize class sv-title-actions in library
 .sd-title {
   .sv-title-actions {
@@ -48,16 +53,19 @@
     justify-content: space-between;
   }
 }
+
 .sd-root-modern:not(.svc-tab-designer) {
   .sd-container-modern__title {
     background-color: $background;
   }
 }
+
 .sd-root-modern {
   .sd-container-modern__title {
     .sd-header__text h3 {
       margin: 0;
     }
+
     .sd-description {
       margin: 0;
     }
@@ -67,6 +75,7 @@
 .sd-title .sv-title-actions {
   align-items: flex-start;
   width: calc(100% + 3 * #{$base-unit});
+
   .sv-title-actions__title {
     flex-wrap: wrap;
     flex: 0 1 auto;
@@ -75,15 +84,18 @@
     min-width: unset;
   }
 }
+
 .sd-action-title-bar {
   flex: 1 9 auto;
   min-width: calcSize(6);
   justify-content: flex-end;
   margin: calcSize(-1) 0;
+
   .sv-action {
     flex: 0 0 auto;
   }
 }
+
 .sd-action-title-bar.sd-action-bar--empty {
   min-width: 0;
 }

@@ -125,6 +125,11 @@ function scrollElementByChildId(id: string) {
   }
 }
 
+function navigateToUrl(url: string): void {
+  if (!url || typeof window === "undefined" || !window.location) return;
+  window.location.href = url;
+}
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
@@ -332,6 +337,7 @@ export {
   isElementVisible,
   findScrollableParent,
   scrollElementByChildId,
+  navigateToUrl,
   createSvg,
   getIconNameFromProxy,
   increaseHeightByContent,

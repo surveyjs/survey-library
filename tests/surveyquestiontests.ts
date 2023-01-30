@@ -428,18 +428,8 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
   assert.equal(matrix.hasRows, false, "There is now rows by default.");
   assert.equal(
     matrix.visibleRows.length,
-    1,
-    "There is always at least one row"
-  );
-  assert.equal(
-    matrix.visibleRows[0].name,
-    null,
-    "The default row name is empty"
-  );
-  assert.equal(
-    matrix.visibleRows[0].fullName,
-    "q1",
-    "The default row fullName is the question name"
+    0,
+    "There are no rows"
   );
   matrix.rows = ["row1", "row2"];
   assert.equal(matrix.hasRows, true, "There are two rows");
@@ -454,12 +444,9 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
 QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.value, undefined, "the matrix initial value");
   matrix.value = "col1";
-  var rows = matrix.visibleRows;
-  assert.equal(rows[0].value, "col1", "set the row value correctly");
-  rows[0].value = "col2";
-  assert.equal(rows[0].value, "col2", "the row value changed");
-  assert.equal(matrix.value, "col2", "the matrix value changed correctly");
+  assert.equal(matrix.value, "col1", "the matrix value changed correctly");
 });
 QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
@@ -5119,6 +5106,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
+  function (assert) {
+    var survey = new SurveyModel({
+      elements: [
+        { type: "rating", name: "q1", "rateValues": [
+          "item1",
+          "item2",
+          "item3"
+        ]
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choicesFromQuestion: "q1",
+          choices: ["item1", "item2"]
+        },
+      ],
+    });
+    var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
+    assert.equal(
+      q2["activeChoices"].length,
+      2,
+      "We do not duplicate selectedAll, none and other"
+    );
+  }
+);
 QUnit.test("text question dataList", function (assert) {
   var survey = new SurveyModel({
     elements: [
@@ -5179,8 +5194,8 @@ QUnit.test("text question inputSize and inputWidth", function (assert) {
   assert.equal(q3.inputWidth, "", "q3 inputWidth is empty");
 
   assert.equal(q1.inputStyle.width, "auto", "q1 inputStyle width is auto");
-  assert.equal(q2.inputStyle.width, undefined, "q2 inputStyle width is undefined");
-  assert.equal(q3.inputStyle.width, undefined, "q3 inputStyle width is undefined");
+  assert.equal(q2.inputStyle.width, "", "q2 inputStyle width is undefined");
+  assert.equal(q3.inputStyle.width, "", "q3 inputStyle width is undefined");
 });
 QUnit.test("Multiple Text Question: itemSize", function (assert) {
   var mText = new QuestionMultipleTextModel("mText");
@@ -6120,9 +6135,31 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   assert.equal(q1.inputType, "text");
   assert.equal(q1.isMinMaxType, false);
   q1.inputType = "range";
-  assert.equal(q1.isMinMaxType, false);
+  assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
   assert.equal(q1.isMinMaxType, true);
+  q1.inputType = "tel";
+  assert.equal(q1.isMinMaxType, false);
+});
+QUnit.test("QuestionTextModel range min/max property editor type", function (assert) {
+  const minProperty = Serializer.findProperty("text", "min");
+  const maxProperty = Serializer.findProperty("text", "max");
+  const q1 = new QuestionTextModel("q1");
+  q1.inputType = "range";
+  const minJson = { inputType: "text" };
+  minProperty.onPropertyEditorUpdate(q1, minJson);
+  assert.equal(minJson.inputType, "number");
+  const maxJson = { inputType: "text" };
+  minProperty.onPropertyEditorUpdate(q1, maxJson);
+  assert.equal(maxJson.inputType, "number");
+});
+QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
+  const q1 = new QuestionTextModel("q1");
+  assert.deepEqual(q1.inputStyle, { width: undefined });
+  q1.size = 5;
+  assert.deepEqual(q1.inputStyle, { width: "auto" });
+  q1.size = 0;
+  assert.deepEqual(q1.inputStyle, { width: "" });
 });
 QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) {
   const survey = new SurveyModel({
@@ -6304,4 +6341,130 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
   assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
   assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+});
+QUnit.test("Supporting showCommentArea property, Bug#5479", function (
+  assert
+) {
+  const supportedComment = {
+    radiogroup: true,
+    checkbox: true,
+    dropdown: true,
+    matrix: true,
+    rating: true,
+    ranking: true,
+    matrixdropdown: true,
+    matrixdynamic: true,
+    paneldynamic: true,
+    file: true,
+    boolean: true,
+    text: false,
+    comment: false,
+    html: false,
+    image: false,
+    expression: false
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "radiogroup",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "checkbox",
+        "name": "checkbox",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "dropdown",
+        "name": "dropdown",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "rating",
+        "name": "rating",
+        "showCommentArea": true
+      },
+      {
+        "type": "ranking",
+        "name": "ranking",
+        "choices": [1, 2, 3],
+        "showCommentArea": true
+      },
+      {
+        "type": "boolean",
+        "name": "boolean",
+        "showCommentArea": true
+      },
+      {
+        "type": "matrix",
+        "name": "matrix",
+        "showCommentArea": true,
+        "rows": [1, 2],
+        "columns": [1, 2]
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "matrixdynamic",
+        "showCommentArea": true,
+        "columns": [{ name: "col1" }]
+      },
+      {
+        "type": "matrixdropdown",
+        "name": "matrixdropdown",
+        "showCommentArea": true,
+        "columns": [{ name: "col1" }],
+        "rows": [1, 2]
+      },
+      {
+        "type": "paneldynamic",
+        "name": "paneldynamic",
+        "showCommentArea": true,
+        "templateElements": [
+          { "type": "text", "name": "q7" }
+        ]
+      },
+      {
+        "type": "file",
+        "name": "file",
+        "showCommentArea": true
+      },
+      {
+        "type": "text",
+        "name": "text",
+        "showCommentArea": true
+      },
+      {
+        "type": "comment",
+        "name": "comment",
+        "showCommentArea": true
+      },
+      {
+        "type": "html",
+        "name": "html",
+        "showCommentArea": true
+      },
+      {
+        "type": "image",
+        "name": "image",
+        "showCommentArea": true
+      },
+      {
+        "type": "expression",
+        "name": "expression",
+        "showCommentArea": true
+      },
+    ]
+  });
+  const questions = survey.getAllQuestions();
+  questions.forEach(q => {
+    const typeName = q.getType();
+    const isSupport = supportedComment[typeName];
+    assert.equal(q.showCommentArea, isSupport, "Show comment area is not loaded correctly: " + typeName);
+    const prop = Serializer.findProperty(typeName, "showCommentArea");
+    assert.equal(prop.visible, isSupport, "Show comment area property visibility is incorrect: " + typeName);
+  });
 });

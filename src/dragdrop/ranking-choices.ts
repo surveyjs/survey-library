@@ -22,7 +22,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           min-width: 100px;
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
           background-color: var(--background, white);
-          font-family: "Open Sans";
+          font-family: var(--font-family, $font-family);
         `;
 
     const isDeepClone = true;

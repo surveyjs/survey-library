@@ -10,7 +10,6 @@ import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -264,7 +263,6 @@ Serializer.addClass(
     "name:string",
     { name: "dummyname", layout: "row" },
     "car",
-    "cars",
     "stringArray",
     { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
@@ -2911,4 +2909,28 @@ QUnit.test("Do not load choices and rows without value", function (assert) {
   assert.equal(q.choices[0].value, 1, "First choice");
   assert.equal(q.choices[1].value, 2, "Second choice");
   assert.equal(q.choices[2].value, "abc", "Third choice");
+});
+QUnit.test("QuestionMatrixModel and commentText property, Bug#5562", function (assert) {
+  const q = new QuestionMatrixModel("q1");
+  const prop = Serializer.findProperty(q.getType(), "commentText");
+  assert.ok(prop, "Property is here");
+  assert.equal(prop.isVisible("row", q), false, "commentText is invisible by default");
+  q.showCommentArea = true;
+  assert.equal(prop.isVisible("row", q), true, "commentText is visible now");
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", commentText: "comment_text" }]
+  });
+  assert.equal(survey.getQuestionByName("q1").commentText, "comment_text", "Loaded correctly");
+});
+QUnit.test("QuestionMatrixModel and commentPlaceholder property, Bug#5569", function (assert) {
+  const q = new QuestionMatrixModel("q1");
+  const prop = Serializer.findProperty(q.getType(), "commentPlaceholder");
+  assert.ok(prop, "Property is here");
+  assert.equal(prop.isVisible("row", q), false, "commentPlaceholder is invisible by default");
+  q.showCommentArea = true;
+  assert.equal(prop.isVisible("row", q), true, "commentPlaceholder is visible now");
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1", commentPlaceholder: "comment_text" }]
+  });
+  assert.equal(survey.getQuestionByName("q1").commentPlaceholder, "comment_text", "Loaded correctly");
 });

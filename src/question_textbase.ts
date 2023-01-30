@@ -108,8 +108,7 @@ export class QuestionTextBase extends Question {
   }
 }
 Serializer.addClass(
-  "textbase",
-  [],
+  "textbase", [],
   function() {
     return new QuestionTextBase("");
   },

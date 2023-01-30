@@ -26,6 +26,7 @@ export interface ISurveyData {
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;
+  findQuestionByName(name: string): IQuestion;
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
@@ -310,7 +311,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   ensureRowsVisibility(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
-  isStarted: boolean;
+  isStartPage: boolean;
 }
 export interface ITitleOwner {
   name: string;

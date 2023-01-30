@@ -55,6 +55,8 @@ const surveyJson = {
 };
 ```
 
+In single- and multiple-selection question types (Dropdown, Checkbox, Radiogroup, Tag Box, Image Picker), items can contain a display value in addition to a question value. In this case, placeholders are replaced with display values. If you want to use question values instead, disable the [`useDisplayValuesInDynamicTexts`](https://surveyjs.io/form-library/documentation/api-reference/question#useDisplayValuesInDynamicTexts) property.
+
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
 | Question Type                                                            | Syntax                              |

@@ -15,18 +15,18 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.hidePopup();
   }
   private resizeEventCallback = () => {
-    if(this.isOverlay && IsTouch) {
-      const doc = document.documentElement;
-      doc.style.setProperty("--sv-popup-overlay-height", `${window.innerHeight}px`);
-    }
+    const visualViewport = window.visualViewport;
+    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
 
   private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
+    if(!background) return;
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+    if(!popupContainer) return;
+    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
@@ -155,9 +155,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-    window.addEventListener("resize", this.resizeEventCallback);
-    this.resizeEventCallback();
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.addEventListener("resize", this.resizeEventCallback);
+      this.resizeEventCallback();
+    }
     window.addEventListener("scroll", this.scrollEventCallBack);
+  }
+  private get shouldCreateResizeCallback(): boolean {
+    return !!window.visualViewport && this.isOverlay && IsTouch;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
@@ -176,7 +181,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
-    window.removeEventListener("resize", this.resizeEventCallback);
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
+    }
     window.removeEventListener("scroll", this.scrollEventCallBack);
 
     if(!this.isDisposed) {

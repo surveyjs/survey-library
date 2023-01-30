@@ -613,8 +613,10 @@ export class CustomPropertiesCollection {
 export class JsonMetadataClass {
   static requiredSymbol = "!";
   static typeSymbol = ":";
-  properties: Array<JsonObjectProperty> = null;
+  properties: Array<JsonObjectProperty>;
   private isCustomValue: boolean;
+  private allProperties: Array<JsonObjectProperty>;
+  private hashProperties: HashTable<JsonObjectProperty>;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -635,13 +637,62 @@ export class JsonMetadataClass {
       this.createProperty(properties[i], this.isCustom);
     }
   }
+  //Obsolete
   public find(name: string): JsonObjectProperty {
     for (var i = 0; i < this.properties.length; i++) {
       if (this.properties[i].name == name) return this.properties[i];
     }
     return null;
   }
+  public findProperty(name: string): JsonObjectProperty {
+    this.fillAllProperties();
+    return this.hashProperties[name];
+  }
+  public getAllProperties(): Array<JsonObjectProperty> {
+    this.fillAllProperties();
+    return this.allProperties;
+  }
+  public resetAllProperties(): void {
+    this.allProperties = undefined;
+    this.hashProperties = undefined;
+    var childClasses = Serializer.getChildrenClasses(this.name);
+    for (var i = 0; i < childClasses.length; i++) {
+      childClasses[i].resetAllProperties();
+    }
+  }
   public get isCustom(): boolean { return this.isCustomValue; }
+  private fillAllProperties(): void {
+    if(!!this.allProperties) return;
+    this.allProperties = [];
+    this.hashProperties = {};
+    const localProperties: HashTable<JsonObjectProperty> = {};
+    this.properties.forEach(prop => localProperties[prop.name] = prop);
+    const parentClass = !!this.parentName ? Serializer.findClass(this.parentName) : null;
+    if(!!parentClass) {
+      const parentProperties = parentClass.getAllProperties();
+      parentProperties.forEach(prop => {
+        const overridedProp = localProperties[prop.name];
+        if(!!overridedProp) {
+          overridedProp.mergeWith(prop);
+          this.addPropCore(overridedProp);
+        } else {
+          this.addPropCore(prop);
+        }
+      });
+    }
+    this.properties.forEach(prop => {
+      if(!this.hashProperties[prop.name]) {
+        this.addPropCore(prop);
+      }
+    });
+  }
+  private addPropCore(prop: JsonObjectProperty): void {
+    this.allProperties.push(prop);
+    this.hashProperties[prop.name] = prop;
+    if(!!prop.alternativeName) {
+      this.hashProperties[prop.alternativeName] = prop;
+    }
+  }
   private isOverridedProp(propName: string): boolean {
     return !!this.parentName && !!Serializer.findProperty(this.parentName, propName);
   }
@@ -848,8 +899,6 @@ export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
-  private classProperties: HashTable<Array<JsonObjectProperty>> = {};
-  private classHashProperties: HashTable<HashTable<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
     if (this.isObjWrapper(obj)) {
@@ -934,25 +983,7 @@ export class JsonMetadata {
   public getProperties(className: string): Array<JsonObjectProperty> {
     var metaClass = this.findClass(className);
     if (!metaClass) return [];
-    var properties = this.classProperties[metaClass.name];
-    if (!!properties) return properties;
-    this.fillPropertiesForClass(metaClass.name);
-    return this.classProperties[metaClass.name];
-  }
-  private getHashProperties(className: string): HashTable<JsonObjectProperty> {
-    var metaClass = this.findClass(className);
-    if (!metaClass) return {};
-    var properties = this.classHashProperties[metaClass.name];
-    if (!!properties) return properties;
-    this.fillPropertiesForClass(metaClass.name);
-    return this.classHashProperties[metaClass.name];
-  }
-  private fillPropertiesForClass(className: string) {
-    var properties = new Array<JsonObjectProperty>();
-    var hashProperties = {};
-    this.fillProperties(className, properties, hashProperties);
-    this.classProperties[className] = properties;
-    this.classHashProperties[className] = hashProperties;
+    return metaClass.getAllProperties();
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
@@ -1019,25 +1050,25 @@ export class JsonMetadata {
     newProp.mergeWith(prop);
     newProp.isArray = prop.isArray;
     classInfo.properties.push(newProp);
-    this.emptyClassPropertiesHash(classInfo);
+    classInfo.resetAllProperties();
     return newProp;
   }
   public findProperty(
     className: string,
     propertyName: string
   ): JsonObjectProperty {
-    var hash = this.getHashProperties(className);
-    var res = hash[propertyName];
-    return !!res ? res : null;
+    const cl = this.findClass(className);
+    return !!cl ? cl.findProperty(propertyName): null;
   }
   public findProperties(
     className: string,
     propertyNames: Array<string>
   ): Array<JsonObjectProperty> {
-    var result = [];
-    var hash = this.getHashProperties(className);
+    var result = new Array<JsonObjectProperty>();
+    const cl = this.findClass(className);
+    if(!cl) return result;
     for (var i = 0; i < propertyNames.length; i++) {
-      var prop = hash[propertyNames[i]];
+      var prop = cl.findProperty(propertyNames[i]);
       if (prop) {
         result.push(prop);
       }
@@ -1138,7 +1169,7 @@ export class JsonMetadata {
     if (!metaDataClass) return null;
     var property = metaDataClass.createProperty(propertyInfo, true);
     if (property) {
-      this.emptyClassPropertiesHash(metaDataClass);
+      metaDataClass.resetAllProperties();
     }
     return property;
   }
@@ -1148,7 +1179,7 @@ export class JsonMetadata {
     var property = metaDataClass.find(propertyName);
     if (property) {
       this.removePropertyFromClass(metaDataClass, property);
-      this.emptyClassPropertiesHash(metaDataClass);
+      metaDataClass.resetAllProperties();
       CustomPropertiesCollection.removeProperty(
         metaDataClass.name,
         propertyName
@@ -1162,15 +1193,6 @@ export class JsonMetadata {
     var index = metaDataClass.properties.indexOf(property);
     if (index < 0) return;
     metaDataClass.properties.splice(index, 1);
-  }
-  private emptyClassPropertiesHash(metaDataClass: JsonMetadataClass) {
-    this.classProperties[metaDataClass.name] = null;
-    this.classHashProperties[metaDataClass.name] = null;
-    var childClasses = this.getChildrenClasses(metaDataClass.name);
-    for (var i = 0; i < childClasses.length; i++) {
-      this.classProperties[childClasses[i].name] = null;
-      this.classHashProperties[childClasses[i].name] = null;
-    }
   }
   private fillChildrenClasses(
     name: string,

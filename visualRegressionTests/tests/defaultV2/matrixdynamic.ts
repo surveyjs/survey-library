@@ -181,4 +181,45 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t, comparer);
     });
   });
+
+  test("Check Matrixdynamic with showInMultipleColumns", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        "showQuestionNumbers": "off",
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "Feelings",
+            "title": "What do your feel?",
+
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "radiogroup",
+                "showInMultipleColumns": true,
+                "isRequired": true,
+                "choices": [
+                  "Strongly disagree",
+                  "Disagree",
+                  "Neutral",
+                  "Agree",
+                  "Strongly agree"
+                ]
+              },
+            ],
+            "rows": [
+              "Excited",
+              "Enthusiastic",
+              "Open"
+            ]
+          }
+        ]
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-show-in-multiple-columns.png", matrixdynamicRoot, t, comparer);
+    });
+  });
 });

@@ -5,7 +5,7 @@
       <table [class]="model.getTableCss()">
         <thead *ngIf="model.showHeader">
           <tr>
-            <td [visible]="model.hasRows"></td>
+            <td *ngIf="model.hasRows"></td>
             <th
               *ngFor="let column of model.visibleColumns" [style]="{ minWidth: model.columnMinWidth, width: model.columnMinWidth }" [class]="model.cssClasses.headerCell">
               <ng-template [component]="{ name: model.getColumnHeaderWrapperComponentName(column), data: { componentData: model.getColumnHeaderWrapperComponentData(column) } }">

@@ -1,3 +1,5 @@
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var spanishSurveyStrings = {
@@ -11,14 +13,15 @@ export var spanishSurveyStrings = {
   noneItemText: "Ninguno",
   selectAllItemText: "Seleccionar todo",
   progressText: "Página {0} de {1}",
+  indexText: "{0} de {1}",
   panelDynamicProgressText: "Registro {0} de {1}",
   questionsProgressText: "Respondió a {0}/{1} preguntas",
   emptySurvey: "No hay página visible o pregunta en la encuesta.",
   completingSurvey: "¡Gracias por completar la encuesta!",
-  completingSurveyBefore:
-    "Nuestros registros muestran que ya ha completado esta encuesta.",
+  completingSurveyBefore: "Nuestros registros muestran que ya ha completado esta encuesta.",
   loadingSurvey: "La encuesta está cargando...",
   placeholder: "Seleccione...",
+  ratingOptionsCaption: "Toca aquí para calificar...",
   value: "valor",
   requiredError: "Por favor conteste la pregunta.",
   requiredErrorInPanel: "Por favor, responda al menos una pregunta.",
@@ -32,23 +35,20 @@ export var spanishSurveyStrings = {
   minRowCountError: "Por favor llene por lo menos {0} hileras.",
   minSelectError: "Por favor seleccione por lo menos {0} variantes.",
   maxSelectError: "Por favor seleccione no más de {0} variantes.",
-  numericMinMax:
-    "El '{0}' debe de ser igual o más de {1} y igual o menos de {2}",
+  numericMinMax: "El '{0}' debe de ser igual o más de {1} y igual o menos de {2}",
   numericMin: "El '{0}' debe ser igual o más de {1}",
   numericMax: "El '{0}' debe ser igual o menos de {1}",
   invalidEmail: "Por favor agregue un correo electrónico válido.",
   invalidExpression: "La expresión: {0} debería devolver 'verdadero'.",
   urlRequestError: "La solicitud regresó error '{0}'. {1}",
-  urlGetChoicesError:
-    "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
+  urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   exceedMaxSize: "El tamaño del archivo no debe de exceder {0}.",
   otherRequiredError: "Por favor agregue la otra estimación.",
-  uploadingFile:
-    "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
+  uploadingFile: "Su archivo se está subiendo. Por favor espere unos segundos e intente de nuevo.",
   loadingFile: "Cargando...",
   chooseFile: "Elija archivo(s)...",
-  fileDragAreaPlaceholder: "Suelte un archivo aquí o haga clic en el botón de abajo para cargar el archivo",
   noFileChosen: "No se ha elegido ningún archivo",
+  fileDragAreaPlaceholder: "Suelte un archivo aquí o haga clic en el botón de abajo para cargar el archivo",
   confirmDelete: "¿Quieres borrar el registro?",
   keyDuplicationError: "Este valor debe ser único.",
   addColumn: "Añadir columna",
@@ -70,8 +70,7 @@ export var spanishSurveyStrings = {
   timerSpentAll: "Has gastado {0} en esta página y {1} en total.",
   timerSpentPage: "Usted ha pasado {0} en esta página.",
   timerSpentSurvey: "Has gastado en total.",
-  timerLimitAll:
-    "Has gastado {0} de {1} en esta página y {2} de {3} en total.",
+  timerLimitAll: "Has gastado {0} de {1} en esta página y {2} de {3} en total.",
   timerLimitPage: "Has gastado {0} de {1} en esta página.",
   timerLimitSurvey: "Usted ha gastado {0} de {1} en total.",
   clearCaption: "Despejen",
@@ -85,10 +84,10 @@ export var spanishSurveyStrings = {
   questionTitlePatternText: "Título de la pregunta",
   modalCancelButtonText: "Anular",
   modalApplyButtonText: "Aplicar",
-  ratingOptionsCaption: "Toca aquí para calificar...",
   filterStringPlaceholder: "Escribe para buscar...",
-  indexText: "{0} de {1}",
+  // emptyMessage: "No data to display",
   noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
+  // more: "More"
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;

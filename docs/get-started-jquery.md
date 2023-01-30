@@ -46,11 +46,7 @@ Insert links to the script and one of the style sheets within the `<head>` tag o
 </head>
 ```
 
-To apply the linked theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
-
-```js
-Survey.StylesManager.applyTheme("defaultV2");
-```
+For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
 ## Create a Model
 
@@ -104,10 +100,6 @@ const survey = new Survey.Model(surveyJson);
 ```
 
 ```js
-Survey
-    .StylesManager
-    .applyTheme("defaultV2");
-
 const surveyJson = {
     elements: [{
         name: "FirstName",
@@ -173,10 +165,6 @@ If you replicate the code correctly, you should see the following survey:
 ```
 
 ```js
-Survey
-    .StylesManager
-    .applyTheme("defaultV2");
-
 const surveyJson = {
     elements: [{
         name: "FirstName",
@@ -273,10 +261,6 @@ As you can see, survey results are saved in a JSON object. Its properties corres
 ```
 
 ```js
-Survey
-    .StylesManager
-    .applyTheme("defaultV2");
-
 const surveyJson = {
     elements: [{
         name: "FirstName",

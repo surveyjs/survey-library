@@ -57,7 +57,7 @@ body {
   --sd-imagepicker-gap: 16px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   background-color: $background-dim;
 
   * {
@@ -87,6 +87,7 @@ body {
     background-color: $foreground-light;
   }
 }
+
 .sd-root-modern--mobile {
   --sd-timer-size: calc(9 * #{$base-unit});
 }

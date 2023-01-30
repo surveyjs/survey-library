@@ -411,16 +411,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private hasActionCellInRowsValues: any = {};
   private hasActionCellInRows(location: "start" | "end"): boolean {
     if (this.hasActionCellInRowsValues[location] === undefined) {
-      var rows = this.matrix.visibleRows;
-      this.hasActionCellInRowsValues[location] = false;
-      for (var i = 0; i < rows.length; i++) {
-        if (!this.isValueEmpty(this.getRowActions(i, location))) {
-          this.hasActionCellInRowsValues[location] = true;
-          break;
-        }
-      }
+      this.hasActionCellInRowsValues[location] = this.hasActionsCellInLocaltion(location);
     }
     return this.hasActionCellInRowsValues[location];
+  }
+  private hasActionsCellInLocaltion(location: "start" | "end"): boolean {
+    if(location == "end" && this.hasRemoveRows) return true;
+    return this.matrix.visibleRows.some(
+      (row, index) => !this.isValueEmpty(this.getRowActions(index, location)));
   }
   private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     return this.matrix.canRemoveRow(row);
@@ -744,10 +742,18 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var rCell = this.createEditCell(cell, !isFooter ? choices[i] : undefined);
       if (!isFooter) {
         //rCell.item = choices[i];
+        this.setItemCellCssClasses(rCell);
         rCell.choiceIndex = i;
       }
       rRow.cells.push(rCell);
     }
+  }
+  private setItemCellCssClasses(cell: QuestionMatrixDropdownRenderedCell) {
+    cell.className = new CssClassBuilder()
+      .append(this.cssClasses.itemCell)
+      .append(this.cssClasses.radioCell, cell.isRadio)
+      .append(this.cssClasses.checkboxCell, cell.isCheckbox)
+      .toString();
   }
   private createEditCell(
     cell: MatrixDropdownCell,
@@ -776,6 +782,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < choices.length; i++) {
       var cell = this.createTextCell(choices[i].locText);
       this.setHeaderCell(column, cell);
+      this.setHeaderCellCssClasses(cell);
       this.headerRow.cells.push(cell);
     }
   }
@@ -787,6 +794,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }
+  private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string): void {
+    cell.className = new CssClassBuilder()
+      .append(this.cssClasses.headerCell)
+      .append(this.cssClasses.emptyCell, !!cell.isEmpty)
+      .append(this.cssClasses.cell + "--" + cellType, !!cellType)
+      .toString();
+  }
   private createHeaderCell(
     column: MatrixDropdownColumn
   ): QuestionMatrixDropdownRenderedCell {
@@ -794,11 +808,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell.column = column;
     this.setHeaderCell(column, cell);
     const cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
-    cell.className = new CssClassBuilder()
-      .append(this.cssClasses.headerCell)
-      .append(this.cssClasses.emptyCell, !!cell.isEmpty)
-      .append(this.cssClasses.cell + "--" + cellType)
-      .toString();
+    this.setHeaderCellCssClasses(cell, cellType);
     return cell;
   }
   private setHeaderCell(

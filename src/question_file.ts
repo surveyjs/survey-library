@@ -463,9 +463,6 @@ export class QuestionFileModel extends Question {
     }
     return questionPlainData;
   }
-  public supportComment(): boolean {
-    return true;
-  }
   public getChooseFileCss(): string {
     const isAnswered = this.isAnswered;
     return new CssClassBuilder()
@@ -593,24 +590,6 @@ Serializer.addClass(
   "file",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
-    {
-      name: "commentPlaceholder",
-      alternativeName: "commentPlaceHolder",
-      serializationProperty: "locCommentPlaceholder",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-    },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     { name: "allowImagesPreview:boolean", default: true },

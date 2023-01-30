@@ -21,7 +21,7 @@
       <span
         *ngIf="element.no"
         style="position: static"
-        [class]="element.cssClasses.number"
+        [class]="element.cssClasses.number || element.cssClasses.panel.number"
         [attr.aria-hidden]="true"
         >{{ element.no }}</span>
       <span *ngIf="element.no">&nbsp;</span>

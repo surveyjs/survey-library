@@ -59,23 +59,16 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
 
   list.onItemClick(list.actions[0]);
   assert.equal(question.value, "item1");
-  assert.equal(dropdownListModel.getSelectedAction(), list.actions[0]);
-  assert.equal(list.selectedItem, list.actions[0]);
-  assert.equal(list.actions[0].active, true);
+  assert.ok(list.isItemSelected(list.actions[0]));
 
   list.onItemClick(list.actions[3]);
   assert.equal(question.value, "item4");
-  assert.equal(dropdownListModel.getSelectedAction(), list.actions[3]);
-  assert.equal(list.selectedItem, list.actions[3]);
+  assert.ok(list.isItemSelected(list.actions[3]));
   assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, true);
 
   dropdownListModel.onClear(new Event("click"));
   assert.equal(question.value, undefined);
-  assert.equal(dropdownListModel.getSelectedAction(), undefined);
-  assert.equal(list.selectedItem, undefined);
-  assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, false);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0);
 });
 
 QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
@@ -259,6 +252,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   const popup: PopupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(list.searchEnabled, true);
+  assert.equal(list.showSearchClearButton, true);
   assert.equal(popup.displayMode, "overlay");
   assert.ok(popup.isFocusedContent);
   assert.notOk(popup.setWidthByTarget);
@@ -267,4 +261,14 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   dropdownListModel.onBlur(null);
   assert.ok(popup.isVisible);
   _setIsTouch(false);
+});
+QUnit.test("Check dropdown list model is updated from value", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  question.value = "item1";
+  assert.ok(list.isItemSelected(list.actions.filter(item => item.id === "item1")[0]));
+  question.value = "item2";
+  assert.ok(list.isItemSelected(list.actions.filter(item => item.id === "item2")[0]));
 });

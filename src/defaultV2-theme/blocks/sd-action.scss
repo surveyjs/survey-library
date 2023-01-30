@@ -6,7 +6,7 @@
   color: $primary;
   border-radius: calcSize(12.5);
   font-weight: 600;
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-size: calcSize(2);
   line-height: calcSize(3);
@@ -36,7 +36,6 @@ svg.sd-action--icon {
   color: $foreground;
   cursor: default;
   opacity: 0.25;
-  cursor: default;
   pointer-events: none;
 }
 

@@ -155,6 +155,7 @@ export var modernCss = {
     rootMobileMod: "sv-ranking--mobile",
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -241,6 +242,7 @@ export var modernCss = {
   },
   dropdown: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv-row__question--small",
     control: "sv-dropdown",
     selectWrapper: "",
@@ -255,6 +257,7 @@ export var modernCss = {
   },
   tagbox: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv-row__question--small",
     selectWrapper: "sv_select_wrapper sv-tagbox_wrapper",
     other: "sv-input sv-comment sv-selectbase__other",
@@ -395,11 +398,11 @@ export var modernCss = {
     clearButton: "sjs_sp_clear",
   },
   saveData: {
-    root: "",
-    saving: "",
-    error: "",
-    success: "",
-    saveAgainButton: "",
+    root: "sv-save-data_root",
+    info: "sv-save-data_info",
+    error: "sv-save-data_error",
+    success: "sv-save-data_success",
+    button: "sv-save-data_button",
   },
   window: {
     root: "sv_window",

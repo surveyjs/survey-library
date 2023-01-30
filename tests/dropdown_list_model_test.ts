@@ -177,6 +177,7 @@ QUnit.test("filterString test", function (assert) {
   const dropdownListModel = new DropdownListModel(question);
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
+  assert.equal(dropdownListModel.inputMode, "text");
   assert.equal(list.renderedActions.length, 28);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 28);
 
@@ -251,6 +252,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   const dropdownListModel = new DropdownListModel(question);
   const popup: PopupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(dropdownListModel.inputMode, "none");
   assert.equal(list.searchEnabled, true);
   assert.equal(list.showSearchClearButton, true);
   assert.equal(popup.displayMode, "overlay");

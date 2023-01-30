@@ -220,6 +220,9 @@ export class DropdownListModel extends Base {
   public get filterStringEnabled(): boolean {
     return !this.question.isInputReadOnly && this.searchEnabled;
   }
+  public get inputMode(): "none" | "text" {
+    return IsTouch ? "none": "text";
+  }
 
   public setSearchEnabled(newValue: boolean) {
     this.listModel.searchEnabled = IsTouch;

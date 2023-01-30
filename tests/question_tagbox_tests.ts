@@ -496,3 +496,43 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   assert.deepEqual(question.value, []);
   _setIsTouch(false);
 });
+QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert) => {
+  _setIsTouch(true);
+  const survey = new SurveyModel({
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "hideSelectedItems": false,
+      "choices": ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const popupModel = dropdownListModel.popupModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  debugger;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true && hideSelectedItems = false");
+
+  list.onItemClick(list.actions[0]);
+  popupModel.isVisible = false;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "isTouch=true && value = 'item1' && hideSelectedItems = false");
+
+  list.onItemClick(list.actions[0]);
+  question.hideSelectedItems = true;
+
+  popupModel.isVisible = false;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true && hideSelectedItems = true");
+
+  list.onItemClick(list.actions[0]);
+  popupModel.isVisible = false;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "isTouch=true && value = 'item1' && hideSelectedItems = true");
+  _setIsTouch(false);
+});

@@ -119,6 +119,24 @@ QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
   assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "showFilter=false && value = 'item1'");
 });
+QUnit.test("DropdownListModel focusFirstInputSelector mobile", (assert) => {
+  _setIsTouch(true);
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const popupModel = dropdownListModel.popupModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true");
+
+  list.onItemClick(list.actions[0]);
+  popupModel.isVisible = false;
+
+  popupModel.isVisible = true;
+  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "isTouch=true && value = 'item1'");
+  _setIsTouch(false);
+});
 QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) => {
   const survey = new SurveyModel({
     questions: [{

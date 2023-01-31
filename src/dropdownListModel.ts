@@ -163,7 +163,7 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateCssClasses(popupCssClass: string, listCssClasses: any) {
+  public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
     this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
     this.listModel.cssClasses = listCssClasses;
   }

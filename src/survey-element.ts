@@ -873,8 +873,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       style["flexGrow"] = 1;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;
-      style["minWidth"] = this.minWidth;
-      style["maxWidth"] = this.maxWidth;
+      if (!this.isDesignMode) {
+        style["minWidth"] = this.minWidth;
+        style["maxWidth"] = this.maxWidth;
+      } 
     }
     return style;
   }

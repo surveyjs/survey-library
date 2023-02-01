@@ -314,3 +314,29 @@ QUnit.test("allowRootStyle", function (assert) {
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
 });
+
+QUnit.test("rootStyle in designMode", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.ok(q1.allowRootStyle);
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100.000000%",
+    "flexGrow": 1,
+    "flexShrink": 1,
+    "maxWidth": "100%",
+    "minWidth": "300px",
+  });
+  survey.setDesignMode(true);
+  survey.css = defaultV2Css;
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100.000000%",
+    "flexGrow": 1,
+    "flexShrink": 1
+  });
+});

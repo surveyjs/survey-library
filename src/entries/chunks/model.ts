@@ -150,6 +150,7 @@ export {
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
+export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export { SurveyModel } from "../../survey";

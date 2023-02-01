@@ -338,3 +338,13 @@ export interface IFindElement {
   element: Base;
   str: LocalizableString;
 }
+
+export type AddonContainer = "top" | "bottom" | "both" | "left" | "right" | "innertop" | "innerbottom";
+
+export interface ISurveyAddon {
+  id: string;
+  container?: AddonContainer | Array<AddonContainer>;
+  component?: string;
+  template?: string;
+  data?: any;
+}

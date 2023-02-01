@@ -11,19 +11,11 @@
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
-              <!-- ko if: isTimerPanelShowingOnTop && !isShowStartingPage -->
-              <!-- ko template: { name: 'survey-timerpanel' } -->
-              <!-- /ko -->
-              <!-- /ko -->
+              <sv-components-container params="survey: $data, container: 'top'"></sv-components-container>
               <div data-bind="css: $data.bodyContainerCss">
-                  <!-- ko if: isShowProgressBarOnTop && !isShowStartingPage -->
-                  <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
-                  <!-- ko if: isNavigationButtonsShowingOnTop -->
-                    <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
-                  <!-- /ko -->
+                  <sv-components-container params="survey: $data, container: 'left'"></sv-components-container>
                   <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
+                      <sv-components-container params="survey: $data, container: 'innertop'"></sv-components-container>
                       <!-- ko if: activePage -->
                         <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
                         <!-- /ko -->
@@ -32,19 +24,11 @@
                         <!-- /ko -->
                         <!-- /ko -->
                       <!-- /ko -->
+                      <sv-components-container params="survey: $data, container: 'innerbottom'"></sv-components-container>
                   </div>
-                  <!-- ko if: isShowProgressBarOnBottom && !isShowStartingPage -->
-                  <!-- ko component: { name: 'sv-progress-' + progressBarType, params: { model: $data } } -->
-                  <!-- /ko -->
-                  <!-- /ko -->
-                  <!-- ko if: isNavigationButtonsShowingOnBottom -->
-                    <!-- ko component: { name: 'sv-action-bar', params: { model: navigationBar } } --><!-- /ko -->
-                  <!-- /ko -->
+                  <sv-components-container params="survey: $data, container: 'right'"></sv-components-container>
               </div>
-              <!-- ko if: isTimerPanelShowingOnBottom && !isShowStartingPage -->
-              <!-- ko template: { name: 'survey-timerpanel' } -->
-              <!-- /ko -->
-              <!-- /ko -->
+              <sv-components-container params="survey: $data, container: 'bottom'"></sv-components-container>
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>

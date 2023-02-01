@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
+import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
 import { Base, EventBase, ComputedUpdater } from "./base";
 import {
   ISurvey,
@@ -14,6 +14,8 @@ import {
   ISurveyElement,
   IProgressInfo,
   IFindElement,
+  ISurveyAddon,
+  AddonContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -1435,6 +1437,42 @@ export class SurveyModel extends SurveyElementCore
       title: this.getLocalizationString("saveAgainButton"),
       action: () => { this.doComplete(); }
     }, "error");
+
+    this.addons.push({
+      id: "timerpanel",
+      template: "survey-timerpanel",
+      data: this
+    });
+    this.addons.push({
+      id: "progress-buttons",
+      component: "sv-progress-buttons",
+      data: this
+    });
+    this.addons.push({
+      id: "progress-questions",
+      component: "sv-progress-questions",
+      data: this
+    });
+    this.addons.push({
+      id: "progress-pages",
+      component: "sv-progress-pages",
+      data: this
+    });
+    this.addons.push({
+      id: "progress-correctQuestions",
+      component: "sv-progress-correctQuestions",
+      data: this
+    });
+    this.addons.push({
+      id: "progress-requiredQuestions",
+      component: "sv-progress-requiredQuestions",
+      data: this
+    });
+    this.addons.push({
+      id: "navigation",
+      component: "sv-action-bar",
+      data: this.navigationBar
+    });
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1568,6 +1606,9 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.bodyWithTimer, this.showTimerPanel != "none" && this.state === "running")
       .append(this.css.body + "--" + this.calculatedWidthMode).toString();
+  }
+  public get bodyContainerCss(): string {
+    return this.css.bodyContainer;
   }
   @property() completedCss: string;
   @property() containerCss: string;
@@ -7103,6 +7144,67 @@ export class SurveyModel extends SurveyElementCore
   public getSkeletonComponentName(element: ISurveyElement): string {
     return this.skeletonComponentName;
   }
+
+  @propertyArray() private addons: Array<ISurveyAddon>;
+
+  public registerAddon(addon: ISurveyAddon): ISurveyAddon {
+    const existingAddon = this.unregisterAddon(addon.id);
+    this.addons.push(addon);
+    return existingAddon;
+  }
+  public unregisterAddon(addonId: string): ISurveyAddon {
+    const addon = this.addons.filter(a => a.id === addonId)[0];
+    if(!!addon) {
+      const addonIndex = this.addons.indexOf(addon);
+    }
+    return addon;
+  }
+
+  public getContainerContent(container: AddonContainer) {
+    const addons = [];
+    for(let addon of this.addons) {
+      if(addon.id === "timerpanel") {
+        if(container === "top") {
+          if(this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
+            addons.push(addon);
+          }
+        }
+        if(container === "bottom") {
+          if(this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
+            addons.push(addon);
+          }
+        }
+      } else if(addon.id === "progress-" + this.progressBarType) {
+        if(container === "innertop") {
+          if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+            addons.push(addon);
+          }
+        }
+        if(container === "innerbottom") {
+          if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+            addons.push(addon);
+          }
+        }
+      } else if(addon.id === "navigation") {
+        if(container === "innertop") {
+          if(this.isNavigationButtonsShowingOnTop) {
+            addons.push(addon);
+          }
+        }
+        if(container === "innerbottom") {
+          if(this.isNavigationButtonsShowingOnBottom) {
+            addons.push(addon);
+          }
+        }
+      } else {
+        if(Array.isArray(addon.container) && addon.container.indexOf(container) !== -1 || addon.container === container) {
+          addons.push(addon);
+        }
+      }
+    }
+    return addons;
+  }
+
   /**
    * Use this method to dispose survey model properly.
    */

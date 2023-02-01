@@ -1,0 +1,16 @@
+sv-components-container,
+.sd-components-container {
+  display: flex;
+}
+
+.sd-components-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.sd-components-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

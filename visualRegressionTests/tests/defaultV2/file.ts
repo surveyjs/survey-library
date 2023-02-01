@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "File Screenshot";
 
@@ -97,6 +97,28 @@ frameworks.forEach(framework => {
       await t.click(Selector(".sd-file #prevPage"));
       await t.click(Selector(".sd-file #prevPage"));
       await takeElementScreenshot("file-question-multiple-mobile-prev.png", questionRoot, t, comparer);
+    });
+  });
+});
+frameworks.forEach(framework => {
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
+  });
+  test("Check file question placeholder mobile", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1000);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [{
+          type: "file",
+          title: "Upload everything what you’d like to.",
+          name: "file_question",
+        }]
+      });
+      await resetFocusToBody();
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("file-question-placeholder-mobile.png", questionRoot, t, comparer);
     });
   });
 });

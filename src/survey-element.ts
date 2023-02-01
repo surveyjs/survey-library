@@ -876,7 +876,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       if (!this.isDesignMode) {
         style["minWidth"] = this.minWidth;
         style["maxWidth"] = this.maxWidth;
-      } 
+      }
     }
     return style;
   }

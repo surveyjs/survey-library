@@ -296,6 +296,9 @@ export class QuestionMultipleTextModel extends Question
     super(name);
     this.createNewArray("items", (item: any) => {
       item.setData(this);
+      if(this.survey) {
+        this.survey.multipleTextItemAdded(this, item);
+      }
     });
     this.registerPropertyChangedHandlers(["items", "colCount"], () => {
       this.fireCallback(this.colCountChangedCallback);

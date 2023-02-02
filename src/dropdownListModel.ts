@@ -15,7 +15,18 @@ export class DropdownListModel extends Base {
   readonly loadingItemHeight = 40;
 
   private _popupModel: PopupModel;
-  private focusFirstInputSelector = ".sv-list__item--selected";
+  private get focusFirstInputSelector(): string {
+    return this.getFocusFirstInputSelector();
+  }
+  protected readonly selectedItemSelector = ".sv-list__item--selected";
+  protected readonly itemSelector = ".sv-list__item";
+  protected getFocusFirstInputSelector(): string {
+    if(IsTouch) {
+      return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
+    } else {
+      return (!this.listModel.showFilter && !!this.question.value) ? this.selectedItemSelector : "";
+    }
+  }
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel;
@@ -64,7 +75,7 @@ export class DropdownListModel extends Base {
   }
 
   private updatePopupFocusFirstInputSelector() {
-    this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
+    this._popupModel.focusFirstInputSelector = this.focusFirstInputSelector;
   }
 
   protected createPopup(): void {
@@ -152,7 +163,7 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateCssClasses(popupCssClass: string, listCssClasses: any) {
+  public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
     this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
     this.listModel.cssClasses = listCssClasses;
   }
@@ -219,6 +230,9 @@ export class DropdownListModel extends Base {
   }
   public get filterStringEnabled(): boolean {
     return !this.question.isInputReadOnly && this.searchEnabled;
+  }
+  public get inputMode(): "none" | "text" {
+    return IsTouch ? "none": "text";
   }
 
   public setSearchEnabled(newValue: boolean) {

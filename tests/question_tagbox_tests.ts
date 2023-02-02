@@ -331,8 +331,8 @@ QUnit.test("lazy loading: several loading", assert => {
   }, 550);
 });
 
-function getObjectArray(skip = 1, count = 25): Array<number> {
-  const result: Array<any> = [];
+function getObjectArray(skip = 1, count = 25): Array<{value: any, text: string}> {
+  const result: Array<{value: any, text: string}> = [];
   for (let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }

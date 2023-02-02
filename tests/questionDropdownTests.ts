@@ -759,8 +759,8 @@ QUnit.test("selectedItem until all data is loaded", assert => {
   }, 550);
 
 });
-function getObjectArray(skip = 1, count = 25): Array<number> {
-  const result:Array<any> = [];
+function getObjectArray(skip = 1, count = 25): Array<{value: number, text: string}> {
+  const result:Array<{value: number, text: string}> = [];
   for(let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }

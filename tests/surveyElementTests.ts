@@ -6,6 +6,7 @@ import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { StylesManager } from "../src/stylesmanager";
+import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyElement");
 
@@ -337,6 +338,15 @@ QUnit.test("rootStyle in designMode", function (assert) {
   assert.deepEqual(q1.rootStyle, {
     "flexBasis": "100.000000%",
     "flexGrow": 1,
+    "flexShrink": 1,
+    "maxWidth": "100%",
+    "minWidth": "300px",
+  });
+  settings.supportCreatorV2 = true;
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100.000000%",
+    "flexGrow": 1,
     "flexShrink": 1
   });
+  settings.supportCreatorV2 = false;
 });

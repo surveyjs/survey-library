@@ -232,7 +232,6 @@ export class QuestionPanelDynamicModel extends Question
   private loadingPanelCount: number = 0;
   private isValueChangingInternally: boolean;
   private changingValueQuestion: Question;
-  private currentIndexValue: number = -1;
 
   renderModeChangedCallback: () => void;
   panelCountChangedCallback: () => void;
@@ -438,6 +437,8 @@ export class QuestionPanelDynamicModel extends Question
       this.fireCallback(this.currentIndexChangedCallback);
     }
   }
+  private get currentIndexValue(): number { return this.getPropertyValue("currentIndexValue", -1); }
+  private set currentIndexValue(val: number) { this.setPropertyValue("currentIndexValue", val); }
   /**
    * A `PanelModel` object that is the currently displayed panel.
    *

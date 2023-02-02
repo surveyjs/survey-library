@@ -6,7 +6,6 @@ import { Serializer } from "../src/jsonobject";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
 import { StylesManager } from "../src/stylesmanager";
-import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyElement");
 
@@ -314,39 +313,4 @@ QUnit.test("allowRootStyle", function (assert) {
   q1.allowRootStyle = false;
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
-});
-
-QUnit.test("rootStyle in designMode", function (assert) {
-  StylesManager.applyTheme("default");
-  const survey = new SurveyModel({
-    elements: [{
-      type: "text",
-      name: "q1"
-    }]
-  });
-  const q1 = survey.getQuestionByName("q1");
-  assert.ok(q1.allowRootStyle);
-  assert.deepEqual(q1.rootStyle, {
-    "flexBasis": "100.000000%",
-    "flexGrow": 1,
-    "flexShrink": 1,
-    "maxWidth": "100%",
-    "minWidth": "300px",
-  });
-  survey.setDesignMode(true);
-  survey.css = defaultV2Css;
-  assert.deepEqual(q1.rootStyle, {
-    "flexBasis": "100.000000%",
-    "flexGrow": 1,
-    "flexShrink": 1,
-    "maxWidth": "100%",
-    "minWidth": "300px",
-  });
-  settings.supportCreatorV2 = true;
-  assert.deepEqual(q1.rootStyle, {
-    "flexBasis": "100.000000%",
-    "flexGrow": 1,
-    "flexShrink": 1
-  });
-  settings.supportCreatorV2 = false;
 });

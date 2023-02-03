@@ -21,7 +21,7 @@ export class SurveyTimer {
   }
   private listenerCounter = 0;
   private timerId = -1;
-  public onTimer: Event<() => any, any> = new Event<() => any, any>();
+  public onTimer: Event<() => any, SurveyTimer, any> = new Event<() => any, SurveyTimer, any>();
   public start(func: () => any = null) {
     if (func) {
       this.onTimer.add(func);

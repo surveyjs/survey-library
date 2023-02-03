@@ -123,6 +123,9 @@ export class Question extends SurveyElement<Question>
       }
     });
     this.registerPropertyChangedHandlers(["isRequired"], () => {
+      if(!this.isRequired && this.errors.length > 0) {
+        this.validate();
+      }
       this.locTitle.strChanged();
       this.clearCssClasses();
     });

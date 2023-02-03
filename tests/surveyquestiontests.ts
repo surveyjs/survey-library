@@ -6486,3 +6486,27 @@ QUnit.test("survey.onMultipleTextItemAdded", function (
   q.items.push(new MultipleTextItemModel("item2"));
   assert.equal(itemName, "item2", "The event raised correctly on adding into array");
 });
+QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        name: "q1",
+        type: "radiogroup",
+        choices: ["yes", "no"]
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "requiredIf": "{q1} = 'yes'"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "yes";
+  assert.equal(q2.isRequired, true, "q2 is required");
+  survey.completeLastPage();
+  assert.equal(q2.errors.length, 1, "One error is shown");
+  q1.value = "no";
+  assert.equal(q2.isRequired, false, "q2 is not required");
+  assert.equal(q2.errors.length, 0, "Errors are cleaned");
+});

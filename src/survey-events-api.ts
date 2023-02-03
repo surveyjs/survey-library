@@ -121,7 +121,7 @@ export interface IOnPanelAddedOptions {
   parent: PanelModelBase;
   index: number;
   name: string;
-  panel: IElement;
+  panel: PanelModel;
   parentPanel: any;
   rootPanel: any;
 }

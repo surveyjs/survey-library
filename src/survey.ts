@@ -6462,7 +6462,7 @@ export class SurveyModel extends SurveyElementCore
       delete hash[name];
     }
   }
-  panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
+  panelAdded(panel: PanelModel, index: number, parentPanel: any, rootPanel: any) {
     if (!panel.name) {
       panel.name = this.generateNewName(
         this.getAllPanels(false, true),

@@ -1,4 +1,3 @@
-import { deprecate } from "util";
 import { IAction } from "./actions/action";
 import { Base } from "./base";
 import { IElement, ISurveyElement } from "./base-interfaces";

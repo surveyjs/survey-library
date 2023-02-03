@@ -39,9 +39,9 @@ export class Page extends BaseVue {
       this.survey.afterRenderPage(this.$el as HTMLElement);
     }
   }
-  protected onUpdated() {
-    this.survey.afterRenderPage(this.$el as HTMLElement);
-  }
+  //protected onUpdated() {
+  //  this.survey.afterRenderPage(this.$el as HTMLElement);
+  //}
   get showDescription() {
     return this.page._showDescription;
   }

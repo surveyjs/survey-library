@@ -1,3 +1,4 @@
+import { _setIsTouch } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -169,6 +170,31 @@ registerMarkupTests(
         ]
       },
       snapshot: "dropdown-select",
+    }, {
+      name: "Test Dropdown Select question markup",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "allowClear": false,
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      before: () => {
+        _setIsTouch(true);
+      },
+      after: () => {
+        _setIsTouch(false);
+      },
+      snapshot: "dropdown-select-mobile",
     },
     {
       name: "Test Dropdown Select question with clear button markup",

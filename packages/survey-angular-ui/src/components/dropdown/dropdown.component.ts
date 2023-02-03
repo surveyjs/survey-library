@@ -5,15 +5,12 @@ import { BaseAngular } from "../../base-angular";
 @Component({
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
-})
+  })
 export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit {
     @Input() model: any;
     @ViewChild("inputElement") inputElementRef!: ElementRef<HTMLDivElement>;
-
-    private dropdownListModel!: DropdownListModel;
-
     get dropdownModel(): DropdownListModel {
-      return this.dropdownListModel;
+      return this.model?.dropdownListModel;
     }
     protected getModel() {
       return this.model;
@@ -21,25 +18,27 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
 
     override ngOnInit(): void {
       super.ngOnInit();
-      this.dropdownListModel = this.model.dropdownListModel || new DropdownListModel(this.model);
+      if (!this.model.dropdownListModel) {
+        this.model.dropdownListModel = new DropdownListModel(this.model);
+      }
     }
 
     override ngOnDestroy() {
       super.ngOnDestroy();
-      this.dropdownListModel?.dispose();
+      this.dropdownModel?.dispose();
     }
 
     click(event: any) {
-      this.dropdownListModel?.onClick(event);
+      this.dropdownModel?.onClick(event);
     }
     clear(event: any) {
-      this.dropdownListModel?.onClear(event);
+      this.dropdownModel?.onClear(event);
     }
     keyhandler(event: any) {
-      this.dropdownListModel?.keyHandler(event);
+      this.dropdownModel?.keyHandler(event);
     }
     blur(event: any) {
-      this.dropdownListModel?.onBlur(event);
+      this.dropdownModel?.onBlur(event);
       this.updateInputDomElement();
     }
     inputChange(event: any) {

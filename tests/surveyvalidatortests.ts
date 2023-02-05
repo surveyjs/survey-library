@@ -107,6 +107,15 @@ QUnit.test("Numeric validator", function(assert) {
     null,
     "Value is between minValue and maxValue. Return no errors. High limit is 0."
   );
+
+  validator.minValue = 0;
+  validator.maxValue = 100;
+  assert.equal(validator.validate("0.1").error, null, "0.1 > 0");
+  assert.equal(validator.validate("1.1").error, null, "1.1 > 0");
+  assert.equal(validator.validate("0,1").error, null, "0,1 > 0");
+  assert.equal(validator.validate("1,1").error, null, "1,1 > 0");
+  assert.equal(validator.validate("99,1").error, null, "99,1 < 100");
+  assert.notEqual(validator.validate("100,1").error, null, "100,1 > 100");
 });
 
 QUnit.test("Email validator", function(assert) {

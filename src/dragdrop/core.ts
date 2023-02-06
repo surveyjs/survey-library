@@ -30,7 +30,7 @@ export abstract class DragDropCore<T> extends Base {
     },
   })
   isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
-  public onGhostPositionChanged: EventBase<Base> = new EventBase<Base>();
+  public onGhostPositionChanged: EventBase<{}> = new EventBase<{}>();
   protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire({}, {});
   }

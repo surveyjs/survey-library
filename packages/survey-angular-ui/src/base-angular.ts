@@ -12,6 +12,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected get surveyModel(): ISurvey {
     return this.getModel().getSurvey();
   }
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
   protected abstract getModel(): T;
   protected previousModel?: T;
   private isModelSubsribed: boolean = false;
@@ -110,12 +113,20 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.getChangeDetectorRef().detectChanges();
   }
 
+  protected getShouldReattachChangeDetector(): boolean {
+    return true;
+  }
+
   protected beforeUpdate(): void {
-    this.getChangeDetectorRef().detach();
+    if(this.getShouldReattachChangeDetector()) {
+      this.getChangeDetectorRef().detach();
+    }
     this.setIsRendering(true);
   }
   protected afterUpdate(): void {
-    this.getChangeDetectorRef().reattach();
+    if(this.getShouldReattachChangeDetector()) {
+      this.getChangeDetectorRef().reattach();
+    }
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {

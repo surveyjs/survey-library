@@ -97,6 +97,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       ((<any>window)["__zone_symbol__queueMicrotask"]
         ? (<any>window)["__zone_symbol__queueMicrotask"] : queueMicrotask)(() => {
         if(!this.isDestroyed) {
+          this.setIsRendering(true);
           this.detectChanges();
         }
         this.afterUpdate();

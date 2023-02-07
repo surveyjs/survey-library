@@ -8,6 +8,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Text question type.
@@ -417,11 +418,16 @@ export class QuestionTextModel extends QuestionTextBase {
     if(this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
+        if (event.keyCode === 13) {
+          event.target.blur();
+        }
         this._isWaitingForEnter = false;
       }
     } else {
       if (event.keyCode === 13) {
         this.updateValueOnEvent(event);
+        event.target.blur();
+        (this.survey as SurveyModel).questionEditFinishCallback(this);
       }
     }
   };

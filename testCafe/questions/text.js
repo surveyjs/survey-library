@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "text";
@@ -185,5 +185,62 @@ frameworks.forEach((framework) => {
     assert.equal(questionValue, undefined);
     json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ]
+          },
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question3"
+              }
+            ]
+          }
+        ]
+      });
+    }
+  );
+
+  test("text questions edit end", async (t) => {
+    const q1Input = Selector("div[data-name=question1] input");
+    const q2Input = Selector("div[data-name=question2] input");
+
+    await t
+      .typeText(q1Input, "abc")
+      .expect(q1Input.focused).ok()
+      .pressKey("Enter")
+      .expect(q1Input.focused).notOk();
+
+    await ClientFunction(() => { window["survey"].focusNextQuestionAfterEditFinish = true; })();
+
+    await t
+      .typeText(q1Input, "abc")
+      .expect(q1Input.focused).ok()
+      .pressKey("Enter")
+      .expect(q2Input.focused).ok()
+      .typeText(q2Input, "mnk")
+      .pressKey("Enter")
+      .expect(q1Input.focused).notOk()
+      .expect(q2Input.focused).notOk();
   });
 });

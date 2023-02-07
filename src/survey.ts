@@ -7078,6 +7078,19 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
 
+  //TODO: rename and describe property
+  @property() focusNextQuestionAfterEditFinish: boolean;
+  //
+  public questionEditFinishCallback(question: Question) {
+    if (this.focusNextQuestionAfterEditFinish) {
+      const allQuestions = this.currentPage.questions;
+      const questionIndex = allQuestions.indexOf(question);
+      if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {
+        allQuestions[questionIndex + 1].focus();
+      }
+    }
+  }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";

@@ -12,9 +12,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected get surveyModel(): ISurvey {
     return this.getModel().getSurvey();
   }
-  override ngOnInit(): void {
-    super.ngOnInit();
-  }
   protected abstract getModel(): T;
   protected previousModel?: T;
   private isModelSubsribed: boolean = false;

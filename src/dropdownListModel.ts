@@ -15,6 +15,7 @@ export class DropdownListModel extends Base {
   readonly loadingItemHeight = 40;
 
   private _popupModel: PopupModel;
+  private _doNotUpdateFilterString: boolean = false;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
@@ -143,6 +144,10 @@ export class DropdownListModel extends Base {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
+        this._doNotUpdateFilterString = true;
+        this.inputString = item.title;
+        this._doNotUpdateFilterString = false;
+        this.setInputHasValue(!!this.inputString);
         this._popupModel.toggleVisibility();
       };
     }
@@ -176,8 +181,6 @@ export class DropdownListModel extends Base {
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setInputHasValue(!!this.filterString);
-
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
       this.popupRecalculatePosition(true);
@@ -202,6 +205,17 @@ export class DropdownListModel extends Base {
       target.onSetFilterString();
     }
   }) filterString: string;
+
+  @property({
+    defaultValue: "",
+    onSet: (val, target: DropdownListModel) => {
+      if (!target["_doNotUpdateFilterString"]) {
+        target.filterString = val;
+        if (!val) target.onClear(null);
+      }
+    }
+  }) inputString: string;
+
   @property({
     defaultValue: false,
     onSet: (newVal: boolean, target: DropdownListModel) => {
@@ -259,8 +273,10 @@ export class DropdownListModel extends Base {
   public onClear(event: any): void {
     this.question.clearValue();
     this.resetFilterString();
-    event.preventDefault();
-    event.stopPropagation();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   public getSelectedAction(): Action {
@@ -288,10 +304,13 @@ export class DropdownListModel extends Base {
       event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       this.listModel.selectFocusedItem();
+      this.onFocus(event);
       event.preventDefault();
       event.stopPropagation();
-    } else if (char === 46) {
-      this.onClear(event);
+    } else if (char === 46 || char === 8) {
+      if (!this.searchEnabled) {
+        this.onClear(event);
+      }
     } else if (event.keyCode === 27) {
       this.popupModel.isVisible = false;
     } else {
@@ -318,8 +337,17 @@ export class DropdownListModel extends Base {
     }
     this.resetFilterString();
     this._popupModel.isVisible = false;
+    this._doNotUpdateFilterString = true;
+    this.inputString = undefined;
+    this._doNotUpdateFilterString = false;
     this.setInputHasValue(false);
     doKey2ClickBlur(event);
+  }
+  onFocus(event: any): void {
+    this._doNotUpdateFilterString = true;
+    this.inputString = this.getSelectedAction()?.title;
+    this._doNotUpdateFilterString = false;
+    this.setInputHasValue(!!this.inputString);
   }
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();

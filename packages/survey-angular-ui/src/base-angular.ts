@@ -94,6 +94,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       ((<any>window)["__zone_symbol__queueMicrotask"]
         ? (<any>window)["__zone_symbol__queueMicrotask"] : queueMicrotask)(() => {
         if(!this.isDestroyed) {
+          this.setIsRendering(true);
           this.detectChanges();
         }
         this.afterUpdate();
@@ -110,12 +111,20 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.getChangeDetectorRef().detectChanges();
   }
 
+  protected getShouldReattachChangeDetector(): boolean {
+    return true;
+  }
+
   protected beforeUpdate(): void {
-    this.getChangeDetectorRef().detach();
+    if(this.getShouldReattachChangeDetector()) {
+      this.getChangeDetectorRef().detach();
+    }
     this.setIsRendering(true);
   }
   protected afterUpdate(): void {
-    this.getChangeDetectorRef().reattach();
+    if(this.getShouldReattachChangeDetector()) {
+      this.getChangeDetectorRef().reattach();
+    }
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {

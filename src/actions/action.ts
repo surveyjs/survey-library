@@ -175,6 +175,12 @@ export abstract class BaseAction extends Base implements IAction {
   public get enabled() {
     return this.getEnabled();
   }
+  public get component(): string {
+    return this.getComponent();
+  }
+  public set component(val: string): string {
+    return this.setComponent(val);
+  }
 
   public set enabled(val: boolean) {
     this.setEnabled(val);
@@ -195,7 +201,6 @@ export abstract class BaseAction extends Base implements IAction {
   @property() owner: ILocalizableOwner;
   public id: string;
   @property() iconName: string;
-  @property() component?: string;
   @property() visibleIndex?: number;
   @property() css?: string
 
@@ -209,13 +214,15 @@ export abstract class BaseAction extends Base implements IAction {
     return this.cssClassesValue || defaultActionBarCss;
   }
   protected abstract getEnabled(): boolean;
-  protected abstract getVisible(): boolean;
-  protected abstract getLocTitle(): LocalizableString;
-  protected abstract getTitle(): string;
   protected abstract setEnabled(val: boolean): void;
+  protected abstract getVisible(): boolean;
   protected abstract setVisible(val: boolean): void;
+  protected abstract getLocTitle(): LocalizableString;
   protected abstract setLocTitle(val: LocalizableString): void;
+  protected abstract getTitle(): string;
   protected abstract setTitle(val: string): void;
+  protected abstract getComponent(): string;
+  protected abstract setComponent(val: string): void;
 }
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
@@ -267,7 +274,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() active: boolean;
   @property() pressed: boolean;
   @property() template: string;
-  @property() component: string;
+  @property() _component: string;
   @property() items: any;
   @property() visibleIndex: number;
   @property({ defaultValue: "large" }) mode: actionModeType;
@@ -401,6 +408,12 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getEnabled(): boolean {
     return this._enabled;
+  }
+  public setComponent(val: string): void {
+    this._component = val;
+  }
+  public getComponent(): string {
+    return this._component;
   }
 }
 

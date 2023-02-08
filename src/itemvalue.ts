@@ -245,10 +245,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public set locOwner(value: ILocalizableOwner) {
     this._locOwner = value;
-    if(this._locOwner instanceof QuestionSelectBase) {
-      this.selected = <any>new ComputedUpdater(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this));
-      this.component = <any>new ComputedUpdater(() => (<QuestionSelectBase>this._locOwner).itemComponent);
-    }
   }
 
   public get value(): any {
@@ -404,7 +400,22 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public originalItem: any;
 
   //base action
-  @property() selected: boolean;
+  public get selected(): boolean {
+    if(this._locOwner instanceof QuestionSelectBase) {
+      return this._locOwner.isItemSelected(this);
+    }
+    return false;
+  }
+  private componentValue: string;
+  public getComponent(): string {
+    if(this._locOwner instanceof QuestionSelectBase) {
+      return this.componentValue || this._locOwner.itemComponent;
+    }
+    return "";
+  }
+  public setComponent(val: string): void {
+    this.componentValue = val;
+  }
 
   protected getEnabled(): boolean {
     return this.isEnabled;

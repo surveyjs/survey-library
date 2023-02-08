@@ -604,6 +604,15 @@ export class SurveyModel extends SurveyElementCore
    */
   public onProcessHtml: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
+   * Use this event to change the question display value in code. Question display value is using in text pre-processing.
+   * You can provide a custom display value for empty value, for example.
+   * - `sender`: `SurveyModel` - A survey instance that raised the event.
+   * - `options.question` - a question object.
+   * - `options.displayValue` - a question display value. You can change this value.
+   * @see Question
+   */
+  public onGetQuestionDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
    * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * - `sender`: `SurveyModel` - A survey instance that raised the event.
    * - `options.title` - a calculated question title, based on question `title`, `name`.
@@ -611,9 +620,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showQuestionNumbers
    * @see requiredText
    */
-  public onGetQuestionTitle: EventBase<SurveyModel> = this.addEvent<
-    SurveyModel
-  >();
+  public onGetQuestionTitle: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * Use this event to change the element title tag name that renders by default.
    * - `sender`: `SurveyModel` - A survey instance that raised the event.
@@ -2193,6 +2200,11 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onErrorCustomText.fire(this, options);
     return options.text;
+  }
+  getQuestionDisplayValue(question: IElement, displayValue: any): any {
+    const options = { question: question, displayValue: displayValue };
+    this.onGetQuestionDisplayValue.fire(this, options);
+    return options.displayValue;
   }
   /**
    * Returns the text displayed when a survey has no visible pages and questions.

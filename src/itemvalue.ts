@@ -400,11 +400,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public originalItem: any;
 
   //base action
+  @property() selectedValue: boolean;
   public get selected(): boolean {
-    if(this._locOwner instanceof QuestionSelectBase) {
-      return this._locOwner.isItemSelected(this);
+    if(this._locOwner instanceof QuestionSelectBase && this.selectedValue === undefined) {
+      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this)));
     }
-    return false;
+    return this.selectedValue;
   }
   private componentValue: string;
   public getComponent(): string {

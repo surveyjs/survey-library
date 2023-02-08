@@ -175,15 +175,14 @@ export abstract class BaseAction extends Base implements IAction {
   public get enabled() {
     return this.getEnabled();
   }
+  public set enabled(val: boolean) {
+    this.setEnabled(val);
+  }
   public get component(): string {
     return this.getComponent();
   }
-  public set component(val: string): string {
-    return this.setComponent(val);
-  }
-
-  public set enabled(val: boolean) {
-    this.setEnabled(val);
+  public set component(val: string) {
+    this.setComponent(val);
   }
   public get locTitle(): LocalizableString {
     return this.getLocTitle();

@@ -361,7 +361,6 @@ QUnit.test("onBeforeDrop event options", function (
   ddHelper.draggedElement = panel;
   ddHelper.dropTarget = question;
   ddHelper.parentElement = page;
-  ddHelper.fromElement = page;
   ddHelper["draggedElementShortcut"] = document.body.appendChild(
     document.createElement("div")
   );

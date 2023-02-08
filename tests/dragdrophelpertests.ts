@@ -320,6 +320,59 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
   assert.equal(afterCount, 1);
 });
 
+QUnit.test("onBeforeDrop event options", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [{
+      name: "page1",
+      elements: [
+        {
+          type: "text",
+          name: "q",
+        },
+        {
+          type: "panel",
+          name: "p",
+        }
+      ]
+    }]
+  });
+
+  const page = survey.pages[0];
+  const question = survey.getQuestionByName("q");
+  const panel = survey.getPanelByName("p");
+
+  let fromElement;
+  let draggedElement;
+  let toElement;
+
+  // init
+  const ddHelper: any = new DragDropSurveyElements(survey);
+ 
+  ddHelper.onAfterDrop.add((sender, options) => {
+    fromElement = options.fromElement;
+    draggedElement = options.draggedElement;
+    toElement = options.toElement;
+  });
+  // EO init
+  
+  //onAfterDrop
+  ddHelper.draggedElement = panel;
+  ddHelper.dropTarget = question;
+  ddHelper.parentElement = page;
+  ddHelper["draggedElementShortcut"] = document.body.appendChild(
+    document.createElement("div")
+  );
+  ddHelper["allowDropHere"] = true;
+  ddHelper["drop"]();
+
+  assert.deepEqual(fromElement.name, page.name);
+  assert.deepEqual(draggedElement.name, panel.name);
+  assert.deepEqual(toElement.name, question.name);
+  //EO onAfterDrop
+});
+
 QUnit.test("allowDropHere", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -554,8 +607,6 @@ QUnit.test("surveyelement: calcTargetRowMultiple for paneldynamic 2", function (
   ddHelper.isEdge = true;
   ddHelper.draggedElement = question1;
   ddHelper.dropTarget = question3;
-
-  //debugger;
 
   ddHelper["calcTargetRowMultiple"]();
 

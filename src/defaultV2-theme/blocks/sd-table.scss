@@ -10,6 +10,8 @@
   }
 }
 .sd-table--alternate-rows {
+  margin: 0 8px;
+  width: calc(100% - 2 * #{$base-unit});
   .sd-table__row:nth-of-type(odd) {
     & > td,
     td:first-of-type {
@@ -20,6 +22,12 @@
       .sd-item__decorator {
         --sd-item-default-background: var(--primary-foreground, #fff);
       }
+    }
+    td:first-of-type {
+      padding-left: calcSize(2);
+    }
+    td:last-of-type {
+      padding-right: calcSize(2);
     }
   }
 }

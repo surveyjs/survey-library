@@ -31,6 +31,11 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getIsRequiredText(): string;
 }
 
+/**
+ * A class that describes an item in a [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
+ *
+ * [View Demo](/form-library/examples/multiple-text-box-question/)
+ */
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
   private editorValue: QuestionTextModel;

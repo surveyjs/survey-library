@@ -28,8 +28,12 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
     return this.model.getItemValueWrapperComponentName(item) || this.getDefaultComponentName();
   }
   public getItemValueComponentData(item: ItemValue): any {
+    const itemComponentProperty = this.model.getPropertyByName("itemComponent");
+    const isDefaultItemComponent = itemComponentProperty.isDefaultValue(this.model.itemComponent);
+    const itemComponentName = isDefaultItemComponent ? this.getDefaultComponentName() : this.model.itemComponent;
+
     return {
-      componentName: this.model.itemComponent || this.getDefaultComponentName(),
+      componentName: itemComponentName,
       componentData: {
         question: this.model,
         model: item,

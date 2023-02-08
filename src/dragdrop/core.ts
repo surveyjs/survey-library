@@ -43,6 +43,7 @@ export abstract class DragDropCore<T> extends Base {
   public draggedElement: any = null;
   protected abstract get draggedElementType(): string;
   protected parentElement: T;
+  protected fromElement: T;
   public dropTarget: any = null;
   protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
@@ -77,6 +78,7 @@ export abstract class DragDropCore<T> extends Base {
       );
       return;
     }
+    this.fromElement = parentElement;
     this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
   }
 
@@ -236,9 +238,9 @@ export abstract class DragDropCore<T> extends Base {
 
   private drop = () => {
     if (this.allowDropHere) {
-      this.onBeforeDrop.fire(this, null);
+      this.onBeforeDrop.fire(this, { fromElement: this.fromElement, draggedElement: this.draggedElement });
       const newElement = this.doDrop();
-      this.onAfterDrop.fire(this, { draggedElement: newElement });
+      this.onAfterDrop.fire(this, { fromElement: this.fromElement, draggedElement: newElement, toElement: this.dropTarget });
     }
 
     this.clear();
@@ -513,6 +515,7 @@ export abstract class DragDropCore<T> extends Base {
     this.draggedElement = null;
     this.isBottom = null;
     this.parentElement = null;
+    this.fromElement = null;
     this.scrollIntervalId = null;
 
     if (IsTouch) {

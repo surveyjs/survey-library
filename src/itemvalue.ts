@@ -8,16 +8,18 @@ import {
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
+import { BaseAction } from "./actions/action";
+import { QuestionSelectBase } from "./question_baseselect";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue extends Base implements ILocalizableOwner, IShortcutText {
+export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 
   public getMarkdownHtml(text: string, name: string): string {
@@ -243,6 +245,10 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   }
   public set locOwner(value: ILocalizableOwner) {
     this._locOwner = value;
+    if(this._locOwner instanceof QuestionSelectBase) {
+      this.selected = <any>new ComputedUpdater(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this));
+      this.component = <any>new ComputedUpdater(() => (<QuestionSelectBase>this._locOwner).itemComponent);
+    }
   }
 
   public get value(): any {
@@ -262,6 +268,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (!!text) {
       this.text = text;
     }
+    this.id = this.value;
   }
   public get hasText(): boolean {
     return this.locText.pureText ? true : false;
@@ -395,6 +402,30 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     return this.enableConditionRunner;
   }
   public originalItem: any;
+
+  //base action
+  @property() selected: boolean;
+
+  protected getEnabled(): boolean {
+    return this.isEnabled;
+  }
+  protected setEnabled(val: boolean): void {
+    this.setIsEnabled(val);
+  }
+  protected getVisible(): boolean {
+    return this.isVisible;
+  }
+  protected setVisible(val: boolean): void {
+    this.setIsVisible(val);
+  }
+  protected getLocTitle(): LocalizableString {
+    return this.locText;
+  }
+  protected getTitle(): string {
+    return this.text;
+  }
+  protected setLocTitle(val: LocalizableString): void {}
+  protected setTitle(val: string): void {}
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

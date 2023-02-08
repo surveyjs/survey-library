@@ -64,7 +64,7 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
   list.onItemClick(list.actions[3]);
   assert.equal(question.value, "item4");
   assert.ok(list.isItemSelected(list.actions[3]));
-  assert.equal(list.actions[0].active, false);
+  assert.equal(list.isItemSelected(list.actions[0]), false);
 
   dropdownListModel.onClear(new Event("click"));
   assert.equal(question.value, undefined);

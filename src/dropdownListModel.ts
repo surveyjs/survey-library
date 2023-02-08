@@ -1,11 +1,10 @@
-import { Action, IAction } from "./actions/action";
+import { IAction } from "./actions/action";
 import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionSelectBase } from "./question_baseselect";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -18,7 +17,7 @@ export class DropdownListModel extends Base {
   private focusFirstInputSelector = ".sv-list__item--selected";
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   private isRunningLoadQuestionChoices = false;
-  protected listModel: ListModel;
+  protected listModel: ListModel<ItemValue>;
   protected popupCssClasses = "sv-single-select-list";
 
   private resetItemsSettings() {
@@ -27,16 +26,11 @@ export class DropdownListModel extends Base {
     this.itemsSettings.totalCount = 0;
     this.itemsSettings.items = [];
   }
-
-  private updateListItems() {
-    this.listModel.setItems(this.getAvailableItems());
-  }
   private setItems(items: Array<any>, totalCount: number) {
     this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
-    this.question.choices = this.itemsSettings.items;
     this.itemsSettings.totalCount = totalCount;
-    this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.question.choices.length == this.itemsSettings.totalCount;
-    this.updateListItems();
+    this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
+    this.question.choices = this.itemsSettings.items;
   }
 
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
@@ -116,34 +110,28 @@ export class DropdownListModel extends Base {
     this.listModel.refresh();
   }
 
-  protected getAvailableItems(): Array<Action> {
-    return this.question.visibleChoices.map((choice: ItemValue) => new Action({
-      id: <any>new ComputedUpdater<boolean>(() => choice.value),
-      data: choice,
-      locTitle: choice.locText,
-      component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
-      visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
-    }));
+  protected getAvailableItems(): Array<ItemValue> {
+    return this.question.visibleChoices;
+    // id: <any>new ComputedUpdater<boolean>(() => choice.value),
+    // data: choice,
+    // locTitle: choice.locText,
+    // component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
+    // visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
+    // enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
   }
-  protected createListModel(): ListModel {
+  protected createListModel(): ListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
-      _onSelectionChanged = (item: IAction) => {
-        this.question.value = item.id;
+      _onSelectionChanged = (item: ItemValue) => {
+        this.question.value = item.value;
         this._popupModel.toggleVisibility();
       };
     }
-    return new ListModel(visibleItems, _onSelectionChanged, false);
+    return new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
   }
-  protected updateAfterListModelCreated(model: ListModel): void {
-    model.isItemSelected = (action: Action) => {
-      const question = <QuestionSelectBase>this.question;
-      //need to remove this code after use visible choices as actions for list
-      const item = ItemValue.getItemByValue(question.visibleChoices, action.id);
-      return !!item ? question.isItemSelected(item) : false;
-    };
+  protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
+    model.isItemSelected = (action: ItemValue) => !!action.selected;
     model.locOwner = this.question;
     model.onPropertyChanged.add((sender: any, options: any) => {
       if (options.name == "hasVerticalScroller") {
@@ -226,8 +214,9 @@ export class DropdownListModel extends Base {
     this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
   }
+
   public updateItems(): void {
-    this.updateListItems();
+    this.listModel.setItems(this.getAvailableItems());
   }
 
   public onClick(event: any): void {
@@ -249,12 +238,8 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
 
-  public getSelectedAction(): Action {
-    if (!!this.question.selectedItem) {
-      return this.listModel.actions.filter(action => (this.question.selectedItem.value === action.id))[0];
-    } else {
-      return null;
-    }
+  public getSelectedAction(): ItemValue {
+    return this.question.selectedItem || null;
   }
 
   keyHandler(event: any): void {

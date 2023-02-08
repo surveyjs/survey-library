@@ -164,7 +164,60 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
-export class Action extends Base implements IAction, ILocalizableOwner {
+export abstract class BaseAction extends Base implements IAction {
+  public get visible(): boolean {
+    return this.getVisible();
+  }
+  public set visible(val: boolean) {
+    this.setVisible(val);
+  }
+  public get enabled() {
+    return this.getEnabled();
+  }
+
+  public set enabled(val: boolean) {
+    this.setEnabled(val);
+  }
+  public get locTitle(): LocalizableString {
+    return this.getLocTitle();
+  }
+  public set locTitle(val: LocalizableString) {
+    this.setLocTitle(val);
+  }
+  public get title(): string {
+    return this.getTitle();
+  }
+
+  public set title(val: string) {
+    this.setTitle(val);
+  }
+  @property() owner: ILocalizableOwner;
+  public id: string;
+  @property() iconName: string;
+  @property() component?: string;
+  @property() visibleIndex?: number;
+  @property() css?: string
+
+  private cssClassesValue: any;
+
+  public set cssClasses(val: any) {
+    this.cssClassesValue = val;
+  }
+
+  public get cssClasses() {
+    return this.cssClassesValue || defaultActionBarCss;
+  }
+  protected abstract getEnabled(): boolean;
+  protected abstract getVisible(): boolean;
+  protected abstract getLocTitle(): LocalizableString;
+  protected abstract getTitle(): string;
+  protected abstract setEnabled(val: boolean): void;
+  protected abstract setVisible(val: boolean): void;
+  protected abstract setLocTitle(val: LocalizableString): void;
+  protected abstract setTitle(val: string): void;
+}
+
+export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public updateCallback: () => void;
   private raiseUpdate() {
@@ -196,17 +249,16 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     defaultValue: true, onSet: (_, target: Action) => {
       target.raiseUpdate();
     }
-  }) visible: boolean;
+  }) private _visible: boolean;
   @property() tooltip: string;
   @property({
     onSet: (_, target: Action) => {
       target.locTooltipChanged();
     }
   }) locTooltipName?: string;
-  @property() enabled: boolean;
+  @property() private _enabled: boolean;
   @property() showTitle: boolean;
   @property() action: (context?: any) => void;
-  @property() css: string;
   @property() innerCss: string;
   @property() data: any;
   @property() popupModel: any;
@@ -229,9 +281,11 @@ export class Action extends Base implements IAction, ILocalizableOwner {
       if (target.locTitleValue.text === val) return;
       target.locTitleValue.text = val;
     }
-  }) title: string;
-  public get locTitle(): LocalizableString { return this.locTitleValue; }
-  public set locTitle(val: LocalizableString) {
+  }) _title: string;
+  protected getLocTitle(): LocalizableString {
+    return this.locTitleValue;
+  }
+  protected setLocTitle(val: LocalizableString): void {
     if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
     }
@@ -241,6 +295,12 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.locTitleValue = val;
     this.locTitleValue.onStringChanged.add(this.locTitleChanged);
     this.locTitleChanged();
+  }
+  protected getTitle(): string {
+    return this._title;
+  }
+  protected setTitle(val: string): void {
+    this._title = val;
   }
   public get locTitleName(): string {
     return this.locTitle.localizationName;
@@ -267,22 +327,12 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;
-    this.setPropertyValue("title", !!val ? val : undefined);
+    this.setPropertyValue("_title", !!val ? val : undefined);
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
     this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
   }
-  private cssClassesValue: any;
-
-  public set cssClasses(val: any) {
-    this.cssClassesValue = val;
-  }
-
-  public get cssClasses() {
-    return this.cssClassesValue || defaultActionBarCss;
-  }
-
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
   }
@@ -338,6 +388,18 @@ export class Action extends Base implements IAction, ILocalizableOwner {
 
   minDimension: number;
   maxDimension: number;
+  public setVisible(val: boolean): void {
+    this._visible = val;
+  }
+  public getVisible(): boolean {
+    return this._visible;
+  }
+  public setEnabled(val: boolean): void {
+    this._enabled = val;
+  }
+  public getEnabled(): boolean {
+    return this._enabled;
+  }
 }
 
 export class ActionDropdownViewModel {

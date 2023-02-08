@@ -8,6 +8,8 @@ import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
 import { HtmlConditionItem } from "./expressionItems";
+import { mergeValues } from "./utils/utils";
+import { DropdownListModel } from "./dropdownListModel";
 
 export class RenderedRatingItem extends Base {
   public get value(): number {
@@ -373,29 +375,35 @@ export class QuestionRatingModel extends Question {
   protected getDesktopRenderAs(): string {
     return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
+  private dropdownListModelValue: DropdownListModel;
+  public set dropdownListModel(val: DropdownListModel) {
+    this.dropdownListModelValue = val;
+    this.updateElementCss();
+  }
+  public get dropdownListModel(): DropdownListModel {
+    return this.dropdownListModelValue;
+  }
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    if(!!this.dropdownListModel) {
+      const listCssClasses = {};
+      mergeValues(css.list, listCssClasses);
+      mergeValues(res.list, listCssClasses);
+      res["list"] = listCssClasses;
+    }
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if(this.dropdownListModel) {
+      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
+    }
+    return classes;
+  }
 }
 Serializer.addClass(
   "rating",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
-    {
-      name: "commentPlaceholder",
-      alternativeName: "commentPlaceHolder",
-      serializationProperty: "locCommentPlaceholder",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-    },
     {
       name: "rateValues:itemvalue[]",
       baseValue: function () {

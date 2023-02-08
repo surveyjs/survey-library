@@ -29,7 +29,13 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private getSelectedActions() {
     return this.listModel.actions.filter(item => item.selected);
   }
-
+  protected override getFocusFirstInputSelector(): string {
+    if((<MultiSelectListModel<ItemValue>>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
+      return this.itemSelector;
+    } else {
+      return super.getFocusFirstInputSelector();
+    }
+  }
   protected override createListModel(): MultiSelectListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;

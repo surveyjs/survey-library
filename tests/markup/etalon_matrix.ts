@@ -124,6 +124,26 @@ registerMarkupTests(
       snapshot: "matrix-widths",
       excludePlatform: "Vue"
     },
+    {
+      name: "Test matrix empty rows markup",
+      json: {
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "value": "col_1",
+              }, {
+                "value": "col_2",
+              },
+            ],
+          }
+        ]
+      },
+      snapshot: "matrix-empty",
+    },
   ]
 );
 

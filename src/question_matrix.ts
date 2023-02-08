@@ -351,15 +351,6 @@ export class QuestionMatrixModel
         )
       );
     }
-    if (result.length == 0 && !this.filteredRows) {
-      result.push(
-        this.createMatrixRow(
-          new ItemValue(null),
-          this.name.replace(/\s/g, "_"),
-          val
-        )
-      );
-    }
     this.generatedVisibleRows = result;
     return result;
   }

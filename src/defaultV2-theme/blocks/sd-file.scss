@@ -49,6 +49,8 @@
   display: none;
 }
 .sd-file__drag-area-placeholder {
+  padding: 0 calcSize(8);
+  text-align: center;
   word-break: break-word;
   white-space: normal;
   color: $foreground-light;

@@ -1101,6 +1101,20 @@ export class SurveyModel extends SurveyElementCore
     SurveyModel
   >();
   /**
+   * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
+   * - `sender`: `SurveyModel` - A survey instance that raised the event.
+   * - `options.question` - a matrix question.
+   * - `options.column` - a new added column.
+   */
+  public onMatrixColumnAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * An event that is raised on adding a new item in Multiple Text question.
+   * - `sender`: `SurveyModel` - A survey instance that raised the event.
+   * - `options.question` - a multiple text question.
+   * - `options.item` - a new added item.
+   */
+  public onMultipleTextItemAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
    * An event that is raised after a new panel is added to a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    *
    * Parameters:
@@ -2899,11 +2913,13 @@ export class SurveyModel extends SurveyElementCore
    * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
    */
-  public mergeData(data: any) {
+  public mergeData(data: any): void {
     if (!data) return;
-    this.setDataCore(data);
+    const newData = this.data;
+    this.mergeValues(data, newData);
+    this.setDataCore(newData);
   }
-  public setDataCore(data: any) {
+  public setDataCore(data: any): void {
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
@@ -4786,6 +4802,12 @@ export class SurveyModel extends SurveyElementCore
   }
   matrixRowAdded(question: IQuestion, row: any) {
     this.onMatrixRowAdded.fire(this, { question: question, row: row });
+  }
+  matrixColumnAdded(question: IQuestion, column: any): void {
+    this.onMatrixColumnAdded.fire(this, { question: question, column: column });
+  }
+  multipleTextItemAdded(question: IQuestion, item: any): void {
+    this.onMultipleTextItemAdded.fire(this, { question: question, item: item });
   }
   getQuestionByValueNameFromArray(
     valueName: string,

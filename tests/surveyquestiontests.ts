@@ -428,18 +428,8 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
   assert.equal(matrix.hasRows, false, "There is now rows by default.");
   assert.equal(
     matrix.visibleRows.length,
-    1,
-    "There is always at least one row"
-  );
-  assert.equal(
-    matrix.visibleRows[0].name,
-    null,
-    "The default row name is empty"
-  );
-  assert.equal(
-    matrix.visibleRows[0].fullName,
-    "q1",
-    "The default row fullName is the question name"
+    0,
+    "There are no rows"
   );
   matrix.rows = ["row1", "row2"];
   assert.equal(matrix.hasRows, true, "There are two rows");
@@ -454,12 +444,9 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
 QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.value, undefined, "the matrix initial value");
   matrix.value = "col1";
-  var rows = matrix.visibleRows;
-  assert.equal(rows[0].value, "col1", "set the row value correctly");
-  rows[0].value = "col2";
-  assert.equal(rows[0].value, "col2", "the row value changed");
-  assert.equal(matrix.value, "col2", "the matrix value changed correctly");
+  assert.equal(matrix.value, "col1", "the matrix value changed correctly");
 });
 QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
@@ -6480,4 +6467,46 @@ QUnit.test("Supporting showCommentArea property, Bug#5479", function (
     const prop = Serializer.findProperty(typeName, "showCommentArea");
     assert.equal(prop.visible, isSupport, "Show comment area property visibility is incorrect: " + typeName);
   });
+});
+QUnit.test("survey.onMultipleTextItemAdded", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "multipletext"
+    }] });
+  let itemName = "";
+  survey.onMultipleTextItemAdded.add((sender, options) => {
+    itemName = options.item.name;
+  });
+  const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  q.addItem("item1");
+  assert.equal(itemName, "item1", "The event raised correctly");
+  q.items.push(new MultipleTextItemModel("item2"));
+  assert.equal(itemName, "item2", "The event raised correctly on adding into array");
+});
+QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        name: "q1",
+        type: "radiogroup",
+        choices: ["yes", "no"]
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "requiredIf": "{q1} = 'yes'"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "yes";
+  assert.equal(q2.isRequired, true, "q2 is required");
+  survey.completeLastPage();
+  assert.equal(q2.errors.length, 1, "One error is shown");
+  q1.value = "no";
+  assert.equal(q2.isRequired, false, "q2 is not required");
+  assert.equal(q2.errors.length, 0, "Errors are cleaned");
 });

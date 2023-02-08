@@ -124,7 +124,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   };
 
   public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
-    return !!this.allowSelection && !!this.selectedItem && this.selectedItem.id == itemValue.id;
+    return !!this.selectedItem && this.selectedItem.id == itemValue.id;
   };
 
   public isItemFocused: (itemValue: T) => boolean = (itemValue: T) => {
@@ -198,6 +198,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public refresh(): void { // used in popup
     this.filterString = "";
     this.resetFocusedItem();
+  }
+  public onClickSearchClearButton(event: any) {
+    event.currentTarget.parentElement.querySelector("input").focus();
+    this.refresh();
   }
   public resetFocusedItem(): void {
     this.focusedItem = undefined;

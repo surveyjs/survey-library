@@ -1,5 +1,5 @@
 <ng-template #template>
-  <button type="button" (click)="model.action()" [key2click]="{ processEsc: false }" [class]="model.getActionBarItemCss()" [attr.title]="model.tooltip || model.title" [attr.aria-checked]="model.ariaChecked" [attr.role]="model.ariaRole" [disabled]="model.disabled" 
+  <button type="button" (click)="model.action()" [key2click]="{ processEsc: false }" [class]="model.getActionBarItemCss()" [attr.title]="model.tooltip || model.title" [attr.aria-checked]="model.ariaChecked" [attr.aria-expanded]="model.ariaExpanded" [attr.role]="model.ariaRole" [disabled]="model.disabled" 
     data-bind="key2click: { processEsc: false }">
     <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
     <span *ngIf="model.hasTitle" [class]="model.getActionBarItemTitleCss()">{{ model.title }}</span>

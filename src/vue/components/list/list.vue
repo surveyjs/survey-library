@@ -13,7 +13,7 @@
         @change="change"
         @keyup="keyup"
       />
-      <button v-if="model.showSearchClearButton && !!model.filterString" v-on:click="() => { model.refresh() }" v-bind:class="model.cssClasses.searchClearButtonIcon">
+      <button v-if="model.showSearchClearButton && !!model.filterString" v-on:click="(event) => { model.onClickSearchClearButton(event) }" v-bind:class="model.cssClasses.searchClearButtonIcon">
         <sv-svg-icon :iconName="'icon-searchclear'" :size="'auto'"></sv-svg-icon>
       </button>
     </div>

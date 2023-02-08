@@ -1,3 +1,4 @@
+import { _setIsTouch } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -20,6 +21,31 @@ registerMarkupTests(
         ]
       },
       snapshot: "tagbox"
+    },
+    {
+      name: "Test Tagbox question markup",
+      json: {
+        questions: [
+          {
+            "type": "tagbox",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before: () => {
+        _setIsTouch(true);
+      },
+      after: () => {
+        _setIsTouch(false);
+      },
+      snapshot: "tagbox-mobile"
     }, {
       name: "Test Tagbox question markup",
       json: {

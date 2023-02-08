@@ -8,7 +8,7 @@
                 [attr.aria-label]="model.filterStringPlaceholder || ''"
                 [attr.placeholder]="model.filterStringPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
-                <button *ngIf="model.showSearchClearButton && !!model.filterString" (click)="model.refresh()" [class]="model.cssClasses.searchClearButtonIcon">
+                <button *ngIf="model.showSearchClearButton && !!model.filterString" (click)="model.onClickSearchClearButton($event)" [class]="model.cssClasses.searchClearButtonIcon">
                     <svg [iconName]="'icon-searchclear'" [size]="'auto'" sv-ng-svg-icon></svg>
                 </button>
         </div>

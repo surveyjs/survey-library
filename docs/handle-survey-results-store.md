@@ -47,21 +47,17 @@ SurveyJS Service is a full-cycle survey solution. The service allows you to crea
 Follow the steps below to start using the SurveyJS Service:
 
 1. [Log in or register](https://surveyjs.io/Account/Login) on the SurveyJS website.
-2. [Create a new survey](https://surveyjs.io/Service/MySurveys).
-3. Copy the Survey ID and Post ID:
-
-    <img src="images/survey-get-postid.png" alt="Survey ID and Post ID" width="50%">
-
-    Assign the IDs to the [`surveyId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyId) and [`surveyPostId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyPostId) properties:
-
+1. [Create a new survey](https://surveyjs.io/Service/MySurveys).
+1. Copy the Survey ID and Post ID:
+    <img src="images/survey-get-postid.png" alt="Survey ID and Post ID">
+1. Assign the IDs to the [`surveyId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyId) and [`surveyPostId`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyPostId) properties:
     ```js
     const surveyJson = {
       "surveyId": "9b5f68e0-3be3-4695-85e6-919354159006",
       "surveyPostId": "dfce82b1-c081-45fe-b13e-fb2bd2977cc7"
     }
     ```
-4. *(Optional)* Enable the [`surveyShowDataSaving`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyShowDataSaving) property to display saving progress and errors:
-
+1. *(Optional)* Enable the [`surveyShowDataSaving`](https://surveyjs.io/Documentation/Library?id=surveymodel#surveyShowDataSaving) property to display saving progress and errors:
     ```js
     const surveyJson = {
       // ...

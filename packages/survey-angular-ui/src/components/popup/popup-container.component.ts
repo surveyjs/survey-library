@@ -33,6 +33,10 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     popupModalModel.apply();
   }
 
+  protected override getShouldReattachChangeDetector(): boolean {
+    return false;
+  }
+
   protected override onModelChanged(): void {
     this.changeDetectorRef.detectChanges();
   }

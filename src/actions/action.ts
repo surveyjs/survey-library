@@ -127,6 +127,7 @@ export interface IAction {
   visibleIndex?: number;
   needSpace?: boolean;
   ariaChecked?: boolean;
+  ariaExpanded?: boolean;
   ariaRole?: string;
 }
 
@@ -275,6 +276,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
   @property() ariaChecked: boolean;
+  @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   @property({
     onSet: (val, target) => {

@@ -5,7 +5,7 @@ import { BaseAngular } from "./base-angular";
   selector: "popup-survey",
   templateUrl: "./popup.survey.component.html",
   styleUrls: ["./popup.survey.component.scss"]
-})
+  })
 export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implements OnChanges {
   @Input() model!: SurveyModel;
   @Input() isExpanded?: boolean;
@@ -18,6 +18,9 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   }
   protected getModel(): PopupSurveyModel {
     return this.popup;
+  }
+  protected override getShouldReattachChangeDetector(): boolean {
+    return false;
   }
   ngOnChanges(changes: SimpleChanges): void {
     if(changes["model"]?.currentValue !== changes["model"]?.previousValue) {

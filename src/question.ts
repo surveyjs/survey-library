@@ -123,6 +123,9 @@ export class Question extends SurveyElement<Question>
       }
     });
     this.registerPropertyChangedHandlers(["isRequired"], () => {
+      if(!this.isRequired && this.errors.length > 0) {
+        this.validate();
+      }
       this.locTitle.strChanged();
       this.clearCssClasses();
     });
@@ -988,7 +991,7 @@ export class Question extends SurveyElement<Question>
     ];
   }
   public supportComment(): boolean {
-    const prop = Serializer.findProperty(this.getType(), "showCommentArea");
+    const prop = this.getPropertyByName("showCommentArea");
     return !prop || prop.visible;
   }
   public supportOther(): boolean {
@@ -2200,6 +2203,24 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment", category: "general" }
+  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  {
+    name: "commentText",
+    dependsOn: "showCommentArea",
+    visibleIf: function (obj: any) {
+      return obj.showCommentArea;
+    },
+    serializationProperty: "locCommentText",
+    layout: "row",
+  },
+  {
+    name: "commentPlaceholder",
+    alternativeName: "commentPlaceHolder",
+    serializationProperty: "locCommentPlaceholder",
+    dependsOn: "showCommentArea",
+    visibleIf: function (obj: any) {
+      return obj.hasComment;
+    }
+  }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

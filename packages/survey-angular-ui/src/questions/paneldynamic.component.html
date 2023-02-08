@@ -37,7 +37,7 @@
         role="progressbar"
       ></div>
     </div>
-    <div [class]="model.cssClasses.footerButtonsContainer">
+    <div *ngIf="model.footerToolbar.visibleActions.length" [class]="model.cssClasses.footerButtonsContainer">
       <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
     </div>
   </div>

@@ -176,7 +176,7 @@ export class NumericValidator extends SurveyValidator {
         new RequreNumericError(null, this.errorOwner)
       );
     }
-    var result = new ValidatorResult(parseFloat(value));
+    var result = new ValidatorResult(Helpers.getNumber(value));
     if (this.minValue !== null && this.minValue > result.value) {
       result.error = this.createCustomError(name);
       return result;

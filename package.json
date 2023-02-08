@@ -11,7 +11,7 @@
     "testcafe:ko": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=knockout",
     "testcafe:react": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=react",
     "testcafe:vue": "http-server --silent & testcafe -c 4 -q chrome:headless testCafe/ --reporter minimal,dashboard --env=vue",
-    "release": "standard-version --message \"Release: %s [azurepipelines skip]\" ",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
     "build_core_dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev",
     "build_core_prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod",
     "build_knockout_dev": "webpack --config ./build-scripts/survey-knockout/webpack.config.js --env.buildType dev",
@@ -79,7 +79,7 @@
     "testcafe:ci:angular": "testcafe -c 4 -q chrome:headless testCafe/ --app \"http-server ./dist/angular-ui --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.70",
+  "version": "1.9.71",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -110,6 +110,7 @@
     "ajv": "4.11.2",
     "babel-loader": "8.2.5",
     "colors": "1.4.0",
+    "commit-and-tag-version": "^11.0.0",
     "concurrently": "^5.2.0",
     "copy-webpack-plugin": "4.0.1",
     "css-loader": "^3.6.0",
@@ -152,7 +153,6 @@
     "rxjs": "~6.6.0",
     "sass": "^1",
     "sass-loader": "^8.0.2",
-    "standard-version": "^8.0.1",
     "style-loader": "^1.2.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
     "svg-inline-loader": "^0.8.2",

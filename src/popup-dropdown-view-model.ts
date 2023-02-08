@@ -15,7 +15,26 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.hidePopup();
   }
   private resizeEventCallback = () => {
-    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${window.visualViewport.height}px`);
+    const visualViewport = window.visualViewport;
+    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
+  }
+  private clientY: number = 0;
+  private touchStartEventCallback = (event: any) => {
+    this.clientY = event.touches[0].clientY;
+  }
+  private touchMoveEventCallback = (event: any) => {
+    let currentElement = event.target;
+    while (currentElement !== this.container) {
+      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+        const { scrollHeight, scrollTop, clientHeight } = currentElement;
+        const deltaY = this.clientY - event.changedTouches[0].clientY;
+        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
+          return;
+        }
+      }
+      currentElement = currentElement.parentElement;
+    }
+    event.preventDefault();
   }
 
   private _updatePosition() {
@@ -156,6 +175,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.switchFocus();
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.addEventListener("resize", this.resizeEventCallback);
+      if(this.container) {
+        this.container.addEventListener("touchstart", this.touchStartEventCallback);
+        this.container.addEventListener("touchmove", this.touchMoveEventCallback);
+      }
       this.resizeEventCallback();
     }
     window.addEventListener("scroll", this.scrollEventCallBack);
@@ -182,6 +205,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super.updateOnHiding();
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
+      if(this.container) {
+        this.container.removeEventListener("touchstart", this.touchStartEventCallback);
+        this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
+      }
     }
     window.removeEventListener("scroll", this.scrollEventCallBack);
 

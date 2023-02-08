@@ -29,7 +29,7 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
   }
   public getItemValueComponentData(item: ItemValue): any {
     return {
-      componentName: this.getDefaultComponentName(),
+      componentName: this.model.itemComponent || this.getDefaultComponentName(),
       componentData: {
         question: this.model,
         model: item,

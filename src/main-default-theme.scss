@@ -361,6 +361,7 @@ body .sv-list__input:disabled::placeholder {
 body .sv-list__item--selected {
   background: rgba(25, 179, 148, 0.1);
   color: var(--foreground-disabled, $foreground-disabled);
+  font-weight: 600;
 }
 body .sv-list__item--selected.sv-list__item--focused {
   background-color: var(--main-color, $main-color);

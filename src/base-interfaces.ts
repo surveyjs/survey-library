@@ -108,6 +108,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     errors: Array<SurveyError>
   ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
+  getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
   getElementTitleTagName(element: Base, tagName: string): string;
   questionTitlePattern: string;

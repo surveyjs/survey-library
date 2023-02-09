@@ -3,6 +3,8 @@ import { SurveyModel } from "../src/survey";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
+import { DropdownListModel } from "../src/dropdownListModel";
+import { ListModel } from "../src/list";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -291,4 +293,41 @@ QUnit.test("Check rateValues on text change", (assert) => {
   q1.visibleRateValues[0].text = "abc";
   assert.equal(q1.rateValues.length, 5);
   assert.equal(q1.renderedRateValues, oldRendered, "renderedRateValues is not cloned");
+});
+QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.css = {
+    list: {
+      itemSelected: "original-class-selected"
+    },
+    rating: {
+      popup: "custom-popup-class",
+      list: {
+        item: "original-class"
+      }
+    }
+  };
+  survey.onUpdateQuestionCssClasses.add(function (survey, options) {
+    var classes = options.cssClasses;
+    classes.list = {
+      item: classes.list.item += " custom-class",
+      itemSelected: classes.list.itemSelected += " custom-class-selected"
+    };
+  });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const dropdownListModel = new DropdownListModel(q1);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  q1.dropdownListModel = dropdownListModel;
+  q1.cssClasses;
+  assert.ok(dropdownListModel.popupModel.cssClass.includes("custom-popup-class"));
+  assert.equal(list.cssClasses.item, "original-class custom-class");
+  assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });

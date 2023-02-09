@@ -123,6 +123,9 @@ export class Question extends SurveyElement<Question>
       }
     });
     this.registerPropertyChangedHandlers(["isRequired"], () => {
+      if(!this.isRequired && this.errors.length > 0) {
+        this.validate();
+      }
       this.locTitle.strChanged();
       this.clearCssClasses();
     });
@@ -1314,6 +1317,9 @@ export class Question extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
+    if(this.survey) {
+      res = this.survey.getQuestionDisplayValue(this, res);
+    }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
   private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {

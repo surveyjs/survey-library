@@ -442,6 +442,7 @@ export var defaultV2Css = {
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",
     filterStringInput: "sd-dropdown__filter-string-input",
+    popup: "sv-dropdown-popup",
     onError: "sd-input--error",
   },
   comment: {

@@ -2728,7 +2728,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
-  public get showQuestionNumbers(): string {
+  public get showQuestionNumbers(): string | boolean {
     return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string | boolean) {

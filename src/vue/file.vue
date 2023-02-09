@@ -67,7 +67,7 @@
         <span
           v-for="(val, index) in question.previewValue"
           :key="question.inputId + '_' + index"
-          v-show="val && question.isPreviewVisible(index)"
+          v-show="val && isPreviewVisible(index)"
           :class="question.cssClasses.preview"
         >
           <div v-if="val.name && question.cssClasses.fileSign" :class="question.cssClasses.fileSign">
@@ -125,14 +125,16 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "survey-core";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   doRemoveFile(data: any) {
     this.question.doRemoveFile(data);
+  }
+  isPreviewVisible(index: any) {
+    return this.question.isPreviewVisible(index);
   }
 
 }

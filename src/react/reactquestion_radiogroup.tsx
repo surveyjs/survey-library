@@ -173,7 +173,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     );
   }
   handleOnChange(event: any) {
-    this.question.renderedValue = this.item.value;
+    this.question.clickItemHandler(this.item);
   }
   protected canRender(): boolean {
     return !!this.question && !!this.item;

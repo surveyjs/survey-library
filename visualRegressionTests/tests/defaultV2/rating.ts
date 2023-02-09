@@ -184,4 +184,51 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("long-rating-in-panel.png", questionRoot, t, comparer);
     });
   });
+
+  test("Check big rating in matrix", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 1080);
+      await initSurvey(framework, {
+        locale: "de",
+        pages: [{
+          name: "page1", elements: [
+            {
+              type: "matrixdropdown",
+              columns: [
+                {
+                  "name": "rate",
+                  "cellType": "rating",
+                  "minRateDescription": {
+                    "default": "1 (the worst)",
+                    "de": "1 (Das Schlechteste)"
+                  },
+                  "maxRateDescription": {
+                    "default": "5 (the best)",
+                    "de": "5 (Das beste)"
+                  },
+                  "title": {
+                    "default": "Rating",
+                    "de": "Bewertung"
+                  }
+                }
+              ],
+              name: "favoriteMovie",
+              rows: [{ value: "moonlight", text: "Moonlight" }
+              ],
+              title: {
+                default: "Please rate these movies",
+                de: "Bitte bewerten Sie diese Filme"
+              }
+            }
+          ]
+        }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-table");
+      await resetFocusToBody();
+      await takeElementScreenshot("rating-in-matrix.png", questionRoot, t, comparer);
+    });
+  });
+
 });

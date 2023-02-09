@@ -5,28 +5,37 @@ sv-brand-info {}
   font-family: var(--font-family, $font-family);
   text-align: center;
   color: #161616;
-  padding: 150px 32px 150px 32px;
   background: white;
+  padding: 32px 0;
+  box-shadow: 0px -1px 0px #D6D6D6;
 
   a {
     color: #161616;
+    text-decoration-line: underline;
   }
 }
 
 .sv-brand-info__text {
-  line-height: 24px;
+  font-weight: 600;
   font-size: 16px;
+  line-height: 24px;
+  color: #161616;
 }
 
 .sv-brand-info__logo {
   img {
-    width: 200px;
+    width: 118px;
   }
 
   display: inline-block;
 }
 
 .sv-brand-info__terms {
-  line-height: 16px;
+  font-weight: 400;
   font-size: 12px;
+  line-height: 16px;
+
+  a {
+    color: #909090;
+  }
 }

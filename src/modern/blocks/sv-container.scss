@@ -2,37 +2,46 @@
   color: var(--text-color, $text-color);
   font-size: var(--font-size, $font-size);
   font-family: var(--font-family, $font-family);
+  margin-bottom: calcSize(10);
 }
 
 .sv-container-modern__title {
   padding-left: 0.55em;
+
   @media only screen and (min-width: 1000px) {
     margin-right: 5%;
     margin-left: 5%;
   }
+
   @media only screen and (max-width: 1000px) {
     margin-right: 10px;
     margin-left: 10px;
   }
+
   color: var(--main-color, $main-color);
   padding-top: 5em;
   padding-bottom: 0.9375em;
 }
+
 .sv-container-modern__title h3 {
   margin: 0;
   font-size: 1.875em;
 }
+
 .sv-container-modern__title h5 {
   margin: 0;
 }
+
 .sv-container-modern__close {
   clear: right;
 }
+
 .sv-container-modern fieldset {
   border: none;
   padding: 0;
   margin: 0;
 }
+
 .sv-container-modern legend {
   border: none;
   padding: 0;

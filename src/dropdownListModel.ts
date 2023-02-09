@@ -15,7 +15,6 @@ export class DropdownListModel extends Base {
   readonly loadingItemHeight = 40;
 
   private _popupModel: PopupModel;
-  private _doNotUpdateFilterString: boolean = false;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
@@ -112,8 +111,11 @@ export class DropdownListModel extends Base {
 
   private setFilterStringToListModel(newValue: string): void {
     this.listModel.filterString = newValue;
+    this.listModel.resetFocusedItem();
     if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
-      this.listModel.focusFirstVisibleItem();
+      if(this.listModel.actions.length == 1) {
+        this.listModel.focusFirstVisibleItem();
+      }
     }
   }
 
@@ -144,9 +146,7 @@ export class DropdownListModel extends Base {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
-        this._doNotUpdateFilterString = true;
         this.inputString = item.title;
-        this._doNotUpdateFilterString = false;
         this.setInputHasValue(!!this.inputString);
         this._popupModel.toggleVisibility();
       };
@@ -207,14 +207,18 @@ export class DropdownListModel extends Base {
   }) filterString: string;
 
   @property({
-    defaultValue: "",
-    onSet: (val, target: DropdownListModel) => {
-      if (!target["_doNotUpdateFilterString"]) {
-        target.filterString = val;
-        if (!val) target.onClear(null);
-      }
-    }
+    defaultValue: ""
   }) inputString: string;
+
+  public get inputStringRendered() {
+    return this.getPropertyValue("inputString");
+  }
+
+  public set inputStringRendered(val: string) {
+    this.setPropertyValue("inputString", val);
+    this.filterString = val;
+    //if (!val) this.onClear(null);
+  }
 
   @property({
     defaultValue: false,
@@ -260,7 +264,7 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     this._popupModel.toggleVisibility();
-    this.listModel.focusNextVisibleItem();
+    //this.listModel.focusNextVisibleItem();
 
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
@@ -292,6 +296,7 @@ export class DropdownListModel extends Base {
     if (this.popupModel.isVisible && event.keyCode === 38) {
       this.listModel.focusPrevVisibleItem();
       this.scrollToFocusedItem();
+      this.inputString = this.listModel.focusedItem.title;
       event.preventDefault();
       event.stopPropagation();
     } else if (event.keyCode === 40) {
@@ -300,11 +305,18 @@ export class DropdownListModel extends Base {
       }
       this.listModel.focusNextVisibleItem();
       this.scrollToFocusedItem();
+      this.inputString = this.listModel.focusedItem.title;
       event.preventDefault();
       event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
-      this.listModel.selectFocusedItem();
-      this.onFocus(event);
+      if(event.keyCode === 13 && !this.inputString) {
+        this._popupModel.isVisible = false;
+        this.onClear(event);
+      }
+      else {
+        this.listModel.selectFocusedItem();
+        this.onFocus(event);
+      }
       event.preventDefault();
       event.stopPropagation();
     } else if (char === 46 || char === 8) {
@@ -312,7 +324,7 @@ export class DropdownListModel extends Base {
         this.onClear(event);
       }
     } else if (event.keyCode === 27) {
-      this.popupModel.isVisible = false;
+      this._popupModel.isVisible = false;
     } else {
       if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();
@@ -337,16 +349,12 @@ export class DropdownListModel extends Base {
     }
     this.resetFilterString();
     this._popupModel.isVisible = false;
-    this._doNotUpdateFilterString = true;
     this.inputString = undefined;
-    this._doNotUpdateFilterString = false;
     this.setInputHasValue(false);
     doKey2ClickBlur(event);
   }
   onFocus(event: any): void {
-    this._doNotUpdateFilterString = true;
     this.inputString = this.getSelectedAction()?.title;
-    this._doNotUpdateFilterString = false;
     this.setInputHasValue(!!this.inputString);
   }
   scrollToFocusedItem(): void {

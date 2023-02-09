@@ -273,6 +273,7 @@ export class Base {
    */
   public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,
+    Base,
     any
   > = this.addEvent<Base>();
 
@@ -304,8 +305,8 @@ export class Base {
   public get isDisposed() {
     return this.isDisposedValue === true;
   }
-  protected addEvent<T>(): EventBase<T> {
-    var res = new EventBase<T>();
+  protected addEvent<T, Options = any>(): EventBase<T, Options> {
+    const res = new EventBase<T, Options>();
     this.eventList.push(res);
     return res;
   }
@@ -1086,9 +1087,9 @@ export class ArrayChanges {
   ) { }
 }
 
-export class Event<T extends Function, Options> {
+export class Event<CallbackFunction extends Function, Sender, Options> {
   public onCallbacksChanged: () => void;
-  protected callbacks: Array<T>;
+  protected callbacks: Array<CallbackFunction>;
   public get isEmpty(): boolean {
     return this.length === 0;
   }
@@ -1102,7 +1103,7 @@ export class Event<T extends Function, Options> {
       if (!this.callbacks) return;
     }
   }
-  public fire(sender: any, options: Options): void {
+  public fire(sender: Sender, options: Options): void {
     if (!this.callbacks) return;
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, options);
@@ -1112,22 +1113,22 @@ export class Event<T extends Function, Options> {
   public clear(): void {
     this.callbacks = undefined;
   }
-  public add(func: T): void {
+  public add(func: CallbackFunction): void {
     if (this.hasFunc(func)) return;
     if (!this.callbacks) {
-      this.callbacks = new Array<T>();
+      this.callbacks = new Array<CallbackFunction>();
     }
     this.callbacks.push(func);
     this.fireCallbackChanged();
   }
-  public remove(func: T): void {
+  public remove(func: CallbackFunction): void {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
       this.fireCallbackChanged();
     }
   }
-  public hasFunc(func: T): boolean {
+  public hasFunc(func: CallbackFunction): boolean {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
   }
@@ -1138,7 +1139,8 @@ export class Event<T extends Function, Options> {
   }
 }
 
-export class EventBase<T> extends Event<
-  (sender: T, options: any) => any,
-  any
+export class EventBase<Sender, Options = any> extends Event<
+  (sender: Sender, options: Options) => any,
+  Sender,
+  Options
 > { }

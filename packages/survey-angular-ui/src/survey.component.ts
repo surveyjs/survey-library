@@ -4,7 +4,7 @@ import { BaseAngular } from "./base-angular";
 @Component({
   selector: "survey",
   template: "<sv-ng-modal-container></sv-ng-modal-container><survey-content [model]='model'></survey-content>"
-})
+  })
 export class SurveyComponent extends BaseAngular<SurveyModel> {
   @Input() model!: SurveyModel;
   protected getModel(): SurveyModel {
@@ -13,6 +13,9 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
     changeDetectorRef.detach();
+  }
+  protected override getShouldReattachChangeDetector(): boolean {
+    return false;
   }
   protected override onModelChanged(): void {
     this.changeDetectorRef.detectChanges();

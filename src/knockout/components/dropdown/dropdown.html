@@ -33,7 +33,8 @@
         role: model.filterStringEnabled ? question.ariaRole : undefined,
         tabindex: model.inputReadOnly ? undefined : -1,
         disabled: question.isInputReadOnly,
-        id: question.getInputId() 
+        id: question.getInputId(), 
+        inputmode: model.inputMode
       },
       event: { blur: blur }"></input>
     </div>

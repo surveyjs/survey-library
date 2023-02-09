@@ -102,6 +102,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
+           inputMode={dropdownListModel.inputMode}
            onChange={(e) => { onInputChange(e); }}
            onBlur={this.blur}
          ></input>

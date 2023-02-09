@@ -510,7 +510,14 @@ export class QuestionFileModel extends Question {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    this.loadPreview(newValue);
+    if(!this.isLoadingFromJson) {
+      this.loadPreview(newValue);
+    }
+  }
+
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.loadPreview(this.value);
   }
 
   //#region

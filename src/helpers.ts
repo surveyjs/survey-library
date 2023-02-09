@@ -161,14 +161,28 @@ export class Helpers {
     );
   }
   public static isNumber(value: any): boolean {
+    return !isNaN(this.getNumber(value));
+  }
+  public static getNumber(value: any): number {
     if (
       typeof value == "string" &&
       !!value &&
       value.indexOf("0x") == 0 &&
       value.length > 32
     )
-      return false;
-    return !isNaN(parseFloat(value)) && isFinite(value);
+      return NaN;
+    value = this.prepareStringToNumber(value);
+    const res = parseFloat(value);
+    if(isNaN(res) || !isFinite(value)) return NaN;
+    return res;
+  }
+  private static prepareStringToNumber(val: any): any {
+    if(typeof val !== "string" || !val) return val;
+    let i = val.indexOf(",");
+    if(i > -1 && val.indexOf(",", i + 1) < 0) {
+      return val.replace(",", ".");
+    }
+    return val;
   }
   public static getMaxLength(maxLength: number, surveyLength: number): any {
     if (maxLength < 0) {

@@ -125,6 +125,7 @@ $base-unit: var(--base-unit, 8px);
   .sv-list__item-body {
     background-color: $primary;
     color: $background;
+    font-weight: 600;
   }
 
   .sv-list__item-icon use {
@@ -138,6 +139,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   .sv-list__item-body {
     background-color: $primary;
     color: $primary-foreground;
+    font-weight: 600;
   }
 }
 

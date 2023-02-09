@@ -66,13 +66,13 @@ export class ProgressButtons extends Vue {
         listContainerElement.scrollWidth > listContainerElement.offsetWidth;
     }, 100);
   }
-  public isListElementClickable(index: number): boolean {
+  public isListElementClickable(index: any): boolean {
     return this.progressButtonsModel.isListElementClickable(index);
   }
-  public getListElementCss(index: number): string {
+  public getListElementCss(index: any): string {
     return this.progressButtonsModel.getListElementCss(index);
   }
-  public clickListElement(index: number): void {
+  public clickListElement(index: any): void {
     this.progressButtonsModel.clickListElement(index);
   }
   public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): any {

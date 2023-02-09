@@ -173,7 +173,7 @@
     "vue-loader": "15.9.8",
     "vue-property-decorator": "9.1.2",
     "vue-template-compiler": "2.6.14",
-    "vue-tsc": "^1.0.8",
+    "vue-tsc": "1.0.8",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",

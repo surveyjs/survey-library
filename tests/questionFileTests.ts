@@ -3,6 +3,7 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -742,7 +743,7 @@ QUnit.test("Question File responsive", (assert) => {
       },
     ],
   };
-
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel(json);
   survey.locale = "";
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
@@ -1070,4 +1071,39 @@ QUnit.test("QuestionFile remove file by preview value", function(assert) {
   assert.deepEqual(survey.data, {
     image1: [{ name: "f1", content: "data" }],
   });
+});
+
+QUnit.test("QuestionFile download file content on preview", function(assert) {
+  var json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+
+  let downloadLog = "";
+  survey.onDownloadFile.add(function (survey, options) {
+    downloadLog += "->" + options.fileValue.name;
+  });
+
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("file");
+  assert.notOk(q1.storeDataAsText);
+
+  survey.data = {
+    file: [{ name: "f1", content: "data" }],
+  };
+
+  assert.equal(downloadLog, "->f1");
+
+  survey.showPreview();
+  const q2: QuestionFileModel = <any>survey.getQuestionByName("file");
+  assert.notOk(q2.storeDataAsText);
+
+  assert.equal(downloadLog, "->f1->f1");
 });

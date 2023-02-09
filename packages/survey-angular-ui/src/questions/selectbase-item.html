@@ -14,7 +14,7 @@
           <use [attr.xlink:href]="question.itemSvgIcon"></use>
         </svg>
       </span>
-      <span [class]="question.getControlLabelClass(model)" [visible]="!model.hideCaption">
+      <span [class]="question.getControlLabelClass(model)" *ngIf="!model.hideCaption">
         <sv-ng-string [model]="model.locText"></sv-ng-string>
       </span> 
     </ng-template>

@@ -13,12 +13,16 @@
         @change="change"
         @keyup="keyup"
       />
+      <button v-if="model.showSearchClearButton && !!model.filterString" v-on:click="(event) => { model.onClickSearchClearButton(event) }" v-bind:class="model.cssClasses.searchClearButtonIcon">
+        <sv-svg-icon :iconName="'icon-searchclear'" :size="'auto'"></sv-svg-icon>
+      </button>
     </div>
     <div v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div v-bind:class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
     </div>
     <ul
       v-bind:class="model.cssClasses.itemsContainer"
+      v-show="!model.isEmpty"
       role="listbox"
       @mousedown="
         (event) => {

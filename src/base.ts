@@ -4,6 +4,7 @@ import {
   CustomPropertiesCollection,
   JsonObject,
   JsonObjectProperty,
+  JsonMetadataClass,
   Serializer,
 } from "./jsonobject";
 import { settings } from "./settings";
@@ -189,11 +190,17 @@ export class Base {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
+  public static get commentSuffix(): string {
+    return settings.commentSuffix;
+  }
+  public static set commentSuffix(val: string) {
+    settings.commentSuffix = val;
+  }
   public static get commentPrefix(): string {
-    return settings.commentPrefix;
+    return Base.commentSuffix;
   }
   public static set commentPrefix(val: string) {
-    settings.commentPrefix = val;
+    Base.commentSuffix = val;
   }
   public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
@@ -225,6 +232,7 @@ export class Base {
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private bindingsValue: Bindings;
   private isDisposedValue: boolean;
+  private classMetaData: JsonMetadataClass;
   private onPropChangeFunctions: Array<{
     name: string,
     func: (...args: any[]) => void,
@@ -237,27 +245,35 @@ export class Base {
    *
    * Parameters:
    *
-   * | Parameter | Type | Description |
-   * | --------- | ---- | ----------- |
-   * | `sender`  | `this` | A SurveyJS object whose property has changed. |
-   * | `options.name` | `string` | The name of the changed property. |
-   * | `options.newValue` | `any` | A new value for the property. |
-   * | `options.oldValue` | `any` | An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does. |
+   * - `sender`: `this`\
+   * A SurveyJS object whose property has changed.
+   * - `options.name`: `String`\
+   * The name of the changed property.
+   * - `options.newValue`: `any`\
+   * A new value for the property.
+   * - `options.oldValue`: `any`\
+   * An old value of the property. If the property is an array, `oldValue` contains the same array as `newValue` does.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
-   * An event that is raised when an [ItemValue](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
+   * An event that is raised when an [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
    *
    * Parameters:
    *
-   * - `sender` - A SurveyJS object whose property contains an array of `ItemValue` objects.
-   * - `options.obj` - An `ItemValue` object.
-   * - `options.propertyName` - The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
-   * - `options.name` - The name of the changed property: `"text"` or `"value"`.
-   * - `options.newValue` - A new value for the property.
+   * - `sender`: `this`\
+   * A SurveyJS object whose property contains an array of `ItemValue` objects.
+   * - `options.obj`: [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue)\
+   * An `ItemValue` object.
+   * - `options.propertyName`: `String`\
+   * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+   * - `options.name`: `"text"` | `"value"`\
+   * The name of the changed property.
+   * - `options.newValue: `any`\
+   * A new value for the property.
    */
   public onItemValuePropertyChanged: Event<
     (sender: Base, options: any) => any,
+    Base,
     any
   > = this.addEvent<Base>();
 
@@ -289,8 +305,8 @@ export class Base {
   public get isDisposed() {
     return this.isDisposedValue === true;
   }
-  protected addEvent<T>(): EventBase<T> {
-    var res = new EventBase<T>();
+  protected addEvent<T, Options = any>(): EventBase<T, Options> {
+    const res = new EventBase<T, Options>();
     this.eventList.push(res);
     return res;
   }
@@ -395,7 +411,10 @@ export class Base {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
-    return Serializer.findProperty(this.getType(), propName);
+    if(!this.classMetaData) {
+      this.classMetaData = Serializer.findClass(this.getType());
+    }
+    return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
   }
   public isPropertyVisible(propName: string): boolean {
     const prop = this.getPropertyByName(propName);
@@ -443,21 +462,27 @@ export class Base {
     const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.isPropertyEmpty(res)) {
       if (defaultValue != null) return defaultValue;
-      const prop = Serializer.findProperty(this.getType(), name);
-      if (!!prop && (!prop.isCustom || !this.isCreating)) {
-        if (
-          !this.isPropertyEmpty(prop.defaultValue) &&
-          !Array.isArray(prop.defaultValue)
-        )
-          return prop.defaultValue;
-        if (prop.type == "boolean" || prop.type == "switch") return false;
-        if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
-      }
+      const propDefaultValue = this.getDefaultValueFromProperty(name);
+      if(propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
-  protected getPropertyValueCore(propertiesHash: any, name: string) {
-    Base.collectDependency(this, name);
+  private getDefaultValueFromProperty(name: string): any {
+    const prop = this.getPropertyByName(name);
+    if(!prop || prop.isCustom && this.isCreating) return undefined;
+    if (
+      !this.isPropertyEmpty(prop.defaultValue) &&
+      !Array.isArray(prop.defaultValue)
+    )
+      return prop.defaultValue;
+    if (prop.type == "boolean" || prop.type == "switch") return false;
+    if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
+    return undefined;
+  }
+  protected getPropertyValueCore(propertiesHash: any, name: string): any {
+    if(!this.isLoadingFromJson) {
+      Base.collectDependency(this, name);
+    }
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
@@ -465,7 +490,7 @@ export class Base {
   public geValueFromHash(): any {
     return this.propertyHash["value"];
   }
-  protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
+  protected setPropertyValueCore(propertiesHash: any, name: string, val: any): void {
     if (this.setPropertyValueCoreHandler) {
       if (!this.isDisposedValue) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
@@ -1062,9 +1087,9 @@ export class ArrayChanges {
   ) { }
 }
 
-export class Event<T extends Function, Options> {
+export class Event<CallbackFunction extends Function, Sender, Options> {
   public onCallbacksChanged: () => void;
-  protected callbacks: Array<T>;
+  protected callbacks: Array<CallbackFunction>;
   public get isEmpty(): boolean {
     return this.length === 0;
   }
@@ -1078,7 +1103,7 @@ export class Event<T extends Function, Options> {
       if (!this.callbacks) return;
     }
   }
-  public fire(sender: any, options: Options): void {
+  public fire(sender: Sender, options: Options): void {
     if (!this.callbacks) return;
     for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, options);
@@ -1088,22 +1113,22 @@ export class Event<T extends Function, Options> {
   public clear(): void {
     this.callbacks = undefined;
   }
-  public add(func: T): void {
+  public add(func: CallbackFunction): void {
     if (this.hasFunc(func)) return;
     if (!this.callbacks) {
-      this.callbacks = new Array<T>();
+      this.callbacks = new Array<CallbackFunction>();
     }
     this.callbacks.push(func);
     this.fireCallbackChanged();
   }
-  public remove(func: T): void {
+  public remove(func: CallbackFunction): void {
     if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
       this.fireCallbackChanged();
     }
   }
-  public hasFunc(func: T): boolean {
+  public hasFunc(func: CallbackFunction): boolean {
     if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
   }
@@ -1114,7 +1139,8 @@ export class Event<T extends Function, Options> {
   }
 }
 
-export class EventBase<T> extends Event<
-  (sender: T, options: any) => any,
-  any
+export class EventBase<Sender, Options = any> extends Event<
+  (sender: Sender, options: Options) => any,
+  Sender,
+  Options
 > { }

@@ -6,7 +6,7 @@ $background-dim: var(--background-dim, #f3f3f3);
 
 $foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);
-
+$border: var(--border, #d6d6d6);
 $base-unit: var(--base-unit, 8px);
 
 @function calcSize($multiplier) {
@@ -54,7 +54,7 @@ $base-unit: var(--base-unit, 8px);
   color: $foreground;
   cursor: pointer;
 
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   overflow-x: hidden;
   white-space: nowrap;
 }
@@ -162,7 +162,7 @@ button.sv-action-bar-item {
   cursor: pointer;
   line-height: calcSize(3);
   font-size: calcSize(2);
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
 }
 
 .sv-expand-action {

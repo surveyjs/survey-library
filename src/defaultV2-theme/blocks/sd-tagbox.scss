@@ -19,7 +19,7 @@
 }
 
 .sd-input.sd-tagbox:focus-within {
-  box-shadow: 0 0 0 2px $primary, inset 0px 1px 2px $border-inside;
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sv-tagbox__item {
@@ -35,6 +35,7 @@
   color: $primary-foreground;
   min-width: calcSize(5.5);
   text-align: center;
+  font-weight: 600;
 }
 
 .sv-tagbox__item:hover,
@@ -57,6 +58,8 @@
 
 .sd-tagbox-item_clean-button-svg {
   padding: calcSize(0.5);
+  width: calcSize(2);
+  height: calcSize(2);
 }
 
 .sd-tagbox-item_clean-button-svg:hover {

@@ -1,3 +1,5 @@
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var kazakhStrings = {
@@ -11,6 +13,7 @@ export var kazakhStrings = {
   noneItemText: "Жоқ",
   selectAllItemText: "Барлығын таңдау",
   progressText: "{0} ден {1} бет ",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "{0} ден {1} жазба",
   questionsProgressText: "{0}/{1} сұрақтарға жауап",
   emptySurvey: "Бір де бір сұрақ жоқ.",
@@ -18,11 +21,14 @@ export var kazakhStrings = {
   completingSurveyBefore: "Сіз бұл сауалнаманы өтіп қойдыңыз.",
   loadingSurvey: "Серверден жүктеу...",
   placeholder: "Таңдау...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "мәні",
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",
   requiredInAllRowsError: "Өтінеміз, әрбір жолдың сұрағаны жауап беріңіз.",
   numericError: "Жауап сан түрінде болуы керек.",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Өтінеміз, {0} ден көп таңба енгізіңіз.",
   textMaxLength: "Өтінеміз, {0} ден аз таңба енгізіңіз.",
   textMinMaxLength: "Өтінеміз, {0} аз және {1} көп таңба енгізіңіз.",
@@ -42,16 +48,19 @@ export var kazakhStrings = {
   loadingFile: "Жүктеу...",
   chooseFile: "Файлдарды таңдаңыз...",
   noFileChosen: "Файл таңдалынбады",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Сіз жазбаны жоятыныңызға сенімдісіз бе?",
   keyDuplicationError: "Бұл мән бірегей болу керек.",
   addColumn: "Бағана қосу",
   addRow: "Жолды қосу",
   removeRow: "Өшіру",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Жаңа қосу",
   removePanel: "Өшіру",
   choices_Item: "Нұсқа",
   matrix_column: "Бағана",
   matrix_row: "Жол",
+  // multipletext_itemname: "text",
   savingData: "Нәтижелер серверде сақталады...",
   savingDataError: "Қателік туындады, нәтиже сақталынбады.",
   savingDataSuccess: "Нәтиже ойдағыдай сақталды!",
@@ -65,6 +74,7 @@ export var kazakhStrings = {
   timerLimitPage: "Сіз бұл бетте {0} ден {1} кетірдіңіз.",
   timerLimitSurvey: "Сіз бүкіл сауалнама үшін {0} ден {1} кетірдіңіз ",
   clearCaption: "Тазалау",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Файл таңдаңыз",
   removeFileCaption: "Файлды жойыңыз",
   booleanCheckedLabel: "Иә",
@@ -72,6 +82,12 @@ export var kazakhStrings = {
   confirmRemoveFile: "Сіз бұл файлды жоятыныңызға сенімдісіз бе: {0}?",
   confirmRemoveAllFiles: "Сіз барлық файлдарды жоятыныңызға сенімдісіз бе?",
   questionTitlePatternText: "Сұрақтың атауы",
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["kk"] = kazakhStrings;

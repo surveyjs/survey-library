@@ -39,12 +39,14 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
   renderElement() {
     const items = this.renderItems();
+    const ulStyle = { display: this.model.isEmpty ? "none" : null };
     return (
       <div className={this.model.cssClasses.root} ref={this.listContainerRef}>
         {this.searchElementContent()}
         {this.emptyContent()}
         <ul
           className={this.model.cssClasses.itemsContainer}
+          style={ulStyle as any}
           role="listbox"
           onMouseDown={(e) => {
             e.preventDefault();
@@ -83,6 +85,15 @@ export class List extends SurveyElementBase<IListProps, any> {
       const onKeyUp = (e: any) => {
         this.model.goToItems(e);
       };
+      const clearButton = this.model.showSearchClearButton && !!this.model.filterString ?
+        <button className={this.model.cssClasses.searchClearButtonIcon} onClick={(event) => { this.model.onClickSearchClearButton(event); }}>
+          <SvgIcon
+            iconName={"icon-searchclear"}
+            size={"auto"}
+          >
+          </SvgIcon>
+        </button> : null;
+
       return (
         <div className={this.model.cssClasses.filter}>
           <div className={this.model.cssClasses.filterIcon}>
@@ -101,14 +112,13 @@ export class List extends SurveyElementBase<IListProps, any> {
             onKeyUp={onKeyUp}
             onChange={onChange}
           ></input>
+          {clearButton}
         </div>
       );
     }
   }
   emptyContent() {
-    const style = {
-      display: this.model.isEmpty ? null : "none",
-    };
+    const style = { display: this.model.isEmpty ? null : "none" };
 
     return (<div className={this.model.cssClasses.emptyContainer} style={style as any}>
       <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>

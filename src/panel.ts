@@ -29,7 +29,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
-import { SurveyModel } from "survey-core";
+import { SurveyModel } from "./survey";
 
 export class DragDropInfo {
   constructor(
@@ -574,7 +574,7 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!!this.data) {
         var comment = this.data.getComment(valueName);
         if (!!comment) {
-          data[valueName + settings.commentPrefix] = comment;
+          data[valueName + Base.commentSuffix] = comment;
         }
       }
     }
@@ -618,9 +618,9 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values for invisible questions and values that fail validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values for invisible questions and values that fail validation. Call the `validate()` method to validate newly assigned values.
    *
-   * @see hasErrors
+   * @see validate
    */
   public clearIncorrectValues() {
     for (var i = 0; i < this.elements.length; i++) {
@@ -697,16 +697,16 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>this.elements[i])).searchText(text, founded);
     }
   }
+  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
+    return !this.validate(fireCallback, focusOnFirstError, rec);
+  }
   /**
-   * Returns true, if there is an error on this Page or inside the current Panel
-   * @param fireCallback set it to true, to show errors in UI
-   * @param focusOnFirstError set it to true to focus on the first question that doesn't pass the validation
+   * Validates questions within this panel or page and returns `false` if the validation fails.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @param focusOnFirstError *Optional.* Pass `true` if you want to focus the first question with a validation error.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public hasErrors(
-    fireCallback: boolean = true,
-    focusOnFirstError: boolean = false,
-    rec: any = null
-  ): boolean {
+  public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
     rec = !!rec
       ? rec
       : {
@@ -715,11 +715,12 @@ export class PanelModelBase extends SurveyElement<Question>
         firstErrorQuestion: <any>null,
         result: false,
       };
+    if(rec.result !== true) rec.result = false;
     this.hasErrorsCore(rec);
     if (rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
     }
-    return rec.result;
+    return !rec.result;
   }
   private hasErrorsInPanels(rec: any) {
     var errors = <Array<any>>[];
@@ -772,7 +773,7 @@ export class PanelModelBase extends SurveyElement<Question>
       } else {
         var question = <Question>element;
         if (question.isReadOnly) continue;
-        if (question.hasErrors(rec.fireCallback, rec)) {
+        if (!question.validate(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
           }
@@ -806,7 +807,7 @@ export class PanelModelBase extends SurveyElement<Question>
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
-      if (!el.isVisible) continue;
+      if (!el.isVisible || !ignoreCollapseState && el.isCollapsed) continue;
       if (el.isPanel) {
         var res = (<PanelModelBase>(<any>el)).getFirstQuestionToFocus(withError, ignoreCollapseState);
         if (!!res) return res;
@@ -828,7 +829,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * Sets focus on the input of the first question in this panel/page that has an error.
-   * @see hasErrors
+   * @see validate
    */
   public focusFirstErrorQuestion() {
     var q = this.getFirstQuestionToFocus(true);
@@ -903,13 +904,6 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
     }
-  }
-  /**
-   * Returns `true` if this is the current page.
-   * @see SurveyModel.currentPage
-   */
-  public get isActive(): boolean {
-    return !this.survey || <PageModel>this.survey.currentPage == this.root;
   }
   public updateCustomWidgets() {
     for (var i = 0; i < this.elements.length; i++) {

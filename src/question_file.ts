@@ -24,8 +24,10 @@ export class QuestionFileModel extends Question {
    *
    * Parameters:
    *
-   * - `sender` - A question instance that raised the event.
-   * - `options.state` - Current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that raised the event.
+   * - `options.state`: `String`\
+   * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
   public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
     QuestionFileModel
@@ -461,9 +463,6 @@ export class QuestionFileModel extends Question {
     }
     return questionPlainData;
   }
-  public supportComment(): boolean {
-    return true;
-  }
   public getChooseFileCss(): string {
     const isAnswered = this.isAnswered;
     return new CssClassBuilder()
@@ -511,7 +510,14 @@ export class QuestionFileModel extends Question {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    this.loadPreview(newValue);
+    if(!this.isLoadingFromJson) {
+      this.loadPreview(newValue);
+    }
+  }
+
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.loadPreview(this.value);
   }
 
   //#region
@@ -590,25 +596,7 @@ export class QuestionFileModel extends Question {
 Serializer.addClass(
   "file",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true },
-    {
-      name: "commentText",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-      serializationProperty: "locCommentText",
-      layout: "row",
-    },
-    {
-      name: "commentPlaceholder",
-      alternativeName: "commentPlaceHolder",
-      serializationProperty: "locCommentPlaceholder",
-      dependsOn: "showCommentArea",
-      visibleIf: function (obj: any) {
-        return obj.hasComment;
-      },
-    },
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     { name: "allowImagesPreview:boolean", default: true },

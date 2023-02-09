@@ -211,7 +211,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.isItemSelected(item);
   }
   protected onAfterRunItemsEnableCondition() {
-    if (this.maxSelectedChoices < 1) return;
+    if (this.maxSelectedChoices < 1) {
+      this.selectAllItem.setIsEnabled(true);
+      this.otherItem.setIsEnabled(true);
+      return;
+    }
     if (this.hasSelectAll) {
       this.selectAllItem.setIsEnabled(
         this.maxSelectedChoices >= this.activeChoices.length
@@ -433,9 +437,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected setDefaultValueWithOthers() {
     this.value = this.renderedValueFromDataCore(this.defaultValue);
   }
-  protected getHasOther(val: any): boolean {
+  protected getIsItemValue(val: any, item: ItemValue): boolean {
     if (!val || !Array.isArray(val)) return false;
-    return val.indexOf(this.otherItem.value) >= 0;
+    return val.indexOf(item.value) >= 0;
   }
   protected valueFromData(val: any): any {
     if (!val) return val;
@@ -477,7 +481,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
       if (this.hasUnknownValue(val[i], true, false)) {
-        this.comment = val[i];
+        this.otherValue = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;
         return newVal;
@@ -489,9 +493,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !val.length) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) {
-        if (this.getQuestionComment()) {
+        if (this.needConvertRenderedOtherToDataValue()) {
           var newVal = val.slice();
-          newVal[i] = this.getQuestionComment();
+          newVal[i] = this.otherValue;
           return newVal;
         }
       }

@@ -91,7 +91,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get cssTitle(): string { return ""; }
   public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
-  public get titleAriaExpanded(): boolean { return undefined; }
+  public get titleAriaExpanded(): any { return undefined; }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -388,9 +388,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get titleTabIndex(): number {
     return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
-  public get titleAriaExpanded(): boolean {
+  public get titleAriaExpanded(): any {
     if (this.isPage || this.state === "default") return undefined;
-    return this.state === "expanded";
+    return this.state === "expanded" ? "true" : "false";
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;
@@ -560,8 +560,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   /**
-   * Validation errors. Call the `hasErrors()` method to validate survey element data.
-   * @see hasErrors
+   * Validation errors. Call the `validate()` method to validate survey element data.
+   * @see validate
    */
   public get errors(): Array<SurveyError> {
     return this.getPropertyValue("errors");
@@ -580,7 +580,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   /**
    * Returns `true` if the survey element or its child elements have validation errors.
    *
-   * This property contains the result of the most recent validation. This result may be outdated. Call the `hasErrors` method to get an up-to-date value.
+   * This property contains the result of the most recent validation. This result may be outdated. Call the `validate` method to get an up-to-date value.
    * @see errors
    */
   public get containsErrors(): boolean {

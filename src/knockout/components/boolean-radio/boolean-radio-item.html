@@ -2,7 +2,7 @@
     <label data-bind="css: question.koCss().radioLabel">
       <input
         type="radio"
-        data-bind="event: { change: handleChange }, attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, value: $data.value?'true':'false', checked:  $data.value === question.value }, enable: !question.isInputReadOnly, css: question.koCss().itemRadioControl"
+        data-bind="event: { change: handleChange }, attr: { name: question.name, 'aria-describedby': question.ariaDescribedBy, value: ''+$data.value, checked: $data.value === question.booleanValue }, enable: !question.isInputReadOnly, css: question.koCss().itemRadioControl"
       />
       <!-- ko if: question.koCss().materialRadioDecorator -->
       <span data-bind="css: question.koCss().materialRadioDecorator">

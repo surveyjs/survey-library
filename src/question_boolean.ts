@@ -49,13 +49,17 @@ export class QuestionBooleanModel extends Question {
     }
     this.setBooleanValue(val);
   }
+  @property() booleanValueRendered: boolean;
+
   public get checkedValue(): any { return this.booleanValue; }
   public set checkedValue(val: any) { this.booleanValue = val; }
   private setBooleanValue(val: any) {
     if (this.isValueEmpty(val)) {
       this.value = null;
+      this.booleanValueRendered = null;
     } else {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
+      this.booleanValueRendered = val;
     }
   }
   public get defaultValue(): any {
@@ -149,11 +153,11 @@ export class QuestionBooleanModel extends Question {
   @property()
   valueFalse: any;
 
-  private getValueTrue(): any {
-    return this.valueTrue ? this.valueTrue : true;
+  public getValueTrue(): any {
+    return this.valueTrue !== undefined ? this.valueTrue : true;
   }
-  private getValueFalse(): any {
-    return this.valueFalse ? this.valueFalse : false;
+  public getValueFalse(): any {
+    return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
@@ -263,7 +267,7 @@ export class QuestionBooleanModel extends Question {
     if (css.radioItem) {
       className = css.radioItem;
     }
-    if (css.radioItemChecked && value === this.value) {
+    if (css.radioItemChecked && value === this.booleanValue) {
       className = (className ? className + " " : "") + css.radioItemChecked;
     }
     return className;
@@ -280,6 +284,7 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
       name: "labelTrue:text",

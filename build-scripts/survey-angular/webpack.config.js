@@ -17,7 +17,7 @@ const config = {
   plugins: [
     new DtsGeneratorPlugin({
       tsConfigPath: "./build-scripts/survey-angular/tsconfig.typing.angular.json",
-      filePath: "build/survey-angular/survey-angular.d.ts",
+      filePath: "build/survey-angular/survey.angular.d.ts",
       moduleName: "survey-angular",
       importName: "entries/angular"
     }),

@@ -194,3 +194,12 @@ QUnit.test(
     assert.ok(action.ariaChecked, "property exists");
   }
 );
+QUnit.test(
+  "ariaExpanded",
+  (assert) => {
+    const action = new Action(<any>{});
+    assert.notOk(action.ariaExpanded, "default is undefined");
+    action.ariaExpanded = true;
+    assert.ok(action.ariaExpanded, "property exists");
+  }
+);

@@ -1,0 +1,49 @@
+$base-unit: var(--base-unit, 8px);
+$font-family: var(--font-family);
+$background: var(--background, #fff);
+$background-dim: var(--background-dim, #f3f3f3);
+
+@function calcSize($multiplier) {
+  $result: calc(#{$multiplier} * #{$base-unit});
+  @return $result;
+}
+
+.sv-dragged-element-shortcut {
+  height: calcSize(3);
+  min-width: calcSize(12.5);
+  border-radius: calcSize(4.5);
+  background-color: $background;
+  padding: calcSize(2);
+  cursor: grabbing;
+  position: absolute;
+  z-index: 1000;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-family, $font-family);
+  font-size: calcSize(2);
+  padding-left: calcSize(2.5);
+  line-height: calcSize(3);
+}
+
+.sv-matrixdynamic__drag-icon {
+  padding-top: calcSize(1.75);
+}
+
+.sv-matrixdynamic__drag-icon:after {
+  content: " ";
+  display: block;
+  height: calcSize(0.75);
+  width: calcSize(2.5);
+  border: 1px solid #e7e7e7;
+  box-sizing: border-box;
+  border-radius: calcSize(1.25);
+  cursor: move;
+  margin-top: calcSize(1.5);
+}
+
+.sv-matrix-row--drag-drop-ghost-mod td {
+  background-color: $background-dim;
+}
+
+.sv-matrix-row--drag-drop-ghost-mod td>* {
+  visibility: hidden;
+}

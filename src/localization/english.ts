@@ -91,7 +91,9 @@ export var englishStrings = {
   filterStringPlaceholder: "Type to search...",
   emptyMessage: "No data to display",
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  more: "More"
+  noEntriesReadonlyText: "There are no entries.",
+  more: "More",
+  tagboxDoneButtonCaption: "Done"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

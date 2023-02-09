@@ -26,6 +26,7 @@ export interface ISurveyData {
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;
+  findQuestionByName(name: string): IQuestion;
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
@@ -107,6 +108,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     errors: Array<SurveyError>
   ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
+  getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
   getElementTitleTagName(element: Base, tagName: string): string;
   questionTitlePattern: string;
@@ -180,6 +182,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
   getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
+  matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
     question: IQuestion,
     canAddRow: boolean,
@@ -198,6 +201,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   matrixCellValueChanging(question: IQuestion, options: any): any;
   isValidateOnValueChanging: boolean;
   isValidateOnValueChanged: boolean;
+  multipleTextItemAdded(question: IQuestion, item: any): void;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): void;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
@@ -310,7 +314,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   ensureRowsVisibility(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
-  isStarted: boolean;
+  isStartPage: boolean;
 }
 export interface ITitleOwner {
   name: string;

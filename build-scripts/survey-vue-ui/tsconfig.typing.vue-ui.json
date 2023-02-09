@@ -21,8 +21,7 @@
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "moduleResolution": "Node",
-    "outFile": "../../build/survey-vue-ui/survey-vue-ui.d.ts",
+    "moduleResolution": "Node"
   },
   "include": [
     "../../src/entries/vue-ui-model.ts"

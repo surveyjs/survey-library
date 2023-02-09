@@ -1,6 +1,4 @@
-import { surveyCss } from "./cssstandard";
-
-export var defaultBootstrapCss = {
+export var defaultCss = {
   root: "sv_main sv_bootstrap_css",
   container: "sv_container",
   header: "panel-heading card-header",
@@ -133,6 +131,7 @@ export var defaultBootstrapCss = {
     rootMobileMod: "sv-ranking--mobile",
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -149,6 +148,7 @@ export var defaultBootstrapCss = {
   comment: "form-control",
   dropdown: {
     root: "sv_q_dd_root",
+    popup: "sv-dropdown-popup",
     selectWrapper: "sv_q_dd_select_wrapper",
     control: "form-control sv_q_dd_control",
     controlValue: "sv_q_dd_value",
@@ -160,6 +160,7 @@ export var defaultBootstrapCss = {
   },
   tagbox: {
     root: "sv_q_dd_root",
+    popup: "sv-dropdown-popup",
     selectWrapper: "sv_q_dd_select_wrapper",
     control: "form-control sv_q_dd_control",
     controlValue: "sv_q_dd_value",
@@ -321,10 +322,10 @@ export var defaultBootstrapCss = {
   },
   saveData: {
     root: "",
-    saving: "alert alert-info",
+    info: "alert alert-info",
     error: "alert alert-danger",
     success: "alert alert-success",
-    saveAgainButton: "",
+    button: "",
   },
   window: {
     root: "modal-content",
@@ -338,4 +339,3 @@ export var defaultBootstrapCss = {
     },
   },
 };
-(<any>surveyCss)["bootstrap"] = defaultBootstrapCss;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionRadiogroupModel, ItemValue, Base, SurveyModel } from "survey-core";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
@@ -99,7 +99,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}
@@ -179,14 +179,10 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return !!this.question && !!this.item;
   }
   protected renderElement(): JSX.Element {
-    var itemText = !this.hideCaption
-      ? this.renderLocString(this.item.locText, this.textStyle)
-      : "";
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
-    var locText: any = this.item.locText;
     var controlLabelClass = this.question.getControlLabelClass(this.item);
-
+    const itemLabel = !this.hideCaption ? <span className={controlLabelClass}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
     return (
       <div
         className={itemClass}
@@ -218,9 +214,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={controlLabelClass}>
-            {itemText}
-          </span>
+          {itemLabel}
         </label>
       </div>
     );

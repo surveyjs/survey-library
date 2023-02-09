@@ -14,6 +14,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("custom questions");
 
@@ -426,6 +427,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
   survey.css.dropdown.small = "small";
   survey.css.dropdown.title = "title";
@@ -473,6 +475,7 @@ QUnit.test("Custom, get css from contentQuestion", function (assert) {
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite, update panel css", function (assert) {
+  StylesManager.applyTheme("default");
   var survey = new SurveyModel();
   survey.css.question.small = "small";
   survey.css.question.title = "title";
@@ -621,6 +624,7 @@ var orderJSON = {
     {
       name: "qty",
       title: "Qty",
+      isRequired: true,
       cellType: "dropdown",
       optionsCaption: "0",
       choices: [1, 2, 3, 4, 5],
@@ -1655,6 +1659,7 @@ QUnit.test("Check updateElementCss for custom question", function (assert) {
     name: "newquestion",
     questionJSON: { type: "text" },
   };
+  StylesManager.applyTheme("default");
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
     elements: [{ type: "newquestion", name: "q1" }],
@@ -1777,5 +1782,163 @@ QUnit.test("Single: isContentElement property", function (assert) {
     true,
     "Design is disabled for contentQuestion"
   );
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Single: matrixdropdown & getProgressInfo", function (assert) {
+  var json = {
+    name: "order",
+    questionJSON: orderJSON,
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "order", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  var rows = q.contentQuestion.visibleRows;
+  assert.deepEqual(q.getProgressInfo(), {
+    questionCount: 3,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 3,
+    requiredAnsweredQuestionCount: 0,
+  });
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: text & getProgressInfo", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test1",
+    questionJSON: { type: "text" }
+  });
+  ComponentCollection.Instance.add({
+    name: "test2",
+    questionJSON: { type: "text", isRequired: true }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1", isRequired: true },
+      { type: "test2", name: "q2" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const q2 = <QuestionCustomModel>survey.getAllQuestions()[1];
+  assert.deepEqual(q1.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q1");
+  assert.deepEqual(q2.getProgressInfo(), {
+    questionCount: 1,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: getProgressInfo", function (assert) {
+  ComponentCollection.Instance.add(<any>{
+    name: "test1",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+        isRequired: true
+      },
+      {
+        type: "text",
+        name: "lastName",
+      }]
+  });
+  ComponentCollection.Instance.add(<any>{
+    name: "test2",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "firstName",
+      },
+      {
+        type: "text",
+        name: "lastName",
+      }]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test1", name: "q1", isRequired: true },
+      { type: "test1", name: "q2" },
+      { type: "test2", name: "q3" },
+      { type: "test2", name: "q4", isRequired: true }]
+  });
+  const q1 = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const q2 = <QuestionCustomModel>survey.getAllQuestions()[1];
+  const q3 = <QuestionCustomModel>survey.getAllQuestions()[2];
+  const q4 = <QuestionCustomModel>survey.getAllQuestions()[3];
+  assert.deepEqual(q1.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q1");
+  assert.deepEqual(q2.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q2");
+  assert.deepEqual(q3.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 0,
+    requiredAnsweredQuestionCount: 0,
+  }, "q3");
+  assert.deepEqual(q4.getProgressInfo(), {
+    questionCount: 2,
+    answeredQuestionCount: 0,
+    requiredQuestionCount: 1,
+    requiredAnsweredQuestionCount: 0,
+  }, "q4");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: Support carry-forward", function (assert) {
+  const json = {
+    name: "newquestion",
+    elementsJSON: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      { type: "radiogroup", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" }
+    ]
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is loaded");
+  assert.equal(q2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
+  q1.value = [1, 3, 5];
+  assert.equal(q2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: merge data, Bug#5583", function (assert) {
+  var json = {
+    name: "fullname",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+    onLoaded: (question) => {
+      const firstName = question.contentPanel.getQuestionByName("firstName");
+      firstName.value = "Jon";
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "fullname", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.deepEqual(survey.data, { q1: { firstName: "Jon" } }, "Survey data is correct");
+  survey.mergeData({ q1: { lastName: "Snow" } });
+  assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" });
+  survey.mergeData({ q1: { firstName: "John", lastName: "Doe" } });
+  assert.deepEqual(q.value, { firstName: "John", lastName: "Doe" });
   ComponentCollection.Instance.clear();
 });

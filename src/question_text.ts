@@ -381,7 +381,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType == "number" || this.inputType == "range") {
-      return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
+      return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
     return newValue;
   }
@@ -393,9 +393,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   get inputStyle(): any {
     var style: any = {};
-    if (!!this.inputWidth) {
-      style.width = this.inputWidth;
-    }
+    style.width = this.inputWidth;
     return style;
   }
   //web-based methods
@@ -410,7 +408,6 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   onCompositionUpdate = (event: any) => {
     if(this.isInputTextUpdate) {
-      event.persist();
       setTimeout(() => {
         this.updateValueOnEvent(event);
       }, 1);
@@ -449,6 +446,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
 const minMaxTypes = [
   "number",
+  "range",
   "date",
   "datetime",
   "datetime-local",
@@ -492,7 +490,7 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   }
   if(obj.inputType === "number") {
     if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
-    if(parseFloat(min) > parseFloat(max)) return isMax ? min : max;
+    if(Helpers.getNumber(min) > Helpers.getNumber(max)) return isMax ? min : max;
   }
   if(typeof min === "string" || typeof max === "string") return val;
   if(min > max) return isMax ? min : max;
@@ -539,7 +537,7 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType;
+          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
         }
       },
       onSettingValue: (obj: any, val: any): any => {
@@ -558,7 +556,7 @@ Serializer.addClass(
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
         if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType;
+          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
         }
       },
     },
@@ -599,7 +597,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.inputType === "number";
+        return obj.inputType === "number" || obj.inputType === "range";
       },
     },
     {

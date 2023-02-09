@@ -11,7 +11,8 @@
 }
 .sd-table--alternate-rows {
   .sd-table__row:nth-of-type(odd) {
-    &> td, td:first-of-type {
+    & > td,
+    td:first-of-type {
       background-color: $background-dim-light;
       .sd-input {
         background-color: $primary-foreground;
@@ -30,6 +31,11 @@
   padding: calcSize(1);
   color: $foreground;
   text-align: center;
+}
+.sd-table__cell--item {
+  .sd-selectbase__label {
+    justify-content: center;
+  }
 }
 .sd-question--disabled .sd-table__cell {
   opacity: 0.25;
@@ -153,37 +159,41 @@
   position: relative;
   overflow-x: auto;
 }
-.sd-question--table {
-  & > .sd-question__content {
-    display: flex;
-    padding-top: calcSize(2.5);
-    margin: 0 calc(-1 * var(--sd-base-padding));
-    width: fit-content;
-    min-width: calc(100% + 2 * var(--sd-base-padding));
-    &:before,
-    &:after {
-      content: "";
-      display: block;
-      position: sticky;
-      min-height: 100%;
-      width: calc(var(--sd-base-padding) - #{$base-unit});
-      flex-shrink: 0;
-      background: $background;
-      z-index: 11;
-    }
-    &::before {
-      left: calc(-1 * var(--sd-base-padding));
-    }
-    &:after {
-      right: calc(-1 * var(--sd-base-padding));
-    }
-    > div {
-      flex-basis: 100%;
-    }
+.sd-table-wrapper {
+  display: flex;
+  margin: 0 calc(-1 * var(--sd-base-padding));
+  width: fit-content;
+  min-width: calc(100% + 2 * var(--sd-base-padding));
+  &:before,
+  &:after {
+    content: "";
+    display: block;
+    position: sticky;
+    min-height: 100%;
+    width: calc(var(--sd-base-padding) - #{$base-unit});
+    flex-shrink: 0;
+    background: $background;
+    z-index: 11;
   }
-  & > .sd-question__header {
+  &::before {
+    left: calc(-1 * var(--sd-base-padding));
+  }
+  &:after {
+    right: calc(-1 * var(--sd-base-padding));
+  }
+  & > * {
+    flex-basis: 100%;
+  }
+}
+.sd-question--table {
+  & > .sd-question__header,
+  .sd-question__description--under-input .sv-string-viewer {
     position: sticky;
     left: 0;
+  }
+  & > .sd-question__content {
+    padding-top: calcSize(2.5);
+    min-width: min-content;
   }
   &:not(.sd-element--with-frame) {
     padding-right: var(--sd-base-padding);
@@ -312,8 +322,5 @@
     tr:last-child:after {
       content: none;
     }
-  }
-  .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
-    margin-left: calcSize(-2);
   }
 }

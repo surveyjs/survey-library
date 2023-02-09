@@ -249,7 +249,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[question.getValueName() + settings.commentPrefix] =
+        result[question.getValueName() + Base.commentSuffix] =
           question.comment;
       }
     }
@@ -264,7 +264,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var val = this.getCellValue(value, question.getValueName());
       var oldComment = question.comment;
       var comment = !!value
-        ? value[question.getValueName() + settings.commentPrefix]
+        ? value[question.getValueName() + Base.commentSuffix]
         : "";
       if (comment == undefined) comment = "";
       question.updateValueFromSurvey(val);
@@ -404,11 +404,20 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public setComment(name: string, newValue: string, locNotification: any) {
     this.setValueCore(name, newValue, true);
   }
+  findQuestionByName(name: string): IQuestion {
+    if(!name) return undefined;
+    const prefix = MatrixDropdownRowModelBase.RowVariableName + ".";
+    if(name.indexOf(prefix) === 0) {
+      return this.getQuestionByName(name.substring(prefix.length));
+    }
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name): null;
+  }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
     var newValue = this.value;
-    var changedName = isComment ? name + settings.commentPrefix : name;
+    var changedName = isComment ? name + Base.commentSuffix : name;
     var changedValue = newColumnValue;
     var changedQuestion = this.getQuestionByName(name);
     var changingValue = this.data.onRowChanging(this, changedName, newValue);
@@ -416,22 +425,20 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       !!changedQuestion &&
       !this.isTwoValueEquals(changingValue, changedValue)
     ) {
+      this.isSettingValue = true;
       if (isComment) {
         changedQuestion.comment = changingValue;
       } else {
         changedQuestion.value = changingValue;
       }
-    } else {
-      if (
-        this.data.isValidateOnValueChanging &&
-        this.hasQuestonError(changedQuestion)
-      )
-        return;
-      const isDeleting = newColumnValue == null && !changedQuestion ||
-        isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
-      this.data.onRowChanged(this, changedName, newValue, isDeleting);
-      this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+      this.isSettingValue = false;
+      newValue = this.value;
     }
+    if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
+    const isDeleting = newColumnValue == null && !changedQuestion ||
+      isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+    this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
   }
 
   private updateQuestionsValue(
@@ -675,7 +682,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       var cellValue = this.getCellValue(value, column.name);
       if (!Helpers.isValueEmpty(cellValue)) {
         cell.question.value = cellValue;
-        var commentKey = column.name + settings.commentPrefix;
+        var commentKey = column.name + Base.commentSuffix;
         if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
           cell.question.comment = value[commentKey];
         }
@@ -809,6 +816,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       (item: any) => {
         item.colOwner = this;
         if(this.onAddColumn) this.onAddColumn(item);
+        if(this.survey) {
+          this.survey.matrixColumnAdded(this, item);
+        }
       },
       (item: any) => {
         item.colOwner = null;
@@ -1136,17 +1146,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public set columnColCount(value: number) {
     if (value < 0 || value > 4) return;
     this.setPropertyValue("columnColCount", value);
-  }
-  /**
-   * Minimum column width in CSS values.
-   *
-   * @see width
-   */
-  public get columnMinWidth(): string {
-    return this.getPropertyValue("columnMinWidth", "");
-  }
-  public set columnMinWidth(val: string) {
-    this.setPropertyValue("columnMinWidth", val);
   }
   public get horizontalScroll(): boolean {
     return this.getPropertyValue("horizontalScroll", false);
@@ -1757,6 +1756,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       );
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
+    if(res.requiredQuestionCount === 0 && this.isRequired) {
+      res.requiredQuestionCount = 1;
+      res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
+    }
     return res;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }

@@ -77,8 +77,9 @@ export class CustomWidgetCollection {
 
   public onCustomWidgetAdded: Event<
     (customWidget: QuestionCustomWidget) => any,
+    QuestionCustomWidget,
     any
-  > = new Event<(customWidget: QuestionCustomWidget) => any, any>();
+  > = new Event<(customWidget: QuestionCustomWidget) => any, QuestionCustomWidget, any>();
 
   public get widgets(): Array<QuestionCustomWidget> {
     return this.widgetsValues;

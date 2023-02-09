@@ -432,7 +432,7 @@ Serializer.addClass(
     { name: "defaultValueExpression", visible: false },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
-    { name: "requiredIf", visible: false },
+    { name: "requiredIf", visible: false }
   ],
   function() {
     return new QuestionExpressionModel("");

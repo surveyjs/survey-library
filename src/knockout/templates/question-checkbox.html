@@ -42,7 +42,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.hasOther && question.isOtherSelected -->
-      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
+      <div class="form-group" data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
       <!-- /ko -->
     </fieldset>
 </script>
@@ -64,10 +64,12 @@
                 <!-- /ko -->
               </span>
               <!-- /ko -->
-              <span data-bind="visible: !item.hideCaption, css: question.koCss().controlLabel">
-              <!-- ko template: { name: 'survey-string', data: item.locText } -->
-              <!-- /ko -->
+          <!-- ko if: !item.hideCaption -->
+          <span data-bind="css: question.koCss().controlLabel">
+          <!-- ko template: { name: 'survey-string', data: item.locText } -->
+          <!-- /ko -->
           </span>
+          <!-- /ko -->
       </label>
   </div>
 </script>

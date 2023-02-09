@@ -122,7 +122,7 @@ registerMarkupTests(
     snapshot: "paneldynamic-remove-btn-action-bar",
     before: () => { StylesManager.applyTheme("defaultV2"); },
     initSurvey: survey => {
-      survey.getAllQuestions()[0].panels[0].allowAdaptiveActions = false;
+      survey.getAllQuestions()[0]["panels"][0].allowAdaptiveActions = false;
     },
     after: () => StylesManager.applyTheme("default"),
   },
@@ -152,5 +152,58 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
+  {
+    name: "Test paneldynamic do not render empty footer (do not allow add) markup",
+    json: {
+      questions: [
+        {
+          "type": "paneldynamic",
+          "name": "question1",
+          "titleLocation": "hidden",
+          "templateElements": [
+            {
+              "type": "text",
+              "titleLocation": "hidden",
+              "name": "question2"
+            }
+          ],
+          "allowAddPanel": false,
+          "panelCount": 1
+        },
+      ]
+    },
+    event: "onAfterRenderPage",
+    snapshot: "paneldynamic-no-footer-1",
+    removeIds: true,
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+  {
+    name: "Test paneldynamic do not render empty footer (max panels reached) markup",
+    json: {
+      questions: [
+        {
+          "type": "paneldynamic",
+          "name": "question1",
+          "titleLocation": "hidden",
+          "templateElements": [
+            {
+              "type": "text",
+              "titleLocation": "hidden",
+              "name": "question2"
+            }
+          ],
+          "allowAddPanel": true,
+          "maxPanelCount": 1,
+          "panelCount": 1
+        },
+      ]
+    },
+    event: "onAfterRenderPage",
+    snapshot: "paneldynamic-no-footer-2",
+    removeIds: true,
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  }
   ]
 );

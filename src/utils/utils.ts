@@ -125,6 +125,11 @@ function scrollElementByChildId(id: string) {
   }
 }
 
+function navigateToUrl(url: string): void {
+  if (!url || typeof window === "undefined" || !window.location) return;
+  window.location.href = url;
+}
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
@@ -308,6 +313,16 @@ function mergeValues(src: any, dest: any) {
   }
 }
 
+export class Logger {
+  private _result = "";
+  public log(action: string) {
+    this._result += "->" + action;
+  }
+  public get result() {
+    return this._result;
+  }
+}
+
 export {
   mergeValues,
   getElementWidth,
@@ -322,10 +337,11 @@ export {
   isElementVisible,
   findScrollableParent,
   scrollElementByChildId,
+  navigateToUrl,
   createSvg,
   getIconNameFromProxy,
   increaseHeightByContent,
   getOriginalEvent,
   preventDefaults,
-  findParentByClassNames
+  findParentByClassNames,
 };

@@ -5,15 +5,29 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { doKey2ClickBlur, doKey2ClickUp, mergeValues } from "./utils/utils";
+import { QuestionSelectBase } from "./question_baseselect";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IsTouch } from "./utils/devices";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
   readonly loadingItemHeight = 40;
 
   private _popupModel: PopupModel;
-  private focusFirstInputSelector = ".sv-list__item--selected";
-  private itemsSettings: {skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
+  private get focusFirstInputSelector(): string {
+    return this.getFocusFirstInputSelector();
+  }
+  protected readonly selectedItemSelector = ".sv-list__item--selected";
+  protected readonly itemSelector = ".sv-list__item";
+  protected getFocusFirstInputSelector(): string {
+    if(IsTouch) {
+      return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
+    } else {
+      return (!this.listModel.showFilter && !!this.question.value) ? this.selectedItemSelector : "";
+    }
+  }
+  private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel;
   protected popupCssClasses = "sv-single-select-list";
@@ -40,7 +54,7 @@ export class DropdownListModel extends Base {
     if (this.isRunningLoadQuestionChoices) return;
 
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
-    if(!this.itemsSettings.skip || isUpdate) {
+    if (!this.itemsSettings.skip || isUpdate) {
       this.isRunningLoadQuestionChoices = true;
       this.question.survey.loadQuestionChoices({
         question: this.question,
@@ -61,21 +75,22 @@ export class DropdownListModel extends Base {
   }
 
   private updatePopupFocusFirstInputSelector() {
-    this._popupModel.focusFirstInputSelector = (!this.listModel.showFilter && !!this.question.value) ? this.focusFirstInputSelector : "";
+    this._popupModel.focusFirstInputSelector = this.focusFirstInputSelector;
   }
 
-  private createPopup() {
-    this._popupModel = new PopupModel("sv-list", { model: this.listModel, }, "bottom", "center", false);
+  protected createPopup(): void {
+    this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
+    this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
-    this._popupModel.isFocusedContent = false;
-    this._popupModel.setWidthByTarget = true;
+    this._popupModel.isFocusedContent = IsTouch;
+    this._popupModel.setWidthByTarget = !IsTouch;
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();
     });
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      if(option.isVisible && this.question.choicesLazyLoadEnabled) {
+      if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
         this.updateQuestionChoices();
       }
@@ -84,19 +99,19 @@ export class DropdownListModel extends Base {
         this.updatePopupFocusFirstInputSelector();
         this.question.onOpenedCallBack();
       }
-      if(!option.isVisible) {
+      if (!option.isVisible) {
         this.onHidePopup();
 
-        if(this.question.choicesLazyLoadEnabled) {
+        if (this.question.choicesLazyLoadEnabled) {
           this.resetItemsSettings();
         }
       }
     });
   }
 
-  private setFilterStringToListModel(newValue: string):void {
+  private setFilterStringToListModel(newValue: string): void {
     this.listModel.filterString = newValue;
-    if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
+    if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
   }
@@ -114,7 +129,7 @@ export class DropdownListModel extends Base {
 
   protected getAvailableItems(): Array<Action> {
     return this.question.visibleChoices.map((choice: ItemValue) => new Action({
-      id: choice.value,
+      id: <any>new ComputedUpdater<boolean>(() => choice.value),
       data: choice,
       locTitle: choice.locText,
       component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
@@ -125,15 +140,21 @@ export class DropdownListModel extends Base {
   protected createListModel(): ListModel {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
-    if(!_onSelectionChanged) {
+    if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
         this._popupModel.toggleVisibility();
       };
     }
-    return new ListModel(visibleItems, _onSelectionChanged, true, this.question.selectedItem);
+    return new ListModel(visibleItems, _onSelectionChanged, false);
   }
   protected updateAfterListModelCreated(model: ListModel): void {
+    model.isItemSelected = (action: Action) => {
+      const question = <QuestionSelectBase>this.question;
+      //need to remove this code after use visible choices as actions for list
+      const item = ItemValue.getItemByValue(question.visibleChoices, action.id);
+      return !!item ? question.isItemSelected(item) : false;
+    };
     model.locOwner = this.question;
     model.onPropertyChanged.add((sender: any, options: any) => {
       if (options.name == "hasVerticalScroller") {
@@ -142,16 +163,17 @@ export class DropdownListModel extends Base {
     });
     model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
   }
-  public updateListCssClasses(listCssClasses: any) {
+  public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
+    this.popupModel.cssClass = new CssClassBuilder().append(popupCssClass).append(this.popupCssClasses).toString();
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
-    if(!!this.filterString) {
+    if (!!this.filterString) {
       this.filterString = undefined;
     }
   }
   protected onSetFilterString(): void {
-    if(!!this.filterString && !this.popupModel.isVisible) {
+    if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
     this.setInputHasValue(!!this.filterString);
@@ -183,7 +205,7 @@ export class DropdownListModel extends Base {
   @property({
     defaultValue: false,
     onSet: (newVal: boolean, target: DropdownListModel) => {
-      if(newVal) {
+      if (newVal) {
         target.listModel.addScrollEventListener((e: any) => { target.onScroll(e); });
       } else {
         target.listModel.removeScrollEventListener();
@@ -209,9 +231,13 @@ export class DropdownListModel extends Base {
   public get filterStringEnabled(): boolean {
     return !this.question.isInputReadOnly && this.searchEnabled;
   }
+  public get inputMode(): "none" | "text" {
+    return IsTouch ? "none": "text";
+  }
 
   public setSearchEnabled(newValue: boolean) {
-    this.listModel.searchEnabled = false;
+    this.listModel.searchEnabled = IsTouch;
+    this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
   }
   public updateItems(): void {
@@ -224,7 +250,7 @@ export class DropdownListModel extends Base {
 
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
-      if(!!input) {
+      if (!!input) {
         input.focus();
       }
     }
@@ -233,13 +259,12 @@ export class DropdownListModel extends Base {
   public onClear(event: any): void {
     this.question.clearValue();
     this.resetFilterString();
-    this.listModel.selectedItem = undefined;
     event.preventDefault();
     event.stopPropagation();
   }
 
   public getSelectedAction(): Action {
-    if(!!this.question.selectedItem) {
+    if (!!this.question.selectedItem) {
       return this.listModel.actions.filter(action => (this.question.selectedItem.value === action.id))[0];
     } else {
       return null;
@@ -248,29 +273,29 @@ export class DropdownListModel extends Base {
 
   keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
-    if(this.popupModel.isVisible && event.keyCode === 38) {
+    if (this.popupModel.isVisible && event.keyCode === 38) {
       this.listModel.focusPrevVisibleItem();
       this.scrollToFocusedItem();
       event.preventDefault();
       event.stopPropagation();
-    } else if(event.keyCode === 40) {
-      if(!this.popupModel.isVisible) {
+    } else if (event.keyCode === 40) {
+      if (!this.popupModel.isVisible) {
         this.popupModel.toggleVisibility();
       }
       this.listModel.focusNextVisibleItem();
       this.scrollToFocusedItem();
       event.preventDefault();
       event.stopPropagation();
-    } else if(this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       this.listModel.selectFocusedItem();
       event.preventDefault();
       event.stopPropagation();
     } else if (char === 46) {
       this.onClear(event);
-    } else if(event.keyCode === 27) {
+    } else if (event.keyCode === 27) {
       this.popupModel.isVisible = false;
     } else {
-      if(event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
+      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -279,12 +304,16 @@ export class DropdownListModel extends Base {
   }
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
-    if((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
+    if ((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
       this.updateQuestionChoices();
     }
   }
   onBlur(event: any): void {
-    if(this.popupModel.isVisible) {
+    if (this.popupModel.isVisible && IsTouch) {
+      this._popupModel.isVisible = true;
+      return;
+    }
+    if (this.popupModel.isVisible && !!this.filterString) {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();

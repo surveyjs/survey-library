@@ -832,6 +832,27 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Matrixdropdown onMatrixValueChanging, bug#5396", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  survey.onMatrixCellValueChanging.add(function (sender, options) {
+    options.value += "!";
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  cellQuestion.value = "test";
+  assert.equal(cellQuestion.value, "test!", "Value has been changed");
+  assert.deepEqual(survey.data, { q1: { row1: { col1: "test!" } } }, "Correct survey data");
+});
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -2707,19 +2728,16 @@ QUnit.test(
       newValue,
       "shared correctly to the second question"
     );
-    var rowsChangedCounter = 0;
-    q2.visibleRowsChangedCallback = function () {
-      rowsChangedCounter++;
-    };
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     q1.addRow();
     q1.visibleRows[3].cells[0].value = 4;
     newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }, { col1: 4 }];
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
     assert.deepEqual(
       q2.visibleRows.length,
       4,
       "There are  4 rows in the second question"
     );
+    assert.equal(4, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q1.value,
       newValue,
@@ -2780,8 +2798,9 @@ QUnit.test(
     q2.visibleRowsChangedCallback = function () {
       rowsChangedCounter++;
     };
+    assert.equal(2, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #1");
     survey.setValue("copyValue", true);
-    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
+    assert.equal(3, q2.renderedTable.rows.length, "q2 renderedTable rows are correct, #2");
     assert.deepEqual(
       q2.value,
       newValue,
@@ -3907,6 +3926,32 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
     true,
     "The third row can be removed (in actions cell)"
   );
+});
+
+QUnit.test("survey.onMatrixAllowRemoveRow, show remove for new rows only, Bug#5533", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 0,
+        columns: [{ name: "col1", cellType: "text" }],
+      },
+    ],
+  });
+  survey.onMatrixAllowRemoveRow.add(function (sender, options) {
+    options.allow = options.row.isEmpty;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  matrix.value = [{ col1: 1 }, { col1: 2 }];
+  assert.equal(matrix.canRemoveRows, true, "The row can be removed");
+  const table = matrix.renderedTable;
+  matrix.addRow();
+  assert.equal(3, matrix.visibleRows.length, "3 rows");
+  assert.equal(table.hasRemoveRows, true, "table.hasRemoveRows");
+  assert.equal(table.rows[0].cells[1].isActionsCell, false, "First cell");
+  assert.equal(table.rows[1].cells[1].isActionsCell, false, "Second cell");
+  assert.equal(table.rows[2].cells[1].isActionsCell, true, "Third cell");
 });
 
 QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
@@ -7926,3 +7971,94 @@ QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", func
   matrix.onPointerDown(<any>undefined, <any>undefined);
 });
 
+QUnit.test("Update expressions on setting matrixdropdown rows, Bug#5526", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        columns: [
+          { cellType: "text", name: "col1", totalType: "sum" },
+          { cellType: "text", name: "col2" },
+          { cellType: "expression", name: "col3", expression: "{row.col1} + {row.col2}", totalType: "sum" },
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  assert.equal(2, rows.length, "2 rows");
+  rows[0].cells[0].value = 1;
+  rows[0].cells[1].value = 2;
+  rows[1].cells[0].value = 3;
+  rows[1].cells[1].value = 4;
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, },
+    row2: { col1: 3, col2: 4, col3: 7 } },
+  "matrix-total": { col1: 4, col3: 10 } }, "#1");
+  matrix.rows = ["row1"];
+  assert.deepEqual(survey.data, { matrix: { row1: { col1: 1, col2: 2, col3: 3, } },
+    "matrix-total": { col1: 1, col3: 3 } }, "#2");
+});
+
+QUnit.test("Carry forward in matrix cells", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        columns: [
+          { cellType: "checkbox", name: "col1", choices: [1, 2, 3, 4, 5] },
+          { cellType: "dropdown", name: "col2", choicesFromQuestion: "row.col1", choicesFromQuestionMode: "selected" }
+        ],
+        rowCount: 1
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const cellQ1 = rows[0].cells[0].question;
+  const cellQ2 = <QuestionDropdownModel>rows[0].cells[1].question;
+  assert.equal("col1", cellQ1.name, "col1 question is correct");
+  assert.equal("col2", cellQ2.name, "col2 question is correct");
+  assert.equal(cellQ2.choicesFromQuestion, "row.col1", "choicesFromQuestion is loaded");
+  assert.equal(cellQ2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
+  assert.equal(cellQ2.visibleChoices.length, 0, "There is no visible choices");
+  cellQ1.value = [1, 3, 5];
+  assert.equal(cellQ2.visibleChoices.length, 3, "Choices are here");
+  assert.equal(cellQ2.visibleChoices[1].value, 3, "A choice value is correct");
+});
+QUnit.test("Doesn't update value correctly for nested matrix with expressions, bug#5549", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            isRequired: true,
+            inputType: "number",
+          },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "{row.col1} + 10"
+          }
+        ],
+        rowCount: 1,
+      }
+    ]
+  });
+  let questionValue;
+  survey.onValueChanged.add((sender, options) => {
+    questionValue = options.value;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const cell = matrix.visibleRows[0].cells[0].question;
+  cell.value = 10;
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix question value");
+  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
+});

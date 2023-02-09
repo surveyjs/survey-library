@@ -306,6 +306,17 @@ QUnit.test("Helpers.isNumber", function(assert) {
     "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
   );
 });
+QUnit.test("Helpers.getNumber", function(assert) {
+  assert.equal(Helpers.getNumber("1"), 1, "1 is a number");
+  assert.equal(Helpers.getNumber("23.3"), 23.3, "23.3 is a number");
+  assert.equal(Helpers.getNumber("23,3"), 23.3, "23,3 is a number");
+  assert.equal(isNaN(Helpers.getNumber("abcd")), true, "abcd is not a number");
+  assert.equal(
+    isNaN(Helpers.getNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8")),
+    true,
+    "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
+  );
+});
 QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");
   assert.equal(Helpers.getNumberByIndex(2, "1."), "3.", "2/3.");
@@ -431,4 +442,13 @@ QUnit.test("convertDateToString/convertDateTimeToString functions", function(ass
   const d = new Date(2022, 11, 24, 10, 55, 33, 3);
   assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");
   assert.equal(Helpers.convertDateTimeToString(d), "2022-12-24 10:55", "convertDateTimeToString");
+});
+QUnit.test("sumAnyValues", function(assert) {
+  assert.equal(Helpers.sumAnyValues(1, 2), 3, "1 + 2");
+  assert.equal(Helpers.sumAnyValues("ab", "cd"), "abcd", "ab + cd");
+  assert.equal(Helpers.sumAnyValues("ab", 1), "ab1", "ab + 1");
+  assert.deepEqual(Helpers.sumAnyValues([1, 2], [3, 4]), [1, 2, 3, 4], "[1, 2] + [3, 4]");
+  assert.equal(Helpers.sumAnyValues([1, 2, 3], 4), 10, "[1, 2, 3] + 10");
+  assert.equal(Helpers.sumAnyValues(["a", "b", "c"], " "), "a, b, c ", "['a', 'b', 'c'] + ' '");
+  assert.equal(Helpers.sumAnyValues(["a", "b", "c"], ""), "a, b, c", "['a', 'b', 'c'] + ''");
 });

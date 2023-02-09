@@ -35,7 +35,7 @@ export class TitleElement extends React.Component<any, any> {
         aria-label={ariaLabel}
         tabIndex={element.titleTabIndex}
         aria-expanded={element.titleAriaExpanded}
-        role="columnheader"
+        role="button"
         onClick={onClick}
         onKeyUp={onKeyUp}
       >

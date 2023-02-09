@@ -29,6 +29,7 @@ The SurveyJS Form Library for Vue consists of two npm packages: [`survey-core`](
 ```cmd
 npm install survey-vue-ui --save
 ```
+> SurveyJS requires Vue 2.7 or earlier.
 
 ## Configure Styles
 
@@ -51,20 +52,7 @@ import 'survey-core/defaultV2.min.css';
 </script>
 ```
 
-To apply the imported theme, call the `applyTheme(themeName)` method. Depending on the theme, pass `"modern"` or `"defaultV2"` as the method's argument. For instance, the following code applies the Default V2 theme:
-
-```js
-<template>
-  <!-- ... -->
-</template>
-
-<script>
-// ...
-import { StylesManager } from 'survey-core';
-
-StylesManager.applyTheme("defaultV2");
-</script>
-```
+For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
 
 ## Create a Model
 
@@ -119,9 +107,7 @@ export default {
 
 <script>
 import 'survey-core/defaultV2.min.css';
-import { StylesManager, Model } from 'survey-core';
-
-StylesManager.applyTheme("defaultV2");
+import { Model } from 'survey-core';
 
 const surveyJson = {
   elements: [{
@@ -192,10 +178,8 @@ If you replicate the code correctly, you should see the following survey:
 
 <script>
 import 'survey-core/defaultV2.min.css';
-import { StylesManager, Model } from 'survey-core';
+import { Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
-
-StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{
@@ -318,10 +302,8 @@ To view the application, run `npm run serve` in a command line and open [http://
 
 <script>
 import 'survey-core/defaultV2.min.css';
-import { StylesManager, Model } from 'survey-core';
+import { Model } from 'survey-core';
 import { Survey } from 'survey-vue-ui';
-
-StylesManager.applyTheme("defaultV2");
 
 const surveyJson = {
   elements: [{

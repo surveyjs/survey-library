@@ -17,11 +17,13 @@ export var settings = {
    * By default it uses setHours function, with local date
    */
   useLocalTimeZone: true,
+  get commentPrefix(): string { return settings.commentSuffix; },
+  set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
-   * The prefix that uses to store the question comment, as "questionName + commentPrefix".
+   * The suffix that uses to store the question comment, as "questionName + commentSuffix".
    * The default value is "-Comment"
    */
-  commentPrefix: "-Comment",
+  commentSuffix: "-Comment",
   /**
    * Encode parameter on calling restful web API
    */
@@ -176,10 +178,20 @@ export var settings = {
   lazyRowsRendering: false,
   lazyRowsRenderingStartRow: 3,
   /**
+   * Notification settings
+   */
+  notifications: {
+    lifetime: 2000
+  },
+  /**
    * By default checkbox and radiogroup items are ordered in rows.
    * Set it "column", and items will be ordered in columns.
    */
   showItemsInOrder: "default",
+  /**
+   * A value to save in survey results when respondents select the None choice item.
+   */
+  noneItemValue: "none",
   /**
    * Supported validators by question types. You can modify this variable to add validators for new question types or add/remove for existing question types.
    */
@@ -218,6 +230,15 @@ export var settings = {
    * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
    */
   customIcons: {},
+  /**
+   * Specifies which part of a choice item item responds to a drag gesture in Ranking questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   */
+  rankingDragHandleArea: "entireItem",
   titleTags: {
     survey: "h3",
     page: "h4",

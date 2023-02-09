@@ -1,4 +1,4 @@
-import { ILocalizableOwner, LocalizableString } from "survey-core";
+import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base } from "../base";
 import { surveyLocalization } from "../surveyStrings";
 import { property } from "../jsonobject";
@@ -127,6 +127,7 @@ export interface IAction {
   visibleIndex?: number;
   needSpace?: boolean;
   ariaChecked?: boolean;
+  ariaExpanded?: boolean;
   ariaRole?: string;
 }
 
@@ -223,6 +224,7 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
   @property() ariaChecked: boolean;
+  @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   @property({
     onSet: (val, target) => {
@@ -325,6 +327,9 @@ export class Action extends Base implements IAction, ILocalizableOwner {
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
       .toString();
+  }
+  public getTooltip(): string {
+    return this.tooltip || this.title;
   }
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }

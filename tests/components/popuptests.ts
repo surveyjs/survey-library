@@ -5,6 +5,8 @@ import { createPopupViewModel } from "../../src/popup-utils";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../../src/popup-modal-view-model";
+import { englishStrings } from "../../src/localization/english";
+import { germanSurveyStrings } from "../../src/localization/german";
 
 const popupTemplate = require("../../src/knockout/components/popup/popup.html").default;
 
@@ -1039,6 +1041,17 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
   viewModel.dispose();
 });
 
+QUnit.test("PopupModel and locale", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupModalViewModel = createPopupViewModel(model, targetElement) as PopupModalViewModel;
+  viewModel.initializePopupContainer();
+  assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), englishStrings.modalApplyButtonText, "en Apply text");
+  viewModel.locale = "de";
+  assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), germanSurveyStrings.modalApplyButtonText, "de Apply text");
+  viewModel.dispose();
+});
+
 QUnit.test("PopupModel top+center position calculate", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "top", "center", true);
   const targetElement: HTMLElement = document.createElement("button");
@@ -1261,4 +1274,16 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+});
+
+QUnit.test("PopupViewModel remove correct div even if container is changed", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  const container = viewModel.container;
+  viewModel.container.appendChild(document.createElement("div"));
+  viewModel.container = <HTMLElement>viewModel.container.children[0];
+  viewModel.unmountPopupContainer();
+  assert.notOk(container.isConnected);
 });

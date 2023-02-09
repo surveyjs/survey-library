@@ -4,6 +4,7 @@ import {
   Question,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedCell,
+  MatrixDropdownRowModelBase,
   SurveyModel
 } from "survey-core";
 
@@ -11,7 +12,7 @@ import {
   selector: "sv-ng-matrix-cell",
   templateUrl: "./matrixcell.component.html",
   styles: [":host { display: none; }"]
-})
+  })
 export class MatrixCellComponent extends BaseAngular<Question> {
   @Input() question!: QuestionMatrixDropdownModelBase;
   @Input() cell!: QuestionMatrixDropdownRenderedCell;
@@ -23,7 +24,7 @@ export class MatrixCellComponent extends BaseAngular<Question> {
   getModel() {
     return this.cell.question;
   }
-  public get row() {
+  public get row(): MatrixDropdownRowModelBase {
     return this.cell.row;
   }
   public get panelComponentName(): string {

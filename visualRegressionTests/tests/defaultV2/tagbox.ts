@@ -1,4 +1,4 @@
-import { Selector, ClientFunction } from "testcafe";
+import { Selector, ClientFunction, t } from "testcafe";
 import { getListItemByText } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
@@ -12,7 +12,7 @@ const applyTheme = ClientFunction(theme => {
 
 const theme = "defaultV2";
 
-frameworks.forEach(framework => {
+frameworks.forEach(async framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}.html`
     .beforeEach(async t => {
@@ -278,5 +278,62 @@ frameworks.forEach(framework => {
       })();
     });
   });
-
+  test("Check overlay popup in tagbox question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            closeOnSelect: false,
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+      await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
+    });
+  });
+  test("Check tagbox focused state", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3"
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-question__title"));
+      takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

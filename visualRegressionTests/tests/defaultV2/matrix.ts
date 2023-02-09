@@ -284,4 +284,64 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-non-latin.png", Selector(".sv-string-viewer").withText("АБВГД"), t, comparer);
     });
   });
+
+  test("Matrix columns and row width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "focusFirstQuestionAutomatic": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "matrix",
+                "rowTitleWidth": "300px",
+                "columnMinWidth": "30px",
+                "columns": ["col1", "col2"],
+                "rows": [
+                  "item1",
+                  "item2"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-columns-rows-width.png", questionRoot, t, comparer);
+    });
+  });
+  test("Matrix with description under input", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "matrix",
+                "description": "matrix-description",
+                "descriptionLocation": "underInput",
+                "columns": ["col1", "col2"],
+                "rows": [
+                  "item1",
+                  "item2"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-description-under-input.png", questionRoot, t, comparer);
+    });
+  });
+
 });

@@ -3,23 +3,48 @@ import { PopupUtils, IPosition } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
+import { IsTouch } from "./utils/devices";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
-  private isAutoScroll = true;
-  private scrollEventCallBack = () => {
-    if(!this.isAutoScroll) {
-      this.hidePopup();
-    } else {
-      this.isAutoScroll = false;
+  private scrollEventCallBack = (event: any) => {
+    if(this.isOverlay && IsTouch) {
+      event.stopPropagation();
+      event.preventDefault();
+      return;
     }
+    this.hidePopup();
+  }
+  private resizeEventCallback = () => {
+    const visualViewport = window.visualViewport;
+    document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
+  }
+  private clientY: number = 0;
+  private touchStartEventCallback = (event: any) => {
+    this.clientY = event.touches[0].clientY;
+  }
+  private touchMoveEventCallback = (event: any) => {
+    let currentElement = event.target;
+    while (currentElement !== this.container) {
+      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+        const { scrollHeight, scrollTop, clientHeight } = currentElement;
+        const deltaY = this.clientY - event.changedTouches[0].clientY;
+        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
+          return;
+        }
+      }
+      currentElement = currentElement.parentElement;
+    }
+    event.preventDefault();
   }
 
   private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const background = <HTMLElement>this.container.children[0];
+    if(!background) return;
     const popupContainer = <HTMLElement>background.children[0];
-    const scrollContent = <HTMLElement>background.children[0].querySelector(".sv-popup__scrolling-content");
+    if(!popupContainer) return;
+    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
@@ -109,11 +134,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return actualHorizontalPosition;
   }
 
-  protected hidePopup(): void {
-    super.hidePopup();
-    this.isAutoScroll = true;
-  }
-
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)
@@ -133,7 +153,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
-      this.updatePosition(options.isResetHeight);
+      if(!this.isOverlay) {
+        this.updatePosition(options.isResetHeight);
+      }
     });
   }
 
@@ -151,8 +173,18 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
-
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.addEventListener("resize", this.resizeEventCallback);
+      if(this.container) {
+        this.container.addEventListener("touchstart", this.touchStartEventCallback);
+        this.container.addEventListener("touchmove", this.touchMoveEventCallback);
+      }
+      this.resizeEventCallback();
+    }
     window.addEventListener("scroll", this.scrollEventCallBack);
+  }
+  private get shouldCreateResizeCallback(): boolean {
+    return !!window.visualViewport && this.isOverlay && IsTouch;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
@@ -171,7 +203,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
-
+    if(this.shouldCreateResizeCallback) {
+      window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
+      if(this.container) {
+        this.container.removeEventListener("touchstart", this.touchStartEventCallback);
+        this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
+      }
+    }
     window.removeEventListener("scroll", this.scrollEventCallBack);
 
     if(!this.isDisposed) {

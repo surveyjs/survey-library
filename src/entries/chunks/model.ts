@@ -86,6 +86,7 @@ export {
   propertyArray
 } from "../../jsonobject";
 export {
+  IMatrixDropdownData,
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase
@@ -163,6 +164,7 @@ export {
 } from "../../trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
+export { Notifier } from "../../notifier";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
@@ -195,7 +197,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../question_buttongroup";
-export { IsMobile, IsTouch } from "../../utils/devices";
+export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
 export {
   confirmAction,
   detectIEOrEdge,
@@ -210,7 +212,7 @@ export {
 } from "../../utils/utils";
 export * from "../../utils/cssClassBuilder";
 
-export { surveyCss } from "../../defaultCss/cssstandard";
+export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
 

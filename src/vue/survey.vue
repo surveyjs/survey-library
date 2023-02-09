@@ -18,14 +18,14 @@
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}">
+          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
             <sv-action-bar
               v-if="vueSurvey.isNavigationButtonsShowingOnTop"
               :key="navId + 'top'"
               :model="vueSurvey.navigationBar"
             />
             <survey-page
-              :key="pageId"
+              :key="pageKey"
               :survey="vueSurvey"
               :page="vueSurvey.activePage"
               :css="css"
@@ -53,18 +53,6 @@
             v-html="getProcessedCompletedHtml()"
             :class="vueSurvey.completedCss"
           ></div>
-          <div v-if="vueSurvey.completedState != ''" :class="css.saveData.root">
-            <div :class="getCompletedStateClasses()">
-              <span>{{ vueSurvey.completedStateText }}</span>
-              <input
-                type="button"
-                v-if="vueSurvey.completedState == 'error'"
-                :value="vueSurvey.getLocalizationString('saveAgainButton')"
-                @click="doTrySaveAgain"
-                :class="css.saveData.saveAgainButton"
-              />
-            </div>
-          </div>
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"
@@ -82,6 +70,7 @@
       </div>
     </form>
     <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
+    <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
   </div>
 </template>
 
@@ -97,7 +86,7 @@ export class Survey extends BaseVue {
   @Prop() model: SurveyModel;
   processedCompletedHtmlValue: string;
   updater: number = 1;
-  get pageId() {
+  get pageKey() {
     return "page" + this.getActivePageId();
   }
   get navId() {
@@ -129,8 +118,11 @@ export class Survey extends BaseVue {
   protected onMounted() {
     this.surveyOnMounted();
   }
+  get pageId(): string {
+    return !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+  }
   private getActivePageId(): string {
-    const pageId = !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
+    const pageId = this.pageId;
     return !!this.vueSurvey && pageId + this.updater.toString();
   }
   private surveyOnMounted() {
@@ -167,14 +159,8 @@ export class Survey extends BaseVue {
     }
     return this.processedCompletedHtmlValue;
   }
-  getCompletedStateClasses() {
-    return this.css.saveData[this.vueSurvey.completedState];
-  }
   start() {
     this.vueSurvey.start();
-  }
-  doTrySaveAgain() {
-    this.vueSurvey.doComplete();
   }
 }
 

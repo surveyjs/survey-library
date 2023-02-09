@@ -74,16 +74,19 @@ export class Question extends SurveyElement<Question>
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
-  private commentElement: HTMLElement;
+  private commentElements: Array<HTMLElement>;
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
    *
    * Parameters:
    *
-   * - `sender` - A survey that contains the question whose ready state has changed.
-   * - `options.isReady` - A Boolean value that indicates whether the question is ready.
-   * - `options.oldIsReady` - A Boolean value that indicates the previous ready state.
+   * - `sender`: `SurveyModel`\
+   * A survey instance that contains the question whose ready state has changed.
+   * - `options.isReady`: `Boolean`\
+   * Indicates whether the question is ready.
+   * - `options.oldIsReady`: `Boolean`\
+   * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
@@ -120,6 +123,9 @@ export class Question extends SurveyElement<Question>
       }
     });
     this.registerPropertyChangedHandlers(["isRequired"], () => {
+      if(!this.isRequired && this.errors.length > 0) {
+        this.validate();
+      }
       this.locTitle.strChanged();
       this.clearCssClasses();
     });
@@ -544,6 +550,7 @@ export class Question extends SurveyElement<Question>
   }
   public set descriptionLocation(val: string) {
     this.setPropertyValue("descriptionLocation", val);
+    this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
     return this.getDescriptionLocation() == "underTitle";
@@ -609,11 +616,6 @@ export class Question extends SurveyElement<Question>
   public set commentPlaceHolder(newValue: string) {
     this.commentPlaceholder = newValue;
   }
-
-  public get commentOrOtherPlaceholder(): string {
-    return this.otherPlaceholder || this.commentPlaceholder;
-  }
-
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }
@@ -642,8 +644,12 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
-  public updateCommentElement(): void {
-    if (this.commentElement && this.autoGrowComment) increaseHeightByContent(this.commentElement);
+  protected updateCommentElements(): void {
+    if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
+    for(let i = 0; i < this.commentElements.length; i ++) {
+      const el = this.commentElements[i];
+      if (el) increaseHeightByContent(el);
+    }
   }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
@@ -652,7 +658,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     else {
-      this.updateCommentElement();
+      this.updateCommentElements();
     }
   }
   public onCommentChange(event: any): void {
@@ -673,13 +679,20 @@ export class Question extends SurveyElement<Question>
     }
 
     if (this.supportComment() || this.supportOther()) {
-      this.commentElement = (document.getElementById(this.id) && document.getElementById(this.id).querySelector("textarea")) || null;
-      this.updateCommentElement();
+      this.commentElements = [];
+      this.getCommentElementsId().forEach(id => {
+        let el = document.getElementById(id);
+        if(el) this.commentElements.push(el);
+      });
+      this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
   }
+  protected getCommentElementsId(): Array<string> {
+    return [this.commentId];
+  }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
-    this.commentElement = undefined;
+    this.commentElements = undefined;
   }
   public get processedTitle(): string {
     var res = this.locProcessedTitle.textOrHtml;
@@ -790,15 +803,15 @@ export class Question extends SurveyElement<Question>
   }
   public get cssDescription(): string {
     this.ensureElementCss();
-    return this.cssClasses.description;
+    return this.getPropertyValue("cssDescription", "");
   }
   protected setCssDescription(val: string): void {
-    this.setPropertyValue("cssDescription", "");
+    this.setPropertyValue("cssDescription", val);
   }
   protected getCssDescription(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
-      .append(this.cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.description, this.hasDescriptionUnderTitle)
+      .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
       .toString();
   }
   protected getIsErrorsModeTooltip() {
@@ -930,7 +943,7 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode) return;
 
     if (!!this.survey) {
-      this.expandAllPanels(this.parent);
+      this.expandAllParents(this);
       this.survey.scrollElementToTop(this, this, null, this.id);
     }
     var id = !onError
@@ -940,13 +953,13 @@ export class Question extends SurveyElement<Question>
       this.fireCallback(this.focusCallback);
     }
   }
-  private expandAllPanels(panel: IPanel) {
-    if (!!panel && !!panel.parent) {
-      if (panel.isCollapsed) {
-        panel.expand();
-      }
-      this.expandAllPanels(panel.parent);
+  private expandAllParents(element: IElement) {
+    if(!element) return;
+    if(element.isCollapsed) {
+      element.expand();
     }
+    this.expandAllParents((<any>element).parent);
+    this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn = () => {
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
@@ -978,7 +991,8 @@ export class Question extends SurveyElement<Question>
     ];
   }
   public supportComment(): boolean {
-    return false;
+    const prop = this.getPropertyByName("showCommentArea");
+    return !prop || prop.visible;
   }
   public supportOther(): boolean {
     return false;
@@ -1020,7 +1034,6 @@ export class Question extends SurveyElement<Question>
   public set showCommentArea(val: boolean) {
     if (!this.supportComment()) return;
     this.setPropertyValue("showCommentArea", val);
-    if (this.showCommentArea) this.hasOther = false;
   }
 
   public get hasComment(): boolean {
@@ -1042,6 +1055,9 @@ export class Question extends SurveyElement<Question>
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
+  public get commentId(): string {
+    return this.id + "_comment";
+  }
   public get ariaRole(): string {
     return "textbox";
   }
@@ -1059,7 +1075,6 @@ export class Question extends SurveyElement<Question>
   public set showOtherItem(val: boolean) {
     if (!this.supportOther() || this.showOtherItem == val) return;
     this.setPropertyValue("showOtherItem", val);
-    if (this.showOtherItem) this.hasComment = false;
     this.hasOtherChanged();
   }
 
@@ -1246,7 +1261,7 @@ export class Question extends SurveyElement<Question>
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
-    if (!!this.page && this.page.isStarted) return false;
+    if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
   }
@@ -1302,6 +1317,9 @@ export class Question extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
+    if(this.survey) {
+      res = this.survey.getQuestionDisplayValue(this, res);
+    }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
   private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
@@ -1409,7 +1427,7 @@ export class Question extends SurveyElement<Question>
             name: 0,
             isComment: true,
             title: "Comment",
-            value: settings.commentPrefix,
+            value: settings.commentSuffix,
             displayValue: this.comment,
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
@@ -1463,6 +1481,13 @@ export class Question extends SurveyElement<Question>
       ? 1
       : 0;
   }
+  /**
+  * Returns `true` if a question answer matches the `correctAnswer` property value.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
+  * @see correctAnswer
+  * @see SurveyModel.getQuizQuestions
+  */
   public isAnswerCorrect(): boolean {
     return this.correctAnswerCount == this.quizQuestionCount;
   }
@@ -1571,7 +1596,7 @@ export class Question extends SurveyElement<Question>
     }
     if (this.comment == newValue) return;
     this.setQuestionComment(newValue);
-    this.updateCommentElement();
+    this.updateCommentElements();
   }
   protected getQuestionComment(): string {
     return this.questionComment;
@@ -1645,10 +1670,6 @@ export class Question extends SurveyElement<Question>
     json["type"] = this.getType();
     return json;
   }
-  /**
-   * Returns true if there is a validation error(s) in the question.
-   * @param fireCallback set it to true to show an error in UI.
-   */
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var oldHasErrors = this.errors.length > 0;
     var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
@@ -1666,6 +1687,14 @@ export class Question extends SurveyElement<Question>
       this.expand();
     }
     return errors.length > 0;
+  }
+  /**
+   * Validates this question and returns `false` if the validation fails.
+   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
+   */
+  public validate(fireCallback: boolean = true, rec: any = null): boolean {
+    return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {
     return this.errors.length;
@@ -1900,9 +1929,9 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `hasErrors()` method to validate newly assigned values.
+   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
    *
-   * @see hasErrors
+   * @see validate
    */
   public clearIncorrectValues(): void { }
   public clearOnDeletingContainer(): void { }
@@ -2177,6 +2206,24 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment" }
+  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  {
+    name: "commentText",
+    dependsOn: "showCommentArea",
+    visibleIf: function (obj: any) {
+      return obj.showCommentArea;
+    },
+    serializationProperty: "locCommentText",
+    layout: "row",
+  },
+  {
+    name: "commentPlaceholder",
+    alternativeName: "commentPlaceHolder",
+    serializationProperty: "locCommentPlaceholder",
+    dependsOn: "showCommentArea",
+    visibleIf: function (obj: any) {
+      return obj.hasComment;
+    }
+  }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

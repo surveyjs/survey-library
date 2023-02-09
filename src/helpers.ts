@@ -161,14 +161,28 @@ export class Helpers {
     );
   }
   public static isNumber(value: any): boolean {
+    return !isNaN(this.getNumber(value));
+  }
+  public static getNumber(value: any): number {
     if (
       typeof value == "string" &&
       !!value &&
       value.indexOf("0x") == 0 &&
       value.length > 32
     )
-      return false;
-    return !isNaN(parseFloat(value)) && isFinite(value);
+      return NaN;
+    value = this.prepareStringToNumber(value);
+    const res = parseFloat(value);
+    if(isNaN(res) || !isFinite(value)) return NaN;
+    return res;
+  }
+  private static prepareStringToNumber(val: any): any {
+    if(typeof val !== "string" || !val) return val;
+    let i = val.indexOf(",");
+    if(i > -1 && val.indexOf(",", i + 1) < 0) {
+      return val.replace(",", ".");
+    }
+    return val;
   }
   public static getMaxLength(maxLength: number, surveyLength: number): any {
     if (maxLength < 0) {
@@ -246,6 +260,31 @@ export class Helpers {
       res = parseFloat(res.toFixed(digits));
     }
     return res;
+  }
+  public static sumAnyValues(a: any, b: any): any {
+    if (!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
+      if(Array.isArray(a) && Array.isArray(b))
+        return [].concat(a).concat(b);
+      if(Array.isArray(a) || Array.isArray(b)) {
+        const arr = Array.isArray(a) ? a : b;
+        const val = arr === a ? b : a;
+        if(typeof val === "string") {
+          const str = arr.join(", ");
+          return arr === a ? str + val : val + str;
+        }
+        if(typeof val === "number") {
+          let res = 0;
+          for(var i = 0; i < arr.length; i ++) {
+            if(typeof arr[i] === "number") {
+              res = Helpers.correctAfterPlusMinis(res, arr[i], res + arr[i]);
+            }
+          }
+          return Helpers.correctAfterPlusMinis(res, val, res + val);
+        }
+      }
+      return a + b;
+    }
+    return Helpers.correctAfterPlusMinis(a, b, a + b);
   }
   public static correctAfterMultiple(a: number, b: number, res: number): number {
     const digits = Helpers.countDecimals(a) + Helpers.countDecimals(b);

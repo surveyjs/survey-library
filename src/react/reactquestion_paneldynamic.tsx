@@ -172,9 +172,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
       {range}
-      <div className={this.question.cssClasses.footerButtonsContainer}>
+      {this.question.footerToolbar.visibleActions.length ? (<div className={this.question.cssClasses.footerButtonsContainer}>
         <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
-      </div>
+      </div>) : null}
     </div>);
   }
   protected renderPlaceholder(): JSX.Element | null {

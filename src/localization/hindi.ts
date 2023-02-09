@@ -1,3 +1,5 @@
+// This dictionary contains 15 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var hindiStrings = {
@@ -8,9 +10,10 @@ export var hindiStrings = {
   editText: "संपादित",
   startSurveyText: "शुरू",
   otherItemText: "दूसरा (वर्णन करें)",
-  noneItemTex: "कोई नहीं",
+  // noneItemText: "None",
   selectAllItemText: "सभी का चयन करें",
   progressText: "पृष्ठ 1 में से 0",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: " दस्तावेज {1} के {0}",
   questionsProgressText: "{1} सवालों में से {0} के जवाब दिए",
   emptySurvey: "सर्वेक्षण में कोई दृश्यमान पृष्ठ या प्रश्न नहीं है",
@@ -18,11 +21,14 @@ export var hindiStrings = {
   completingSurveyBefore: " हमारे रिकॉर्ड बताते हैं कि आप पहले ही इस सर्वेक्षण को पूरा कर चुके हैं",
   loadingSurvey: "सर्वेक्षण खुल रहा है.…",
   placeholder: "चुनें",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "मूल्य",
   requiredError: "कृपया प्रश्न का उत्तर दें",
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",
   requiredInAllRowsError: "कृपया सभी पंक्तियों में सवालों के जवाब दें",
   numericError: "मूल्य संख्यात्मक होना चाहिए",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "कृपया कम से कम {0} वर्ण दर्ज करें",
   textMaxLength: "कृपया {0} से कम वर्ण दर्ज करें",
   textMinMaxLength: "कृपया {0} से अधिक और {1} से कम पात्रों में प्रवेश करें",
@@ -42,16 +48,19 @@ export var hindiStrings = {
   loadingFile: "लोडिंग",
   chooseFile: "फ़ाइल चुनें",
   noFileChosen: "कोई फाइल नहीं चुनी गई",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "क्या आप रिकॉर्ड हटाना चाहते हैं",
   keyDuplicationError: "यह मान अनोखा होना चाहिए",
   addColumn: "कॉलम जोड़ें",
   addRow: "पंक्ति जोड़ें",
   removeRow: "हटाए",
+  // emptyRowsText: "There are no rows.",
   addPanel: "नया जोड़ें",
   removePanel: "हटाए",
   choices_Item: "मद",
   matrix_column: "कॉलम",
   matrix_row: "पंक्ति",
+  // multipletext_itemname: "text",
   savingData: "परिणाम सर्वर पर सेव हो रहे हैं",
   savingDataError: "एक त्रुटि हुई और हम परिणामों को नहीं सेव कर सके",
   savingDataSuccess: "परिणाम सफलतापूर्वक सेव हो गए",
@@ -65,6 +74,7 @@ export var hindiStrings = {
   timerLimitPage: "आपने इस पृष्ठ पर {1} का {0} खर्च किया है",
   timerLimitSurvey: "आपने कुल {1} की {0} खर्च की है",
   clearCaption: "स्पष्ट",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "फ़ाइल चुनें",
   removeFileCaption: "इस फाइल को निकालें",
   booleanCheckedLabel: "हाँ",
@@ -72,6 +82,12 @@ export var hindiStrings = {
   confirmRemoveFile: "क्या आप सुनिश्चित हैं कि आप इस फ़ाइल को हटाना चाहते हैं: {0}",
   confirmRemoveAllFiles: "क्या आप सुनिश्चित हैं कि आप सभी फ़ाइलों को हटाना चाहते हैं",
   questionTitlePatternText: "प्रश्न का शीर्षक",
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["hi"] = hindiStrings;

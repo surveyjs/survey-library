@@ -11,6 +11,7 @@ import { settings } from "../src/settings";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Panel");
 
@@ -615,6 +616,7 @@ QUnit.test("Do not generate rows and do not set renderWidth", function (assert) 
   assert.equal(q.renderWidth, "", "render width is empty");
 });
 QUnit.test("question.cssRoot class", function (assert) {
+  StylesManager.applyTheme("default");
   const survey = new SurveyModel();
   const page = survey.addNewPage("p");
   const flowPanel = new FlowPanelModel("flowPanel");
@@ -1740,4 +1742,30 @@ QUnit.test("Check panel footer actions event", function(assert) {
 
   assert.equal(actions.length, 1);
   assert.equal(actions[0].title, "test");
+});
+QUnit.test("Expand panel on error in multiple text question", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text", name: "q1",
+      },
+      {
+        type: "panel",
+        name: "panel",
+        title: "title",
+        state: "collapsed",
+        elements: [
+          {
+            "type": "multipletext",
+            "name": "q2",
+            "items": [{ "name": "item1", "isRequired": true }]
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  assert.equal(panel.state, "collapsed", "the panel is collapsed by default");
+  survey.completeLastPage();
+  assert.equal(panel.state, "expanded", "the panel is expanded");
 });

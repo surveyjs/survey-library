@@ -65,7 +65,7 @@ function getParamsAsArray(value: any, arr: any[]) {
     }
   } else {
     if (Helpers.isNumber(value)) {
-      value = parseFloat(value);
+      value = Helpers.getNumber(value);
     }
     arr.push(value);
   }
@@ -135,7 +135,7 @@ function getInArrayParams(params: any[]): any {
 }
 
 function convertToNumber(val: any): number {
-  if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : undefined;
+  if(typeof val === "string") return Helpers.isNumber(val) ? Helpers.getNumber(val) : undefined;
   return val;
 }
 function processItemInArray(item: any, name: string, res: number,
@@ -239,7 +239,7 @@ function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;
   for (var i = 0; i < questions.length; i++) {
-    if (questions[i].hasErrors(false)) return false;
+    if (!questions[i].validate(false)) return false;
   }
   return true;
 }

@@ -2,7 +2,7 @@
   <label [class]="question.cssClasses.radioLabel">
     <input
       type="radio"
-      [attr.name]="question.name" [attr.aria-describedby]="question.ariaDescribedBy" [value]="value" [(ngModel)]="question.value"
+      [attr.name]="question.name" [attr.aria-describedby]="question.ariaDescribedBy" [value]="value" [(ngModel)]="question.booleanValue"
       [disabled]="question.isInputReadOnly" [class]="question.cssClasses.itemRadioControl || ''"
     />
     <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator"></span>

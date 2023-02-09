@@ -2,17 +2,20 @@
     <div [class]="model.cssClasses.root" #listContainerElement>
         <div *ngIf="model.showFilter" [class]="model.cssClasses.filter">
             <div [class]="model.cssClasses.filterIcon">
-                <svg [iconName]="'icon-search'" [size]="24" sv-ng-svg-icon></svg>
+                <svg [iconName]="'icon-search'" [size]="'auto'" sv-ng-svg-icon></svg>
             </div>
             <input type="text" [class]="model.cssClasses.filterInput" [(ngModel)]="model.filterString"
                 [attr.aria-label]="model.filterStringPlaceholder || ''"
                 [attr.placeholder]="model.filterStringPlaceholder || ''" 
                 (keyup)="onGoToItems($event)" />
+                <button *ngIf="model.showSearchClearButton && !!model.filterString" (click)="model.onClickSearchClearButton($event)" [class]="model.cssClasses.searchClearButtonIcon">
+                    <svg [iconName]="'icon-searchclear'" [size]="'auto'" sv-ng-svg-icon></svg>
+                </button>
         </div>
         <div [class]="model.cssClasses.emptyContainer" [visible]="model.isEmpty">
             <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
-        <ul [class]="model.cssClasses.itemsContainer" role="listbox" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">
+        <ul [class]="model.cssClasses.itemsContainer" role="listbox" [visible]="!model.isEmpty" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">
             <sv-ng-list-item *ngFor="let item of model.renderedActions; trackBy: trackItemBy" [listModel]="model" [model]="item"></sv-ng-list-item>
             <!--ko foreach: model.renderedActions -->
             <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->

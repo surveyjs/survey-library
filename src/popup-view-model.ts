@@ -17,9 +17,15 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) isVisible: boolean;
+  @property() locale: string;
 
   public container: HTMLElement;
+  private createdContainer: HTMLElement;
 
+  public getLocale(): string {
+    if(!!this.locale) return this.locale;
+    return super.getLocale();
+  }
   protected hidePopup(): void {
     this.model.isVisible = false;
   }
@@ -40,15 +46,20 @@ export class PopupBaseViewModel extends Base {
   protected createFooterActionBar(): void {
     this.footerToolbarValue = new ActionContainer();
     this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
-      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {});
+      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
+        item: "sv-popup__body-footer-item sv-popup__button"
+      });
     };
-    this.footerToolbarValue.addAction(<IAction>{
+    let footerActions = [<IAction>{
       id: "cancel",
       visibleIndex: 10,
       title: this.cancelButtonText,
-      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--cancel",
+      innerCss: "sv-popup__button--cancel",
       action: () => { this.cancel(); }
-    });
+    }];
+
+    footerActions = this.model.updateFooterActions(footerActions);
+    this.footerToolbarValue.setItems(footerActions);
   }
 
   private setupModel(model: PopupModel) {
@@ -169,7 +180,6 @@ export class PopupBaseViewModel extends Base {
   private focusFirstInput() {
     setTimeout(() => {
       if (!this.container) return;
-
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
       else (<HTMLElement>this.container.children[0]).focus();
@@ -190,13 +200,20 @@ export class PopupBaseViewModel extends Base {
     this.model.onRecalculatePosition.clear();
   }
   public initializePopupContainer(): void {
-    if (!this.container) {
+    if (!this.createdContainer) {
       const container: HTMLElement = document.createElement("div");
-      this.container = container;
+      this.container = this.createdContainer = container;
     }
-    document.body.appendChild(this.container);
+
+    const mountContainer = document.body.querySelector(".sv-popup-mount");
+
+    if (mountContainer) {
+      mountContainer.appendChild(this.container);
+    } else {
+      document.body.appendChild(this.container);
+    }
   }
   public unmountPopupContainer(): void {
-    this.container.remove();
+    this.createdContainer.remove();
   }
 }

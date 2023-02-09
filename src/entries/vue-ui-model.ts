@@ -8,7 +8,8 @@ export { PopupSurvey, SurveyWindow } from "../vue/popup-survey.vue";
 export { Page } from "../vue/page.vue";
 export { Radiogroup } from "../vue/radiogroup.vue";
 export { RadiogroupItem } from "../vue/radiogroupitem.vue";
-export { OtherChoice } from "../vue/otherChoice.vue";
+export { OtherChoice } from "../vue/question-other.vue";
+export { OtherComment } from "../vue/question-comment.vue";
 export { Rating } from "../vue/rating.vue";
 export { RatingDropdown } from "../vue/rating-dropdown.vue";
 export { Comment } from "../vue/comment.vue";
@@ -85,6 +86,7 @@ export { PanelDynamicRemoveButton } from "../vue/components/paneldynamic-actions
 export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-nav-button.vue";
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";
+export { NotifierComponent } from "../vue/components/notifier.vue";
 
 import { SurveyModel } from "survey-core";
 

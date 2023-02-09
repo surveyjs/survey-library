@@ -318,13 +318,37 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Specifies whether to apply shading to alternate matrix rows.
    */
   @property({ defaultValue: false }) alternateRows: boolean;
+
+  /**
+   * Minimum column width in CSS values.
+   *
+   * @see width
+   */
+  public get columnMinWidth(): string {
+    return this.getPropertyValue("columnMinWidth", "");
+  }
+  public set columnMinWidth(val: string) {
+    this.setPropertyValue("columnMinWidth", val);
+  }
+
+  /**
+   * A width for the column that displays row titles (first column). Accepts CSS values.
+   */
+  public get rowTitleWidth(): string {
+    return this.getPropertyValue("rowTitleWidth", "");
+  }
+  public set rowTitleWidth(val: string) {
+    this.setPropertyValue("rowTitleWidth", val);
+  }
 }
 
 Serializer.addClass(
   "matrixbase",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
+    "columnMinWidth",
     { name: "showHeader:boolean", default: true },
     {
       name: "verticalAlign",

@@ -359,6 +359,32 @@ frameworks.forEach((framework) => {
     await setData();
     assert.equal(await isSelectAllChecked(), true);
   });
+  test("showOtherItem&showCommentArea", async (t) => {
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
+    );
+    const getCommentInput = Selector(
+      () => document.querySelectorAll("textarea")[1]
+    );
+    let surveyResult;
+
+    await setOptions("car", { showOtherItem: true, showCommentArea: true, commentText: "Comment on question", otherText: "Other text" });
+    await t
+      .click(Selector("span").withText("Other text"))
+      .typeText(getOtherInput, " ")
+      .selectText(getOtherInput)
+      .pressKey("delete")
+      .typeText(getOtherInput, "Audi")
+      .selectText(getOtherInput)
+      .pressKey("delete")
+      .typeText(getOtherInput, "Other value")
+      .typeText(getCommentInput, "Comment value")
+      .click("input[value=Complete]");
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.car, "Other value");
+    assert.equal(surveyResult["car-Comment"], "Comment value");
+  });
 });
 
 frameworks.forEach((framework) => {

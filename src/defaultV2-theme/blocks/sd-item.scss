@@ -10,9 +10,8 @@
   width: calcSize(3);
   height: calcSize(3);
   box-sizing: border-box;
-  box-shadow: inset 0px 1px 2px $border-inside;
   background: var(--sd-item-default-background, $background-for-editors);
-  box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0px 1px 2px $shadow-inner;
   border: none;
   flex-shrink: 0;
 }
@@ -21,13 +20,13 @@
   box-shadow: none;
 }
 
-.sd-item__control:focus+.sd-item__decorator,
+.sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
   outline: none;
 }
 
-.sd-item__control:focus+.sd-item__decorator,
+.sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
   background: $background;
 }
@@ -37,7 +36,7 @@
 }
 
 .sd-item__control-label {
-  font-family: $font-family;
+  font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
   line-height: calcSize(3);

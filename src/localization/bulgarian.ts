@@ -1,3 +1,5 @@
+// This dictionary contains 14 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var bulgarianStrings = {
@@ -11,6 +13,7 @@ export var bulgarianStrings = {
   noneItemText: "Нито един",
   selectAllItemText: "Всички",
   progressText: "стр. {0}, общо стр. {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Запис {0} от {1}",
   questionsProgressText: "Отговорени на {0} / {1} въпроса",
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
@@ -18,47 +21,48 @@ export var bulgarianStrings = {
   completingSurveyBefore: "Изглежда, че вие вече сте попълнили анкетата.",
   loadingSurvey: "Зареждане на анкетата...",
   placeholder: "Изберете...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "value",
   requiredError: "Моля, отговорете на следния въпрос.",
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",
   requiredInAllRowsError: "Моля, отговорете на въпросите на всички редове.",
   numericError: "Стойността следва да бъде число.",
+  // minError: "The value should not be less than {0}",
+  // maxError: "The value should not be greater than {0}",
   textMinLength: "Моля, използвайте поне {0} символа.",
   textMaxLength: "Моля, използвайте не повече от {0} символа.",
-  textMinMaxLength:
-    "Моля, използвайте повече от {0} и по-малко от {1} символа.",
+  textMinMaxLength: "Моля, използвайте повече от {0} и по-малко от {1} символа.",
   minRowCountError: "Моля, попълнете поне {0} реда.",
   minSelectError: "Моля, изберете поне {0} варианта.",
   maxSelectError: "Моля, изберете не повече от {0} варианта.",
-  numericMinMax:
-    "Стойността '{0}' следва да бъде равна или по-голяма от {1} и равна или по-малка от {2}",
+  numericMinMax: "Стойността '{0}' следва да бъде равна или по-голяма от {1} и равна или по-малка от {2}",
   numericMin: "Стойността '{0}' следва да бъде равна или по-голяма от {1}",
   numericMax: "Стойността '{0}' следва да бъде равна или по-малка от {1}",
   invalidEmail: "Моля, въведете валиден адрес на електронна поща.",
   invalidExpression: "Изразът: {0} трябва да дава резултат 'true' (истина).",
   urlRequestError: "Заявката води до грешка '{0}'. {1}",
-  urlGetChoicesError:
-    "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
+  urlGetChoicesError: "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
   exceedMaxSize: "Размерът на файла следва да не превишава {0}.",
   otherRequiredError: "Моля, въведете другата стойност.",
-  uploadingFile:
-    "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
+  uploadingFile: "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
   loadingFile: "Зареждане...",
   chooseFile: "Изберете файл(ове)...",
   noFileChosen: "Няма избран файл",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Желаете ли да изтриете записа?",
   keyDuplicationError: "Стойността следва да бъде уникална.",
   addColumn: "Добавяне на колона",
   addRow: "Добавяне на ред",
   removeRow: "Премахване на ред",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Добавяне на панел",
   removePanel: "Премахване на панел",
   choices_Item: "елемент",
   matrix_column: "Колона",
   matrix_row: "Ред",
+  // multipletext_itemname: "text",
   savingData: "Резултатите се запазват на сървъра...",
-  savingDataError:
-    "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
+  savingDataError: "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
   savingDataSuccess: "Резултатите бяха запазени успешно!",
   saveAgainButton: "Нов опит",
   timerMin: "мин",
@@ -66,11 +70,11 @@ export var bulgarianStrings = {
   timerSpentAll: "Вие използвахте {0} на тази страница и общо {1}.",
   timerSpentPage: "Вие използвахте {0} на тази страница.",
   timerSpentSurvey: "Вие използвахте общо {0}.",
-  timerLimitAll:
-    "Вие изпозвахте {0} от {1} на тази страница и общо {2} от {3}.",
+  timerLimitAll: "Вие изпозвахте {0} от {1} на тази страница и общо {2} от {3}.",
   timerLimitPage: "Вие използвахте {0} от {1} на тази страница.",
   timerLimitSurvey: "Вие използвахте общо {0} от {1}.",
   clearCaption: "Начално състояние",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Изберете файл",
   removeFileCaption: "Премахване на файла",
   booleanCheckedLabel: "Да",
@@ -78,6 +82,12 @@ export var bulgarianStrings = {
   confirmRemoveFile: "Наистина ли искате да премахнете този файл: {0}?",
   confirmRemoveAllFiles: "Наистина ли искате да премахнете всички файлове?",
   questionTitlePatternText: "Заглавие на въпроса",
+  // modalCancelButtonText: "Cancel",
+  // modalApplyButtonText: "Apply",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 surveyLocalization.locales["bg"] = bulgarianStrings;

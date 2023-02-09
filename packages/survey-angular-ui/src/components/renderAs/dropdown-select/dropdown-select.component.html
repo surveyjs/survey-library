@@ -11,5 +11,5 @@
     <div *ngIf="model.isReadOnly" disabled [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
   </div>
   <div *ngIf=" model.isOtherSelected" class="form-group"
-    [style.display]="model.isFlowLayout ? 'inline': '' " [question]="model" sv-ng-comment></div>
+    [style.display]="model.isFlowLayout ? 'inline': '' " [question]="model" sv-ng-comment-other></div>
 </div>

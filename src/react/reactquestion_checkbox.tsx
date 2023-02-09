@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { SurveyQuestionCommentItem } from "./reactquestion_comment";
+import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Base, ItemValue, SurveyModel, QuestionCheckboxModel } from "survey-core";
@@ -110,7 +110,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     let cssClasses = this.question.cssClasses;
     return (
       <div className="form-group">
-        <SurveyQuestionCommentItem
+        <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
           cssClasses={cssClasses}
@@ -217,8 +217,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       this.item == this.question.selectAllItem
         ? this.selectAllChanged
         : this.handleOnChange;
-
-    var locText: any = this.item.locText;
+    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
       <div className={itemClass} role="presentation">
@@ -250,9 +249,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
               </span> :
               null
           }
-          <span className={this.cssClasses.controlLabel}>
-            {text}
-          </span>
+          {itemLabel}
         </label>
         {otherItem}
       </div>

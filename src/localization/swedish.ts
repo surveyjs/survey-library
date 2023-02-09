@@ -1,4 +1,5 @@
-//Create by Mattias Asplund
+// This dictionary contains 2 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var swedishSurveyStrings = {
@@ -17,8 +18,7 @@ export var swedishSurveyStrings = {
   questionsProgressText: "{0} / {1} frågor besvarade",
   emptySurvey: "Det finns ingen synlig sida eller fråga i enkäten.",
   completingSurvey: "Tack för att du genomfört enkäten!!",
-  completingSurveyBefore:
-    "Våra register visar att du redan har slutfört denna undersökning.",
+  completingSurveyBefore: "Våra register visar att du redan har slutfört denna undersökning.",
   loadingSurvey: "Enkäten laddas...",
   placeholder: "Välj...",
   ratingOptionsCaption: "Tryck här för att betygsätta...",
@@ -35,27 +35,26 @@ export var swedishSurveyStrings = {
   minRowCountError: "Var vänlig fyll i minst {0} rader.",
   minSelectError: "Var vänlig välj åtminstone {0} varianter.",
   maxSelectError: "Var vänlig välj inte fler än {0} varianter.",
-  numericMinMax:
-    "'{0}' ska vara lika med eller mer än {1} samt lika med eller mindre än {2}",
+  numericMinMax: "'{0}' ska vara lika med eller mer än {1} samt lika med eller mindre än {2}",
   numericMin: "'{0}' ska vara lika med eller mer än {1}",
   numericMax: "'{0}' ska vara lika med eller mindre än {1}",
   invalidEmail: "Var vänlig ange en korrekt e-postadress.",
   invalidExpression: "Uttrycket: {0} ska returnera 'true'.",
   urlRequestError: "Förfrågan returnerade felet '{0}'. {1}",
-  urlGetChoicesError:
-    "Antingen returnerade förfrågan ingen data eller så är egenskapen 'path' inte korrekt",
+  urlGetChoicesError: "Antingen returnerade förfrågan ingen data eller så är egenskapen 'path' inte korrekt",
   exceedMaxSize: "Filstorleken får ej överstiga {0}.",
   otherRequiredError: "Var vänlig ange det andra värdet.",
-  uploadingFile:
-    "Din fil laddas upp. Var vänlig vänta några sekunder och försök sedan igen.",
+  uploadingFile: "Din fil laddas upp. Var vänlig vänta några sekunder och försök sedan igen.",
   loadingFile: "Laddar...",
   chooseFile: "Välj fil(er) ...",
   noFileChosen: "Ingen fil vald",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Vill du radera posten?",
   keyDuplicationError: "Detta värde ska vara unikt.",
   addColumn: "Lägg till kolumn",
   addRow: "Lägg till rad",
   removeRow: "Ta bort",
+  // emptyRowsText: "There are no rows.",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
   choices_Item: "Artikel",
@@ -71,8 +70,7 @@ export var swedishSurveyStrings = {
   timerSpentAll: "Du har spenderat {0} på den här sidan och {1} totalt.",
   timerSpentPage: "Du har spenderat {0} på den här sidan.",
   timerSpentSurvey: "Du har spenderat {0} totalt.",
-  timerLimitAll:
-    "Du har spenderat {0} av {1} på den här sidan och {2} av {3} totalt.",
+  timerLimitAll: "Du har spenderat {0} av {1} på den här sidan och {2} av {3} totalt.",
   timerLimitPage: "Du har spenderat {0} av {1} på den här sidan.",
   timerLimitSurvey: "Du har spenderat {0} av {1} totalt.",
   clearCaption: "Klar",

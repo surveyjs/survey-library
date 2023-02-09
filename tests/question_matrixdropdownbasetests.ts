@@ -334,3 +334,70 @@ QUnit.test("matrix dropdown getElementsInDesign", function (assert) {
   assert.equal(elements[0], matrix.columns[0]);
   assert.equal(elements[1], matrix.columns[1]);
 });
+QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columns: [
+          {
+            "name": "col1",
+            "cellType": "radiogroup",
+            "showInMultipleColumns": true,
+            "isRequired": true,
+            "choices": [
+              "Item 1",
+              "Item 2",
+            ]
+          },
+          {
+            "name": "col2",
+            "cellType": "checkbox",
+            "showInMultipleColumns": true,
+            "isRequired": true,
+            "choices": [
+              "Item 1",
+              "Item 2",
+            ]
+          }
+        ]
+      },
+    ],
+  });
+  survey.css = {
+    matrixdropdown: {
+      headerCell: "custom-header-cell",
+      itemCell: "custom-item-cell",
+      radioCell: "custom-radio-item-cell",
+      checkboxCell: "custom-checkbox-item-cell"
+    }
+  };
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const renderedTable = matrix.renderedTable;
+  assert.equal(renderedTable.headerRow.cells[1].className, "custom-header-cell");
+  assert.equal(renderedTable.rows[0].cells[1].className, "custom-item-cell custom-radio-item-cell");
+  assert.equal(renderedTable.rows[0].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
+});
+QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"]
+      },
+    ],
+  });
+  let columnName = "";
+  survey.onMatrixColumnAdded.add((sender, options) => {
+    columnName = options.column.name;
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.addColumn("col1");
+  assert.equal(columnName, "col1", "The event raised correctly");
+  matrix.columns.push(new MatrixDropdownColumn("col2"));
+  assert.equal(columnName, "col2", "The event raised correctly on adding into array");
+});

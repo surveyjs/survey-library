@@ -1,11 +1,4 @@
-export var surveyCss: any = {
-  currentType: "",
-  getCss: function () {
-    var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
-    if (!loc) loc = defaultStandardCss;
-    return loc;
-  }
-};
+import { surveyCss } from "./defaultV2Css";
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
@@ -147,6 +140,7 @@ export var defaultStandardCss = {
     rootMobileMod: "sv-ranking--mobile",
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
+    rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -163,6 +157,7 @@ export var defaultStandardCss = {
   comment: "",
   dropdown: {
     root: "",
+    popup: "sv-dropdown-popup",
     control: "sv_q_dropdown_control",
     controlInputFieldComponent: "sv_q_dropdown_control__input-field-component",
     selectWrapper: "sv_select_wrapper",
@@ -324,11 +319,11 @@ export var defaultStandardCss = {
     clearButton: "sjs_sp_clear",
   },
   saveData: {
-    root: "",
-    saving: "",
-    error: "",
-    success: "",
-    saveAgainButton: "",
+    root: "sv-save-data_root",
+    info: "sv-save-data_info",
+    error: "sv-save-data_error",
+    success: "sv-save-data_success",
+    button: "sv-save-data_button",
   },
   window: {
     root: "sv_window",
@@ -346,6 +341,7 @@ export var defaultStandardCss = {
   },
   tagbox: {
     root: "",
+    popup: "sv-dropdown-popup",
     small: "sv_q_row__question--small",
     selectWrapper: "sv_select_wrapper sv_q_tagbox_wrapper",
     other: "sv_q_input sv_q_comment sv_q_selectbase__other",
@@ -363,4 +359,10 @@ export var defaultStandardCss = {
   },
 };
 
-surveyCss["standard"] = defaultStandardCss;
+(<any>surveyCss)["default"] = defaultStandardCss;
+(<any>surveyCss)["orange"] = defaultStandardCss;
+(<any>surveyCss)["darkblue"] = defaultStandardCss;
+(<any>surveyCss)["darkrose"] = defaultStandardCss;
+(<any>surveyCss)["stone"] = defaultStandardCss;
+(<any>surveyCss)["winter"] = defaultStandardCss;
+(<any>surveyCss)["winterstone"] = defaultStandardCss;

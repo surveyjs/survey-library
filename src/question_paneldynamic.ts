@@ -138,8 +138,8 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public setValue(name: string, newValue: any) {
     const oldItemData = this.data.getPanelItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    if (typeof oldValue !== "object" && Helpers.isTwoValueEquals(newValue, oldValue)) return;
-    this.data.setPanelItemData(this, name, newValue);
+    if (Helpers.isTwoValueEquals(newValue, oldValue)) return;
+    this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
     const questions = this.panel.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].getValueName() === name) continue;
@@ -151,11 +151,20 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentPrefix);
+    var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
   public setComment(name: string, newValue: string, locNotification: any) {
-    this.setValue(name + settings.commentPrefix, newValue);
+    this.setValue(name + settings.commentSuffix, newValue);
+  }
+  findQuestionByName(name: string): IQuestion {
+    if(!name) return undefined;
+    const prefix = QuestionPanelDynamicItem.ItemVariableName + ".";
+    if(name.indexOf(prefix) === 0) {
+      return this.panel.getQuestionByName(name.substring(prefix.length));
+    }
+    const survey = this.getSurvey();
+    return !!survey ? survey.getQuestionByName(name): null;
   }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
@@ -223,7 +232,6 @@ export class QuestionPanelDynamicModel extends Question
   private loadingPanelCount: number = 0;
   private isValueChangingInternally: boolean;
   private changingValueQuestion: Question;
-  private currentIndexValue: number = -1;
 
   renderModeChangedCallback: () => void;
   panelCountChangedCallback: () => void;
@@ -429,6 +437,8 @@ export class QuestionPanelDynamicModel extends Question
       this.fireCallback(this.currentIndexChangedCallback);
     }
   }
+  private get currentIndexValue(): number { return this.getPropertyValue("currentIndexValue", -1); }
+  private set currentIndexValue(val: number) { this.setPropertyValue("currentIndexValue", val); }
   /**
    * A `PanelModel` object that is the currently displayed panel.
    *
@@ -494,7 +504,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Previous button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
-   * @see isPrevButtonShowing
+   * @see isPrevButtonVisible
    */
   public get panelPrevText(): string {
     return this.getLocalizableStringText("panelPrevText");
@@ -508,7 +518,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Next button. Applies only if `renderMode` is different from `"list"`.
    * @see renderMode
-   * @see isNextButtonShowing
+   * @see isNextButtonVisible
    */
   public get panelNextText(): string {
     return this.getLocalizableStringText("panelNextText");
@@ -562,18 +572,18 @@ export class QuestionPanelDynamicModel extends Question
    * @see currentPanel
    * @see panelPrevText
    */
-  public get isPrevButtonShowing(): boolean {
-    return this.currentIndex > 0;
-  }
+  public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
+  public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
   /**
    * Indicates whether the Next button is visible.
    * @see currentIndex
    * @see currentPanel
    * @see panelNextText
    */
-  public get isNextButtonShowing(): boolean {
+  public get isNextButtonVisible(): boolean {
     return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1;
   }
+  public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   /**
    * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and panelCount is >= 2.
    */
@@ -1064,7 +1074,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.panels[this.panelCount - 1];
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors());
+    return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
   }
   private copyValue(src: any, dest: any) {
     for (var key in dest) {
@@ -1168,7 +1178,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = panel.getQuestionByName(key);
       if (!!q) continue;
       if (
-        this.iscorrectValueWithPostPrefix(panel, key, settings.commentPrefix) ||
+        this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
         this.iscorrectValueWithPostPrefix(
           panel,
           key,
@@ -1263,7 +1273,14 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < this.panels.length; i++) {
       this.panels[i].readOnly = readOnly;
     }
+    this.updateNoEntriesTextDefaultLoc();
     super.onReadOnlyChanged();
+  }
+  private updateNoEntriesTextDefaultLoc(): void {
+    const loc = this.getLocalizableString("noEntriesText");
+    if(!loc) return;
+    loc.localizationName = this.isReadOnly ? "noEntriesReadonlyText" : "noEntriesText";
+    loc.strChanged();
   }
   public onSurveyLoad() {
     this.template.readOnly = this.isReadOnly;
@@ -1283,6 +1300,9 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.recalculateIsReadyValue();
+    if(this.isReadOnly) {
+      this.updateNoEntriesTextDefaultLoc();
+    }
     super.onSurveyLoad();
   }
   public onFirstRendering() {
@@ -1396,14 +1416,14 @@ export class QuestionPanelDynamicModel extends Question
   protected clearValueIfInvisibleCore(): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
-      this.isSetPanelItemData = [];
+      this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
         q.clearValueIfInvisible();
-        this.isSetPanelItemData.push(q.getValueName());
+        this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
     }
-    this.isSetPanelItemData = undefined;
+    this.isSetPanelItemData = {};
     super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {
@@ -1596,6 +1616,7 @@ export class QuestionPanelDynamicModel extends Question
     this.updateIsAnswered();
   }
   public onSurveyValueChanged(newValue: any) {
+    if(newValue === undefined && this.isAllPanelsEmpty()) return;
     super.onSurveyValueChanged(newValue);
     for (var i = 0; i < this.panels.length; i++) {
       this.panelSurveyValueChanged(this.panels[i]);
@@ -1605,6 +1626,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.recalculateIsReadyValue();
   }
+  private isAllPanelsEmpty(): boolean {
+    for (var i = 0; i < this.panels.length; i++) {
+      if(!Helpers.isValueEmpty(this.panels[i].getValue()))
+        return false;
+    }
+    return true;
+  }
   private panelUpdateValueFromSurvey(panel: PanelModel) {
     var questions = panel.questions;
     var values = this.getPanelItemData(panel.data);
@@ -1612,7 +1640,7 @@ export class QuestionPanelDynamicModel extends Question
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
       q.updateCommentFromSurvey(
-        values[q.getValueName() + settings.commentPrefix]
+        values[q.getValueName() + settings.commentSuffix]
       );
     }
   }
@@ -1672,12 +1700,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
     return qValue[index];
   }
-  private isSetPanelItemData: Array<string>;
+  private isSetPanelItemData: HashTable<number> = {};
+  private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any) {
-    if (this.isSetPanelItemData && this.isSetPanelItemData.indexOf(name) > -1)
+    if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
-    if (!this.isSetPanelItemData) this.isSetPanelItemData = [];
-    this.isSetPanelItemData.push(name);
+    if(!this.isSetPanelItemData[name]) {
+      this.isSetPanelItemData[name] = 0;
+    }
+    this.isSetPanelItemData[name] ++;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
@@ -1714,9 +1745,9 @@ export class QuestionPanelDynamicModel extends Question
       };
       this.survey.dynamicPanelItemValueChanged(this, options);
     }
-    var index = this.isSetPanelItemData.indexOf(name);
-    if (index > -1) {
-      this.isSetPanelItemData.splice(index, 1);
+    this.isSetPanelItemData[name] --;
+    if(this.isSetPanelItemData[name] - 1) {
+      delete this.isSetPanelItemData[name];
     }
   }
   getRootData(): ISurveyData {
@@ -1800,13 +1831,13 @@ export class QuestionPanelDynamicModel extends Question
   public getPrevButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonShowing)
+      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
       .toString();
   }
   public getNextButtonCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonShowing)
+      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
       .toString();
   }
   /**
@@ -1864,6 +1895,7 @@ export class QuestionPanelDynamicModel extends Question
     const addBtn = new Action({
       id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
+      visible: <any>new ComputedUpdater(() => this.canAddPanel),
       data: { question: this }
     });
     const prevBtnIcon = new Action({
@@ -1910,11 +1942,13 @@ export class QuestionPanelDynamicModel extends Question
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
       name: "templateElements",
       alternativeName: "questions",
+      baseClassName: "question",
       visible: false,
-      isLightSerializable: false,
+      isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
     {

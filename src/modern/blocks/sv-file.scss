@@ -2,20 +2,20 @@
   position: relative;
 }
 .sv-file__decorator {
-  background-color: #f5f5f5;
+  background-color: var(--body-container-background-color, $body-container-background-color);
   padding: 1.68em 0;
 }
 .sv-file__clean-btn {
-  background-color: $remove-button-color;
+  background-color: var(--remove-button-color, $remove-button-color);
   margin-top: 1.25em;
 }
 .sv-file__choose-btn:not(.sv-file__choose-btn--disabled) {
-  background-color: $add-button-color;
+  background-color: var(--add-button-color, $add-button-color);
   display: inline-block;
 }
 .sv-file__choose-btn--disabled {
   cursor: default;
-  background-color: $disable-color;
+  background-color: var(--disable-color, $disable-color);
   display: inline-block;
 }
 .sv-file__no-file-chosen {
@@ -47,7 +47,7 @@
   }
 }
 .sv-file__sign a {
-  color: $text-color;
+  color: var(--text-color, $text-color);
   text-align: left;
   text-decoration: none;
 }

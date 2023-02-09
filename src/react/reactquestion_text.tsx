@@ -39,7 +39,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         onChange={this.question.onChange}
         onKeyUp={this.question.onKeyUp}
         onKeyDown={this.question.onKeyDown}
-        onCompositionUpdate={this.question.onCompositionUpdate}
+        onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}

@@ -1,4 +1,5 @@
-//Uncomment this line on creating a translation file
+// This dictionary contains 8 untranslated or inherited localization strings.
+// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var serbianStrings = {
@@ -12,14 +13,15 @@ export var serbianStrings = {
   noneItemText: "Ništa",
   selectAllItemText: "Izaberi sve",
   progressText: "Stranica {0} od {1}",
+  // indexText: "{0} of {1}",
   panelDynamicProgressText: "Upis {0} od {1}",
   questionsProgressText: "Odgovoreno na {0}/{1} pitanja",
   emptySurvey: "Nema vidljivih stranica ili pitanja u anketi.",
   completingSurvey: "Hvala na popunjavanju ankete!",
-  completingSurveyBefore:
-        "Prema našim podacima, već ste popunili ovu anketu.",
+  completingSurveyBefore: "Prema našim podacima, već ste popunili ovu anketu.",
   loadingSurvey: "Učitavam anketu...",
   placeholder: "Izaberi...",
+  // ratingOptionsCaption: "Tap to rate here...",
   value: "vrednost",
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
@@ -29,8 +31,7 @@ export var serbianStrings = {
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
   textMinLength: "Molimo unesite bar {0} znak(ov)a.",
   textMaxLength: "Molimo unesite najviše {0} znak(ov)a.",
-  textMinMaxLength:
-        "Molimo unesite najmanje {0} i ne više od {1} znak(ov)a.",
+  textMinMaxLength: "Molimo unesite najmanje {0} i ne više od {1} znak(ov)a.",
   minRowCountError: "Molimo popunite najmanje {0} red(ova).",
   minSelectError: "Molimo izaberite najmanje {0} opcija/e.",
   maxSelectError: "Molimo izaberite najviše {0} opcija/e.",
@@ -38,18 +39,16 @@ export var serbianStrings = {
   numericMin: "'{0}' bi trebalo da bude najmanje {1}",
   numericMax: "'{0}' bi trebalo da bude najviše {1}",
   invalidEmail: "Molimo unesite ispravnu e-mail adresu.",
-  // vratiti "true" ?
   invalidExpression: "Izraz: {0} bi trebalo da bude tačan.",
   urlRequestError: "Zahtev je naišao na grešku '{0}'. {1}",
-  urlGetChoicesError:
-        "Zahtev nije pronašao podatke, ili je putanja netačna",
+  urlGetChoicesError: "Zahtev nije pronašao podatke, ili je putanja netačna",
   exceedMaxSize: "Veličina fajla ne bi trebalo da prelazi {0}.",
   otherRequiredError: "Molimo unesite drugu vrednost.",
-  uploadingFile:
-        "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
+  uploadingFile: "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
   loadingFile: "Učitavanje...",
   chooseFile: "Izaberite fajlove...",
   noFileChosen: "Nije izabran nijedan fajl",
+  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Da li želite da izbrišete unos?",
   keyDuplicationError: "Ova vrednost treba da bude jedinstvena.",
   addColumn: "Dodaj kolonu",
@@ -71,11 +70,11 @@ export var serbianStrings = {
   timerSpentAll: "Proveli ste {0} na ovoj stranici i {1} ukupno.",
   timerSpentPage: "Proveli ste {0} na ovoj stranici.",
   timerSpentSurvey: "Proveli ste {0} ukupno.",
-  timerLimitAll:
-        "Proveli ste {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
+  timerLimitAll: "Proveli ste {0} od {1} na ovoj stranici i {2} od {3} ukupno.",
   timerLimitPage: "Proveli ste {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   clearCaption: "Poništi",
+  // signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Izaberi fajl",
   removeFileCaption: "Ukloni ovaj fajl",
   booleanCheckedLabel: "Da",
@@ -85,6 +84,10 @@ export var serbianStrings = {
   questionTitlePatternText: "Naslov pitanja",
   modalCancelButtonText: "Otkaži",
   modalApplyButtonText: "Primeni",
+  // filterStringPlaceholder: "Type to search...",
+  // emptyMessage: "No data to display",
+  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
+  // more: "More"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

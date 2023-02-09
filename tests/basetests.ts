@@ -9,7 +9,7 @@ import { findParentByClassNames } from "../src/utils/utils";
 export default QUnit.module("Base");
 
 QUnit.test("Event hasEvents property", function (assert) {
-  var event = new Event<() => any, any>();
+  var event = new Event<() => any, any, any>();
   assert.equal(event.isEmpty, true, "There is no callbacks at the beginning");
   var func = () => { };
   event.add(func);
@@ -18,7 +18,7 @@ QUnit.test("Event hasEvents property", function (assert) {
   assert.equal(event.isEmpty, true, "a callbacks is removed");
 });
 QUnit.test("Event no parameters", function (assert) {
-  var event = new Event<() => any, any>();
+  var event = new Event<() => any, any, any>();
   var counter = 0;
   var func = () => {
     counter++;
@@ -31,7 +31,7 @@ QUnit.test("Event no parameters", function (assert) {
   assert.equal(counter, 1, "function should not be called the second time");
 });
 QUnit.test("Event with parameters", function (assert) {
-  var event = new Event<(s: number, params) => any, any>();
+  var event = new Event<(s: number, params) => any, any, any>();
   var counter = 0;
   event.add((s: number, params) => {
     counter += s;
@@ -46,7 +46,7 @@ QUnit.test("Event with parameters", function (assert) {
 QUnit.test("Do not add function with the same instance several times", function (
   assert
 ) {
-  var event = new Event<() => any, any>();
+  var event = new Event<() => any, any, any>();
   var counter = 0;
   var func = () => {
     counter++;

@@ -377,4 +377,21 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
   }
+  .sv-list__item:hover,
+  .sv-list__item:focus,
+  .sv-list__item--focused {
+    .sv-list__item-body {
+      background: $background;
+    }
+    &.sv-list__item--selected {
+      .sv-list__item-body {
+        background: $primary;
+        color: $primary-foreground;
+      }
+      .sd-list__item-body {
+        background: $primary-light;
+        color: $foreground;
+      }
+    }
+  }
 }

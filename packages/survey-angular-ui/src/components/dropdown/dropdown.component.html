@@ -12,6 +12,7 @@
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
+            [attr.inputmode]="dropdownModel.inputMode"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-label]="model.placeholder"

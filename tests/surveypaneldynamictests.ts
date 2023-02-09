@@ -4580,6 +4580,30 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   panel.isMobile = true;
   assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });
+QUnit.test("paneldynamic add new button is not visible for progress render mode, bug#5600", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTopBottom",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(addBtn.isVisible, true, "It is visible by default");
+  panel.addPanel();
+  for(var i = 0; i < 4; i ++) {
+    panel.addPanel();
+    assert.equal(addBtn.isVisible, true, "It is visible by default");
+  }
+  assert.equal(panel.panelCount, 5, "We have 5 panels");
+});
+
 QUnit.test("call locationChangedCallback for cell question", function(
   assert
 ) {

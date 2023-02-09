@@ -381,7 +381,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType == "number" || this.inputType == "range") {
-      return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
+      return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
     return newValue;
   }
@@ -490,7 +490,7 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   }
   if(obj.inputType === "number") {
     if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
-    if(parseFloat(min) > parseFloat(max)) return isMax ? min : max;
+    if(Helpers.getNumber(min) > Helpers.getNumber(max)) return isMax ? min : max;
   }
   if(typeof min === "string" || typeof max === "string") return val;
   if(min > max) return isMax ? min : max;

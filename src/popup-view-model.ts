@@ -204,7 +204,14 @@ export class PopupBaseViewModel extends Base {
       const container: HTMLElement = document.createElement("div");
       this.container = this.createdContainer = container;
     }
-    document.body.appendChild(this.container);
+
+    const mountContainer = document.body.querySelector(".sv-popup-mount");
+
+    if (mountContainer) {
+      mountContainer.appendChild(this.container);
+    } else {
+      document.body.appendChild(this.container);
+    }
   }
   public unmountPopupContainer(): void {
     this.createdContainer.remove();

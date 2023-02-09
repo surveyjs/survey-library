@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton, getListItemByText, completeButton } from "../helper";
+import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton, getListItemByText, completeButton } from "../helper";
 import { Selector } from "testcafe";
 const title = "paneldynamic";
 
@@ -238,5 +238,47 @@ frameworks.forEach((framework) => {
 
     const json = JSON.parse(await getQuestionJson());
     await t.expect(json.title).eql(newTitle);
+  });
+});
+
+const json2 = {
+  elements: [
+    {
+      type: "paneldynamic",
+      name: "panel",
+      renderMode: "progressTopBottom",
+      templateElements: [
+        { type: "text", name: "q1" },
+      ],
+    },
+  ],
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+    async (t) => {
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json2);
+    }
+  );
+
+  test("Add new panels", async (t) => {
+    const addNewSelector = Selector("span").withText("Add new");
+    const textSelector = Selector("input[type='text']");
+    await t
+      .click(addNewSelector)
+      .typeText(textSelector, "1")
+      .click(addNewSelector)
+      .typeText(textSelector, "2")
+      .click(addNewSelector)
+      .typeText(textSelector, "3")
+      .click(addNewSelector)
+      .typeText(textSelector, "4")
+      .click(addNewSelector)
+      .typeText(textSelector, "5")
+      .click("input[title='Complete']");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.panel).eql([{ q1: "1" }, { q1: "2" }, { q1: "3" }, { q1: "4" }, { q1: "5" }]);
   });
 });

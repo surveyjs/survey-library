@@ -816,6 +816,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       (item: any) => {
         item.colOwner = this;
         if(this.onAddColumn) this.onAddColumn(item);
+        if(this.survey) {
+          this.survey.matrixColumnAdded(this, item);
+        }
       },
       (item: any) => {
         item.colOwner = null;

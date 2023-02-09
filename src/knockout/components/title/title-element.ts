@@ -10,7 +10,7 @@ ko.components.register("survey-element-title", {
       const rootEl = componentInfo.element;
       const titleEl = document.createElement(element.titleTagName);
       const ariaLabelAttr = !element.titleAriaLabel ? "" : "'aria-label': element.titleAriaLabel,";
-      let bindings = `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded, role:'columnheader' }`;
+      let bindings = `css: element.cssTitle, attr: { ${ariaLabelAttr} id: element.ariaTitleId, tabindex: element.titleTabIndex, 'aria-expanded': element.titleAriaExpanded, role:'button' }`;
       if (element.hasTitleEvents) {
         bindings += ", key2click";
       }

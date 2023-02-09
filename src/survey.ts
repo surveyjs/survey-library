@@ -604,12 +604,16 @@ export class SurveyModel extends SurveyElementCore
    */
   public onProcessHtml: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
-   * Use this event to change the question display value in code. Question display value is using in text pre-processing.
-   * You can provide a custom display value for empty value, for example.
-   * - `sender`: `SurveyModel` - A survey instance that raised the event.
-   * - `options.question` - a question object.
-   * - `options.displayValue` - a question display value. You can change this value.
-   * @see Question
+   * Use this event to change a question's display text.
+   *
+   * Parameters:
+   *
+   * - `sender`: `SurveyModel`\
+   * A survey instance that raised the event.
+   * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
+   * A Question instance for which the event is raised.
+   * - `options.displayValue`: `String`\
+   * A question's display text. You can assign a custom value to this parameter.
    */
   public onGetQuestionDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**

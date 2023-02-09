@@ -268,7 +268,7 @@ export class Base {
    * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
    * - `options.name`: `"text"` | `"value"`\
    * The name of the changed property.
-   * - `options.newValue: `any`\
+   * - `options.newValue`: `any`\
    * A new value for the property.
    */
   public onItemValuePropertyChanged: Event<

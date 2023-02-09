@@ -9,6 +9,7 @@
     flex-wrap: nowrap;
     gap: calcSize(1);
     margin-inline-start: 0;
+    align-items: center;
   }
 
   &.sd-rating--wrappable {

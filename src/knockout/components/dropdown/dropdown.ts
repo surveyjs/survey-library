@@ -10,10 +10,6 @@ ko.components.register("sv-dropdown", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       const q = params.question;
-      const koInputString = ko.computed({
-        read: () => q.dropdownListModel.inputString,
-        write: (val) => q.dropdownListModel.inputStringChange(val)
-      });
       const click = (_: any, e: any) => {
         q.dropdownListModel?.onClick(e);
       };

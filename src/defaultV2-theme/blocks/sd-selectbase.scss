@@ -22,10 +22,12 @@
 }
 
 .sd-selectbase__label {
-  display: flex;
+  display: inline-flex;
   position: relative;
   gap: calcSize(1);
+  vertical-align: top;
 }
+
 .sd-selectbase__column {
   vertical-align: top;
 }

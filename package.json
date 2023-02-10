@@ -48,7 +48,7 @@
     "build-plugins-prod": "concurrently \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.config.js --env.buildType prod\" \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.material.config.js --env.buildType prod\"",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
-    "build_angular": "npm run build_angular_dev && npm run build_angular_prod",
+    "build_angular": "npm run build_angular_dev && npm run build_angular_prod && downlevel-dts build/survey-angular build/survey-angular/ts3.4",
     "watch:core:dev": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType dev --watch",
     "watch:core:prod": "webpack --config ./build-scripts/survey-core/webpack.config.js --env.buildType prod --watch",
     "watch:ko:ui:dev": "webpack --config ./build-scripts/survey-knockout-ui/webpack.config.js --env.buildType dev --watch",
@@ -83,6 +83,7 @@
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "downlevel-dts": "~0.11.0",
     "@types/babel__traverse": "7.18.2",
     "@angular-devkit/build-angular": "~13.0.0",
     "@angular/cli": "~13.0.0",

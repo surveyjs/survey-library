@@ -131,16 +131,13 @@
     "madge": "^4.0.2",
     "mini-css-extract-plugin": "^0.9.0",
     "minimist": "^1.2.5",
-    "ng-packagr": "^13.0.0",
     "node-uuid": "^1.4.8",
-    "postcss": "^8.4.0",
     "puppeteer": "^1.19.0",
     "qunit": "2.14.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "replace-in-file": "^3.4.3",
     "rimraf": "2.5.4",
-    "rxjs": "~6.6.0",
     "sass": "^1",
     "sass-loader": "^8.0.2",
     "style-loader": "^1.2.1",
@@ -169,8 +166,7 @@
     "webpack-dev-server": "^3.11.0",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.7.3",
-    "webpack-svgstore-plugin": "4.0.1",
-    "zone.js": "~0.11.4"
+    "webpack-svgstore-plugin": "4.0.1"
   },
   "overrides": {
     "karma-webpack": {

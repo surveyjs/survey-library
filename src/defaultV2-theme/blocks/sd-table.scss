@@ -10,6 +10,14 @@
   }
 }
 .sd-table--alternate-rows {
+  margin: 0 8px;
+  width: calc(100% - 2 * #{$base-unit});
+  .sd-table__cell:first-of-type {
+    padding-left: calcSize(2);
+  }
+  .sd-table__cell:last-of-type {
+    padding-right: calcSize(2);
+  }
   .sd-table__row:nth-of-type(odd) {
     & > td,
     td:first-of-type {

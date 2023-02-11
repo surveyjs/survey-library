@@ -130,7 +130,9 @@
       }
     }
   }
-
+    &.sd-question--image {
+      padding-top: var(--sd-base-vertical-padding);
+    }
   &.sd-panel,
   &.sd-question--paneldynamic {
     border: 1px solid $border-light;

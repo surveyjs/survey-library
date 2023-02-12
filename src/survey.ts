@@ -261,35 +261,11 @@ export class SurveyModel extends SurveyElementCore
   public onCurrentPageChanged: EventBase<SurveyModel, IOnCurrentPageChangedOptions> = this.addEvent<SurveyModel, IOnCurrentPageChangedOptions>();
   /**
    * An event that is raised before a question value is changed.
-   *
-   * Parameters:
-   *
-   * - `sender`: `SurveyModel`\
-   * A survey instance that raised the event.
-   * - `options.name`: `String`\
-   * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-   * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
-   * The question whose value is being changed. If you use `valueName` and it is the same for several questions, this parameter contains the first question.
-   * - `options.oldValue`: `any`\
-   * A previous value.
-   * - `options.value`: `any`\
-   * A new value. You can change it if required.
    * @see setValue
    */
   public onValueChanging: EventBase<SurveyModel, IOnValueChangingOptions> = this.addEvent<SurveyModel, IOnValueChangingOptions>();
   /**
    * An event that is raised after a question value is changed.
-   *
-   * Parameters:
-   *
-   * - `sender`: `SurveyModel`\
-   * A survey instance that raised the event.
-   * - `options.name`: `String`\
-   * The `name` of the question whose value has been changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
-   * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
-   * The question whose value has been changed. If you use `valueName`, and it is the same for several questions, this parameter contains the first question.
-   * - `options.value`: `any`\
-   * A new value.
    *
    * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelItemValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelItemValueChanged) event.
    * @see setValue

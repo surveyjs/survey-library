@@ -71,16 +71,31 @@ export interface IOnCurrentPageChangedOptions {
   newCurrentPage: PageModel;
   oldCurrentPage: PageModel;
 }
-export interface IOnValueChangingOptions {
-  value: any;
-  oldValue: any;
+export interface IOnValueChangeBaseOptions {
+  /**
+   * The question whose value is being changed. If you use `valueName` and it is the same for several questions, this parameter contains the first question.
+   */
   question: Question;
+  /**
+   * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
+   */
   name: string;
 }
-export interface IOnValueChangedOptions {
+export interface IOnValueChangedOptions extends IOnValueChangeBaseOptions {
+  /**
+   * A new value.
+   */
   value: any;
-  question: Question;
-  name: string;
+}
+export interface IOnValueChangingOptions extends IOnValueChangeBaseOptions {
+  /**
+   * A new value. You can change it if required.
+   */
+  value: any;
+  /**
+   * A previous value.
+   */
+  oldValue: any;
 }
 export interface IOnVariableChangedOptions {
   value: any;

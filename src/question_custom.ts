@@ -101,7 +101,7 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
-   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires to update it's css classes.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires an update of its CSS classes.
    *
    * Parameters:
    *
@@ -110,7 +110,7 @@ export interface ICustomQuestionTypeConfiguration {
    * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
    * A nested question.
    * - `cssClasses`: `any`\
-   * an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes.
+   * An object with CSS classes applied to a nested question, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
    */
   onUpdateQuestionCssClasses?(question: Question, element: Question, cssClasses: any): void;
   /**

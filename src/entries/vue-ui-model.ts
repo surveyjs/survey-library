@@ -49,6 +49,7 @@ export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Progress } from "../vue/progress.vue";
 export { ProgressButtons } from "../vue/progressButtons.vue";
+export { ProgressToc } from "../vue/progressToc.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";
 export { FlowPanel } from "../vue/flowpanel.vue";
@@ -87,6 +88,7 @@ export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";
 export { NotifierComponent } from "../vue/components/notifier.vue";
+export { ComponentsContainer } from "../vue/components/container.vue";
 
 import { SurveyModel } from "survey-core";
 

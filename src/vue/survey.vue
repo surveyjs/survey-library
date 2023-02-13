@@ -4,50 +4,26 @@
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-          <component
-                v-if="vueSurvey.isShowProgressBarOnTop && !vueSurvey.isShowStartingPage"
-                :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
-                :survey="vueSurvey"
-                :css="css"
-              />
-          <survey-timerpanel
-            v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
-            :timerModel="vueSurvey.timerModel"
-            :css="css"
-          />
+        <sv-components-container :survey="vueSurvey" :container="'top'"></sv-components-container>
         <template
           v-if="vueSurvey.isShowingPage"
         >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
-            <sv-action-bar
-              v-if="vueSurvey.isNavigationButtonsShowingOnTop"
-              :key="navId + 'top'"
-              :model="vueSurvey.navigationBar"
-            />
-            <survey-page
-              :key="pageKey"
-              :survey="vueSurvey"
-              :page="vueSurvey.activePage"
-              :css="css"
-            />
-            <component
-              v-if="vueSurvey.isShowProgressBarOnBottom && !vueSurvey.isShowStartingPage"
-              :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
-              :survey="vueSurvey"
-              :css="css"
-            />
-            <sv-action-bar
-              v-if="vueSurvey.isNavigationButtonsShowingOnBottom"
-              :key="navId + 'bottom'"
-              :model="vueSurvey.navigationBar"
-            />
+          <div :class="vueSurvey.bodyContainerCss">
+            <sv-components-container :survey="vueSurvey" :container="'left'"></sv-components-container>
+            <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
+              <sv-components-container :survey="vueSurvey" :container="'innertop'"></sv-components-container>
+              <survey-page
+                :key="pageKey"
+                :survey="vueSurvey"
+                :page="vueSurvey.activePage"
+                :css="css"
+              />
+              <sv-components-container :survey="vueSurvey" :container="'innerbottom'"></sv-components-container>
+            </div>
+            <sv-components-container :survey="vueSurvey" :container="'right'"></sv-components-container>
           </div>
         </template>
-        <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
-              :timerModel="vueSurvey.timerModel"
-              :css="css"
-            />
+        <sv-components-container :survey="vueSurvey" :container="'bottom'"></sv-components-container>
         <div v-if="hasCompletedPage">
           <div
             v-html="getProcessedCompletedHtml()"

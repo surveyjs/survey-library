@@ -2,6 +2,7 @@ import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionCommentModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { CharacterCounterComponent } from "./components/character-counter";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
   constructor(props: any) {
@@ -10,35 +11,43 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
   protected renderElement(): JSX.Element {
     var onBlur:((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
     var onInput = (event: any) => {
-      if (this.question.isInputTextUpdate)
+      if (this.question.isInputTextUpdate) {
         this.updateValueOnEvent(event);
-      else
+      } else {
         this.question.updateElement();
+      }
+
+      const newValue = event.target.value;
+      this.question.updateRemainingCharacterCounter(newValue);
     };
     const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
+    const counter = !!this.question.maxLength ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
     return (
-      <textarea
-        id={this.question.inputId}
-        className={this.question.className}
-        disabled={ this.question.isInputReadOnly }
-        readOnly={ this.question.isInputReadOnly }
-        ref={(textarea) => (this.setControl(textarea))}
-        maxLength={this.question.getMaxLength()}
-        placeholder={placeholder}
-        onBlur={onBlur}
-        onInput={onInput}
-        onKeyDown={(event) => { this.question.onKeyDown(event); }}
-        cols={this.question.cols}
-        rows={this.question.rows}
-        aria-required={this.question.ariaRequired}
-        aria-label={this.question.ariaLabel}
-        aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
-        style={{ resize: this.question.resizeStyle }}
-      />
+      <>
+        <textarea
+          id={this.question.inputId}
+          className={this.question.className}
+          disabled={ this.question.isInputReadOnly }
+          readOnly={ this.question.isInputReadOnly }
+          ref={(textarea) => (this.setControl(textarea))}
+          maxLength={this.question.getMaxLength()}
+          placeholder={placeholder}
+          onBlur={onBlur}
+          onInput={onInput}
+          onKeyDown={(event) => { this.question.onKeyDown(event); }}
+          cols={this.question.cols}
+          rows={this.question.rows}
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
+          style={{ resize: this.question.resizeStyle }}
+        />
+        {counter}
+      </>
     );
   }
 }

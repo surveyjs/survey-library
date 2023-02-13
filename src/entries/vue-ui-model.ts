@@ -87,6 +87,7 @@ export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";
 export { NotifierComponent } from "../vue/components/notifier.vue";
+export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 
 import { SurveyModel } from "survey-core";
 

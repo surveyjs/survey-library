@@ -1,10 +1,14 @@
 ﻿<script type="text/html" id="survey-question-comment">
-  <!--ko if: !question.isReadOnlyRenderDiv() -->
+<!--ko if: !question.isReadOnlyRenderDiv() -->
 <textarea data-bind="attr: {'readonly': question.renderedInputReadOnly, 'disabled': question.renderedInputDisabled, maxLength: question.getMaxLength(), cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.renderedPlaceholder, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, 
   event: { input: function(s, e) { question.onInput(e); }, keydown: function(s, e) { question.onKeyDown(e); return true; } }, 
   value: question.value, 
   style: { resize: question.resizeStyle },
   css: question.className"></textarea>
+  <!--ko if: question.maxLength -->
+  <!-- ko component: { name: 'sv-character-counter', params: { counter: question.characterCounter, remainingCharacterCounter: question.cssClasses.remainingCharacterCounter } } -->
+  <!-- /ko -->
+  <!--/ko-->
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->

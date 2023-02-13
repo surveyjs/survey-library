@@ -3,6 +3,14 @@ import { property, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
+import { Base } from "./base";
+
+export class CharacterCounter extends Base {
+  @property() remainingCharacterCounter: string;
+  public updateRemainingCharacterCounter(newValue: string, maxLength: number): void {
+    this.remainingCharacterCounter = Helpers.getRemainingCharacterCounterText(newValue, maxLength);
+  }
+}
 
 /**
  * A base class for the [Text](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
@@ -24,13 +32,16 @@ export class QuestionTextBase extends Question {
   }
   public set maxLength(val: number) {
     this.setPropertyValue("maxLength", val);
+    this.updateRemainingCharacterCounter(this.value);
   }
   public getMaxLength(): any {
-    return Helpers.getMaxLength(
-      this.maxLength,
-      this.survey ? this.survey.maxTextLength : -1
-    );
+    return Helpers.getMaxLength(this.maxLength, this.survey ? this.survey.maxTextLength : -1);
   }
+  public characterCounter = new CharacterCounter();
+  public updateRemainingCharacterCounter(newValue: string): void {
+    this.characterCounter.updateRemainingCharacterCounter(newValue, this.getMaxLength());
+  }
+
   /**
    * A placeholder for the input field.
    */
@@ -95,6 +106,10 @@ export class QuestionTextBase extends Question {
   }
   protected hasPlaceHolder(): boolean {
     return !this.isReadOnly;
+  }
+  protected setNewValue(newValue: any): void {
+    super.setNewValue(newValue);
+    this.updateRemainingCharacterCounter(newValue);
   }
   public getControlClass(): string {
     return new CssClassBuilder()

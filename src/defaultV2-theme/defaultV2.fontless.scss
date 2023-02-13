@@ -89,6 +89,10 @@ body {
   }
 }
 
+.sd-container-modern {
+  margin-bottom: calcSize(10);
+}
+
 .sd-root-modern--mobile {
   --sd-timer-size: calc(9 * #{$base-unit});
 }

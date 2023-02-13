@@ -15,7 +15,7 @@
             type="radio"
             class="sv-visuallyhidden"
             :name="question.name"
-            :id="question.getInputId(index)"
+            :id="getInputId(index)"
             :value="item.value"
             :disabled="question.isInputReadOnly"
             @click="(e) => question.setValueFromClick(e.target.value)"
@@ -45,6 +45,9 @@ import { QuestionRatingModel } from "survey-core";
 
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {
+  getInputId(index: any) {
+    return this.question.getInputId(index)
+  }
 }
 Vue.component("survey-rating", Rating);
 export default Rating;

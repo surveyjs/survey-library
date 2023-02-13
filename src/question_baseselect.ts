@@ -1615,6 +1615,20 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
   }
+  public clickItemHandler(item: ItemValue, checked: boolean): void {
+    const newValue: Array<any> = [].concat(this.renderedValue || []);
+    const index = newValue.indexOf(item.value);
+    if (checked) {
+      if (index < 0) {
+        newValue.push(item.value);
+      }
+    } else {
+      if (index > -1) {
+        newValue.splice(index, 1);
+      }
+    }
+    this.renderedValue = newValue;
+  }
   protected onParentChanged() {
     super.onParentChanged();
     if (this.isFlowLayout) {

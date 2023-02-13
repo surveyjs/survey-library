@@ -29,14 +29,15 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private getSelectedActions(visibleItems?: Array<Action>) {
     return (visibleItems || this.listModel.actions).filter(item => (this.question.isAllSelected && item.id === "selectall") || !!ItemValue.getItemByValue(this.question.selectedItems, item.id));
   }
-  protected override getFocusFirstInputSelector(): string {
+  protected getFocusFirstInputSelector(): string {
     if((<MultiSelectListModel>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
+
       return this.itemSelector;
     } else {
       return super.getFocusFirstInputSelector();
     }
   }
-  protected override createListModel(): MultiSelectListModel {
+  protected createListModel(): MultiSelectListModel {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
@@ -64,7 +65,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private get shouldResetAfterCancel() {
     return IsTouch && !this.closeOnSelect;
   }
-  protected override createPopup(): void {
+  protected createPopup(): void {
     super.createPopup();
     this.popupModel.onFooterActionsCreated.add((_, opt) => {
       if(this.shouldResetAfterCancel) {

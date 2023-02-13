@@ -249,8 +249,8 @@ export interface ISurveyElement extends IShortcutText {
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
-  get isCollapsed(): boolean;
-  get isExpanded(): boolean;
+  isCollapsed: boolean;
+  isExpanded: boolean;
   expand(): void;
   collapse(): void;
 }

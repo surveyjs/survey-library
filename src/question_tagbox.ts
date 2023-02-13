@@ -83,7 +83,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
-  set placeholder(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
   }
   get locPlaceholder(): LocalizableString {

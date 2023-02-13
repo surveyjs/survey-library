@@ -37,7 +37,8 @@ export {
   IPage,
   IPanel,
   ISurveyData,
-  ITitleOwner
+  ITitleOwner,
+  ISurveyAddon
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";

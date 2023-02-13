@@ -21,7 +21,8 @@
     "defaultV2.min.css",
     "survey.angular.d.ts",
     "survey.angular.js",
-    "survey.angular.min.js"
+    "survey.angular.min.js",
+    "ts3.4/survey.angular.d.ts"
   ],
   "main": "survey.angular.js",
   "repository": {

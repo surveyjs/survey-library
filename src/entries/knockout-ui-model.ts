@@ -57,6 +57,7 @@ export * from "../knockout/components/string-viewer/string-viewer";
 export * from "../knockout/components/logo-image/logo-image";
 export * from "../knockout/components/skeleton/skeleton";
 export * from "../knockout/components/rating-dropdown/rating-dropdown";
+export * from "../knockout/components/rating/rating-item";
 export * from "../knockout/components/dropdown/dropdown";
 export * from "../knockout/components/dropdown-select/dropdown-select";
 export * from "../knockout/components/tagbox/tagbox-item";

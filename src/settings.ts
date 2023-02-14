@@ -231,7 +231,7 @@ export var settings = {
    */
   customIcons: {},
   /**
-   * Specifies which part of a choice item item responds to a drag gesture in Ranking questions.
+   * Specifies which part of a choice item responds to a drag gesture in Ranking questions.
    *
    * Possible values:
    *

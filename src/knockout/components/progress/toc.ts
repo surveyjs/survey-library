@@ -6,7 +6,7 @@ ko.components.register("sv-progress-toc", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       return {
-        containerCss: "",
+        containerCss: "sv_progress-toc",
         survey: params.model,
         listModel: createTOCListModel(params.model)
       };

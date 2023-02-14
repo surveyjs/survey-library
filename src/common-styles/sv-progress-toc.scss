@@ -1,0 +1,16 @@
+$font-family: var(--font-family);
+
+.sv_progress-toc {
+  padding: 8px;
+  height: 100%;
+  background: #FFFFFF;
+  border-right: 1px solid #D6D6D6;
+  margin-top: 2px;
+
+  .sv-list__item.sv-list__item--selected .sv-list__item-body {
+    background: rgba(25, 179, 148, 0.1);
+    border-radius: 3px;
+    color: #161616;
+    font-weight: 400;
+  }
+}

@@ -8,7 +8,7 @@ export class SurveyProgressToc extends SurveyNavigationBase {
   render(): JSX.Element {
     var listModel = createTOCListModel(this.props.model);
     return (
-      <div className={this.props.containerCss}>
+      <div className={this.props.containerCss || "sv_progress-toc"}>
         <List model={listModel} />
       </div>
     );

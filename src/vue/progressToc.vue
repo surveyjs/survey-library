@@ -13,7 +13,7 @@ import { SurveyModel, createTOCListModel } from "survey-core";
 export class ProgressToc extends Vue {
   @Prop() survey: SurveyModel;
   @Prop() css: any;
-  containerCss = "";
+  containerCss = "sv_progress-toc";
   public listModel: any = undefined;
   constructor() {
     super();

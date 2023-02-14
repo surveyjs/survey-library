@@ -8,7 +8,7 @@ import { AngularComponentFactory } from "../../../component-factory";
   })
 export class ProgressTocComponent implements OnChanges, OnInit {
   public listModel!: ListModel;
-  public containerCss = "";
+  public containerCss = "sv_progress-toc";
   @Input() model!: SurveyModel;
   private createProgressTOCModel() {
     this.listModel = createTOCListModel(this.model);

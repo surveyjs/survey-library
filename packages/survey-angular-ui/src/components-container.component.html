@@ -1,0 +1,3 @@
+<ng-container *ngFor="let component of components">
+  <ng-template [component]="{ name: component.component, data: { survey: survey, model: component.data } }"></ng-template>
+</ng-container>

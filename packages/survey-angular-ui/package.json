@@ -32,6 +32,7 @@
     "@angular/compiler": "~13.0.0",
     "@angular/compiler-cli": "~13.0.0",
     "@angular/core": "~13.0.0",
+    "@angular/cdk": "~13.0.0",
     "@angular/forms": "~13.0.0",
     "@angular/platform-browser": "~13.0.0",
     "@angular/platform-browser-dynamic": "~13.0.0",
@@ -52,10 +53,11 @@
     "survey-core": "../../build/survey-core",
     "tslib": "^2.3.0",
     "typescript": "~4.4.3",
-    "zone.js": "~0.11.4"
+    "zone.js": "~0.11.4",
+    "copyfiles": "~2.4.1"
   },
   "scripts": {
-    "build": "ng build",
+    "build": "ng build && npx copyfiles -u 1 \"build/**/*\" ../../build/survey-angular-ui",
     "serve:example": "ng serve",
     "build:example": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test survey-angular-ui",

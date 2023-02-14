@@ -14,7 +14,7 @@
 <img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
 
-https://user-images.githubusercontent.com/22315929/218680464-57457ee4-5e1e-49cc-ae37-1705511bff11.mp4
+https://user-images.githubusercontent.com/22315929/218698798-22b095a7-c28b-42f7-baf8-6c56df8e1490.mp4
 
 ## Documentation
 

@@ -233,7 +233,7 @@ jobs:
       displayName: "Build Angular"
 
     - script: |
-        cd examples/angular-ui
+        cd packages/survey-angular-ui/example
         npm install
       displayName: "NPM install examples/angular-ui"
 

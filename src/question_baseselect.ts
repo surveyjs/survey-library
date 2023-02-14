@@ -965,6 +965,9 @@ export class QuestionSelectBase extends Question {
         res.push(choices[i]);
       }
     }
+    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+      res.push(new ItemValue(question.otherItem.value, question.comment));
+    }
     return res;
   }
   protected get hasActiveChoices(): boolean {

@@ -1,7 +1,7 @@
 {
    "extends": "./tsconfig.json",
    "compilerOptions:": {
-      "outDir": "../../build/survey-angular-ui",
+      "outDir": "./build",
       "declaration": true,
       "declarationMap": true,
       "inlineSources": true,

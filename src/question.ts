@@ -71,6 +71,7 @@ export class Question extends SurveyElement<Question>
   afterRenderQuestionCallback: (question: Question, element: any) => any;
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
+  onUpdateCssClassesCallback: (css: any) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
@@ -730,6 +731,9 @@ export class Question extends SurveyElement<Question>
     this.updateCssClasses(classes, css);
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
+    }
+    if(this.onUpdateCssClassesCallback) {
+      this.onUpdateCssClassesCallback(classes);
     }
     return classes;
   }

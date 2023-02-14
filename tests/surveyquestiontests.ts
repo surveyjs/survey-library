@@ -5074,6 +5074,31 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
   assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
 });
+QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      {
+        type: "checkbox",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+
+  assert.deepEqual(q2.visibleChoices, []);
+  assert.deepEqual(q2.isEmpty(), true);
+
+  q1.value = [2, 3, "other"];
+  assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
+  q1.comment = "someText";
+  assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
+  assert.equal(q2.visibleChoices[2].value, "other", "other value");
+  assert.equal(q2.visibleChoices[2].text, "someText", "other text");
+});
 QUnit.test(
   "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",
   function (assert) {

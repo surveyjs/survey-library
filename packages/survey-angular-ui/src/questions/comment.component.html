@@ -18,7 +18,7 @@
 [attr.aria-describedby]="model.ariaDescribedBy"
 [style.resize]="model.resizeStyle"
 #contentElement></textarea>
-<sv-ng-character-counter *ngIf="!model.isReadOnlyRenderDiv() && model.maxLength" 
+<sv-ng-character-counter *ngIf="!model.isReadOnlyRenderDiv() && model.getMaxLength()" 
 [counter]="model.characterCounter"
 [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">
 <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>

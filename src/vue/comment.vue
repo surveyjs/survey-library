@@ -1,6 +1,6 @@
 <template>
     <textarea
-      v-if="!question.isReadOnlyRenderDiv() && !question.maxLength"
+      v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
       :readonly="question.isInputReadOnly"
       :disabled="question.renderedInputDisabled"
       :value="question.value"
@@ -19,7 +19,7 @@
       :aria-describedby="question.ariaDescribedBy"
       v-bind:style="{ resize: question.resizeStyle }"
     ></textarea>
-    <div v-else-if="!question.isReadOnlyRenderDiv() && question.maxLength">
+    <div v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()">
       <textarea
         :readonly="question.isInputReadOnly"
         :disabled="question.renderedInputDisabled"

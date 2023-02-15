@@ -14,7 +14,7 @@
     [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autocomplete"
     [attr.ar] #contentElement/>
-    <sv-ng-character-counter *ngIf="model.maxLength" 
+    <sv-ng-character-counter *ngIf="model.getMaxLength()" 
     [counter]="model.characterCounter"
     [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">
   </sv-ng-character-counter>

@@ -5,7 +5,7 @@
   value: question.value, 
   style: { resize: question.resizeStyle },
   css: question.className"></textarea>
-  <!--ko if: question.maxLength -->
+  <!--ko if: question.getMaxLength() -->
   <!-- ko component: { name: 'sv-character-counter', params: { counter: question.characterCounter, remainingCharacterCounter: question.cssClasses.remainingCharacterCounter } } -->
   <!-- /ko -->
   <!--/ko-->

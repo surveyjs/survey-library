@@ -1,5 +1,5 @@
   <template>
-    <input v-if="!question.maxLength"
+    <input v-if="!question.getMaxLength()"
     :disabled="question.isInputReadOnly"
     :class="question.getControlClass()"
     :type="question.inputType"

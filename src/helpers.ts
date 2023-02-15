@@ -234,7 +234,11 @@ export class Helpers {
         postfix = newPostfix;
       }
     }
-    if (isNumeric) return prefix + (index + startIndex).toString() + postfix;
+    if (isNumeric) {
+      let val = (index + startIndex).toString();
+      while(val.length < strIndex.length) val = "0" + val;
+      return prefix + val + postfix;
+    }
     return (
       prefix + String.fromCharCode(strIndex.charCodeAt(0) + index) + postfix
     );

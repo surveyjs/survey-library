@@ -3301,6 +3301,8 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "# 2");
   survey.questionStartIndex = "1.2";
   assert.equal(question.no, "1.3");
+  survey.questionStartIndex = "1.01";
+  assert.equal(question.no, "1.02");
   survey.onGetQuestionNo.add(function (sender, options) {
     options.no = "a.b." + (options.question.visibleIndex + 1) + ")";
   });

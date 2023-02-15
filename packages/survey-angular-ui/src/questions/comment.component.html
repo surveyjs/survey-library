@@ -21,4 +21,5 @@
 <sv-ng-character-counter *ngIf="!model.isReadOnlyRenderDiv() && model.getMaxLength()" 
 [counter]="model.characterCounter"
 [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">
+</sv-ng-character-counter>
 <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>

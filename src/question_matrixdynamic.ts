@@ -83,7 +83,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
-    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey);
+    this.dragDropMatrixRows = new DragDropMatrixRows(this.survey, null, true);
   }
 
   private draggedRow: MatrixDropdownRowModelBase;

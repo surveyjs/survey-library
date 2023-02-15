@@ -34,8 +34,7 @@
   font-size: calcSize(2);
 }
 
-legend+.sd-rating__item,
-legend+sv-ng-rating-item+.sd-rating__item {
+legend~.sd-rating__item:first-of-type {
   margin-inline-start: 2px;
 }
 

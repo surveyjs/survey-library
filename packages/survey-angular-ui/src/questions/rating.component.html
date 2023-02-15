@@ -3,8 +3,7 @@
           <legend role="presentation" class="sv-hidden"></legend>
           <span *ngIf="model.hasMinLabel" [class]="model.cssClasses.minText" [model]="model.locMinRateDescription" sv-ng-string>
           </span>
-          <sv-ng-rating-item *ngFor="let item of model.renderedRateItems; index as index; trackBy: trackByFn" [model]="model" [item]="item" [index]="index">
-          </sv-ng-rating-item>
+          <ng-template *ngFor="let item of model.renderedRateItems; index as index; trackBy: trackByFn" [component]="{ name: 'sv-rating-item', data: {model: model, item: item, index: index }}"></ng-template>
           <span *ngIf="model.hasMaxLabel" [class]="model.cssClasses.maxText" [model]="model.locMaxRateDescription" sv-ng-string></span>
       </fieldset>
   </div>

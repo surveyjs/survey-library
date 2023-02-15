@@ -6,13 +6,13 @@
           :class="question.cssClasses.minText">
           <survey-string :locString="question.locMinRateDescription" />
         </span>
-        <sv-rating-item
+        <component
           v-for="(item, index) in question.renderedRateItems"
+          :is="('sv-rating-item')"
           :item="item"
           :index="index"
           :question="question"
-        >
-        </sv-rating-item>
+        ></component>
         <span v-if="question.hasMaxLabel"
               :class="question.cssClasses.maxText"
         >

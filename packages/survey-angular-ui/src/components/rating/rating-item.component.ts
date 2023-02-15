@@ -4,7 +4,7 @@ import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
-  selector: "sv-ng-rating-item, '[sv-ng-rating-item]'",
+  selector: "sv-ng-rating-item",
   templateUrl: "./rating-item.component.html",
   styleUrls: ["../../hide-host.scss"],
 })

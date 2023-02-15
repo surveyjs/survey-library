@@ -187,3 +187,37 @@ frameworks.forEach((framework) => {
     assert.equal(json.title, newTitle);
   });
 });
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+
+  test("Remaining character counter", async (t) => {
+    const characterCounter = Selector(".sv-remaining-character-counter");
+
+    await initSurvey(framework, {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          maxLength: 10,
+        }]
+    });
+
+    await t
+      .expect(characterCounter.textContent).eql("0/10")
+
+      .pressKey("A")
+      .expect(characterCounter.textContent).eql("1/10")
+
+      .typeText("input", "bcd")
+      .expect(characterCounter.textContent).eql("4/10")
+
+      .pressKey("backspace")
+      .pressKey("backspace")
+      .expect(characterCounter.textContent).eql("2/10")
+
+      .pressKey("backspace")
+      .pressKey("backspace")
+      .expect(characterCounter.textContent).eql("0/10");
+  });
+});

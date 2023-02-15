@@ -230,6 +230,7 @@ export var modernCss = {
   text: {
     root: "sv-text",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
     onError: "sv-text--error",
   },
   multipletext: {
@@ -368,6 +369,7 @@ export var modernCss = {
   comment: {
     root: "sv-comment",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
   },
   expression: "",
   file: {

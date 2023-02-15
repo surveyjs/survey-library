@@ -74,6 +74,7 @@ export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
 export { TagboxFilterComponent } from "../vue/components/tagbox/tagbox-filter.vue";
 export { TagboxComponent } from "../vue/components/tagbox/tagbox.vue";
 export { TagboxItem } from "../vue/components/tagbox/tagbox-item.vue";
+export { RatingItem } from "../vue/components/rating/rating-item.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";

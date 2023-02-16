@@ -6,7 +6,7 @@
     "@types/node": "^16.11.10"
   },
   "dependencies": {
-    "@angular/router": "^13.0.0",
+    "@angular/router": "^12.0.0",
     "bootstrap": "^3.3.7",
     "survey-core": "../../../build/survey-core",
     "surveyjs-widgets": "^1.9.40",

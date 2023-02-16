@@ -2,6 +2,7 @@ $font-family: var(--font-family);
 
 .sv_progress-toc {
   padding: 8px;
+  max-width: 320px;
   height: 100%;
   background: #FFFFFF;
   border-right: 1px solid #D6D6D6;
@@ -12,5 +13,9 @@ $font-family: var(--font-family);
     border-radius: 3px;
     color: #161616;
     font-weight: 400;
+  }
+
+  .sv-list__item span {
+    white-space: break-spaces;
   }
 }

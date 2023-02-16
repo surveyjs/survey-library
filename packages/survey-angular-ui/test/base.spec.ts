@@ -1,8 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { property } from "jsonobject";
 import { BaseAngular } from "src/base-angular";
 import { SurveyContentComponent } from "src/survey-content.component";
-import { QuestionTextModel } from "survey-core";
+import { Base, ExpressionExecutor, QuestionTextModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-test-base",
@@ -10,6 +11,10 @@ import { QuestionTextModel } from "survey-core";
   })
 class TestBase extends BaseAngular<QuestionTextModel> {
   @Input() model!: QuestionTextModel;
+  public shouldReattachChangeDetector: boolean = true;
+  protected override getShouldReattachChangeDetector(): boolean {
+    return this.shouldReattachChangeDetector;
+  }
   getModel() {
     return this.model;
   }
@@ -58,4 +63,70 @@ it("check survey renderCallback destroy if model is not defined", () => {
   fixture.detectChanges();
   const component = fixture.componentInstance;
   expect(() => { component.ngOnDestroy(); }).not.toThrow();
+});
+it("Check shouldReattachChangeDetector flag", (done: any) => {
+  const fixture = TestBed.createComponent(TestBase);
+  const component = fixture.componentInstance;
+  component.model = new QuestionTextModel("q1");
+  fixture.detectChanges();
+  let log = "";
+  const oldReattach = component["changeDetectorRef"].reattach;
+  component["changeDetectorRef"].reattach = () => {
+    oldReattach.call(component["changeDetectorRef"]);
+    log += "->reattached";
+  };
+  component.model.titleLocation = "left";
+  setTimeout(() => {
+    expect(log).toBe("->reattached");
+    component.model.titleLocation = "top";
+    component.shouldReattachChangeDetector = false;
+    setTimeout(() => {
+      expect(log).toBe("->reattached");
+      done();
+    }, 100);
+  }, 100);
+});
+
+class RecurciveModel extends Base {
+  constructor() {
+    super();
+    this.createNewArray("recursiveProperty");
+    this.getPropertyValue("recursiveProperty").push(1);
+  }
+  get recursiveProperty(): number {
+    let [a] = this.getPropertyValue("recursiveProperty").splice(0, 1);
+    a++;
+    this.getPropertyValue("recursiveProperty").push(a);
+    return this.getPropertyValue("recursiveProperty");
+  }
+}
+
+@Component({
+  selector: "sv-ng-test-base",
+  template: "<span>{{model.recursiveProperty}}</span>"
+  })
+class TestWithRecursiveProperty extends BaseAngular<RecurciveModel> {
+  @Input() model!: RecurciveModel;
+  public log: string = "";
+  protected override getModel(): RecurciveModel {
+    return this.model;
+  }
+  protected override afterUpdate(): void {
+    super.afterUpdate();
+    this.log += "->afterUpdate";
+  }
+
+}
+
+it("Check shouldReattachChangeDetector flag", (done: any) => {
+  const fixture = TestBed.createComponent(TestWithRecursiveProperty);
+  const component = fixture.componentInstance;
+  component.model = new RecurciveModel();
+  fixture.detectChanges();
+  component.ngAfterViewChecked();
+  fixture.checkNoChanges();
+  setTimeout(() => {
+    expect(component.log).toBe("->afterUpdate");
+    done();
+  }, 100);
 });

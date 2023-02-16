@@ -279,58 +279,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
     this.value = value;
   };
-
-  protected getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
-    const res = super.getChoicesFromQuestion(question);
-    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
-      res.push(new ItemValue(question.otherItem.value, question.comment));
-    }
-    return res;
-  }
-
-  private setValueFromUI = () => {
-    const value: string[] = [];
-    const textNodes = this.domNode.querySelectorAll(
-      "." + this.cssClasses.controlLabel
-    );
-    textNodes.forEach((textNode: any, index) => {
-      const innerText: string = textNode.innerText;
-      this.visibleChoices.forEach((visibleChoice: ItemValue) => {
-        if (innerText === visibleChoice.text) {
-          value.push(visibleChoice.value);
-        }
-      });
-    });
-    this.value = value;
-  };
-
-  private syncNumbers = () => {
-    if (!this.domNode) return;
-    const selector: string =
-      "." +
-      this.cssClasses.item +
-      ":not(." +
-      this.cssClasses.itemDragMod +
-      ")" +
-      " ." +
-      this.cssClasses.itemIndex;
-
-    const indexNodes: NodeListOf<Element> = this.domNode.querySelectorAll(
-      selector
-    );
-    indexNodes.forEach((indexNode: any, index) => {
-      indexNode.innerText = this.getNumberByIndex(index);
-    });
-  };
-
-  private setGhostText = (text: string) => {
-    const indexNodes: NodeListOf<Element> = this.domNode.querySelectorAll(
-      "." + this.cssClasses.itemIndex
-    );
-    const ghostNode: Element = indexNodes[indexNodes.length - 1];
-    (<any>ghostNode).innerText = text;
-  };
-
   public getIconHoverCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemIcon)

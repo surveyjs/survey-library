@@ -74,6 +74,7 @@ export { DropdownComponent } from "../vue/components/dropdown/dropdown.vue";
 export { TagboxFilterComponent } from "../vue/components/tagbox/tagbox-filter.vue";
 export { TagboxComponent } from "../vue/components/tagbox/tagbox.vue";
 export { TagboxItem } from "../vue/components/tagbox/tagbox-item.vue";
+export { RatingItem } from "../vue/components/rating/rating-item.vue";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../vue/components/matrix-actions/remove-button/remove-button.vue";
 export { SurveyQuestionMatrixDetailButton } from "../vue/components/matrix-actions/detail-button/detail-button.vue";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../vue/components/matrix-actions/drag-drop-icon/drag-drop-icon.vue";
@@ -87,6 +88,7 @@ export { SurveyNavigationButton } from "../vue/components/survey-actions/survey-
 export { Skeleton } from "../vue/components/skeleton.vue";
 export { BrandInfo } from "../vue/components/brand-info.vue";
 export { NotifierComponent } from "../vue/components/notifier.vue";
+export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 
 import { SurveyModel } from "survey-core";
 

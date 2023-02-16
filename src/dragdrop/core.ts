@@ -236,9 +236,10 @@ export abstract class DragDropCore<T> extends Base {
 
   private drop = () => {
     if (this.allowDropHere) {
-      this.onBeforeDrop.fire(this, null);
+      const fromElement = this.draggedElement.parent;
+      this.onBeforeDrop.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
       const newElement = this.doDrop();
-      this.onAfterDrop.fire(this, { draggedElement: newElement });
+      this.onAfterDrop.fire(this, { fromElement: fromElement, draggedElement: newElement, toElement: this.dropTarget });
     }
 
     this.clear();

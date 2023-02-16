@@ -71,6 +71,7 @@ export class Question extends SurveyElement<Question>
   afterRenderQuestionCallback: (question: Question, element: any) => any;
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
+  onUpdateCssClassesCallback: (css: any) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
@@ -123,6 +124,9 @@ export class Question extends SurveyElement<Question>
       }
     });
     this.registerPropertyChangedHandlers(["isRequired"], () => {
+      if(!this.isRequired && this.errors.length > 0) {
+        this.validate();
+      }
       this.locTitle.strChanged();
       this.clearCssClasses();
     });
@@ -728,6 +732,9 @@ export class Question extends SurveyElement<Question>
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
+    if(this.onUpdateCssClassesCallback) {
+      this.onUpdateCssClassesCallback(classes);
+    }
     return classes;
   }
   public get cssRoot(): string {
@@ -1314,6 +1321,9 @@ export class Question extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
+    if(this.survey) {
+      res = this.survey.getQuestionDisplayValue(this, res);
+    }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
   private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {

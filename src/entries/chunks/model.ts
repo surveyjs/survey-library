@@ -135,7 +135,7 @@ export { QuestionHtmlModel } from "../../question_html";
 export { QuestionRadiogroupModel } from "../../question_radiogroup";
 export { QuestionRatingModel, RenderedRatingItem } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
-export { QuestionTextBase } from "../../question_textbase";
+export { QuestionTextBase, CharacterCounter } from "../../question_textbase";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export {

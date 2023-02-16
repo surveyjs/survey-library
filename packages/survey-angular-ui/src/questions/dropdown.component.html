@@ -1,4 +1,4 @@
 <div [class]="model.renderCssRoot" #contentElement>
   <sv-ng-dropdown [model]="model"></sv-ng-dropdown>
-  <div *ngIf="model.isOtherSelected" class="form-group" [question]="model" sv-ng-comment-other></div>
+  <div *ngIf="model.isOtherSelected" [class]="model.getCommentAreaCss(true)" [question]="model" sv-ng-comment-other></div>
 </div>

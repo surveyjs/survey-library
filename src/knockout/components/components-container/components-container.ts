@@ -7,7 +7,7 @@ ko.components.register("sv-components-container", {
     createViewModel: (params: any) => {
       const survey = params.survey as SurveyModel;
       return {
-        css: "sd-components-column",
+        css: "sv-components-column",
         survey,
         components: survey.getContainerContent(params.container)
       };

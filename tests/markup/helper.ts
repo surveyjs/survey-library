@@ -268,6 +268,7 @@ function clearClasses(el: Element) {
 
 function clearAttributes(el: Element, removeIds = false) {
   //el.removeAttribute("aria-labelledby");
+  el.removeAttribute("survey");
   el.removeAttribute("data-bind");
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");

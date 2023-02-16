@@ -11,24 +11,24 @@
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
-              <sv-components-container params="survey: $data, container: 'top'"></sv-components-container>
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "top" } } --><!-- /ko -->
               <div data-bind="css: $data.bodyContainerCss">
-                  <sv-components-container params="survey: $data, container: 'left'"></sv-components-container>
+                  <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "left" } } --><!-- /ko -->
                   <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
-                      <sv-components-container params="survey: $data, container: 'innertop'"></sv-components-container>
-                      <!-- ko if: activePage -->
+                        <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "innertop" } } --><!-- /ko -->
+                        <!-- ko if: activePage -->
                         <!-- ko template: { name: 'survey-page', data: activePage, afterRender: koAfterRenderPage } -->
                         <!-- /ko -->
                         <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
                         <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
                         <!-- /ko -->
                         <!-- /ko -->
-                      <!-- /ko -->
-                      <sv-components-container params="survey: $data, container: 'innerbottom'"></sv-components-container>
+                        <!-- /ko -->
+                        <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "innerbottom" } } --><!-- /ko -->
                   </div>
-                  <sv-components-container params="survey: $data, container: 'right'"></sv-components-container>
+                  <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "right" } } --><!-- /ko -->
               </div>
-              <sv-components-container params="survey: $data, container: 'bottom'"></sv-components-container>
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "bottom" } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>

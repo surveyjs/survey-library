@@ -1,12 +1,12 @@
 <template>
-  <div className="sd-components-column">
-  <template v-for="(component, index) in components">
-    <component 
-      :is="component.component"
-      :survey="survey"
-      :model="component.data"
-    ></component>
-  </template>
+  <div v-if="components.length > 0" class="sv-components-column">
+    <template v-for="(component, index) in components">
+      <component 
+        :is="component.component"
+        :survey="survey"
+        :model="component.data"
+      ></component>
+    </template>
   </div>
 </template>
 

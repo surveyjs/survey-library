@@ -1,3 +1,5 @@
-<ng-container *ngFor="let component of components">
-  <ng-template [component]="{ name: component.component, data: { survey: survey, model: component.data } }"></ng-template>
-</ng-container>
+<div *ngIf="components.length > 0" className="sv-components-column">
+  </div><ng-container *ngFor="let component of components">
+    <ng-template [component]="{ name: component.component, data: { survey: survey, model: component.data } }"></ng-template>
+  </ng-container>
+</div>

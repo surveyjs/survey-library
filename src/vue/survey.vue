@@ -4,26 +4,26 @@
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-        <sv-components-container :survey="vueSurvey" :container="'top'"></sv-components-container>
+        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'top'"></component>
         <template
           v-if="vueSurvey.isShowingPage"
         >
           <div :class="vueSurvey.bodyContainerCss">
-            <sv-components-container :survey="vueSurvey" :container="'left'"></sv-components-container>
+            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
             <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
-              <sv-components-container :survey="vueSurvey" :container="'innertop'"></sv-components-container>
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'innertop'"></component>
               <survey-page
                 :key="pageKey"
                 :survey="vueSurvey"
                 :page="vueSurvey.activePage"
                 :css="css"
               />
-              <sv-components-container :survey="vueSurvey" :container="'innerbottom'"></sv-components-container>
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'innerbottom'"></component>
             </div>
-            <sv-components-container :survey="vueSurvey" :container="'right'"></sv-components-container>
+            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
           </div>
         </template>
-        <sv-components-container :survey="vueSurvey" :container="'bottom'"></sv-components-container>
+        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'bottom'"></component>
         <div v-if="hasCompletedPage">
           <div
             v-html="getProcessedCompletedHtml()"

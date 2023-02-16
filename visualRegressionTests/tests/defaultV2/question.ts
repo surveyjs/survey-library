@@ -384,4 +384,29 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-text-range.png", qRoot, t, comparer);
     });
   });
+
+  test("Remaining character counter", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            maxLength: 10,
+            defaultValue: "Test"
+          },
+          {
+            name: "comment",
+            type: "comment",
+            maxLength: 10,
+            defaultValue: "Test"
+          }]
+      });
+
+      await takeElementScreenshot("question-text-remaining-character-counter.png", Selector(".sd-text__content"), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
+    });
+  });
 });

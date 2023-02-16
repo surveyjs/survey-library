@@ -6,28 +6,13 @@
           :class="question.cssClasses.minText">
           <survey-string :locString="question.locMinRateDescription" />
         </span>
-        <label
+        <component
           v-for="(item, index) in question.renderedRateItems"
-          :key="item.value"
-          :class="question.getItemClass(item.itemValue)"
-        >
-          <input
-            type="radio"
-            class="sv-visuallyhidden"
-            :name="question.name"
-            :id="getInputId(index)"
-            :value="item.value"
-            :disabled="question.isInputReadOnly"
-            @click="(e) => question.setValueFromClick(e.target.value)"
-            :aria-required="question.ariaRequired"
-            :aria-label="question.ariaLabel"
-            :aria-invalid="question.ariaInvalid"
-            :aria-describedby="question.ariaDescribedBy"
-          />
-          <span :class="question.cssClasses.itemText">
-            <survey-string :locString="item.locText" />
-          </span>
-        </label>
+          :is="('sv-rating-item')"
+          :item="item"
+          :index="index"
+          :question="question"
+        ></component>
         <span v-if="question.hasMaxLabel"
               :class="question.cssClasses.maxText"
         >

@@ -43,12 +43,14 @@ export * from "./components/element-header/element-header.component";
 export * from "./components/element-title/element-title.component";
 export * from "./components/survey-header/survey-header.component";
 export * from "./components/skeleton/skeleton.component";
+export * from "./components/character-counter/character-counter.component";
 export * from "./components/timer-panel/timer-panel.component";
 export * from "./components/notifier/notifier.component";
 
 export * from "./components/element-title/dynamic-head.component";
 export * from "./components/list/list.component";
 export * from "./components/list/list-item.component";
+export * from "./components/rating/rating-item.component";
 export * from "./row.component";
 export * from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 export * from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";

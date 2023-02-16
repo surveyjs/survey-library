@@ -400,9 +400,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (
-      !Helpers.isTwoValueEquals(this.value, newValue)
-    ) {
+    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }
@@ -412,6 +410,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }, 1);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyUp = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -424,6 +423,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -438,9 +438,11 @@ export class QuestionTextModel extends QuestionTextBase {
     } else {
       this.updateValueOnEvent(event);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onBlur = (event: any): void => {
     this.updateValueOnEvent(event);
+    this.updateRemainingCharacterCounter(event.target.value);
   };
 }
 

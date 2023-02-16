@@ -109,7 +109,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   protected renderOther(): JSX.Element {
     let cssClasses = this.question.cssClasses;
     return (
-      <div className="form-group">
+      <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}

@@ -29,7 +29,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
         <fieldset role="radiogroup">
           <legend role="presentation" className={"sv-hidden"}></legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span>: null}
-          {this.question.renderedRateItems.map((item, i) => <RatingItem key={"value" + i} handleOnClick={this.handleOnClick} question={this.question} data={item} index={i}></RatingItem>)}
+          {this.question.renderedRateItems.map((item, i) => <RatingItem key={"value" + i} handleOnClick={this.handleOnClick} isDisplayMode={this.isDisplayMode} question={this.question} data={item} index={i}></RatingItem>)}
           {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span>: null}
         </fieldset>
       </div>

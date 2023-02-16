@@ -10,6 +10,7 @@ interface IRatingItemProps {
   data: RenderedRatingItem;
   index: any;
   handleOnClick: any;
+  isDisplayMode: boolean;
 }
 
 export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {

@@ -10,7 +10,7 @@ export class ComponentsContainer extends React.Component<any, any> {
     }
     return <div className="sv-components-column">
       {components.map(component => {
-        return ReactElementFactory.Instance.createElement(component.component, { survey: this.props.survey, model: component.data, key: component.id });
+        return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, key: component.id });
       })}
     </div>;
   }

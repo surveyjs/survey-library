@@ -2432,6 +2432,38 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
 
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  page.addElement(qText);
+  assert.equal(qText.characterCounter.remainingCharacterCounter, undefined, "By default it is undefined");
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string");
+  qText.maxLength = 10;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10");
+  qText.maxLength = 0;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "makes it empty string");
+  qText.maxLength = 5;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/5");
+  qText.updateRemainingCharacterCounter("");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "0/5");
+});
+
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields and there is defaultValue", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  qText.maxLength = 10;
+  qText.defaultValue = "Test";
+  page.addElement(qText);
+  assert.equal(qText.value, "Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10", "By default it is undefined");
+});
+
 QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

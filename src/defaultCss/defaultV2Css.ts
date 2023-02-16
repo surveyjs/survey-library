@@ -276,6 +276,8 @@ export var defaultV2Css = {
     root: "sd-input sd-text",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    content: "sd-text__content sd-question__content",
+    remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
   },
   multipletext: {
@@ -448,6 +450,8 @@ export var defaultV2Css = {
     root: "sd-input sd-comment",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    content: "sd-comment__content sd-question__content",
+    remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
   },
   expression: "sd-expression",

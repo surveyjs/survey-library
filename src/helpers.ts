@@ -190,6 +190,13 @@ export class Helpers {
     }
     return maxLength > 0 ? maxLength : null;
   }
+  public static getRemainingCharacterCounterText(newValue: string | undefined, maxLength: number | null): string {
+    if(!maxLength || maxLength <= 0) {
+      return "";
+    }
+    const value = newValue ? newValue.length : "0";
+    return [value, maxLength].join("/");
+  }
   public static getNumberByIndex(index: number, startIndexStr: string): string {
     if (index < 0) return "";
     var startIndex = 1;

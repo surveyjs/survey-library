@@ -311,7 +311,7 @@ frameworks.forEach(async framework => {
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .typeText(Selector(".sv-list__input"), "item1", { paste: true });
-      await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
+      await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
   test("Check tagbox focused state", async (t) => {

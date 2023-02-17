@@ -98,7 +98,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected renderOther(cssClasses: any): JSX.Element {
     return (
-      <div className="form-group">
+      <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}

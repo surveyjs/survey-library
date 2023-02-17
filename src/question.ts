@@ -1602,6 +1602,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionComment(newValue);
     this.updateCommentElements();
   }
+
+  public getCommentAreaCss(isOther: boolean = false): string {
+    return new CssClassBuilder()
+      .append("form-group", isOther)
+      .append(this.cssClasses.formGroup, !isOther)
+      .append(this.cssClasses.commentArea)
+      .toString();
+  }
+
   protected getQuestionComment(): string {
     return this.questionComment;
   }

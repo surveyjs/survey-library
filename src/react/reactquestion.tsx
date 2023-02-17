@@ -199,11 +199,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return SurveyElementBase.renderQuestionDescription(this.question);
   }
   protected renderComment(cssClasses: any): JSX.Element {
-    var commentText = SurveyElementBase.renderLocString(
+    const commentText = SurveyElementBase.renderLocString(
       this.question.locCommentText
     );
     return (
-      <div className={this.question.cssClasses.formGroup}>
+      <div className={this.question.getCommentAreaCss()}>
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}

@@ -133,7 +133,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
    protected renderOther(cssClasses: any): JSX.Element {
      return (
-       <div className="form-group">
+       <div className={this.question.getCommentAreaCss(true)}>
          <SurveyQuestionOtherValueItem
            question={this.question}
            otherCss={cssClasses.other}

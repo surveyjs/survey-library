@@ -160,6 +160,7 @@ export var defaultV2Css = {
     titleRequired: "sd-question__title--required",
     indent: 20,
     footer: "sd-question__footer",
+    commentArea: "sd-question__comment-area",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
     collapsed: "sd-element--collapsed",

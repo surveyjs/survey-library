@@ -16195,18 +16195,21 @@ QUnit.test("settings.minWidth/maxWidth", function (assert) {
     elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", minWidth: "50px" },
-      { type: "text", name: "q3", maxWidth: "90%" }
+      { type: "text", name: "q3", maxWidth: "90%" },
+      { type: "paneldynamic", name: "q4" },
     ],
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
   assert.equal(q1.minWidth, "0px", "q1 minWidth");
   assert.equal(q1.maxWidth, "500px", "q1 maxWidth");
   assert.equal(q2.minWidth, "50px", "q2 minWidth");
   assert.equal(q2.maxWidth, "500px", "q2 maxWidth");
   assert.equal(q3.minWidth, "0px", "q3 minWidth");
   assert.equal(q3.maxWidth, "90%", "q3 maxWidth");
+  assert.equal(q4.minWidth, "auto", "q4 (paneldynamic) minWidth");
   settings.minWidth = oldMinWidth;
   settings.maxWidth = oldMaxWidth;
 });

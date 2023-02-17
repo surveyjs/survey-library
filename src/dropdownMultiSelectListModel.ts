@@ -9,6 +9,7 @@ import { settings } from "./settings";
 import { IsTouch } from "./utils/devices";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
+  protected popupCssClasses = "sv-multi-select-list";
 
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;

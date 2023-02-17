@@ -2265,8 +2265,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !!this.data &&
       !!this.visibleTotalRow &&
       !this.isUpdateLocked &&
-      !this.isSett &&
-      !this.isReadOnly
+      !this.isSett
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,

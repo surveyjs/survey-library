@@ -27,7 +27,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   visibility: hidden;
 }
 
-.sv-ranking-item:hover .sv-ranking-item__icon--hover {
+.sv-ranking-item:hover:not(:focus) .sv-ranking-item__icon--hover {
   visibility: visible;
 }
 
@@ -41,7 +41,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
 .sv-ranking-item:focus .sv-ranking-item__icon--focus {
   visibility: visible;
-  top: 15px;
 }
 
 .sv-ranking-item:focus .sv-ranking-item__index {
@@ -75,7 +74,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   position: absolute;
   top: calcSize(1);
   margin-right: calcSize(1);
-  margin-left: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
 }
@@ -93,6 +91,8 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   width: calcSize(5);
   height: calcSize(5);
   line-height: calcSize(3);
+  box-sizing: border-box;
+  font-weight: 600;
 }
 
 .sv-ranking-item__text {
@@ -171,4 +171,8 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
   fill: $primary;
+}
+
+.sv-ranking-shortcut .sv-ranking-item__text {
+  margin-right: calcSize(4);
 }

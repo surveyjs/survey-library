@@ -9,7 +9,6 @@
 }
 
 .sd-element--with-frame .sv-ranking-item__icon {
-  margin-left: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
   top: calcSize(1);
@@ -35,9 +34,6 @@
 }
 
 @mixin ranking_responsive {
-  .sv-ranking-item {
-    left: calcSize(-3);
-  }
   .sv-ranking-item__icon-container {
     margin-left: 0;
     margin-right: 0;

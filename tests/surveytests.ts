@@ -16185,3 +16185,29 @@ QUnit.test("Check getProgressCssClasses method", function (assert) {
   survey.showProgressBar = "bottom";
   assert.equal(survey.getProgressCssClasses(), "test_progress test_progress_bottom");
 });
+QUnit.test("settings.minWidth/maxWidth", function (assert) {
+  const oldMinWidth = settings.minWidth;
+  const oldMaxWidth = settings.maxWidth;
+  settings.minWidth = "0px";
+  settings.maxWidth = "500px";
+  const survey = new SurveyModel({
+    "showProgressBar": "top",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2", minWidth: "50px" },
+      { type: "text", name: "q3", maxWidth: "90%" }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.minWidth, "0px", "q1 minWidth");
+  assert.equal(q1.maxWidth, "500px", "q1 maxWidth");
+  assert.equal(q2.minWidth, "50px", "q2 minWidth");
+  assert.equal(q2.maxWidth, "500px", "q2 maxWidth");
+  assert.equal(q3.minWidth, "0px", "q3 minWidth");
+  assert.equal(q3.maxWidth, "90%", "q3 maxWidth");
+  settings.minWidth = oldMinWidth;
+  settings.maxWidth = oldMaxWidth;
+});
+

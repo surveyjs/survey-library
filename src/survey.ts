@@ -1485,12 +1485,12 @@ export class SurveyModel extends SurveyElementCore
     });
     this.addons.push({
       id: "progress-correctQuestions",
-      component: "sv-progress-correctQuestions",
+      component: "sv-progress-correctquestions",
       data: this
     });
     this.addons.push({
       id: "progress-requiredQuestions",
-      component: "sv-progress-requiredQuestions",
+      component: "sv-progress-requiredquestions",
       data: this
     });
     this.addons.push({
@@ -7199,7 +7199,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: AddonContainer) {
     const addons = [];
     for(let addon of this.addons) {
-      if(addon.id === "timerpanel") {
+      if(isStrCiEqual(addon.id, "timerpanel")) {
         if(container === "top") {
           if(this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             addons.push(addon);
@@ -7210,7 +7210,7 @@ export class SurveyModel extends SurveyElementCore
             addons.push(addon);
           }
         }
-      } else if(addon.id === "progress-" + this.progressBarType) {
+      } else if(isStrCiEqual(addon.id, "progress-" + this.progressBarType)) {
         if(container === "top") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             addons.push(addon);
@@ -7221,7 +7221,7 @@ export class SurveyModel extends SurveyElementCore
             addons.push(addon);
           }
         }
-      } else if(addon.id === "navigation") {
+      } else if(isStrCiEqual(addon.id, "navigation")) {
         if(container === "innertop") {
           if(this.isNavigationButtonsShowingOnTop) {
             addons.push(addon);
@@ -7260,6 +7260,12 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   disposeCallback: () => void;
+}
+
+function isStrCiEqual(a: string, b: string) {
+  if(!a) return false;
+  if(!b) return false;
+  return a.toUpperCase() === b.toUpperCase();
 }
 
 Serializer.addClass("survey", [

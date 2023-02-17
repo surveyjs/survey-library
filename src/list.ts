@@ -114,7 +114,7 @@ export class ListModel extends ActionContainer {
   }
 
   public onItemClick = (itemValue: Action) => {
-    if (this.isItemDisabled(itemValue)) {
+    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
       return;
     }
 

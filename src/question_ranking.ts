@@ -321,6 +321,7 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
+    { name: "separateSpecialChoices", visible: false, isSerializable: false },
     {
       name: "longTap",
       default: true,

@@ -2,6 +2,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
 import {settings as Settings} from "../src/settings";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("question ranking");
 
@@ -286,4 +287,10 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   Settings.rankingDragHandleArea = "some"; // 3
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
+});
+
+QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
+  const prop = "separateSpecialChoices";
+  assert.ok(Serializer.findProperty("checkbox", prop).visible, "checkbox separateSpecialChoices is visible");
+  assert.notOk(Serializer.findProperty("ranking", prop).visible, "ranking separateSpecialChoices is invisible")
 });

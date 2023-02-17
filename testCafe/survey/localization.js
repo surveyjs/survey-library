@@ -128,18 +128,27 @@ frameworks.forEach(framework => {
     const questionDropdownSelect = Selector(".sv_q_dropdown_control");
     await t
       .click(questionDropdownSelect)
+      .expect(getListItemByText("en1").visible).ok()
+      .expect(getListItemByText("en2").visible).ok()
       .click(getListItemByText("en1"));
+
     await setDe();
     await t
       .click(questionDropdownSelect)
-      .click(getListItemByText("de1"));
+      .expect(getListItemByText("de1").visible).ok()
+      .expect(getListItemByText("de2").visible).ok()
+      .click(getListItemByText("de2"));
     await setFr();
     await t
       .click(questionDropdownSelect)
-      .click(getListItemByText("fr2"));
+      .expect(getListItemByText("fr1").visible).ok()
+      .expect(getListItemByText("fr2").visible).ok()
+      .click(getListItemByText("fr1"));
     await setEn();
     await t
       .click(questionDropdownSelect)
+      .expect(getListItemByText("en1").visible).ok()
+      .expect(getListItemByText("en2").visible).ok()
       .click(getListItemByText("en2"));
   });
 });

@@ -965,7 +965,8 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parent);
     this.expandAllParents((<any>element).parentQuestion);
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {

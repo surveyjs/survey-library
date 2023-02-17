@@ -186,25 +186,25 @@ frameworks.forEach(framework => {
   });
 
   test("show top progress bar", async t => {
-    const questionElements = Selector(".sv_container > div");
+    const questionElements = Selector(".sv_container > .sv-components-column > div");
     await t.expect(progressbar.exists).notOk();
 
     await show_top_progress_bar();
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3")
-      .expect(questionElements.nth(1).classNames).contains("sv_progress");
+      .expect(questionElements.classNames).contains("sv_progress");
   });
 
   test("show bottom progress bar", async t => {
-    const questionElements = Selector(".sv_body > div");
+    const questionElements = Selector(".sv_body > .sv-components-column > div");
     await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3")
-      .expect(questionElements.nth(1).classNames).contains("sv_progress");
+      .expect(questionElements.classNames).contains("sv_progress");
   });
 
   test("check progress bar page 2", async t => {

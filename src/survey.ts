@@ -7211,7 +7211,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if(addon.id === "progress-" + this.progressBarType) {
-        if(container === "innertop") {
+        if(container === "top") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             addons.push(addon);
           }

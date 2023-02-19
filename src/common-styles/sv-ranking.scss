@@ -83,7 +83,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  background: $primary-light;
+  background-color: $primary-light;
   color: $foreground;
   font-size: calcSize(2);
   border-radius: 100%;
@@ -93,6 +93,13 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   line-height: calcSize(3);
   box-sizing: border-box;
   font-weight: 600;
+  margin-left: calcSize(1);
+
+  &.sv-ranking-item__index--empty:empty {
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAArSURBVHgB7cuhEQAwDMNAtUN4//m8RMtygcE5PxMQxAKnh6Q3mWzXd4mAD4cJBAQCqfbUAAAAAElFTkSuQmCC");
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 }
 
 .sv-ranking-item__text {
@@ -159,6 +166,16 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
 .sv-ranking--mobile.sv-ranking-shortcut {
   max-width: 80%;
+}
+
+.sv-ranking--mobile {
+  .sv-ranking-item__index.sv-ranking-item__index {
+    margin-left: 0;
+  }
+
+  .sd-element--with-frame .sv-ranking-item__icon {
+    margin-left: 0;
+  }
 }
 
 .sv-ranking--design-mode .sv-ranking-item:hover .sv-ranking-item__icon {

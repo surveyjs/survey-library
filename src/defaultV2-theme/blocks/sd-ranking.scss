@@ -5,10 +5,11 @@
 }
 
 .sd-element--with-frame .sv-ranking-item {
-  left: calcSize(-5);
+  left: calcSize(-3);
 }
 
 .sd-element--with-frame .sv-ranking-item__icon {
+  margin-left: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
   top: calcSize(1);

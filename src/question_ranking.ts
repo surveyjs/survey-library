@@ -76,8 +76,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "";
   }
 
+  public getItemIndexClasses() {
+    return new CssClassBuilder()
+    .append(this.cssClasses.itemIndex)
+    .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
+    .toString();
+  }
+
   public getNumberByIndex(index: number): string {
-    return this.isEmpty() ? "\u2013" : index + 1 + "";
+    return this.isEmpty() ? "" : index + 1 + "";
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {

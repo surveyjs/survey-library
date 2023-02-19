@@ -193,3 +193,14 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 .sv-ranking-shortcut .sv-ranking-item__text {
   margin-right: calcSize(4);
 }
+
+.sv-ranking-shortcut  .sv-ranking-item__icon--hover {
+  visibility: visible;
+}
+
+.sv-ranking-shortcut .sv-ranking-item__icon {
+  margin-left: calcSize(1);
+  width: calcSize(1.75);
+  height: calcSize(2);
+  top: calcSize(1);
+}

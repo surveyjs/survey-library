@@ -38,8 +38,9 @@ export class SurveyRow extends SurveyElementBase<any, any> {
       const innerElement = this.createElement(element, index);
       const css = (element as Question).cssClassesValue;
       const focusIn = () => {
-        if(element && !element.isDisposed && element.isQuestion) 
+        if(element && !element.isDisposed && element.isQuestion) {
           (element as Question).focusIn();
+        }
       };
       return (
         <div

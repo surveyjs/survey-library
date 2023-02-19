@@ -37,13 +37,17 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     const elements = this.row.visibleElements.map((element, index) => {
       const innerElement = this.createElement(element, index);
       const css = (element as Question).cssClassesValue;
+      const focusIn = () => {
+        if(element && !element.isDisposed && element.isQuestion) 
+          (element as Question).focusIn();
+      };
       return (
         <div
           className={css.questionWrapper}
           style={(element as any).rootStyle}
           data-key={innerElement.key}
           key={innerElement.key}
-          onFocus={(element as Question).focusIn}
+          onFocus={focusIn}
         >
           {this.row.isNeedRender ? innerElement : ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, })}
         </div>

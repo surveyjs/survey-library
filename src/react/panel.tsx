@@ -38,11 +38,14 @@ export class SurveyPanel extends SurveyPanelBase {
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
+    const focusIn = () => {
+      if(this.panelBase) (this.panelBase as PanelModel).focusIn();
+    };
     return (
       <div
         ref={this.rootRef}
         className={(this.panelBase as PanelModel).getContainerCss()}
-        onFocus={(this.panelBase as PanelModel).focusIn}
+        onFocus={focusIn}
         id={this.panelBase.id}
 
       >

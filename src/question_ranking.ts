@@ -78,9 +78,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public getItemIndexClasses() {
     return new CssClassBuilder()
-    .append(this.cssClasses.itemIndex)
-    .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
-    .toString();
+      .append(this.cssClasses.itemIndex)
+      .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
+      .toString();
   }
 
   public getNumberByIndex(index: number): string {

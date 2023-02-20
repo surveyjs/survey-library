@@ -69,6 +69,74 @@ legend+sv-ng-rating-item+.sd-rating__item {
   box-shadow: inset 0 0 0 2px $background;
 }
 
+.sd-rating__item-star {
+  position: relative;
+  background: $background;
+  width: calcSize(6);
+  height: calcSize(6);
+
+  svg {
+    stroke: $border;
+    fill: none;
+  }
+
+  .sv-star-2 {
+    display: none;
+  }
+}
+
+.sd-rating__item-star--selected {
+  svg {
+    stroke: $primary;
+    fill: $primary;
+  }
+}
+
+.sd-rating__item-star--error {
+  svg {
+    stroke: $red-light;
+    fill: $red-light;
+  }
+}
+
+.sd-rating__item-star.sd-rating__item-star--disabled {
+  opacity: 0.5;
+
+  svg {
+    stroke: $border;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star.sd-rating__item-star--selected.sd-rating__item-star--disabled {
+  svg {
+    stroke: $border;
+    fill: $border;
+  }
+}
+
+.sd-rating__item-star--allowhover:hover,
+.sd-rating__item-star:focus-within {
+  svg {
+    stroke: $primary;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected:focus-within {
+  svg {
+    stroke: $primary;
+    fill: $primary;
+  }
+
+  .sv-star {
+    display: none;
+  }
+
+  .sv-star-2 {
+    display: block;
+  }
+}
 .sd-rating__item-text.sd-rating__item-text {
   font-size: calcSize(2);
   line-height: calcSize(3);

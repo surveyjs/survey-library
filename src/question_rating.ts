@@ -18,6 +18,9 @@ export class RenderedRatingItem extends Base {
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
+  public get text(): string {
+    return this.itemValue.text;
+  }
   constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
   }
@@ -280,6 +283,15 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
+  @property({ defaultValue: "number" }) rateType: "number" | "text" | "star" | "emoji";
+  public get isStar() {
+    return this.rateType == "star";
+  }
+  public get itemComponentName() {
+    if (this.isStar) return "sv-rating-item-star";
+    return "sv-rating-item";
+  }
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -302,16 +314,30 @@ export class QuestionRatingModel extends Question {
   }
 
   public getItemClass(item: ItemValue) {
-    const isSelected = this.value == item.value;
+    const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
     const isDisabled = this.isReadOnly || !item.isEnabled;
-    const allowHover = !isDisabled && !isSelected && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
+
+    let itemClass = this.cssClasses.item;
+    let itemSelectedClass = this.cssClasses.selected;
+    let itemDisabledClass = this.cssClasses.itemDisabled;
+    let itemHoverClass = this.cssClasses.itemHover;
+    let itemitemOnErrorClass = this.cssClasses.itemOnError;
+
+    if (this.isStar) {
+      itemClass = this.cssClasses.itemStar;
+      itemSelectedClass = this.cssClasses.itemStarSelected;
+      itemDisabledClass = this.cssClasses.itemStarDisabled;
+      itemHoverClass = this.cssClasses.itemStarHover;
+      itemitemOnErrorClass = this.cssClasses.itemStarOnError;
+    }
 
     return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.selected, this.value == item.value)
-      .append(this.cssClasses.itemDisabled, this.isReadOnly)
-      .append(this.cssClasses.itemHover, allowHover)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0)
+      .append(itemClass)
+      .append(itemSelectedClass, isSelected)
+      .append(itemDisabledClass, this.isReadOnly)
+      .append(itemHoverClass, allowHover)
+      .append(itemitemOnErrorClass, this.errors.length > 0)
       .toString();
   }
   //methods for mobile view
@@ -446,6 +472,11 @@ Serializer.addClass(
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+    },
+    {
+      name: "rateType",
+      default: "number",
+      choices: ["number", "text", "star", "emoji"],
     }
   ],
   function () {

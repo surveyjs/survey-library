@@ -128,6 +128,22 @@ registerMarkupTests(
     snapshot: "rating-as-wrappable",
     },
     {
+      name: "Test Rating question as stars",
+      json: {
+        questions: [
+          {
+            name: "name",
+            type: "rating",
+            title: "Question title",
+            titleLocation: "hidden",
+            rateType: "star",
+            rateMax: 2,
+          }
+        ]
+      },
+      snapshot: "rating-stars",
+    },
+    {
       name: "Test Rating question display mode",
       json: {
         questions: [

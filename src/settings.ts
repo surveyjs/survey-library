@@ -87,6 +87,10 @@ export var settings = {
    */
   matrixMaxRowCountInCondition: 1,
   /**
+   * Maximum panelCount that returns in addConditionObjectsByContext function
+   */
+  panelDynamicMaxPanelCountInCondition: 1,
+  /**
    * Set this property to false, to render matrix dynamic remove action as button.
    * It is rendered as icon in new themes ("defaultV2") by default.
    */

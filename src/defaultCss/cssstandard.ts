@@ -154,7 +154,9 @@ export var defaultStandardCss = {
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking-item--drag",
   },
-  comment: "",
+  comment: {
+    remainingCharacterCounter: "sv-remaining-character-counter",
+  },
   dropdown: {
     root: "",
     popup: "sv-dropdown-popup",
@@ -296,7 +298,10 @@ export var defaultStandardCss = {
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
   },
-  text: "sv_q_text_root",
+  text: {
+    root: "sv_q_text_root",
+    remainingCharacterCounter: "sv-remaining-character-counter",
+  },
   expression: "",
   file: {
     root: "sv_q_file",

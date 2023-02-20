@@ -2432,6 +2432,38 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
 
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  page.addElement(qText);
+  assert.equal(qText.characterCounter.remainingCharacterCounter, undefined, "By default it is undefined");
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string");
+  qText.maxLength = 10;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10");
+  qText.maxLength = 0;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "makes it empty string");
+  qText.maxLength = 5;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/5");
+  qText.updateRemainingCharacterCounter("");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "0/5");
+});
+
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields and there is defaultValue", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  qText.maxLength = 10;
+  qText.defaultValue = "Test";
+  page.addElement(qText);
+  assert.equal(qText.value, "Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10", "By default it is undefined");
+});
+
 QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -5073,6 +5105,31 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
   var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
+});
+QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      {
+        type: "checkbox",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+
+  assert.deepEqual(q2.visibleChoices, []);
+  assert.deepEqual(q2.isEmpty(), true);
+
+  q1.value = [2, 3, "other"];
+  assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
+  q1.comment = "someText";
+  assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
+  assert.equal(q2.visibleChoices[2].value, "other", "other value");
+  assert.equal(q2.visibleChoices[2].text, "someText", "other text");
 });
 QUnit.test(
   "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",

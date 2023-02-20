@@ -89,6 +89,7 @@ export { SurveyNavigationButton } from "../react/components/survey-actions/surve
 export { MatrixRow } from "../react/components/matrix/row";
 export { Skeleton } from "../react/components/skeleton";
 export { NotifierComponent } from "../react/components/notifier";
+export { CharacterCounterComponent } from "../react/components/character-counter";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

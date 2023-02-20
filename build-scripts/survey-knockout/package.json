@@ -20,7 +20,8 @@
     "defaultV2.min.css",
     "survey.ko.d.ts",
     "survey.ko.js",
-    "survey.ko.min.js"
+    "survey.ko.min.js",
+    "ts3.4/survey.ko.d.ts"
   ],
   "main": "survey.ko.js",
   "repository": {
@@ -28,6 +29,13 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey.ko.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "dependencies": {
     "knockout": "^3.5.1"
   }

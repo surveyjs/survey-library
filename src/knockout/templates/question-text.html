@@ -24,4 +24,8 @@
     event: { keydown: koOnKeyDown, keyup: koOnKeyUp, change: koOnChange, compositionupdate: koOnCompositeUpdate, blur: koOnBlur },
     value: question.koReadOnlyValue,
     css: question.getControlClass()"/>
+  <!--ko if: question.getMaxLength() -->
+  <!-- ko component: { name: 'sv-character-counter', params: { counter: question.characterCounter, remainingCharacterCounter: question.cssClasses.remainingCharacterCounter } } -->
+  <!-- /ko -->
+  <!--/ko-->
 </script>

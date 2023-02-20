@@ -42,7 +42,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.hasOther && question.isOtherSelected -->
-      <div class="form-group" data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
+      <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
       <!-- /ko -->
     </fieldset>
 </script>

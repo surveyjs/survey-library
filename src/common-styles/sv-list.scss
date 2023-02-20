@@ -1,4 +1,6 @@
 $primary: var(--primary, #19b394);
+$primary-foreground: var(--primary-foreground, #fff);
+$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
@@ -121,10 +123,15 @@ $base-unit: var(--base-unit, 8px);
   background-color: $border;
 }
 
-.sv-list__item.sv-list__item--selected {
+.sv-list__item.sv-list__item--selected,
+.sv-list__item.sv-list__item--selected:hover,
+.sv-list__item.sv-list__item--selected.sv-list__item--focused,
+.sv-multi-select-list .sv-list__item.sv-list__item--selected.sv-list__item--focused,
+li:focus .sv-list__item.sv-list__item--selected {
   .sv-list__item-body {
     background-color: $primary;
-    color: $background;
+    color: $primary-foreground;
+    font-weight: 600;
   }
 
   .sv-list__item-icon use {
@@ -132,12 +139,12 @@ $base-unit: var(--base-unit, 8px);
   }
 }
 
-.sv-list__item.sv-list__item--selected.sv-list__item--focused,
-.sv-list__item.sv-list__item--selected:hover,
-li:focus .sv-list__item.sv-list__item--selected {
+.sv-multi-select-list .sv-list__item.sv-list__item--selected,
+.sv-multi-select-list .sv-list__item.sv-list__item--selected:hover {
   .sv-list__item-body {
-    background-color: $primary;
-    color: $primary-foreground;
+    background-color: $primary-light;
+    color: $foreground;
+    font-weight: 400;
   }
 }
 

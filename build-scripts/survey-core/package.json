@@ -33,7 +33,8 @@
     "plugins/bootstrap-integration.min.js",
     "plugins/bootstrap-material-integration.d.ts",
     "plugins/bootstrap-material-integration.js",
-    "plugins/bootstrap-material-integration.min.js"
+    "plugins/bootstrap-material-integration.min.js",
+    "ts3.4/survey.core.d.ts"
   ],
   "main": "survey.core.js",
   "repository": {
@@ -41,5 +42,12 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey.core.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "dependencies": {}
 }

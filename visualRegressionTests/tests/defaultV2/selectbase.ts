@@ -128,4 +128,32 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("radiogroup-state-hover-near.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check checkbox with comment long area", async(t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "checkbox",
+                "choices": [
+                  "choice1"
+                ],
+                "hasComment": true,
+                "name": "q1",
+                "commentText": "Please feel free to share your thoughts in the comment box down below"
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "600px"
+      });
+      await resetFocusToBody();
+      await takeElementScreenshot("checkbox-with-long-comment-text.png", Selector(".sd-question"), t, comparer);
+
+    });
+  });
 });

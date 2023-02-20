@@ -101,6 +101,19 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires an update of its CSS classes.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A composite question.
+   * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A nested question.
+   * - `cssClasses`: `any`\
+   * An object with CSS classes applied to a nested question, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
+   */
+  onUpdateQuestionCssClasses?(question: Question, element: Question, cssClasses: any): void;
+  /**
    * A function that is called when a custom question type property is changed. Use it to handle property changes.
    *
    * Parameters:
@@ -217,6 +230,10 @@ export class ComponentQuestionJSON {
   ) {
     if (!this.json.onAfterRenderContentElement) return;
     this.json.onAfterRenderContentElement(question, element, htmlElement);
+  }
+  public onUpdateQuestionCssClasses(question: Question, element: Question, css: any): void {
+    if (!this.json.onUpdateQuestionCssClasses) return;
+    this.json.onUpdateQuestionCssClasses(question, element, css);
   }
   public onPropertyChanged(
     question: Question,
@@ -418,6 +435,11 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onAfterRender(this, el);
     }
   }
+  protected onUpdateQuestionCssClasses(element: Question, css: any): void {
+    if (!!this.customQuestion) {
+      this.customQuestion.onUpdateQuestionCssClasses(this, element, css);
+    }
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
@@ -564,7 +586,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;
-    var res = null;
+    var res: any = null;
     if (!!json.questionJSON) {
       var qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
@@ -583,6 +605,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       if (!res.name) {
         res.name = "question";
       }
+      res.onUpdateCssClassesCallback = (css: any): void => {
+        this.onUpdateQuestionCssClasses(res, css);
+      };
     }
 
     return res;
@@ -760,6 +785,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;
+    res.questions.forEach(q => q.onUpdateCssClassesCallback = (css: any): void => {
+      this.onUpdateQuestionCssClasses(q, css);
+    });
     this.setAfterRenderCallbacks(res);
     return res;
   }

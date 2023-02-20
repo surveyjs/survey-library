@@ -10,6 +10,7 @@ import { PopupPointerComponent } from "./components/popup/popup-pointer.componen
 import { PopupComponent } from "./components/popup/popup.component";
 import { PopupBaseContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
+import { CharacterCounterComponent } from "./components/character-counter/character-counter.component";
 import { DropdownComponent } from "./components/dropdown/dropdown.component";
 import { TagboxFilterComponent } from "./components/tagbox/tagbox-filter.component";
 import { TagboxItemComponent } from "./components/tagbox/tagbox-item.component";
@@ -45,6 +46,7 @@ import { SurveyHeaderComponent } from "./components/survey-header/survey-header.
 import { DynamicHeadComponent } from "./components/element-title/dynamic-head.component";
 import { ListComponent } from "./components/list/list.component";
 import { ListItemComponent } from "./components/list/list-item.component";
+import { RatingItemComponent } from "./components/rating/rating-item.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
@@ -109,9 +111,10 @@ import { NotifierComponent } from "./components/notifier/notifier.component";
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
+    CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    ListComponent, ListItemComponent,
+    ListComponent, ListItemComponent, RatingItemComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
@@ -131,7 +134,7 @@ import { NotifierComponent } from "./components/notifier/notifier.component";
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    ListComponent, ListItemComponent,
+    ListComponent, ListItemComponent, RatingItemComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,

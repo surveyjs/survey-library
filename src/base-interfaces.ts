@@ -108,6 +108,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     errors: Array<SurveyError>
   ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
+  getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
   getElementTitleTagName(element: Base, tagName: string): string;
   questionTitlePattern: string;
@@ -248,8 +249,8 @@ export interface ISurveyElement extends IShortcutText {
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
-  get isCollapsed(): boolean;
-  get isExpanded(): boolean;
+  isCollapsed: boolean;
+  isExpanded: boolean;
   expand(): void;
   collapse(): void;
 }

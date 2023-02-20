@@ -3301,6 +3301,8 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "# 2");
   survey.questionStartIndex = "1.2";
   assert.equal(question.no, "1.3");
+  survey.questionStartIndex = "1.01";
+  assert.equal(question.no, "1.02");
   survey.onGetQuestionNo.add(function (sender, options) {
     options.no = "a.b." + (options.question.visibleIndex + 1) + ")";
   });
@@ -5359,6 +5361,29 @@ QUnit.test("Survey text preprocessing complex data without question, issue #4434
   survey.data = { complex: { value1: "complexText" } };
   const question = <QuestionTextModel>survey.getQuestionByName("q1");
   assert.equal(question.fullTitle, "complexText", "The complex value is preprocessed correctly");
+});
+
+QUnit.test("Survey text preprocessing: survey.onGetQuestionDisplayValue", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", title: "Q1" },
+      { type: "text", name: "q2", title: "q1: {q1}" }
+    ]
+  });
+  survey.onGetQuestionDisplayValue.add((sender, options) => {
+    if(options.question.isEmpty()) {
+      options.displayValue = "{" + options.question.title + "}";
+    } else {
+      options.displayValue = "[" + options.displayValue + "]";
+    }
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.displayValue, "{Q1}", "Empty value");
+  assert.equal(q2.locTitle.renderedHtml, "q1: {Q1}", "title for empty value");
+  q1.value = "val1";
+  assert.equal(q1.displayValue, "[val1]", "value=val1");
+  assert.equal(q2.locTitle.renderedHtml, "q1: [val1]", "title for value=val1");
 });
 
 QUnit.test("Survey Markdown - dropdown.choices", function (assert) {

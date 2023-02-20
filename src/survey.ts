@@ -7223,12 +7223,12 @@ export class SurveyModel extends SurveyElementCore
         }
       } else if(isStrCiEqual(addon.id, "navigation")) {
         if(container === "innertop") {
-          if(this.isNavigationButtonsShowingOnTop) {
+          if(["top", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnTop) {
             addons.push(addon);
           }
         }
         if(container === "innerbottom") {
-          if(this.isNavigationButtonsShowingOnBottom) {
+          if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
             addons.push(addon);
           }
         }

@@ -9,6 +9,7 @@ import { settings } from "./settings";
 import { IsTouch } from "./utils/devices";
 
 export class DropdownMultiSelectListModel extends DropdownListModel {
+  protected popupCssClasses = "sv-multi-select-list";
 
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
@@ -29,14 +30,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private getSelectedActions() {
     return this.listModel.actions.filter(item => item.selected);
   }
-  protected override getFocusFirstInputSelector(): string {
-    if((<MultiSelectListModel<ItemValue>>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
+  protected getFocusFirstInputSelector(): string {
+    if ((<MultiSelectListModel<ItemValue>>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
       return this.itemSelector;
     } else {
       return super.getFocusFirstInputSelector();
     }
   }
-  protected override createListModel(): MultiSelectListModel<ItemValue> {
+  protected createListModel(): MultiSelectListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
@@ -64,10 +65,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   private get shouldResetAfterCancel() {
     return IsTouch && !this.closeOnSelect;
   }
-  protected override createPopup(): void {
+  protected createPopup(): void {
     super.createPopup();
     this.popupModel.onFooterActionsCreated.add((_, opt) => {
-      if(this.shouldResetAfterCancel) {
+      if (this.shouldResetAfterCancel) {
         opt.actions[0].needSpace = true;
         opt.actions = [<IAction>{
           id: "sv-dropdown-done-button",
@@ -79,12 +80,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       }
     });
     this.popupModel.onVisibilityChanged.add((_, opt: { isVisible: boolean }) => {
-      if(this.shouldResetAfterCancel && opt.isVisible) {
+      if (this.shouldResetAfterCancel && opt.isVisible) {
         this.previousValue = [].concat(this.question.renderedValue || []);
       }
     });
     this.popupModel.onCancel = () => {
-      if(this.shouldResetAfterCancel) {
+      if (this.shouldResetAfterCancel) {
         this.question.renderedValue = this.previousValue;
         this.updateListState();
       }

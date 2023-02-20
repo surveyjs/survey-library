@@ -528,7 +528,7 @@ jobs:
       displayName: "Build Angular"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/examples/angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/example
         npm install
       displayName: "NPM install examples/angular-ui"
 

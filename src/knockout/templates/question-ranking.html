@@ -38,7 +38,7 @@
           </svg>
         </div>
         <div
-          data-bind="css: question.cssClasses.itemIndex, text: question.getNumberByIndex($index())"
+          data-bind="css: question.getItemIndexClasses(), text: question.getNumberByIndex($index())"
         ></div>
         <div data-bind="css: question.cssClasses.controlLabel">
           <!-- ko template: { name: 'survey-string', data: $data.locText } -->

@@ -105,11 +105,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return defaultListCss;
   }
 
-  public onItemClick = (itemValue: T) => {
-    if (this.isItemDisabled(itemValue)) {
+  public onItemClick = (itemValue: T): void => {
+    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
       return;
     }
-
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;

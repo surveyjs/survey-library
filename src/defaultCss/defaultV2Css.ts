@@ -159,6 +159,7 @@ export var defaultV2Css = {
     titleRequired: "sd-question__title--required",
     indent: 20,
     footer: "sd-question__footer",
+    commentArea: "sd-question__comment-area",
     formGroup: "sd-question__form-group",
     hasError: "sd-question--error",
     collapsed: "sd-element--collapsed",
@@ -276,6 +277,8 @@ export var defaultV2Css = {
     root: "sd-input sd-text",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    content: "sd-text__content sd-question__content",
+    remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
   },
   multipletext: {
@@ -448,6 +451,8 @@ export var defaultV2Css = {
     root: "sd-input sd-comment",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    content: "sd-comment__content sd-question__content",
+    remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
   },
   expression: "sd-expression",
@@ -527,6 +532,7 @@ export var defaultV2Css = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty sd-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",

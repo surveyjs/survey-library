@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group">
+  <div :class="question.getCommentAreaCss(true)">
     <textarea
       v-if="!question.isReadOnlyRenderDiv()"
       :id="question.otherId"

@@ -8062,3 +8062,49 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
   assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
 });
+QUnit.test("Do not run total expressions if matrix is read-only, bug#5644", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 1
+      },
+      {
+        type: "text",
+        name: "q2",
+        defaultValue: 2
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        readOnly: true,
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            inputType: "number",
+            defaultValue: 1,
+            totalExpression: "{q1} + {q2}"
+          },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "{row.col1} + 10"
+          }
+        ],
+        rowCount: 1,
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const expQuestion = matrix.visibleRows[0].cells[1].question;
+  const totalQuestion = matrix.visibleTotalRow.cells[0].question;
+  assert.equal(expQuestion.isReadOnly, true, "Expression question is readOnly");
+  assert.equal(expQuestion.isEmpty(), true, "Expression question is empty");
+  assert.equal(totalQuestion.isReadOnly, false, "Total Expression question is readOnly");
+  assert.equal(totalQuestion.isEmpty(), false, "Total Expression question is empty");
+  assert.deepEqual(survey.data, {
+    q1: 1, q2: 2, "matrix-total": { col1: 3 },
+    "matrix": [{ "col1": 1 }] }, "Data set in survey correctly.");
+});

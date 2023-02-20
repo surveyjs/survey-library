@@ -159,6 +159,7 @@ export var modernCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
@@ -230,6 +231,7 @@ export var modernCss = {
   text: {
     root: "sv-text",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
     onError: "sv-text--error",
   },
   multipletext: {
@@ -368,6 +370,7 @@ export var modernCss = {
   comment: {
     root: "sv-comment",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
   },
   expression: "",
   file: {

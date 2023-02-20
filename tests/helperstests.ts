@@ -329,6 +329,8 @@ QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11."), "1.2.13.", "2/1.2.11.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.01"), "1.03", "2/1.02");
+  assert.equal(Helpers.getNumberByIndex(2, "01"), "03.", "2/01");
 });
 
 class ObjectWithDecoratedProperties extends Base {

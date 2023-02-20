@@ -2,7 +2,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../build/angular-ui",
+    "outDir": "./example/dist/angular-ui",
     "baseUrl": ".",
     "noImplicitAny": false,
     "types": [
@@ -13,14 +13,13 @@
         "../../build/survey-core"
       ],
       "survey-angular-ui": [
-        "../../build/survey-angular-ui/survey-angular-ui",
-        "../../build/survey-angular-ui"
+        "./build"
       ]
     }
   },
   "files": [
-    "../../examples/angular-ui/src/main.ts",
-    "../../examples/angular-ui/src/polyfills.ts",
+    "./example/src/main.ts",
+    "./example/src/polyfills.ts",
   ],
   "include": [
     "src/**/*.d.ts"

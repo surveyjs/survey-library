@@ -45,6 +45,55 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
+      name: "Test checkbox question markup Other option (defaultV2)",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "choices": [
+              "item1",
+            ],
+            "hasOther": true,
+            "defaultValue": "other",
+            "otherText": "Other (describe)",
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before() {
+        StylesManager.applyTheme("defaultV2");
+      },
+      after() {
+        StylesManager.applyTheme("default");
+      },
+      snapshot: "checkbox-other-V2",
+    },
+    {
+      name: "Test checkbox question markup with comment (defaultV2)",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "choices": [
+              "item1",
+            ],
+            "hasComment": true,
+            "commentText": "Other (describe)",
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before() {
+        StylesManager.applyTheme("defaultV2");
+      },
+      after() {
+        StylesManager.applyTheme("default");
+      },
+      snapshot: "checkbox-comment-V2",
+    },
+    {
       name: "Test checkbox question markup Read only",
       json: {
         mode: "display",

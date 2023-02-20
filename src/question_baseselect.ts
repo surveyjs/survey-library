@@ -849,8 +849,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return !this.customWidget && settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
-      this.isDesignMode && !this.isContentElement;
+    return settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
+      this.isDesignMode && !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
     options: {
@@ -964,6 +964,9 @@ export class QuestionSelectBase extends Question {
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
         res.push(choices[i]);
       }
+    }
+    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+      res.push(new ItemValue(question.otherItem.value, question.comment));
     }
     return res;
   }
@@ -1614,6 +1617,20 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
+  }
+  public clickItemHandler(item: ItemValue, checked: boolean): void {
+    const newValue: Array<any> = [].concat(this.renderedValue || []);
+    const index = newValue.indexOf(item.value);
+    if (checked) {
+      if (index < 0) {
+        newValue.push(item.value);
+      }
+    } else {
+      if (index > -1) {
+        newValue.splice(index, 1);
+      }
+    }
+    this.renderedValue = newValue;
   }
   protected onParentChanged() {
     super.onParentChanged();

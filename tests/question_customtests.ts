@@ -1942,3 +1942,47 @@ QUnit.test("Composite: merge data, Bug#5583", function (assert) {
   assert.deepEqual(q.value, { firstName: "John", lastName: "Doe" });
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: Change css rules for content question", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "text" },
+    onUpdateQuestionCssClasses: (question: Question, element: Question, css: any) => {
+      css.root = "css_question";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.contentQuestion.cssClasses.root, "css_question", "Set the css correctly");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: Change css rules for content questions", function (assert) {
+  const json = {
+    name: "fullname",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+    onLoaded: (question) => {
+      const firstName = question.contentPanel.getQuestionByName("firstName");
+      firstName.value = "Jon";
+    },
+    onUpdateQuestionCssClasses: (question: Question, element: Question, css: any) => {
+      if(element.name === "firstName") {
+        css.root = "css_question1";
+      }
+      if(element.name === "lastName") {
+        css.root = "css_question2";
+      }
+    }
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "fullname", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(q.contentPanel.questions[0].cssClasses.root, "css_question1", "Set the css correctly, #1");
+  assert.equal(q.contentPanel.questions[1].cssClasses.root, "css_question2", "Set the css correctly, #2");
+  ComponentCollection.Instance.clear();
+});

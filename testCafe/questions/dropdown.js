@@ -186,9 +186,11 @@ frameworks.forEach((framework) => {
     await setOptions("car", { choicesOrder: "asc" });
     await checkIntegrity(t);
 
+    await setOptions("car", { value: null });
     await setOptions("car", { choicesOrder: "desc" });
     await checkIntegrity(t);
 
+    await setOptions("car", { value: null });
     await setOptions("car", { choicesOrder: "random" });
     await checkIntegrity(t);
   });

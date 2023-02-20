@@ -100,6 +100,10 @@ export var settings = {
    */
   ratingMaximumRateValueCount: 20,
   /**
+   * Default CloseOnSelect for tagbox
+   */
+  tagboxCloseOnSelect: false,
+  /**
    * Disable the question while choices are getting from the web service
    */
   disableOnGettingChoicesFromWeb: false,

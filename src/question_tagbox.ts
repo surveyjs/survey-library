@@ -6,6 +6,7 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { EventBase } from "./base";
+import { settings } from "./settings";
 
 /**
  * A Model for a tagbox question
@@ -148,7 +149,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: false },
+    { name: "closeOnSelect:boolean", default: settings.tagboxCloseOnSelect },
     { name: "itemComponent", visible: false, default: "" }
   ],
   function () {

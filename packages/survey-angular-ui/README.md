@@ -14,7 +14,7 @@
 
 A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your Angular applications.
 
-> **NOTE**: This package requires Angular v13.0.0 or newer. With earlier Angular versions, you can use an [obsolete Knockout-powered SurveyJS Angular Form Library version](https://www.npmjs.com/package/survey-angular).
+> **NOTE**: This package requires Angular v13.0.0 or newer. With earlier Angular versions, you can use an [obsolete Knockout-dependent SurveyJS Angular Form Library version](https://www.npmjs.com/package/survey-angular).
 
 ## Features
 

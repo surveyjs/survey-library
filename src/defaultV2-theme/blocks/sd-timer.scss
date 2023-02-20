@@ -1,6 +1,7 @@
 .sd-timer {
   z-index: 2;
   float: right;
+  align-self: flex-end;
   position: sticky;
   bottom: calc(var(--sd-timer-size) / 144 * 32);
   background: white;

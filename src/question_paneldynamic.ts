@@ -1217,26 +1217,26 @@ export class QuestionPanelDynamicModel extends Question
       )
       : null;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
-    var hasContext = !!context
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
+    const hasContext = !!context
       ? context === true || this.template.questions.indexOf(context) > -1
       : false;
-    var prefixName = this.getValueName() + "[0].";
-    var prefixText = this.processedTitle + "[0].";
-    var panelObjs = new Array<IConditionObject>();
-    var questions = this.template.questions;
+    const panelObjs = new Array<IConditionObject>();
+    const questions = this.template.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].addConditionObjectsByContext(panelObjs, context);
     }
-    for (var i = 0; i < panelObjs.length; i++) {
-      objects.push({
-        name: prefixName + panelObjs[i].name,
-        text: prefixText + panelObjs[i].text,
-        question: panelObjs[i].question,
-      });
+    for(var index = 0; index < settings.panelDynamicMaxPanelCountInCondition; index++) {
+      const indexStr = "[" + index + "].";
+      const prefixName = this.getValueName() + indexStr;
+      const prefixText = this.processedTitle + indexStr;
+      for (var i = 0; i < panelObjs.length; i++) {
+        objects.push({
+          name: prefixName + panelObjs[i].name,
+          text: prefixText + panelObjs[i].text,
+          question: panelObjs[i].question,
+        });
+      }
     }
     if (hasContext) {
       const prefixName = context === true ? this.getValueName() + "." : "";

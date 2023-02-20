@@ -1166,6 +1166,7 @@ export class Question extends SurveyElement<Question>
     return "";
   }
   public onSurveyLoad(): void {
+    this.isCustomWidgetRequested = false;
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
     if (this.isEmpty()) {

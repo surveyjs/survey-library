@@ -1466,7 +1466,8 @@ export class SurveyModel extends SurveyElementCore
     this.addons.push({
       id: "timerpanel",
       template: "survey-timerpanel",
-      data: this
+      component: "sv-timerpanel",
+      data: this.timerModel
     });
     this.addons.push({
       id: "progress-buttons",

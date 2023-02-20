@@ -6,7 +6,7 @@
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'top' } }"></ng-template>
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnTop && !model.isShowStartingPage">
-          <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
+          <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
         <!-- <ng-container *ngIf="model.isShowProgressBarOnTop && !model.isShowStartingPage">
           <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
@@ -34,7 +34,7 @@
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
         </div>
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
-            <sv-timer-panel [model]="model.timerModel"></sv-timer-panel>
+            <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'bottom' } }"></ng-template>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"

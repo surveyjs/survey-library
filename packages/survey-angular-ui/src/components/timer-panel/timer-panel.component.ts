@@ -4,7 +4,7 @@ import { BaseAngular } from "../../base-angular";
 
 @Component(
   {
-    selector: "sv-timer-panel",
+    selector: "sv-timerpanel",
     templateUrl: "./timer-panel.component.html",
   }
 )

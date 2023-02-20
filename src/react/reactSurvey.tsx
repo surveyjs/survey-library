@@ -115,10 +115,10 @@ export class Survey extends SurveyElementBase<any, any>
           <div className={this.css.container}>
             {header}
             <ComponentsContainer survey={this.survey} container={"top"}></ComponentsContainer>
-            {this.renderTimerPanel("top")}
+            {/* {this.renderTimerPanel("top")} */}
             {/* {topProgress} */}
             {renderResult}
-            {this.renderTimerPanel("bottom")}
+            {/* {this.renderTimerPanel("bottom")} */}
             <ComponentsContainer survey={this.survey} container={"bottom"}></ComponentsContainer>
           </div>
         </form>
@@ -199,14 +199,14 @@ export class Survey extends SurveyElementBase<any, any>
       </div>
     );
   }
-  protected renderTimerPanel(location: string) {
-    if(this.survey.isShowStartingPage) return null;
-    if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
-      return null;
-    if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
-      return null;
-    return <SurveyTimerPanel timerModel={this.survey.timerModel} />;
-  }
+  // protected renderTimerPanel(location: string) {
+  //   if(this.survey.isShowStartingPage) return null;
+  //   if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
+  //     return null;
+  //   if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
+  //     return null;
+  //   return <SurveyTimerPanel timerModel={this.survey.timerModel} />;
+  // }
   protected renderPage(page: PageModel): JSX.Element {
     return (
       <SurveyPage

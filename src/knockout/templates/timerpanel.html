@@ -1,20 +1,20 @@
 <script type="text/html" id="survey-timerpanel">
-    <!-- ko if: timerModel.showTimerAsClock -->
-    <div data-bind="css: timerModel.rootCss">
-        <!-- ko if: timerModel.showProgress -->
-        <svg data-bind="css: timerModel.getProgressCss(), style: { strokeDasharray: 440, strokeDashoffset: -440 * timerModel.progress }">
+    <!-- ko if: showTimerAsClock -->
+    <div data-bind="css: rootCss">
+        <!-- ko if: showProgress -->
+        <svg data-bind="css: getProgressCss(), style: { strokeDasharray: 440, strokeDashoffset: -440 * progress }">
             <use data-bind="attr:{'xlink:href': '#icon-timercircle'}" xlink:href=''></use>
         </svg>
         <!-- /ko -->
-        <div data-bind="css: timerModel.textContainerCss">
-            <span data-bind="css: timerModel.majorTextCss, text: timerModel.clockMajorText"></span>
-            <!-- ko if: !!timerModel.minorTextCss -->
-            <span data-bind="css: timerModel.minorTextCss, text: timerModel.clockMinorText"></span>
+        <div data-bind="css: textContainerCss">
+            <span data-bind="css: majorTextCss, text: clockMajorText"></span>
+            <!-- ko if: !!minorTextCss -->
+            <span data-bind="css: minorTextCss, text: clockMinorText"></span>
             <!-- /ko -->
         </div>
     </div>
     <!-- /ko -->
-    <!-- ko if: !timerModel.showTimerAsClock -->
-    <div data-bind="css: timerModel.survey.getCss().timerRoot, text: timerModel.text"></div>
+    <!-- ko if: !showTimerAsClock -->
+    <div data-bind="css: survey.getCss().timerRoot, text: text"></div>
     <!--/ko -->
 </script>

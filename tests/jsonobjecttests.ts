@@ -257,6 +257,13 @@ class TestDeclaredProps extends Car {
   @property({ localizable: { defaultStr: "completeText" } }) str3: string;
 }
 
+class DefaultValueClassObj extends Base {
+  @property() prop1: number;
+  public getType(): string {
+    return "defaultvaluefunctest";
+  }
+}
+
 Serializer.addClass(
   "dealer",
   [
@@ -394,16 +401,20 @@ Serializer.addProperty("customtruck", {
 Serializer.addClass(
   "customdealer",
   [{ name: "defaultValue", visible: false }],
-  null,
+  undefined,
   "dealer"
 );
 
 Serializer.addClass(
   "camelDealer",
   [{ name: "defaultValue", visible: false }],
-  null,
+  undefined,
   "dealer"
 );
+let defaultValueForProp1 = 5;
+Serializer.addClass("defaultvaluefunctest", [{ name: "prop1",
+  defaultFunc: () => { return defaultValueForProp1; } }],
+() => { return new DefaultValueClassObj(); }, "base");
 
 class CheckGetPropertyValue {
   public directProp: string;
@@ -2933,4 +2944,10 @@ QUnit.test("QuestionMatrixModel and commentPlaceholder property, Bug#5569", func
     elements: [{ type: "matrix", name: "q1", commentPlaceholder: "comment_text" }]
   });
   assert.equal(survey.getQuestionByName("q1").commentPlaceholder, "comment_text", "Loaded correctly");
+});
+QUnit.test("Add defaultFunc attribute support, Bug#5615", function (assert) {
+  const obj = new DefaultValueClassObj();
+  assert.equal(obj.prop1, 5, "The default value is 5");
+  defaultValueForProp1 = 7;
+  assert.equal(obj.prop1, 7, "The default value is 7 now");
 });

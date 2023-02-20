@@ -314,7 +314,9 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-radio__decorator"
+    materialDecorator: "sd-item__decorator sd-radio__decorator",
+    hintPrefix: "sd-dropdown__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix"
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",

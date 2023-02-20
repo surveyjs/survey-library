@@ -112,10 +112,12 @@ export class DropdownListModel extends Base {
   private setFilterStringToListModel(newValue: string): void {
     this.listModel.filterString = newValue;
     this.listModel.resetFocusedItem();
+    if (this.question.selectedItem && this.question.selectedItem.text.indexOf(newValue) >= 0) {
+      this.listModel.focusedItem = <any>this.getAvailableItems().filter(item => item.id == this.question.selectedItem.value)[0];
+      return;
+    }
     if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
-      if(this.listModel.actions.length == 1) {
-        this.listModel.focusFirstVisibleItem();
-      }
+      this.listModel.focusFirstVisibleItem();
     }
   }
 
@@ -231,6 +233,22 @@ export class DropdownListModel extends Base {
     }
   }) hasScroll: boolean;
 
+  public get showHintPrefix(): boolean {
+    return !!this.filterString.length && this.listModel.focusedItem && this.listModel.focusedItem.locTitle.calculatedText.indexOf(this.filterString) > 0;
+  }
+  public get hintStringPrefix(): string {
+    if (!this.filterString.length) return null;
+    const focusedText = this.listModel.focusedItem.locTitle.calculatedText;
+    return focusedText.substring(0, focusedText.indexOf(this.filterString));
+  }
+  public get showHintString(): boolean {
+    return !!this.filterString.length && this.listModel.focusedItem && this.listModel.focusedItem.locTitle.calculatedText.toLowerCase() != this.filterString.toLowerCase();
+  }
+  public get hintStringSuffix(): string {
+    if (!this.filterString.length) return null;
+    const focusedText = this.listModel.focusedItem.locTitle.calculatedText;
+    return focusedText.substring(focusedText.toLowerCase().indexOf(this.filterString.toLowerCase()) + this.filterString.length);
+  }
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.listModel = this.createListModel();

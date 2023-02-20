@@ -292,3 +292,52 @@ QUnit.test("Check dropdown list model is updated from value", function (assert) 
   question.value = "item2";
   assert.ok(list.isItemSelected(list.actions.filter(item => item.id === "item2")[0]));
 });
+
+QUnit.test("filterString and focusedItem", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(dropdownListModel.inputMode, "text");
+  assert.equal(list.renderedActions.length, 28);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 28);
+
+  dropdownListModel.filterString = "1";
+  assert.equal(list.focusedItem.id, "item1");
+
+  dropdownListModel.filterString = "";
+  question.value = "item11";
+  debugger;
+  dropdownListModel.filterString = "1";
+  assert.equal(list.focusedItem.id, "item11");
+});
+
+QUnit.test("hintString test", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(dropdownListModel.inputMode, "text");
+  assert.notOk(dropdownListModel.showHintPrefix, "no filter, hint prefix hidden");
+  assert.notOk(dropdownListModel.showHintString, "no filter, hint hidden");
+
+  debugger;
+  dropdownListModel.filterString = "It";
+  assert.notOk(dropdownListModel.showHintPrefix, "filter from start, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "filter from start, hint visible");
+  assert.equal(dropdownListModel.hintStringSuffix, "em1", "filter from start, hint suffix correct");
+
+  dropdownListModel.filterString = "te";
+  assert.ok(dropdownListModel.showHintPrefix, "filter from middle, hint prefix visible");
+  assert.ok(dropdownListModel.showHintString, "filter from middle, hint visible");
+  assert.equal(dropdownListModel.hintStringPrefix, "i", "filter from middle, hint prefix correct");
+  assert.equal(dropdownListModel.hintStringSuffix, "m1", "filter from middle, hint suffix correct");
+
+  question.value = "item3";
+  dropdownListModel.filterString = "it";
+  assert.notOk(dropdownListModel.showHintPrefix, "filter from start with value, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "filter from start with value, hint visible");
+  assert.equal(dropdownListModel.hintStringSuffix, "em3", "filter from start with value, hint suffix correct");
+});

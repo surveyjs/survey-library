@@ -17,7 +17,7 @@ import { Trigger } from "./trigger";
 
 export interface IOnTriggerExecutedOptions {
   /**
-   * [`Trigger`](https://surveyjs.io/form-library/documentation/api-reference/trigger) - A trigger that has been executed.
+   * A trigger that has been executed.
    */
   trigger: Trigger;
 }

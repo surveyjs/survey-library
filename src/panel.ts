@@ -350,7 +350,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see isRequired
    */
   public get requiredText(): string {
-    return this.survey != null && this.isRequired
+    return !!this.survey && this.isRequired
       ? this.survey.requiredText
       : "";
   }
@@ -1942,7 +1942,8 @@ export class PanelModel extends PanelModelBase implements IElement {
       return super.needResponsiveWidth();
     }
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
   public getContainerCss() {

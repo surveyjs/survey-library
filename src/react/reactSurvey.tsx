@@ -104,22 +104,15 @@ export class Survey extends SurveyElementBase<any, any>
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
 
-    // var topProgress = this.survey.isShowProgressBarOnTop && !this.survey.isShowStartingPage
-    //   ? this.renderProgress(true)
-    //   : null;
-
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
         <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>
             {header}
-            <ComponentsContainer survey={this.survey} container={"top"}></ComponentsContainer>
-            {/* {this.renderTimerPanel("top")} */}
-            {/* {topProgress} */}
+            <ComponentsContainer survey={this.survey} container={"header"}></ComponentsContainer>
             {renderResult}
-            {/* {this.renderTimerPanel("bottom")} */}
-            <ComponentsContainer survey={this.survey} container={"bottom"}></ComponentsContainer>
+            <ComponentsContainer survey={this.survey} container={"footer"}></ComponentsContainer>
           </div>
         </form>
         { this.survey.showBrandInfo ? <BrandInfo/> : null }
@@ -168,9 +161,6 @@ export class Survey extends SurveyElementBase<any, any>
     const isStaring = this.survey.isShowStartingPage;
     var pageId = this.survey.activePage ? this.survey.activePage.id : "";
 
-    // var bottomProgress = this.survey.isShowProgressBarOnBottom && !isStaring
-    //   ? this.renderProgress(false)
-    //   : null;
     let className = this.survey.bodyCss;
     if (!activePage) {
       className = this.css.bodyEmpty;
@@ -188,25 +178,14 @@ export class Survey extends SurveyElementBase<any, any>
           className={className}
           style={style}
         >
-          <ComponentsContainer survey={this.survey} container={"innertop"}></ComponentsContainer>
-          {/* {this.renderNavigation("top")} */}
+          <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
           {activePage}
-          {/* {bottomProgress}
-          {this.renderNavigation("bottom")} */}
-          <ComponentsContainer survey={this.survey} container={"innerbottom"}></ComponentsContainer>
+          <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
         </div>
         <ComponentsContainer survey={this.survey} container={"right"}></ComponentsContainer>
       </div>
     );
   }
-  // protected renderTimerPanel(location: string) {
-  //   if(this.survey.isShowStartingPage) return null;
-  //   if (location === "top" && !this.survey.isTimerPanelShowingOnTop)
-  //     return null;
-  //   if (location === "bottom" && !this.survey.isTimerPanelShowingOnBottom)
-  //     return null;
-  //   return <SurveyTimerPanel timerModel={this.survey.timerModel} />;
-  // }
   protected renderPage(page: PageModel): JSX.Element {
     return (
       <SurveyPage
@@ -217,22 +196,6 @@ export class Survey extends SurveyElementBase<any, any>
       />
     );
   }
-  // protected renderProgress(isTop: boolean): JSX.Element | null {
-  //   return ReactElementFactory.Instance.createElement(
-  //     "sv-progress-" + this.survey.progressBarType.toLowerCase(),
-  //     { survey: this.survey, css: this.css, isTop: isTop }
-  //   );
-  // }
-  // protected renderNavigation(navPosition: string): JSX.Element | null {
-  //   if (
-  //     this.survey.isNavigationButtonsShowing !== "both" &&
-  //     (this.survey.isNavigationButtonsShowing === "none" ||
-  //       this.survey.isNavigationButtonsShowing !== navPosition)
-  //   ) {
-  //     return null;
-  //   }
-  //   return <SurveyActionBar model={this.survey.navigationBar} />;
-  // }
   protected renderEmptySurvey(): JSX.Element {
     return <span>{this.survey.emptySurveyText}</span>;
   }

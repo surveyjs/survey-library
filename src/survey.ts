@@ -14,8 +14,8 @@ import {
   ISurveyElement,
   IProgressInfo,
   IFindElement,
-  ISurveyAddon,
-  AddonContainer
+  ISurveyLayoutElement,
+  LayoutElementContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -1463,38 +1463,38 @@ export class SurveyModel extends SurveyElementCore
       action: () => { this.doComplete(); }
     }, "error");
 
-    this.addons.push({
+    this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
       component: "sv-timerpanel",
       data: this.timerModel
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
       data: this
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "progress-questions",
       component: "sv-progress-questions",
       data: this
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "progress-pages",
       component: "sv-progress-pages",
       data: this
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "progress-correctQuestions",
       component: "sv-progress-correctquestions",
       data: this
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "progress-requiredQuestions",
       component: "sv-progress-requiredquestions",
       data: this
     });
-    this.addons.push({
+    this.layoutElements.push({
       id: "navigation",
       component: "sv-action-bar",
       data: this.navigationBar
@@ -7182,64 +7182,65 @@ export class SurveyModel extends SurveyElementCore
     return this.skeletonComponentName;
   }
 
-  @propertyArray() private addons: Array<ISurveyAddon>;
+  @propertyArray() private layoutElements: Array<ISurveyLayoutElement>;
 
-  public registerAddon(addon: ISurveyAddon): ISurveyAddon {
-    const existingAddon = this.unregisterAddon(addon.id);
-    this.addons.push(addon);
-    return existingAddon;
+  public addLayoutElement(layoutElement: ISurveyLayoutElement): ISurveyLayoutElement {
+    const existingLayoutElement = this.removeLayoutElement(layoutElement.id);
+    this.layoutElements.push(layoutElement);
+    return existingLayoutElement;
   }
-  public unregisterAddon(addonId: string): ISurveyAddon {
-    const addon = this.addons.filter(a => a.id === addonId)[0];
-    if(!!addon) {
-      const addonIndex = this.addons.indexOf(addon);
+  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+    const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
+    if(!!layoutElement) {
+      const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
+      this.layoutElements.splice(layoutElementIndex, 1);
     }
-    return addon;
+    return layoutElement;
   }
 
-  public getContainerContent(container: AddonContainer) {
-    const addons = [];
-    for(let addon of this.addons) {
-      if(isStrCiEqual(addon.id, "timerpanel")) {
-        if(container === "top") {
+  public getContainerContent(container: LayoutElementContainer) {
+    const containerLayoutElements = [];
+    for(let layoutElement of this.layoutElements) {
+      if(isStrCiEqual(layoutElement.id, "timerpanel")) {
+        if(container === "header") {
           if(this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "bottom") {
+        if(container === "footer") {
           if(this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(addon.id, "progress-" + this.progressBarType)) {
-        if(container === "top") {
+      } else if(isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+        if(container === "header") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "innerbottom") {
+        if(container === "contentBottom") {
           if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(addon.id, "navigation")) {
-        if(container === "innertop") {
+      } else if(isStrCiEqual(layoutElement.id, "navigation")) {
+        if(container === "contentTop") {
           if(["top", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnTop) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "innerbottom") {
+        if(container === "contentBottom") {
           if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
-            addons.push(addon);
+            containerLayoutElements.push(layoutElement);
           }
         }
       } else {
-        if(Array.isArray(addon.container) && addon.container.indexOf(container) !== -1 || addon.container === container) {
-          addons.push(addon);
+        if(Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
+          containerLayoutElements.push(layoutElement);
         }
       }
     }
-    return addons;
+    return containerLayoutElements;
   }
 
   /**

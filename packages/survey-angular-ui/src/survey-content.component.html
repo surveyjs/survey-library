@@ -4,7 +4,7 @@
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
-        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'top' } }"></ng-template>
+        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header' } }"></ng-template>
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnTop && !model.isShowStartingPage">
           <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
@@ -14,7 +14,7 @@
         <div [class]="model.bodyContainerCss">
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'left' } }"></ng-template>
           <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
-            <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'innertop' } }"></ng-template>
+            <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
             <!-- <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnTop" [model]="model.navigationBar"></sv-action-bar> -->
             <!-- ko if: activePage -->
               <ng-container *ngIf="model.activePage">
@@ -29,14 +29,14 @@
               <ng-template [component]='{ name: "sv-progress-" + this.model.progressBarType, data: { model } }'></ng-template>
             </ng-container>
             <sv-action-bar *ngIf="model.isNavigationButtonsShowingOnBottom" [model]="model.navigationBar"></sv-action-bar>   -->
-            <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'innerbottom' } }"></ng-template>
+            <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
           </div>
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
         </div>
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
             <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
-        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'bottom' } }"></ng-template>
+        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer' } }"></ng-template>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
         <div *ngIf="model.state === 'completedbefore'" [class]="model.css.body"

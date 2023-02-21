@@ -342,11 +342,11 @@ export interface IFindElement {
   str: LocalizableString;
 }
 
-export type AddonContainer = "top" | "bottom" | "both" | "left" | "right" | "innertop" | "innerbottom";
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
 
-export interface ISurveyAddon {
+export interface ISurveyLayoutElement {
   id: string;
-  container?: AddonContainer | Array<AddonContainer>;
+  container?: LayoutElementContainer | Array<LayoutElementContainer>;
   component?: string;
   template?: string;
   data?: any;

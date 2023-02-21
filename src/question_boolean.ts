@@ -5,6 +5,7 @@ import { LocalizableString } from "./localizablestring";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/utils";
+import { ActionContainer } from "./actions/container";
 
 /**
  * A class that describes the Boolean question type.
@@ -278,6 +279,9 @@ export class QuestionBooleanModel extends Question {
   }
   protected getCompactRenderAs(): string {
     return "radio";
+  }
+  protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
+    return super.createActionContainer(this.renderAs !== "checkbox");
   }
 }
 

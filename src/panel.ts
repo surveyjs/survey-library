@@ -350,7 +350,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see isRequired
    */
   public get requiredText(): string {
-    return this.survey != null && this.isRequired
+    return !!this.survey && this.isRequired
       ? this.survey.requiredText
       : "";
   }
@@ -1942,7 +1942,8 @@ export class PanelModel extends PanelModelBase implements IElement {
       return super.needResponsiveWidth();
     }
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
   public getContainerCss() {
@@ -2006,8 +2007,8 @@ Serializer.addClass(
     },
     { name: "startWithNewLine:boolean", default: true },
     "width",
-    { name: "minWidth", default: "auto" },
-    { name: "maxWidth", default: settings.maxWidth },
+    { name: "minWidth", defaultFunc: () => "auto" },
+    { name: "maxWidth", defaultFunc: () => settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {

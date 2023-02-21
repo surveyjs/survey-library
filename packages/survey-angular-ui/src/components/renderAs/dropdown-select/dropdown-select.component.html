@@ -10,6 +10,6 @@
     </select>
     <div *ngIf="model.isReadOnly" disabled [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
   </div>
-  <div *ngIf=" model.isOtherSelected" class="form-group"
+  <div *ngIf="model.isOtherSelected" [class]="model.getCommentAreaCss(true)"
     [style.display]="model.isFlowLayout ? 'inline': '' " [question]="model" sv-ng-comment-other></div>
 </div>

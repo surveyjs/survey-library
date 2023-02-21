@@ -359,6 +359,19 @@ export class SurveyModel extends SurveyElementCore
    */
   public onProcessHtml: EventBase<SurveyModel, IOnProcessHtmlOptions> = this.addEvent<SurveyModel, IOnProcessHtmlOptions>();
   /**
+   * Use this event to change a question's display text.
+   *
+   * Parameters:
+   *
+   * - `sender`: `SurveyModel`\
+   * A survey instance that raised the event.
+   * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
+   * A Question instance for which the event is raised.
+   * - `options.displayValue`: `String`\
+   * A question's display text. You can assign a custom value to this parameter.
+   */
+  public onGetQuestionDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
    * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * @see showQuestionNumbers
    * @see requiredText
@@ -653,6 +666,20 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixCellValidate: EventBase<SurveyModel, IOnMatrixCellValidateOptions> = this.addEvent<SurveyModel, IOnMatrixCellValidateOptions>();
 
+  /**
+   * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
+   * - `sender`: `SurveyModel` - A survey instance that raised the event.
+   * - `options.question` - a matrix question.
+   * - `options.column` - a new added column.
+   */
+  public onMatrixColumnAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  /**
+   * An event that is raised on adding a new item in Multiple Text question.
+   * - `sender`: `SurveyModel` - A survey instance that raised the event.
+   * - `options.question` - a multiple text question.
+   * - `options.item` - a new added item.
+   */
+  public onMultipleTextItemAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
   /**
    * An event that is raised after a new panel is added to a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
@@ -1624,6 +1651,11 @@ export class SurveyModel extends SurveyElementCore
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }
+  getQuestionDisplayValue(question: IElement, displayValue: any): any {
+    const options = { question: question, displayValue: displayValue };
+    this.onGetQuestionDisplayValue.fire(this, options);
+    return options.displayValue;
+  }
   /**
    * Returns the text displayed when a survey has no visible pages and questions.
    */
@@ -2142,7 +2174,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
-  public get showQuestionNumbers(): string {
+  public get showQuestionNumbers(): string | boolean {
     return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string | boolean) {
@@ -4232,6 +4264,12 @@ export class SurveyModel extends SurveyElementCore
   }
   matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
     this.onMatrixRowAdded.fire(this, { question: question, row: row });
+  }
+  matrixColumnAdded(question: IQuestion, column: any): void {
+    this.onMatrixColumnAdded.fire(this, { question: question, column: column });
+  }
+  multipleTextItemAdded(question: IQuestion, item: any): void {
+    this.onMultipleTextItemAdded.fire(this, { question: question, item: item });
   }
   getQuestionByValueNameFromArray(
     valueName: string,

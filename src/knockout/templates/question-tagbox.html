@@ -3,8 +3,8 @@
     <!-- ko component: { name: 'sv-tagbox', params: { question: question } } -->
     <!-- /ko -->
   <!-- ko if: question.isOtherSelected -->
-  <div class="form-group"
-    data-bind="template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">
+  <div
+    data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">
   </div>
   <!-- /ko -->
   </div>

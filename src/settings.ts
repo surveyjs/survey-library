@@ -87,6 +87,10 @@ export var settings = {
    */
   matrixMaxRowCountInCondition: 1,
   /**
+   * Maximum panelCount that returns in addConditionObjectsByContext function
+   */
+  panelDynamicMaxPanelCountInCondition: 1,
+  /**
    * Set this property to false, to render matrix dynamic remove action as button.
    * It is rendered as icon in new themes ("defaultV2") by default.
    */
@@ -231,7 +235,7 @@ export var settings = {
    */
   customIcons: {},
   /**
-   * Specifies which part of a choice item item responds to a drag gesture in Ranking questions.
+   * Specifies which part of a choice item responds to a drag gesture in Ranking questions.
    *
    * Possible values:
    *
@@ -263,6 +267,7 @@ export var settings = {
       "week",
     ],
     dataList: [
+      "",
       "name",
       "honorific-prefix",
       "given-name",

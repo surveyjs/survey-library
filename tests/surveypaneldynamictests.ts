@@ -15,6 +15,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
 import { StylesManager } from "../src/stylesmanager";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1525,6 +1526,14 @@ QUnit.test(
   }
 );
 
+function updateObjsQuestions(objs: Array<any>): void {
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
+  }
+}
 QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   var objs = [];
   var panel = new QuestionPanelDynamicModel("qPanel");
@@ -1536,45 +1545,25 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   question.addItem("item2");
   panel.template.addQuestion(question);
   panel.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
-      {
-        name: "qPanel[0].q2.item1",
-        text: "Question Panel[0].Question 2.item1",
-        question: "q2",
-      },
-      {
-        name: "qPanel[0].q2.item2",
-        text: "Question Panel[0].Question 2.item2",
-        question: "q2",
-      },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" }
     ],
     "addConditionObjectsByContext work correctly for panel dynamic"
   );
   objs = [];
   panel.addConditionObjectsByContext(objs, q1);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
-      {
-        name: "qPanel[0].q2.item1",
-        text: "Question Panel[0].Question 2.item1",
-        question: "q2",
-      },
-      {
-        name: "qPanel[0].q2.item2",
-        text: "Question Panel[0].Question 2.item2",
-        question: "q2",
-      },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
       {
         name: "panel.q2.item1",
         text: "panel.Question 2.item1",
@@ -1590,26 +1579,13 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
   );
   objs = [];
   panel.addConditionObjectsByContext(objs, true);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
-      objs[i].context = objs[i].context.name;
-    }
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
-      {
-        name: "qPanel[0].q2.item1",
-        text: "Question Panel[0].Question 2.item1",
-        question: "q2",
-      },
-      {
-        name: "qPanel[0].q2.item2",
-        text: "Question Panel[0].Question 2.item2",
-        question: "q2",
-      },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
       { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
       {
         name: "qPanel.panel.q2.item1",
@@ -1624,6 +1600,141 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
     ],
     "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
+});
+
+QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", function(assert) {
+  settings.panelDynamicMaxPanelCountInCondition = 0;
+  var objs = [];
+  var panel = new QuestionPanelDynamicModel("qPanel");
+  panel.title = "Question Panel";
+  var q1 = panel.template.addNewQuestion("text", "q1");
+  var question = new QuestionMultipleTextModel("q2");
+  question.title = "Question 2";
+  question.addItem("item1");
+  question.addItem("item2");
+  panel.template.addQuestion(question);
+  panel.addConditionObjectsByContext(objs, null);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs, [], "addConditionObjectsByContext work correctly for panel dynamic");
+  objs = [];
+  panel.addConditionObjectsByContext(objs, q1);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "panel.q2.item1",
+        text: "panel.Question 2.item1",
+        question: "q2",
+      },
+      {
+        name: "panel.q2.item2",
+        text: "panel.Question 2.item2",
+        question: "q2",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, true);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
+      {
+        name: "qPanel.panel.q2.item1",
+        text: "Question Panel.panel.Question 2.item1",
+        question: "q2", context: "qPanel"
+      },
+      {
+        name: "qPanel.panel.q2.item2",
+        text: "Question Panel.panel.Question 2.item2",
+        question: "q2", context: "qPanel"
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
+  );
+  settings.panelDynamicMaxPanelCountInCondition = 1;
+});
+
+QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 2;", function(assert) {
+  settings.panelDynamicMaxPanelCountInCondition = 2;
+  var objs = [];
+  var panel = new QuestionPanelDynamicModel("qPanel");
+  panel.title = "Question Panel";
+  var q1 = panel.template.addNewQuestion("text", "q1");
+  var question = new QuestionMultipleTextModel("q2");
+  question.title = "Question 2";
+  question.addItem("item1");
+  question.addItem("item2");
+  panel.template.addQuestion(question);
+  panel.addConditionObjectsByContext(objs, null);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
+      { name: "qPanel[1].q1", text: "Question Panel[1].q1", question: "q1" },
+      { name: "qPanel[1].q2.item1", text: "Question Panel[1].Question 2.item1", question: "q2" },
+      { name: "qPanel[1].q2.item2", text: "Question Panel[1].Question 2.item2", question: "q2" }
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, q1);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
+      { name: "qPanel[1].q1", text: "Question Panel[1].q1", question: "q1" },
+      { name: "qPanel[1].q2.item1", text: "Question Panel[1].Question 2.item1", question: "q2" },
+      { name: "qPanel[1].q2.item2", text: "Question Panel[1].Question 2.item2", question: "q2" },
+      {
+        name: "panel.q2.item1",
+        text: "panel.Question 2.item1",
+        question: "q2",
+      },
+      {
+        name: "panel.q2.item2",
+        text: "panel.Question 2.item2",
+        question: "q2",
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, true);
+  updateObjsQuestions(objs);
+  assert.deepEqual(
+    objs,
+    [
+      { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
+      { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
+      { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
+      { name: "qPanel[1].q1", text: "Question Panel[1].q1", question: "q1" },
+      { name: "qPanel[1].q2.item1", text: "Question Panel[1].Question 2.item1", question: "q2" },
+      { name: "qPanel[1].q2.item2", text: "Question Panel[1].Question 2.item2", question: "q2" },
+      { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
+      {
+        name: "qPanel.panel.q2.item1",
+        text: "Question Panel.panel.Question 2.item1",
+        question: "q2", context: "qPanel"
+      },
+      {
+        name: "qPanel.panel.q2.item2",
+        text: "Question Panel.panel.Question 2.item2",
+        question: "q2", context: "qPanel"
+      },
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
+  );
+  settings.panelDynamicMaxPanelCountInCondition = 1;
 });
 
 QUnit.test("matrixDynamic.getConditionJson", function(assert) {
@@ -4580,6 +4691,30 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   panel.isMobile = true;
   assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });
+QUnit.test("paneldynamic add new button is not visible for progress render mode, bug#5600", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "progress_panel",
+        renderMode: "progressTopBottom",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(addBtn.isVisible, true, "It is visible by default");
+  panel.addPanel();
+  for(var i = 0; i < 4; i ++) {
+    panel.addPanel();
+    assert.equal(addBtn.isVisible, true, "It is visible by default");
+  }
+  assert.equal(panel.panelCount, 5, "We have 5 panels");
+});
+
 QUnit.test("call locationChangedCallback for cell question", function(
   assert
 ) {

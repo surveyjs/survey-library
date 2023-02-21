@@ -339,7 +339,7 @@ export class QuestionRatingModel extends Question {
   get searchEnabled(): boolean {
     return false;
   }
-  public get renderedValue(): boolean {
+  public get renderedValue(): any {
     return this.value;
   }
   public set renderedValue(val: any) {

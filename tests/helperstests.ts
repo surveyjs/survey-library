@@ -306,6 +306,17 @@ QUnit.test("Helpers.isNumber", function(assert) {
     "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
   );
 });
+QUnit.test("Helpers.getNumber", function(assert) {
+  assert.equal(Helpers.getNumber("1"), 1, "1 is a number");
+  assert.equal(Helpers.getNumber("23.3"), 23.3, "23.3 is a number");
+  assert.equal(Helpers.getNumber("23,3"), 23.3, "23,3 is a number");
+  assert.equal(isNaN(Helpers.getNumber("abcd")), true, "abcd is not a number");
+  assert.equal(
+    isNaN(Helpers.getNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8")),
+    true,
+    "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
+  );
+});
 QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(0, "1."), "1.", "0/1.");
   assert.equal(Helpers.getNumberByIndex(2, "1."), "3.", "2/3.");
@@ -318,6 +329,8 @@ QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11."), "1.2.13.", "2/1.2.11.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.01"), "1.03", "2/1.02");
+  assert.equal(Helpers.getNumberByIndex(2, "01"), "03.", "2/01");
 });
 
 class ObjectWithDecoratedProperties extends Base {

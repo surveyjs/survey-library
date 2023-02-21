@@ -381,7 +381,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType == "number" || this.inputType == "range") {
-      return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
+      return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
     return newValue;
   }
@@ -400,9 +400,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (
-      !Helpers.isTwoValueEquals(this.value, newValue)
-    ) {
+    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }
@@ -412,6 +410,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }, 1);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyUp = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -424,6 +423,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -438,9 +438,11 @@ export class QuestionTextModel extends QuestionTextBase {
     } else {
       this.updateValueOnEvent(event);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onBlur = (event: any): void => {
     this.updateValueOnEvent(event);
+    this.updateRemainingCharacterCounter(event.target.value);
   };
 }
 
@@ -490,7 +492,7 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   }
   if(obj.inputType === "number") {
     if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
-    if(parseFloat(min) > parseFloat(max)) return isMax ? min : max;
+    if(Helpers.getNumber(min) > Helpers.getNumber(max)) return isMax ? min : max;
   }
   if(typeof min === "string" || typeof max === "string") return val;
   if(min > max) return isMax ? min : max;

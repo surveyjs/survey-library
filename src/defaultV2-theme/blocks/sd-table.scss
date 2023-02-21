@@ -10,6 +10,14 @@
   }
 }
 .sd-table--alternate-rows {
+  margin: 0 8px;
+  width: calc(100% - 2 * #{$base-unit});
+  .sd-table__cell:first-of-type {
+    padding-left: calcSize(2);
+  }
+  .sd-table__cell:last-of-type {
+    padding-right: calcSize(2);
+  }
   .sd-table__row:nth-of-type(odd) {
     & > td,
     td:first-of-type {
@@ -33,6 +41,10 @@
   text-align: center;
 }
 .sd-table__cell--item {
+  .sd-selectbase__item {
+    text-align: center;
+  }
+
   .sd-selectbase__label {
     justify-content: center;
   }
@@ -271,7 +283,9 @@
     display: block;
     padding-top: 0;
     padding-bottom: 0;
+    text-align: left;
   }
+
   .sd-table__cell:not(.sd-matrix__cell):not(:first-of-type) {
     margin-top: calcSize(1);
   }

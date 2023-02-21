@@ -14,18 +14,3 @@
     padding-inline: calcSize(2) calcSize(8);
   }
 }
-
-.sd-list__item--selected.sd-list__item--selected .sd-list__item-body {
-  background-color: $primary-light;
-  color: $foreground;
-}
-
-.sd-list__item--selected {
-  &:hover,
-  &:focus {
-    .sd-list__item-body {
-      background-color: $primary;
-      color: $primary-foreground;
-    }
-  }
-}

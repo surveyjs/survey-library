@@ -358,21 +358,20 @@ body .sv-list__input:disabled {
 body .sv-list__input:disabled::placeholder {
   color: var(--foreground-disabled, $foreground-disabled);
 }
-body .sv-list__item--selected {
-  background: rgba(25, 179, 148, 0.1);
-  color: var(--foreground-disabled, $foreground-disabled);
-}
-body .sv-list__item--selected.sv-list__item--focused {
-  background-color: var(--main-color, $main-color);
-  color: var(--inputs-background-color, $inputs-background-color);
-}
+body .sv-list__item--selected,
+body .sv-list__item--selected:hover,
+body .sv-list__item--selected.sv-list__item--focused,
 body .sv-list__item--selected:focus {
   background-color: var(--main-color, $main-color);
   color: var(--inputs-background-color, $inputs-background-color);
+  font-weight: 600;
 }
-body .sv-list__item--selected:hover {
-  background-color: var(--main-color, $main-color);
-  color: var(--inputs-background-color, $inputs-background-color);
+
+body .sv-multi-select-list .sv-list__item--selected,
+body .sv-multi-select-list .sv-list__item--selected:hover {
+  background: rgba(25, 179, 148, 0.1);
+  color: var(--foreground-disabled, $foreground-disabled);
+  font-weight: 400;
 }
 //eo list
 .sv-skeleton-element {

@@ -65,7 +65,7 @@ function getParamsAsArray(value: any, arr: any[]) {
     }
   } else {
     if (Helpers.isNumber(value)) {
-      value = parseFloat(value);
+      value = Helpers.getNumber(value);
     }
     arr.push(value);
   }
@@ -135,7 +135,7 @@ function getInArrayParams(params: any[]): any {
 }
 
 function convertToNumber(val: any): number {
-  if(typeof val === "string") return Helpers.isNumber(val) ? parseFloat(val) : undefined;
+  if(typeof val === "string") return Helpers.isNumber(val) ? Helpers.getNumber(val) : undefined;
   return val;
 }
 function processItemInArray(item: any, name: string, res: number,

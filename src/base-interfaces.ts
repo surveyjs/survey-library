@@ -109,6 +109,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     errors: Array<SurveyError>
   ): void;
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void;
+  getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
   getElementTitleTagName(element: Base, tagName: string): string;
   questionTitlePattern: string;
@@ -182,6 +183,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
   getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
+  matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
     question: IQuestion,
     canAddRow: boolean,
@@ -200,6 +202,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   matrixCellValueChanging(question: IQuestion, options: any): any;
   isValidateOnValueChanging: boolean;
   isValidateOnValueChanged: boolean;
+  multipleTextItemAdded(question: IQuestion, item: any): void;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
   dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): void;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
@@ -247,8 +250,8 @@ export interface ISurveyElement extends IShortcutText {
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
-  get isCollapsed(): boolean;
-  get isExpanded(): boolean;
+  isCollapsed: boolean;
+  isExpanded: boolean;
   expand(): void;
   collapse(): void;
 }

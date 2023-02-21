@@ -154,7 +154,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.cssClasses.itemIndex}>{this.indexText}</div>
+            <div className={this.question.getItemIndexClasses()}>{this.indexText}</div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

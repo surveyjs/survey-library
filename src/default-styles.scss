@@ -508,7 +508,7 @@ f-panel {
   visibility: hidden;
 }
 
-.sv-ranking-item:hover .sv-ranking-item__icon--hover {
+.sv-ranking-item:hove:not(:focus) .sv-ranking-item__icon--hover {
   visibility: visible;
 }
 
@@ -522,7 +522,6 @@ f-panel {
 
 .sv-ranking-item:focus .sv-ranking-item__icon--focus {
   visibility: visible;
-  top: 15px;
 }
 
 .sv-ranking-item:focus .sv-ranking-item__index {

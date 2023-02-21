@@ -942,3 +942,31 @@ QUnit.test("show comment and show other together", assert => {
   question.showCommentArea = true;
   assert.equal(question.getStoreOthersAsComment(), false, "show comment again");
 });
+
+QUnit.test("ItemValue: check action fields", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      itemComponent: "custom-component",
+      defaultValue: "Item1",
+      "choices": [{ text: "Item 1", value: "Item1" }, { text: "Item 2", value: "Item2" }]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.visibleChoices[0].component, "custom-component");
+  assert.equal(question.visibleChoices[0].locTitle.text, "Item 1");
+  assert.equal(question.visibleChoices[0].title, "Item 1");
+  assert.equal(question.visibleChoices[0].id, "Item1");
+  assert.equal(question.visibleChoices[0].visible, true);
+  question.visibleChoices[0].setIsVisible(false);
+  assert.equal(question.visibleChoices[0].visible, false);
+  assert.equal(question.visibleChoices[0].enabled, true);
+  question.visibleChoices[0].setIsEnabled(false);
+  assert.equal(question.visibleChoices[0].enabled, false);
+  assert.equal(question.visibleChoices[0].selected, true);
+  assert.equal(question.visibleChoices[1].selected, false);
+  question.value = "Item2";
+  assert.equal(question.visibleChoices[0].selected, false);
+  assert.equal(question.visibleChoices[1].selected, true);
+});

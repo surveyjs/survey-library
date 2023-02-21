@@ -184,6 +184,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public ownerPropertyName: string = "";
   //private itemValue: any;
+  @property({ defaultValue: true}) private _visible: boolean;
   private locTextValue: LocalizableString;
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
@@ -425,10 +426,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.setIsEnabled(val);
   }
   protected getVisible(): boolean {
-    return this.isVisible;
+    const isVisible = this.isVisible === undefined ? true : this.isVisible;
+    const visible = this._visible === undefined ? true : this._visible;
+    return isVisible && visible;
   }
   protected setVisible(val: boolean): void {
-    this.setIsVisible(val);
+    this._visible = val;
   }
   protected getLocTitle(): LocalizableString {
     return this.locText;

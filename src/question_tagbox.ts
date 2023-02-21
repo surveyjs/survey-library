@@ -77,6 +77,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
+  /**
+   * Specifies whether to close the drop-down menu after a user selects a value.
+   */
+  @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -149,7 +153,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: settings.tagboxCloseOnSelect },
+    { name: "closeOnSelect" },
     { name: "itemComponent", visible: false, default: "" }
   ],
   function () {

@@ -100,7 +100,8 @@ export var settings = {
    */
   ratingMaximumRateValueCount: 20,
   /**
-   * Default CloseOnSelect for tagbox
+   * Specifies whether to close the drop-down menu of a [TagBox](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) question after a user selects a value.
+   * This setting applies to all TagBox questions on a page. You can use the [closeOnSelect](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual TagBox question.
    */
   tagboxCloseOnSelect: false,
   /**

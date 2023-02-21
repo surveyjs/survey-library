@@ -20,15 +20,8 @@ import { BaseVue } from "../base";
 export class ComponentsContainer extends BaseVue {
   @Prop() survey: SurveyModel;
   @Prop() container: string;
-  components: Array<any>;
-  constructor() {
-    super();
-    this.components = this.survey.getContainerContent(this.container as any);
-  }
-  @Watch("survey")
-  @Watch("container")
-  onPropertyChanged(value: string, oldValue: string) {
-    this.components = this.survey.getContainerContent(this.container as any);
+  get components(): Array<any> {
+    return this.survey.getContainerContent(this.container as any);
   }
 }
 

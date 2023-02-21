@@ -1,7 +1,7 @@
 <!-- ko if: components.length > 0 -->
 <div data-bind="css: css">
   <!-- ko foreach: components -->
-  <!-- ko if: $data.component -->
+  <!-- ko if: $data.component && !$data.template -->
   <!-- ko component: { name: component, params: { survey: $parent.survey, model: $data.data } } -->
   <!-- /ko -->
   <!-- /ko -->

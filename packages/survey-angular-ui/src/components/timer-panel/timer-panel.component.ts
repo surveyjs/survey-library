@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { Base, SurveyTimerModel } from "survey-core";
 import { BaseAngular } from "../../base-angular";
+import { AngularComponentFactory } from "../../component-factory";
 
 @Component(
   {
@@ -26,3 +27,5 @@ export class TimerPanelComponent extends BaseAngular<SurveyTimerModel> {
     return -this.model.progress * this.circleLength;
   }
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-timerpanel", TimerPanelComponent);

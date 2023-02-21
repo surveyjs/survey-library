@@ -17,7 +17,7 @@ Follow the steps below to add a new localization dictionary:
     ```
 
 1. [Rebuild the library](../../README.md#build-the-surveyjs-form-library-from-sources).
-1. *(Optional)* Create a [pull request](https://github.com/surveyjs/survey-library/pulls) to share your dictionary with the community. After the PR is merged, your localization will be included into the next official release.
+1. *(Optional)* Create a [pull request](https://github.com/surveyjs/survey-library/pulls) to share your dictionary with the community. After the PR is merged, your localization will be included in the next official release.
 
 ## Update an Existing Dictionary
 
@@ -27,4 +27,4 @@ Follow the steps below to update an existing localization dictionary:
 1. Open the [`src/localization`](../localization/) directory and find the required dictionary.
 1. Change required translations.
 1. [Rebuild the library](../../README.md#build-the-surveyjs-form-library-from-sources).
-1. *(Optional)* Create a [pull request](https://github.com/surveyjs/survey-library/pulls) to share your translations with the community. After the PR is merged, your localization will be included into the next official release.
+1. *(Optional)* Create a [pull request](https://github.com/surveyjs/survey-library/pulls) to share your translations with the community. After the PR is merged, your localization will be included in the next official release.

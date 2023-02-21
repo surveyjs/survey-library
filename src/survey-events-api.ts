@@ -2,7 +2,6 @@ import { IAction } from "./actions/action";
 import { Base } from "./base";
 import { IElement, ISurveyElement } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
-import { QuestionMultipleText } from "./knockout/koquestion_multipletext";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { Question } from "./question";
@@ -11,6 +10,7 @@ import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { QuestionMultipleTextModel } from "./question_multipletext";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
@@ -1193,7 +1193,7 @@ export interface IOnMultipleTextItemAddedOptions {
   /**
    * A multiple text question.
    */
-  question: QuestionMultipleText;
+  question: QuestionMultipleTextModel;
   /**
    * A new added item.
    */

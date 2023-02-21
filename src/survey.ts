@@ -50,6 +50,7 @@ import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IO
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
+import { QuestionMultipleTextModel } from "./question_multipletext";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1636,7 +1637,7 @@ export class SurveyModel extends SurveyElementCore
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }
-  getQuestionDisplayValue(question: IElement, displayValue: any): any {
+  getQuestionDisplayValue(question: Question, displayValue: any): any {
     const options = { question: question, displayValue: displayValue };
     this.onGetQuestionDisplayValue.fire(this, options);
     return options.displayValue;
@@ -4250,10 +4251,10 @@ export class SurveyModel extends SurveyElementCore
   matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
     this.onMatrixRowAdded.fire(this, { question: question, row: row });
   }
-  matrixColumnAdded(question: IQuestion, column: any): void {
+  matrixColumnAdded(question: Question, column: any): void {
     this.onMatrixColumnAdded.fire(this, { question: question, column: column });
   }
-  multipleTextItemAdded(question: IQuestion, item: any): void {
+  multipleTextItemAdded(question: QuestionMultipleTextModel, item: any): void {
     this.onMultipleTextItemAdded.fire(this, { question: question, item: item });
   }
   getQuestionByValueNameFromArray(

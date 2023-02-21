@@ -159,6 +159,7 @@ export var modernCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",

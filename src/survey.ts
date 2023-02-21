@@ -117,6 +117,9 @@ export class SurveyModel extends SurveyElementCore
   //#region Event declarations
   /**
    * An event that is raised after a trigger is executed.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * For more information about triggers, refer to the following help topic: [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers).
    * @see triggers
    * @see runTriggers
@@ -132,6 +135,8 @@ export class SurveyModel extends SurveyElementCore
   public onCompleting: EventBase<SurveyModel, IOnCompletingOptions> = this.addEvent<SurveyModel, IOnCompletingOptions>();
   /**
    * An event that is raised after the survey is completed. Use this event to send survey results to the server.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
    *
@@ -160,6 +165,9 @@ export class SurveyModel extends SurveyElementCore
   public onStarted: EventBase<SurveyModel, IOnStartedOptions> = this.addEvent<SurveyModel, IOnStartedOptions>();
   /**
    * Use this event to save incomplete survey results. Enable the [`sendResultOnPageNext`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResultOnPageNext) property for this event to occur.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
    */
   public onPartialSend: EventBase<SurveyModel, IOnPartialSendOptions> = this.addEvent<SurveyModel, IOnPartialSendOptions>();
@@ -187,6 +195,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after a question value is changed
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelItemValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelItemValueChanged) event.
    * @see setValue
    */
@@ -201,6 +211,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after question visibility is changed.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onQuestionVisibleChanged: EventBase<SurveyModel, IOnQuestionVisibleChangedOptions> = this.addEvent<SurveyModel, IOnQuestionVisibleChangedOptions>();
@@ -212,11 +224,15 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after page visibility is changed.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onPageVisibleChanged: EventBase<SurveyModel, IOnPageVisibleChangedOptions> = this.addEvent<SurveyModel, IOnPageVisibleChangedOptions>();
   /**
    * An event that is raised after page visibility is changed.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
@@ -225,6 +241,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised when the survey creates any new object derived from [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question).
    *
    * In a survey, complex elements ([Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/), [Multiple Text](https://surveyjs.io/form-library/examples/questiontype-multipletext/), and [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)) are composed of questions. Use this event to customize any question regardless of which survey element it belongs to.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
    *
@@ -248,6 +266,8 @@ export class SurveyModel extends SurveyElementCore
   public onQuestionCreated: EventBase<SurveyModel, IOnQuestionCreatedOptions> = this.addEvent<SurveyModel, IOnQuestionCreatedOptions>();
   /**
    * An event that is raised when a new question is added to a panel or page.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * To use this event for questions loaded from JSON, create an empty survey model, add an event handler, and only then populate the model from the JSON object:
    *
@@ -289,6 +309,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised when a question value is being validated. Use this event to specify a custom error message.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-input-validation/ (linkStyle))
    * @see onServerValidateQuestions
    * @see onValidatePanel
@@ -304,6 +326,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Use this event to validate data on your server.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-server-side-form-validation/ (linkStyle))
    * @see onValidateQuestion
    * @see onValidatePanel
@@ -311,6 +335,8 @@ export class SurveyModel extends SurveyElementCore
   public onServerValidateQuestions: EventBase<SurveyModel, IOnServerValidateQuestionsOptions> = this.addEvent<SurveyModel, IOnServerValidateQuestionsOptions>();
   /**
    * An event that is raised when a panel is being validated. Use this event to specify a custom error message.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-input-validation/ (linkStyle))
    * @see onValidateQuestion
@@ -358,6 +384,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Use this event to process the markdown text.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/ (linkStyle))
    */
   public onTextMarkdown: EventBase<SurveyModel, IOnTextMarkdownOptions> = this.addEvent<SurveyModel, IOnTextMarkdownOptions>();
@@ -377,6 +405,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
@@ -387,6 +417,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised on downloading a file in QuestionFile. Use this event to pass the file to a preview.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
@@ -395,6 +427,8 @@ export class SurveyModel extends SurveyElementCore
   public onDownloadFile: EventBase<SurveyModel, IOnDownloadFileOptions> = this.addEvent<SurveyModel, IOnDownloadFileOptions>();
   /**
    * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
    * @see clearFiles
@@ -425,6 +459,8 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before rendering a question. Use it to override the default question CSS classes.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
    */
@@ -458,12 +494,16 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-afterrender/ (linkStyle))
    */
   public onAfterRenderPage: EventBase<SurveyModel, IOnAfterRenderPageOptions> = this.addEvent<SurveyModel, IOnAfterRenderPageOptions>();
 
   /**
    * An event that is raised right after a question is rendered in DOM. Use it to modify HTML elements.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-afterrender/ (linkStyle))
    */
@@ -493,7 +533,6 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * Use this event to change the visibility of an individual choice item in [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [Dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel), [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel), and other similar question types.
-   *
    */
   public onShowingChoiceItem: EventBase<SurveyModel, IOnShowingChoiceItemOptions> = this.addEvent<SurveyModel, IOnShowingChoiceItemOptions>();
 
@@ -501,6 +540,8 @@ export class SurveyModel extends SurveyElementCore
    * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
    *
    * This event is raised only for those questions that have the [`choicesLazyLoadEnabled`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesLazyLoadEnabled) property set to `true`.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    */
@@ -510,6 +551,8 @@ export class SurveyModel extends SurveyElementCore
    * Use this event to load a display text for the [default choice item](https://surveyjs.io/form-library/documentation/questiondropdownmodel#defaultValue) in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions.
    *
    * If you load choices from a server (use [`choicesByUrl`](https://surveyjs.io/form-library/documentation/questiondropdownmodel#choicesByUrl) or [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad)), display texts become available only when data is loaded, which does not happen until a user opens the drop-down menu. However, a display text for a default choice item is required before that. In this case, you can load data individually for the default item within the `onGetChoiceDisplayValue` event handler.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    */
@@ -662,11 +705,13 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * Use this event to create/customize actions to be displayed in a question's title.
-   * @see IAction
-   * @see Question
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
-   */
+   * @see IAction
+   * @see Question
+  */
   public onGetQuestionTitleActions: EventBase<SurveyModel, IOnGetQuestionTitleActionsOptions> = this.addEvent<SurveyModel, IOnGetQuestionTitleActionsOptions>();
 
   /**

@@ -2,6 +2,7 @@ import { IAction } from "./actions/action";
 import { Base } from "./base";
 import { IElement, ISurveyElement } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
+import { QuestionMultipleText } from "./knockout/koquestion_multipletext";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { Question } from "./question";
@@ -1186,4 +1187,35 @@ export interface IOnGetExpressionDisplayValueOptions {
    * The expression question
    */
   question: Question;
+}
+
+export interface IOnMultipleTextItemAddedOptions {
+  /**
+   * A multiple text question.
+   */
+  question: QuestionMultipleText;
+  /**
+   * A new added item.
+   */
+  item: any;
+}
+export interface IOnMatrixColumnAddedOptions {
+  /**
+   * A matrix question.
+   */
+  question: Question;
+  /**
+   * A new added column.
+   */
+  column: any;
+}
+export interface IOnGetQuestionDisplayValueOptions {
+  /**
+   * A Question instance for which the event is raised.
+   */
+  question: Question;
+  /**
+   * A question's display text. You can assign a custom value to this parameter.
+   */
+  displayValue: any;
 }

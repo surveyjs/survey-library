@@ -46,7 +46,7 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IOnShowingPreviewOptions, IOnNavigateToUrlOptions, IOnStartedOptions, IOnPartialSendOptions, IOnCurrentPageChangingOptions, IOnCurrentPageChangedOptions, IOnValueChangingOptions, IOnValueChangedOptions, IOnVariableChangedOptions, IOnQuestionVisibleChangedOptions, IOnPageVisibleChangedOptions, IOnPanelVisibleChangedOptions, IOnQuestionCreatedOptions, IOnQuestionAddedOptions, IOnQuestionRemovedOptions, IOnPanelAddedOptions, IOnPanelRemovedOptions, IOnPageAddedOptions, IOnValidateQuestionOptions, IOnSettingQuestionErrorsOptions, IOnValidatePanelOptions, IOnErrorCustomTextOptions, IOnValidatedErrorsOnCurrentPageOptions, IOnProcessHtmlOptions, IOnGetQuestionTitleOptions, IOnGetTitleTagNameOptions, IOnGetQuestionNoOptions, IOnProgressTextOptions, IOnTextMarkdownOptions, IOnTextRenderAsOptions, IOnSendResultOptions, IOnGetResultOptions, IOnUploadFilesOptions, IOnDownloadFileOptions, IOnClearFilesOptions, IOnLoadChoicesFromServerOptions, IOnLoadedSurveyFromServiceOptions, IOnProcessTextValueOptions, IOnUpdateQuestionCssClassesOptions, IOnUpdatePanelCssClassesOptions, IOnUpdatePageCssClassesOptions, IOnUpdateChoiceItemCssOptions, IOnAfterRenderSurveyOptions, IOnAfterRenderHeaderOptions, IOnAfterRenderPageOptions, IOnAfterRenderQuestionOptions, IOnAfterRenderQuestionInputOptions, IOnAfterRenderPanelOptions, IOnFocusInQuestionOptions, IOnFocusInPanelOptions, IOnShowingChoiceItemOptions, IOnChoicesLazyLoadOptions, IOnGetChoiceDisplayValueOptions, IOnMatrixRowAddedOptions, IOnMatrixBeforeRowAddedOptions, IOnMatrixRowRemovingOptions, IOnMatrixRowRemovedOptions, IOnMatrixAllowRemoveRowOptions, IOnMatrixCellCreatingOptions, IOnMatrixCellCreatedOptions, IOnMatrixAfterCellRenderOptions, IOnMatrixCellValueChangedOptions, IOnMatrixCellValueChangingOptions, IOnMatrixCellValidateOptions, IOnDynamicPanelAddedOptions, IOnDynamicPanelRemovedOptions, IOnDynamicPanelRemovingOptions, IOnTimerOptions, IOnTimerPanelInfoTextOptions, IOnDynamicPanelItemValueChangedOptions, IOnIsAnswerCorrectOptions, IOnDragDropAllowOptions, IOnScrollingElementToTopOptions, IOnLocaleChangedEventOptions, IOnGetQuestionTitleActionsOptions, IOnGetPanelTitleActionsOptions, IOnGetPageTitleActionsOptions, IOnGetPanelFooterActionsOptions, IOnGetMatrixRowActionsOptions, IOnElementContentVisibilityChangedOptions, IOnGetExpressionDisplayValueOptions, IOnServerValidateQuestionsOptions } from "./survey-events-api";
+import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IOnShowingPreviewOptions, IOnNavigateToUrlOptions, IOnStartedOptions, IOnPartialSendOptions, IOnCurrentPageChangingOptions, IOnCurrentPageChangedOptions, IOnValueChangingOptions, IOnValueChangedOptions, IOnVariableChangedOptions, IOnQuestionVisibleChangedOptions, IOnPageVisibleChangedOptions, IOnPanelVisibleChangedOptions, IOnQuestionCreatedOptions, IOnQuestionAddedOptions, IOnQuestionRemovedOptions, IOnPanelAddedOptions, IOnPanelRemovedOptions, IOnPageAddedOptions, IOnValidateQuestionOptions, IOnSettingQuestionErrorsOptions, IOnValidatePanelOptions, IOnErrorCustomTextOptions, IOnValidatedErrorsOnCurrentPageOptions, IOnProcessHtmlOptions, IOnGetQuestionTitleOptions, IOnGetTitleTagNameOptions, IOnGetQuestionNoOptions, IOnProgressTextOptions, IOnTextMarkdownOptions, IOnTextRenderAsOptions, IOnSendResultOptions, IOnGetResultOptions, IOnUploadFilesOptions, IOnDownloadFileOptions, IOnClearFilesOptions, IOnLoadChoicesFromServerOptions, IOnLoadedSurveyFromServiceOptions, IOnProcessTextValueOptions, IOnUpdateQuestionCssClassesOptions, IOnUpdatePanelCssClassesOptions, IOnUpdatePageCssClassesOptions, IOnUpdateChoiceItemCssOptions, IOnAfterRenderSurveyOptions, IOnAfterRenderHeaderOptions, IOnAfterRenderPageOptions, IOnAfterRenderQuestionOptions, IOnAfterRenderQuestionInputOptions, IOnAfterRenderPanelOptions, IOnFocusInQuestionOptions, IOnFocusInPanelOptions, IOnShowingChoiceItemOptions, IOnChoicesLazyLoadOptions, IOnGetChoiceDisplayValueOptions, IOnMatrixRowAddedOptions, IOnMatrixBeforeRowAddedOptions, IOnMatrixRowRemovingOptions, IOnMatrixRowRemovedOptions, IOnMatrixAllowRemoveRowOptions, IOnMatrixCellCreatingOptions, IOnMatrixCellCreatedOptions, IOnMatrixAfterCellRenderOptions, IOnMatrixCellValueChangedOptions, IOnMatrixCellValueChangingOptions, IOnMatrixCellValidateOptions, IOnDynamicPanelAddedOptions, IOnDynamicPanelRemovedOptions, IOnDynamicPanelRemovingOptions, IOnTimerOptions, IOnTimerPanelInfoTextOptions, IOnDynamicPanelItemValueChangedOptions, IOnIsAnswerCorrectOptions, IOnDragDropAllowOptions, IOnScrollingElementToTopOptions, IOnLocaleChangedEventOptions, IOnGetQuestionTitleActionsOptions, IOnGetPanelTitleActionsOptions, IOnGetPageTitleActionsOptions, IOnGetPanelFooterActionsOptions, IOnGetMatrixRowActionsOptions, IOnElementContentVisibilityChangedOptions, IOnGetExpressionDisplayValueOptions, IOnServerValidateQuestionsOptions, IOnMultipleTextItemAddedOptions, IOnMatrixColumnAddedOptions, IOnGetQuestionDisplayValueOptions } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
@@ -360,17 +360,8 @@ export class SurveyModel extends SurveyElementCore
   public onProcessHtml: EventBase<SurveyModel, IOnProcessHtmlOptions> = this.addEvent<SurveyModel, IOnProcessHtmlOptions>();
   /**
    * Use this event to change a question's display text.
-   *
-   * Parameters:
-   *
-   * - `sender`: `SurveyModel`\
-   * A survey instance that raised the event.
-   * - `options.question`: [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question)\
-   * A Question instance for which the event is raised.
-   * - `options.displayValue`: `String`\
-   * A question's display text. You can assign a custom value to this parameter.
    */
-  public onGetQuestionDisplayValue: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onGetQuestionDisplayValue: EventBase<SurveyModel, IOnGetQuestionDisplayValueOptions> = this.addEvent<SurveyModel, IOnGetQuestionDisplayValueOptions>();
   /**
    * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * @see showQuestionNumbers
@@ -668,18 +659,12 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
-   * - `sender`: `SurveyModel` - A survey instance that raised the event.
-   * - `options.question` - a matrix question.
-   * - `options.column` - a new added column.
    */
-  public onMatrixColumnAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onMatrixColumnAdded: EventBase<SurveyModel, IOnMatrixColumnAddedOptions> = this.addEvent<SurveyModel, IOnMatrixColumnAddedOptions>();
   /**
    * An event that is raised on adding a new item in Multiple Text question.
-   * - `sender`: `SurveyModel` - A survey instance that raised the event.
-   * - `options.question` - a multiple text question.
-   * - `options.item` - a new added item.
    */
-  public onMultipleTextItemAdded: EventBase<SurveyModel> = this.addEvent<SurveyModel>();
+  public onMultipleTextItemAdded: EventBase<SurveyModel, IOnMultipleTextItemAddedOptions> = this.addEvent<SurveyModel, IOnMultipleTextItemAddedOptions>();
   /**
    * An event that is raised after a new panel is added to a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */

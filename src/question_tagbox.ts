@@ -153,7 +153,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect" },
+    { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" }
   ],
   function () {

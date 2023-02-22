@@ -563,12 +563,42 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
         "item4",
         "item5"
       ]
+    },
+    {
+      type: "tagbox",
+      name: "question3",
+      hasOther: "true",
+      closeOnSelect: "false",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question4",
+      hasOther: "true",
+      closeOnSelect: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
     }]
   });
   const question1 = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const question2 = <QuestionTagboxModel>survey.getAllQuestions()[1];
+  const question3 = <QuestionTagboxModel>survey.getAllQuestions()[2];
+  const question4 = <QuestionTagboxModel>survey.getAllQuestions()[3];
   assert.equal(question1.closeOnSelect, false);
   assert.equal(question2.closeOnSelect, true);
+  assert.equal(question3.closeOnSelect, false);
+  assert.equal(question4.closeOnSelect, true);
 });
 
 QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {

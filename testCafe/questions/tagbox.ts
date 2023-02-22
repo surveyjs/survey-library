@@ -57,7 +57,6 @@ frameworks.forEach((framework) => {
 
       .click(questionTagbox)
       .click(getListItemByText("item20"))
-      .click(questionTagbox)
       .click(getListItemByText("item10"))
       .pressKey("esc")
       .expect(selectedItems.count).eql(2)

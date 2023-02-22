@@ -4789,9 +4789,7 @@ QUnit.test("customWidgets activation types changed", function (assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
-QUnit.test("assign customWidgets to matrix dynamic cell question", function (
-  assert
-) {
+QUnit.test("assign customWidgets to matrix dynamic cell question", function (assert) {
   CustomWidgetCollection.Instance.clear();
   CustomWidgetCollection.Instance.addCustomWidget({
     name: "first",
@@ -4799,6 +4797,9 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function (
       return question["renderAs"] === "testwidget";
     },
   });
+  const oldMartixDropdownRenderAsProperty = Serializer.getProperty("matrixdropdowncolumn", "renderAs");
+  const oldDropdownRenderAsProperty = Serializer.getProperty("dropdown", "renderAs");
+
   Serializer.addProperty("matrixdropdowncolumn", "renderAs");
   Serializer.addProperty("dropdown", {
     name: "renderAs",
@@ -4831,8 +4832,9 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function (
     "the second cell has no custom widget"
   );
 
-  Serializer.removeProperty("matrixdropdowncolumn", "renderAs");
-  Serializer.removeProperty("dropdown", "renderAs");
+  Serializer.addProperty("matrixdropdowncolumn", oldMartixDropdownRenderAsProperty);
+  Serializer.addProperty("dropdown", oldDropdownRenderAsProperty);
+
   CustomWidgetCollection.Instance.clear();
 });
 

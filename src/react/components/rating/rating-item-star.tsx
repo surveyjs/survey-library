@@ -23,8 +23,8 @@ export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
     return (
       <label
         className={this.question.getItemClass(this.item.itemValue)}
-        onMouseOver={this.question.onItemMouseIn(this.item)}
-        onMouseOut={this.question.onItemMouseOut(this.item)}
+        onMouseOver={e => this.question.onItemMouseIn(this.item)}
+        onMouseOut={e => this.question.onItemMouseOut(this.item)}
       >
         <input
           type="radio"

@@ -136,7 +136,7 @@ registerMarkupTests(
             type: "rating",
             title: "Question title",
             titleLocation: "hidden",
-            rateType: "star",
+            rateType: "stars",
             rateMax: 2,
           }
         ]

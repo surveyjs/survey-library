@@ -327,7 +327,7 @@ export class QuestionRatingModel extends Question {
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
-  public getItemClass(item: ItemValue, hovered: boolean = false) {
+  public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);

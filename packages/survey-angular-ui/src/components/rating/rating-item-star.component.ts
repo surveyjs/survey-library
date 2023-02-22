@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"],
 })
 
-export class RatingItemStarComponent extends BaseAngular {
+export class RatingItemStarComponent extends BaseAngular<RenderedRatingItem> {
   @Input() element: any;
   @Input() model!: QuestionRatingModel;
   @Input() item!: RenderedRatingItem;
@@ -21,7 +21,7 @@ export class RatingItemStarComponent extends BaseAngular {
   }
 
   getModel() {
-    return this.model;
+    return this.item;
   }
 }
 

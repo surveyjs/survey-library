@@ -74,8 +74,15 @@ legend+sv-ng-rating-item+.sd-rating__item {
   background: $background;
   width: calcSize(6);
   height: calcSize(6);
-  padding: calcSize(1);
-    margin: calcSize(-1);
+  &:not(:first-of-type) {
+      padding-left: calcSize(0.5);
+      margin-left: calcSize(-0.5);
+    }
+  
+    &:not(:last-of-type) {
+      padding-right: calcSize(0.5);
+      margin-right: calcSize(-0.5);
+    }
 
   svg {
     stroke: $border;

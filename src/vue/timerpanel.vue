@@ -1,5 +1,5 @@
 <template>
-  <div v-if="model.showTimerAsClock" :class="model.rootCss">
+  <div v-if="model.isRunning && model.showTimerAsClock" :class="model.rootCss">
     <svg
       v-if="model.showProgress"
       :class="model.getProgressCss()"
@@ -12,7 +12,7 @@
       <span v-if="!!model.clockMinorText" :class="model.minorTextCss">{{ model.clockMinorText }}</span>
     </div>
   </div>
-  <div v-else :class="model.survey.getCss().timerRoot">
+  <div v-else v-show="model.isRunning && !model.showTimerAsClock" :class="model.survey.getCss().timerRoot">
     {{ text }}
   </div>
 </template>

@@ -6775,10 +6775,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTimerPanel", val);
   }
   public get isTimerPanelShowingOnTop() {
-    return this.timerModel.isRunning && this.showTimerPanel == "top";
+    return this.showTimerPanel == "top";
   }
   public get isTimerPanelShowingOnBottom() {
-    return this.timerModel.isRunning && this.showTimerPanel == "bottom";
+    return this.showTimerPanel == "bottom";
   }
   /**
    * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.

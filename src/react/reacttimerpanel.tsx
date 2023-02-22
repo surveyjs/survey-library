@@ -18,7 +18,10 @@ export class SurveyTimerPanel extends ReactSurveyElement {
   private get progress(): number {
     return -this.timerModel.progress * this.circleLength;
   }
-  render(): JSX.Element {
+  render(): JSX.Element | null {
+    if(!this.timerModel.isRunning) {
+      return null;
+    }
     let result = <div className={this.timerModel.survey.getCss().timerRoot}>{this.timerModel.text}</div>;
     if(this.timerModel.showTimerAsClock) {
       let style = { strokeDasharray: this.circleLength, strokeDashoffset: this.progress };

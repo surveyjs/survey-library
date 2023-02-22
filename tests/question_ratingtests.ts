@@ -342,11 +342,12 @@ QUnit.test("check stars highlighting", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.mode = "display";
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemStar = "";
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+  q1.cssClasses.itemStarSelected = "";
+  q1.cssClasses.itemStarDisabled = "";
   q1.value = 2;
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
@@ -375,4 +376,45 @@ QUnit.test("check stars highlighting", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_unhigh");
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_unhigh");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseOut(q1.renderedRateItems[1]);
+  survey.mode = "display";
+  q1.onItemMouseIn(q1.renderedRateItems[1]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});
+
+QUnit.test("check stars styles", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "stars",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+  q1.cssClasses.itemStarSelected = "sv_q_selected";
+  q1.cssClasses.itemStarDisabled = "sv_q_disabled";
+  q1.value = 2;
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  survey.mode = "display";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
 });

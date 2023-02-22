@@ -21,7 +21,11 @@ export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
   }
   render(): JSX.Element | null {
     return (
-      <label className={this.question.getItemClass(this.item.itemValue)}>
+      <label
+        className={this.question.getItemClass(this.item.itemValue)}
+        onMouseOver={this.question.onItemMouseIn(this.item)}
+        onMouseOut={this.question.onItemMouseOut(this.item)}
+      >
         <input
           type="radio"
           className="sv-visuallyhidden"

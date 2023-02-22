@@ -231,7 +231,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.only("Check rating stars question", async (t) => {
+  test("Check rating stars question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
@@ -263,11 +263,12 @@ frameworks.forEach(framework => {
       await t.hover(Selector(".sd-rating__item-star").nth(1));
       await takeElementScreenshot("question-rating-stars-unhovered.png", questionRoot, t, comparer);
       await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("question-rating-stars-selected", questionRoot, t, comparer);
     });
   });
 
-  test.only("Check rating stars disabled question", async (t) => {
+  test("Check rating stars disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });

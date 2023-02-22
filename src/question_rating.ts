@@ -309,13 +309,14 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
+    if (this.isReadOnly || !item.itemValue.isEnabled) return;
     let high = true;
     let selected = this.value != null;
     for (let i: number = 0; i < this.renderedRateItems.length; i++) {
       this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
       if (this.renderedRateItems[i] == item) high = false;
       if (this.renderedRateItems[i].itemValue.value == this.value) selected = false;
-    };
+    }
   }
   public onItemMouseOut(item: RenderedRatingItem) {
     this.renderedRateItems.forEach(item => item.highlight = "none");

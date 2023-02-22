@@ -439,6 +439,7 @@ export var defaultV2Css = {
     itemStarOnError: "sd-rating__item-star--error",
     itemStarHover: "sd-rating__item-star--allowhover",
     itemStarSelected: "sd-rating__item-star--selected",
+    itemStarDisabled: "sd-rating__item-star--disabled",
     itemStarHighlighted: "sd-rating__item-star--highlighted",
     itemStarUnhighlighted: "sd-rating__item-star--unhighlighted",
     minText: "sd-rating__item-text sd-rating__min-text",

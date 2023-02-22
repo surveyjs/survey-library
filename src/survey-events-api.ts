@@ -5,16 +5,89 @@ import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { Question } from "./question";
-import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { QuestionMultipleTextModel } from "./question_multipletext";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
+
+export interface IEmptyOptions {
+}
+export interface IQuestionOptions {
+  /**
+   * A Question instance for which the event is raised.
+   */
+  question: Question;
+}
+export interface IFileQuestionOptions extends IQuestionOptions {
+  /**
+   * A File Question instance for which the event is raised.
+   */
+  question: QuestionFileModel;
+}
+export interface IPanelDynamicQuestionOptions extends IQuestionOptions {
+  /**
+   * A Panel Dynamic Question instance for which the event is raised.
+   */
+  question: QuestionPanelDynamicModel;
+}
+export interface IMatrixDropdownQuestionOptions extends IQuestionOptions {
+  /**
+ * A Matrix Dynamic Question instance for which the event is raised.
+ */
+  question: QuestionMatrixDropdownModelBase;
+}
+export interface IMatrixDynamicQuestionOptions extends IMatrixDropdownQuestionOptions {
+ /**
+  * A Matrix Dynamic Question instance for which the event is raised.
+  */
+  question: QuestionMatrixDynamicModel;
+}
+export interface IPanelOptions {
+  /**
+   * A panel object for which the event is fired
+   */
+  panel: PanelModel;
+}
+export interface IPageOptions {
+  /**
+   * A page object for which the event is fired
+   */
+  page: PageModel;
+}
+export interface IOnGetTitleActionsOptions {
+  /**
+   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed element
+   */
+  titleActions: Array<IAction>;
+}
+export interface IOnGetActionsOptions {
+  /**
+   * An array of [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it
+   */
+  actions: Array<IAction>;
+}
+export interface IOnAterRenderElementOptions {
+  /**
+   * an HTML element bound to the event's object
+   */
+  htmlElement: HTMLElement;
+}
+export interface IOnUpdateElementCssClassesOptions {
+  /**
+   * an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes
+   */
+  cssClasses: any;
+}
+export interface IOnElementVisibleChangedOptions {
+  /**
+   * Indicates whether the element is visible now.
+   */
+  visible: boolean;
+}
 
 export interface IOnTriggerExecutedOptions {
   /**
@@ -22,18 +95,22 @@ export interface IOnTriggerExecutedOptions {
    */
   trigger: Trigger;
 }
-export interface IOnCompletingOptions {
+
+export interface IOnCompleteBaseOptions {
   /**
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+}
+export interface IOnCompletingOptions extends IOnCompleteBaseOptions {
+
   /**
    * Set this property to `false` if you want to prevent survey completion.
    */
   allow: boolean;
   allowComplete: boolean;
 }
-export interface IOnCompleteOptions {
+export interface IOnCompleteOptions extends IOnCompleteBaseOptions {
   /**
    * Call this method to hide the save operation messages.
    */
@@ -66,7 +143,6 @@ export interface IOnCompleteOptions {
   * @deprecated The method should not be used
   */
   showDataSavingClear: (text?: string) => void;
-  isCompleteOnTrigger: boolean;
 }
 export interface IOnShowingPreviewOptions {
   allowShowPreview: boolean;
@@ -84,33 +160,6 @@ export interface IOnNavigateToUrlOptions {
    * A URL to which respondents should be navigated. You can modify this parameter's value.
    */
   url: string;
-}
-export interface IOnStartedOptions {
-}
-export interface IOnPartialSendOptions {
-}
-export interface IOnCurrentPageChangingOptions {
-  /**
-   * Returns `true` if the respondent is going backwards, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
-   */
-  isPrevPage: boolean;
-  /**
-   * Returns `true` if the respondent is going forward along the survey.
-   */
-  isNextPage: boolean;
-  /**
-   * Set this property to `false` if you do not want to switch the current page.
-   */
-  allow: boolean;
-  /**
-   * A page that will be current.
-   */
-  newCurrentPage: PageModel;
-  /**
-   * The current page.
-   */
-  oldCurrentPage: PageModel;
-  allowChanging: boolean;
 }
 export interface IOnCurrentPageChangedOptions {
   /**
@@ -130,11 +179,15 @@ export interface IOnCurrentPageChangedOptions {
    */
   oldCurrentPage: PageModel;
 }
-export interface IOnValueChangeBaseOptions {
+export interface IOnCurrentPageChangingOptions extends IOnCurrentPageChangedOptions {
   /**
-   * The question whose value is being changed. If you use `valueName` and it is the same for several questions, this parameter contains the first question.
+   * Set this property to `false` if you do not want to switch the current page.
    */
-  question: Question;
+  allow: boolean;
+  allowChanging: boolean;
+}
+
+export interface IOnValueChangeBaseOptions extends IQuestionOptions {
   /**
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
@@ -166,49 +219,19 @@ export interface IOnVariableChangedOptions {
    */
   name: string;
 }
-export interface IOnQuestionVisibleChangedOptions {
-  /**
-   * Indicates whether the question is visible now.
-   */
-  visible: boolean;
+export interface IOnQuestionVisibleChangedOptions extends IQuestionOptions, IOnElementVisibleChangedOptions {
   /**
    * The question's name.
    */
   name: string;
-  /**
-   * A question whose visibility has been changed.
-   */
-  question: Question;
 }
-export interface IOnPageVisibleChangedOptions {
+export interface IOnPageVisibleChangedOptions extends IOnElementVisibleChangedOptions, IPageOptions { }
+export interface IOnPanelVisibleChangedOptions extends IOnElementVisibleChangedOptions, IPanelOptions { }
+export interface IOnQuestionCreatedOptions extends IQuestionOptions { }
+
+export interface IOnElementAddedOptions {
   /**
-   * Indicates whether the page is visible now.
-   */
-  visible: boolean;
-  /**
-   * A page whose visibility has been changed.
-   */
-  page: PageModel;
-}
-export interface IOnPanelVisibleChangedOptions {
-  /**
-   * Indicates whether the panel is visible now.
-   */
-  visible: boolean;
-  /**
-   * A panel whose visibility has been changed.
-   */
-  panel: PanelModel;
-}
-export interface IOnQuestionCreatedOptions {
-  /**
-   * A created question.
-   */
-  question: Question;
-}
-export interface IOnQuestionAddedOptions {
-  /**
-   * A page that nests the added question.
+   * A page that nests the added element.
    */
   page: PanelModelBase;
   /**
@@ -218,69 +241,26 @@ export interface IOnQuestionAddedOptions {
   rootPanel: any;
   parentPanel: any;
   /**
-   * The question's index within the parent container (panel or page).
+   * The element's index within the parent container (panel or page).
    */
   index: number;
   /**
    * The question's name.
    */
   name: string;
-  /**
-   * A new question.
-   */
-  question: Question;
 }
-export interface IOnQuestionRemovedOptions {
+export interface IOnElementRemovedOptions {
   /**
-   * The question's name.
+   * The element's name.
    */
   name: string;
-  /**
-   * A deleted question.
-   */
-  question: Question;
 }
-export interface IOnPanelAddedOptions {
-  /**
-   * A page that nests the added panel.
-   */
-  page: PanelModelBase;
-  /**
-   * The parent container (panel or page).
-   */
-  parent: PanelModelBase;
-  /**
-   * The panel's index within the parent container (panel or page).
-   */
-  index: number;
-  /**
-   * The panel's name.
-   */
-  name: string;
-  /**
-   * A new panel.
-   */
-  panel: PanelModel;
-  parentPanel: any;
-  rootPanel: any;
-}
-export interface IOnPanelRemovedOptions {
-  /**
-   * The panel's name.
-   */
-  name: string;
-  /**
-   * A deleted panel.
-   */
-  panel: IElement;
-}
-export interface IOnPageAddedOptions {
-  /**
-   * A new page.
-   */
-  page: PageModel;
-}
-export interface IOnValidateQuestionOptions {
+export interface IOnQuestionAddedOptions extends IQuestionOptions, IOnElementAddedOptions {}
+export interface IOnQuestionRemovedOptions extends IQuestionOptions, IOnElementRemovedOptions {}
+export interface IOnPanelAddedOptions extends IPanelOptions, IOnElementAddedOptions {}
+export interface IOnPanelRemovedOptions extends IPanelOptions, IOnElementRemovedOptions {}
+export interface IOnPageAddedOptions extends IPageOptions {}
+export interface IOnValidateQuestionOptions extends IQuestionOptions {
   /**
    * An error message that you should specify if validation fails.
    */
@@ -293,20 +273,12 @@ export interface IOnValidateQuestionOptions {
    * The question's name.
    */
   name: string;
-  /**
-   * A question being validated.
-   */
-  question: Question;
 }
-export interface IOnSettingQuestionErrorsOptions {
+export interface IOnSettingQuestionErrorsOptions extends IQuestionOptions {
   /**
    * the list of errors. The list is empty by default and remains empty if a validated question has no errors
    */
   errors: Array<SurveyError>;
-  /**
-   * a validated question
-   */
-  question: Question;
 }
 export interface IOnServerValidateQuestionsOptions {
   /**
@@ -322,7 +294,7 @@ export interface IOnServerValidateQuestionsOptions {
    */
   data: { [index: string]: any };
 }
-export interface IOnValidatePanelOptions {
+export interface IOnValidatePanelOptions extends IPanelOptions {
   /**
    * An error message that you should specify if validation fails.
    */
@@ -331,10 +303,6 @@ export interface IOnValidatePanelOptions {
    * The panel's name.
    */
   name: string;
-  /**
-   * A panel being validated.
-   */
-  panel: PanelModel;
 }
 export interface IOnErrorCustomTextOptions {
   /**
@@ -356,7 +324,7 @@ export interface IOnErrorCustomTextOptions {
    */
   text: string;
 }
-export interface IOnValidatedErrorsOnCurrentPageOptions {
+export interface IOnValidatedErrorsOnCurrentPageOptions extends IPageOptions {
   /**
    * the list of questions that have errors
    */
@@ -365,10 +333,6 @@ export interface IOnValidatedErrorsOnCurrentPageOptions {
    * the list of errors
    */
   errors: Array<SurveyError>;
-  /**
-   * the page where question(s) are located
-   */
-  page: PageModel;
 }
 export interface IOnProcessHtmlOptions {
   /**
@@ -376,11 +340,7 @@ export interface IOnProcessHtmlOptions {
    */
   html: string;
 }
-export interface IOnGetQuestionTitleOptions {
-  /**
-   * a question object
-   */
-  question: Question;
+export interface IOnGetQuestionTitleOptions extends IQuestionOptions {
   /**
    * a calculated question title, based on question `title`, `name`
    */
@@ -396,11 +356,7 @@ export interface IOnGetTitleTagNameOptions {
    */
   element: Base;
 }
-export interface IOnGetQuestionNoOptions {
-  /**
-   * a question object
-   */
-  question: Question;
+export interface IOnGetQuestionNoOptions extends IQuestionOptions {
   /**
    * a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it
    */
@@ -428,7 +384,18 @@ export interface IOnProgressTextOptions {
    */
   text: string;
 }
-export interface IOnTextMarkdownOptions {
+
+export interface IOnTextProcessingOptions {
+  /**
+   * a property name is going to be rendered
+   */
+  name: string;
+  /**
+   * SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered
+   */
+  element: Question | PanelModel | PageModel | SurveyModel;
+}
+export interface IOnTextMarkdownOptions extends IOnTextProcessingOptions {
   /**
    * an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`
    */
@@ -437,29 +404,14 @@ export interface IOnTextMarkdownOptions {
    * a text that is going to be rendered
    */
   text: string;
-  /**
-   * a property name is going to be rendered
-   */
-  name: string;
-  /**
-   * SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered
-   */
-  element: Question | PanelModel | PageModel | SurveyModel;
 }
-export interface IOnTextRenderAsOptions {
+export interface IOnTextRenderAsOptions extends IOnTextProcessingOptions {
   /**
    * a component name used for text rendering
    */
   renderAs: string;
-  /**
-   * a property name is going to be rendered
-   */
-  name: string;
-  /**
-   * SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered
-   */
-  element: Question | PanelModel | PageModel | SurveyModel;
 }
+
 export interface IOnSendResultOptions {
   /**
    * a response from the service
@@ -489,7 +441,14 @@ export interface IOnGetResultOptions {
    */
   success: boolean;
 }
-export interface IOnUploadFilesOptions {
+
+export interface IOnLoadFilesOptions extends IFileQuestionOptions {
+  /**
+ * the question name
+ */
+  name: string;
+}
+export interface IOnUploadFilesOptions extends IOnLoadFilesOptions {
   /**
    * a callback function to get the file upload status and the updloaded file content
    */
@@ -498,17 +457,9 @@ export interface IOnUploadFilesOptions {
    * the Javascript File objects array to upload
    */
   files: Array<File>;
-  /**
-   * the question name
-   */
-  name: string;
-  /**
-   * the file question instance
-   */
-  question: QuestionFileModel;
+
 }
-export interface IOnDownloadFileOptions {
-  question: QuestionFileModel;
+export interface IOnDownloadFileOptions extends IOnLoadFilesOptions {
   /**
    * a callback function to get the file downloading status and the downloaded file content
    */
@@ -521,12 +472,8 @@ export interface IOnDownloadFileOptions {
    * the file content
    */
   content: any;
-  /**
-   * the question name
-   */
-  name: string;
 }
-export interface IOnClearFilesOptions {
+export interface IOnClearFilesOptions extends IOnLoadFilesOptions {
   /**
    * a callback function to get the operation status
    */
@@ -539,16 +486,8 @@ export interface IOnClearFilesOptions {
    * the question value
    */
   value: any;
-  /**
-   * the question name
-   */
-  name: string;
-  /**
-   * the question instance
-   */
-  question: QuestionFileModel;
 }
-export interface IOnLoadChoicesFromServerOptions {
+export interface IOnLoadChoicesFromServerOptions extends IQuestionOptions {
   /**
    * a result that comes from the server as it is
    */
@@ -557,12 +496,6 @@ export interface IOnLoadChoicesFromServerOptions {
    * the loaded choices. You can change the loaded choices to before they are assigned to question
    */
   choices: Array<ItemValue>;
-  /**
-   * the question where loaded choices are going to be assigned
-   */
-  question: QuestionSelectBase;
-}
-export interface IOnLoadedSurveyFromServiceOptions {
 }
 export interface IOnProcessTextValueOptions {
   /**
@@ -580,37 +513,10 @@ export interface IOnProcessTextValueOptions {
   name: string;
   returnDisplayValue: boolean;
 }
-export interface IOnUpdateQuestionCssClassesOptions {
-  /**
-   * an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes
-   */
-  cssClasses: any;
-  /**
-   * a question for which you can change the CSS classes
-   */
-  question: Question;
-}
-export interface IOnUpdatePanelCssClassesOptions {
-  /**
-   * an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes
-   */
-  cssClasses: any;
-  /**
-   * a panel for which you can change the CSS classes
-   */
-  panel: PanelModel;
-}
-export interface IOnUpdatePageCssClassesOptions {
-  /**
-   * an object with CSS classes. For example `{title: "sv_p_title", description: "small"}`. You can change them to your own CSS classes
-   */
-  cssClasses: any;
-  /**
-   * a page for which you can change the CSS classes
-   */
-  page: PageModel;
-}
-export interface IOnUpdateChoiceItemCssOptions {
+export interface IOnUpdateQuestionCssClassesOptions extends IQuestionOptions, IOnUpdateElementCssClassesOptions { }
+export interface IOnUpdatePanelCssClassesOptions extends IPanelOptions, IOnUpdateElementCssClassesOptions { }
+export interface IOnUpdatePageCssClassesOptions extends IPageOptions, IOnUpdateElementCssClassesOptions { }
+export interface IOnUpdateChoiceItemCssOptions extends IQuestionOptions {
   /**
    * a string with css classes divided by space. You can change it
    */
@@ -619,77 +525,19 @@ export interface IOnUpdateChoiceItemCssOptions {
    * a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
    */
   item: ItemValue;
-  /**
-   * a question where choice item is rendered
-   */
-  question: Question;
 }
-export interface IOnAfterRenderSurveyOptions {
+export interface IOnAfterRenderSurveyOptions extends IOnAterRenderElementOptions {
   survey: SurveyModel;
-  /**
-   * a root HTML element bound to the survey object
-   */
-  htmlElement: HTMLElement;
 }
-export interface IOnAfterRenderHeaderOptions {
-  /**
-   * an HTML element bound to the survey header object
-   */
-  htmlElement: HTMLElement;
+export interface IOnAfterRenderHeaderOptions extends IOnAterRenderElementOptions { }
+export interface IOnAfterRenderPageOptions extends IOnAterRenderElementOptions, IPageOptions { }
+export interface IOnAfterRenderQuestionOptions extends IQuestionOptions, IOnAterRenderElementOptions { }
+export interface IOnAfterRenderQuestionInputOptions extends IQuestionOptions, IOnAterRenderElementOptions { }
+export interface IOnAfterRenderPanelOptions extends IOnAterRenderElementOptions, IPanelOptions { }
+export interface IOnFocusInQuestionOptions extends IQuestionOptions {
 }
-export interface IOnAfterRenderPageOptions {
-  /**
-   * an HTML element bound to the page object
-   */
-  htmlElement: HTMLElement;
-  /**
-   * a page object for which the event is fired. Typically the current/active page
-   */
-  page: PageModel;
-}
-export interface IOnAfterRenderQuestionOptions {
-  /**
-   * an HTML element bound to the question object
-   */
-  htmlElement: HTMLElement;
-  /**
-   * a question object for which the event is fired
-   */
-  question: Question;
-}
-export interface IOnAfterRenderQuestionInputOptions {
-  /**
-   * an HTML element bound to the question object
-   */
-  htmlElement: HTMLElement;
-  /**
-   * a question object for which the event is fired
-   */
-  question: Question;
-}
-export interface IOnAfterRenderPanelOptions {
-  /**
-   * an HTML element bound to the panel object
-   */
-  htmlElement: HTMLElement;
-  /**
-   * a panel object for which the event is fired
-   */
-  panel: PanelModel;
-}
-export interface IOnFocusInQuestionOptions {
-  /**
-   * A [question](https://surveyjs.io/Documentation/Library?id=Question) whose child element gets focus
-   */
-  question: Question;
-}
-export interface IOnFocusInPanelOptions {
-  /**
-   * A [panel](https://surveyjs.io/Documentation/Library?id=PanelModelBase) whose child element gets focus
-   */
-  panel: PanelModel;
-}
-export interface IOnShowingChoiceItemOptions {
+export interface IOnFocusInPanelOptions extends IPanelOptions { }
+export interface IOnShowingChoiceItemOptions extends IQuestionOptions {
   /**
    * A Boolean value that specifies item visibility. Set it to `false` to hide the item.
    */
@@ -698,12 +546,8 @@ export interface IOnShowingChoiceItemOptions {
    * The choice item as specified in the [choices](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choices) array.
    */
   item: ItemValue;
-  /**
-   * A Question instance to which the choice item belongs.
-   */
-  question: Question;
 }
-export interface IOnChoicesLazyLoadOptions {
+export interface IOnChoicesLazyLoadOptions extends IQuestionOptions {
   /**
    * A method that you should call to assign loaded items to the question. Item objects should be structured as specified in the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choices) property description. If their structure is different, [map their properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) to bring them to the required structure.
    */
@@ -720,12 +564,8 @@ export interface IOnChoicesLazyLoadOptions {
    * The number of choice items to skip.
    */
   skip: number;
-  /**
-   * A Question instance for which the event is raised.
-   */
-  question: Question;
 }
-export interface IOnGetChoiceDisplayValueOptions {
+export interface IOnGetChoiceDisplayValueOptions extends IQuestionOptions {
   /**
    * A method that you should call to assign display texts to the question.
    */
@@ -734,32 +574,20 @@ export interface IOnGetChoiceDisplayValueOptions {
    * An array of one (in Dropdown) or more (in Tag Box) default values.
    */
   values: Array<any>;
-  /**
-   * A Question instance for which the event is raised.
-   */
-  question: Question;
 }
-export interface IOnMatrixRowAddedOptions {
+export interface IOnMatrixRowAddedOptions extends IMatrixDynamicQuestionOptions {
   /**
    * a new added row
    */
   row: any;
-  /**
-   * a matrix question
-   */
-  question: QuestionMatrixDynamicModel;
 }
-export interface IOnMatrixBeforeRowAddedOptions {
+export interface IOnMatrixBeforeRowAddedOptions extends IMatrixDynamicQuestionOptions {
   /**
    * specifies whether a new row can be added
    */
   canAddRow: boolean;
-  /**
-   * a matrix question
-   */
-  question: QuestionMatrixDynamicModel;
 }
-export interface IOnMatrixRowRemovingOptions {
+export interface IOnMatrixRowRemovingOptions extends IMatrixDynamicQuestionOptions {
   /**
    * a boolean property. Set it to `false` to disable the row removing
    */
@@ -772,12 +600,8 @@ export interface IOnMatrixRowRemovingOptions {
    * a row index
    */
   rowIndex: number;
-  /**
-   * a matrix question
-   */
-  question: QuestionMatrixDynamicModel;
 }
-export interface IOnMatrixRowRemovedOptions {
+export interface IOnMatrixRowRemovedOptions extends IMatrixDynamicQuestionOptions {
   /**
    * a removed row object
    */
@@ -786,12 +610,8 @@ export interface IOnMatrixRowRemovedOptions {
    * a removed row index
    */
   rowIndex: number;
-  /**
-   * a matrix question
-   */
-  question: QuestionMatrixDynamicModel;
 }
-export interface IOnMatrixAllowRemoveRowOptions {
+export interface IOnMatrixAllowRemoveRowOptions extends IMatrixDynamicQuestionOptions {
   /**
    * a boolean property. Set it to `false` to disable the row removing
    */
@@ -804,12 +624,9 @@ export interface IOnMatrixAllowRemoveRowOptions {
    * a row index
    */
   rowIndex: number;
-  /**
-   * a matrix question
-   */
-  question: QuestionMatrixDynamicModel;
 }
-export interface IOnMatrixCellCreatingOptions {
+
+export interface IMatrixCellCreatingBaseOptions extends IMatrixDropdownQuestionOptions {
   /**
    * the matrix row object
    */
@@ -826,32 +643,14 @@ export interface IOnMatrixCellCreatingOptions {
    * the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`
    */
   rowValue: any;
-  /**
+}
+export interface IOnMatrixCellCreatingOptions extends IMatrixCellCreatingBaseOptions {
+    /**
    * the cell question type. You can change it
    */
-  cellType: string;
-  /**
-   * the matrix question
-   */
-  question: Question;
+    cellType: string;
 }
-export interface IOnMatrixCellCreatedOptions {
-  /**
-   * the matrix row object
-   */
-  row: MatrixDropdownRowModelBase;
-  /**
-   * the matrix column name
-   */
-  columnName: string;
-  /**
-   * the matrix column object
-   */
-  column: MatrixDropdownColumn;
-  /**
-   * the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`
-   */
-  rowValue: any;
+export interface IOnMatrixCellCreatedOptions extends IMatrixCellCreatingBaseOptions {
   /**
    * the question/editor in the cell. You may customize it, change it's properties, like choices or visible
    */
@@ -860,12 +659,8 @@ export interface IOnMatrixCellCreatedOptions {
    * the matrix cell
    */
   cell: MatrixDropdownCell;
-  /**
-   * the matrix question
-   */
-  question: Question;
 }
-export interface IOnMatrixAfterCellRenderOptions {
+export interface IOnMatrixAfterCellRenderOptions extends IQuestionOptions, IOnAterRenderElementOptions {
   /**
    * the matrix row object
    */
@@ -875,10 +670,6 @@ export interface IOnMatrixAfterCellRenderOptions {
    */
   column: MatrixDropdownColumn | MatrixDropdownCell;
   /**
-   * an HTML element bound to the `cellQuestion` object
-   */
-  htmlElement: HTMLElement;
-  /**
    * the question/editor in the cell
    */
   cellQuestion: Question;
@@ -886,12 +677,9 @@ export interface IOnMatrixAfterCellRenderOptions {
    * the matrix cell
    */
   cell: MatrixDropdownCell;
-  /**
-   * the matrix question
-   */
-  question: Question;
 }
-export interface IOnMatrixCellValueChangedOptions {
+
+export interface IOnMatrixCellValueBaseOptions extends IMatrixDropdownQuestionOptions {
   /**
    * the function that returns the cell question by column name
    */
@@ -908,110 +696,32 @@ export interface IOnMatrixCellValueChangedOptions {
    * the matrix column name
    */
   columnName: string;
-  /**
-   * the matrix question
-   */
-  question: Question;
 }
-export interface IOnMatrixCellValueChangingOptions {
-  /**
-   * the function that returns a cell question by column name
-   */
-  getCellQuestion: (columnName: string) => Question;
-  /**
-   * the matrix row object
-   */
-  row: MatrixDropdownRowModelBase;
+
+export interface IOnMatrixCellValueChangedOptions extends IOnMatrixCellValueBaseOptions {}
+export interface IOnMatrixCellValueChangingOptions extends IQuestionOptions {
   /**
    * the old value
    */
   oldValue: any;
-  /**
-   * a new value
-   */
-  value: any;
-  /**
-   * the matrix column name
-   */
-  columnName: string;
-  /**
-   * the matrix question
-   */
-  question: Question;
 }
-export interface IOnMatrixCellValidateOptions {
-  /**
-   * the function that returns the cell question by column name
-   */
-  getCellQuestion: (columnName: string) => Question;
-  /**
-   * the matrix row object
-   */
-  row: MatrixDropdownRowModelBase;
-  /**
-   * a cell value
-   */
-  value: any;
-  /**
-   * the matrix column name
-   */
-  columnName: string;
-  /**
-   * the matrix question
-   */
-  question: QuestionMatrixDropdownModelBase;
+export interface IOnMatrixCellValidateOptions extends IOnMatrixCellValueBaseOptions {
   /**
    * an error string. It is empty by default
    */
   error?: string;
 }
-export interface IOnDynamicPanelAddedOptions {
+export interface IOnDynamicPanelModifiedOptions extends IPanelDynamicQuestionOptions, IPanelOptions {
   /**
    * The panel's index within Dynamic Panel.
    */
   panelIndex: number;
-  /**
-   * An added panel.
-   */
-  panel: PanelModel;
-  /**
-   * A Dynamic Panel question.
-   */
-  question: QuestionPanelDynamicModel;
 }
-export interface IOnDynamicPanelRemovedOptions {
-  /**
-   * The panel's index within Dynamic Panel.
-   */
-  panelIndex: number;
-  /**
-   * A deleted panel.
-   */
-  panel: PanelModel;
-  /**
-   * A Dynamic Panel question.
-   */
-  question: QuestionPanelDynamicModel;
-}
-export interface IOnDynamicPanelRemovingOptions {
+export interface IOnDynamicPanelRemovingOptions extends IOnDynamicPanelModifiedOptions {
   /**
    * Set this property to `false` if you want to cancel the panel deletion.
    */
   allow: boolean;
-  /**
-   * The panel's index within Dynamic Panel.
-   */
-  panelIndex: number;
-  /**
-   * A panel to be deleted.
-   */
-  panel: PanelModel;
-  /**
-   * A Dynamic Panel question.
-   */
-  question: QuestionPanelDynamicModel;
-}
-export interface IOnTimerOptions {
 }
 export interface IOnTimerPanelInfoTextOptions {
   /**
@@ -1019,7 +729,7 @@ export interface IOnTimerPanelInfoTextOptions {
    */
   text: string;
 }
-export interface IOnDynamicPanelItemValueChangedOptions {
+export interface IOnDynamicPanelItemValueChangedOptions extends IPanelDynamicQuestionOptions {
   /**
    * The panel's data object that includes all item values.
    */
@@ -1040,12 +750,8 @@ export interface IOnDynamicPanelItemValueChangedOptions {
    * A panel that nests the item with a changed value.
    */
   panel: PanelModel;
-  /**
-   * A Dynamic Panel question.
-   */
-  question: QuestionPanelDynamicModel;
 }
-export interface IOnIsAnswerCorrectOptions {
+export interface IOnIsAnswerCorrectOptions extends IQuestionOptions {
   /**
    * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question
    */
@@ -1055,10 +761,6 @@ export interface IOnIsAnswerCorrectOptions {
    * returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value
    */
   result: boolean;
-  /**
-   * a question on which you have to decide if the answer is correct or not
-   */
-  question: Question;
 }
 export interface IOnDragDropAllowOptions {
   /**
@@ -1094,11 +796,11 @@ export interface IOnScrollingElementToTopOptions {
   /**
    * a question that is going to be scrolled on top. It can be null if options.page is not null
    */
-  question: Question;
+  question?: Question;
   /**
    * a page that is going to be scrolled on top. It can be null if options.question is not null
    */
-  page: PageModel;
+  page?: PageModel;
   /**
    * set this property to true to cancel the default scrolling
    */
@@ -1108,65 +810,20 @@ export interface IOnScrollingElementToTopOptions {
    */
   elementId: string;
 }
-export interface IOnLocaleChangedEventOptions {
-}
-export interface IOnGetQuestionTitleActionsOptions {
-  /**
-   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed question
-   */
-  titleActions: Array<IAction>;
-  /**
-   * A [Question](https://surveyjs.io/Documentation/Library?id=Question) object for which the event is fired
-   */
-  question: Question;
-}
-export interface IOnGetPanelTitleActionsOptions {
-  /**
-   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed panel
-   */
-  titleActions: Array<IAction>;
-  /**
-   * A panel ([PanelModel](https://surveyjs.io/Documentation/Library?id=panelmodel) object) for which the event is fired
-   */
-  panel: PanelModel;
-}
-export interface IOnGetPageTitleActionsOptions {
-  /**
-   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed page
-   */
-  titleActions: Array<IAction>;
-  /**
-   * A page ([PageModel](https://surveyjs.io/Documentation/Library?id=pagemodel) object) for which the event is fired
-   */
-  page: PageModel;
-}
-export interface IOnGetPanelFooterActionsOptions {
+export interface IOnGetQuestionTitleActionsOptions extends IQuestionOptions, IOnGetTitleActionsOptions { }
+export interface IOnGetPanelTitleActionsOptions extends IPanelOptions, IOnGetTitleActionsOptions { }
+export interface IOnGetPageTitleActionsOptions extends IPageOptions, IOnGetTitleActionsOptions { }
+export interface IOnGetPanelFooterActionsOptions extends IOnGetActionsOptions, IPanelOptions {
   /**
    * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel
    */
   question?: QuestionPanelDynamicModel;
-  /**
-   * An array of panel [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it
-   */
-  actions: Array<IAction>;
-  /**
-   * A Panel whose actions are being modified
-   */
-  panel: PanelModel;
 }
-export interface IOnGetMatrixRowActionsOptions {
-  /**
-   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed matrix question and row
-   */
-  actions: Array<IAction>;
+export interface IOnGetMatrixRowActionsOptions extends IQuestionOptions, IOnGetActionsOptions {
   /**
    * A matrix row for which the event is fired
    */
   row: any;
-  /**
-   * A matrix question ([QuestionMatrixBaseModel](https://surveyjs.io/Documentation/Library?id=questionmatrixbasemodel) object) for which the event is fired
-   */
-  question: QuestionMatrixDropdownModelBase;
 }
 export interface IOnElementContentVisibilityChangedOptions {
   /**
@@ -1174,48 +831,28 @@ export interface IOnElementContentVisibilityChangedOptions {
    */
   element: ISurveyElement;
 }
-export interface IOnGetExpressionDisplayValueOptions {
+export interface IOnGetQuestionDisplayValueOptions extends IQuestionOptions {
   /**
-   * the display value that you can change before rendering
+   * A question's display text. You can assign a custom value to this parameter.
    */
-  displayValue: string;
+  displayValue: any;
+}
+export interface IOnGetExpressionDisplayValueOptions extends IOnGetQuestionDisplayValueOptions {
   /**
    * The question value
    */
   value: any;
-  /**
-   * The expression question
-   */
-  question: Question;
 }
 
-export interface IOnMultipleTextItemAddedOptions {
-  /**
-   * A multiple text question.
-   */
-  question: QuestionMultipleTextModel;
+export interface IOnMultipleTextItemAddedOptions extends IQuestionOptions {
   /**
    * A new added item.
    */
   item: any;
 }
-export interface IOnMatrixColumnAddedOptions {
-  /**
-   * A matrix question.
-   */
-  question: Question;
+export interface IOnMatrixColumnAddedOptions extends IQuestionOptions {
   /**
    * A new added column.
    */
   column: any;
-}
-export interface IOnGetQuestionDisplayValueOptions {
-  /**
-   * A Question instance for which the event is raised.
-   */
-  question: Question;
-  /**
-   * A question's display text. You can assign a custom value to this parameter.
-   */
-  displayValue: any;
 }

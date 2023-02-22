@@ -15,6 +15,7 @@ export class RenderedRatingItem extends Base {
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
+  @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
@@ -283,9 +284,10 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "number" }) rateType: "number" | "text" | "star" | "emoji";
+  @property({ defaultValue: "number" }) rateType: "numbers" | "labels" | "stars" | "smileys";
+  @property({ defaultValue: "monochrome" }) smileysColorMode: "monochrome" | "colored";
   public get isStar() {
-    return this.rateType == "star";
+    return this.rateType == "stars";
   }
   public get itemComponentName() {
     if (this.isStar) return "sv-rating-item-star";
@@ -299,7 +301,6 @@ export class QuestionRatingModel extends Question {
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-
   public setValueFromClick(value: any) {
     if (this.value === parseFloat(value)) {
       this.clearValue();
@@ -307,22 +308,38 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+  public onItemMouseIn(item: RenderedRatingItem) {
+    let high = true;
+    let selected = this.value != null;
+    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+      this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
+      if (this.renderedRateItems[i] == item) high = false;
+      if (this.renderedRateItems[i].itemValue.value == this.value) selected = false;
+    };
+  }
+  public onItemMouseOut(item: RenderedRatingItem) {
+    this.renderedRateItems.forEach(item => item.highlight = "none");
+  }
 
   public get ratingRootCss(): string {
     return ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
-  public getItemClass(item: ItemValue) {
+  public getItemClass(item: ItemValue, hovered: boolean = false) {
     const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
-
+    const renderedItem = this.renderedRateItems.filter(i => i.itemValue == item)[0];
+    const isHighlighted = this.isStar && renderedItem?.highlight == "highlighted";
+    const isUnhighlighted = this.isStar && renderedItem?.highlight == "unhighlighted";
     let itemClass = this.cssClasses.item;
     let itemSelectedClass = this.cssClasses.selected;
     let itemDisabledClass = this.cssClasses.itemDisabled;
     let itemHoverClass = this.cssClasses.itemHover;
     let itemitemOnErrorClass = this.cssClasses.itemOnError;
+    let itemHighlightedClass = null;
+    let itemUnhighlightedClass = null;
 
     if (this.isStar) {
       itemClass = this.cssClasses.itemStar;
@@ -330,6 +347,8 @@ export class QuestionRatingModel extends Question {
       itemDisabledClass = this.cssClasses.itemStarDisabled;
       itemHoverClass = this.cssClasses.itemStarHover;
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
+      itemHighlightedClass = this.cssClasses.itemStarHighlighted;
+      itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
     }
 
     return new CssClassBuilder()
@@ -337,6 +356,8 @@ export class QuestionRatingModel extends Question {
       .append(itemSelectedClass, isSelected)
       .append(itemDisabledClass, this.isReadOnly)
       .append(itemHoverClass, allowHover)
+      .append(itemHighlightedClass, isHighlighted)
+      .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
       .toString();
   }

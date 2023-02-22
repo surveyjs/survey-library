@@ -331,3 +331,48 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });
+QUnit.test("check stars highlighting", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "stars",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.mode = "display";
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+  q1.value = 2;
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseIn(q1.renderedRateItems[3]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_high");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_high");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseOut(q1.renderedRateItems[3]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.value = 4;
+  q1.onItemMouseIn(q1.renderedRateItems[1]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_unhigh");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_unhigh");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});

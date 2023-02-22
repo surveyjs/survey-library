@@ -231,4 +231,68 @@ frameworks.forEach(framework => {
     });
   });
 
+  test.only("Check rating stars question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "stars",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); })();
+      await takeElementScreenshot("question-rating-stars-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(1));
+      await takeElementScreenshot("question-rating-stars-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test.only("Check rating stars disabled question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "stars",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px",
+            defaultValue: 2,
+            readOnly: true
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-selected-disabled.png", questionRoot, t, comparer);
+    });
+  });
+
 });

@@ -74,6 +74,8 @@ legend+sv-ng-rating-item+.sd-rating__item {
   background: $background;
   width: calcSize(6);
   height: calcSize(6);
+  padding: calcSize(1);
+    margin: calcSize(-1);
 
   svg {
     stroke: $border;
@@ -115,7 +117,6 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
-.sd-rating__item-star--allowhover:hover,
 .sd-rating__item-star:focus-within {
   svg {
     stroke: $primary;
@@ -123,6 +124,27 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
+.sd-rating__item-star--unhighlighted {
+  svg {
+    stroke: $border;
+    fill: $border;
+  }
+}
+
+
+.sd-rating__item-star--highlighted {
+  svg {
+    stroke: $primary;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected.sd-rating__item-star--unhighlighted:focus-within {
+  svg {
+    stroke: $border;
+    fill: $border;
+  }
+}
 .sd-rating__item-star--selected:focus-within {
   svg {
     stroke: $primary;

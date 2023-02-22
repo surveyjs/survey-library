@@ -4,7 +4,7 @@ import { RendererFactory } from "survey-core";
 
 const template = require("./rating-item.html");
 
-export var RatingItemStarViewModel: any;
+export var RatingItemViewModel: any;
 
 ko.components.register("sv-rating-item", {
   viewModel: {

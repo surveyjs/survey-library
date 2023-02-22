@@ -5644,6 +5644,32 @@ QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets"
   settings.supportCreatorV2 = false;
   CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("isFit custom widgets on renderAs", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "pretty",
+    isFit: (question) => {
+      return question.renderAs == "pretty";
+    },
+  });
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        renderAs: "pretty",
+        choices: [1, 2, 3]
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.ok(q1.customWidget, "Custom widget is apply");
+  assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
+  CustomWidgetCollection.Instance.clear();
+});
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {

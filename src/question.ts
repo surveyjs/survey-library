@@ -965,7 +965,8 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parent);
     this.expandAllParents((<any>element).parentQuestion);
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {
@@ -1165,6 +1166,7 @@ export class Question extends SurveyElement<Question>
     return "";
   }
   public onSurveyLoad(): void {
+    this.isCustomWidgetRequested = false;
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
     if (this.isEmpty()) {
@@ -1602,6 +1604,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionComment(newValue);
     this.updateCommentElements();
   }
+
+  public getCommentAreaCss(isOther: boolean = false): string {
+    return new CssClassBuilder()
+      .append("form-group", isOther)
+      .append(this.cssClasses.formGroup, !isOther)
+      .append(this.cssClasses.commentArea)
+      .toString();
+  }
+
   protected getQuestionComment(): string {
     return this.questionComment;
   }
@@ -2109,8 +2120,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", default: settings.minWidth },
-  { name: "maxWidth", default: settings.maxWidth },
+  { name: "minWidth", defaultFunc: () => settings.minWidth },
+  { name: "maxWidth", defaultFunc: () => settings.maxWidth },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

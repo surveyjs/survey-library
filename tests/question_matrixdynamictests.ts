@@ -1527,6 +1527,15 @@ QUnit.test(
   }
 );
 
+function updateObjsQuestions(objs: Array<any>): void {
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
+  }
+}
+
 QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   var objs = [];
   var question = new QuestionMatrixDynamicModel("matrix");
@@ -1534,9 +1543,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   question.addColumn("col1", "Column 1");
   question.addColumn("col2");
   question.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1551,9 +1558,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   );
   objs = [];
   question.addConditionObjectsByContext(objs, question.columns[0]);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1569,12 +1574,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   );
   objs = [];
   question.addConditionObjectsByContext(objs, true);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-    if (!!objs[i].context) {
-      objs[i].context = objs[i].context.name;
-    }
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1589,6 +1589,35 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     ],
     "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
   );
+});
+QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", function (assert) {
+  settings.matrixMaxRowCountInCondition = 0;
+  var objs = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.title = "Matrix";
+  question.addColumn("col1", "Column 1");
+  question.addColumn("col2");
+  question.addConditionObjectsByContext(objs, null);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs, [], "addConditionObjectsByContext work correctly for matrix dynamic");
+  objs = [];
+  question.addConditionObjectsByContext(objs, question.columns[0]);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs,
+    [{ name: "row.col2", text: "row.col2", question: "matrix" }],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, true);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs,
+    [
+      { name: "matrix.row.col1", text: "Matrix.row.Column 1", question: "matrix", context: "matrix" },
+      { name: "matrix.row.col2", text: "Matrix.row.col2", question: "matrix", context: "matrix" },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
+  );
+  settings.matrixMaxRowCountInCondition = 1;
 });
 QUnit.test(
   "matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition",
@@ -8061,4 +8090,50 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix question value");
   assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
   assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
+});
+QUnit.test("Do not run total expressions if matrix is read-only, bug#5644", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 1
+      },
+      {
+        type: "text",
+        name: "q2",
+        defaultValue: 2
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        readOnly: true,
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            inputType: "number",
+            defaultValue: 1,
+            totalExpression: "{q1} + {q2}"
+          },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "{row.col1} + 10"
+          }
+        ],
+        rowCount: 1,
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const expQuestion = matrix.visibleRows[0].cells[1].question;
+  const totalQuestion = matrix.visibleTotalRow.cells[0].question;
+  assert.equal(expQuestion.isReadOnly, true, "Expression question is readOnly");
+  assert.equal(expQuestion.isEmpty(), true, "Expression question is empty");
+  assert.equal(totalQuestion.isReadOnly, false, "Total Expression question is readOnly");
+  assert.equal(totalQuestion.isEmpty(), false, "Total Expression question is empty");
+  assert.deepEqual(survey.data, {
+    q1: 1, q2: 2, "matrix-total": { col1: 3 },
+    "matrix": [{ "col1": 1 }] }, "Data set in survey correctly.");
 });

@@ -4,6 +4,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
+import { ISurveyEnvironment } from "./base-interfaces";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -150,8 +151,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement) {
-    super(model);
+  constructor(model: PopupModel, environment: ISurveyEnvironment, public targetElement?: HTMLElement) {
+    super(model, environment);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
       if(!this.isOverlay) {
         this.updatePosition(options.isResetHeight);

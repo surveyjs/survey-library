@@ -341,3 +341,7 @@ export interface IFindElement {
   element: Base;
   str: LocalizableString;
 }
+
+export type ISurveyEnvironment =
+  | Pick<Document, "body" | "createElement" | "appendChild" | "getElementById">
+  | (Pick<Document, "createElement" | "appendChild" | "getElementById"> & { mountContainer: HTMLElement })

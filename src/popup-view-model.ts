@@ -4,6 +4,7 @@ import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
+import { ISurveyEnvironment } from "./base-interfaces";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -21,6 +22,7 @@ export class PopupBaseViewModel extends Base {
 
   public container: HTMLElement;
   private createdContainer: HTMLElement;
+  private environment: ISurveyEnvironment
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -85,9 +87,10 @@ export class PopupBaseViewModel extends Base {
     this.setupModel(model);
   }
 
-  constructor(model: PopupModel) {
+  constructor(model: PopupModel, environment: ISurveyEnvironment) {
     super();
     this.model = model;
+    this.environment = environment;
   }
   public get title(): string {
     return this.model.title;
@@ -201,18 +204,17 @@ export class PopupBaseViewModel extends Base {
   }
   public initializePopupContainer(): void {
     if (!this.createdContainer) {
-      const container: HTMLElement = document.createElement("div");
+      const container: HTMLElement = this.environment.createElement("div");
       this.container = this.createdContainer = container;
     }
 
-    const mountContainer = document.body.querySelector(".sv-popup-mount");
+    const mountContainer = "mountContainer" in this.environment
+      ? this.environment.mountContainer
+      : this.environment.body;
 
-    if (mountContainer) {
-      mountContainer.appendChild(this.container);
-    } else {
-      document.body.appendChild(this.container);
-    }
+    mountContainer.appendChild(this.container);
   }
+
   public unmountPopupContainer(): void {
     this.createdContainer.remove();
   }

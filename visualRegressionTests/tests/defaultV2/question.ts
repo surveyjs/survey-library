@@ -409,7 +409,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
     });
   });
-  test.only("Check question with indent", async (t) => {
+  test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
         questions: [

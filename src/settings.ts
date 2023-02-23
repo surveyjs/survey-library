@@ -243,6 +243,12 @@ export var settings = {
    * - `"icon"` - Users can only use the choice item icon as a drag handle.
    */
   rankingDragHandleArea: "entireItem",
+
+  /**
+   * Specifies environment in which SurveyJS will exist
+   */
+  environment: document,
+
   titleTags: {
     survey: "h3",
     page: "h4",

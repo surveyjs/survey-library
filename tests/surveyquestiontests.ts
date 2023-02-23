@@ -36,6 +36,8 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { PageModel } from "../src/page";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3261,6 +3263,15 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
   assert.deepEqual(question.getRootStyle(), { });
+});
+QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q1", indent: 1 }],
+  });
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.paddingLeft, "20px");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test(

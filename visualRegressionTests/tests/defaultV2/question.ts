@@ -409,4 +409,18 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
     });
   });
+  test.only("Check question with indent", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            indent: 1,
+          }]
+      });
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-with-indent.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

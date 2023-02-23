@@ -3247,10 +3247,12 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
   question.indent = 1;
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
+  assert.deepEqual(question.getRootStyle(), { "--sv-element-add-padding-left": "20px", "--sv-element-add-padding-right": "40px" });
   survey.css = {
     question: {
       indent: 0
@@ -3258,6 +3260,7 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   };
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
 });
 
 QUnit.test(

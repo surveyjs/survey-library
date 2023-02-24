@@ -1304,7 +1304,6 @@ QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
   assert.ok(viewModel["isTablet"]);
   viewModel["calculateIsTablet"](700, 700);
   assert.ok(viewModel["isTablet"]);
-  viewModel.dispose();
 });
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);

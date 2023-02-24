@@ -22,25 +22,25 @@ export interface IQuestionOptions {
    */
   question: Question;
 }
-export interface IFileQuestionOptions extends IQuestionOptions {
+export interface IFileQuestionOptions {
   /**
    * A File Question instance for which the event is raised.
    */
   question: QuestionFileModel;
 }
-export interface IPanelDynamicQuestionOptions extends IQuestionOptions {
+export interface IPanelDynamicQuestionOptions {
   /**
    * A Panel Dynamic Question instance for which the event is raised.
    */
   question: QuestionPanelDynamicModel;
 }
-export interface IMatrixDropdownQuestionOptions extends IQuestionOptions {
+export interface IMatrixDropdownQuestionOptions {
   /**
  * A Matrix Dynamic Question instance for which the event is raised.
  */
   question: QuestionMatrixDropdownModelBase;
 }
-export interface IMatrixDynamicQuestionOptions extends IMatrixDropdownQuestionOptions {
+export interface IMatrixDynamicQuestionOptions {
  /**
   * A Matrix Dynamic Question instance for which the event is raised.
   */

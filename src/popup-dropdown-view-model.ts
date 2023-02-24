@@ -14,11 +14,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     this.hidePopup();
   }
+  private calculateIsTablet (windowWidth: number, windowHeight: number) {
+    const width = Math.min(windowWidth, windowHeight);
+    this.isTablet = width >= 600;
+  }
   private resizeEventCallback = () => {
     const visualViewport = window.visualViewport;
     document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
   private clientY: number = 0;
+  @property() private isTablet = false;
   private touchStartEventCallback = (event: any) => {
     this.clientY = event.touches[0].clientY;
   }
@@ -137,6 +142,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)
+      .append("sv-popup--tablet", this.isTablet && this.isOverlay)
       .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && this.showHeader);
   }
@@ -179,6 +185,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
+      this.calculateIsTablet(window.innerWidth, window.innerHeight);
       this.resizeEventCallback();
     }
     window.addEventListener("scroll", this.scrollEventCallBack);

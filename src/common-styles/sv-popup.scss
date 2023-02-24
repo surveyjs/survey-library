@@ -419,3 +419,13 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     }
   }
 }
+.sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
+  .sv-popup__body-content {
+    height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
+    max-width: calcSize(40);
+    border-radius: calcSize(0.5);
+    overflow: hidden;
+    margin: calcSize(4) auto calcSize(4) auto;
+    border-radius: 4px;
+  }
+}

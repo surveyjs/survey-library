@@ -163,11 +163,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.prevActiveElement = <HTMLElement>document.activeElement;
 
     if (this.isOverlay) {
-      this.top = null;
-      this.left = null;
-      this.height = null;
-      this.width = null;
-      this.minWidth = null;
+      this.resetDimensionsAndPositionStyleProperties();
     } else {
       this.updatePosition(true, false);
     }

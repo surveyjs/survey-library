@@ -3,6 +3,7 @@ import { QuestionTagboxModel } from "../src/question_tagbox";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { _setIsTouch } from "../src/utils/devices";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Tagbox question");
 
@@ -534,4 +535,101 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
   popupModel.isVisible = true;
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "isTouch=true && value = 'item1' && hideSelectedItems = true");
   _setIsTouch(false);
+});
+
+QUnit.test("Tagbox closeOnSelect", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      hasOther: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question2",
+      hasOther: "true",
+      closeOnSelect: true,
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question3",
+      hasOther: "true",
+      closeOnSelect: "false",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question4",
+      hasOther: "true",
+      closeOnSelect: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    }]
+  });
+  const question1 = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const question2 = <QuestionTagboxModel>survey.getAllQuestions()[1];
+  const question3 = <QuestionTagboxModel>survey.getAllQuestions()[2];
+  const question4 = <QuestionTagboxModel>survey.getAllQuestions()[3];
+  assert.equal(question1.closeOnSelect, false);
+  assert.equal(question2.closeOnSelect, true);
+  assert.equal(question3.closeOnSelect, false);
+  assert.equal(question4.closeOnSelect, true);
+});
+
+QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {
+  settings.tagboxCloseOnSelect = true;
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question2",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    }]
+  });
+  const question1 = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const question2 = <QuestionTagboxModel>survey.getAllQuestions()[1];
+  assert.equal(question1.closeOnSelect, true);
+  assert.equal(question2.closeOnSelect, true);
+  settings.tagboxCloseOnSelect = false;
 });

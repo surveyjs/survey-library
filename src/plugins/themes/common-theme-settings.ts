@@ -115,7 +115,7 @@ export function setStyles(): void {
 
     ".sv_main legend": "border: none; margin: 0;",
 
-    ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
+    ".sv_bootstrap_css .sv_qstn": "padding: 0.5em var(--sv-element-add-padding-right, 1em) 1.5em var(--sv-element-add-padding-left, 1em);",
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]": "vertical-align: middle; margin-top: -1px",
     ".sv_bootstrap_css .sv_qstn fieldset": "display: block;",
     ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline": "display: inline-block;",

@@ -62,3 +62,24 @@ registerMarkupTest(
     after: () => StylesManager.applyTheme("default"),
   },
 );
+registerMarkupTest(
+  {
+    name: "Test question with indent",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          indent: 1
+        }
+      ],
+    },
+    snapshot: "question-with-indent",
+    event: "onAfterRenderPage",
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0].rightIndent = 1;
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+);

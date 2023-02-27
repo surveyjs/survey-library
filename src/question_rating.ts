@@ -497,8 +497,9 @@ Serializer.addClass(
     },
     {
       name: "rateType",
+      visible: false,
       default: "number",
-      choices: ["number", "text", "star", "emoji"],
+      choices: ["numbers", "labels", "stars", "smileys"],
     }
   ],
   function () {

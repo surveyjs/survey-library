@@ -1494,6 +1494,11 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-progress-requiredquestions",
       data: this
     });
+    this.addLayoutElement({
+      id: "toc-navigation",
+      component: "sv-progress-toc",
+      data: this
+    });
     this.layoutElements.push({
       id: "navigation",
       component: "sv-action-bar",
@@ -7231,6 +7236,17 @@ export class SurveyModel extends SurveyElementCore
         }
         if(container === "contentBottom") {
           if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+      } else if(isStrCiEqual(layoutElement.id, "toc-navigation")) {
+        if(container === "left") {
+          if(["left"].indexOf(this.showNavigationButtons) !== -1) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if(container === "right") {
+          if(["right"].indexOf(this.showNavigationButtons) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }

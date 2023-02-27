@@ -14,7 +14,7 @@ export var defaultV2Css = {
   root: "sd-root-modern",
   rootMobile: "sd-root-modern--mobile",
   rootReadOnly: "sd-root--readonly",
-  container: "sd-container-modern sv-components-column",
+  container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   bodyContainer: "sv-components-row",
   body: "sv-components-column sd-body",

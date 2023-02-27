@@ -186,7 +186,7 @@ frameworks.forEach(framework => {
   });
 
   test("show top progress bar", async t => {
-    let progressSelector = ".sv_container > div:nth-child(2)";
+    let progressSelector = ".sv_container > div:nth-of-type(2)";
     if(framework === "vue") { // TODO: reanimate Vue after Vue3 supported
       progressSelector = ".sv_container > .sv-components-column > div";
     }

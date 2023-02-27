@@ -852,6 +852,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set rightIndent(val: number) {
     this.setPropertyValue("rightIndent", val);
   }
+  public getRootStyle(): object {
+    const style: any = {};
+    if(!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
+    if(!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
+    return style;
+  }
   get paddingLeft(): string {
     return this.getPropertyValue("paddingLeft", "");
   }

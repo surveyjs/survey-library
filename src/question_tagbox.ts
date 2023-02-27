@@ -6,6 +6,7 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { EventBase } from "./base";
+import { settings } from "./settings";
 
 /**
  * A Model for a tagbox question
@@ -76,6 +77,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
+  /**
+   * Specifies whether to close the drop-down menu after a user selects a value.
+   */
+  @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -148,7 +153,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: true },
+    { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" }
   ],
   function () {

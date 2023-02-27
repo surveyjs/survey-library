@@ -7239,14 +7239,14 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "toc-navigation")) {
+      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.progressBarType === "toc") {
         if(container === "left") {
-          if(["left"].indexOf(this.showNavigationButtons) !== -1) {
+          if(["left", "both"].indexOf(this.showProgressBar) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if(container === "right") {
-          if(["right"].indexOf(this.showNavigationButtons) !== -1) {
+          if(["right", "both"].indexOf(this.showProgressBar) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }

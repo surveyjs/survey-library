@@ -62,4 +62,16 @@ frameworks.forEach(async framework => {
       .pressKey("tab")
       .expect(Selector("span").withText("Answered 1/2 questions").exists).ok();
   });
+  test("progressBarType:toc", async t => {
+    json["progressBarType"] = "toc";
+    json["showProgressBar"] = "left";
+    json["pages"][0]["elements"][0]["isRequired"] = false;
+    await initSurvey(framework, json);
+    const page1 = Selector(".sv-list__item-body").withText("page1");
+    const page2 = Selector(".sv-list__item-body").withText("page2");
+    await t.expect(page1.exists).ok();
+    await t.expect(page2.exists).ok();
+    await t.click(page2);
+    await t.expect(Selector("h5.sv_q_title").withText("q3").exists).ok();
+  });
 });

@@ -7,7 +7,7 @@ export var modernCss = {
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sv-body",
+  body: "sv-components-column sv-components-column--expandable sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
   title: "",

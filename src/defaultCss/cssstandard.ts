@@ -5,7 +5,7 @@ export var defaultStandardCss = {
   container: "sv_container",
   header: "sv_header",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sv_body",
+  body: "sv-components-column sv-components-column--expandable sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
   title: "",

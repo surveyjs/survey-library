@@ -12,5 +12,8 @@ sv-components-container,
 .sv-components-column {
   display: flex;
   flex-direction: column;
+}
+
+.sv-components-column--expandable {
   flex-grow: 1;
 }

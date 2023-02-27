@@ -17,7 +17,7 @@ export var defaultV2Css = {
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sd-body",
+  body: "sv-components-column sv-components-column--expandable sd-body",
   bodyWithTimer: "sd-body--with-timer",
   clockTimerRoot: "sd-timer",
   clockTimerRootTop: "sd-timer--top",

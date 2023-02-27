@@ -24,7 +24,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     return this.model;
   }
   private createModel(): void {
-    this.popup = createPopupViewModel(this.props.model, undefined as any);
+    this.popup = createPopupViewModel(this.props.model, undefined as any, settings.environment);
     this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
@@ -223,7 +223,7 @@ export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
     popupViewModel.unmountPopupContainer();
   } };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, settings.environment);
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
   popupViewModel.model.isVisible = true;

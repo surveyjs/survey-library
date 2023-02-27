@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
-import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
+import { PopupBaseViewModel, PopupModel, createPopupViewModel, settings } from "survey-core";
 import { DomPortalOutlet } from "@angular/cdk/portal";
 import { PopupService } from "./popup.service";
 
@@ -24,7 +24,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   }
   protected override onModelChanged(): void {
     this.destroyModel();
-    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement);
+    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement, settings.environment);
     this.model.initializePopupContainer();
     this.portalHost = this.popupService.createComponent(this.model);
   }

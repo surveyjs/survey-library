@@ -14,9 +14,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     this.hidePopup();
   }
+  private static readonly tabletSizeBreakpoint = 600;
   private calculateIsTablet (windowWidth: number, windowHeight: number) {
     const width = Math.min(windowWidth, windowHeight);
-    this.isTablet = width >= 600;
+    this.isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
   }
   private resizeEventCallback = () => {
     const visualViewport = window.visualViewport;

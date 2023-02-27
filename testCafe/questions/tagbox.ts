@@ -91,6 +91,8 @@ frameworks.forEach((framework) => {
   const selectedItems = Selector(".sv-tagbox__item");
   const popupContainer = Selector(".sv-popup__container").filterVisible();
 
+  const tagboxQuestion2 = Selector(".sd-tagbox").nth(1);
+
   test("tagbox editing", async (t) => {
     await initSurvey(framework, jsonCloseOnSelectIsTrue);
     await t
@@ -453,7 +455,7 @@ frameworks.forEach((framework) => {
       .expect(listItems.filterVisible().count).eql(55)
 
       .click(getListItemByText("55"))
-      .click(Selector(".sd-tagbox").nth(1))
+      .click(tagboxQuestion2)
       .expect(tagbox2.find(".sv-list__empty-container").visible).ok()
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)
@@ -590,7 +592,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(tagbox1.visible).notOk()
 
-      .click(Selector(".sd-tagbox").nth(1))
+      .click(tagboxQuestion2)
       .pressKey("2")
       .expect(tagbox2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
@@ -618,6 +620,7 @@ frameworks.forEach((framework) => {
           type: "tagbox",
           name: "country",
           title: "Select the country...",
+          closeOnSelect: false,
           choicesLazyLoadEnabled: true
         }, {
           type: "checkbox",
@@ -634,6 +637,7 @@ frameworks.forEach((framework) => {
           type: "tagbox",
           name: "kids",
           title: "tagbox page 30",
+          closeOnSelect: false,
           choicesLazyLoadEnabled: true,
           choicesLazyLoadPageSize: 30
         }
@@ -679,7 +683,7 @@ frameworks.forEach((framework) => {
 
       .click(getListItemByText("55"))
       .pressKey("esc")
-      .click(Selector(".sd-tagbox").nth(1))
+      .click(tagboxQuestion2)
       .expect(tagbox2.find(".sv-list__empty-container").visible).ok()
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)
@@ -705,7 +709,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -713,7 +717,7 @@ frameworks.forEach((framework) => {
           type: "tagbox",
           name: "country",
           title: "Select the country...",
-          closeOnSelect: true,
+          closeOnSelect: false,
           choices: [
             "item1",
             "item2",
@@ -758,7 +762,7 @@ frameworks.forEach((framework) => {
           type: "tagbox",
           name: "kids",
           title: "tagbox page 30",
-          closeOnSelect: true,
+          closeOnSelect: false,
           choices: [
             "item1",
             "item2",
@@ -814,9 +818,10 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
+      .pressKey("esc")
       .expect(tagbox1.visible).notOk()
 
-      .click(Selector(".sd-tagbox").nth(1))
+      .click(tagboxQuestion2)
       .pressKey("2")
       .expect(tagbox2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
@@ -831,7 +836,7 @@ frameworks.forEach((framework) => {
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
-      .expect(tagbox2.visible).notOk()
+      .expect(tagbox2.visible).ok()
 
       .resizeWindow(1280, 1100);
   });

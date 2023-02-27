@@ -186,14 +186,19 @@ frameworks.forEach(framework => {
   });
 
   test("show top progress bar", async t => {
-    const questionElements = Selector(".sv_container > .sv-components-column > div");
+    let progressSelector = ".sv_container > div:nth-child(2)";
+    if(framework === "vue") { // TODO: reanimate Vue after Vue3 supported
+      progressSelector = ".sv_container > .sv-components-column > div";
+    }
+
+    const progressElement = Selector(progressSelector);
     await t.expect(progressbar.exists).notOk();
 
     await show_top_progress_bar();
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3")
-      .expect(questionElements.classNames).contains("sv_progress");
+      .expect(progressElement.classNames).contains("sv_progress");
   });
 
   test("show bottom progress bar", async t => {

@@ -108,7 +108,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
-.sd-rating__item-star.sd-rating__item-star--disabled {
+.sd-rating__item-star--disabled {
   opacity: 0.5;
 
   svg {
@@ -117,7 +117,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
-.sd-rating__item-star.sd-rating__item-star--selected.sd-rating__item-star--disabled {
+.sd-rating__item-star--selected.sd-rating__item-star--disabled {
   svg {
     stroke: $border;
     fill: $border;

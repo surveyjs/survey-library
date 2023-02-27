@@ -11,7 +11,7 @@ export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
     return this.props.question;
   }
   get item(): RenderedRatingItem {
-    return this.props.data;
+    return this.props.item;
   }
   get index(): any {
     return this.props.index;

@@ -9,8 +9,8 @@ export var RatingItemStarViewModel: any;
 ko.components.register("sv-rating-item-star", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      new ImplementorBase(params.data);
-      return { question: params.question, data: params.data, index: params.index };
+      new ImplementorBase(params.item);
+      return { question: params.question, item: params.item, index: params.index };
     },
   },
   template: template,

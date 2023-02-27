@@ -7,7 +7,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 
 export interface IRatingItemProps {
   question: QuestionRatingModel;
-  data: RenderedRatingItem;
+  item: RenderedRatingItem;
   index: any;
   handleOnClick: any;
   isDisplayMode: boolean;
@@ -18,7 +18,7 @@ export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
     return this.props.question;
   }
   get item(): RenderedRatingItem {
-    return this.props.data;
+    return this.props.item;
   }
   get index(): any {
     return this.props.index;

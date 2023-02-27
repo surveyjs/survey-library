@@ -23,7 +23,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   ): JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponentName, {
       question: this.question,
-      data: item,
+      item: item,
       index: index,
       key: "value" + index,
       handleOnClick: this.handleOnClick,

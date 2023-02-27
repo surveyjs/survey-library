@@ -110,9 +110,9 @@ export class Survey extends SurveyElementBase<any, any>
           {customHeader}
           <div className={this.css.container}>
             {header}
-            <ComponentsContainer survey={this.survey} container={"header"}></ComponentsContainer>
+            <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
             {renderResult}
-            <ComponentsContainer survey={this.survey} container={"footer"}></ComponentsContainer>
+            <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
           </div>
         </form>
         { this.survey.showBrandInfo ? <BrandInfo/> : null }

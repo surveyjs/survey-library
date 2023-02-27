@@ -4,7 +4,7 @@
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
-        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header' } }"></ng-template>
+        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header', needRenderWrapper: false } }"></ng-template>
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnTop && !model.isShowStartingPage">
           <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
@@ -36,7 +36,7 @@
         <!-- <ng-container *ngIf="model.isTimerPanelShowingOnBottom && !model.isShowStartingPage">
             <sv-timerpanel [model]="model.timerModel"></sv-timerpanel>
         </ng-container> -->
-        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer' } }"></ng-template>
+        <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
         <div *ngIf="model.state === 'completedbefore'" [class]="model.css.body"

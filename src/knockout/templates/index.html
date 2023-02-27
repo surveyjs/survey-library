@@ -11,7 +11,7 @@
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
-              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "header" } } --><!-- /ko -->
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "header", needRenderWrapper: false } } --><!-- /ko -->
               <div data-bind="css: $data.bodyContainerCss">
                   <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "left" } } --><!-- /ko -->
                   <div data-bind="css: bodyCss, style:{maxWidth: renderedWidth}, attr: { id: activePage ? activePage.id : '' }">
@@ -28,7 +28,7 @@
                   </div>
                   <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "right" } } --><!-- /ko -->
               </div>
-              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "footer" } } --><!-- /ko -->
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "footer", needRenderWrapper: false } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>

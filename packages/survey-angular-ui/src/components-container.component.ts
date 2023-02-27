@@ -11,8 +11,12 @@ import { EmbeddedViewContentComponent } from "./embedded-view-content.component"
 export class ComponentsContainerComponent extends EmbeddedViewContentComponent {
   @Input() survey!: SurveyModel;
   @Input() container!: string;
+  @Input() needRenderWrapper?: boolean;
   get components(): Array<any> {
     return this.survey.getContainerContent(this.container as any);
+  }
+  get isNeedRenderWrapper(): boolean {
+    return this.needRenderWrapper === false ? false : true;
   }
 }
 AngularComponentFactory.Instance.registerComponent("sv-components-container", ComponentsContainerComponent);

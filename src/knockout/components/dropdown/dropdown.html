@@ -39,7 +39,7 @@
       css: question.cssClasses.filterStringInput, 
       attr: { 
         'aria-label': question.placeholder, 
-        placeholder: question.readOnlyText, 
+        placeholder: model.placeholderRendered, 
         readonly: !model.searchEnabled, 
         role: model.filterStringEnabled ? question.ariaRole : undefined,
         tabindex: model.inputReadOnly ? undefined : -1,

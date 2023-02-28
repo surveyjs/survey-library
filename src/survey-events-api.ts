@@ -14,8 +14,6 @@ import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
 
-export interface IEmptyOptions {
-}
 export interface IQuestionOptions {
   /**
    * A Question instance for which the event is raised.

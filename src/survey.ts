@@ -46,7 +46,7 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IOnShowingPreviewOptions, IOnNavigateToUrlOptions, IOnCurrentPageChangingOptions, IOnCurrentPageChangedOptions, IOnValueChangingOptions, IOnValueChangedOptions, IOnVariableChangedOptions, IOnQuestionVisibleChangedOptions, IOnPageVisibleChangedOptions, IOnPanelVisibleChangedOptions, IOnQuestionCreatedOptions, IOnQuestionAddedOptions, IOnQuestionRemovedOptions, IOnPanelAddedOptions, IOnPanelRemovedOptions, IOnPageAddedOptions, IOnValidateQuestionOptions, IOnSettingQuestionErrorsOptions, IOnValidatePanelOptions, IOnErrorCustomTextOptions, IOnValidatedErrorsOnCurrentPageOptions, IOnProcessHtmlOptions, IOnGetQuestionTitleOptions, IOnGetTitleTagNameOptions, IOnGetQuestionNoOptions, IOnProgressTextOptions, IOnTextMarkdownOptions, IOnTextRenderAsOptions, IOnSendResultOptions, IOnGetResultOptions, IOnUploadFilesOptions, IOnDownloadFileOptions, IOnClearFilesOptions, IOnLoadChoicesFromServerOptions, IOnProcessTextValueOptions, IOnUpdateQuestionCssClassesOptions, IOnUpdatePanelCssClassesOptions, IOnUpdatePageCssClassesOptions, IOnUpdateChoiceItemCssOptions, IOnAfterRenderSurveyOptions, IOnAfterRenderHeaderOptions, IOnAfterRenderPageOptions, IOnAfterRenderQuestionOptions, IOnAfterRenderQuestionInputOptions, IOnAfterRenderPanelOptions, IOnFocusInQuestionOptions, IOnFocusInPanelOptions, IOnShowingChoiceItemOptions, IOnChoicesLazyLoadOptions, IOnGetChoiceDisplayValueOptions, IOnMatrixRowAddedOptions, IOnMatrixBeforeRowAddedOptions, IOnMatrixRowRemovingOptions, IOnMatrixRowRemovedOptions, IOnMatrixAllowRemoveRowOptions, IOnMatrixCellCreatingOptions, IOnMatrixCellCreatedOptions, IOnMatrixAfterCellRenderOptions, IOnMatrixCellValueChangedOptions, IOnMatrixCellValueChangingOptions, IOnMatrixCellValidateOptions, IOnDynamicPanelModifiedOptions, IOnDynamicPanelRemovingOptions, IOnTimerPanelInfoTextOptions, IOnDynamicPanelItemValueChangedOptions, IOnIsAnswerCorrectOptions, IOnDragDropAllowOptions, IOnScrollingElementToTopOptions, IEmptyOptions, IOnGetQuestionTitleActionsOptions, IOnGetPanelTitleActionsOptions, IOnGetPageTitleActionsOptions, IOnGetPanelFooterActionsOptions, IOnGetMatrixRowActionsOptions, IOnElementContentVisibilityChangedOptions, IOnGetExpressionDisplayValueOptions, IOnServerValidateQuestionsOptions, IOnMultipleTextItemAddedOptions, IOnMatrixColumnAddedOptions, IOnGetQuestionDisplayValueOptions } from "./survey-events-api";
+import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IOnShowingPreviewOptions, IOnNavigateToUrlOptions, IOnCurrentPageChangingOptions, IOnCurrentPageChangedOptions, IOnValueChangingOptions, IOnValueChangedOptions, IOnVariableChangedOptions, IOnQuestionVisibleChangedOptions, IOnPageVisibleChangedOptions, IOnPanelVisibleChangedOptions, IOnQuestionCreatedOptions, IOnQuestionAddedOptions, IOnQuestionRemovedOptions, IOnPanelAddedOptions, IOnPanelRemovedOptions, IOnPageAddedOptions, IOnValidateQuestionOptions, IOnSettingQuestionErrorsOptions, IOnValidatePanelOptions, IOnErrorCustomTextOptions, IOnValidatedErrorsOnCurrentPageOptions, IOnProcessHtmlOptions, IOnGetQuestionTitleOptions, IOnGetTitleTagNameOptions, IOnGetQuestionNoOptions, IOnProgressTextOptions, IOnTextMarkdownOptions, IOnTextRenderAsOptions, IOnSendResultOptions, IOnGetResultOptions, IOnUploadFilesOptions, IOnDownloadFileOptions, IOnClearFilesOptions, IOnLoadChoicesFromServerOptions, IOnProcessTextValueOptions, IOnUpdateQuestionCssClassesOptions, IOnUpdatePanelCssClassesOptions, IOnUpdatePageCssClassesOptions, IOnUpdateChoiceItemCssOptions, IOnAfterRenderSurveyOptions, IOnAfterRenderHeaderOptions, IOnAfterRenderPageOptions, IOnAfterRenderQuestionOptions, IOnAfterRenderQuestionInputOptions, IOnAfterRenderPanelOptions, IOnFocusInQuestionOptions, IOnFocusInPanelOptions, IOnShowingChoiceItemOptions, IOnChoicesLazyLoadOptions, IOnGetChoiceDisplayValueOptions, IOnMatrixRowAddedOptions, IOnMatrixBeforeRowAddedOptions, IOnMatrixRowRemovingOptions, IOnMatrixRowRemovedOptions, IOnMatrixAllowRemoveRowOptions, IOnMatrixCellCreatingOptions, IOnMatrixCellCreatedOptions, IOnMatrixAfterCellRenderOptions, IOnMatrixCellValueChangedOptions, IOnMatrixCellValueChangingOptions, IOnMatrixCellValidateOptions, IOnDynamicPanelModifiedOptions, IOnDynamicPanelRemovingOptions, IOnTimerPanelInfoTextOptions, IOnDynamicPanelItemValueChangedOptions, IOnIsAnswerCorrectOptions, IOnDragDropAllowOptions, IOnScrollingElementToTopOptions, IOnGetQuestionTitleActionsOptions, IOnGetPanelTitleActionsOptions, IOnGetPageTitleActionsOptions, IOnGetPanelFooterActionsOptions, IOnGetMatrixRowActionsOptions, IOnElementContentVisibilityChangedOptions, IOnGetExpressionDisplayValueOptions, IOnServerValidateQuestionsOptions, IOnMultipleTextItemAddedOptions, IOnMatrixColumnAddedOptions, IOnGetQuestionDisplayValueOptions } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
@@ -163,7 +163,7 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes from `"starting"` to `"running"`. This occurs only if your survey includes a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStarted
    */
-  public onStarted: EventBase<SurveyModel, IEmptyOptions> = this.addEvent<SurveyModel, IEmptyOptions>();
+  public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
    * Use this event to save incomplete survey results. Enable the [`sendResultOnPageNext`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResultOnPageNext) property for this event to occur.
    *
@@ -171,7 +171,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
    */
-  public onPartialSend: EventBase<SurveyModel, IEmptyOptions> = this.addEvent<SurveyModel, IEmptyOptions>();
+  public onPartialSend: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
    * An event that is raised before the current page is switched.
    *
@@ -453,7 +453,7 @@ export class SurveyModel extends SurveyElementCore
    * @see surveyId
    * @see loadSurveyFromService
    */
-  public onLoadedSurveyFromService: EventBase<SurveyModel, IEmptyOptions> = this.addEvent<SurveyModel, IEmptyOptions>();
+  public onLoadedSurveyFromService: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
   /**
    * An event that is raised on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
@@ -685,7 +685,7 @@ export class SurveyModel extends SurveyElementCore
   * @see timeSpent
   * @see Page.timeSpent
   */
-  public onTimer: EventBase<SurveyModel, IEmptyOptions> = this.addEvent<SurveyModel, IEmptyOptions>();
+  public onTimer: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
    * An event that is raised before displaying a new information in the Timer Panel. Use it to change the default text.
    */
@@ -714,7 +714,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onScrollingElementToTop: EventBase<SurveyModel, IOnScrollingElementToTopOptions> = this.addEvent<SurveyModel, IOnScrollingElementToTopOptions>();
 
-  public onLocaleChangedEvent: EventBase<SurveyModel, IEmptyOptions> = this.addEvent<SurveyModel, IEmptyOptions>();
+  public onLocaleChangedEvent: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
   /**
    * Use this event to create/customize actions to be displayed in a question's title.

@@ -4,16 +4,9 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
+import { IRatingItemProps, RatingItem } from "./rating-item";
 
-export interface IRatingItemProps {
-  question: QuestionRatingModel;
-  item: RenderedRatingItem;
-  index: any;
-  handleOnClick: any;
-  isDisplayMode: boolean;
-}
-
-export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
+export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
   get question(): QuestionRatingModel {
     return this.props.question;
   }
@@ -27,9 +20,12 @@ export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
     return this.item;
   }
   render(): JSX.Element | null {
-    var itemText = this.renderLocString(this.item.locText);
     return (
-      <label className={this.question.getItemClass(this.item.itemValue)}>
+      <label
+        className={this.question.getItemClass(this.item.itemValue)}
+        onMouseOver={e => this.question.onItemMouseIn(this.item)}
+        onMouseOut={e => this.question.onItemMouseOut(this.item)}
+      >
         <input
           type="radio"
           className="sv-visuallyhidden"
@@ -45,15 +41,23 @@ export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
           aria-invalid={this.question.ariaInvalid}
           aria-describedby={this.question.ariaDescribedBy}
         />
-        <span className={this.question.cssClasses.itemText}>{itemText}</span>
+        <SvgIcon
+          className={"sv-star"}
+          size={48}
+          iconName={"icon-rating-star"}
+          title={this.item.text}
+        ></SvgIcon>
+        <SvgIcon
+          className={"sv-star-2"}
+          size={48}
+          iconName={"icon-rating-star-2"}
+          title={this.item.text}
+        ></SvgIcon>
       </label>
     );
   }
-  componentDidMount() {
-    super.componentDidMount();
-  }
 }
 
-ReactElementFactory.Instance.registerElement("sv-rating-item", (props) => {
-  return React.createElement(RatingItem, props);
+ReactElementFactory.Instance.registerElement("sv-rating-item-star", (props) => {
+  return React.createElement(RatingItemStar, props);
 });

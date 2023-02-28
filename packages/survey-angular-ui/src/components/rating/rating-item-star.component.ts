@@ -4,12 +4,12 @@ import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
-  selector: "sv-ng-rating-item",
-  templateUrl: "./rating-item.component.html",
+  selector: "sv-ng-rating-item-star",
+  templateUrl: "./rating-item-star.component.html",
   styleUrls: ["../../hide-host.scss"],
 })
 
-export class RatingItemComponent extends BaseAngular {
+export class RatingItemStarComponent extends BaseAngular<RenderedRatingItem> {
   @Input() element: any;
   @Input() model!: QuestionRatingModel;
   @Input() item!: RenderedRatingItem;
@@ -25,4 +25,4 @@ export class RatingItemComponent extends BaseAngular {
   }
 }
 
-AngularComponentFactory.Instance.registerComponent("sv-rating-item", RatingItemComponent);
+AngularComponentFactory.Instance.registerComponent("sv-rating-item-star", RatingItemStarComponent);

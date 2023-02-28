@@ -23,27 +23,23 @@ export var surveyLocalization = {
   getLocaleStrings(loc: string): any {
     return this.locales[loc];
   },
-  getCurrentStrings(locale?: string): any {
-    let loc = locale && this.locales[locale];
-    if (!loc) loc = this.currentLocale ? this.locales[this.currentLocale] : this.locales[this.defaultLocale];
-    if (!loc) loc = this.locales[this.defaultLocale];
-    if (!loc) loc = this.locales["en"];
-    return loc;
-  },
-  getString: function (strName: string, locale: string = null) {
-    const originalLocale = locale;
-    locale = locale || this.currentLocale || this.defaultLocale;
-    var loc = this.getCurrentStrings(locale);
-    if (!!loc[strName]) return loc[strName];
-    const index = !!locale ? locale.indexOf("-") : -1;
-    if(index > -1) return this.getString(strName, locale.substring(0, index));
-    loc = this.locales[this.defaultLocale];
-    var result = loc[strName];
-    if (result === undefined) {
-      result = this.locales["en"][strName];
+  getString: function (strName: string, requestedLocale: string = null) {
+    const rawOptions = [requestedLocale, this.currentLocale, this.defaultLocale, "en"]
+
+    for (let locale of rawOptions) {
+      if (!!locale) {
+        // Try exact locale
+        if (!!this.locales?.[locale]?.[strName]) {
+          return this.locales[locale][strName]
+        }
+        // Try parent locale
+        const parts = locale.split('-')
+        if (parts.length > 1 && !!this.locales?.[parts[0]]?.[strName]) {
+          return this.locales[parts[0]][strName]
+        }
+      }
     }
-    if(result === undefined) return this.onGetExternalString(strName, originalLocale);
-    return result;
+    return this.onGetExternalString(strName, requestedLocale);
   },
   getLocales: function (removeDefaultLoc: boolean = false): Array<string> {
     var res = [];

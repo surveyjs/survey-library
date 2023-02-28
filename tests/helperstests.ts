@@ -373,9 +373,9 @@ QUnit.test("boolPropertyWithDefault", function(assert) {
   instance.stringPropertyWithDefault = null;
 
   assert.equal(instance.boolPropertyNoDefault, true);
-  assert.equal(instance.boolPropertyWithDefault, null);
+  assert.equal(instance.boolPropertyWithDefault, true);
   assert.equal(instance.stringPropertyNoDefault, "hole");
-  assert.equal(instance.stringPropertyWithDefault, null);
+  assert.equal(instance.stringPropertyWithDefault, "test");
 });
 QUnit.test("isTwoValueEquals compare Base objects", function(assert) {
   var json = {

@@ -58,19 +58,16 @@ export function property(options?: IPropertyDecoratorOptions) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
         get: function () {
-          const value = this.getPropertyValue(key);
-          if (value !== undefined) {
-            return value;
-          }
+          let defaultVal = null;
           if (!!options) {
             if (typeof options.getDefaultValue === "function") {
-              return options.getDefaultValue(this);
+              defaultVal = options.getDefaultValue(this);
             }
             if (options.defaultValue !== undefined) {
-              return options.defaultValue;
+              defaultVal = options.defaultValue;
             }
           }
-          return undefined;
+          return this.getPropertyValue(key, defaultVal);
         },
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);

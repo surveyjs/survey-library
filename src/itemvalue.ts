@@ -184,7 +184,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public ownerPropertyName: string = "";
   //private itemValue: any;
-  @property({ defaultValue: true}) private _visible: boolean;
+  @property({ defaultValue: true }) private _visible: boolean;
   private locTextValue: LocalizableString;
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
@@ -218,6 +218,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (this.getType() != "itemvalue") {
       CustomPropertiesCollection.createProperties(this);
     }
+    this.data = this;
     this.onCreating();
   }
 

@@ -123,12 +123,6 @@ export class DropdownListModel extends Base {
 
   protected getAvailableItems(): Array<ItemValue> {
     return this.question.visibleChoices;
-    // id: <any>new ComputedUpdater<boolean>(() => choice.value),
-    // data: choice,
-    // locTitle: choice.locText,
-    // component: <any>new ComputedUpdater<string>(() => this.question.itemComponent),
-    // visible: <any>new ComputedUpdater<boolean>(() => choice.isVisible),
-    // enabled: <any>new ComputedUpdater<boolean>(() => choice.isEnabled),
   }
   protected createListModel(): ListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();

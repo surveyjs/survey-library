@@ -958,6 +958,7 @@ QUnit.test("ItemValue: check action fields", assert => {
   assert.equal(question.visibleChoices[0].locTitle.text, "Item 1");
   assert.equal(question.visibleChoices[0].title, "Item 1");
   assert.equal(question.visibleChoices[0].id, "Item1");
+  assert.equal(question.visibleChoices[0].data, question.visibleChoices[0]);
   assert.equal(question.visibleChoices[0].visible, true);
   question.visibleChoices[0].setIsVisible(false);
   assert.equal(question.visibleChoices[0].visible, false);

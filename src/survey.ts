@@ -2023,7 +2023,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("questionTitlePattern", val);
   }
-  getQuestTitlePatternEvent(): Array<any> {
+  getQuestionTitlePatternOptions(): Array<any> {
     const res = new Array<any>();
     const title = this.getLocalizationString("questionTitlePatternText");
     const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
@@ -6763,7 +6763,7 @@ Serializer.addClass("survey", [
     dependsOn: ["questionStartIndex", "requiredText"],
     choices: (obj: any) => {
       if (!obj) return [];
-      return obj.getQuestTitlePatternEvent();
+      return obj.getQuestionTitlePatternOptions();
     },
   },
   {

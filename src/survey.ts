@@ -46,7 +46,7 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { IOnTriggerExecutedOptions, IOnCompletingOptions, IOnCompleteOptions, IOnShowingPreviewOptions, IOnNavigateToUrlOptions, IOnCurrentPageChangingOptions, IOnCurrentPageChangedOptions, IOnValueChangingOptions, IOnValueChangedOptions, IOnVariableChangedOptions, IOnQuestionVisibleChangedOptions, IOnPageVisibleChangedOptions, IOnPanelVisibleChangedOptions, IOnQuestionCreatedOptions, IOnQuestionAddedOptions, IOnQuestionRemovedOptions, IOnPanelAddedOptions, IOnPanelRemovedOptions, IOnPageAddedOptions, IOnValidateQuestionOptions, IOnSettingQuestionErrorsOptions, IOnValidatePanelOptions, IOnErrorCustomTextOptions, IOnValidatedErrorsOnCurrentPageOptions, IOnProcessHtmlOptions, IOnGetQuestionTitleOptions, IOnGetTitleTagNameOptions, IOnGetQuestionNoOptions, IOnProgressTextOptions, IOnTextMarkdownOptions, IOnTextRenderAsOptions, IOnSendResultOptions, IOnGetResultOptions, IOnUploadFilesOptions, IOnDownloadFileOptions, IOnClearFilesOptions, IOnLoadChoicesFromServerOptions, IOnProcessTextValueOptions, IOnUpdateQuestionCssClassesOptions, IOnUpdatePanelCssClassesOptions, IOnUpdatePageCssClassesOptions, IOnUpdateChoiceItemCssOptions, IOnAfterRenderSurveyOptions, IOnAfterRenderHeaderOptions, IOnAfterRenderPageOptions, IOnAfterRenderQuestionOptions, IOnAfterRenderQuestionInputOptions, IOnAfterRenderPanelOptions, IOnFocusInQuestionOptions, IOnFocusInPanelOptions, IOnShowingChoiceItemOptions, IOnChoicesLazyLoadOptions, IOnGetChoiceDisplayValueOptions, IOnMatrixRowAddedOptions, IOnMatrixBeforeRowAddedOptions, IOnMatrixRowRemovingOptions, IOnMatrixRowRemovedOptions, IOnMatrixAllowRemoveRowOptions, IOnMatrixCellCreatingOptions, IOnMatrixCellCreatedOptions, IOnMatrixAfterCellRenderOptions, IOnMatrixCellValueChangedOptions, IOnMatrixCellValueChangingOptions, IOnMatrixCellValidateOptions, IOnDynamicPanelModifiedOptions, IOnDynamicPanelRemovingOptions, IOnTimerPanelInfoTextOptions, IOnDynamicPanelItemValueChangedOptions, IOnIsAnswerCorrectOptions, IOnDragDropAllowOptions, IOnScrollingElementToTopOptions, IOnGetQuestionTitleActionsOptions, IOnGetPanelTitleActionsOptions, IOnGetPageTitleActionsOptions, IOnGetPanelFooterActionsOptions, IOnGetMatrixRowActionsOptions, IOnElementContentVisibilityChangedOptions, IOnGetExpressionDisplayValueOptions, IOnServerValidateQuestionsOptions, IOnMultipleTextItemAddedOptions, IOnMatrixColumnAddedOptions, IOnGetQuestionDisplayValueOptions } from "./survey-events-api";
+import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent, ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent, QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent, ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent, AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent, ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent, MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
@@ -125,7 +125,7 @@ export class SurveyModel extends SurveyElementCore
    * @see triggers
    * @see runTriggers
    */
-  public onTriggerExecuted: EventBase<SurveyModel, IOnTriggerExecutedOptions> = this.addEvent<SurveyModel, IOnTriggerExecutedOptions>();
+  public onTriggerExecuted: EventBase<SurveyModel, TriggerExecutedEvent> = this.addEvent<SurveyModel, TriggerExecutedEvent>();
 
   /**
    * An event that is raised before the survey is completed. Use this event to prevent survey completion.
@@ -133,7 +133,7 @@ export class SurveyModel extends SurveyElementCore
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
    */
-  public onCompleting: EventBase<SurveyModel, IOnCompletingOptions> = this.addEvent<SurveyModel, IOnCompletingOptions>();
+  public onCompleting: EventBase<SurveyModel, CompletingEvent> = this.addEvent<SurveyModel, CompletingEvent>();
   /**
    * An event that is raised after the survey is completed. Use this event to send survey results to the server.
    *
@@ -146,19 +146,19 @@ export class SurveyModel extends SurveyElementCore
    * @see doComplete
    * @see allowCompleteSurveyAutomatic
    */
-  public onComplete: EventBase<SurveyModel, IOnCompleteOptions> = this.addEvent<SurveyModel, IOnCompleteOptions>();
+  public onComplete: EventBase<SurveyModel, CompleteEvent> = this.addEvent<SurveyModel, CompleteEvent>();
   /**
    * An event that is raised before the survey displays a [preview](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
    *
    * @see showPreviewBeforeComplete
    */
-  public onShowingPreview: EventBase<SurveyModel, IOnShowingPreviewOptions> = this.addEvent<SurveyModel, IOnShowingPreviewOptions>();
+  public onShowingPreview: EventBase<SurveyModel, ShowingPreviewEvent> = this.addEvent<SurveyModel, ShowingPreviewEvent>();
   /**
    * An event that is raised before the survey navigates to a specified URL. Use this event to change the URL or cancel the navigation.
    * @see navigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public onNavigateToUrl: EventBase<SurveyModel, IOnNavigateToUrlOptions> = this.addEvent<SurveyModel, IOnNavigateToUrlOptions>();
+  public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
    * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes from `"starting"` to `"running"`. This occurs only if your survey includes a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStarted
@@ -179,7 +179,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    * @see prevPage
    **/
-  public onCurrentPageChanging: EventBase<SurveyModel, IOnCurrentPageChangingOptions> = this.addEvent<SurveyModel, IOnCurrentPageChangingOptions>();
+  public onCurrentPageChanging: EventBase<SurveyModel, CurrentPageChangingEvent> = this.addEvent<SurveyModel, CurrentPageChangingEvent>();
   /**
    * An event that is raised after the current page is switched.
    *
@@ -187,12 +187,12 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    * @see prevPage
    */
-  public onCurrentPageChanged: EventBase<SurveyModel, IOnCurrentPageChangedOptions> = this.addEvent<SurveyModel, IOnCurrentPageChangedOptions>();
+  public onCurrentPageChanged: EventBase<SurveyModel, CurrentPageChangedEvent> = this.addEvent<SurveyModel, CurrentPageChangedEvent>();
   /**
    * An event that is raised before a question value is changed.
    * @see setValue
    */
-  public onValueChanging: EventBase<SurveyModel, IOnValueChangingOptions> = this.addEvent<SurveyModel, IOnValueChangingOptions>();
+  public onValueChanging: EventBase<SurveyModel, ValueChangingEvent> = this.addEvent<SurveyModel, ValueChangingEvent>();
   /**
    * An event that is raised after a question value is changed
    *
@@ -201,14 +201,14 @@ export class SurveyModel extends SurveyElementCore
    * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelItemValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelItemValueChanged) event.
    * @see setValue
    */
-  public onValueChanged: EventBase<SurveyModel, IOnValueChangedOptions> = this.addEvent<SurveyModel, IOnValueChangedOptions>();
+  public onValueChanged: EventBase<SurveyModel, ValueChangedEvent> = this.addEvent<SurveyModel, ValueChangedEvent>();
   /**
    * An event that is raised after a [variable](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables) or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) is changed.
    *
    * @see setVariable
    * @see calculatedValues
    */
-  public onVariableChanged: EventBase<SurveyModel, IOnVariableChangedOptions> = this.addEvent<SurveyModel, IOnVariableChangedOptions>();
+  public onVariableChanged: EventBase<SurveyModel, VariableChangedEvent> = this.addEvent<SurveyModel, VariableChangedEvent>();
   /**
    * An event that is raised after question visibility is changed.
    *
@@ -216,12 +216,12 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onQuestionVisibleChanged: EventBase<SurveyModel, IOnQuestionVisibleChangedOptions> = this.addEvent<SurveyModel, IOnQuestionVisibleChangedOptions>();
+  public onQuestionVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.addEvent<SurveyModel, QuestionVisibleChangedEvent>();
   /**
    * Obsolete. Please use onQuestionVisibleChanged event.
    * @see onQuestionVisibleChanged
    */
-  public onVisibleChanged: EventBase<SurveyModel, IOnQuestionVisibleChangedOptions> = this.onQuestionVisibleChanged;
+  public onVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -229,7 +229,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onPageVisibleChanged: EventBase<SurveyModel, IOnPageVisibleChangedOptions> = this.addEvent<SurveyModel, IOnPageVisibleChangedOptions>();
+  public onPageVisibleChanged: EventBase<SurveyModel, PageVisibleChangedEvent> = this.addEvent<SurveyModel, PageVisibleChangedEvent>();
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -237,7 +237,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
-  public onPanelVisibleChanged: EventBase<SurveyModel, IOnPanelVisibleChangedOptions> = this.addEvent<SurveyModel, IOnPanelVisibleChangedOptions>();
+  public onPanelVisibleChanged: EventBase<SurveyModel, PanelVisibleChangedEvent> = this.addEvent<SurveyModel, PanelVisibleChangedEvent>();
   /**
    * An event that is raised when the survey creates any new object derived from [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question).
    *
@@ -264,7 +264,7 @@ export class SurveyModel extends SurveyElementCore
    * ```
    * @see onQuestionAdded
    */
-  public onQuestionCreated: EventBase<SurveyModel, IOnQuestionCreatedOptions> = this.addEvent<SurveyModel, IOnQuestionCreatedOptions>();
+  public onQuestionCreated: EventBase<SurveyModel, QuestionCreatedEvent> = this.addEvent<SurveyModel, QuestionCreatedEvent>();
   /**
    * An event that is raised when a new question is added to a panel or page.
    *
@@ -289,24 +289,24 @@ export class SurveyModel extends SurveyElementCore
    * ```
    * @see onQuestionCreated
    */
-  public onQuestionAdded: EventBase<SurveyModel, IOnQuestionAddedOptions> = this.addEvent<SurveyModel, IOnQuestionAddedOptions>();
+  public onQuestionAdded: EventBase<SurveyModel, QuestionAddedEvent> = this.addEvent<SurveyModel, QuestionAddedEvent>();
   /**
    * An event that is raised after a question is deleted from the survey.
    */
-  public onQuestionRemoved: EventBase<SurveyModel, IOnQuestionRemovedOptions> = this.addEvent<SurveyModel, IOnQuestionRemovedOptions>();
+  public onQuestionRemoved: EventBase<SurveyModel, QuestionRemovedEvent> = this.addEvent<SurveyModel, QuestionRemovedEvent>();
   /**
    *  An event that is raised when a new panel is added to a page.
    */
-  public onPanelAdded: EventBase<SurveyModel, IOnPanelAddedOptions> = this.addEvent<SurveyModel, IOnPanelAddedOptions>();
+  public onPanelAdded: EventBase<SurveyModel, PanelAddedEvent> = this.addEvent<SurveyModel, PanelAddedEvent>();
   /**
    * An event that is raised after a panel is deleted from the survey.
    */
-  public onPanelRemoved: EventBase<SurveyModel, IOnPanelRemovedOptions> = this.addEvent<SurveyModel, IOnPanelRemovedOptions>();
+  public onPanelRemoved: EventBase<SurveyModel, PanelRemovedEvent> = this.addEvent<SurveyModel, PanelRemovedEvent>();
   /**
    *  An event that is raised when a new page is added to the survey.
    * @see PanelModel
    */
-  public onPageAdded: EventBase<SurveyModel, IOnPageAddedOptions> = this.addEvent<SurveyModel, IOnPageAddedOptions>();
+  public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();
   /**
    * An event that is raised when a question value is being validated. Use this event to specify a custom error message.
    *
@@ -318,12 +318,12 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixCellValidate
    * @see onSettingQuestionErrors
    */
-  public onValidateQuestion: EventBase<SurveyModel, IOnValidateQuestionOptions> = this.addEvent<SurveyModel, IOnValidateQuestionOptions>();
+  public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
    * An event that is raised before errors are assigned to a question. You may add/remove/modify errors for a question.
    * @see onValidateQuestion
    */
-  public onSettingQuestionErrors: EventBase<SurveyModel, IOnSettingQuestionErrorsOptions> = this.addEvent<SurveyModel, IOnSettingQuestionErrorsOptions>();
+  public onSettingQuestionErrors: EventBase<SurveyModel, SettingQuestionErrorsEvent> = this.addEvent<SurveyModel, SettingQuestionErrorsEvent>();
   /**
    * Use this event to validate data on your server.
    *
@@ -333,7 +333,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onValidateQuestion
    * @see onValidatePanel
    */
-  public onServerValidateQuestions: EventBase<SurveyModel, IOnServerValidateQuestionsOptions> = this.addEvent<SurveyModel, IOnServerValidateQuestionsOptions>();
+  public onServerValidateQuestions: EventBase<SurveyModel, ServerValidateQuestionsEvent> = this.addEvent<SurveyModel, ServerValidateQuestionsEvent>();
   /**
    * An event that is raised when a panel is being validated. Use this event to specify a custom error message.
    *
@@ -343,49 +343,49 @@ export class SurveyModel extends SurveyElementCore
    * @see onValidateQuestion
    * @see onServerValidateQuestions
    */
-  public onValidatePanel: EventBase<SurveyModel, IOnValidatePanelOptions> = this.addEvent<SurveyModel, IOnValidatePanelOptions>();
+  public onValidatePanel: EventBase<SurveyModel, ValidatePanelEvent> = this.addEvent<SurveyModel, ValidatePanelEvent>();
   /**
    * Use the event to change the default error text.
    */
-  public onErrorCustomText: EventBase<SurveyModel, IOnErrorCustomTextOptions> = this.addEvent<SurveyModel, IOnErrorCustomTextOptions>();
+  public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
    * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
    */
-  public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, IOnValidatedErrorsOnCurrentPageOptions> = this.addEvent<SurveyModel, IOnValidatedErrorsOnCurrentPageOptions>();
+  public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
    * Use this event to modify the HTML content before rendering, for example `completeHtml` or `loadingHtml`.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html
    */
-  public onProcessHtml: EventBase<SurveyModel, IOnProcessHtmlOptions> = this.addEvent<SurveyModel, IOnProcessHtmlOptions>();
+  public onProcessHtml: EventBase<SurveyModel, ProcessHtmlEvent> = this.addEvent<SurveyModel, ProcessHtmlEvent>();
   /**
    * Use this event to change a question's display text.
    */
-  public onGetQuestionDisplayValue: EventBase<SurveyModel, IOnGetQuestionDisplayValueOptions> = this.addEvent<SurveyModel, IOnGetQuestionDisplayValueOptions>();
+  public onGetQuestionDisplayValue: EventBase<SurveyModel, GetQuestionDisplayValueEvent> = this.addEvent<SurveyModel, GetQuestionDisplayValueEvent>();
   /**
    * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * @see showQuestionNumbers
    * @see requiredText
    */
-  public onGetQuestionTitle: EventBase<SurveyModel, IOnGetQuestionTitleOptions> = this.addEvent<SurveyModel, IOnGetQuestionTitleOptions>();
+  public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
    * Use this event to change the element title tag name that renders by default.
    * @see showQuestionNumbers
    * @see requiredText
    */
-  public onGetTitleTagName: EventBase<SurveyModel, IOnGetTitleTagNameOptions> = this.addEvent<SurveyModel, IOnGetTitleTagNameOptions>();
+  public onGetTitleTagName: EventBase<SurveyModel, GetTitleTagNameEvent> = this.addEvent<SurveyModel, GetTitleTagNameEvent>();
   /**
    * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
    * @see showQuestionNumbers
    * @see questionStartIndex
    */
-  public onGetQuestionNo: EventBase<SurveyModel, IOnGetQuestionNoOptions> = this.addEvent<SurveyModel, IOnGetQuestionNoOptions>();
+  public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNoEvent> = this.addEvent<SurveyModel, GetQuestionNoEvent>();
   /**
    * Use this event to change the progress text in code.
    *  @see progressBarType
    */
-  public onProgressText: EventBase<SurveyModel, IOnProgressTextOptions> = this.addEvent<SurveyModel, IOnProgressTextOptions>();
+  public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
   /**
    * Use this event to process the markdown text.
    *
@@ -393,20 +393,20 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/ (linkStyle))
    */
-  public onTextMarkdown: EventBase<SurveyModel, IOnTextMarkdownOptions> = this.addEvent<SurveyModel, IOnTextMarkdownOptions>();
+  public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>();
   /**
    * Use this event to specity render component name used for text rendering.
    */
-  public onTextRenderAs: EventBase<SurveyModel, IOnTextRenderAsOptions> = this.addEvent<SurveyModel, IOnTextRenderAsOptions>();
+  public onTextRenderAs: EventBase<SurveyModel, TextRenderAsEvent> = this.addEvent<SurveyModel, TextRenderAsEvent>();
   /**
    * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
    */
-  public onSendResult: EventBase<SurveyModel, IOnSendResultOptions> = this.addEvent<SurveyModel, IOnSendResultOptions>();
+  public onSendResult: EventBase<SurveyModel, SendResultEvent> = this.addEvent<SurveyModel, SendResultEvent>();
   /**
    * Use it to get results after calling the `getResult` method. It returns a simple analytics from [api.surveyjs.io](https://api.surveyjs.io) service.
    * @see getResult
    */
-  public onGetResult: EventBase<SurveyModel, IOnGetResultOptions> = this.addEvent<SurveyModel, IOnGetResultOptions>();
+  public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
    * An event that is raised on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
    *
@@ -418,7 +418,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onDownloadFile
    * @see onClearFiles
    */
-  public onUploadFiles: EventBase<SurveyModel, IOnUploadFilesOptions> = this.addEvent<SurveyModel, IOnUploadFilesOptions>();
+  public onUploadFiles: EventBase<SurveyModel, UploadFilesEvent> = this.addEvent<SurveyModel, UploadFilesEvent>();
   /**
    * An event that is raised on downloading a file in QuestionFile. Use this event to pass the file to a preview.
    *
@@ -429,7 +429,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onClearFiles
    * @see onUploadFiles
    */
-  public onDownloadFile: EventBase<SurveyModel, IOnDownloadFileOptions> = this.addEvent<SurveyModel, IOnDownloadFileOptions>();
+  public onDownloadFile: EventBase<SurveyModel, DownloadFileEvent> = this.addEvent<SurveyModel, DownloadFileEvent>();
   /**
    * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
    *
@@ -440,12 +440,12 @@ export class SurveyModel extends SurveyElementCore
    * @see onDownloadFile
    * @see onUploadFiles
    */
-  public onClearFiles: EventBase<SurveyModel, IOnClearFilesOptions> = this.addEvent<SurveyModel, IOnClearFilesOptions>();
+  public onClearFiles: EventBase<SurveyModel, ClearFilesEvent> = this.addEvent<SurveyModel, ClearFilesEvent>();
   /**
    * An event that is raised after choices for radiogroup, checkbox, and dropdown has been loaded from a RESTful service and before they are assigned to a question.
    * You may change the choices, before they are assigned or disable/enabled make visible/invisible question, based on loaded results.
    */
-  public onLoadChoicesFromServer: EventBase<SurveyModel, IOnLoadChoicesFromServerOptions> = this.addEvent<SurveyModel, IOnLoadChoicesFromServerOptions>();
+  public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.addEvent<SurveyModel, LoadChoicesFromServerEvent>();
 
   /**
    * An event that is raised after survey is loaded from api.surveyjs.io service.
@@ -460,7 +460,7 @@ export class SurveyModel extends SurveyElementCore
    * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
    * you may set on this event `options.value` to "all" or empty string when the "state" value/question is non selected by a user.
    */
-  public onProcessTextValue: EventBase<SurveyModel, IOnProcessTextValueOptions> = this.addEvent<SurveyModel, IOnProcessTextValueOptions>();
+  public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
 
   /**
    * An event that is raised before rendering a question. Use it to override the default question CSS classes.
@@ -469,32 +469,32 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
    */
-  public onUpdateQuestionCssClasses: EventBase<SurveyModel, IOnUpdateQuestionCssClassesOptions> = this.addEvent<SurveyModel, IOnUpdateQuestionCssClassesOptions>();
+  public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
    * An event that is raised before rendering a panel. Use it to override the default panel CSS classes.
    */
-  public onUpdatePanelCssClasses: EventBase<SurveyModel, IOnUpdatePanelCssClassesOptions> = this.addEvent<SurveyModel, IOnUpdatePanelCssClassesOptions>();
+  public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
 
   /**
    * An event that is raised before rendering a page. Use it to override the default page CSS classes.
    */
-  public onUpdatePageCssClasses: EventBase<SurveyModel, IOnUpdatePageCssClassesOptions> = this.addEvent<SurveyModel, IOnUpdatePageCssClassesOptions>();
+  public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
    * An event that is raised before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
    */
-  public onUpdateChoiceItemCss: EventBase<SurveyModel, IOnUpdateChoiceItemCssOptions> = this.addEvent<SurveyModel, IOnUpdateChoiceItemCssOptions>();
+  public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
   /**
    * An event that is raised right after survey is rendered in DOM.
    */
-  public onAfterRenderSurvey: EventBase<SurveyModel, IOnAfterRenderSurveyOptions> = this.addEvent<SurveyModel, IOnAfterRenderSurveyOptions>();
+  public onAfterRenderSurvey: EventBase<SurveyModel, AfterRenderSurveyEvent> = this.addEvent<SurveyModel, AfterRenderSurveyEvent>();
 
   /**
    * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
    */
-  public onAfterRenderHeader: EventBase<SurveyModel, IOnAfterRenderHeaderOptions> = this.addEvent<SurveyModel, IOnAfterRenderHeaderOptions>();
+  public onAfterRenderHeader: EventBase<SurveyModel, AfterRenderHeaderEvent> = this.addEvent<SurveyModel, AfterRenderHeaderEvent>();
 
   /**
    * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
@@ -503,7 +503,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-afterrender/ (linkStyle))
    */
-  public onAfterRenderPage: EventBase<SurveyModel, IOnAfterRenderPageOptions> = this.addEvent<SurveyModel, IOnAfterRenderPageOptions>();
+  public onAfterRenderPage: EventBase<SurveyModel, AfterRenderPageEvent> = this.addEvent<SurveyModel, AfterRenderPageEvent>();
 
   /**
    * An event that is raised right after a question is rendered in DOM. Use it to modify HTML elements.
@@ -512,34 +512,34 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-afterrender/ (linkStyle))
    */
-  public onAfterRenderQuestion: EventBase<SurveyModel, IOnAfterRenderQuestionOptions> = this.addEvent<SurveyModel, IOnAfterRenderQuestionOptions>();
+  public onAfterRenderQuestion: EventBase<SurveyModel, AfterRenderQuestionEvent> = this.addEvent<SurveyModel, AfterRenderQuestionEvent>();
 
   /**
    * An event that is raised right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
    * This event is not fired for matrices, panels, multiple text and image picker.
    */
-  public onAfterRenderQuestionInput: EventBase<SurveyModel, IOnAfterRenderQuestionInputOptions> = this.addEvent<SurveyModel, IOnAfterRenderQuestionInputOptions>();
+  public onAfterRenderQuestionInput: EventBase<SurveyModel, AfterRenderQuestionInputEvent> = this.addEvent<SurveyModel, AfterRenderQuestionInputEvent>();
 
   /**
    * An event that is raised right after a panel is rendered in DOM. Use it to modify HTML elements.
    */
-  public onAfterRenderPanel: EventBase<SurveyModel, IOnAfterRenderPanelOptions> = this.addEvent<SurveyModel, IOnAfterRenderPanelOptions>();
+  public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
   /**
    * The event occurs when an element within a question gets focus.
    * @see onFocusInPanel
    */
-  public onFocusInQuestion: EventBase<SurveyModel, IOnFocusInQuestionOptions> = this.addEvent<SurveyModel, IOnFocusInQuestionOptions>();
+  public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
    * The event occurs when an element within a panel gets focus.
    * @see onFocusInQuestion
    */
-  public onFocusInPanel: EventBase<SurveyModel, IOnFocusInPanelOptions> = this.addEvent<SurveyModel, IOnFocusInPanelOptions>();
+  public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
   /**
    * Use this event to change the visibility of an individual choice item in [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [Dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel), [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel), and other similar question types.
    */
-  public onShowingChoiceItem: EventBase<SurveyModel, IOnShowingChoiceItemOptions> = this.addEvent<SurveyModel, IOnShowingChoiceItemOptions>();
+  public onShowingChoiceItem: EventBase<SurveyModel, ShowingChoiceItemEvent> = this.addEvent<SurveyModel, ShowingChoiceItemEvent>();
 
   /**
    * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
@@ -550,7 +550,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    */
-  public onChoicesLazyLoad: EventBase<SurveyModel, IOnChoicesLazyLoadOptions> = this.addEvent<SurveyModel, IOnChoicesLazyLoadOptions>();
+  public onChoicesLazyLoad: EventBase<SurveyModel, ChoicesLazyLoadEvent> = this.addEvent<SurveyModel, ChoicesLazyLoadEvent>();
 
   /**
    * Use this event to load a display text for the [default choice item](https://surveyjs.io/form-library/documentation/questiondropdownmodel#defaultValue) in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions.
@@ -561,21 +561,21 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    */
-  public onGetChoiceDisplayValue: EventBase<SurveyModel, IOnGetChoiceDisplayValueOptions> = this.addEvent<SurveyModel, IOnGetChoiceDisplayValueOptions>();
+  public onGetChoiceDisplayValue: EventBase<SurveyModel, GetChoiceDisplayValueEvent> = this.addEvent<SurveyModel, GetChoiceDisplayValueEvent>();
 
   /**
    * An event that is raised on adding a new row in Matrix Dynamic question.
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
-  public onMatrixRowAdded: EventBase<SurveyModel, IOnMatrixRowAddedOptions> = this.addEvent<SurveyModel, IOnMatrixRowAddedOptions>();
+  public onMatrixRowAdded: EventBase<SurveyModel, MatrixRowAddedEvent> = this.addEvent<SurveyModel, MatrixRowAddedEvent>();
 
   /**
    * An event that is raised before adding a new row in Matrix Dynamic question.
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDynamicModel.visibleRows
    */
-  public onMatrixBeforeRowAdded: EventBase<SurveyModel, IOnMatrixBeforeRowAddedOptions> = this.addEvent<SurveyModel, IOnMatrixBeforeRowAddedOptions>();
+  public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
 
   /**
    * An event that is raised before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
@@ -583,7 +583,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixRowRemoved
    * @see onMatrixAllowRemoveRow
    */
-  public onMatrixRowRemoving: EventBase<SurveyModel, IOnMatrixRowRemovingOptions> = this.addEvent<SurveyModel, IOnMatrixRowRemovingOptions>();
+  public onMatrixRowRemoving: EventBase<SurveyModel, MatrixRowRemovingEvent> = this.addEvent<SurveyModel, MatrixRowRemovingEvent>();
 
   /**
    * An event that is raised on removing a row from Matrix Dynamic question.
@@ -592,7 +592,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixRowRemoving
    * @see onMatrixAllowRemoveRow
    */
-  public onMatrixRowRemoved: EventBase<SurveyModel, IOnMatrixRowRemovedOptions> = this.addEvent<SurveyModel, IOnMatrixRowRemovedOptions>();
+  public onMatrixRowRemoved: EventBase<SurveyModel, MatrixRowRemovedEvent> = this.addEvent<SurveyModel, MatrixRowRemovedEvent>();
 
   /**
    * An event that is raised before rendering "Remove" button for removing a row from Matrix Dynamic question.
@@ -600,7 +600,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixRowRemoving
    * @see onMatrixRowRemoved
    */
-  public onMatrixAllowRemoveRow: EventBase<SurveyModel, IOnMatrixAllowRemoveRowOptions> = this.addEvent<SurveyModel, IOnMatrixAllowRemoveRowOptions>();
+  public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
 
   /**
    * An event that is raised before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
@@ -609,7 +609,7 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
-  public onMatrixCellCreating: EventBase<SurveyModel, IOnMatrixCellCreatingOptions> = this.addEvent<SurveyModel, IOnMatrixCellCreatingOptions>();
+  public onMatrixCellCreating: EventBase<SurveyModel, MatrixCellCreatingEvent> = this.addEvent<SurveyModel, MatrixCellCreatingEvent>();
 
   /**
     * An event that is raised for every cell created in Matrix Dynamic and Matrix Dropdown questions.
@@ -619,7 +619,7 @@ export class SurveyModel extends SurveyElementCore
     * @see QuestionMatrixDynamicModel
     * @see QuestionMatrixDropdownModel
     */
-  public onMatrixCellCreated: EventBase<SurveyModel, IOnMatrixCellCreatedOptions> = this.addEvent<SurveyModel, IOnMatrixCellCreatedOptions>();
+  public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
    * An event that is raised for every cell after is has been rendered in DOM.
@@ -627,7 +627,7 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
-  public onMatrixAfterCellRender: EventBase<SurveyModel, IOnMatrixAfterCellRenderOptions> = this.addEvent<SurveyModel, IOnMatrixAfterCellRenderOptions>();
+  public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
 
   /**
    * An event that is raised when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
@@ -637,7 +637,7 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
-  public onMatrixCellValueChanged: EventBase<SurveyModel, IOnMatrixCellValueChangedOptions> = this.addEvent<SurveyModel, IOnMatrixCellValueChangedOptions>();
+  public onMatrixCellValueChanged: EventBase<SurveyModel, MatrixCellValueChangedEvent> = this.addEvent<SurveyModel, MatrixCellValueChangedEvent>();
 
   /**
    * An event that is raised on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
@@ -647,7 +647,7 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
-  public onMatrixCellValueChanging: EventBase<SurveyModel, IOnMatrixCellValueChangingOptions> = this.addEvent<SurveyModel, IOnMatrixCellValueChangingOptions>();
+  public onMatrixCellValueChanging: EventBase<SurveyModel, MatrixCellValueChangingEvent> = this.addEvent<SurveyModel, MatrixCellValueChangingEvent>();
 
   /**
    * An event that is raised when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
@@ -656,29 +656,29 @@ export class SurveyModel extends SurveyElementCore
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
-  public onMatrixCellValidate: EventBase<SurveyModel, IOnMatrixCellValidateOptions> = this.addEvent<SurveyModel, IOnMatrixCellValidateOptions>();
+  public onMatrixCellValidate: EventBase<SurveyModel, MatrixCellValidateEvent> = this.addEvent<SurveyModel, MatrixCellValidateEvent>();
 
   /**
    * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
    */
-  public onMatrixColumnAdded: EventBase<SurveyModel, IOnMatrixColumnAddedOptions> = this.addEvent<SurveyModel, IOnMatrixColumnAddedOptions>();
+  public onMatrixColumnAdded: EventBase<SurveyModel, MatrixColumnAddedEvent> = this.addEvent<SurveyModel, MatrixColumnAddedEvent>();
   /**
    * An event that is raised on adding a new item in Multiple Text question.
    */
-  public onMultipleTextItemAdded: EventBase<SurveyModel, IOnMultipleTextItemAddedOptions> = this.addEvent<SurveyModel, IOnMultipleTextItemAddedOptions>();
+  public onMultipleTextItemAdded: EventBase<SurveyModel, MultipleTextItemAddedEvent> = this.addEvent<SurveyModel, MultipleTextItemAddedEvent>();
   /**
    * An event that is raised after a new panel is added to a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
-  public onDynamicPanelAdded: EventBase<SurveyModel, IOnDynamicPanelModifiedOptions> = this.addEvent<SurveyModel, IOnDynamicPanelModifiedOptions>();
+  public onDynamicPanelAdded: EventBase<SurveyModel, DynamicPanelModifiedEvent> = this.addEvent<SurveyModel, DynamicPanelModifiedEvent>();
 
   /**
    * An event that is raised after a panel is deleted from a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
-  public onDynamicPanelRemoved: EventBase<SurveyModel, IOnDynamicPanelModifiedOptions> = this.addEvent<SurveyModel, IOnDynamicPanelModifiedOptions>();
+  public onDynamicPanelRemoved: EventBase<SurveyModel, DynamicPanelModifiedEvent> = this.addEvent<SurveyModel, DynamicPanelModifiedEvent>();
   /**
    * An event that is raised before a panel is deleted from a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question. Use this event to cancel the deletion.
    */
-  public onDynamicPanelRemoving: EventBase<SurveyModel, IOnDynamicPanelRemovingOptions> = this.addEvent<SurveyModel, IOnDynamicPanelRemovingOptions>();
+  public onDynamicPanelRemoving: EventBase<SurveyModel, DynamicPanelRemovingEvent> = this.addEvent<SurveyModel, DynamicPanelRemovingEvent>();
   /**
   * An event that is raised every second if the method `startTimer` has been called.
   * @see startTimer
@@ -689,30 +689,30 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before displaying a new information in the Timer Panel. Use it to change the default text.
    */
-  public onTimerPanelInfoText: EventBase<SurveyModel, IOnTimerPanelInfoTextOptions> = this.addEvent<SurveyModel, IOnTimerPanelInfoTextOptions>();
+  public onTimerPanelInfoText: EventBase<SurveyModel, TimerPanelInfoTextEvent> = this.addEvent<SurveyModel, TimerPanelInfoTextEvent>();
 
   /**
    * An event that is raised after an item value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
-  public onDynamicPanelItemValueChanged: EventBase<SurveyModel, IOnDynamicPanelItemValueChangedOptions> = this.addEvent<SurveyModel, IOnDynamicPanelItemValueChangedOptions>();
+  public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelItemValueChangedEvent>();
 
   /**
    * Use this event to define, whether an answer to a question is correct or not.
    * @see Question.value
    * @see Question.correctAnswer
    */
-  public onIsAnswerCorrect: EventBase<SurveyModel, IOnIsAnswerCorrectOptions> = this.addEvent<SurveyModel, IOnIsAnswerCorrectOptions>();
+  public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.addEvent<SurveyModel, IsAnswerCorrectEvent>();
 
   /**
    * Use this event to control drag&drop operations during design mode.
    * @see setDesignMode
    * @see isDesignMode
    */
-  public onDragDropAllow: EventBase<SurveyModel, IOnDragDropAllowOptions> = this.addEvent<SurveyModel, IOnDragDropAllowOptions>();
+  public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
   /**
    * Use this event to control scrolling element to top. You can cancel the default behavior by setting options.cancel property to true.
    */
-  public onScrollingElementToTop: EventBase<SurveyModel, IOnScrollingElementToTopOptions> = this.addEvent<SurveyModel, IOnScrollingElementToTopOptions>();
+  public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.addEvent<SurveyModel, ScrollingElementToTopEvent>();
 
   public onLocaleChangedEvent: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
@@ -725,43 +725,43 @@ export class SurveyModel extends SurveyElementCore
    * @see IAction
    * @see Question
   */
-  public onGetQuestionTitleActions: EventBase<SurveyModel, IOnGetQuestionTitleActionsOptions> = this.addEvent<SurveyModel, IOnGetQuestionTitleActionsOptions>();
+  public onGetQuestionTitleActions: EventBase<SurveyModel, GetQuestionTitleActionsEvent> = this.addEvent<SurveyModel, GetQuestionTitleActionsEvent>();
 
   /**
    * Use this event to create/customize actions to be displayed in a panel's title.
    * @see IAction
    * @see PanelModel
    */
-  public onGetPanelTitleActions: EventBase<SurveyModel, IOnGetPanelTitleActionsOptions> = this.addEvent<SurveyModel, IOnGetPanelTitleActionsOptions>();
+  public onGetPanelTitleActions: EventBase<SurveyModel, GetPanelTitleActionsEvent> = this.addEvent<SurveyModel, GetPanelTitleActionsEvent>();
 
   /**
    * Use this event to create/customize actions to be displayed in a page's title.
    * @see IAction
    * @see PageModel
    */
-  public onGetPageTitleActions: EventBase<SurveyModel, IOnGetPageTitleActionsOptions> = this.addEvent<SurveyModel, IOnGetPageTitleActionsOptions>();
+  public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
   /**
    * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
    */
-  public onGetPanelFooterActions: EventBase<SurveyModel, IOnGetPanelFooterActionsOptions> = this.addEvent<SurveyModel, IOnGetPanelFooterActionsOptions>();
+  public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
    * Use this event to create/customize actions to be displayed in a matrix question's row.
    * @see IAction
    * @see QuestionMatrixDropdownModelBase
    */
-  public onGetMatrixRowActions: EventBase<SurveyModel, IOnGetMatrixRowActionsOptions> = this.addEvent<SurveyModel, IOnGetMatrixRowActionsOptions>();
+  public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   /**
    * An event that is raised after the survey element content was collapsed or expanded.
    * @see onElementContentVisibilityChanged
    */
-  public onElementContentVisibilityChanged: EventBase<SurveyModel, IOnElementContentVisibilityChangedOptions> = this.addEvent<SurveyModel, IOnElementContentVisibilityChangedOptions>();
+  public onElementContentVisibilityChanged: EventBase<SurveyModel, ElementContentVisibilityChangedEvent> = this.addEvent<SurveyModel, ElementContentVisibilityChangedEvent>();
 
   /**
    * An event that is raised before expression question convert it's value into display value for rendering.
    */
-  public onGetExpressionDisplayValue: EventBase<SurveyModel, IOnGetExpressionDisplayValueOptions> = this.addEvent<SurveyModel, IOnGetExpressionDisplayValueOptions>();
+  public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
 
   //#endregion
 
@@ -1593,7 +1593,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
     const renderAs = this.getBuiltInRendererForString(element, name);
-    const options: IOnTextRenderAsOptions = { element: element, name: name, renderAs: renderAs };
+    const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
@@ -1628,7 +1628,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getSurveyErrorCustomText(this, text, error);
   }
   getSurveyErrorCustomText(obj: PanelModel | Question | SurveyModel, text: string, error: SurveyError): string {
-    const options: IOnErrorCustomTextOptions = {
+    const options: ErrorCustomTextEvent = {
       text: text,
       name: error.getErrorType(),
       obj: obj,
@@ -1997,7 +1997,7 @@ export class SurveyModel extends SurveyElementCore
   }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
-    const options: IOnGetTitleTagNameOptions = { element: element, tagName: tagName };
+    const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
     this.onGetTitleTagName.fire(this, options);
     return options.tagName;
   }
@@ -2023,7 +2023,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("questionTitlePattern", val);
   }
-  getQuestionTitlePatternOptions(): Array<any> {
+  getQuestTitlePatternEvent(): Array<any> {
     const res = new Array<any>();
     const title = this.getLocalizationString("questionTitlePatternText");
     const num = !!this.questionStartIndex ? this.questionStartIndex : "1.";
@@ -2126,13 +2126,13 @@ export class SurveyModel extends SurveyElementCore
   }
   getUpdatedQuestionTitle(question: Question, title: string): string {
     if (this.onGetQuestionTitle.isEmpty) return title;
-    const options: IOnGetQuestionTitleOptions = { question: question, title: title };
+    const options: GetQuestionTitleEvent = { question: question, title: title };
     this.onGetQuestionTitle.fire(this, options);
     return options.title;
   }
   getUpdatedQuestionNo(question: Question, no: string): string {
     if (this.onGetQuestionNo.isEmpty) return no;
-    const options: IOnGetQuestionNoOptions = { question: question, no: no };
+    const options: GetQuestionNoEvent = { question: question, no: no };
     this.onGetQuestionNo.fire(this, options);
     return options.no;
   }
@@ -3885,7 +3885,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  private createServerValidationOptions(doComplete: boolean, isPreview: boolean): IOnServerValidateQuestionsOptions {
+  private createServerValidationOptions(doComplete: boolean, isPreview: boolean): ServerValidateQuestionsEvent {
     var self = this;
     const options = {
       data: <{ [index: string]: any }>{},
@@ -3926,7 +3926,7 @@ export class SurveyModel extends SurveyElementCore
     if (isFunc) {
       (<Function><any>this.onServerValidateQuestions)(this, this.createServerValidationOptions(doComplete, isPreview));
     } else {
-      (<EventBase<SurveyModel, IOnServerValidateQuestionsOptions>>this.onServerValidateQuestions).fireByCreatingOptions(this, () => { return this.createServerValidationOptions(doComplete, isPreview); });
+      (<EventBase<SurveyModel, ServerValidateQuestionsEvent>>this.onServerValidateQuestions).fireByCreatingOptions(this, () => { return this.createServerValidationOptions(doComplete, isPreview); });
     }
     return true;
   }
@@ -4046,7 +4046,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgressText(): string {
     if (!this.isDesignMode && this.currentPage == null) return "";
-    const options: IOnProgressTextOptions = {
+    const options: ProgressTextEvent = {
       questionCount: 0,
       answeredQuestionCount: 0,
       requiredQuestionCount: 0,
@@ -4235,7 +4235,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.onShowingChoiceItem.isEmpty;
   }
   getChoiceItemVisibility(question: Question, item: any, val: boolean): boolean {
-    const options: IOnShowingChoiceItemOptions = { question: question, item: item, visible: val };
+    const options: ShowingChoiceItemEvent = { question: question, item: item, visible: val };
     this.onShowingChoiceItem.fire(this, options);
     return options.visible;
   }
@@ -4317,7 +4317,7 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
   }
-  matrixCellValueChanging(question: QuestionMatrixDropdownModelBase, options: IOnMatrixCellValueChangingOptions): void {
+  matrixCellValueChanging(question: QuestionMatrixDropdownModelBase, options: MatrixCellValueChangingEvent): void {
     options.question = question;
     this.onMatrixCellValueChanging.fire(this, options);
   }
@@ -4327,7 +4327,7 @@ export class SurveyModel extends SurveyElementCore
   get isValidateOnValueChanged(): boolean {
     return this.checkErrorsMode === "onValueChanged";
   }
-  matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: IOnMatrixCellValidateOptions): SurveyError {
+  matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
@@ -4372,7 +4372,7 @@ export class SurveyModel extends SurveyElementCore
     options.panelData = options.itemValue;
     this.onDynamicPanelItemValueChanged.fire(this, options);
   }
-  dragAndDropAllow(options: IOnDragDropAllowOptions): boolean {
+  dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
     return options.allow;
   }
@@ -4385,7 +4385,7 @@ export class SurveyModel extends SurveyElementCore
   public getUpdatedPanelFooterActions(
     panel: PanelModel,
     actions: Array<IAction>, question?: QuestionPanelDynamicModel): Array<IAction> {
-    const options: IOnGetPanelFooterActionsOptions = {
+    const options: GetPanelFooterActionsEvent = {
       question: question,
       panel: panel,
       actions: actions,
@@ -4407,7 +4407,7 @@ export class SurveyModel extends SurveyElementCore
     question: Question,
     titleActions: Array<IAction>
   ) {
-    const options: IOnGetQuestionTitleActionsOptions = {
+    const options: GetQuestionTitleActionsEvent = {
       question: question,
       titleActions: titleActions,
     };
@@ -4419,7 +4419,7 @@ export class SurveyModel extends SurveyElementCore
     panel: PanelModel,
     titleActions: Array<IAction>
   ) {
-    const options: IOnGetPanelTitleActionsOptions = {
+    const options: GetPanelTitleActionsEvent = {
       panel: panel,
       titleActions: titleActions,
     };
@@ -4430,7 +4430,7 @@ export class SurveyModel extends SurveyElementCore
     page: PageModel,
     titleActions: Array<IAction>
   ) {
-    var options: IOnGetPageTitleActionsOptions = {
+    var options: GetPageTitleActionsEvent = {
       page: page,
       titleActions: titleActions,
     };
@@ -4443,7 +4443,7 @@ export class SurveyModel extends SurveyElementCore
     row: any,
     actions: Array<IAction>
   ) {
-    const options: IOnGetMatrixRowActionsOptions = {
+    const options: GetMatrixRowActionsEvent = {
       question: question,
       actions: actions,
       row: row,
@@ -4458,7 +4458,7 @@ export class SurveyModel extends SurveyElementCore
     page: PageModel,
     id: string
   ): any {
-    const options: IOnScrollingElementToTopOptions = {
+    const options: ScrollingElementToTopEvent = {
       element: element,
       question: question,
       page: page,
@@ -6068,7 +6068,7 @@ export class SurveyModel extends SurveyElementCore
     return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
   getSurveyMarkdownHtml(element: Question | PanelModel | PageModel | SurveyModel, text: string, name: string): string {
-    const options: IOnTextMarkdownOptions = {
+    const options: TextMarkdownEvent = {
       element: element,
       text: text,
       name: name,
@@ -6110,7 +6110,7 @@ export class SurveyModel extends SurveyElementCore
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
-    const options: IOnIsAnswerCorrectOptions = {
+    const options: IsAnswerCorrectEvent = {
       question: <Question>null,
       result: false,
       correctAnswers: 0,
@@ -6259,7 +6259,7 @@ export class SurveyModel extends SurveyElementCore
     return { majorText: major, minorText: minor };
   }
   public get timerInfoText(): string {
-    const options: IOnTimerPanelInfoTextOptions = { text: this.getTimerInfoText() };
+    const options: TimerPanelInfoTextEvent = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
     var loc = new LocalizableString(this, true);
     loc.text = options.text;
@@ -6763,7 +6763,7 @@ Serializer.addClass("survey", [
     dependsOn: ["questionStartIndex", "requiredText"],
     choices: (obj: any) => {
       if (!obj) return [];
-      return obj.getQuestionTitlePatternOptions();
+      return obj.getQuestTitlePatternEvent();
     },
   },
   {

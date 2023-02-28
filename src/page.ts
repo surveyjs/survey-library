@@ -12,7 +12,7 @@ import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { IOnDragDropAllowOptions } from "./survey-events-api";
+import { DragDropAllowEvent } from "./survey-events-api";
 
 /**
  * The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
@@ -311,7 +311,7 @@ export class PageModel extends PanelModelBase implements IPage {
         }
       }
     }
-    const options: IOnDragDropAllowOptions = {
+    const options: DragDropAllowEvent = {
       allow: true,
       target: this.dragDropInfo.target,
       source: this.dragDropInfo.source,

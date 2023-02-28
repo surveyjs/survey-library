@@ -14,93 +14,93 @@ import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
 
-export interface IQuestionOptions {
+export interface QuestionEventMixin {
   /**
    * A Question instance for which the event is raised.
    */
   question: Question;
 }
-export interface IFileQuestionOptions {
+export interface FileQuestionEventMixin {
   /**
    * A File Question instance for which the event is raised.
    */
   question: QuestionFileModel;
 }
-export interface IPanelDynamicQuestionOptions {
+export interface PanelDynamicQuestionEventMixin {
   /**
    * A Panel Dynamic Question instance for which the event is raised.
    */
   question: QuestionPanelDynamicModel;
 }
-export interface IMatrixDropdownQuestionOptions {
+export interface MatrixDropdownQuestionEventMixin {
   /**
  * A Matrix Dynamic Question instance for which the event is raised.
  */
   question: QuestionMatrixDropdownModelBase;
 }
-export interface IMatrixDynamicQuestionOptions {
+export interface MatrixDynamicQuestionEventMixin {
  /**
   * A Matrix Dynamic Question instance for which the event is raised.
   */
   question: QuestionMatrixDynamicModel;
 }
-export interface IPanelOptions {
+export interface PanelEventMixin {
   /**
    * A panel object for which the event is fired
    */
   panel: PanelModel;
 }
-export interface IPageOptions {
+export interface PageEventMixin {
   /**
    * A page object for which the event is fired
    */
   page: PageModel;
 }
-export interface IOnGetTitleActionsOptions {
+export interface GetTitleActionsEventMixin {
   /**
    * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed element
    */
   titleActions: Array<IAction>;
 }
-export interface IOnGetActionsOptions {
+export interface GetActionsEventMixin {
   /**
    * An array of [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it
    */
   actions: Array<IAction>;
 }
-export interface IOnAterRenderElementOptions {
+export interface AfterRenderElementEventMixin {
   /**
    * an HTML element bound to the event's object
    */
   htmlElement: HTMLElement;
 }
-export interface IOnUpdateElementCssClassesOptions {
+export interface UpdateElementCssClassesEventMixin {
   /**
    * an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes
    */
   cssClasses: any;
 }
-export interface IOnElementVisibleChangedOptions {
+export interface ElementVisibleChangedEventMixin {
   /**
    * Indicates whether the element is visible now.
    */
   visible: boolean;
 }
 
-export interface IOnTriggerExecutedOptions {
+export interface TriggerExecutedEvent {
   /**
    * A trigger that has been executed.
    */
   trigger: Trigger;
 }
 
-export interface IOnCompleteBaseOptions {
+export interface CompleteBaseEvent {
   /**
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
 }
-export interface IOnCompletingOptions extends IOnCompleteBaseOptions {
+export interface CompletingEvent extends CompleteBaseEvent {
 
   /**
    * Set this property to `false` if you want to prevent survey completion.
@@ -108,7 +108,7 @@ export interface IOnCompletingOptions extends IOnCompleteBaseOptions {
   allow: boolean;
   allowComplete: boolean;
 }
-export interface IOnCompleteOptions extends IOnCompleteBaseOptions {
+export interface CompleteEvent extends CompleteBaseEvent {
   /**
    * Call this method to hide the save operation messages.
    */
@@ -142,14 +142,14 @@ export interface IOnCompleteOptions extends IOnCompleteBaseOptions {
   */
   showDataSavingClear: (text?: string) => void;
 }
-export interface IOnShowingPreviewOptions {
+export interface ShowingPreviewEvent {
   allowShowPreview: boolean;
   /**
    * Set this property to `false` if you want to cancel the preview.
    */
   allow: boolean;
 }
-export interface IOnNavigateToUrlOptions {
+export interface NavigateToUrlEvent {
   /**
    * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    */
@@ -159,7 +159,7 @@ export interface IOnNavigateToUrlOptions {
    */
   url: string;
 }
-export interface IOnCurrentPageChangedOptions {
+export interface CurrentPageChangedEvent {
   /**
    * Returns `true` if the respondent is going backwards, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
    */
@@ -177,7 +177,7 @@ export interface IOnCurrentPageChangedOptions {
    */
   oldCurrentPage: PageModel;
 }
-export interface IOnCurrentPageChangingOptions extends IOnCurrentPageChangedOptions {
+export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
    * Set this property to `false` if you do not want to switch the current page.
    */
@@ -185,19 +185,19 @@ export interface IOnCurrentPageChangingOptions extends IOnCurrentPageChangedOpti
   allowChanging: boolean;
 }
 
-export interface IOnValueChangeBaseOptions extends IQuestionOptions {
+export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**
    * The `name` of the question whose value is being changed. If you use the [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#valueName) property, this parameter contains its value.
    */
   name: string;
 }
-export interface IOnValueChangedOptions extends IOnValueChangeBaseOptions {
+export interface ValueChangedEvent extends ValueChangeBaseEvent {
   /**
    * A new value.
    */
   value: any;
 }
-export interface IOnValueChangingOptions extends IOnValueChangeBaseOptions {
+export interface ValueChangingEvent extends ValueChangeBaseEvent {
   /**
    * A new value. You can change it if required.
    */
@@ -207,7 +207,7 @@ export interface IOnValueChangingOptions extends IOnValueChangeBaseOptions {
    */
   oldValue: any;
 }
-export interface IOnVariableChangedOptions {
+export interface VariableChangedEvent {
   /**
    * A new value for the variable or calculated value.
    */
@@ -217,17 +217,17 @@ export interface IOnVariableChangedOptions {
    */
   name: string;
 }
-export interface IOnQuestionVisibleChangedOptions extends IQuestionOptions, IOnElementVisibleChangedOptions {
+export interface QuestionVisibleChangedEvent extends QuestionEventMixin, ElementVisibleChangedEventMixin {
   /**
    * The question's name.
    */
   name: string;
 }
-export interface IOnPageVisibleChangedOptions extends IOnElementVisibleChangedOptions, IPageOptions { }
-export interface IOnPanelVisibleChangedOptions extends IOnElementVisibleChangedOptions, IPanelOptions { }
-export interface IOnQuestionCreatedOptions extends IQuestionOptions { }
+export interface PageVisibleChangedEvent extends ElementVisibleChangedEventMixin, PageEventMixin { }
+export interface PanelVisibleChangedEvent extends ElementVisibleChangedEventMixin, PanelEventMixin { }
+export interface QuestionCreatedEvent extends QuestionEventMixin { }
 
-export interface IOnElementAddedOptions {
+export interface ElementAddedEvent {
   /**
    * A page that nests the added element.
    */
@@ -247,18 +247,18 @@ export interface IOnElementAddedOptions {
    */
   name: string;
 }
-export interface IOnElementRemovedOptions {
+export interface ElementRemovedEvent {
   /**
    * The element's name.
    */
   name: string;
 }
-export interface IOnQuestionAddedOptions extends IQuestionOptions, IOnElementAddedOptions {}
-export interface IOnQuestionRemovedOptions extends IQuestionOptions, IOnElementRemovedOptions {}
-export interface IOnPanelAddedOptions extends IPanelOptions, IOnElementAddedOptions {}
-export interface IOnPanelRemovedOptions extends IPanelOptions, IOnElementRemovedOptions {}
-export interface IOnPageAddedOptions extends IPageOptions {}
-export interface IOnValidateQuestionOptions extends IQuestionOptions {
+export interface QuestionAddedEvent extends QuestionEventMixin, ElementAddedEvent {}
+export interface QuestionRemovedEvent extends QuestionEventMixin, ElementRemovedEvent {}
+export interface PanelAddedEvent extends PanelEventMixin, ElementAddedEvent {}
+export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent {}
+export interface PageAddedEvent extends PageEventMixin {}
+export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
    * An error message that you should specify if validation fails.
    */
@@ -272,13 +272,13 @@ export interface IOnValidateQuestionOptions extends IQuestionOptions {
    */
   name: string;
 }
-export interface IOnSettingQuestionErrorsOptions extends IQuestionOptions {
+export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
    * the list of errors. The list is empty by default and remains empty if a validated question has no errors
    */
   errors: Array<SurveyError>;
 }
-export interface IOnServerValidateQuestionsOptions {
+export interface ServerValidateQuestionsEvent {
   /**
    * A method that you should call when a request to the server has completed.
    */
@@ -292,7 +292,7 @@ export interface IOnServerValidateQuestionsOptions {
    */
   data: { [index: string]: any };
 }
-export interface IOnValidatePanelOptions extends IPanelOptions {
+export interface ValidatePanelEvent extends PanelEventMixin {
   /**
    * An error message that you should specify if validation fails.
    */
@@ -302,7 +302,7 @@ export interface IOnValidatePanelOptions extends IPanelOptions {
    */
   name: string;
 }
-export interface IOnErrorCustomTextOptions {
+export interface ErrorCustomTextEvent {
   /**
    * the error name. The following error names are available:
    * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
@@ -322,7 +322,7 @@ export interface IOnErrorCustomTextOptions {
    */
   text: string;
 }
-export interface IOnValidatedErrorsOnCurrentPageOptions extends IPageOptions {
+export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
   /**
    * the list of questions that have errors
    */
@@ -332,19 +332,19 @@ export interface IOnValidatedErrorsOnCurrentPageOptions extends IPageOptions {
    */
   errors: Array<SurveyError>;
 }
-export interface IOnProcessHtmlOptions {
+export interface ProcessHtmlEvent {
   /**
    * an HTML that you may change before text processing and then rendering. specifies the modified HTML content
    */
   html: string;
 }
-export interface IOnGetQuestionTitleOptions extends IQuestionOptions {
+export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**
    * a calculated question title, based on question `title`, `name`
    */
   title: string;
 }
-export interface IOnGetTitleTagNameOptions {
+export interface GetTitleTagNameEvent {
   /**
    * an element title tagName that are used to render a title. You can change it from the default value
    */
@@ -354,13 +354,13 @@ export interface IOnGetTitleTagNameOptions {
    */
   element: Base;
 }
-export interface IOnGetQuestionNoOptions extends IQuestionOptions {
+export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
    * a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it
    */
   no: string;
 }
-export interface IOnProgressTextOptions {
+export interface ProgressTextEvent {
   /**
    * a number of required questions that have input(s) and an user has answered
    */
@@ -383,7 +383,7 @@ export interface IOnProgressTextOptions {
   text: string;
 }
 
-export interface IOnTextProcessingOptions {
+export interface TextProcessingEvent {
   /**
    * a property name is going to be rendered
    */
@@ -393,7 +393,7 @@ export interface IOnTextProcessingOptions {
    */
   element: Question | PanelModel | PageModel | SurveyModel;
 }
-export interface IOnTextMarkdownOptions extends IOnTextProcessingOptions {
+export interface TextMarkdownEvent extends TextProcessingEvent {
   /**
    * an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`
    */
@@ -403,14 +403,14 @@ export interface IOnTextMarkdownOptions extends IOnTextProcessingOptions {
    */
   text: string;
 }
-export interface IOnTextRenderAsOptions extends IOnTextProcessingOptions {
+export interface TextRenderAsEvent extends TextProcessingEvent {
   /**
    * a component name used for text rendering
    */
   renderAs: string;
 }
 
-export interface IOnSendResultOptions {
+export interface SendResultEvent {
   /**
    * a response from the service
    */
@@ -421,7 +421,7 @@ export interface IOnSendResultOptions {
    */
   success: boolean;
 }
-export interface IOnGetResultOptions {
+export interface GetResultEvent {
   /**
    * the server response
    */
@@ -440,13 +440,13 @@ export interface IOnGetResultOptions {
   success: boolean;
 }
 
-export interface IOnLoadFilesOptions extends IFileQuestionOptions {
+export interface LoadFilesEvent extends FileQuestionEventMixin {
   /**
  * the question name
  */
   name: string;
 }
-export interface IOnUploadFilesOptions extends IOnLoadFilesOptions {
+export interface UploadFilesEvent extends LoadFilesEvent {
   /**
    * a callback function to get the file upload status and the updloaded file content
    */
@@ -457,7 +457,7 @@ export interface IOnUploadFilesOptions extends IOnLoadFilesOptions {
   files: Array<File>;
 
 }
-export interface IOnDownloadFileOptions extends IOnLoadFilesOptions {
+export interface DownloadFileEvent extends LoadFilesEvent {
   /**
    * a callback function to get the file downloading status and the downloaded file content
    */
@@ -471,7 +471,7 @@ export interface IOnDownloadFileOptions extends IOnLoadFilesOptions {
    */
   content: any;
 }
-export interface IOnClearFilesOptions extends IOnLoadFilesOptions {
+export interface ClearFilesEvent extends LoadFilesEvent {
   /**
    * a callback function to get the operation status
    */
@@ -485,7 +485,7 @@ export interface IOnClearFilesOptions extends IOnLoadFilesOptions {
    */
   value: any;
 }
-export interface IOnLoadChoicesFromServerOptions extends IQuestionOptions {
+export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
   /**
    * a result that comes from the server as it is
    */
@@ -495,7 +495,7 @@ export interface IOnLoadChoicesFromServerOptions extends IQuestionOptions {
    */
   choices: Array<ItemValue>;
 }
-export interface IOnProcessTextValueOptions {
+export interface ProcessTextValueEvent {
   /**
    * the value of the processing text
    */
@@ -511,10 +511,10 @@ export interface IOnProcessTextValueOptions {
   name: string;
   returnDisplayValue: boolean;
 }
-export interface IOnUpdateQuestionCssClassesOptions extends IQuestionOptions, IOnUpdateElementCssClassesOptions { }
-export interface IOnUpdatePanelCssClassesOptions extends IPanelOptions, IOnUpdateElementCssClassesOptions { }
-export interface IOnUpdatePageCssClassesOptions extends IPageOptions, IOnUpdateElementCssClassesOptions { }
-export interface IOnUpdateChoiceItemCssOptions extends IQuestionOptions {
+export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
+export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateElementCssClassesEventMixin { }
+export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }
+export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
   /**
    * a string with css classes divided by space. You can change it
    */
@@ -524,18 +524,18 @@ export interface IOnUpdateChoiceItemCssOptions extends IQuestionOptions {
    */
   item: ItemValue;
 }
-export interface IOnAfterRenderSurveyOptions extends IOnAterRenderElementOptions {
+export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
   survey: SurveyModel;
 }
-export interface IOnAfterRenderHeaderOptions extends IOnAterRenderElementOptions { }
-export interface IOnAfterRenderPageOptions extends IOnAterRenderElementOptions, IPageOptions { }
-export interface IOnAfterRenderQuestionOptions extends IQuestionOptions, IOnAterRenderElementOptions { }
-export interface IOnAfterRenderQuestionInputOptions extends IQuestionOptions, IOnAterRenderElementOptions { }
-export interface IOnAfterRenderPanelOptions extends IOnAterRenderElementOptions, IPanelOptions { }
-export interface IOnFocusInQuestionOptions extends IQuestionOptions {
+export interface AfterRenderHeaderEvent extends AfterRenderElementEventMixin { }
+export interface AfterRenderPageEvent extends AfterRenderElementEventMixin, PageEventMixin { }
+export interface AfterRenderQuestionEvent extends QuestionEventMixin, AfterRenderElementEventMixin { }
+export interface AfterRenderQuestionInputEvent extends QuestionEventMixin, AfterRenderElementEventMixin { }
+export interface AfterRenderPanelEvent extends AfterRenderElementEventMixin, PanelEventMixin { }
+export interface FocusInQuestionEvent extends QuestionEventMixin {
 }
-export interface IOnFocusInPanelOptions extends IPanelOptions { }
-export interface IOnShowingChoiceItemOptions extends IQuestionOptions {
+export interface FocusInPanelEvent extends PanelEventMixin { }
+export interface ShowingChoiceItemEvent extends QuestionEventMixin {
   /**
    * A Boolean value that specifies item visibility. Set it to `false` to hide the item.
    */
@@ -545,7 +545,7 @@ export interface IOnShowingChoiceItemOptions extends IQuestionOptions {
    */
   item: ItemValue;
 }
-export interface IOnChoicesLazyLoadOptions extends IQuestionOptions {
+export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign loaded items to the question. Item objects should be structured as specified in the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choices) property description. If their structure is different, [map their properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) to bring them to the required structure.
    */
@@ -563,7 +563,7 @@ export interface IOnChoicesLazyLoadOptions extends IQuestionOptions {
    */
   skip: number;
 }
-export interface IOnGetChoiceDisplayValueOptions extends IQuestionOptions {
+export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
    */
@@ -573,19 +573,19 @@ export interface IOnGetChoiceDisplayValueOptions extends IQuestionOptions {
    */
   values: Array<any>;
 }
-export interface IOnMatrixRowAddedOptions extends IMatrixDynamicQuestionOptions {
+export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * a new added row
    */
   row: any;
 }
-export interface IOnMatrixBeforeRowAddedOptions extends IMatrixDynamicQuestionOptions {
+export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * specifies whether a new row can be added
    */
   canAddRow: boolean;
 }
-export interface IOnMatrixRowRemovingOptions extends IMatrixDynamicQuestionOptions {
+export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * a boolean property. Set it to `false` to disable the row removing
    */
@@ -599,7 +599,7 @@ export interface IOnMatrixRowRemovingOptions extends IMatrixDynamicQuestionOptio
    */
   rowIndex: number;
 }
-export interface IOnMatrixRowRemovedOptions extends IMatrixDynamicQuestionOptions {
+export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * a removed row object
    */
@@ -609,7 +609,7 @@ export interface IOnMatrixRowRemovedOptions extends IMatrixDynamicQuestionOption
    */
   rowIndex: number;
 }
-export interface IOnMatrixAllowRemoveRowOptions extends IMatrixDynamicQuestionOptions {
+export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * a boolean property. Set it to `false` to disable the row removing
    */
@@ -624,7 +624,7 @@ export interface IOnMatrixAllowRemoveRowOptions extends IMatrixDynamicQuestionOp
   rowIndex: number;
 }
 
-export interface IMatrixCellCreatingBaseOptions extends IMatrixDropdownQuestionOptions {
+export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
    * the matrix row object
    */
@@ -642,13 +642,13 @@ export interface IMatrixCellCreatingBaseOptions extends IMatrixDropdownQuestionO
    */
   rowValue: any;
 }
-export interface IOnMatrixCellCreatingOptions extends IMatrixCellCreatingBaseOptions {
+export interface MatrixCellCreatingEvent extends MatrixCellCreatingBaseEvent {
     /**
    * the cell question type. You can change it
    */
     cellType: string;
 }
-export interface IOnMatrixCellCreatedOptions extends IMatrixCellCreatingBaseOptions {
+export interface MatrixCellCreatedEvent extends MatrixCellCreatingBaseEvent {
   /**
    * the question/editor in the cell. You may customize it, change it's properties, like choices or visible
    */
@@ -658,7 +658,7 @@ export interface IOnMatrixCellCreatedOptions extends IMatrixCellCreatingBaseOpti
    */
   cell: MatrixDropdownCell;
 }
-export interface IOnMatrixAfterCellRenderOptions extends IQuestionOptions, IOnAterRenderElementOptions {
+export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRenderElementEventMixin {
   /**
    * the matrix row object
    */
@@ -677,7 +677,7 @@ export interface IOnMatrixAfterCellRenderOptions extends IQuestionOptions, IOnAt
   cell: MatrixDropdownCell;
 }
 
-export interface IOnMatrixCellValueBaseOptions extends IMatrixDropdownQuestionOptions {
+export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
    * the function that returns the cell question by column name
    */
@@ -696,38 +696,38 @@ export interface IOnMatrixCellValueBaseOptions extends IMatrixDropdownQuestionOp
   columnName: string;
 }
 
-export interface IOnMatrixCellValueChangedOptions extends IOnMatrixCellValueBaseOptions {}
-export interface IOnMatrixCellValueChangingOptions extends IQuestionOptions {
+export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent {}
+export interface MatrixCellValueChangingEvent extends QuestionEventMixin {
   /**
    * the old value
    */
   oldValue: any;
 }
-export interface IOnMatrixCellValidateOptions extends IOnMatrixCellValueBaseOptions {
+export interface MatrixCellValidateEvent extends MatrixCellValueBaseEvent {
   /**
    * an error string. It is empty by default
    */
   error?: string;
 }
-export interface IOnDynamicPanelModifiedOptions extends IPanelDynamicQuestionOptions, IPanelOptions {
+export interface DynamicPanelModifiedEvent extends PanelDynamicQuestionEventMixin, PanelEventMixin {
   /**
    * The panel's index within Dynamic Panel.
    */
   panelIndex: number;
 }
-export interface IOnDynamicPanelRemovingOptions extends IOnDynamicPanelModifiedOptions {
+export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
   /**
    * Set this property to `false` if you want to cancel the panel deletion.
    */
   allow: boolean;
 }
-export interface IOnTimerPanelInfoTextOptions {
+export interface TimerPanelInfoTextEvent {
   /**
    * the timer panel info text
    */
   text: string;
 }
-export interface IOnDynamicPanelItemValueChangedOptions extends IPanelDynamicQuestionOptions {
+export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
    * The panel's data object that includes all item values.
    */
@@ -749,7 +749,7 @@ export interface IOnDynamicPanelItemValueChangedOptions extends IPanelDynamicQue
    */
   panel: PanelModel;
 }
-export interface IOnIsAnswerCorrectOptions extends IQuestionOptions {
+export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question
    */
@@ -760,7 +760,7 @@ export interface IOnIsAnswerCorrectOptions extends IQuestionOptions {
    */
   result: boolean;
 }
-export interface IOnDragDropAllowOptions {
+export interface DragDropAllowEvent {
   /**
    * an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container
    */
@@ -786,7 +786,7 @@ export interface IOnDragDropAllowOptions {
    */
   allow: boolean;
 }
-export interface IOnScrollingElementToTopOptions {
+export interface ScrollingElementToTopEvent {
   /**
    * an element that is going to be scrolled on top
    */
@@ -808,47 +808,47 @@ export interface IOnScrollingElementToTopOptions {
    */
   elementId: string;
 }
-export interface IOnGetQuestionTitleActionsOptions extends IQuestionOptions, IOnGetTitleActionsOptions { }
-export interface IOnGetPanelTitleActionsOptions extends IPanelOptions, IOnGetTitleActionsOptions { }
-export interface IOnGetPageTitleActionsOptions extends IPageOptions, IOnGetTitleActionsOptions { }
-export interface IOnGetPanelFooterActionsOptions extends IOnGetActionsOptions, IPanelOptions {
+export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
+export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }
+export interface GetPageTitleActionsEvent extends PageEventMixin, GetTitleActionsEventMixin { }
+export interface GetPanelFooterActionsEvent extends GetActionsEventMixin, PanelEventMixin {
   /**
    * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel
    */
   question?: QuestionPanelDynamicModel;
 }
-export interface IOnGetMatrixRowActionsOptions extends IQuestionOptions, IOnGetActionsOptions {
+export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin {
   /**
    * A matrix row for which the event is fired
    */
   row: any;
 }
-export interface IOnElementContentVisibilityChangedOptions {
+export interface ElementContentVisibilityChangedEvent {
   /**
    * Specifies which survey element content was collapsed or expanded
    */
   element: ISurveyElement;
 }
-export interface IOnGetQuestionDisplayValueOptions extends IQuestionOptions {
+export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**
    * A question's display text. You can assign a custom value to this parameter.
    */
   displayValue: any;
 }
-export interface IOnGetExpressionDisplayValueOptions extends IOnGetQuestionDisplayValueOptions {
+export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueEvent {
   /**
    * The question value
    */
   value: any;
 }
 
-export interface IOnMultipleTextItemAddedOptions extends IQuestionOptions {
+export interface MultipleTextItemAddedEvent extends QuestionEventMixin {
   /**
    * A new added item.
    */
   item: any;
 }
-export interface IOnMatrixColumnAddedOptions extends IQuestionOptions {
+export interface MatrixColumnAddedEvent extends QuestionEventMixin {
   /**
    * A new added column.
    */

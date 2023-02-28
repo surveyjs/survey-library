@@ -1983,8 +1983,7 @@ export class Question extends SurveyElement<Question>
     );
   }
 
-  @property({ defaultValue: "default" })
-  renderAs: string;
+  @property() renderAs: string;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

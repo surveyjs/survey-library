@@ -24,18 +24,18 @@ export var surveyLocalization = {
     return this.locales[loc];
   },
   getString: function (strName: string, requestedLocale: string = null) {
-    const rawOptions = [requestedLocale, this.currentLocale, this.defaultLocale, "en"]
+    const rawOptions = [requestedLocale, this.currentLocale, this.defaultLocale, "en"];
 
     for (let locale of rawOptions) {
       if (!!locale) {
         // Try exact locale
         if (!!this.locales?.[locale]?.[strName]) {
-          return this.locales[locale][strName]
+          return this.locales[locale][strName];
         }
         // Try parent locale
-        const parts = locale.split('-')
+        const parts = locale.split("-");
         if (parts.length > 1 && !!this.locales?.[parts[0]]?.[strName]) {
-          return this.locales[parts[0]][strName]
+          return this.locales[parts[0]][strName];
         }
       }
     }

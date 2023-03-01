@@ -343,7 +343,7 @@ jobs:
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-react-ui"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui
+        cd $(Build.SourcesDirectory)/survey-library/build/survey-react-ui
         sed -i 's/"survey-core": .*"/"survey-core": "..\/..\/..\/..\/survey-library\/build\/survey-core"/g' package.json
       displayName: 'Change survey-core dependency version from release next ver to local dependency'
 

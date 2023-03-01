@@ -267,9 +267,9 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
 });
 
 function getNumberArray(skip = 1, count = 25): Array<number> {
-  const result: Array<number> = [];
+  const result: Array<any> = [];
   for (let index = skip; index < (skip + count); index++) {
-    result.push(index);
+    result.push({ value: index, text: "DisplayText_" + index });
   }
   return result;
 }
@@ -321,6 +321,88 @@ QUnit.test("lazy loading: several loading", assert => {
         assert.equal(question.choices.length, 70);
         assert.equal(question.choices[0].value, 1);
         assert.equal(question.choices[69].value, 70);
+
+        done3();
+      }, 550);
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
+});
+
+QUnit.test("lazy loading: A value disappears when open tagbox popup again", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const list: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 30);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[29].value, 30);
+
+    list.onItemClick(list.renderedActions[28]);
+    assert.deepEqual(question.value, [29]);
+    assert.equal(question.selectedItems.length, 1);
+    assert.equal(question.selectedItems[0].value, 29);
+
+    question.dropdownListModel["updateQuestionChoices"]();
+    setTimeout(() => {
+      assert.equal(question.choices.length, 60);
+      assert.equal(question.choices[0].value, 1);
+      assert.equal(question.choices[59].value, 60);
+
+      list.onItemClick(list.renderedActions[55]);
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 1");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 1");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 1");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 1");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 1");
+
+      question.dropdownListModel.popupModel.toggleVisibility();
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 2");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 2");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 2");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 2");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 2");
+
+      question.dropdownListModel.popupModel.toggleVisibility();
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 3");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 3");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 3");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 3");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 3");
+
+      setTimeout(() => {
+        assert.deepEqual(question.value, [29, 56]);
+        assert.equal(question.selectedItems.length, 2, "selected items length 4");
+        assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 4");
+        assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 4");
+        assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 4");
+        assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 4");
+        assert.equal(question.choices.length, 30);
+        assert.equal(question.choices[0].value, 1);
+        assert.equal(question.choices[29].value, 30);
 
         done3();
       }, 550);

@@ -61,6 +61,7 @@ export * from "../knockout/components/skeleton/skeleton";
 export * from "../knockout/components/character-counter/character-counter";
 export * from "../knockout/components/rating-dropdown/rating-dropdown";
 export * from "../knockout/components/rating/rating-item";
+export * from "../knockout/components/rating/rating-item-star";
 export * from "../knockout/components/dropdown/dropdown";
 export * from "../knockout/components/dropdown-select/dropdown-select";
 export * from "../knockout/components/tagbox/tagbox-item";

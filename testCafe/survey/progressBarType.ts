@@ -62,9 +62,8 @@ frameworks.forEach(async framework => {
       .pressKey("tab")
       .expect(Selector("span").withText("Answered 1/2 questions").exists).ok();
   });
-  test("progressBarType:toc", async t => {
-    json["progressBarType"] = "toc";
-    json["showProgressBar"] = "left";
+  test("navigation:toc", async t => {
+    json["showTOC"] = true;
     json["pages"][0]["elements"][0]["isRequired"] = false;
     await initSurvey(framework, json);
     const page1 = Selector(".sv-list__item-body").withText("page1");

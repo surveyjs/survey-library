@@ -16294,8 +16294,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("left"), [], "nav both left");
   assert.deepEqual(getContainerContent("right"), [], "nav both right");
 
-  survey.progressBarType = "toc";
-  survey.showProgressBar = "left";
+  survey.showTOC = true;
   assert.deepEqual(getContainerContent("header"), [], "nav left header");
   assert.deepEqual(getContainerContent("footer"), [], "nav left footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
@@ -16312,7 +16311,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   }], "nav left left");
   assert.deepEqual(getContainerContent("right"), [], "nav left right");
 
-  survey.showProgressBar = "right";
+  survey.tocLocation = "right";
   assert.deepEqual(getContainerContent("header"), [], "nav right header");
   assert.deepEqual(getContainerContent("footer"), [], "nav right footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
@@ -16331,6 +16330,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
 
   survey.showProgressBar = "off";
   survey.showNavigationButtons = "none";
+  survey.showTOC = false;
   assert.deepEqual(getContainerContent("header"), [], "nav none header");
   assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "nav none contentTop");
@@ -16440,21 +16440,25 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("left"), [], "progress questions both left");
   assert.deepEqual(getContainerContent("right"), [], "progress questions both right");
 
-  survey.progressBarType = "toc";
-  assert.deepEqual(getContainerContent("header"), [], "progress toc both header");
+  survey.showTOC = true;
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "progress toc both header");
   assert.deepEqual(getContainerContent("footer"), [], "progress toc both footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc both contentTop");
-  assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc both contentBottom");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions"
+  }], "progress toc both contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
     "component": "sv-progress-toc",
     "id": "toc-navigation"
   }], "progress toc both left");
-  assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
-    "id": "toc-navigation"
-  }], "progress toc both right");
+  assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
 
-  survey.showProgressBar = "left";
+  survey.showProgressBar = "off";
+  survey.tocLocation = "left";
   assert.deepEqual(getContainerContent("header"), [], "progress toc left header");
   assert.deepEqual(getContainerContent("footer"), [], "progress toc left footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc left contentTop");
@@ -16465,7 +16469,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   }], "progress toc left left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc left right");
 
-  survey.showProgressBar = "right";
+  survey.tocLocation = "right";
   assert.deepEqual(getContainerContent("header"), [], "progress toc right header");
   assert.deepEqual(getContainerContent("footer"), [], "progress toc right footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc right contentTop");
@@ -16476,7 +16480,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
     "id": "toc-navigation"
   }], "progress toc right right");
 
-  survey.showProgressBar = "off";
+  survey.showTOC = false;
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");

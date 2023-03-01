@@ -700,8 +700,8 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
       const json = {
         title: "Software developer survey.",
-        progressBarType: "toc",
-        showProgressBar: "left",
+        showNavigationButtons: "none",
+        showTOC: true,
         pages: [
           {
             "title": "What operating system do you use?",
@@ -757,7 +757,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
 
       await ClientFunction(() => {
-        window["survey"].showProgressBar = "right";
+        window["survey"].tocLocation = "right";
       })();
       await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
 

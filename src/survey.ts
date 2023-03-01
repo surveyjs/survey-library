@@ -1814,6 +1814,28 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showPrevButton", val);
   }
   /**
+   * Gets or sets the TOC navigation visibility.
+   * Possible values: 'true' or 'false'. Default value is 'false'. Set it to 'true' to show TOC navigation.
+   * @see tocLocation
+   */
+  public get showTOC(): boolean {
+    return this.getPropertyValue("showTOC");
+  }
+  public set showTOC(val: boolean) {
+    this.setPropertyValue("showTOC", val);
+  }
+  /**
+   * Gets or sets the TOC navigation position.
+   * Possible values: 'left' or "right".
+   * @see showTOC
+   */
+  public get tocLocation(): "left" | "right" {
+    return this.getPropertyValue("tocLocation");
+  }
+  public set tocLocation(val: "left" | "right") {
+    this.setPropertyValue("tocLocation", val);
+  }
+  /**
    * Gets or sets whether the Survey displays survey title in its pages. Set it to `false` to hide a survey title.
    * @see title
    *
@@ -7239,14 +7261,14 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.progressBarType === "toc") {
+      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
-          if(["left", "both"].indexOf(this.showProgressBar) !== -1) {
+          if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if(container === "right") {
-          if(["right", "both"].indexOf(this.showProgressBar) !== -1) {
+          if(["right", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
@@ -7408,6 +7430,15 @@ Serializer.addClass("survey", [
       "correctQuestions",
       "buttons",
     ],
+  },
+  {
+    name: "showTOC:switch",
+    default: false
+  },
+  {
+    name: "tocLocation",
+    default: "left",
+    choices: ["left", "right"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

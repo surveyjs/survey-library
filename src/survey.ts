@@ -295,7 +295,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onQuestionRemoved: EventBase<SurveyModel, QuestionRemovedEvent> = this.addEvent<SurveyModel, QuestionRemovedEvent>();
   /**
-   *  An event that is raised when a new panel is added to a page.
+   * An event that is raised when a new panel is added to a page.
    */
   public onPanelAdded: EventBase<SurveyModel, PanelAddedEvent> = this.addEvent<SurveyModel, PanelAddedEvent>();
   /**
@@ -303,7 +303,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPanelRemoved: EventBase<SurveyModel, PanelRemovedEvent> = this.addEvent<SurveyModel, PanelRemovedEvent>();
   /**
-   *  An event that is raised when a new page is added to the survey.
+   * An event that is raised when a new page is added to the survey.
    * @see PanelModel
    */
   public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();

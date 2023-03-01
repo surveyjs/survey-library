@@ -22,61 +22,61 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File Question instance for which the event is raised.
+   * A File question instance for which the event is raised.
    */
   question: QuestionFileModel;
 }
 export interface PanelDynamicQuestionEventMixin {
   /**
-   * A Panel Dynamic Question instance for which the event is raised.
+   * A Dynamic Panel question instance for which the event is raised.
    */
   question: QuestionPanelDynamicModel;
 }
 export interface MatrixDropdownQuestionEventMixin {
   /**
- * A Matrix Dynamic Question instance for which the event is raised.
- */
+   * A Multiple-Choice Matrix question instance for which the event is raised.
+   */
   question: QuestionMatrixDropdownModelBase;
 }
 export interface MatrixDynamicQuestionEventMixin {
  /**
-  * A Matrix Dynamic Question instance for which the event is raised.
+  * A Dynamic Matrix question instance for which the event is raised.
   */
   question: QuestionMatrixDynamicModel;
 }
 export interface PanelEventMixin {
   /**
-   * A panel object for which the event is fired
+   * A Panel instance for which the event is raised.
    */
   panel: PanelModel;
 }
 export interface PageEventMixin {
   /**
-   * A page object for which the event is fired
+   * A Page instance for which the event is raised.
    */
   page: PageModel;
 }
 export interface GetTitleActionsEventMixin {
   /**
-   * A list of actions ([IAction](https://surveyjs.io/Documentation/Library?id=IAction) objects) associated with the processed element
+   * An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
    */
   titleActions: Array<IAction>;
 }
 export interface GetActionsEventMixin {
   /**
-   * An array of [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it
+   * An array of [actions](https://surveyjs.io/form-library/documentation/iaction). You can modify the entire array or individual actions within it.
    */
   actions: Array<IAction>;
 }
 export interface AfterRenderElementEventMixin {
   /**
-   * an HTML element bound to the event's object
+   * The rendered HTML element.
    */
   htmlElement: HTMLElement;
 }
 export interface UpdateElementCssClassesEventMixin {
   /**
-   * an object with CSS classes. For example `{root: "table", button: "button"}`. You can change them to your own CSS classes
+   * An object with CSS classes applied to the element being rendered, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
    */
   cssClasses: any;
 }
@@ -101,7 +101,6 @@ export interface CompleteBaseEvent {
   isCompleteOnTrigger: boolean;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
-
   /**
    * Set this property to `false` if you want to prevent survey completion.
    */
@@ -126,28 +125,31 @@ export interface CompleteEvent extends CompleteBaseEvent {
    */
   showSaveInProgress: (text?: string) => void;
   /**
-  * @deprecated The method should not be used
+  * @deprecated Use the `showSaveInProgress()` method instead.
   */
   showDataSaving: (text?: string) => void;
   /**
-  * @deprecated The method should not be used
+  * @deprecated Use the `showSaveError()` method instead.
   */
   showDataSavingError: (text?: string) => void;
   /**
-  * @deprecated The method should not be used
+  * @deprecated Use the `showSaveSuccess()` method instead.
   */
   showDataSavingSuccess: (text?: string) => void;
   /**
-  * @deprecated The method should not be used
+  * @deprecated Use the `clearSaveMessages()` method instead.
   */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {
-  allowShowPreview: boolean;
   /**
    * Set this property to `false` if you want to cancel the preview.
    */
   allow: boolean;
+  /**
+  * @deprecated Use the `allow` property instead.
+  */
+  allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
   /**
@@ -182,6 +184,9 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * Set this property to `false` if you do not want to switch the current page.
    */
   allow: boolean;
+  /**
+  * @deprecated Use the `allow` property instead.
+  */
   allowChanging: boolean;
 }
 
@@ -274,7 +279,7 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
-   * the list of errors. The list is empty by default and remains empty if a validated question has no errors
+   * An array of errors. The array is empty if the validated question satisfy all validation rules.
    */
   errors: Array<SurveyError>;
 }
@@ -284,7 +289,7 @@ export interface ServerValidateQuestionsEvent {
    */
   complete: () => void;
   /**
-   * An object for your error messages. Set error messages as follows: `options.errors["questionName"] = "My error message"`
+   * An object for your error messages. Set error messages as follows: `options.errors["questionName"] = "My error message"`.
    */
   errors: { [index: string]: any };
   /**
@@ -442,8 +447,8 @@ export interface GetResultEvent {
 
 export interface LoadFilesEvent extends FileQuestionEventMixin {
   /**
- * the question name
- */
+   * the question name
+   */
   name: string;
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
@@ -643,10 +648,10 @@ export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEvent
   rowValue: any;
 }
 export interface MatrixCellCreatingEvent extends MatrixCellCreatingBaseEvent {
-    /**
+  /**
    * the cell question type. You can change it
    */
-    cellType: string;
+  cellType: string;
 }
 export interface MatrixCellCreatedEvent extends MatrixCellCreatingBaseEvent {
   /**

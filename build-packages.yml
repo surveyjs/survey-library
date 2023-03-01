@@ -236,11 +236,6 @@ jobs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-knockout-ui"
 
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui
-        sed -i 's/"survey-core": .*"/"survey-core": "..\/..\/..\/..\/survey-library\/build\/survey-core"/g' package.json
-      displayName: 'Change survey-core dependency version from release next ver to local dependency'
-
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
@@ -341,11 +336,6 @@ jobs:
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-react-ui"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library/build/survey-react-ui
-        sed -i 's/"survey-core": .*"/"survey-core": "..\/..\/..\/..\/survey-library\/build\/survey-core"/g' package.json
-      displayName: 'Change survey-core dependency version from release next ver to local dependency'
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -753,6 +743,16 @@ jobs:
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/build/survey-react-ui
+        sed -i 's/"survey-core": .*"/"survey-core": "..\/..\/..\/..\/survey-library\/build\/survey-core"/g' package.json
+      displayName: 'Change survey-core dependency version from release next ver to local dependency'
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui
+        sed -i 's/"survey-core": .*"/"survey-core": "..\/..\/..\/..\/survey-library\/build\/survey-core"/g' package.json
+      displayName: 'Change survey-core dependency version from release next ver to local dependency'
 
     - task: CopyFiles@2
       inputs:

@@ -700,7 +700,6 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
       const json = {
         title: "Software developer survey.",
-        showNavigationButtons: "none",
         showTOC: true,
         pages: [
           {

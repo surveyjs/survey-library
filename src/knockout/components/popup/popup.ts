@@ -48,7 +48,7 @@ export function showModal(
 }
 export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => { viewModel.dispose(); };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, settings.environment);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.model.isVisible = true;
   return popupViewModel;

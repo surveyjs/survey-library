@@ -18,7 +18,7 @@ export class ModalComponent {
   constructor(private popupService: PopupService) {
   }
   showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions, settings.environment);
+    this.model = createPopupModalViewModel(dialogOptions);
     this.model.initializePopupContainer();
     this.model.model.onHide = () => {
       this.portalHost.detach();

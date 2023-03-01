@@ -8,6 +8,7 @@ import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { ISurveyEnvironment } from "../../src/base-interfaces";
+import { settings } from "../../src/settings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -140,8 +141,10 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
     createElementNS: document.createElementNS
   };
 
+  settings.environment = environment as any;
+
   const targetElement: HTMLElement = document.createElement("div");
-  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement, environment) as PopupDropdownViewModel;
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
 
@@ -154,6 +157,7 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   assert.equal(container.parentElement?.id, "shadowElement");
 
   viewModel.dispose();
+  settings.environment = document;
 });
 
 QUnit.test("PopupModalViewModel defaults", (assert) => {

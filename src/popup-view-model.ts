@@ -5,6 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { ISurveyEnvironment } from "./base-interfaces";
+import { settings } from "survey-core";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -22,7 +23,7 @@ export class PopupBaseViewModel extends Base {
 
   public container: HTMLElement;
   private createdContainer: HTMLElement;
-  private environment: ISurveyEnvironment
+  private environment: ISurveyEnvironment = settings.environment
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -87,10 +88,9 @@ export class PopupBaseViewModel extends Base {
     this.setupModel(model);
   }
 
-  constructor(model: PopupModel, environment: ISurveyEnvironment) {
+  constructor(model: PopupModel) {
     super();
     this.model = model;
-    this.environment = environment;
   }
   public get title(): string {
     return this.model.title;

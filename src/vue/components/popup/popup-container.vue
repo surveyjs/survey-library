@@ -109,7 +109,7 @@ export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
       popupViewModel.dispose();
     }
   };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, settings.environment);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },

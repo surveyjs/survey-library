@@ -2,9 +2,8 @@ import { IDialogOptions, PopupModel } from "./popup";
 import { PopupDropdownViewModel } from "./popup-dropdown-view-model";
 import { PopupModalViewModel } from "./popup-modal-view-model";
 import { PopupBaseViewModel } from "./popup-view-model";
-import { ISurveyEnvironment } from "./base-interfaces";
 
-export function createPopupModalViewModel(options: IDialogOptions, environment: ISurveyEnvironment = document): PopupBaseViewModel {
+export function createPopupModalViewModel(options: IDialogOptions): PopupBaseViewModel {
   const popupModel = new PopupModel(
     options.componentName,
     options.data,
@@ -20,15 +19,15 @@ export function createPopupModalViewModel(options: IDialogOptions, environment: 
     options.title
   );
   popupModel.displayMode = options.displayMode || "popup";
-  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel, environment);
+  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
   popupViewModel.initializePopupContainer();
   return popupViewModel;
 }
 
-export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement, environment: ISurveyEnvironment = document): PopupBaseViewModel {
+export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement): PopupBaseViewModel {
   if(model.isModal) {
-    return new PopupModalViewModel(model, environment);
+    return new PopupModalViewModel(model);
   } else {
-    return new PopupDropdownViewModel(model, environment, targetElement);
+    return new PopupDropdownViewModel(model, targetElement);
   }
 }

@@ -25,8 +25,8 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     });
   }
 
-  constructor(model: PopupModel, environment: ISurveyEnvironment) {
-    super(model, environment);
+  constructor(model: PopupModel) {
+    super(model);
   }
 
   public get applyButtonText(): string {

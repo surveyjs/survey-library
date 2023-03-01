@@ -151,8 +151,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
-  constructor(model: PopupModel, environment: ISurveyEnvironment, public targetElement?: HTMLElement) {
-    super(model, environment);
+  constructor(model: PopupModel, public targetElement?: HTMLElement) {
+    super(model);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
       if(!this.isOverlay) {
         this.updatePosition(options.isResetHeight);

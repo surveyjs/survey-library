@@ -17,7 +17,7 @@ export class Popup extends BaseVue {
     return this.model;
   }
   onMounted() {
-    this.popupViewModel = createPopupViewModel(this.model, this.$el.parentElement, settings.environment);
+    this.popupViewModel = createPopupViewModel(this.model, this.$el.parentElement);
     this.popupViewModel.initializePopupContainer();
     this.popupContainer = new PopupContainer({
       el: this.popupViewModel.container.appendChild(document.createElement("div")),

@@ -7,11 +7,7 @@ class SvgIconData {
 export class SvgIconRegistry {
   icons: SvgIconData = {};
   private iconPrefix = "icon-";
-  private environment: ISurveyEnvironment;
-
-  constructor(environment: ISurveyEnvironment) {
-    this.environment = environment;
-  }
+  private environment: ISurveyEnvironment = settings.environment;
 
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
     this.icons[iconId] = iconSymbolSvg;
@@ -72,7 +68,7 @@ export class SvgIconRegistry {
     }
   }
 }
-export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry(settings.environment);
+export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export var SvgBundleViewModel: any;
 const path = (<any>require).context("./images", false, /\.svg$/);
 

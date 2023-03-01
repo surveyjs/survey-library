@@ -24,7 +24,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   }
   protected override onModelChanged(): void {
     this.destroyModel();
-    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement, settings.environment);
+    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement);
     this.model.initializePopupContainer();
     this.portalHost = this.popupService.createComponent(this.model);
   }

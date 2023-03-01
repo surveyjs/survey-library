@@ -45,7 +45,7 @@ export class SvgIconComponent implements OnChanges {
   ngOnChanges(): void {
     const el = this.viewContaierRef.element.nativeElement;
     el.innerHTML = "";
-    el.appendChild(Survey.settings.environment.createElementNS("http://www.w3.org/2000/svg", "use"));
+    el.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "use"));
     this.createSvg();
   }
 }

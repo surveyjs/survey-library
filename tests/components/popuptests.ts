@@ -134,7 +134,7 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
 
   const environment: ISurveyEnvironment = {
     ...shadowRoot,
-    body: shadowElement,
+    mountContainer: shadowElement,
     getElementById: shadowRoot.getElementById.bind(shadowRoot),
     createElement: createElementInsideShadowRoot(shadowRoot),
   };

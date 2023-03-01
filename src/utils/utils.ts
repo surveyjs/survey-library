@@ -1,3 +1,4 @@
+import { ISurveyEnvironment } from "../base-interfaces";
 import { settings } from "./../settings";
 
 function compareVersions(a: any, b: any) {
@@ -142,7 +143,8 @@ function createSvg(
   height: number,
   iconName: string,
   svgElem: any,
-  title: string
+  title: string,
+  environment: ISurveyEnvironment = document
 ): void {
   if (!svgElem) return;
   if (size !== "auto") {
@@ -165,7 +167,7 @@ function createSvg(
     return;
   } else {
     if (!titleElement) {
-      titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      titleElement = environment.createElementNS("http://www.w3.org/2000/svg", "title");
       svgElem.appendChild(titleElement);
     }
   }

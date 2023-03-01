@@ -137,6 +137,7 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
     mountContainer: shadowElement,
     getElementById: shadowRoot.getElementById.bind(shadowRoot),
     createElement: createElementInsideShadowRoot(shadowRoot),
+    createElementNS: document.createElementNS
   };
 
   const targetElement: HTMLElement = document.createElement("div");

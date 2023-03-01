@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { createSvg } from "survey-core";
+import { createSvg, settings } from "survey-core";
 const template = require("./svg-icon.html");
 
 export var SvgIconViewModel: any;
@@ -18,6 +18,7 @@ ko.components.register("sv-svg-icon", {
             iconName,
             element,
             ko.unwrap(params.title),
+            settings.environment
           );
         }
       });

@@ -49,6 +49,7 @@ frameworks.forEach(async framework => {
   test("progressBarType:questions", async t => {
     json["progressBarType"] = "questions";
     await initSurvey(framework, json);
+    await t.wait(1000);
     await t.expect(Selector("span").withText("Answered 0/4 questions").exists).ok()
       .typeText("input[type=email]", "stub@gmail.com")
       .pressKey("tab")
@@ -57,6 +58,7 @@ frameworks.forEach(async framework => {
   test("progressBarType:requiredQuestions", async t => {
     json["progressBarType"] = "requiredQuestions";
     await initSurvey(framework, json);
+    await t.wait(1000);
     await t.expect(Selector("span").withText("Answered 0/2 questions").exists).ok()
       .typeText("input[type=email]", "stub@gmail.com")
       .pressKey("tab")
@@ -66,6 +68,7 @@ frameworks.forEach(async framework => {
     json["showTOC"] = true;
     json["pages"][0]["elements"][0]["isRequired"] = false;
     await initSurvey(framework, json);
+    await t.wait(1000);
     const page1 = Selector(".sv-list__item-body").withText("page1");
     const page2 = Selector(".sv-list__item-body").withText("page2");
     await t.expect(page1.exists).ok();

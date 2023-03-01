@@ -1288,6 +1288,23 @@ QUnit.test("PopupViewModel remove correct div even if container is changed", (as
   assert.notOk(container.isConnected);
 });
 
+QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel["calculateIsTablet"](300, 300);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](300, 600);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](600, 300);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](600, 600);
+  assert.ok(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](700, 600);
+  assert.ok(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](700, 700);
+  assert.ok(viewModel["isTablet"]);
+});
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
   const targetElement: HTMLElement = document.createElement("button");

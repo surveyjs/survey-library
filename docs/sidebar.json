@@ -207,6 +207,10 @@
           "Title": "Panel Dynamic"
         },
         {
+          "Name": "settings",
+          "Title": "Global Settings"
+        },
+        {
           "Name": "IAction",
           "Title": "IAction",
           "IsHidden": true

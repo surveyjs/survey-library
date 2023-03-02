@@ -4,6 +4,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -116,6 +117,21 @@ QUnit.test("QuestionFile serialization", function(assert) {
   const fileQuestion = new QuestionFileModel("q1");
   assert.deepEqual(fileQuestion.toJSON(), { name: "q1" }, "We have only name in serialziation by default");
 });
+
+QUnit.test("QuestionFile change defaultValue for allowMultiple", function(assert) {
+  const fileQuestion1 = new QuestionFileModel("q1");
+  assert.equal(fileQuestion1.allowMultiple, false, "default is false");
+
+  const prop1 = Serializer.getProperty("file", "allowMultiple");
+  prop1.defaultValue = true;
+
+  const fileQuestion2 = new QuestionFileModel("q2");
+  assert.equal(fileQuestion2.allowMultiple, true, "default is true");
+
+  const prop2 = Serializer.getProperty("file", "allowMultiple");
+  prop2.defaultValue = false;
+});
+
 QUnit.test("QuestionFile value initialization array of objects", function(
   assert
 ) {

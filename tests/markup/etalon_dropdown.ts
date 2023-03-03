@@ -285,5 +285,27 @@ registerMarkupTests(
       },
       snapshot: "dropdown-with-none-value",
     },
+    {
+      name: "Test Dropdown question input string",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "searchEnabled": true,
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      afterRender: (survey) => { survey.getQuestionByName("name").dropdownListModel.inputStringRendered = "o"; },
+      snapshot: "dropdown-input-string",
+    },
+
   ]
 );

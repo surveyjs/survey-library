@@ -168,7 +168,9 @@ export var defaultStandardCss = {
     cleanButtonSvg: "sv_q_dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv_q_dropdown__value",
-    filterStringInput: "sv_q_dropdown__filter-string-input"
+    filterStringInput: "sv_q_dropdown__filter-string-input",
+    hintPrefix: "sv_q_dropdown__hint-prefix",
+    hintSuffix: "sv_q_dropdown__hint-suffix"
   },
   html: { root: "" },
   image: { root: "sv_q_image", image: "sv_image_image" },

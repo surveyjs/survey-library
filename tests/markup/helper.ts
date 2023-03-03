@@ -4,6 +4,7 @@ export interface MarkupTestDescriptor {
   json: any;
   event?: string;
   before?: () => void;
+  afterRender?: (survey) => void;
   after?: () => void;
   snapshot?: string;
   excludePlatform?: string;
@@ -131,6 +132,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
+    if (test.afterRender) test.afterRender(survey)
     setTimeout(()=>{
       const htmlElement = options.htmlElement;
       var all = htmlElement.getElementsByTagName("*");

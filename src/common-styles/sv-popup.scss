@@ -347,7 +347,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   .sv-list__filter {
     display: flex;
     align-items: center;
-    padding: calcSize(0.5) calcSize(2.5);
+    padding: calcSize(0.5) calcSize(1) calcSize(0.5) calcSize(2.5);
   }
 
   .sv-list__filter-icon {

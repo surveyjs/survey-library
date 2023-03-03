@@ -149,7 +149,6 @@ export class DropdownListModel extends Base {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
         this.inputString = item.title;
-        this.setInputHasValue(!!this.inputString);
         this._popupModel.toggleVisibility();
       };
     }
@@ -196,9 +195,6 @@ export class DropdownListModel extends Base {
     }
   }
 
-  setInputHasValue(newValue: boolean): void {
-    this.question.inputHasValue = newValue;
-  }
 
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
@@ -209,7 +205,10 @@ export class DropdownListModel extends Base {
   }) filterString: string;
 
   @property({
-    defaultValue: ""
+    defaultValue: "",
+    onSet: (newValue, target: DropdownListModel) => {
+      target.question.inputHasValue = !!newValue;
+    }
   }) inputString: string;
 
   public get inputStringRendered() {
@@ -287,7 +286,6 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     this._popupModel.toggleVisibility();
-    if (!this.question.searchEnabled) this.listModel.focusNextVisibleItem();
 
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
@@ -349,6 +347,11 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
+    } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
+      this.popupModel.toggleVisibility();
+      this.changeSelectionWithKeyboard(false);
+      event.preventDefault();
+      event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       if (event.keyCode === 13 && !this.inputString && this.question.value) {
         this._popupModel.isVisible = false;
@@ -366,6 +369,8 @@ export class DropdownListModel extends Base {
       }
     } else if (event.keyCode === 27) {
       this._popupModel.isVisible = false;
+      this.hintString = "";
+      this.inputString = this.question.value;
     } else {
       if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();
@@ -389,15 +394,13 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();
-    this._popupModel.isVisible = false;
     this.inputString = undefined;
     this.hintString = undefined;
-    this.setInputHasValue(false);
     doKey2ClickBlur(event);
+    this._popupModel.isVisible = false;
   }
   onFocus(event: any): void {
-    this.inputString = this.getSelectedAction()?.title;
-    this.setInputHasValue(!!this.inputString);
+    this.inputString = this.question.selectedItemText;
   }
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();

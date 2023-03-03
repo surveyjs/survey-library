@@ -1,3 +1,4 @@
+import { drop } from "lodash";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
@@ -308,7 +309,6 @@ QUnit.test("filterString and focusedItem", function (assert) {
 
   dropdownListModel.filterString = "";
   question.value = "item11";
-  debugger;
   dropdownListModel.filterString = "1";
   assert.equal(list.focusedItem.id, "item11");
 });
@@ -323,21 +323,167 @@ QUnit.test("hintString test", function (assert) {
   assert.notOk(dropdownListModel.showHintPrefix, "no filter, hint prefix hidden");
   assert.notOk(dropdownListModel.showHintString, "no filter, hint hidden");
 
-  debugger;
-  dropdownListModel.filterString = "It";
+  dropdownListModel.inputStringRendered = "It";
   assert.notOk(dropdownListModel.showHintPrefix, "filter from start, hint prefix hidden");
   assert.ok(dropdownListModel.showHintString, "filter from start, hint visible");
+  assert.equal(dropdownListModel.hintString, "item1", "filter from start, hint string correct");
   assert.equal(dropdownListModel.hintStringSuffix, "em1", "filter from start, hint suffix correct");
 
-  dropdownListModel.filterString = "te";
+  dropdownListModel.inputStringRendered = "te";
   assert.ok(dropdownListModel.showHintPrefix, "filter from middle, hint prefix visible");
   assert.ok(dropdownListModel.showHintString, "filter from middle, hint visible");
   assert.equal(dropdownListModel.hintStringPrefix, "i", "filter from middle, hint prefix correct");
   assert.equal(dropdownListModel.hintStringSuffix, "m1", "filter from middle, hint suffix correct");
 
   question.value = "item3";
-  dropdownListModel.filterString = "it";
+  dropdownListModel.inputStringRendered = "it";
   assert.notOk(dropdownListModel.showHintPrefix, "filter from start with value, hint prefix hidden");
   assert.ok(dropdownListModel.showHintString, "filter from start with value, hint visible");
   assert.equal(dropdownListModel.hintStringSuffix, "em3", "filter from start with value, hint suffix correct");
+});
+
+QUnit.test("dropdown keyboard tests for empty question", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  }
+
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  // TODO: change this behaviour (show popup on UP key)
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first UP");
+  assert.equal(dropdownListModel.hintString, "", "hintString still empty on first UP");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is still hidden on first UP");
+
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first DOWN");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first DOWN");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on first DOWN");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on second DOWN");
+  assert.equal(dropdownListModel.hintString, "item2", "hintString changed on second DOWN");
+  assert.equal(question.value, undefined, "value not changed on second DOWN");
+
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on UP");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on UP");
+  assert.equal(question.value, undefined, "value not changed on UP");
+
+  event.keyCode = 27;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString cleared on Escape");
+  assert.equal(dropdownListModel.hintString, "", "hintString cleared on Escape");
+  assert.equal(question.value, undefined, "value not changed on Escape");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first Enter");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first Enter");
+  assert.equal(question.value, undefined, "value not changed on first Enter");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on first Enter");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item1", "inputString changed on Enter");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString equal to inputString on Enter");
+  assert.equal(question.value, "item1", "value  changed on Enter");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Enter");
+});
+
+QUnit.test("dropdown keyboard tests", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  }
+
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  // TODO: change this behaviour (show popup on UP key)
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first UP");
+  assert.equal(dropdownListModel.hintString, "", "hintString still empty on first UP");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is still hidden on first UP");
+
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first DOWN");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first DOWN");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on first DOWN");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on second DOWN");
+  assert.equal(dropdownListModel.hintString, "item2", "hintString changed on second DOWN");
+  assert.equal(question.value, undefined, "value not changed on second DOWN");
+
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on UP");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on UP");
+  assert.equal(question.value, undefined, "value not changed on UP");
+
+  event.keyCode = 27;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString cleared on Escape");
+  assert.equal(dropdownListModel.hintString, "", "hintString cleared on Escape");
+  assert.equal(question.value, undefined, "value not changed on Escape");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first Enter");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first Enter");
+  assert.equal(question.value, undefined, "value not changed on first Enter");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on first Enter");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item1", "inputString changed on Enter");
+  assert.ok(!dropdownListModel.hintString || dropdownListModel.hintString == dropdownListModel.inputString, "hintString empty or equal to inputString on Enter");
+  assert.equal(question.value, "item1", "value  changed on Enter");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Enter");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item1", "inputString is set on DOWN again");
+  assert.equal(dropdownListModel.hintString, "", "hintString is not set on DOWN again");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on DOWN again");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item2", "inputString is changed on DOWN one more time");
+  assert.ok(!dropdownListModel.hintString || dropdownListModel.hintString == dropdownListModel.inputString, "hintString empty or equal to inputString on DOWN one more time");
+
+  debugger;
+  event.keyCode = 27;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item1", "inputString rolled back on Esc");
+  assert.equal(question.value, "item1", "value rolled back on Esc");
+
 });

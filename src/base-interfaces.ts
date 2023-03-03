@@ -343,5 +343,8 @@ export interface IFindElement {
 }
 
 export type ISurveyEnvironment =
-  Pick<Document, "createElement" | "createElementNS" | "appendChild" | "getElementById" | "activeElement">
-  & (Pick<Document, "body" | "head"> | { mountContainer: HTMLElement | ShadowRoot })
+  Pick<Document, "createElement" | "appendChild" | "getElementById" | "activeElement">
+  & (
+    | Pick<Document, "body" | "head" | "documentElement">
+    | ({ mountContainer: HTMLElement | ShadowRoot } & ShadowRoot)
+  )

@@ -18,7 +18,6 @@ ko.components.register("sv-svg-icon", {
             iconName,
             element,
             ko.unwrap(params.title),
-            settings.environment
           );
         }
       });

@@ -56,7 +56,6 @@ QUnit.test("svg import in the custom environment", function (assert) {
     mountContainer: shadowElement,
     getElementById: shadowRoot.getElementById.bind(shadowRoot),
     createElement: createElementInsideShadowRoot(shadowRoot),
-    createElementNS: document.createElementNS
   };
 
   settings.environment = environment as any;

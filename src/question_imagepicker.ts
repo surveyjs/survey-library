@@ -9,6 +9,8 @@ import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
+  @property({ defaultValue: false }) contentNotLoaded: boolean;
+
   constructor(
     value: any,
     text: string = null,
@@ -48,6 +50,13 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   }
   getProcessedText(text: string): string {
     return !!this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  }
+
+  public get showNoImage(): boolean {
+    return !this.imageLink || this.contentNotLoaded;
+  }
+  public onErrorHandler(): void {
+    this.contentNotLoaded = true;
   }
 }
 
@@ -108,13 +117,20 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
+    const imageItemValue = item as ImageItemValue;
     if (this.isValueEmpty(val)) return false;
+    if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     if (!this.multiSelect) return this.isTwoValueEquals(val, item.value);
     if (!Array.isArray(val)) return false;
     for (var i = 0; i < val.length; i++) {
       if (this.isTwoValueEquals(val[i], item.value)) return true;
     }
     return false;
+  }
+  public getItemEnabled(item: ItemValue): boolean {
+    const imageItemValue = item as ImageItemValue;
+    if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
+    return super.getItemEnabled(item);
   }
   public clearIncorrectValues() {
     if (this.multiSelect) {
@@ -301,6 +317,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   private _width: number;
 
   public onContentLoaded = (item: ImageItemValue, event: any) => {
+    item.contentNotLoaded = false;
     const content: any = event.target;
     if (this.contentMode == "video") {
       item["aspectRatio"] = content.videoWidth / content.videoHeight;

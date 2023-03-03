@@ -164,7 +164,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         ></video>
       );
     }
-    if (!item.locImageLink.renderedHtml) {
+    if (!item.locImageLink.renderedHtml || item.contentNotLoaded) {
       let style: any = {
         width: this.question.renderedImageWidth,
         height: this.question.renderedImageHeight,
@@ -177,9 +177,11 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         >
           {
             cssClasses.itemNoImageSvgIcon ?
-              <svg className={cssClasses.itemNoImageSvgIcon}>
-                <use xlinkHref={cssClasses.itemNoImageSvgIconId}></use>
-              </svg>:
+              <SvgIcon
+                className={cssClasses.itemNoImageSvgIcon}
+                iconName={this.question.cssClasses.noImageSvgIconId}
+                size={48}
+              ></SvgIcon>:
               null
           }
         </div>

@@ -10,6 +10,7 @@ export interface MarkupTestDescriptor {
   etalon?: string;
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
+  timeout?: number;
 }
 
 export var markupTests: Array<MarkupTestDescriptor> = [];
@@ -217,7 +218,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         tableCell3.appendChild(download);
       }
       done();
-    }, 10);
+    }, test.timeout || 10);
   });
   if (test.initSurvey)
     test.initSurvey(platform.survey);

@@ -172,7 +172,12 @@ export var defaultStandardCss = {
     filterStringInput: "sv_q_dropdown__filter-string-input"
   },
   html: { root: "" },
-  image: { root: "sv_q_image", image: "sv_image_image" },
+  image: {
+    root: "sv_q_image",
+    image: "sv_image_image",
+    noImage: "sv-image__no-image",
+    noImageSvgIconId: "icon-no-image",
+  },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
@@ -289,7 +294,10 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
+    itemNoImage: "sv_q_imgsel__no-image",
+    itemNoImageSvgIcon: "sv_q_imgsel__no-image-svg",
+    itemNoImageSvgIconId: "icon-no-image",
   },
   rating: {
     root: "sv_q_rating",

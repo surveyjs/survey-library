@@ -1,5 +1,5 @@
 import { QuestionNonValue } from "./questionnonvalue";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -24,6 +24,8 @@ function isUrlYoutubeVideo(url: string): boolean {
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-image/ (linkStyle))
  */
 export class QuestionImageModel extends QuestionNonValue {
+  @property({ defaultValue: false }) contentNotLoaded: boolean;
+
   constructor(name: string) {
     super(name);
     const locImageLink = this.createLocalizableString("imageLink", this, false);
@@ -153,6 +155,16 @@ export class QuestionImageModel extends QuestionNonValue {
       .append(this.cssClasses.image)
       .append(this.cssClasses.adaptive, isDefaultSize)
       .toString();
+  }
+
+  public get showNoImage(): boolean {
+    return !this.imageLink || this.contentNotLoaded;
+  }
+  public onLoadHandler(): void {
+    this.contentNotLoaded = false;
+  }
+  public onErrorHandler(): void {
+    this.contentNotLoaded = true;
   }
 
   private setRenderedMode(val: string) {

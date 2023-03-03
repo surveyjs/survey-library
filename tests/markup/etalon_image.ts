@@ -35,3 +35,34 @@ registerMarkupTest(
     snapshot: "image-video",
   }
 );
+registerMarkupTest(
+  {
+    name: "Test Image question empty",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "name": "banner",
+        }
+      ]
+    },
+    timeout: 1000,
+    snapshot: "image-is-empty"
+  }
+);
+registerMarkupTest(
+  {
+    name: "Test Image question doesn't load content",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "name": "banner",
+          "imageLink": "#item1.jpg",
+        }
+      ]
+    },
+    timeout: 1000,
+    snapshot: "image-not-load-content"
+  }
+);

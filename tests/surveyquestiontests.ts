@@ -3616,7 +3616,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: true,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5, imageLink: "test5" }
+      ]
     },
     question
   );
@@ -3643,7 +3649,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: false,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5 }
+      ],
     },
     question
   );
@@ -3664,6 +3676,9 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
     false,
     "The third time is not selected"
   );
+
+  question.value = 5;
+  assert.equal(question.isItemSelected(question.choices[4]), false, "The fifth time is not selected");
 });
 
 QUnit.test("QuestionImagePicker 0 item value test", function (assert) {

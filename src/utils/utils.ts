@@ -75,12 +75,16 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof document === "undefined") {
+  const environment = settings.environment;
+  if (typeof environment === "undefined") {
     return false;
   }
+  const clientHeight = "documentElement" in environment
+    ? environment.documentElement.clientHeight
+    : environment.host.clientHeight;
   const elementRect: DOMRect = element.getBoundingClientRect();
   const viewHeight: number = Math.max(
-    document.documentElement.clientHeight,
+    clientHeight,
     window.innerHeight
   );
   const topWin: number = -threshold;
@@ -94,8 +98,11 @@ function isElementVisible(
 }
 
 function findScrollableParent(element: HTMLElement): HTMLElement {
+  const environment: ISurveyEnvironment = settings.environment;
   if (!element) {
-    return document.documentElement;
+    return "documentElement" in environment
+      ? environment.documentElement
+      : environment.host as HTMLElement;
   }
   if (
     element.scrollHeight > element.clientHeight &&
@@ -117,8 +124,9 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 }
 
 function scrollElementByChildId(id: string) {
-  if (!document) return;
-  const el = document.getElementById(id);
+  const environment: ISurveyEnvironment = settings.environment;
+  if (!environment) return;
+  const el = environment.getElementById(id);
   if (!el) return;
   const scrollableEl = findScrollableParent(el);
   if (!!scrollableEl) {
@@ -144,7 +152,6 @@ function createSvg(
   iconName: string,
   svgElem: any,
   title: string,
-  environment: ISurveyEnvironment = document
 ): void {
   if (!svgElem) return;
   if (size !== "auto") {
@@ -167,7 +174,7 @@ function createSvg(
     return;
   } else {
     if (!titleElement) {
-      titleElement = environment.createElementNS("http://www.w3.org/2000/svg", "title");
+      titleElement = document.createElementNS("http://www.w3.org/2000/svg", "title");
       svgElem.appendChild(titleElement);
     }
   }

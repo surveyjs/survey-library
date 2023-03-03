@@ -1,3 +1,5 @@
+import { ISurveyEnvironment } from "./base-interfaces";
+
 /**
  * Global survey settings
  */
@@ -247,7 +249,10 @@ export var settings = {
   /**
    * Specifies environment in which SurveyJS will exist
    */
-  environment: document,
+  env: document,
+
+  get environment(): ISurveyEnvironment { return settings.env; },
+  set environment(environment: ISurveyEnvironment) { (settings.env as any) = environment; },
 
   titleTags: {
     survey: "h3",

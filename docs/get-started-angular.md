@@ -30,11 +30,16 @@ The SurveyJS Form Library for Angular consists of two npm packages: [`survey-cor
 npm install survey-angular-ui --save
 ```
 
-> SurveyJS for Angular requires Angular v13.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
+> SurveyJS for Angular requires Angular v12.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
 >
 > ```cmd
-> npm install @angular/cdk@^13.0.0 --save
+> npm install @angular/cdk@^12.0.0 --save
 > ```
+>
+> Earlier Angular versions are supported by the [`survey-angular`](https://www.npmjs.com/package/survey-angular) package. It depends on Knockout and is now obsolete. However, you can use it in your Angular v8&ndash;v11 projects. Refer to the following examples on GitHub for more information:
+> 
+> - [Add SurveyJS Form Library to an Angular v8&ndash;v11 Application](https://github.com/surveyjs/code-examples/tree/main/legacy-angular/form-library)
+> - [Add Survey Creator to an Angular v8&ndash;v11 Application](https://github.com/surveyjs/code-examples/tree/main/legacy-angular/survey-creator).
 
 ## Configure Styles
 

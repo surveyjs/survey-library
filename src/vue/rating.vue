@@ -8,7 +8,7 @@
         </span>
         <component
           v-for="(item, index) in question.renderedRateItems"
-          :is="('sv-rating-item')"
+            :is="question.itemComponentName"
           :item="item"
           :index="index"
           :question="question"

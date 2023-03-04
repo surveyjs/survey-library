@@ -259,6 +259,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
+  protected hasUnknownValue(
+    val: any,
+    includeOther: boolean,
+    isFilteredChoices: boolean,
+    checkEmptyValue: boolean
+  ): boolean {
+    if(this.choicesLazyLoadEnabled) { return false; }
+    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
+  }
+
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 

@@ -2947,6 +2947,56 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllQuestionsValue();
   }
+  public getStructuredData(includePages: boolean = true, level: number = -1) : any {
+    if(level === 0) return this.data;
+    const data: any = {};
+    this.pages.forEach(p => {
+      if(includePages) {
+        const pageValues = {};
+        if(p.collectValues(pageValues, level - 1)) {
+          data[p.name] = pageValues;
+        }
+      } else {
+        p.collectValues(data, level);
+      }
+    });
+    return data;
+  }
+  public setStructuredData(data: any, doMerge: boolean = false) : void {
+    if(!data) return;
+    const res: any = {};
+    for(let key in data) {
+      const q = this.getQuestionByValueName(key);
+      if(q) {
+        res[key] = data[key];
+      }
+      else {
+        let panel: PanelModelBase = this.getPageByName(key);
+        if(!panel) {
+          panel = this.getPanelByName(key);
+        }
+        if(panel) {
+          this.collectDataFromPanel(panel, res, data[key]);
+        }
+      }
+    }
+    if(doMerge) {
+      this.mergeData(res);
+    } else {
+      this.data = res;
+    }
+  }
+  private collectDataFromPanel(panel: PanelModelBase, output: any, data: any): void {
+    for(let key in data) {
+      let el = panel.getElementByName(key);
+      if(!el) continue;
+      if(el.isPanel) {
+        this.collectDataFromPanel(<PanelModel>el, output, data[key]);
+      } else {
+        output[key] = data[key];
+      }
+    }
+  }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
     return this.editingObjValue;

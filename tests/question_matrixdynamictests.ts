@@ -1527,6 +1527,15 @@ QUnit.test(
   }
 );
 
+function updateObjsQuestions(objs: Array<any>): void {
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+    if(!!objs[i].context) {
+      objs[i].context = objs[i].context.name;
+    }
+  }
+}
+
 QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   var objs = [];
   var question = new QuestionMatrixDynamicModel("matrix");
@@ -1534,9 +1543,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   question.addColumn("col1", "Column 1");
   question.addColumn("col2");
   question.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1551,9 +1558,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   );
   objs = [];
   question.addConditionObjectsByContext(objs, question.columns[0]);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1569,12 +1574,7 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
   );
   objs = [];
   question.addConditionObjectsByContext(objs, true);
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-    if (!!objs[i].context) {
-      objs[i].context = objs[i].context.name;
-    }
-  }
+  updateObjsQuestions(objs);
   assert.deepEqual(
     objs,
     [
@@ -1589,6 +1589,35 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     ],
     "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
   );
+});
+QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", function (assert) {
+  settings.matrixMaxRowCountInCondition = 0;
+  var objs = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.title = "Matrix";
+  question.addColumn("col1", "Column 1");
+  question.addColumn("col2");
+  question.addConditionObjectsByContext(objs, null);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs, [], "addConditionObjectsByContext work correctly for matrix dynamic");
+  objs = [];
+  question.addConditionObjectsByContext(objs, question.columns[0]);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs,
+    [{ name: "row.col2", text: "row.col2", question: "matrix" }],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, true);
+  updateObjsQuestions(objs);
+  assert.deepEqual(objs,
+    [
+      { name: "matrix.row.col1", text: "Matrix.row.Column 1", question: "matrix", context: "matrix" },
+      { name: "matrix.row.col2", text: "Matrix.row.col2", question: "matrix", context: "matrix" },
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
+  );
+  settings.matrixMaxRowCountInCondition = 1;
 });
 QUnit.test(
   "matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition",

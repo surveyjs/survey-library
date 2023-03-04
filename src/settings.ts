@@ -1,11 +1,23 @@
 /**
- * Global survey settings
+ * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
+ *
+ * ```js
+ * import { settings } from "survey-core";
+ *
+ * settings.settingName = "value";
+ * ```
  */
 export var settings = {
   /**
-   * Options for SurveyJS comparator. By default we trim strings and compare them as case insensitive. To change the behavior you can use following code:
-   * settings.comparator.trimStrings = false; //"abc " will not equal to "abc". They are equal by default.
-   * settings.comparator.caseSensitive = true; //"abc " will not equal to "Abc". They are equal by default.
+   * An object that configures string comparison.
+   *
+   * Nested properties:
+   *
+   * - `trimStrings`: `Boolean`\
+   * Specifies whether to remove whitespace from both ends of a string before the comparison. Default value: `true`.
+   *
+   * - `caseSensitive`: `Boolean`\
+   * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
    */
   comparator: {
     trimStrings: true,
@@ -13,23 +25,32 @@ export var settings = {
   },
   expressionDisableConversionChar: "#",
   /**
-   * Set this value to false, if you want to have UTC fuctions, for example setUTCHours inside our functions, like today.
-   * By default it uses setHours function, with local date
+   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear`, `setHours()`, etc.).
+   *
+   * Default value: `true`
    */
   useLocalTimeZone: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
-   * The suffix that uses to store the question comment, as "questionName + commentSuffix".
-   * The default value is "-Comment"
+   * A suffix added to the name of the property that stores comments.
+   *
+   * Default value: "-Comment"
+   *
+   * You can specify this setting for an individual survey: [`commentSuffix`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#commentSuffix).
    */
   commentSuffix: "-Comment",
   /**
-   * Encode parameter on calling restful web API
+   * Specifies whether to encode URL parameters when you access a web service.
+   *
+   * Default value: `true`
    */
   webserviceEncodeParameters: true,
   /**
-   * Cache the result for choices getting from web services. Set this property to false, to disable the caching.
+   * Specifies whether to cache choices loaded from a web service.
+   *
+   * Default value: `true`
+   * @see settings.disableOnGettingChoicesFromWeb
    */
   useCachingForChoicesRestful: true,
   get useCachingForChoicesRestfull() {
@@ -39,161 +60,271 @@ export var settings = {
     settings.useCachingForChoicesRestful = val;
   },
   /**
-   * SurveyJS web service API url
+   * The URL of the SurveyJS Service API endpoint.
    */
   surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey",
   /**
-   * separator that can allow to set value and text of ItemValue object in one string as: "value|text"
+   * A separator used in a shorthand notation that specifies a value and display text for an [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) object: `"value|text"`.
+   *
+   * Default value: `"|"`
    */
   itemValueSeparator: "|",
   /**
-   * Set it to true to serialize itemvalue instance always as object even if text property is empty
-   * const item = new Survey.ItemValue(5);
-   * item.toJSON(); //will return {value: 5}, instead of 5 by default.
+   * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances as objects even when they include only the `value` property.
+   *
+   * ```js
+   * import { ItemValue, settings } from "survey-core";
+   *
+   * settings.itemValueAlwaysSerializeAsObject = true;
+   * const item = new ItemValue(5);
+   * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
+   * ```
+   *
+   * @see settings.serializeLocalizableStringAsObject
    */
   itemValueAlwaysSerializeAsObject: false,
   /**
-   * Set it to true to serialize itemvalue text property, even if it is empty or equals to value
-   * const item = new Survey.ItemValue("item1");
-   * item.toJSON(); //will return {value: item1, text: "item1"}, instead of "item1" by default.
+   * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property.
+   *
+   * ```js
+   * import { ItemValue, settings } from "survey-core";
+   *
+   * settings.itemValueAlwaysSerializeText = true;
+   * const item = new ItemValue("item1");
+   * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
+   * ```
    */
   itemValueAlwaysSerializeText: false,
   /**
-   * default locale name for localizable strings that uses during serialization, {"default": "My text", "de": "Mein Text"}
+   * Specifies a property key that stores a translation for the default locale.
+   *
+   * Default value: `"default"`
+   * @see storeDuplicatedTranslations
    */
   defaultLocaleName: "default",
   /**
-   * By default we do not store a value for a locale if it equals to "default" locale value
+   * Specifies whether surveys should store translation strings that equal the translation string specified by the `"default"` key.
+   *
+   * Default value: `false`
+   * @see settings.defaultLocaleName
    */
   storeDuplicatedTranslations: false,
   /**
-   * Default row name for matrix (single choice)
+   * Specifies a property key that stores an object with default cell values in [Single-Choice Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model) questions.
+   *
+   * Default value: "default"
    */
   matrixDefaultRowName: "default",
   /**
-   * Default cell type for dropdown and dynamic matrices
+   * The default type of matrix cells in the [Multiple-Choice Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) question types.
+   *
+   * Default value: `"dropdown"`
+   *
+   * You can specify this setting for individual questions or matrix columns: [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#cellType). Refer to the `cellType` property description for information on possible values.
    */
   matrixDefaultCellType: "dropdown",
   /**
-   * Total value postfix for dropdown and dynamic matrices. The total value stores as: {matrixName} + {postfix}
+   * A suffix added to the name of the property that stores total values. The resulting property name consists of the matrix name and the suffix.
+   *
+   * Default value: `"-total"`
    */
   matrixTotalValuePostFix: "-total",
   /**
-   * Maximum row count in dynamic matrix
+   * A maximum number of rows in a [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model).
+   *
+   * Default value: 1000
+   *
+   * You can specify this setting for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
    */
   matrixMaximumRowCount: 1000,
   /**
-   * Maximum rowCount that returns in addConditionObjectsByContext function
+   * A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic.
+   *
+   * Default value: 1
+   *
+   * If you set this property to 0, the Condition menu does not include any matrix rows. Users still can specify conditions that use matrix rows but only with Manual Entry.
    */
   matrixMaxRowCountInCondition: 1,
   /**
-   * Set this property to false, to render matrix dynamic remove action as button.
-   * It is rendered as icon in new themes ("defaultV2") by default.
+   * A maximum number of panels from [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic.
+   *
+   * Default value: 1
+   *
+   * If you set this property to 0, the Condition menu does not include any panel questions. Users still can specify conditions that use panel questions but only with Manual Entry.
+   */
+  panelDynamicMaxPanelCountInCondition: 1,
+  /**
+   * Disable this property if you want to render the Remove action in Dynamic Matrix as a button. Otherwise, the action is rendered as an icon.
+   *
+   * Default value: `true`
    */
   matrixRenderRemoveAsIcon: true,
   /**
-   * Maximum panel count in dynamic panel
+   * A maximum number of panels in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model).
+   *
+   * Default value: 100
+   *
+   * You can specify this setting for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
    */
   panelMaximumPanelCount: 100,
   /**
-   * Maximum rate value count in rating question
+   * A maximum number of rate values in a [Rating](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model) question.
+   *
+   * Default value: 20
    */
   ratingMaximumRateValueCount: 20,
   /**
-   * Disable the question while choices are getting from the web service
+   * Specifies whether to close the drop-down menu of a [TagBox](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) question after a user selects a value.
+   *
+   * This setting applies to all TagBox questions on a page. You can use the [closeOnSelect](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model#closeOnSelect) property to specify the same setting for an individual TagBox question.
+   */
+  tagboxCloseOnSelect: false,
+  /**
+   * Disables the question while choices are being loaded from a web service.
+   *
+   * Default value: `false`
+   * @see settings.useCachingForChoicesRestful
    */
   disableOnGettingChoicesFromWeb: false,
   /**
-   * Set to true to always serialize the localization string as object even if there is only one value for default locale. Instead of string "MyStr" serialize as {default: "MyStr"}
+   * Enable this property if you want to serialize [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring) instances as objects even when they include only a translation string for the default locale. For example, `"Custom String"` will be serialized as `{ default: "Custom String" }`.
+   *
+   * Default value: `false`
+   * @see settings.itemValueAlwaysSerializeAsObject
    */
   serializeLocalizableStringAsObject: false,
   /**
-   * Set to false to hide empty page title and description in design mode
+   * Specifies whether to display an empty title for pages and panels when they are being designed in Survey Creator.
+   *
+   * Default value: `true`
    */
   allowShowEmptyTitleInDesignMode: true,
   /**
-   * Set to false to hide empty page description in design mode
+   * Specifies whether to display an empty description for pages and panels when they are being designed in Survey Creator.
+   *
+   * Default value: `true`
    */
   allowShowEmptyDescriptionInDesignMode: true,
   /**
-   * Set this property to true to execute the complete trigger on value change instead of on next page.
+   * Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed.
+   *
+   * Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
+   *
+   * Default value: `false`
+   * @see settings.changeNavigationButtonsOnCompleteTrigger
    */
   executeCompleteTriggerOnValueChanged: false,
   /**
-   * Set this property to false to stop showing "Compete" button when the complete trigger is going to be executed.
+   * Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed.
+   *
+   * Default value: `true`
+   * @see settings.executeCompleteTriggerOnValueChanged
    */
   changeNavigationButtonsOnCompleteTrigger: true,
   /**
-   * Set this property to false to execute the skip trigger on next page instead of on value change.
+   * Specifies whether to re-evaluate an expression associated with the [Skip trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#skip) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed.
+   *
+   * Disable this property if you want to re-evaluate the Skip trigger's expression only when the respondents navigate to another page.
+   *
+   * Default value: `true`
    */
   executeSkipTriggerOnValueChanged: true,
   /**
-   * Specifies how the input field of [Comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions is rendered in the read-only mode.
-   * Available values:
-   * "textarea" (default) - A 'textarea' element is used to render a Comment question's input field.
-   * "div" - A 'div' element is used to render a Comment question's input field.
+   * Specifies how to render the input field of [Comment](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#readOnly) mode.
+   *
+   * Possible values:
+   *
+   * - `"textarea"` (default) - Renders the input field as a disabled `<textarea>` element.
+   * - `"div"` - Renders the input field as a `<div>` element with a non-editable question value within it.
    */
   readOnlyCommentRenderMode: "textarea",
   /**
-   * Specifies how the input field of [Text](https://surveyjs.io/Documentation/Library?id=questiontextmodel) questions is rendered in the read-only mode.
-   * Available values:
-   * "input" (default) - An 'input' element is used to render a Text question's input field.
-   * "div" - A 'div' element is used to render a Text question's input field.
+   * Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode.
+   *
+   * Possible values:
+   *
+   * - `"input"` (default) - Renders the input field as a disabled `<input>` element.
+   * - `"div"` - Renders the input field as a `<div>` element with a non-editable question value within it.
    */
   readOnlyTextRenderMode: "input",
   /**
-   * Override this function, set your function, if you want to show your own dialog confirm window instead of standard browser window.
-   * @param message
+   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog. Set this property to a function that renders your custom dialog window.
+   * @param message A message to be displayed in the confirm dialog window.
    */
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
   /**
-   * Set this property to change the default value of the minWidth constraint
+   * A minimum width value for all survey elements.
+   *
+   * Default value: `"300px"`
+   *
+   * You can override this setting for individual elements: [`minWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth).
    */
   minWidth: "300px",
   /**
-   * Set this property to change the default value of the maxWidth constraint
+   * A maximum width value for all survey elements.
+   *
+   * Default value: `"100%"`
+   *
+   * You can override this setting for individual elements: [`maxWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#maxWidth).
    */
   maxWidth: "100%",
   /**
-   * This property tells how many times survey re-run expressions on value changes during condition running. We need it to avoid recursions in the expressions
+   * Specifies how many times surveys can re-evaluate expressions when a question value changes. This limit helps avoid recursions in expressions.
+   *
+   * Default value: 10
    */
   maximumConditionRunCountOnValueChanged: 10,
   /**
-   * By default visibleIndex for question with titleLocation = "hidden" is -1, and survey doesn't count these questions when set questions numbers.
-   * Set it true, and a question next to a question with hidden title will increase it's number.
+   * Specifies whether to number questions whose [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property is set to `"hidden"`.
+   *
+   * Default value: `false`
    */
   setQuestionVisibleIndexForHiddenTitle: false,
   /**
-   * By default visibleIndex for question with hideNumber = true is -1, and survey doesn't count these questions when set questions numbers.
-   * Set it true, and a question next to a question with hidden title number will increase it's number.
+   * Specifies whether to number questions whose [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property is enabled.
+   *
+   * Default value: `false`
    */
   setQuestionVisibleIndexForHiddenNumber: false,
   /**
-   * By default all rows are rendered no matters whwther they are visible.
-   * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
-   * This feature is experimantal and might do not support all the use cases.
+   * Specifies whether to add questions to the DOM only when they get into the viewport.
+   *
+   * Default value: `false`
+   *
+   * > This is an experimental feature that may not work as expected in all use cases.
    */
   lazyRowsRendering: false,
   lazyRowsRenderingStartRow: 3,
   /**
-   * Notification settings
+   * An object that configures notifications.
+   *
+   * Nested properties:
+   *
+   * - `lifetime`: `Number`\
+   * Specifies a time period during which a notification is displayed; measured in milliseconds.
    */
   notifications: {
     lifetime: 2000
   },
   /**
-   * By default checkbox and radiogroup items are ordered in rows.
-   * Set it "column", and items will be ordered in columns.
+   * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
+   *
+   * Possible values:
+   *
+   * - `"row"` (default) - Items fill the current row, then move on to the next row.
+   * - `"column"` - Items fill the current column, then move on to the next column.
    */
   showItemsInOrder: "default",
   /**
    * A value to save in survey results when respondents select the None choice item.
+   *
+   * Default value: `"none"`
    */
   noneItemValue: "none",
   /**
-   * Supported validators by question types. You can modify this variable to add validators for new question types or add/remove for existing question types.
+   * A list of supported validators by question type.
    */
   supportedValidators: {
     question: ["expression"],
@@ -203,11 +334,11 @@ export var settings = {
     imagepicker: ["answercount"],
   },
   /**
-   * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that less than this value
+   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   minDate: "",
   /**
-   * Set the value as string "yyyy-mm-dd". text questions with inputType "date" will not allow to set to survey date that greater than this value
+   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
   showModal: <
@@ -224,10 +355,15 @@ export var settings = {
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,
   /**
-   * Specifies a list of custom icons.
-   * Use this property to replace SurveyJS default icons (displayed in UI elements of SurveyJS Library or Creator) with your custom icons.
-   * For every default icon to replace, add a key/value object with the default icon's name as a key and the name of your custom icon as a value.
-   * For example: Survey.settings.customIcons["icon-redo"] = "my-own-redo-icon"
+   * An object that specifies icon replacements. Object keys are built-in icon names. To use a custom icon, assign its name to the key of the icon you want to replace:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * settings.customIcons["icon-redo"] = "custom-redo-icon";
+   * ```
+   *
+   * For more information about icons in SurveyJS, refer to the following help topic: [UI Icons](https://surveyjs.io/form-library/documentation/icons).
    */
   customIcons: {},
   /**

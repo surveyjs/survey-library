@@ -3,6 +3,7 @@ import { QuestionTagboxModel } from "../src/question_tagbox";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { _setIsTouch } from "../src/utils/devices";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Tagbox question");
 
@@ -266,9 +267,9 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
 });
 
 function getNumberArray(skip = 1, count = 25): Array<number> {
-  const result: Array<number> = [];
+  const result: Array<any> = [];
   for (let index = skip; index < (skip + count); index++) {
-    result.push(index);
+    result.push({ value: index, text: "DisplayText_" + index });
   }
   return result;
 }
@@ -320,6 +321,88 @@ QUnit.test("lazy loading: several loading", assert => {
         assert.equal(question.choices.length, 70);
         assert.equal(question.choices[0].value, 1);
         assert.equal(question.choices[69].value, 70);
+
+        done3();
+      }, 550);
+
+      done2();
+    }, 550);
+
+    done1();
+  }, 550);
+});
+
+QUnit.test("lazy loading: A value disappears when open tagbox popup again", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const list: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 30);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[29].value, 30);
+
+    list.onItemClick(list.renderedActions[28]);
+    assert.deepEqual(question.value, [29]);
+    assert.equal(question.selectedItems.length, 1);
+    assert.equal(question.selectedItems[0].value, 29);
+
+    question.dropdownListModel["updateQuestionChoices"]();
+    setTimeout(() => {
+      assert.equal(question.choices.length, 60);
+      assert.equal(question.choices[0].value, 1);
+      assert.equal(question.choices[59].value, 60);
+
+      list.onItemClick(list.renderedActions[55]);
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 1");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 1");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 1");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 1");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 1");
+
+      question.dropdownListModel.popupModel.toggleVisibility();
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 2");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 2");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 2");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 2");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 2");
+
+      question.dropdownListModel.popupModel.toggleVisibility();
+      assert.deepEqual(question.value, [29, 56]);
+      assert.equal(question.selectedItems.length, 2, "selected items length 3");
+      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 3");
+      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 3");
+      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 3");
+      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 3");
+
+      setTimeout(() => {
+        assert.deepEqual(question.value, [29, 56]);
+        assert.equal(question.selectedItems.length, 2, "selected items length 4");
+        assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 4");
+        assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 4");
+        assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 4");
+        assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 4");
+        assert.equal(question.choices.length, 30);
+        assert.equal(question.choices[0].value, 1);
+        assert.equal(question.choices[29].value, 30);
 
         done3();
       }, 550);
@@ -453,6 +536,104 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   }, 550);
 });
 
+QUnit.test("lazy loading data is lost: defaultValue", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [52, 55],
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if (options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete before item load");
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.deepEqual(question.value, [52, 55]);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.deepEqual(question.value, [52, 55]);
+
+    assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
+QUnit.test("lazy loading data is lost: set survey data", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if (options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+  survey.data = { "q1": [52, 55] };
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete before item load");
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 0);
+  assert.deepEqual(question.value, [52, 55]);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.deepEqual(question.value, [52, 55]);
+
+    question.renderedValue = [52, 55, 10];
+    assert.deepEqual(question.value, [52, 55, 10]);
+    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
 QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   _setIsTouch(true);
   const json = {
@@ -534,4 +715,101 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
   popupModel.isVisible = true;
   assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "isTouch=true && value = 'item1' && hideSelectedItems = true");
   _setIsTouch(false);
+});
+
+QUnit.test("Tagbox closeOnSelect", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      hasOther: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question2",
+      hasOther: "true",
+      closeOnSelect: true,
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question3",
+      hasOther: "true",
+      closeOnSelect: "false",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question4",
+      hasOther: "true",
+      closeOnSelect: "true",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    }]
+  });
+  const question1 = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const question2 = <QuestionTagboxModel>survey.getAllQuestions()[1];
+  const question3 = <QuestionTagboxModel>survey.getAllQuestions()[2];
+  const question4 = <QuestionTagboxModel>survey.getAllQuestions()[3];
+  assert.equal(question1.closeOnSelect, false);
+  assert.equal(question2.closeOnSelect, true);
+  assert.equal(question3.closeOnSelect, false);
+  assert.equal(question4.closeOnSelect, true);
+});
+
+QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {
+  settings.tagboxCloseOnSelect = true;
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    },
+    {
+      type: "tagbox",
+      name: "question2",
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4",
+        "item5"
+      ]
+    }]
+  });
+  const question1 = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const question2 = <QuestionTagboxModel>survey.getAllQuestions()[1];
+  assert.equal(question1.closeOnSelect, true);
+  assert.equal(question2.closeOnSelect, true);
+  settings.tagboxCloseOnSelect = false;
 });

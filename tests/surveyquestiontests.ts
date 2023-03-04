@@ -36,6 +36,8 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { PageModel } from "../src/page";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3247,10 +3249,12 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
   question.indent = 1;
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
+  assert.deepEqual(question.getRootStyle(), { "--sv-element-add-padding-left": "20px", "--sv-element-add-padding-right": "40px" });
   survey.css = {
     question: {
       indent: 0
@@ -3258,6 +3262,16 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   };
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
+});
+QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q1", indent: 1 }],
+  });
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.paddingLeft, "20px");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -5642,6 +5656,32 @@ QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets"
   );
   assert.equal(q1.visibleChoices.length, 3, "Show only 3 choice items");
   settings.supportCreatorV2 = false;
+  CustomWidgetCollection.Instance.clear();
+});
+QUnit.test("isFit custom widgets on renderAs", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "pretty",
+    isFit: (question) => {
+      return question.renderAs == "pretty";
+    },
+  });
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        renderAs: "pretty",
+        choices: [1, 2, 3]
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.ok(q1.customWidget, "Custom widget is apply");
+  assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
   CustomWidgetCollection.Instance.clear();
 });
 QUnit.test("Update choices order on changing locale, bug #2832", function (

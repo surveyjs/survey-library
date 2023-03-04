@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.76](https://github.com/surveyjs/surveyjs/compare/v1.9.75...v1.9.76) (2023-02-28)
+
+## [1.9.75](https://github.com/surveyjs/surveyjs/compare/v1.9.74...v1.9.75) (2023-02-21)
+
 ## [1.9.74](https://github.com/surveyjs/surveyjs/compare/v1.9.71-31-g828ef9f53...v1.9.74) (2023-02-14)
 
 ## [1.9.71-31-g828ef9f53](https://github.com/surveyjs/surveyjs/compare/v1.9.71...v1.9.71-31-g828ef9f53) (2023-02-14)

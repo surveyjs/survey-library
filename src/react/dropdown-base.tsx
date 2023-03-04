@@ -22,7 +22,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
      this.question.dropdownListModel?.onBlur(event);
      this.updateInputDomElement();
    };
-
+  protected getStateElement() {
+    return this.question["dropdownListModel"];
+  }
    protected setValueCore(newValue: any) {
      this.questionBase.renderedValue = newValue;
    }
@@ -70,7 +72,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
      const onInputChange = (e: any) => {
        if (e.target === document.activeElement) {
-         dropdownListModel.filterString = e.target.value;
+         dropdownListModel.inputStringRendered = e.target.value;
        }
      };
      return (<div
@@ -90,15 +92,24 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
        aria-invalid={this.question.ariaInvalid}
        aria-describedby={this.question.ariaDescribedBy}
      >
+       {dropdownListModel.showHintPrefix ?
+         (<div className={this.question.cssClasses.hintPrefix}>
+           <span>{dropdownListModel.hintStringPrefix}</span>
+         </div>) : null}
        <div className={this.question.cssClasses.controlValue}>
+         {dropdownListModel.showHintString ?
+           (<div className={this.question.cssClasses.hintSuffix}>
+             <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{dropdownListModel.inputStringRendered}</span>
+             <span>{dropdownListModel.hintStringSuffix}</span>
+           </div>) : null}
          {valueElement}
          <input type="text" autoComplete="off"
            id={ this.question.getInputId() }
            ref={(element) => (this.inputElement = element)}
-           className={ this.question.cssClasses.filterStringInput }
+           className={this.question.cssClasses.filterStringInput}
            role={ dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined }
            aria-label={this.question.placeholder}
-           placeholder= { this.question.readOnlyText }
+           placeholder={dropdownListModel.placeholderRendered}
            readOnly= { !dropdownListModel.searchEnabled ? true : undefined }
            tabIndex={ dropdownListModel.inputReadOnly ? undefined : -1 }
            disabled={this.question.isInputReadOnly}
@@ -156,9 +167,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
    updateInputDomElement() {
      if (!!this.inputElement) {
        const control: any = this.inputElement;
-       const newValue = this.question.dropdownListModel.filterString;
+       const newValue = this.question.dropdownListModel.inputStringRendered;
        if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-         control.value = this.question.dropdownListModel.filterString;
+         control.value = this.question.dropdownListModel.inputStringRendered;
        }
      }
    }

@@ -218,7 +218,7 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.setPropertyValue("inputString", val);
     this.filterString = val;
-    this.hintString = val ? this.listModel.focusedItem.title : "";
+    this.hintString = val ? this.listModel.focusedItem?.title : "";
     //if (!val) this.onClear(null);
   }
 
@@ -240,14 +240,14 @@ export class DropdownListModel extends Base {
   @property({ defaultValue: "" }) hintString: string;
 
   public get showHintPrefix(): boolean {
-    return !!this.inputString.length && this.hintString.indexOf(this.inputString) > 0;
+    return !!this.inputString.length && this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()) > 0;
   }
   public get hintStringPrefix(): string {
     if (!this.inputString.length) return null;
-    return this.hintString.substring(0, this.hintString.indexOf(this.inputString));
+    return this.hintString.substring(0, this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()));
   }
   public get showHintString(): boolean {
-    return /*!!this.inputString.length &&*/ this.hintString.toLowerCase() != this.inputString.toLowerCase();
+    return /*!!this.inputString.length &&*/ this.hintString.toLowerCase() != this.inputString.toLowerCase() && this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()) >= 0;
   }
   public get hintStringSuffix(): string {
     //if (!this.inputString.length) return null;
@@ -326,11 +326,11 @@ export class DropdownListModel extends Base {
     }
     this.scrollToFocusedItem();
     if (this.question.value) {
-      this.inputString = this.listModel.focusedItem.title;
+      this.inputString = this.listModel.focusedItem?.title;
       this.hintString = "";
     }
     else {
-      this.hintString = this.listModel.focusedItem.title;
+      this.hintString = this.listModel.focusedItem?.title;
     }
   }
 

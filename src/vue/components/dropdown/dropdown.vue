@@ -16,34 +16,42 @@
       :aria-describedby="question.ariaDescribedBy"
       :required="question.isRequired"
     >
-      <div :class="question.cssClasses.controlValue">
-        <survey-string
-          v-if="question.showSelectedItemLocText"
-          :locString="question.selectedItemLocText"
-        />
-        <component
-          v-if="question.showInputFieldComponent"
-          :is="question.inputFieldComponentName"
-          :item="model.getSelectedAction()"
-          :question="question"
-        >
-        </component>
+                              <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
+                                <span>{{ model.hintStringPrefix }}</span>
+                              </div>
 
-        <input
-          type="text"
-          ref="inputElement"
-          v-bind:class="question.cssClasses.filterStringInput"
-          v-bind:disabled="question.isInputReadOnly"
-          autocomplete="off"
-          :inputmode="model.inputMode"
-          :role="model.filterStringEnabled ? question.ariaRole : null"
-          :id="question.getInputId()"
-          :tabindex="model.inputReadOnly ? undefined : -1"
-          :readonly="!model.searchEnabled ? true : null"
-          :aria-label="question.placeholder"
-          :placeholder="question.readOnlyText"
-          @input="inputChange"
-          @blur="blur"
+                              <div :class="question.cssClasses.controlValue">
+                                <survey-string
+                                  v-if="question.showSelectedItemLocText"
+                                  :locString="question.selectedItemLocText"
+                                />
+                                <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
+                                <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+                                <span>{{ model.hintStringSuffix }}</span>
+                                </div>
+                            <component
+                              v-if="question.showInputFieldComponent"
+                              :is="question.inputFieldComponentName"
+                              :item="model.getSelectedAction()"
+                              :question="question"
+                            >
+                            </component>
+                          <input
+                            type="text"
+                            ref="inputElement"
+                            v-bind:class="question.cssClasses.filterStringInput"
+                            v-bind:disabled="question.isInputReadOnly"
+                            autocomplete="off"
+                            :inputmode="model.inputMode"
+                            :role="model.filterStringEnabled ? question.ariaRole : null"
+                            :id="question.getInputId()"
+                            :tabindex="model.inputReadOnly ? undefined : -1"
+                            :readonly="!model.searchEnabled ? true : null"
+                            :aria-label="question.placeholder"
+                            :placeholder="model.placeholderRendered"
+                            @input="inputChange"
+                            @blur="blur"
+                            @focus="focus"
         />
       </div>
       <div
@@ -90,11 +98,14 @@ export class DropdownComponent extends BaseVue {
     return this.question.dropdownListModel;
   }
   getModel() {
+    if (!this.question.dropdownListModel) {
+      this.question.dropdownListModel = new DropdownListModel(this.question);
+    }
     return this.model;
   }
 
   inputChange(event: any) {
-    this.model.filterString = event.target.value;
+    this.model.inputStringRendered = event.target.value;
   }
 
   public click(event: any) {
@@ -110,11 +121,8 @@ export class DropdownComponent extends BaseVue {
     this.model?.onBlur(event);
     this.updateInputDomElement();
   }
-
-  protected onCreated() {
-    if (!this.question.dropdownListModel) {
-      this.question.dropdownListModel = new DropdownListModel(this.question);
-    }
+  public focus(event: any) {
+    this.model?.onFocus(event);
   }
 
   protected onMounted() {
@@ -127,9 +135,9 @@ export class DropdownComponent extends BaseVue {
   updateInputDomElement() {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
-      const newValue = this.model.filterString;
+      const newValue = this.model.inputStringRendered;
       if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-        control.value = this.model.filterString;
+        control.value = this.model.inputStringRendered;
       }
     }
   }

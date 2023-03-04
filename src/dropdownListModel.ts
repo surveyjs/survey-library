@@ -195,7 +195,6 @@ export class DropdownListModel extends Base {
     }
   }
 
-
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     defaultValue: "",

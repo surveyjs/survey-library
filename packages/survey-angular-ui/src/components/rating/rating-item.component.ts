@@ -21,7 +21,7 @@ export class RatingItemComponent extends BaseAngular {
   }
 
   getModel() {
-    return this.model;
+    return this.item;
   }
 }
 

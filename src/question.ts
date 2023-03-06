@@ -1172,6 +1172,7 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
+    this.onIndentChanged();
   }
   protected onSetData(): void {
     super.onSetData();
@@ -1982,8 +1983,7 @@ export class Question extends SurveyElement<Question>
     );
   }
 
-  @property({ defaultValue: "default" })
-  renderAs: string;
+  @property() renderAs: string;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

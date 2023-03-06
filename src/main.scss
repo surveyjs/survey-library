@@ -7,6 +7,7 @@
 $font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 @import "./common-styles/sv-progress-buttons.scss";
+@import "./common-styles/sv-progress-toc.scss";
 @import "./common-styles/window.scss";
 @import "./common-styles/sv-brand-info.scss";
 @import "./common-styles/sv-drag-drop.scss";
@@ -487,7 +488,7 @@ body {
     }
 
     .sv_q {
-      padding: 0.5em 1em 1.5em 1em;
+      padding: 0.5em var(--sv-element-add-padding-right, 1em) 1.5em var(--sv-element-add-padding-left, 1em);
       box-sizing: border-box;
       overflow: auto;
 
@@ -927,6 +928,7 @@ body {
 
 @import "./signaturepad.scss";
 @import "./boolean-checkbox.scss";
+@import "./components-container.scss";
 
 .sv-dragdrop-movedown {
   transform: translate(0, 0);

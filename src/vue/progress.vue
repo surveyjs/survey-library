@@ -1,17 +1,17 @@
 <template>
   <div :class="survey.getProgressCssClasses()">
     <div
-      :class="css.progressBar"
+      :class="survey.css.progressBar"
       :style="{ width: progress }"
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
     >
-      <span :class="getProgressTextInBarCss(css)">{{
+      <span :class="getProgressTextInBarCss(survey.css)">{{
         survey.progressText
       }}</span>
     </div>
-    <span :class="getProgressTextUnderBarCss(css)">{{
+    <span :class="getProgressTextUnderBarCss(survey.css)">{{
       survey.progressText
     }}</span>
   </div>

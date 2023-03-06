@@ -2,6 +2,8 @@
   overflow: auto;
   box-sizing: border-box;
   font-family: inherit;
+  padding-left: var(--sv-element-add-padding-left, 0px);
+  padding-right: var(--sv-element-add-padding-right, 0px);
 }
 
 .sv-question__title {

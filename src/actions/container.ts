@@ -1,6 +1,6 @@
 import { property, propertyArray } from "../jsonobject";
 import { Base } from "../base";
-import { IAction, Action } from "./action";
+import { IAction, Action, BaseAction } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
@@ -17,7 +17,7 @@ export let defaultActionBarCss = {
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
 };
 
-export class ActionContainer<T extends Action = Action> extends Base implements ILocalizableOwner {
+export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
   public getMarkdownHtml(text: string, name: string): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
   }
@@ -119,11 +119,11 @@ export class ActionContainer<T extends Action = Action> extends Base implements 
     }
     return this.cssClassesValue;
   }
-  private createAction(item: IAction) {
-    return item instanceof Action ? item : new Action(item);
+  private createAction(item: IAction): T {
+    return <T>(item instanceof BaseAction ? item : new Action(item));
   }
-  public addAction(val: IAction, sortByVisibleIndex = true): Action {
-    const res: Action = this.createAction(val);
+  public addAction(val: IAction, sortByVisibleIndex = true): T {
+    const res: T = this.createAction(val);
     this.actions.push(<T>res);
     this.sortItems();
     return res;

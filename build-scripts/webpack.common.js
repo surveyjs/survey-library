@@ -32,6 +32,10 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
   var buildPath = __dirname + "/../build/" + (buildFolderName || packageJson.name) + "/";
   var isProductionBuild = options.buildType === "prod";
 
+  if (!!packageJson.dependencies && packageJson.dependencies["survey-core"]) {
+    packageJson.dependencies["survey-core"] = packageJson.version;
+  }
+
   function createSVGBundle() {
     var options = {
       fileName: path.resolve(
@@ -239,7 +243,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       );
     }
   } else {
-    config.devtool = "inline-source-map";
+    config.devtool = "source-map";
     config.plugins = config.plugins.concat([
       new webpack.LoaderOptionsPlugin({ debug: true }),
     ]);

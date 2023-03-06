@@ -13,15 +13,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "defaultV2.css",
-    "defaultV2.min.css",
-    "survey.react.d.ts",
-    "survey.react.js",
-    "survey.react.min.js"
+    "**/*"
   ],
   "main": "survey.react.js",
   "repository": {

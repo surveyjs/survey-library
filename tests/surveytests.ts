@@ -16216,3 +16216,20 @@ QUnit.test("settings.minWidth/maxWidth", function (assert) {
   settings.maxWidth = oldMaxWidth;
 });
 
+QUnit.test("questionIndent property", function (assert) {
+  const survey = new SurveyModel({
+    questionIndent: 2,
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.paddingLeft, "40px");
+  assert.equal(q2.paddingLeft, "40px");
+  survey.questionIndent = 3;
+  assert.equal(q1.paddingLeft, "60px");
+  assert.equal(q2.paddingLeft, "60px");
+});
+

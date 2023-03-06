@@ -2823,6 +2823,15 @@ export class SurveyModel extends SurveyElementCore
       this.updateElementCss(true);
     }
   }
+  public get questionIndent(): number {
+    return this.getPropertyValue("questionIndent");
+  }
+  public set questionIndent(value: number) {
+    this.setPropertyValue("questionIndent", value);
+    if (!this.isLoadingFromJson) {
+      this.updateElementCss(true);
+    }
+  }
   public updateElementCss(reNew?: boolean): void {
     if (!!this.startedPage) {
       this.startedPage.updateElementCss(reNew);
@@ -7260,6 +7269,11 @@ Serializer.addClass("survey", [
     name: "questionTitleLocation",
     default: "top",
     choices: ["top", "bottom", "left"],
+  },
+  {
+    name: "questionIndent:number",
+    default: 0,
+    choices: [0, 1, 2, 3]
   },
   {
     name: "questionDescriptionLocation",

@@ -535,6 +535,10 @@ export class Question extends SurveyElement<Question>
   protected getDefaultTitleTagName(): string {
     return settings.titleTags.question;
   }
+  protected getIndent(): number {
+    const indent = super.getIndent();
+    return !!indent ? indent : !!this.survey ? this.survey.questionIndent : 0;
+  }
   /**
    * Specifies where to display a question description.
    *

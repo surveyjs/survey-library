@@ -342,3 +342,13 @@ export interface IFindElement {
   element: Base;
   str: LocalizableString;
 }
+
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+
+export interface ISurveyLayoutElement {
+  id: string;
+  container?: LayoutElementContainer | Array<LayoutElementContainer>;
+  component?: string;
+  template?: string;
+  data?: any;
+}

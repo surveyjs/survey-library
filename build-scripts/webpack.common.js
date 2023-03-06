@@ -243,7 +243,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       );
     }
   } else {
-    config.devtool = "inline-source-map";
+    config.devtool = "source-map";
     config.plugins = config.plugins.concat([
       new webpack.LoaderOptionsPlugin({ debug: true }),
     ]);

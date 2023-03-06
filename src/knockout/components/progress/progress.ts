@@ -39,7 +39,7 @@ ko.components.register("sv-progress-questions", {
   },
   template: templateBridge
 });
-ko.components.register("sv-progress-correctQuestions", {
+ko.components.register("sv-progress-correctquestions", {
   viewModel: {
     createViewModel: (params: any) => {
       return new ProgressViewModel(params.model);
@@ -47,7 +47,7 @@ ko.components.register("sv-progress-correctQuestions", {
   },
   template: templateBridge
 });
-ko.components.register("sv-progress-requiredQuestions", {
+ko.components.register("sv-progress-requiredquestions", {
   viewModel: {
     createViewModel: (params: any) => {
       return new ProgressViewModel(params.model);

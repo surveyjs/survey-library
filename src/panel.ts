@@ -564,21 +564,39 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public getValue(): any {
     var data: any = {};
-    var questions = this.questions;
-
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      if (q.isEmpty()) continue;
-      var valueName = q.getValueName();
-      data[valueName] = q.value;
-      if (!!this.data) {
-        var comment = this.data.getComment(valueName);
-        if (!!comment) {
-          data[valueName + Base.commentSuffix] = comment;
+    this.collectValues(data, 0);
+    return data;
+  }
+  collectValues(data: any, level: number): boolean {
+    let elements = this.elements;
+    if(level === 0) {
+      elements = this.questions;
+    }
+    let hasValue = false;
+    for (var i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if(el.isPanel || el.isPage) {
+        const panelData = {};
+        if((<PanelModelBase><any>el).collectValues(panelData, level - 1)) {
+          data[el.name] = panelData;
+          hasValue = true;
         }
+      } else {
+        const q = <Question>el;
+        if (!q.isEmpty()) {
+          var valueName = q.getValueName();
+          data[valueName] = q.value;
+          if (!!this.data) {
+            var comment = this.data.getComment(valueName);
+            if (!!comment) {
+              data[valueName + Base.commentSuffix] = comment;
+            }
+          }
+        }
+        hasValue = true;
       }
     }
-    return data;
+    return true;
   }
   /**
    * Returns a JSON object with display texts that correspond to question values nested in the panel/page.

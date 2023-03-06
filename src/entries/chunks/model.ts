@@ -37,7 +37,8 @@ export {
   IPage,
   IPanel,
   ISurveyData,
-  ITitleOwner
+  ITitleOwner,
+  ISurveyLayoutElement
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
@@ -150,6 +151,7 @@ export {
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
+export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export { SurveyModel } from "../../survey";

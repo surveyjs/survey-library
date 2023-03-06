@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Base, SurveyTimerModel } from "survey-core";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 
 export class SurveyTimerPanel extends ReactSurveyElement {
@@ -11,13 +12,16 @@ export class SurveyTimerPanel extends ReactSurveyElement {
     return this.timerModel;
   }
   protected get timerModel(): SurveyTimerModel {
-    return this.props.timerModel;
+    return this.props.model;
   }
   private readonly circleLength = 440;
   private get progress(): number {
     return -this.timerModel.progress * this.circleLength;
   }
-  render(): JSX.Element {
+  render(): JSX.Element | null {
+    if(!this.timerModel.isRunning) {
+      return null;
+    }
     let result = <div className={this.timerModel.survey.getCss().timerRoot}>{this.timerModel.text}</div>;
     if(this.timerModel.showTimerAsClock) {
       let style = { strokeDasharray: this.circleLength, strokeDashoffset: this.progress };
@@ -34,3 +38,7 @@ export class SurveyTimerPanel extends ReactSurveyElement {
     return result;
   }
 }
+
+ReactElementFactory.Instance.registerElement("sv-timerpanel", (props) => {
+  return React.createElement(SurveyTimerPanel, props);
+});

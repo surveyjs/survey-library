@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer, property } from "./jsonobject";
+import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
 import { Base, EventBase, ComputedUpdater } from "./base";
 import {
   ISurvey,
@@ -14,6 +14,8 @@ import {
   ISurveyElement,
   IProgressInfo,
   IFindElement,
+  ISurveyLayoutElement,
+  LayoutElementContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -1460,6 +1462,48 @@ export class SurveyModel extends SurveyElementCore
       title: this.getLocalizationString("saveAgainButton"),
       action: () => { this.doComplete(); }
     }, "error");
+
+    this.layoutElements.push({
+      id: "timerpanel",
+      template: "survey-timerpanel",
+      component: "sv-timerpanel",
+      data: this.timerModel
+    });
+    this.layoutElements.push({
+      id: "progress-buttons",
+      component: "sv-progress-buttons",
+      data: this
+    });
+    this.layoutElements.push({
+      id: "progress-questions",
+      component: "sv-progress-questions",
+      data: this
+    });
+    this.layoutElements.push({
+      id: "progress-pages",
+      component: "sv-progress-pages",
+      data: this
+    });
+    this.layoutElements.push({
+      id: "progress-correctquestions",
+      component: "sv-progress-correctquestions",
+      data: this
+    });
+    this.layoutElements.push({
+      id: "progress-requiredquestions",
+      component: "sv-progress-requiredquestions",
+      data: this
+    });
+    this.addLayoutElement({
+      id: "toc-navigation",
+      component: "sv-progress-toc",
+      data: this
+    });
+    this.layoutElements.push({
+      id: "navigationbuttons",
+      component: "sv-action-bar",
+      data: this.navigationBar
+    });
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1593,6 +1637,9 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.body)
       .append(this.css.bodyWithTimer, this.showTimerPanel != "none" && this.state === "running")
       .append(this.css.body + "--" + this.calculatedWidthMode).toString();
+  }
+  public get bodyContainerCss(): string {
+    return this.css.bodyContainer;
   }
   @property() completedCss: string;
   @property() containerCss: string;
@@ -1765,6 +1812,33 @@ export class SurveyModel extends SurveyElementCore
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
+  }
+  /**
+   * Gets or sets the visibility of the table of contents.
+   *
+   * Default value: `false`
+   * @see tocLocation
+   */
+  public get showTOC(): boolean {
+    return this.getPropertyValue("showTOC");
+  }
+  public set showTOC(val: boolean) {
+    this.setPropertyValue("showTOC", val);
+  }
+  /**
+   * Gets or sets the position of the table of contents. Applies only when the table of contents is visible.
+   *
+   * Possible values:
+   *
+   * - `"left"` (default)
+   * - `"right"`
+   * @see showTOC
+   */
+  public get tocLocation(): "left" | "right" {
+    return this.getPropertyValue("tocLocation");
+  }
+  public set tocLocation(val: "left" | "right") {
+    this.setPropertyValue("tocLocation", val);
   }
   /**
    * Gets or sets whether the Survey displays survey title in its pages. Set it to `false` to hide a survey title.
@@ -2955,6 +3029,56 @@ export class SurveyModel extends SurveyElementCore
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
     this.updateAllQuestionsValue();
+  }
+  public getStructuredData(includePages: boolean = true, level: number = -1) : any {
+    if(level === 0) return this.data;
+    const data: any = {};
+    this.pages.forEach(p => {
+      if(includePages) {
+        const pageValues = {};
+        if(p.collectValues(pageValues, level - 1)) {
+          data[p.name] = pageValues;
+        }
+      } else {
+        p.collectValues(data, level);
+      }
+    });
+    return data;
+  }
+  public setStructuredData(data: any, doMerge: boolean = false) : void {
+    if(!data) return;
+    const res: any = {};
+    for(let key in data) {
+      const q = this.getQuestionByValueName(key);
+      if(q) {
+        res[key] = data[key];
+      }
+      else {
+        let panel: PanelModelBase = this.getPageByName(key);
+        if(!panel) {
+          panel = this.getPanelByName(key);
+        }
+        if(panel) {
+          this.collectDataFromPanel(panel, res, data[key]);
+        }
+      }
+    }
+    if(doMerge) {
+      this.mergeData(res);
+    } else {
+      this.data = res;
+    }
+  }
+  private collectDataFromPanel(panel: PanelModelBase, output: any, data: any): void {
+    for(let key in data) {
+      let el = panel.getElementByName(key);
+      if(!el) continue;
+      if(el.isPanel) {
+        this.collectDataFromPanel(<PanelModel>el, output, data[key]);
+      } else {
+        output[key] = data[key];
+      }
+    }
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   public get editingObj(): Base {
@@ -6742,10 +6866,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTimerPanel", val);
   }
   public get isTimerPanelShowingOnTop() {
-    return this.timerModel.isRunning && this.showTimerPanel == "top";
+    return this.showTimerPanel == "top";
   }
   public get isTimerPanelShowingOnBottom() {
-    return this.timerModel.isRunning && this.showTimerPanel == "bottom";
+    return this.showTimerPanel == "bottom";
   }
   /**
    * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.
@@ -7148,6 +7272,79 @@ export class SurveyModel extends SurveyElementCore
   public getSkeletonComponentName(element: ISurveyElement): string {
     return this.skeletonComponentName;
   }
+
+  @propertyArray() private layoutElements: Array<ISurveyLayoutElement>;
+
+  public addLayoutElement(layoutElement: ISurveyLayoutElement): ISurveyLayoutElement {
+    const existingLayoutElement = this.removeLayoutElement(layoutElement.id);
+    this.layoutElements.push(layoutElement);
+    return existingLayoutElement;
+  }
+  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+    const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
+    if(!!layoutElement) {
+      const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
+      this.layoutElements.splice(layoutElementIndex, 1);
+    }
+    return layoutElement;
+  }
+
+  public getContainerContent(container: LayoutElementContainer) {
+    const containerLayoutElements = [];
+    for(let layoutElement of this.layoutElements) {
+      if(isStrCiEqual(layoutElement.id, "timerpanel")) {
+        if(container === "header") {
+          if(this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if(container === "footer") {
+          if(this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+      } else if(isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+        if(container === "header") {
+          if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if(container === "contentBottom") {
+          if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+      } else if(isStrCiEqual(layoutElement.id, "navigationbuttons")) {
+        if(container === "contentTop") {
+          if(["top", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnTop) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if(container === "contentBottom") {
+          if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+        if(container === "left") {
+          if(["left", "both"].indexOf(this.tocLocation) !== -1) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if(container === "right") {
+          if(["right", "both"].indexOf(this.tocLocation) !== -1) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+      } else {
+        if(Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
+          containerLayoutElements.push(layoutElement);
+        }
+      }
+    }
+    return containerLayoutElements;
+  }
+
   /**
    * Use this method to dispose survey model properly.
    */
@@ -7167,6 +7364,12 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   disposeCallback: () => void;
+}
+
+function isStrCiEqual(a: string, b: string) {
+  if(!a) return false;
+  if(!b) return false;
+  return a.toUpperCase() === b.toUpperCase();
 }
 
 Serializer.addClass("survey", [
@@ -7296,6 +7499,15 @@ Serializer.addClass("survey", [
       "correctQuestions",
       "buttons",
     ],
+  },
+  {
+    name: "showTOC:switch",
+    default: false
+  },
+  {
+    name: "tocLocation",
+    default: "left",
+    choices: ["left", "right"],
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

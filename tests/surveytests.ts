@@ -16264,7 +16264,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -16274,7 +16274,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav top footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav top contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "nav top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav top left");
@@ -16285,11 +16285,11 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav both footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav both contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav both left");
   assert.deepEqual(getContainerContent("right"), [], "nav both right");
@@ -16299,11 +16299,11 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav left footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
     "component": "sv-progress-toc",
@@ -16316,11 +16316,11 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav right footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav right contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigation"
+    "id": "navigationbuttons"
   }], "nav right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav right left");
   assert.deepEqual(getContainerContent("right"), [{

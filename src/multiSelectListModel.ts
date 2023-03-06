@@ -34,7 +34,7 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
   };
 
   public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
-    return !!this.allowSelection && this.selectedItems.filter(item => item.id == itemValue.id).length > 0;
+    return !!this.allowSelection && this.selectedItems.filter(item => this.areSameItems(item, itemValue)).length > 0;
   };
   public updateState(): void {
     this.updateItemState();

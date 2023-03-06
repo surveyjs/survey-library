@@ -1814,8 +1814,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showPrevButton", val);
   }
   /**
-   * Gets or sets the TOC navigation visibility.
-   * Possible values: 'true' or 'false'. Default value is 'false'. Set it to 'true' to show TOC navigation.
+   * Gets or sets the visibility of the table of contents.
+   *
+   * Default value: `false`
    * @see tocLocation
    */
   public get showTOC(): boolean {
@@ -1825,8 +1826,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTOC", val);
   }
   /**
-   * Gets or sets the TOC navigation position.
-   * Possible values: 'left' or "right".
+   * Gets or sets the position of the table of contents. Applies only when the table of contents is visible.
+   *
+   * Possible values:
+   *
+   * - `"left"` (default)
+   * - `"right"`
    * @see showTOC
    */
   public get tocLocation(): "left" | "right" {

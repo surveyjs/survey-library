@@ -536,6 +536,104 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   }, 550);
 });
 
+QUnit.test("lazy loading data is lost: defaultValue", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [52, 55],
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if (options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete before item load");
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.deepEqual(question.value, [52, 55]);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.deepEqual(question.value, [52, 55]);
+
+    assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
+QUnit.test("lazy loading data is lost: set survey data", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if (options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+  survey.data = { "q1": [52, 55] };
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete before item load");
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 0);
+  assert.deepEqual(question.value, [52, 55]);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.deepEqual(question.value, [52, 55]);
+
+    question.renderedValue = [52, 55, 10];
+    assert.deepEqual(question.value, [52, 55, 10]);
+    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
 QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   _setIsTouch(true);
   const json = {

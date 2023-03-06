@@ -186,6 +186,10 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   opacity: 0.8;
 }
 
+.sv-ranking-shortcut[hidden] {
+  display: none;
+}
+
 .sv-ranking-shortcut .sv-ranking-item__icon {
   fill: $primary;
 }

@@ -51,13 +51,15 @@ import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 @Component
 export class ProgressButtons extends Vue {
   @Prop() survey: SurveyModel;
-  @Prop() css: any;
   public hasScroller: boolean = false;
   private progressButtonsModel: SurveyProgressButtonsModel;
   private updateScroller: any = undefined;
   constructor() {
     super();
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
+  }
+  public get css() {
+    return this.survey.css;
   }
   mounted() {
     const listContainerElement: any = this.$refs["progressButtonsListContainer"];

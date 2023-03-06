@@ -1,18 +1,18 @@
 <template>
-  <div v-if="timerModel.showTimerAsClock" :class="timerModel.rootCss">
+  <div v-if="model.isRunning && model.showTimerAsClock" :class="model.rootCss">
     <svg
-      v-if="timerModel.showProgress"
-      :class="timerModel.getProgressCss()"
+      v-if="model.showProgress"
+      :class="model.getProgressCss()"
       :style="{ strokeDasharray: circleRadius, strokeDashoffset: progress }"
     >
       <use :xlink:href="'#icon-timercircle'"></use>
     </svg>
-    <div :class="timerModel.textContainerCss">
-      <span :class="timerModel.majorTextCss">{{ timerModel.clockMajorText }}</span>
-      <span v-if="!!timerModel.clockMinorText" :class="timerModel.minorTextCss">{{ timerModel.clockMinorText }}</span>
+    <div :class="model.textContainerCss">
+      <span :class="model.majorTextCss">{{ model.clockMajorText }}</span>
+      <span v-if="!!model.clockMinorText" :class="model.minorTextCss">{{ model.clockMinorText }}</span>
     </div>
   </div>
-  <div v-else :class="timerModel.survey.getCss().timerRoot">
+  <div v-else v-show="model.isRunning && !model.showTimerAsClock" :class="model.survey.getCss().timerRoot">
     {{ text }}
   </div>
 </template>
@@ -25,19 +25,19 @@ import { BaseVue } from "./base";
 
 @Component
 export class TimerPanel extends BaseVue {
-  @Prop() timerModel: SurveyTimerModel;
+  @Prop() model: SurveyTimerModel;
   @Prop() css: any;
   public readonly circleRadius: number = 440;
   public get progress(): number {
-    return -this.circleRadius * this.timerModel.progress;
+    return -this.circleRadius * this.model.progress;
   }
   get text() {
-    return this.timerModel.text;
+    return this.model.text;
   }
   protected getModel(): Base {
-    return this.timerModel;
+    return this.model;
   }
 }
-Vue.component("survey-timerpanel", TimerPanel);
+Vue.component("sv-timerpanel", TimerPanel);
 export default TimerPanel;
 </script>

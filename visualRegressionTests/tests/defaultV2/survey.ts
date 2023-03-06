@@ -507,65 +507,68 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey progress bar freezes on top", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1500, 720);
-      const json = {
-        "title": "American History",
-        "showProgressBar": "top",
-        "pages": [
-          {
-            "elements": [
-              {
-                "type": "radiogroup",
-                "name": "civilwar",
-                "title": "When was the American Civil War?",
-                "choices": [
-                  "1796-1803",
-                  "1810-1814",
-                  "1861-1865",
-                  "1939-1945"
-                ],
-                "correctAnswer": "1861-1865"
-              },
-              {
-                "type": "radiogroup",
-                "name": "libertyordeath",
-                "title": "Whose quote is this: \"Give me liberty, or give me death\"?",
-                "choices": [
-                  "John Hancock",
-                  "James Madison",
-                  "Patrick Henry",
-                  "Samuel Adams"
-                ],
-                "correctAnswer": "Patrick Henry"
-              },
-              {
-                "type": "radiogroup",
-                "name": "magnacarta",
-                "title": "What is Magna Carta?",
-                "choices": [
-                  "The foundation of the British parliamentary system",
-                  "The Great Seal of the monarchs of England",
-                  "The French Declaration of the Rights of Man",
-                  "The charter signed by the Pilgrims on the Mayflower"
-                ],
-                "correctAnswer": "The foundation of the British parliamentary system"
-              }
-            ]
+    if(framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
+      await wrapVisualTest(t, async (t, comparer) => {
+        await t.resizeWindow(1500, 720);
+        const json = {
+          "title": "American History",
+          "showProgressBar": "top",
+          "pages": [
+            {
+              "elements": [
+                {
+                  "type": "radiogroup",
+                  "name": "civilwar",
+                  "title": "When was the American Civil War?",
+                  "choices": [
+                    "1796-1803",
+                    "1810-1814",
+                    "1861-1865",
+                    "1939-1945"
+                  ],
+                  "correctAnswer": "1861-1865"
+                },
+                {
+                  "type": "radiogroup",
+                  "name": "libertyordeath",
+                  "title": "Whose quote is this: \"Give me liberty, or give me death\"?",
+                  "choices": [
+                    "John Hancock",
+                    "James Madison",
+                    "Patrick Henry",
+                    "Samuel Adams"
+                  ],
+                  "correctAnswer": "Patrick Henry"
+                },
+                {
+                  "type": "radiogroup",
+                  "name": "magnacarta",
+                  "title": "What is Magna Carta?",
+                  "choices": [
+                    "The foundation of the British parliamentary system",
+                    "The Great Seal of the monarchs of England",
+                    "The French Declaration of the Rights of Man",
+                    "The charter signed by the Pilgrims on the Mayflower"
+                  ],
+                  "correctAnswer": "The foundation of the British parliamentary system"
+                }
+              ]
+            }
+          ]
+        };
+        await initSurvey(framework, json);
+        await ClientFunction(() => {
+          const surveyElement = document.getElementById("surveyElement");
+          if(surveyElement) {
+            surveyElement.style.height = "90vh";
+            surveyElement.style.overflowY = "auto";
+            document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
           }
-        ]
-      };
-      await initSurvey(framework, json);
-      await ClientFunction(() => {
-        const surveyElement = document.getElementById("surveyElement");
-        if(surveyElement) {
-          surveyElement.style.height = "90vh";
-          surveyElement.style.overflowY = "auto";
-          document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
-        }
-      })();
-      await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
-    });
+        })();
+        //t.debug();
+        await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
+      });
+    }
   });
 
   const notifierJson = {
@@ -690,6 +693,74 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
+    });
+  });
+  test("TOC survey navigation", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
+
+      await ClientFunction(() => {
+        window["survey"].tocLocation = "right";
+      })();
+      await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
     });
   });
 });

@@ -19,5 +19,5 @@ export class ProgressDefaultComponent extends EmbeddedViewContentComponent {
 AngularComponentFactory.Instance.registerComponent("sv-progress-progress", ProgressDefaultComponent);
 AngularComponentFactory.Instance.registerComponent("sv-progress-pages", ProgressDefaultComponent);
 AngularComponentFactory.Instance.registerComponent("sv-progress-questions", ProgressDefaultComponent);
-AngularComponentFactory.Instance.registerComponent("sv-progress-correctQuestions", ProgressDefaultComponent);
-AngularComponentFactory.Instance.registerComponent("sv-progress-requiredQuestions", ProgressDefaultComponent);
+AngularComponentFactory.Instance.registerComponent("sv-progress-correctquestions", ProgressDefaultComponent);
+AngularComponentFactory.Instance.registerComponent("sv-progress-requiredquestions", ProgressDefaultComponent);

@@ -342,9 +342,11 @@ export interface IFindElement {
   str: LocalizableString;
 }
 
-export type ISurveyEnvironment =
-  Pick<Document, "createElement" | "appendChild" | "getElementById" | "activeElement">
-  & (
-    | Pick<Document, "body" | "head" | "documentElement">
-    | ({ mountContainer: HTMLElement | ShadowRoot } & ShadowRoot)
-  )
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
+} & Pick<Document, "getElementById" | "addEventListener" | "removeEventListener">
+

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
-import { PopupBaseViewModel, PopupModel, createPopupViewModel, settings } from "survey-core";
+import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
 import { DomPortalOutlet } from "@angular/cdk/portal";
 import { PopupService } from "./popup.service";
 

@@ -249,10 +249,17 @@ export var settings = {
   /**
    * Specifies environment in which SurveyJS will exist
    */
-  env: document,
 
-  get environment(): ISurveyEnvironment { return settings.env; },
-  set environment(environment: ISurveyEnvironment) { (settings.env as any) = environment; },
+  environment: {
+    root: document,
+    rootElement: document.body,
+    popupMountContainer: document.body,
+    svgMountContainer: document.head,
+    stylesSheetsMountContainer: document.head,
+    getElementById: document.getElementById,
+    addEventListener: document.addEventListener,
+    removeEventListener: document.removeEventListener
+  },
 
   titleTags: {
     survey: "h3",

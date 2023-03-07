@@ -115,14 +115,6 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   viewModel.dispose();
 });
 
-const createElementInsideShadowRoot =
-  (shadowRoot: ShadowRoot) =>
-  <K extends keyof HTMLElementTagNameMap>(tagName: K) => {
-    const element = document.createElement(tagName);
-    shadowRoot.appendChild(element);
-    return element;
-  };
-
 QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
@@ -130,14 +122,15 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   const shadowRootWrapper = document.createElement("div");
   const shadowRoot = shadowRootWrapper.attachShadow({ mode: "open" });
 
-  const shadowElement = createElementInsideShadowRoot(shadowRoot)("div");
-  shadowElement.setAttribute("id", "shadowElement");
+  const popupMountContainer = document.createElement("div");
+  popupMountContainer.setAttribute("id", "shadowElement");
+  shadowRoot.appendChild(popupMountContainer);
 
   const environment: ISurveyEnvironment = {
-    ...shadowRoot,
-    mountContainer: shadowElement,
-    getElementById: shadowRoot.getElementById.bind(shadowRoot),
-    createElement: createElementInsideShadowRoot(shadowRoot),
+    ...settings.environment,
+    root: shadowRoot,
+    rootElement: shadowRoot,
+    popupMountContainer
   };
 
   settings.environment = environment as any;
@@ -156,7 +149,12 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   assert.equal(container.parentElement?.id, "shadowElement");
 
   viewModel.dispose();
-  settings.environment = document;
+  settings.environment = {
+    ...settings.environment,
+    root: document,
+    rootElement: document.body,
+    popupMountContainer: document.body,
+  };
 });
 
 QUnit.test("PopupModalViewModel defaults", (assert) => {

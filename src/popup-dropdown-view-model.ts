@@ -4,7 +4,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
-import { ISurveyEnvironment } from "./base-interfaces";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {

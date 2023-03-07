@@ -1,5 +1,6 @@
 import { ISurveyEnvironment } from "./base-interfaces";
 import { settings } from "./settings";
+import { getElement } from "./utils/utils";
 
 class SvgIconData {
   [key: string]: string
@@ -13,9 +14,9 @@ export class SvgIconRegistry {
     this.icons[iconId] = iconSymbolSvg;
   }
   public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix) {
-    let divSvg = this.environment.createElement("div");
+    let divSvg = document.createElement("div");
     divSvg.innerHTML = iconSvg;
-    let symbol = this.environment.createElement("symbol");
+    let symbol = document.createElement("symbol");
     let svg = divSvg.querySelector("svg");
     symbol.innerHTML = svg.innerHTML;
 
@@ -56,15 +57,12 @@ export class SvgIconRegistry {
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
     if(!this.environment.getElementById(containerId)) {
-      let iconsDiv = this.environment.createElement("div");
+      let iconsDiv = document.createElement("div");
       iconsDiv.id = containerId;
       iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
       iconsDiv.style.display = "none";
-      if ("mountContainer" in this.environment) {
-        this.environment.appendChild(iconsDiv);
-      } else {
-        this.environment.head.insertBefore(iconsDiv, this.environment.head.firstChild);
-      }
+
+      getElement(this.environment.svgMountContainer).appendChild(iconsDiv);
     }
   }
 }

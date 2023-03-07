@@ -6,6 +6,7 @@ import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { ISurveyEnvironment } from "./base-interfaces";
 import { settings } from "survey-core";
+import { getElement } from "./utils/utils";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -145,12 +146,12 @@ export class PopupBaseViewModel extends Base {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
-      if (this.environment.activeElement === firstFocusableElement) {
+      if (document.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (this.environment.activeElement === lastFocusableElement) {
+      if (document.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -164,7 +165,7 @@ export class PopupBaseViewModel extends Base {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>this.environment.activeElement;
+    this.prevActiveElement = <HTMLElement>document.activeElement;
 
     if (this.isOverlay) {
       this.top = null;
@@ -204,15 +205,11 @@ export class PopupBaseViewModel extends Base {
   }
   public initializePopupContainer(): void {
     if (!this.createdContainer) {
-      const container: HTMLElement = this.environment.createElement("div");
+      const container: HTMLElement = document.createElement("div");
       this.container = this.createdContainer = container;
     }
 
-    const mountContainer = "mountContainer" in this.environment
-      ? this.environment.mountContainer
-      : this.environment.body;
-
-    mountContainer.appendChild(this.container);
+    getElement(this.environment.popupMountContainer).appendChild(this.container);
   }
 
   public unmountPopupContainer(): void {

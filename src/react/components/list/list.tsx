@@ -38,26 +38,33 @@ export class List extends SurveyElementBase<IListProps, any> {
     }
   }
   renderElement() {
-    const items = this.renderItems();
-    const ulStyle = { display: this.model.isEmpty ? "none" : null };
     return (
       <div className={this.model.cssClasses.root} ref={this.listContainerRef}>
         {this.searchElementContent()}
         {this.emptyContent()}
-        <ul
-          className={this.model.cssClasses.itemsContainer}
-          style={ulStyle as any}
-          role="listbox"
-          onMouseDown={(e) => {
-            e.preventDefault();
-          }}
-          onKeyDown={this.handleKeydown}
-          onMouseMove={this.handleMouseMove}
-        >
-          {items}
-        </ul>
+        {this.renderList()}
       </div>
     );
+  }
+  renderList() {
+    if(!this.model.renderElements) return null;
+
+    const items = this.renderItems();
+    const ulStyle = { display: this.model.isEmpty ? "none" : null };
+
+    return (
+      <ul
+        className={this.model.cssClasses.itemsContainer}
+        style={ulStyle as any}
+        role="listbox"
+        onMouseDown={(e) => {
+          e.preventDefault();
+        }}
+        onKeyDown={this.handleKeydown}
+        onMouseMove={this.handleMouseMove}
+      >
+        {items}
+      </ul>);
   }
   renderItems() {
     if (!this.model) {

@@ -84,6 +84,9 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.cssClass = this.popupCssClasses;
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
+      if(option.isVisible) {
+        this.listModel.renderElements = true;
+      }
       if (option.isVisible && this.question.choicesLazyLoadEnabled) {
         this.listModel.actions = [];
         this.updateQuestionChoices();
@@ -134,6 +137,7 @@ export class DropdownListModel extends Base {
       };
     }
     const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    res.renderElements = false;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };

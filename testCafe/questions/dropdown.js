@@ -1504,4 +1504,35 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1280, 1100);
   });
+
+  test("do not render list items if the popup is closed", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    const listSelector = Selector(".sv-list");
+    await initSurvey(framework, json);
+
+    await t
+      .expect(listSelector.exists).notOk()
+      .click(questionDropdownSelect)
+      .expect(listSelector.exists).ok();
+  });
 });

@@ -52,6 +52,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
+  @property({ defaultValue: true }) renderElements: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;

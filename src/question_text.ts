@@ -444,6 +444,9 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateValueOnEvent(event);
     this.updateRemainingCharacterCounter(event.target.value);
   };
+  public onFocus = (event: any): void => {
+    this.updateRemainingCharacterCounter(event.target.value);
+  }
 }
 
 const minMaxTypes = [

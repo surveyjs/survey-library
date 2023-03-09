@@ -2202,9 +2202,9 @@ QUnit.test("Server validation (old api version)", function (assert) {
     }
     options.complete();
   };
-  survey.onServerValidateQuestions = function (sender, options) {
+  survey.onServerValidateQuestions = <any>((sender, options) => {
     serverFunction(options);
-  };
+  });
   survey.setValue("question1", 101);
   survey.nextPage();
   assert.equal(survey.currentPage.visibleIndex, 0, "Get server error");
@@ -13803,7 +13803,7 @@ QUnit.test("Check onGetPanelTitleActions event", (assert) => {
     ],
   });
   var panel = <PanelModel>survey.getPanelByName("panel1");
-  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetPanelTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
@@ -13819,7 +13819,7 @@ QUnit.test("Check onGetQuestionTitleActions event", (assert) => {
       },
     ],
   });
-  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetQuestionTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });
@@ -13831,7 +13831,7 @@ QUnit.test("Check onGetPageTitleActions event", (assert) => {
   var survey = new SurveyModel({
     pages: [{ title: "Page Title" }],
   });
-  var testActions = [{ name: "simple" }, { name: "simple2" }];
+  var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetPageTitleActions.add((sender, options) => {
     options.titleActions = testActions;
   });

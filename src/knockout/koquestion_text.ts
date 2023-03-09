@@ -8,6 +8,10 @@ import { Question } from "survey-core";
 export class QuestionTextImplementor extends QuestionImplementor {
   constructor(question: QuestionTextModel) {
     super(question);
+    this.setCallbackFunc("koOnFocus", (_: any, event: any) => {
+      this.question.onFocus(event);
+      return true;
+    });
     this.setCallbackFunc("koOnBlur", (_: any, event: any) => {
       this.question.onBlur(event);
       return true;

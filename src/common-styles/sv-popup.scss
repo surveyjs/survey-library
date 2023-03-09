@@ -291,8 +291,6 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   }
 
   .sv-popup__body-footer .sv-action-bar {
-    justify-content: flex-end;
-
     .sv-action {
       width: auto;
     }

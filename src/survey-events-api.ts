@@ -702,7 +702,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
 }
 
 export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent {}
-export interface MatrixCellValueChangingEvent extends QuestionEventMixin {
+export interface MatrixCellValueChangingEvent extends MatrixCellValueBaseEvent {
   /**
    * the old value
    */

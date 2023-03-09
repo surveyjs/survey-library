@@ -322,5 +322,6 @@ QUnit.test("Support language dialect & current locale", function(assert) {
   delete surveyLocalization.locales["ab"];
   delete surveyLocalization.locales["cd-CD"];
   delete surveyLocalization.locales["cd"];
-  delete surveyLocalization.locales["df"];
+  delete surveyLocalization.locales["ef-EF"];
+  delete surveyLocalization.locales["ef"];
 });

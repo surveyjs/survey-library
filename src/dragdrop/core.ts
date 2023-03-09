@@ -32,7 +32,7 @@ export abstract class DragDropCore<T> extends Base {
   isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
   public onGhostPositionChanged: EventBase<{}> = new EventBase<{}>();
   protected ghostPositionChanged(): void {
-    this.onGhostPositionChanged.fire({}, {});
+    this.onGhostPositionChanged.fire(<any>{}, {});
   }
 
   public static PreventScrolling = false;

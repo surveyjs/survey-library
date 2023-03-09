@@ -26,7 +26,8 @@ export var surveyLocalization = {
   getString: function (strName: string, locale: string = null) {
     const locs = new Array<any>();
     const addLocaleCore = (locName: string): void => {
-      if(!!this.locales[locName]) locs.push(this.locales[locName]);
+      const strs = this.locales[locName];
+      if(!!strs) locs.push(strs);
     };
     const addLocale = (locName: string): void => {
       if(!locName) return;
@@ -40,7 +41,7 @@ export var surveyLocalization = {
     addLocale(this.currentLocale);
     addLocale(this.defaultLocale);
     if(this.defaultLocale !== "en") {
-      addLocale("en");
+      addLocaleCore("en");
     }
     for(let i = 0; i < locs.length; i ++) {
       const res = locs[i][strName];

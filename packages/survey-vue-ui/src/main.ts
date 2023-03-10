@@ -33,6 +33,12 @@ import TitleActions from "./components/title/TitleActions.vue";
 import BrandInfo from "./components/BrandInfo.vue";
 import SvgIcon from "./components/svg-icon/SvgIcon.vue";
 
+import ActionBar from "./components/action-bar/ActionBar.vue";
+import Action from "./components/action-bar/Action.vue";
+import ActionBarItem from "./components/action-bar/ActionBarItem.vue";
+import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown.vue";
+import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
+
 import "./assets/main.css";
 import "survey-core/defaultV2.css";
 
@@ -70,5 +76,11 @@ app.component("survey-element-title-content", TitleContent);
 app.component("sv-title-actions", TitleActions);
 app.component("sv-brand-info", BrandInfo);
 app.component("sv-svg-icon", SvgIcon);
+
+app.component("sv-action-bar", ActionBar);
+app.component("sv-action", Action);
+app.component("sv-action-bar-item", ActionBarItem);
+app.component("sv-action-bar-item-dropdown", ActionBarItemDropdown);
+app.component("sv-action-bar-separator", ActionBarSeparator);
 
 const mountedApp = app.mount("#app");

@@ -93,7 +93,7 @@ export var englishStrings = {
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
-  tagboxDoneButtonCaption: "Done"
+  tagboxDoneButtonCaption: "OK"
 };
 
 // Uncomment the lines below if you create a custom dictionary.

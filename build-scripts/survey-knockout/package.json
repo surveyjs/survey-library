@@ -12,16 +12,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "defaultV2.css",
-    "defaultV2.min.css",
-    "survey.ko.d.ts",
-    "survey.ko.js",
-    "survey.ko.min.js",
-    "ts3.4/survey.ko.d.ts"
+    "**/*"
   ],
   "main": "survey.ko.js",
   "repository": {

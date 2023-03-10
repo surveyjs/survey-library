@@ -133,7 +133,11 @@ export class DropdownListModel extends Base {
         this._popupModel.toggleVisibility();
       };
     }
-    return new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
+      return item1 === item2;
+    };
+    return res;
   }
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
     model.isItemSelected = (action: ItemValue) => !!action.selected;

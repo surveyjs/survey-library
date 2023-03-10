@@ -18,7 +18,7 @@ export interface IAction {
   /**
    * A unique action item identifier.
    */
-  id: string;
+  id?: string;
   /**
    * Specifies the action item's visibility.
    * @see enabled

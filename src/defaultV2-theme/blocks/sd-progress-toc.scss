@@ -1,0 +1,27 @@
+$font-family: var(--font-family);
+
+.sv_progress-toc {
+  padding: calcSize(1);
+  max-width: calcSize(42);
+  height: 100%;
+  background: $background;
+  border-right: 1px solid $border;
+  margin-top: 2px;
+  box-sizing: border-box;
+
+  .sv-list__item.sv-list__item--selected .sv-list__item-body {
+    background: $primary-light;
+    border-radius: 3px;
+    color: $foreground;
+    font-weight: 400;
+  }
+
+  .sv-list__item span {
+    white-space: break-spaces;
+  }
+
+  .sv-list__item-body {
+    padding-inline-start: calcSize(2);
+    padding-inline-end: calcSize(2);
+  }
+}

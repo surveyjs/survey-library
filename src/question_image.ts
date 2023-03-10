@@ -85,8 +85,12 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
+  private getRenderedSize(val: string): string {
+    return isNaN(Number(val)) ? val : val + "px";
+  }
+
   public get renderedHeight(): string {
-    return this.imageHeight ? this.imageHeight + "px" : undefined;
+    return this.imageHeight ? this.getRenderedSize(this.imageHeight) : undefined;
   }
   /**
    * Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
@@ -104,7 +108,7 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setPropertyValue("imageWidth", val);
   }
   public get renderedWidth(): string {
-    return this.imageWidth ? this.imageWidth + "px" : undefined;
+    return this.imageWidth ? this.getRenderedSize(this.imageWidth) : undefined;
   }
   /**
    * Specifies how to resize the image or video to fit it into its container.
@@ -224,8 +228,8 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 },
+    { name: "imageHeight", default: "150" },
+    { name: "imageWidth", default: "200" },
   ],
   function () {
     return new QuestionImageModel("");

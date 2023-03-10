@@ -12,11 +12,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey-react-ui.css",
-    "survey-react-ui.min.css",
-    "survey-react-ui.d.ts",
-    "survey-react-ui.js",
-    "survey-react-ui.min.js"
+    "**/*"
   ],
   "main": "survey-react-ui.js",
   "repository": {

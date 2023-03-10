@@ -10,6 +10,7 @@ import { Base } from "./base";
 import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { DragDropAllowEvent } from "./survey-events-api";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -208,7 +209,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
 
-  dragAndDropAllow(options: any): boolean;
+  dragAndDropAllow(options: DragDropAllowEvent): boolean;
 
   scrollElementToTop(
     element: ISurveyElement,
@@ -340,4 +341,14 @@ export interface IWrapperObject {
 export interface IFindElement {
   element: Base;
   str: LocalizableString;
+}
+
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+
+export interface ISurveyLayoutElement {
+  id: string;
+  container?: LayoutElementContainer | Array<LayoutElementContainer>;
+  component?: string;
+  template?: string;
+  data?: any;
 }

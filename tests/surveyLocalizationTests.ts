@@ -11,6 +11,7 @@ import "../src/localization/czech";
 import "../src/localization/portuguese";
 import "../src/localization/portuguese-br";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
+import { englishStrings } from "../src/localization/english";
 
 export default QUnit.module("LocalizationsTests");
 
@@ -269,4 +270,58 @@ QUnit.test(
 QUnit.test("Support language dialect", function(assert) {
   assert.equal(surveyLocalization.getString("pagePrevText", "pt-br"), "Anterior", "get from pt");
   assert.equal(surveyLocalization.getString("loadingFile", "pt-br"), "Carregando...", "get from pt-br");
+});
+
+QUnit.test("Support language dialect & current locale", function(assert) {
+  const locABABTest = {
+    prop1: "Prop1 ABABTest",
+    prop2: "Prop2 ABABTest",
+  };
+  const locABTest = {
+    prop2: "Prop2 ABTest",
+    prop3: "Prop3 ABTest",
+  };
+  const locCDCDTest = {
+    prop3: "Prop3 CDCDTest",
+    prop4: "Prop4 CDCDTest",
+  };
+  const locCDTest = {
+    prop4: "Prop4 CDTest",
+    prop5: "Prop5 CDTest",
+  };
+  const locEFEFTest = {
+    prop5: "Prop5 EFEFTest",
+    prop6: "Prop6 EFEFTest",
+  };
+  const locEFTest = {
+    prop6: "Prop5 EFTest",
+    prop7: "Prop7 EFTest",
+  };
+  englishStrings["prop7"] = "Prop7 EnTest";
+  englishStrings["prop8"] = "Prop8 EnTest";
+  surveyLocalization.locales["ab-AB"] = locABABTest;
+  surveyLocalization.locales["ab"] = locABTest;
+  surveyLocalization.locales["cd-CD"] = locCDCDTest;
+  surveyLocalization.locales["cd"] = locCDTest;
+  surveyLocalization.locales["ef-EF"] = locEFEFTest;
+  surveyLocalization.locales["ef"] = locEFTest;
+  surveyLocalization.defaultLocale = "ef-EF";
+  surveyLocalization.currentLocale = "cd-CD";
+  assert.equal(surveyLocalization.getString("prop1", "ab-AB"), "Prop1 ABABTest", "prop1");
+  assert.equal(surveyLocalization.getString("prop2", "ab-AB"), "Prop2 ABABTest", "prop2");
+  assert.equal(surveyLocalization.getString("prop3", "ab-AB"), "Prop3 ABTest", "prop3");
+  assert.equal(surveyLocalization.getString("prop4", "ab-AB"), "Prop4 CDCDTest", "prop4");
+  assert.equal(surveyLocalization.getString("prop5", "ab-AB"), "Prop5 CDTest", "prop5");
+  assert.equal(surveyLocalization.getString("prop6", "ab-AB"), "Prop6 EFEFTest", "prop6");
+  assert.equal(surveyLocalization.getString("prop7", "ab-AB"), "Prop7 EFTest", "prop7");
+  assert.equal(surveyLocalization.getString("prop8", "ab-AB"), "Prop8 EnTest", "prop8");
+
+  surveyLocalization.defaultLocale = "en";
+  surveyLocalization.currentLocale = "";
+  delete surveyLocalization.locales["ab-AB"];
+  delete surveyLocalization.locales["ab"];
+  delete surveyLocalization.locales["cd-CD"];
+  delete surveyLocalization.locales["cd"];
+  delete surveyLocalization.locales["ef-EF"];
+  delete surveyLocalization.locales["ef"];
 });

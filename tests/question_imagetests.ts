@@ -99,3 +99,28 @@ QUnit.test("Image question correct youtube url", function (assert) {
   question = <any>survey.getQuestionByName("q1");
   assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I3");
 });
+
+QUnit.test("Image question: check image size css values", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "image",
+        name: "q1",
+        imageWidth: 200,
+        imageHeight: 400
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionImageModel>survey.getAllQuestions()[0];
+  assert.equal(question.renderedHeight, "400px");
+  assert.equal(question.renderedWidth, "200px");
+  question.imageHeight = "500px";
+  question.imageWidth = "300px";
+  assert.equal(question.renderedHeight, "500px");
+  assert.equal(question.renderedWidth, "300px");
+  question.imageHeight = "50%";
+  question.imageWidth = "100%";
+  assert.equal(question.renderedHeight, "50%");
+  assert.equal(question.renderedWidth, "100%");
+});

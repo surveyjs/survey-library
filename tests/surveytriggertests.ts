@@ -3,9 +3,11 @@ import {
   ISurveyTriggerOwner,
   SurveyTriggerVisible,
   SurveyTriggerSetValue,
+  SurveyTriggerRunExpression
 } from "../src/trigger";
 import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Triggers");
 
@@ -329,4 +331,52 @@ QUnit.test("Do not execute copy and set trigger on page changed", function(
   survey.nextPage();
   survey.doComplete();
   assert.deepEqual(survey.data, data, "We do not change anything");
+});
+
+QUnit.test("Execute trigger on complete", function(assert) {
+  class TriggerExprssionTester extends SurveyTriggerRunExpression {
+    public getType(): string {
+      return "runexpression2trigger";
+    }
+    protected canBeExecuted(isOnNextPage: boolean): boolean {
+      return isOnNextPage;
+    }
+    protected canBeExecutedOnComplete(): boolean {
+      return true;
+    }
+  }
+  Serializer.addClass("runexpression2trigger", [],
+    () => { return new TriggerExprssionTester(); }, "runexpressiontrigger");
+
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q4" },
+          { type: "boolean", name: "q2", valueTrue: "yes", valueFalse: "no" },
+          { type: "text", name: "q3" }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "runexpression2",
+        "expression": "{q2} = 'yes' and {q1} notempty",
+        "runExpression": "{q1} * 10",
+        "setToName": "q3"
+      }
+    ],
+  });
+  survey.setValue("q1", 5);
+  survey.nextPage();
+  survey.setValue("q2", "yes");
+  assert.deepEqual(survey.data, { q1: 5, q2: "yes" }, "trigger is not executed yet");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: 5, q2: "yes", q3: 50 }, "trigger is executed");
+  Serializer.removeClass("runexpression2trigger");
 });

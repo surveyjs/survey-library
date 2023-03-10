@@ -9,7 +9,7 @@
     <!-- ko if: question.renderedMode === "youtube" -->
     <iframe data-bind=" css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></iframe>
     <!-- /ko -->
-    <!-- ko if: question.showNoImage  -->
+    <!-- ko if: !question.imageLink || question.contentNotLoaded  -->
     <div data-bind="css: question.koCss().noImage">
       <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.koCss().noImageSvgIconId, size: 48 } } --><!-- /ko -->
     </div>

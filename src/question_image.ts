@@ -161,9 +161,6 @@ export class QuestionImageModel extends QuestionNonValue {
       .toString();
   }
 
-  public get showNoImage(): boolean {
-    return !this.imageLink || this.contentNotLoaded;
-  }
   public onLoadHandler(): void {
     this.contentNotLoaded = false;
   }

@@ -52,9 +52,6 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
     return !!this.locOwner ? this.locOwner.getProcessedText(text) : text;
   }
 
-  public get showNoImage(): boolean {
-    return !this.imageLink || this.contentNotLoaded;
-  }
   public onErrorHandler(): void {
     this.contentNotLoaded = true;
   }

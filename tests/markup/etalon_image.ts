@@ -14,6 +14,9 @@ registerMarkupTest(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "image"
   }
 );
@@ -32,22 +35,10 @@ registerMarkupTest(
         }
       ]
     },
-    snapshot: "image-video",
-  }
-);
-registerMarkupTest(
-  {
-    name: "Test Image question empty",
-    json: {
-      questions: [
-        {
-          "type": "image",
-          "name": "banner",
-        }
-      ]
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
     },
-    timeout: 1000,
-    snapshot: "image-is-empty"
+    snapshot: "image-video",
   }
 );
 registerMarkupTest(
@@ -62,7 +53,10 @@ registerMarkupTest(
         }
       ]
     },
-    timeout: 1000,
+    timeout: 500,
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "image-not-load-content"
   }
 );

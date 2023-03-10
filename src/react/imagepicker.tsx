@@ -149,6 +149,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           alt={item.locText.renderedHtml}
           style={style}
           onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
+          onError={(event: any) => { item.onErrorHandler(item, event.nativeEvent); }}
         />
       );
     }
@@ -160,7 +161,8 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           style={style}
-          onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
+          onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
+          onError={(event: any) => { item.onErrorHandler(item, event.nativeEvent); }}
         ></video>
       );
     }
@@ -179,7 +181,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             cssClasses.itemNoImageSvgIcon ?
               <SvgIcon
                 className={cssClasses.itemNoImageSvgIcon}
-                iconName={this.question.cssClasses.noImageSvgIconId}
+                iconName={this.question.cssClasses.itemNoImageSvgIconId}
                 size={48}
               ></SvgIcon>:
               null

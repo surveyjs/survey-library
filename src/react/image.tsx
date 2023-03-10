@@ -22,9 +22,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected get question(): QuestionImageModel {
     return this.questionBase as QuestionImageModel;
   }
-  protected canRender(): boolean {
-    return super.canRender() && !!this.question.imageLink;
-  }
+
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit };
@@ -40,6 +38,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           //alt={item.text || item.value}
           style={style}
           onLoad={(event: any) => { this.question.onLoadHandler(); } }
+          onError={(event: any) => { this.question.onErrorHandler(); } }
         />
       );
     }
@@ -51,6 +50,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
+          onLoad={(event: any) => { this.question.onLoadHandler(); } }
+          onError={(event: any) => { this.question.onErrorHandler(); } }
         ></video>
       );
     }
@@ -66,7 +67,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       );
     }
     var noImage: JSX.Element | null = null;
-    if(this.question.contentNotLoaded) {
+    if(!this.question.imageLink || this.question.contentNotLoaded) {
       noImage = (
         <div className={this.question.cssClasses.noImage}>
           <SvgIcon

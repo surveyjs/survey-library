@@ -23,6 +23,10 @@ registerMarkupTests(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "imagepicker",
   },
   {
@@ -46,6 +50,10 @@ registerMarkupTests(
           titleLocation: "hidden"
         }
       ]
+    },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
     },
     snapshot: "imagepicker-multi",
   },
@@ -72,6 +80,11 @@ registerMarkupTests(
         }
       ]
     },
+    timeout: 500,
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "imagepicker-video",
   },
   {
@@ -96,6 +109,10 @@ registerMarkupTests(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "imagepicker-labels",
   },
   {
@@ -119,6 +136,11 @@ registerMarkupTests(
         }
       ]
     },
+    timeout: 500,
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = true; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = true; };
+    },
     snapshot: "imagepicker-no-image",
   },
   {
@@ -141,6 +163,11 @@ registerMarkupTests(
           titleLocation: "hidden"
         }
       ]
+    },
+    timeout: 500,
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = true; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = true; };
     },
     snapshot: "imagepicker-no-image-v2",
     before: () => { StylesManager.applyTheme("defaultV2"); },
@@ -168,6 +195,10 @@ registerMarkupTests(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
+    },
     snapshot: "imagepicker-colCount-2-v2",
     before: () => { StylesManager.applyTheme("defaultV2"); },
     after: () => StylesManager.applyTheme("default"),
@@ -193,6 +224,10 @@ registerMarkupTests(
           titleLocation: "hidden"
         }
       ]
+    },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0].choices[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0].choices[1].onErrorHandler = function() { this.contentNotLoaded = false; };
     },
     snapshot: "imagepicker-colCount-1-v2",
     before: () => { StylesManager.applyTheme("defaultV2"); },

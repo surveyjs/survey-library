@@ -220,7 +220,7 @@ export const setOptions = ClientFunction((questionName, modValue) => {
   };
   const q = window["survey"].getQuestionByName(questionName || "car");
   mergeOptions(q, modValue);
-  window["survey"].render();
+  // window["survey"].render();
 });
 
 export const joinElementInnerText = ClientFunction((tagName, index) => {

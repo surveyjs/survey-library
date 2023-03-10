@@ -105,15 +105,15 @@ export class Trigger extends Base {
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return true;
   }
+  protected canBeExecutedOnComplete(): boolean {
+    return false;
+  }
   protected isExecutingOnNextPage: boolean;
-  public checkExpression(
-    isOnNextPage: boolean,
-    keys: any,
-    values: HashTable<any>,
-    properties: HashTable<any> = null
-  ): void {
+  public checkExpression(isOnNextPage: boolean, isOnComplete: boolean,
+    keys: any, values: HashTable<any>, properties: HashTable<any> = null): void {
     this.isExecutingOnNextPage = isOnNextPage;
     if(!this.canBeExecuted(isOnNextPage)) return;
+    if(isOnComplete && !this.canBeExecutedOnComplete()) return;
     if (!this.isCheckRequired(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(values, properties);

@@ -8,7 +8,12 @@ import { AngularComponentFactory } from "../../../component-factory";
 })
 export class DropdownOptionItemComponent extends BaseAngular {
   @Input() item: any;
-
+  protected override onModelChanged(): void {
+    if (!this.item.locText) return;
+    this.item.locText.onChanged = () => {
+      this.detectChanges();
+    };
+  }
   protected getModel() {
     return this.item;
   }

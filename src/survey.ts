@@ -3930,6 +3930,7 @@ export class SurveyModel extends SurveyElementCore
       this.isCompleted = false;
       return false;
     }
+    this.checkOnPageTriggers(true);
     let previousCookie = this.hasCookie;
     this.stopTimer();
     this.isCompleted = true;
@@ -4093,7 +4094,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doNextPage() {
     var curPage = this.currentPage;
-    this.checkOnPageTriggers();
+    this.checkOnPageTriggers(false);
     if (!this.isCompleted) {
       if (this.sendResultOnPageNext) {
         this.sendResult(this.surveyPostId, this.clientId, true);
@@ -5103,7 +5104,7 @@ export class SurveyModel extends SurveyElementCore
       );
     }
   }
-  private checkOnPageTriggers() {
+  private checkOnPageTriggers(isOnComplete: boolean) {
     var questions = this.getCurrentPageQuestions(true);
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
@@ -5130,7 +5131,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean) {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false) {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -5146,7 +5147,7 @@ export class SurveyModel extends SurveyElementCore
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
     this.canBeCompletedByTrigger = false;
     for (var i: number = 0; i < this.triggers.length; i++) {
-      this.triggers[i].checkExpression(isOnNextPage,
+      this.triggers[i].checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
         this.triggerValues,
         properties

@@ -649,8 +649,8 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
   const popupViewModel = new PopupBaseViewModel(popupModel);
-  const doneAction = popupViewModel.footerToolbar.actions[0];
-  const cancelAction = popupViewModel.footerToolbar.actions[1];
+  const doneAction = popupViewModel.footerToolbar.actions[1];
+  const cancelAction = popupViewModel.footerToolbar.actions[0];
   const listModel = dropdownListModel["listModel"];
   const actions = listModel.actions;
 

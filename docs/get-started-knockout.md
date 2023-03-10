@@ -35,10 +35,10 @@ Insert links to the scripts and style sheets within the `<head>` tag on your HTM
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
     <!-- Default V2 theme -->
-    <link href="https://unpkg.com/survey-jquery/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/survey-knockout/defaultV2.min.css" type="text/css" rel="stylesheet">
 
     <!-- Modern theme -->
-    <!-- <link href="https://unpkg.com/survey-jquery/modern.min.css" type="text/css" rel="stylesheet"> -->
+    <!-- <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet"> -->
 
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>

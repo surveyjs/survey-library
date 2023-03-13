@@ -50,7 +50,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
-          onLoad={(event: any) => { this.question.onLoadHandler(); } }
+          onLoadedMetadata={(event: any) => { this.question.onLoadHandler(); } }
           onError={(event: any) => { this.question.onErrorHandler(); } }
         ></video>
       );

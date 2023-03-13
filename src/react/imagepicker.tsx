@@ -161,7 +161,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
           width={ this.question.renderedImageWidth }
           height={ this.question.renderedImageHeight }
           style={style}
-          onLoad={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
+          onLoadedMetadata={(event: any) => { this.question["onContentLoaded"](item, event.nativeEvent); }}
           onError={(event: any) => { item.onErrorHandler(item, event.nativeEvent); }}
         ></video>
       );

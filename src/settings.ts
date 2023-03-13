@@ -256,9 +256,6 @@ export var settings = {
     popupMountContainer: document.body,
     svgMountContainer: document.head,
     stylesSheetsMountContainer: document.head,
-    getElementById: document.getElementById,
-    addEventListener: document.addEventListener,
-    removeEventListener: document.removeEventListener
   },
 
   titleTags: {

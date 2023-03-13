@@ -348,5 +348,5 @@ export type ISurveyEnvironment = {
   popupMountContainer: HTMLElement | string,
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
-} & Pick<Document, "getElementById" | "addEventListener" | "removeEventListener">
+}
 

@@ -7,6 +7,8 @@
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
+    (loadedmetadata)="model.onLoadHandler()"
+    (error)="model.onErrorHandler()"
   /><video
     controls
     *ngIf="model.renderedMode === 'video'"
@@ -15,6 +17,8 @@
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
+    (loadedmetadata)="model.onLoadHandler()"
+    (error)="model.onErrorHandler()"
   ></video>
   <iframe
     *ngIf="model.renderedMode === 'youtube'"
@@ -23,5 +27,8 @@
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
-  ></iframe>
+    ></iframe>
+    <div *ngIf="!model.imageLink || model.contentNotLoaded" [class]="model.cssClasses.noImage">
+      <svg [iconName]="model.cssClasses.noImageSvgIconId" [size]="48" sv-ng-svg-icon></svg>
+    </div>
 </div>

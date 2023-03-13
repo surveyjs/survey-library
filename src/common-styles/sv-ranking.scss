@@ -16,6 +16,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 .sv-ranking {
   outline: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .sv-ranking-item {

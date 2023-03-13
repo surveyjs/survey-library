@@ -15,7 +15,7 @@ registerMarkupTest(
       ]
     },
     initSurvey: survey => {
-      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
     },
     snapshot: "image"
   }
@@ -36,7 +36,7 @@ registerMarkupTest(
       ]
     },
     initSurvey: survey => {
-      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
     },
     snapshot: "image-video",
   }
@@ -55,7 +55,7 @@ registerMarkupTest(
     },
     timeout: 500,
     initSurvey: survey => {
-      survey.getAllQuestions()[0].onErrorHandler = function() { this.contentNotLoaded = false; };
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
     },
     snapshot: "image-not-load-content"
   }

@@ -12,7 +12,7 @@
               <img *ngIf="model.locImageLink.renderedHtml && !model.contentNotLoaded && question.contentMode === 'image'" [class]="question.cssClasses.image" [attr.src]="model.locImageLink.renderedHtml" [attr.width]="question.renderedImageWidth" [attr.height]="question.renderedImageHeight" [attr.alt]="model.locText.renderedHtml"  [style.objectFit]="question.imageFit" (load)="question.onContentLoaded(model, $event)" (error)="model.onErrorHandler()"/>
               <video *ngIf="model.locImageLink.renderedHtml && !model.contentNotLoaded && question.contentMode === 'video'" controls [class]="question.cssClasses.image" [attr.src]="model.locImageLink.renderedHtml" [attr.width]="question.renderedImageWidth" [attr.height]="question.renderedImageHeight" [style.objectFit]="question.imageFit" (loadedmetadata)="question.onContentLoaded(model, $event)" (error)="model.onErrorHandler()"></video>
               <div *ngIf="!model.locImageLink.renderedHtml || model.contentNotLoaded" [class]="question.cssClasses.itemNoImage" [style.width]="question.renderedImageWidth" [style.height]="question.renderedImageHeight" [style.objectFit]="question.imageFit">
-                <svg *ngIf="question.cssClasses.itemNoImageSvgIconId" [class]="question.cssClasses.itemNoImageSvgIcon" [iconName]="model.cssClasses.itemNoImageSvgIconId" [size]="48" sv-ng-svg-icon></svg>
+                <svg *ngIf="question.cssClasses.itemNoImageSvgIconId" [class]="question.cssClasses.itemNoImageSvgIcon" [iconName]="question.cssClasses.itemNoImageSvgIconId" [size]="48" sv-ng-svg-icon></svg>
               </div>
             </div>
             <span *ngIf="question.showLabel" [class]="question.cssClasses.itemText" [model]="model.locText" sv-ng-string></span>

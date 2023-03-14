@@ -1115,7 +1115,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"expression"`
    * - `"rating"`
    *
-   * Default value: "dropdown" (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */
   public get cellType(): string {
     return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
@@ -2265,8 +2265,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !!this.data &&
       !!this.visibleTotalRow &&
       !this.isUpdateLocked &&
-      !this.isSett &&
-      !this.isReadOnly
+      !this.isSett
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,

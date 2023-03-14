@@ -56,6 +56,29 @@
   background-color: $red-light;
 }
 
+.sd-text__content {
+  position: relative;
+}
+
+.sd-remaining-character-counter {
+  display: none;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0px;
+  font-family: $font-family;
+  line-height: calcSize(3);
+  font-size: calcSize(2);
+  color: $foreground-light;
+  position: absolute;
+  inset-inline-end: calcSize(2);
+  inset-block-end: calcSize(1.5);
+}
+
+.sd-question__content:focus-within .sd-remaining-character-counter {
+  display: flex;
+}
+
 @mixin runnable-track {
   background-color: $primary;
   border-radius: calcSize(1);

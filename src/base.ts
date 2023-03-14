@@ -268,7 +268,7 @@ export class Base {
    * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
    * - `options.name`: `"text"` | `"value"`\
    * The name of the changed property.
-   * - `options.newValue: `any`\
+   * - `options.newValue`: `any`\
    * A new value for the property.
    */
   public onItemValuePropertyChanged: Event<
@@ -470,11 +470,8 @@ export class Base {
   private getDefaultValueFromProperty(name: string): any {
     const prop = this.getPropertyByName(name);
     if(!prop || prop.isCustom && this.isCreating) return undefined;
-    if (
-      !this.isPropertyEmpty(prop.defaultValue) &&
-      !Array.isArray(prop.defaultValue)
-    )
-      return prop.defaultValue;
+    const dValue = prop.defaultValue;
+    if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;

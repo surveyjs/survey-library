@@ -12,15 +12,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "defaultV2.css",
-    "defaultV2.min.css",
-    "survey.vue.d.ts",
-    "survey.vue.js",
-    "survey.vue.min.js"
+    "**/*"
   ],
   "main": "survey-vue.js",
   "repository": {

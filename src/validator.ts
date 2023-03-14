@@ -237,7 +237,7 @@ export class TextValidator extends SurveyValidator {
   ): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
-      var reg = /^[A-Za-z\s]*$/;
+      var reg = /^[A-Za-z\s\.]*$/;
       if (!reg.test(value)) {
         return new ValidatorResult(null, this.createCustomError(name));
       }

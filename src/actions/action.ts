@@ -18,7 +18,7 @@ export interface IAction {
   /**
    * A unique action item identifier.
    */
-  id: string;
+  id?: string;
   /**
    * Specifies the action item's visibility.
    * @see enabled
@@ -165,7 +165,126 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
-export class Action extends Base implements IAction, ILocalizableOwner {
+export abstract class BaseAction extends Base implements IAction {
+  private cssClassesValue: any;
+  @property() tooltip: string;
+  @property() showTitle: boolean;
+  @property() innerCss: string;
+  @property() active: boolean;
+  @property() pressed: boolean;
+  @property() data: any;
+  @property() popupModel: any;
+  @property() needSeparator: boolean;
+  @property() template: string;
+  @property({ defaultValue: "large" }) mode: actionModeType;
+  @property() owner: ILocalizableOwner;
+  @property() visibleIndex: number;
+  @property() disableTabStop: boolean;
+  @property() disableShrink: boolean;
+  @property() disableHide: boolean;
+  @property({ defaultValue: false }) needSpace: boolean;
+  @property() ariaChecked: boolean;
+  @property() ariaExpanded: boolean;
+  @property({ defaultValue: "button" }) ariaRole: string;
+  public id: string;
+  @property() iconName: string;
+  @property() iconSize: number = 24;
+  @property() css?: string
+  minDimension: number;
+  maxDimension: number;
+
+  public get visible(): boolean {
+    return this.getVisible();
+  }
+  public set visible(val: boolean) {
+    this.setVisible(val);
+  }
+  public get enabled() {
+    return this.getEnabled();
+  }
+  public set enabled(val: boolean) {
+    this.setEnabled(val);
+  }
+  public get component(): string {
+    return this.getComponent();
+  }
+  public set component(val: string) {
+    this.setComponent(val);
+  }
+  public get locTitle(): LocalizableString {
+    return this.getLocTitle();
+  }
+  public set locTitle(val: LocalizableString) {
+    this.setLocTitle(val);
+  }
+  public get title(): string {
+    return this.getTitle();
+  }
+  public set title(val: string) {
+    this.setTitle(val);
+  }
+  public set cssClasses(val: any) {
+    this.cssClassesValue = val;
+  }
+  public get cssClasses() {
+    return this.cssClassesValue || defaultActionBarCss;
+  }
+  public get isVisible() {
+    return this.visible && this.mode !== "popup";
+  }
+  public get disabled(): boolean {
+    return this.enabled !== undefined && !this.enabled;
+  }
+  public get canShrink() {
+    return !!this.iconName;
+  }
+  public get hasTitle(): boolean {
+    return (
+      ((this.mode != "small" &&
+        (this.showTitle || this.showTitle === undefined)) ||
+        !this.iconName) &&
+      !!this.title
+    );
+  }
+  public getActionBarItemTitleCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemTitle)
+      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
+      .toString();
+  }
+  public getActionBarItemCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.item)
+      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
+      .append(this.cssClasses.itemActive, !!this.active)
+      .append(this.cssClasses.itemPressed, !!this.pressed)
+      .append(this.innerCss)
+      .toString();
+  }
+  public getActionRootCss(): string {
+    return new CssClassBuilder()
+      .append("sv-action")
+      .append(this.css)
+      .append("sv-action--space", this.needSpace)
+      .append("sv-action--hidden", !this.isVisible)
+      .toString();
+  }
+  public getTooltip(): string {
+    return this.tooltip || this.title;
+  }
+  protected abstract getEnabled(): boolean;
+  protected abstract setEnabled(val: boolean): void;
+  protected abstract getVisible(): boolean;
+  protected abstract setVisible(val: boolean): void;
+  protected abstract getLocTitle(): LocalizableString;
+  protected abstract setLocTitle(val: LocalizableString): void;
+  protected abstract getTitle(): string;
+  protected abstract setTitle(val: string): void;
+  protected abstract getComponent(): string;
+  protected abstract setComponent(val: string): void;
+}
+
+export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public updateCallback: () => void;
   private raiseUpdate() {
@@ -191,49 +310,30 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   public owner: ILocalizableOwner;
   location?: string;
   @property() id: string;
-  @property() iconName: string;
-  @property() iconSize: number = 24;
   @property({
     defaultValue: true, onSet: (_, target: Action) => {
       target.raiseUpdate();
     }
-  }) visible: boolean;
-  @property() tooltip: string;
+  }) private _visible: boolean;
   @property({
     onSet: (_, target: Action) => {
       target.locTooltipChanged();
     }
   }) locTooltipName?: string;
-  @property() enabled: boolean;
-  @property() showTitle: boolean;
+  @property() private _enabled: boolean;
   @property() action: (context?: any) => void;
-  @property() css: string;
-  @property() innerCss: string;
-  @property() data: any;
-  @property() popupModel: any;
-  @property() needSeparator: boolean;
-  @property() active: boolean;
-  @property() pressed: boolean;
-  @property() template: string;
-  @property() component: string;
+  @property() _component: string;
   @property() items: any;
-  @property() visibleIndex: number;
-  @property({ defaultValue: "large" }) mode: actionModeType;
-  @property() disableTabStop: boolean;
-  @property() disableShrink: boolean;
-  @property() disableHide: boolean;
-  @property({ defaultValue: false }) needSpace: boolean;
-  @property() ariaChecked: boolean;
-  @property() ariaExpanded: boolean;
-  @property({ defaultValue: "button" }) ariaRole: string;
   @property({
     onSet: (val, target) => {
       if (target.locTitleValue.text === val) return;
       target.locTitleValue.text = val;
     }
-  }) title: string;
-  public get locTitle(): LocalizableString { return this.locTitleValue; }
-  public set locTitle(val: LocalizableString) {
+  }) _title: string;
+  protected getLocTitle(): LocalizableString {
+    return this.locTitleValue;
+  }
+  protected setLocTitle(val: LocalizableString): void {
     if (!val && !this.locTitleValue) {
       val = this.createLocTitle();
     }
@@ -243,6 +343,12 @@ export class Action extends Base implements IAction, ILocalizableOwner {
     this.locTitleValue = val;
     this.locTitleValue.onStringChanged.add(this.locTitleChanged);
     this.locTitleChanged();
+  }
+  protected getTitle(): string {
+    return this._title;
+  }
+  protected setTitle(val: string): void {
+    this._title = val;
   }
   public get locTitleName(): string {
     return this.locTitle.localizationName;
@@ -269,68 +375,13 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   }
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;
-    this.setPropertyValue("title", !!val ? val : undefined);
+    this.setPropertyValue("_title", !!val ? val : undefined);
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
     this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
   }
-  private cssClassesValue: any;
 
-  public set cssClasses(val: any) {
-    this.cssClassesValue = val;
-  }
-
-  public get cssClasses() {
-    return this.cssClassesValue || defaultActionBarCss;
-  }
-
-  public get disabled(): boolean {
-    return this.enabled !== undefined && !this.enabled;
-  }
-
-  public get hasTitle(): boolean {
-    return (
-      ((this.mode != "small" &&
-        (this.showTitle || this.showTitle === undefined)) ||
-        !this.iconName) &&
-      !!this.title
-    );
-  }
-  public get isVisible() {
-    return this.visible && this.mode !== "popup";
-  }
-
-  public get canShrink() {
-    return !!this.iconName;
-  }
-
-  public getActionRootCss(): string {
-    return new CssClassBuilder()
-      .append("sv-action")
-      .append(this.css)
-      .append("sv-action--space", this.needSpace)
-      .append("sv-action--hidden", !this.isVisible)
-      .toString();
-  }
-  public getActionBarItemTitleCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.itemTitle)
-      .append(this.cssClasses.itemTitleWithIcon, !!this.iconName)
-      .toString();
-  }
-  public getActionBarItemCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.itemAsIcon, !this.hasTitle)
-      .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPressed, !!this.pressed)
-      .append(this.innerCss)
-      .toString();
-  }
-  public getTooltip(): string {
-    return this.tooltip || this.title;
-  }
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
   getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name) : undefined; }
@@ -338,8 +389,24 @@ export class Action extends Base implements IAction, ILocalizableOwner {
   getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
-  minDimension: number;
-  maxDimension: number;
+  public setVisible(val: boolean): void {
+    this._visible = val;
+  }
+  public getVisible(): boolean {
+    return this._visible;
+  }
+  public setEnabled(val: boolean): void {
+    this._enabled = val;
+  }
+  public getEnabled(): boolean {
+    return this._enabled;
+  }
+  public setComponent(val: string): void {
+    this._component = val;
+  }
+  public getComponent(): string {
+    return this._component;
+  }
 }
 
 export class ActionDropdownViewModel {

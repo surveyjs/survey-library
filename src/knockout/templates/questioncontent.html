@@ -13,10 +13,13 @@
       <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: question.hasComment -->
-    <div data-bind="css: question.koCss().formGroup">
-      <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
+    <div data-bind="css: question.getCommentAreaCss()">
+      <div>
+        <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
+        <!-- /ko -->
+      </div>
+      <!-- ko template: { name: 'survey-comment',  data: {'question': question, 'visible': true } } -->
       <!-- /ko -->
-      <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
     </div>
     <!-- /ko -->
     <!-- ko if: question.showErrorOnBottom -->

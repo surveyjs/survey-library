@@ -1,4 +1,4 @@
-// Uncomment this line on creating a translation file
+// Uncomment the line below if you create a custom dictionary
 // import { surveyLocalization } from "survey-core";
 
 export var englishStrings = {
@@ -93,9 +93,11 @@ export var englishStrings = {
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
-  tagboxDoneButtonCaption: "Done"
+  tagboxDoneButtonCaption: "OK"
 };
 
-//Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
-//surveyLocalization.locales["en"] = englishStrings;
-//surveyLocalization.localeNames["en"] = "English";
+// Uncomment the lines below if you create a custom dictionary.
+// Replace "en" with a custom locale code (for example, "fr" or "de"),
+// Replace `englishStrings` with the name of the variable that contains the custom dictionary.
+// surveyLocalization.locales["en"] = englishStrings;
+// surveyLocalization.localeNames["en"] = "English";

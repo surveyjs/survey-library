@@ -316,3 +316,15 @@ QUnit.test("Test event handlers do not change question'value if newValue is same
   });
   assert.equal(log, "->changedValue", "Value should be changed only one time");
 });
+QUnit.test("min/max numeric, non required, bug#5758", function(assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", inputType: "number", min: 1, max: 10 }]
+  });
+  const q = survey.getQuestionByName("q1");
+  q.value = 12;
+  q.validate();
+  assert.equal(q.errors.length, 1, "There is an error");
+  q.value = "";
+  q.validate();
+  assert.equal(q.errors.length, 0, "There is no errors");
+});

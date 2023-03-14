@@ -80,6 +80,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       this.value = event.target.value;
     else
       this.updateElement();
+    this.updateRemainingCharacterCounter(event.target.value);
   }
   public onKeyDown(event: any): void {
     if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {

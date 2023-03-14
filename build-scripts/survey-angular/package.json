@@ -13,15 +13,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "defaultV2.css",
-    "defaultV2.min.css",
-    "survey.angular.d.ts",
-    "survey.angular.js",
-    "survey.angular.min.js"
+    "**/*"
   ],
   "main": "survey.angular.js",
   "repository": {
@@ -29,5 +21,12 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey.angular.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "dependencies": {}
 }

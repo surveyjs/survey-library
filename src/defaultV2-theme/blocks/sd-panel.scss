@@ -1,10 +1,10 @@
 .sd-panel {
   position: relative;
   .sd-row {
-    margin-top: calcSize(1);
-  }
-  .sd-row:first-of-type {
     margin-top: 0;
+  }
+  :not(.svc-row) > .sd-row--multiple {
+    row-gap: 0;
   }
 }
 .sd-panel__required-text {

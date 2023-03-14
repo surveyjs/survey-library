@@ -66,7 +66,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
-  set placeholder(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
   }
   get locPlaceholder(): LocalizableString {
@@ -257,6 +257,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+
+  protected hasUnknownValue(
+    val: any,
+    includeOther: boolean,
+    isFilteredChoices: boolean,
+    checkEmptyValue: boolean
+  ): boolean {
+    if(this.choicesLazyLoadEnabled) { return false; }
+    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
 
   protected onVisibleChoicesChanged(): void {

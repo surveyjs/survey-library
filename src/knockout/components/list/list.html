@@ -18,6 +18,7 @@
   <div data-bind="css: model.cssClasses.emptyContainer, visible: $data.model.isEmpty">
     <div data-bind="css: model.cssClasses.emptyText, text: model.emptyMessage, attr: { 'aria-label': model.emptyMessage }"></div>
   </div>
+  <!-- ko if: $data.model.renderElements -->
   <ul role="listbox"
     data-bind="css: model.cssClasses.itemsContainer, visible: !$data.model.isEmpty, event: { mousedown: function (data, e) { e.preventDefault(); }, keydown: function(data, e) { $data.model.onKeyDown(event); return true; }, mousemove: function(data, e) { $data.model.onMouseMove(event); return true; } }">
     <!-- ko template: { foreach: model.renderedActions, afterRender: $data.afterItemRender } -->
@@ -25,4 +26,5 @@
     <!-- /ko -->
     <!-- /ko -->
   </ul>
+  <!-- /ko -->
 </div>

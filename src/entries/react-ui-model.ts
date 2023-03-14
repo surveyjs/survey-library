@@ -30,6 +30,10 @@ export {
   SurveyQuestionRanking,
   SurveyQuestionRankingItem,
 } from "../react/reactquestion_ranking";
+
+export { RatingItem } from "../react/components/rating/rating-item";
+export { RatingItemStar } from "../react/components/rating/rating-item-star";
+
 export { TagboxFilterString } from "../react/tagbox-filter";
 export { SurveyQuestionOptionItem } from "../react/dropdown-item";
 export { SurveyQuestionDropdownBase } from "../react/dropdown-base";
@@ -56,6 +60,7 @@ export { SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton } fro
 export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";
 export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
+export { SurveyProgressToc } from "../react/reactSurveyProgressToc";
 export { SurveyQuestionRating } from "../react/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../react/rating-dropdown";
 export { SurveyQuestionExpression } from "../react/reactquestion_expression";
@@ -89,6 +94,8 @@ export { SurveyNavigationButton } from "../react/components/survey-actions/surve
 export { MatrixRow } from "../react/components/matrix/row";
 export { Skeleton } from "../react/components/skeleton";
 export { NotifierComponent } from "../react/components/notifier";
+export { ComponentsContainer } from "../react/components/components-container";
+export { CharacterCounterComponent } from "../react/components/character-counter";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

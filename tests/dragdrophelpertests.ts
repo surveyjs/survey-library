@@ -230,7 +230,7 @@ QUnit.test("dropTargetDataAttributeName for questions", function (assert) {
   );
 });
 
-QUnit.test("choices: onBeforeDrop and onAfterDrop events", function (assert) {
+QUnit.test("choices: onDragStart and onDragEnd events", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -248,10 +248,10 @@ QUnit.test("choices: onBeforeDrop and onAfterDrop events", function (assert) {
   let draggedElementParent;
 
   const ddHelper: any = new DragDropChoices(survey);
-  ddHelper.onBeforeDrop.add((sender, options) => {
+  ddHelper.onDragStart.add((sender, options) => {
     beforeCount++;
   });
-  ddHelper.onAfterDrop.add((sender, options) => {
+  ddHelper.onDragEnd.add((sender, options) => {
     afterCount++;
     draggedElementParent = options.draggedElement;
   });
@@ -268,7 +268,7 @@ QUnit.test("choices: onBeforeDrop and onAfterDrop events", function (assert) {
   assert.equal(draggedElementParent.name, "q");
 });
 
-QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
+QUnit.test("surveyelement: onDragStart and onDragEnd events", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -290,10 +290,10 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
   let draggedElement;
 
   const ddHelper: any = new DragDropSurveyElements(survey);
-  ddHelper.onBeforeDrop.add((sender, options) => {
+  ddHelper.onDragStart.add((sender, options) => {
     beforeCount++;
   });
-  ddHelper.onAfterDrop.add((sender, options) => {
+  ddHelper.onDragEnd.add((sender, options) => {
     afterCount++;
     draggedElement = options.draggedElement;
   });
@@ -320,7 +320,7 @@ QUnit.test("surveyelement: onBeforeDrop and onAfterDrop events", function (
   assert.equal(afterCount, 1);
 });
 
-QUnit.test("onBeforeDrop event options", function (
+QUnit.test("onDragStart event options", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -349,15 +349,15 @@ QUnit.test("onBeforeDrop event options", function (
 
   // init
   const ddHelper: any = new DragDropSurveyElements(survey);
- 
-  ddHelper.onAfterDrop.add((sender, options) => {
+
+  ddHelper.onDragEnd.add((sender, options) => {
     fromElement = options.fromElement;
     draggedElement = options.draggedElement;
     toElement = options.toElement;
   });
   // EO init
-  
-  //onAfterDrop
+
+  //onDragEnd
   ddHelper.draggedElement = panel;
   ddHelper.dropTarget = question;
   ddHelper.parentElement = page;
@@ -370,7 +370,7 @@ QUnit.test("onBeforeDrop event options", function (
   assert.deepEqual(fromElement.name, page.name);
   assert.deepEqual(draggedElement.name, panel.name);
   assert.deepEqual(toElement.name, question.name);
-  //EO onAfterDrop
+  //EO onDragEnd
 });
 
 QUnit.test("allowDropHere", function (assert) {
@@ -391,10 +391,10 @@ QUnit.test("allowDropHere", function (assert) {
   let afterCount = 0;
 
   const ddHelper: any = new DragDropSurveyElements(survey);
-  ddHelper.onBeforeDrop.add((sender, options) => {
+  ddHelper.onDragStart.add((sender, options) => {
     beforeCount++;
   });
-  ddHelper.onAfterDrop.add((sender, options) => {
+  ddHelper.onDragEnd.add((sender, options) => {
     afterCount++;
   });
   ddHelper.parentElement = survey.pages[0];

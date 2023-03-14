@@ -17,12 +17,11 @@ export class SurveyProgress extends SurveyNavigationBase {
     return this.survey.progressText;
   }
   render(): JSX.Element {
-    var style = this.isTop ? {} : { marginTop: "1em" };
     var progressStyle = {
       width: this.progress + "%",
     };
     return (
-      <div className={this.survey.getProgressCssClasses()} style={style}>
+      <div className={this.survey.getProgressCssClasses()}>
         <div
           style={progressStyle}
           className={this.css.progressBar}

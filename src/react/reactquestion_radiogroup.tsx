@@ -98,7 +98,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected renderOther(cssClasses: any): JSX.Element {
     return (
-      <div className="form-group">
+      <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
@@ -173,7 +173,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     );
   }
   handleOnChange(event: any) {
-    this.question.renderedValue = this.item.value;
+    this.question.clickItemHandler(this.item);
   }
   protected canRender(): boolean {
     return !!this.question && !!this.item;

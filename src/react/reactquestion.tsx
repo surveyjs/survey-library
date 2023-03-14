@@ -149,11 +149,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       ? this.renderErrors(cssClasses, "")
       : null;
 
-    let rootStyle: { [index: string]: any } = {};
-    if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
-    if (!!question.paddingRight)
-      rootStyle["paddingRight"] = question.paddingRight;
-
+    let rootStyle = question.getRootStyle();
     let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
     return (
       <>
@@ -199,11 +195,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     return SurveyElementBase.renderQuestionDescription(this.question);
   }
   protected renderComment(cssClasses: any): JSX.Element {
-    var commentText = SurveyElementBase.renderLocString(
+    const commentText = SurveyElementBase.renderLocString(
       this.question.locCommentText
     );
     return (
-      <div className={this.question.cssClasses.formGroup}>
+      <div className={this.question.getCommentAreaCss()}>
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}

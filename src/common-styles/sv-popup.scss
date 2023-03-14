@@ -142,6 +142,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
   overflow: auto;
   display: flex;
   flex-direction: column;
+
   &,
   * {
     &::-webkit-scrollbar {
@@ -267,6 +268,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 .sv-popup__button--apply:disabled {
   background-color: $background-dim;
 }
+
 .sv-popup--modal,
 .sv-popup--overlay {
   .sv-list__filter {
@@ -282,12 +284,13 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 .sv-dropdown-popup.sv-popup--overlay {
   z-index: 2001;
   padding: 0;
+
   .sv-popup__body-content {
     padding: 0;
     border-radius: 0;
   }
+
   .sv-popup__body-footer .sv-action-bar {
-    justify-content: flex-end;
     .sv-action {
       width: auto;
     }
@@ -302,14 +305,17 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     border-radius: calcSize(12.5);
     margin: 0;
   }
+
   .sv-popup__container {
     max-height: calc(var(--sv-popup-overlay-height, 100vh));
     height: calc(var(--sv-popup-overlay-height, 100vh));
     padding-top: 0;
   }
+
   .sv-popup__body-content {
     height: calc(var(--sv-popup-overlay-height, 100vh));
   }
+
   .sv-popup__body-footer {
     background-color: $background-dim-light;
     margin-top: 0;
@@ -317,30 +323,37 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     padding-bottom: calcSize(0.5);
     border-top: 1px solid $border-light;
   }
+
   .sv-popup__scrolling-content {
     height: calc(100% - 6 * var(--base-unit, 8px));
   }
+
   .sv-list__filter-icon .sv-svg-icon {
     width: calcSize(2);
     height: calcSize(2);
   }
+
   .sv-list__container {
     padding: 0;
   }
+
   .sv-list {
     flex-grow: 1;
     padding: calcSize(0.5);
   }
+
   .sv-list__filter {
     display: flex;
     align-items: center;
-    padding: calcSize(0.5) calcSize(2);
+    padding: calcSize(0.5) calcSize(1) calcSize(0.5) calcSize(2.5);
   }
+
   .sv-list__filter-icon {
     position: static;
     top: calcSize(1.5);
     height: calcSize(2);
   }
+
   .sv-list__empty-container {
     display: flex;
     flex-direction: column;
@@ -349,11 +362,13 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     padding: calcSize(1) calcSize(0.5);
     background-color: $background;
   }
+
   .sv-popup__button:disabled {
     pointer-events: none;
     color: $foreground;
     opacity: 0.25;
   }
+
   .sv-list__filter-clear-button {
     height: calcSize(3);
     width: calcSize(3);
@@ -362,14 +377,17 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     border: none;
     border-radius: 100%;
     background-color: transparent;
+
     svg {
       height: calcSize(2);
       width: calcSize(2);
+
       use {
         fill: $foreground-light;
       }
     }
   }
+
   .sv-list__input {
     color: $foreground-light;
     font-size: calcSize(2);
@@ -377,21 +395,47 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
   }
+
   .sv-list__item:hover,
   .sv-list__item:focus,
   .sv-list__item--focused {
     .sv-list__item-body {
       background: $background;
     }
+
     &.sv-list__item--selected {
       .sv-list__item-body {
         background: $primary;
         color: $primary-foreground;
+        font-weight: 600;
       }
+
       .sd-list__item-body {
         background: $primary-light;
         color: $foreground;
       }
     }
+  }
+}
+.sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
+  .sv-popup__body-content {
+    --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+    max-height: var(--sv-popup-overlay-max-height);
+    min-height: min(var(--sv-popup-overlay-max-height), calcSize(31));
+    height: auto;
+    max-width: calcSize(40);
+    border-radius: calcSize(0.5);
+    overflow: hidden;
+    margin: 0;
+    border-radius: 4px;
+  }
+  .sv-popup__content,
+  .sv-popup__scrolling-content,
+  .sv-list__container {
+    flex-grow: 1;
   }
 }

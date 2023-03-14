@@ -142,7 +142,7 @@ export class QuestionMatrixDropdownRenderedCell {
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
-  @property({ defaultValue: null }) isGhostRow: boolean;
+  @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
 
   public row: MatrixDropdownRowModelBase;

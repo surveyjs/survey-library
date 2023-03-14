@@ -51,13 +51,15 @@ import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 @Component
 export class ProgressButtons extends Vue {
   @Prop() survey: SurveyModel;
-  @Prop() css: any;
   public hasScroller: boolean = false;
   private progressButtonsModel: SurveyProgressButtonsModel;
   private updateScroller: any = undefined;
   constructor() {
     super();
     this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
+  }
+  public get css() {
+    return this.survey.css;
   }
   mounted() {
     const listContainerElement: any = this.$refs["progressButtonsListContainer"];
@@ -66,13 +68,13 @@ export class ProgressButtons extends Vue {
         listContainerElement.scrollWidth > listContainerElement.offsetWidth;
     }, 100);
   }
-  public isListElementClickable(index: number): boolean {
+  public isListElementClickable(index: any): boolean {
     return this.progressButtonsModel.isListElementClickable(index);
   }
-  public getListElementCss(index: number): string {
+  public getListElementCss(index: any): string {
     return this.progressButtonsModel.getListElementCss(index);
   }
-  public clickListElement(index: number): void {
+  public clickListElement(index: any): void {
     this.progressButtonsModel.clickListElement(index);
   }
   public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): any {

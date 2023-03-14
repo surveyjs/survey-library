@@ -144,6 +144,7 @@ QUnit.test("Text validator", function(assert) {
   assert.equal(validator.validate("abc12"), null, "Not just text");
   validator.allowDigits = false;
   assert.notEqual(validator.validate("abc12"), null, "Not just text");
+  assert.equal(validator.validate("abc."), null, "Just text");
 });
 
 QUnit.test("Text validator calls onPropertyValueChangedCallback", function(

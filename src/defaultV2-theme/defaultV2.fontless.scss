@@ -42,8 +42,10 @@
 @import "blocks/sd-context-btn.scss";
 @import "blocks/sd-completedpage.scss";
 @import "blocks/sd-progress-buttons.scss";
+@import "blocks/sd-progress-toc.scss";
 @import "blocks/sd-list.scss";
 @import "blocks/sd-timer.scss";
+@import "../components-container.scss";
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
 
@@ -86,6 +88,10 @@ body {
     border: 2px solid rgba(0, 0, 0, 0);
     background-color: $foreground-light;
   }
+}
+
+.sd-container-modern {
+  margin-bottom: calcSize(10);
 }
 
 .sd-root-modern--mobile {

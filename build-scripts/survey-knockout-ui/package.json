@@ -12,11 +12,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey-knockout-ui.css",
-    "survey-knockout-ui.min.css",
-    "survey-knockout-ui.d.ts",
-    "survey-knockout-ui.js",
-    "survey-knockout-ui.min.js"
+    "**/*"
   ],
   "main": "survey-knockout-ui.js",
   "repository": {
@@ -24,6 +20,13 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey-knockout-ui.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "dependencies": {
     "survey-core": "*",
     "knockout": "^3.5.0"

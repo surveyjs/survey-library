@@ -6,6 +6,8 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
 import { EventBase } from "./base";
+import { settings } from "./settings";
+import { ItemValue } from "./itemvalue";
 
 /**
  * A Model for a tagbox question
@@ -14,6 +16,7 @@ import { EventBase } from "./base";
  */
 export class QuestionTagboxModel extends QuestionCheckboxModel {
   dropdownListModel: DropdownMultiSelectListModel;
+  private itemDisplayNameMap: { [key: string]: string} = {};
 
   constructor(name: string) {
     super(name);
@@ -76,6 +79,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see SurveyModel.onChoicesLazyLoad
    */
   @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
+  /**
+   * Specifies whether to close the drop-down menu after a user selects a value.
+   */
+  @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
 
   /**
    * A text displayed in the input field when it doesn't have a value.
@@ -83,7 +90,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
-  set placeholder(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
   }
   get locPlaceholder(): LocalizableString {
@@ -123,12 +130,47 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
 
+  protected hasUnknownValue(
+    val: any,
+    includeOther: boolean,
+    isFilteredChoices: boolean,
+    checkEmptyValue: boolean
+  ): boolean {
+    if(this.choicesLazyLoadEnabled) { return false; }
+    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
+  }
+
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
     if (this.popupModel) {
       this.dropdownListModel.updateItems();
     }
+  }
+  protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
+    this.updateItemDisplayNameMap();
+    const val = this.renderedValue as Array<any>;
+    if(!!itemValues.length && itemValues.length === val.length) return itemValues;
+
+    const selectedItemValues = this.selectedItemValues;
+    if(!itemValues.length && !!selectedItemValues && !!selectedItemValues.length) {
+      this.defaultSelectedItemValues = [].concat(selectedItemValues);
+      return selectedItemValues;
+    }
+
+    const itemValueValues = itemValues.map(iV => iV.value);
+    val.filter(item => { return itemValueValues.indexOf(item) === -1; }).forEach(item => {
+      itemValues.push(new ItemValue(item, this.itemDisplayNameMap[item]));
+    });
+    itemValues.sort((a, b) => { return val.indexOf(a.value) - val.indexOf(b.value); });
+    return itemValues;
+  }
+
+  updateItemDisplayNameMap(): void {
+    const func = (item: ItemValue) => { this.itemDisplayNameMap[item.value] = item.text; };
+    (this.defaultSelectedItemValues || []).forEach(func);
+    (this.selectedItemValues as Array<ItemValue> || []).forEach(func);
+    this.visibleChoices.forEach(func);
   }
 
   protected getFirstInputElementId(): string {
@@ -148,7 +190,7 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
-    { name: "closeOnSelect:boolean", default: true },
+    { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" }
   ],
   function () {

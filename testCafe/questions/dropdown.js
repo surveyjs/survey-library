@@ -175,7 +175,10 @@ frameworks.forEach((framework) => {
       "Citroen",
     ];
     let checkIntegrity = async (t) => {
+      await t.click(questionDropdownSelect);
       await t.expect(listItems.count).eql(choices.length);
+      await t.click(questionDropdownSelect);
+
       for (let i = 0; i < choices.length; i++) {
         await t
           .click(questionDropdownSelect)
@@ -876,7 +879,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(popupContainer.visible).notOk()
-      .expect(listItems.count).eql(27)
+      .expect(listItems.count).eql(0)
       .expect(listItems.filterVisible().count).eql(0)
 
       .pressKey("2")
@@ -950,7 +953,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(popupContainer.visible).notOk()
-      .expect(listItems.count).eql(27)
+      .expect(listItems.count).eql(0)
       .expect(focusedItem.exists).notOk()
 
       .click(questionDropdownSelect)
@@ -1006,7 +1009,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(popupContainer.visible).notOk()
-      .expect(listItems.count).eql(27)
+      .expect(listItems.count).eql(0)
       .expect(listItems.filterVisible().count).eql(0)
 
       .pressKey("2")
@@ -1503,5 +1506,36 @@ frameworks.forEach((framework) => {
       .expect(dropdown2.visible).notOk()
 
       .resizeWindow(1280, 1100);
+  });
+
+  test("do not render list items if the popup is closed", async (t) => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "car",
+          title: "What car are you driving?",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen",
+          ],
+        },
+      ],
+    };
+    const listSelector = Selector(".sv-list");
+    await initSurvey(framework, json);
+
+    await t
+      .expect(listSelector.exists).notOk()
+      .click(questionDropdownSelect)
+      .expect(listSelector.exists).ok();
   });
 });

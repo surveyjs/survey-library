@@ -48,6 +48,8 @@ export * from "../knockout/components/panel/panel";
 export * from "../knockout/components/popup/popup";
 export * from "../knockout/components/progress/buttons";
 export * from "../knockout/components/progress/progress";
+export * from "../knockout/components/progress/toc";
+export * from "../knockout/components/components-container/components-container";
 export * from "../knockout/components/template-renderer/template-renderer";
 export * from "../knockout/components/title/title-element";
 export * from "../knockout/components/title/title-content";

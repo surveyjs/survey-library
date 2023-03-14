@@ -52,10 +52,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
+  @property({ defaultValue: true }) renderElements: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
   public scrollHandler: (e?: any) => void;
+  public areSameItemsCallback: (item1: IAction, item2: IAction) => boolean;
 
   private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
@@ -123,12 +125,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   };
 
   public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
-    return !!this.selectedItem && this.selectedItem.id == itemValue.id;
+    return this.areSameItems(this.selectedItem, itemValue);
   };
 
   public isItemFocused: (itemValue: T) => boolean = (itemValue: T) => {
-    return !!this.focusedItem && this.focusedItem.id == itemValue.id;
+    return this.areSameItems(this.focusedItem, itemValue);
   };
+  protected areSameItems(item1: IAction, item2: IAction): boolean {
+    if(!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
+    return !!item1 && !!item2 && item1.id == item2.id;
+  }
 
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     return new CssClassBuilder()

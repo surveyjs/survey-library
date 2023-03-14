@@ -414,8 +414,8 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
   }, 550);
 });
 
-function getObjectArray(skip = 1, count = 25): Array<number> {
-  const result: Array<any> = [];
+function getObjectArray(skip = 1, count = 25): Array<{value: any, text: string}> {
+  const result: Array<{value: any, text: string}> = [];
   for (let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
@@ -649,8 +649,8 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
   const popupViewModel = new PopupBaseViewModel(popupModel);
-  const doneAction = popupViewModel.footerToolbar.actions[0];
-  const cancelAction = popupViewModel.footerToolbar.actions[1];
+  const doneAction = popupViewModel.footerToolbar.actions[1];
+  const cancelAction = popupViewModel.footerToolbar.actions[0];
   const listModel = dropdownListModel["listModel"];
   const actions = listModel.actions;
 

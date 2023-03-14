@@ -67,10 +67,14 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.choosepicture, "giraffe");
   });
   test("imagelink reactiveness", async t => {
+    await t.expect(Selector(".sv_q_imgsel").nth(0).find("img").exists).ok();
+    await t.expect(Selector(".sv_q_imgsel__no-image").exists).notOk();
+
     await ClientFunction(()=>{
       window.survey.getAllQuestions()[0].choices[0].imageLink = "custom_link";
     })();
-    await t.expect(Selector("img[src='custom_link']").exists).ok();
+    await t.expect(Selector(".sv_q_imgsel").nth(0).find("img").exists).notOk();
+    await t.expect(Selector(".sv_q_imgsel__no-image").exists).ok();
   });
 });
 

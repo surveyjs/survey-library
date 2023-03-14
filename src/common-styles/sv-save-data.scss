@@ -13,13 +13,18 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
+.sv-save-data_root.sv-save-data_root--shown {
+  transition-timing-function: ease-out;
+  transition-property: transform, opacity;
+  transform: translateX(-50%) translateY(0);
+  opacity: 0.75;
+}
 .sv-save-data_root {
   position: absolute;
   left: 50%;
   bottom: calcSize(3);
-  transform: translate(-50%, 0);
   background: $background;
-  opacity: 0.75;
+  opacity: 0;
   padding: calcSize(3) calcSize(6);
   box-shadow: 0px 2px 6px $shadow-medium;
   border-radius: calcSize(1);
@@ -37,6 +42,12 @@ $base-unit: var(--base-unit, 8px);
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  transform: translateX(-50%) translateY(calcSize(3));
+  transition-timing-function: ease-in;
+  transition-property: transform, opacity;
+  transition-delay: 0.25s;
+  transition: 0.5s;
 }
 
 .sv-save-data_root.sv-save-data_error {

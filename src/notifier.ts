@@ -14,12 +14,13 @@ export class Notifier extends Base {
   private actionsVisibility: { [key: string]: string } = {};
   public actionBar: ActionContainer;
 
-  constructor(private cssClasses: { root: string, info: string, error: string, success: string, button: string }) {
+  constructor(private cssClasses: { root: string, info: string, error: string, success: string, button: string, shown: string }) {
     super();
     this.actionBar = new ActionContainer();
     this.actionBar.updateCallback = (isResetInitialized: boolean) => {
       this.actionBar.actions.forEach(action => action.cssClasses = {});
     };
+    this.css = this.cssClasses.root;
   }
 
   getCssClass(type: string): string {
@@ -28,6 +29,7 @@ export class Notifier extends Base {
       .append(this.cssClasses.info, type !== "error" && type !== "success")
       .append(this.cssClasses.error, type === "error")
       .append(this.cssClasses.success, type === "success")
+      .append(this.cssClasses.shown, this.active)
       .toString();
   }
 
@@ -45,10 +47,13 @@ export class Notifier extends Base {
       clearTimeout(this.timer);
       this.timer = undefined;
     }
-    this.timer = setTimeout(() => {
-      this.timer = undefined;
-      this.active = false;
-    }, this.timeout);
+    if(type !== "error") {
+      this.timer = setTimeout(() => {
+        this.timer = undefined;
+        this.active = false;
+        this.css = this.cssClasses.root;
+      }, this.timeout);
+    }
   }
 
   public addAction(action: IAction, notificationType: string): void {

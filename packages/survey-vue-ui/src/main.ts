@@ -39,6 +39,13 @@ import ActionBarItem from "./components/action-bar/ActionBarItem.vue";
 import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown.vue";
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 
+import List from "./components/list/List.vue";
+import ListItem from "./components/list/ListItem.vue";
+
+import Popup from "./components/popup/Popup.vue";
+import PopupContainer from "./components/popup/PopupContainer.vue";
+import PopupPointer from "./components/popup/PopupPointer.vue";
+
 import "./assets/main.css";
 import "survey-core/defaultV2.css";
 
@@ -82,5 +89,12 @@ app.component("sv-action", Action);
 app.component("sv-action-bar-item", ActionBarItem);
 app.component("sv-action-bar-item-dropdown", ActionBarItemDropdown);
 app.component("sv-action-bar-separator", ActionBarSeparator);
+
+app.component("sv-list", List);
+app.component("sv-list-item", ListItem);
+
+app.component("sv-popup", Popup);
+app.component("sv-popup-container", PopupContainer);
+app.component("popup-pointer", PopupPointer);
 
 const mountedApp = app.mount("#app");

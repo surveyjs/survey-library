@@ -346,6 +346,18 @@ QUnit.test("hintString test", function (assert) {
   assert.equal(dropdownListModel.hintStringSuffix, "em3", "filter from start with value, hint suffix correct");
 });
 
+QUnit.test("hintString test - no search", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  question.searchEnabled = false;
+
+  assert.equal(dropdownListModel.inputMode, "text");
+  assert.notOk(dropdownListModel.showHintString, "no search, hint hidden");
+});
+
+
 QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -424,5 +436,4 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item1", "inputString rolled back on Esc");
   assert.equal(question.value, "item1", "value rolled back on Esc");
-
 });

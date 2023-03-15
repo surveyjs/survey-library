@@ -5,6 +5,8 @@ import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
+import { QuestionDropdownModel } from "./question_dropdown";
+import { QuestionTagboxModel } from "./question_tagbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -138,7 +140,7 @@ export class DropdownListModel extends Base {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
-        this.inputString = item.title;
+        if (this.question.searchEnabled) this.inputString = item.title;
         this._popupModel.toggleVisibility();
       };
     }
@@ -311,7 +313,7 @@ export class DropdownListModel extends Base {
       this.listModel.focusNextVisibleItem();
     }
     this.scrollToFocusedItem();
-    if (this.question.value) {
+    if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.inputString = this.listModel.focusedItem?.title;
       this.hintString = "";
     }
@@ -356,7 +358,7 @@ export class DropdownListModel extends Base {
     } else if (event.keyCode === 27) {
       this._popupModel.isVisible = false;
       this.hintString = "";
-      this.inputString = this.question.value;
+      if (this.question.searchEnabled && this.question instanceof QuestionDropdownModel) this.inputString = this.question.value;
     } else {
       if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();
@@ -380,13 +382,20 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();
-    this.inputString = undefined;
-    this.hintString = undefined;
+    this.inputString = "";
+    this.hintString = "";
     doKey2ClickBlur(event);
     this._popupModel.isVisible = false;
   }
   onFocus(event: any): void {
-    this.inputString = this.question.selectedItemText;
+    if (this.question.searchEnabled) {
+      if (this.question instanceof QuestionDropdownModel) {
+        this.inputString = this.question["selectedItemText"];
+      }
+      else {
+        this.inputString = "";
+      }
+    }
   }
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();

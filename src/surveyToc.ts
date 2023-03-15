@@ -30,9 +30,7 @@ export function createTOCListModel(survey: SurveyModel) {
     items,
     item => {
       if (!!<any>item.action()) {
-        listModel.allowSelection = true;
         listModel.selectedItem = item;
-        listModel.allowSelection = false;
       }
     },
     true,
@@ -40,5 +38,8 @@ export function createTOCListModel(survey: SurveyModel) {
   );
   listModel.allowSelection = false;
   listModel.locOwner = survey;
+  survey.onCurrentPageChanged.add((s, o) => {
+    listModel.selectedItem = items.filter(i => i.id === survey.currentPage.name)[0];
+  });
   return listModel;
 }

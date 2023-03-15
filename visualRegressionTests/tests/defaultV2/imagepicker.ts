@@ -163,4 +163,36 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("imagepicker-question.png", questionRoot, t, comparer);
     });
   });
+  test("Check image picker loading is broken", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        questions: [
+          {
+            "type": "imagepicker",
+            "name": "question1",
+            "choices": [
+              {
+                "value": "Image 1",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+              },
+              {
+                "value": "Image 2",
+              },
+              {
+                "value": "Image 3",
+                "imageLink": "https://surveyjs.io/Cos/image-picker/panda.jpg"
+              },
+              {
+                "value": "Image 4",
+                "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+              }
+            ]
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-imagepicker");
+      await takeElementScreenshot("imagepicker-not-load.png", questionRoot, t, comparer);
+    });
+  });
 });

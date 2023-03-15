@@ -15,6 +15,7 @@ export class DropdownListModel extends Base {
   readonly minPageSize = 25;
   readonly loadingItemHeight = 40;
 
+  private _markdownMode = false;
   private _popupModel: PopupModel;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
@@ -132,6 +133,7 @@ export class DropdownListModel extends Base {
   }
 
   protected getAvailableItems(): Array<ItemValue> {
+    this._markdownMode = (this.question.visibleChoices as Array<ItemValue>).some(item => item?.locText.hasHtml);
     return this.question.visibleChoices;
   }
   protected createListModel(): ListModel<ItemValue> {
@@ -140,7 +142,7 @@ export class DropdownListModel extends Base {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
-        if (this.question.searchEnabled) this.inputString = item.title;
+        if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
         this._popupModel.toggleVisibility();
       };
     }
@@ -202,6 +204,26 @@ export class DropdownListModel extends Base {
     }
   }) inputString: string;
 
+  private applyInputString(item: ItemValue) {
+    const hasHtml = item?.locText.hasHtml;
+    if (hasHtml) {
+      this._markdownMode = true;
+      this.inputString = "";
+    } else {
+      this.inputString = item?.title;
+    }
+  }
+
+  private applyHintString(item: ItemValue) {
+    const hasHtml = item?.locText.hasHtml;
+    if (hasHtml) {
+      this._markdownMode = true;
+      this.inputString = "";
+    } else {
+      this.hintString = item?.title;
+    }
+  }
+
   public get inputStringRendered() {
     return this.getPropertyValue("inputString");
   }
@@ -209,7 +231,7 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.setPropertyValue("inputString", val);
     this.filterString = val;
-    this.hintString = val ? this.listModel.focusedItem?.title : "";
+    this.applyHintString(this.listModel.focusedItem);
     //if (!val) this.onClear(null);
   }
 
@@ -230,19 +252,25 @@ export class DropdownListModel extends Base {
 
   @property({ defaultValue: "" }) hintString: string;
 
+  private get hintStringLC(): string {
+    return this.hintString?.toLowerCase() || "";
+  }
+  private get inputStringLC(): string {
+    return this.inputString?.toLowerCase() || "";
+  }
+
   public get showHintPrefix(): boolean {
-    return !!this.inputString.length && this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()) > 0;
+    return !!this.inputString && this.hintStringLC.indexOf(this.inputStringLC) > 0;
   }
   public get hintStringPrefix(): string {
-    if (!this.inputString.length) return null;
-    return this.hintString.substring(0, this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()));
+    if (!this.inputString) return null;
+    return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return /*!!this.inputString.length &&*/ this.hintString.toLowerCase() != this.inputString.toLowerCase() && this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()) >= 0;
+    return this.hintStringLC != this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
   }
   public get hintStringSuffix(): string {
-    //if (!this.inputString.length) return null;
-    return this.hintString.substring(this.hintString.toLowerCase().indexOf(this.inputString.toLowerCase()) + this.inputString.length);
+    return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
   }
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
@@ -289,7 +317,7 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
-    this.inputString = "";
+    this.inputString = null;
     this.hintString = "";
     this.resetFilterString();
     if (event) {
@@ -303,9 +331,9 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
-    if (this.listModel.focusedItem && this.inputString == this.listModel.focusedItem.title) {
-      this.inputString = "";
-    }
+    // if (this.listModel.focusedItem && this.inputString == this.listModel.focusedItem.title) {
+    //   this.inputString = "";
+    // }
     if (reverse) {
       this.listModel.focusPrevVisibleItem();
     }
@@ -314,13 +342,14 @@ export class DropdownListModel extends Base {
     }
     this.scrollToFocusedItem();
     if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
-      this.inputString = this.listModel.focusedItem?.title;
+      this.applyInputString(this.listModel.focusedItem);
       this.hintString = "";
     }
     else {
-      this.hintString = this.listModel.focusedItem?.title;
+      this.applyHintString(this.listModel.focusedItem);
     }
   }
+
 
   keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
@@ -340,8 +369,8 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
-      if (event.keyCode === 13 && !this.inputString && this.question.value) {
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && !this.question.searchEnabled)) {
+      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);
       }
@@ -382,7 +411,7 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();
-    this.inputString = "";
+    this.inputString = null;
     this.hintString = "";
     doKey2ClickBlur(event);
     this._popupModel.isVisible = false;
@@ -390,10 +419,10 @@ export class DropdownListModel extends Base {
   onFocus(event: any): void {
     if (this.question.searchEnabled) {
       if (this.question instanceof QuestionDropdownModel) {
-        this.inputString = this.question["selectedItemText"];
+        this.applyInputString(this.question.selectedItem);
       }
       else {
-        this.inputString = "";
+        this.inputString = null;
       }
     }
   }

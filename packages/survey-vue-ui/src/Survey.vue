@@ -86,7 +86,8 @@
 </template>
 
 <script lang="ts">
-import { Base, StylesManager, surveyCss, SvgRegistry, SurveyModel, doKey2ClickUp, IAttachKey2clickOptions } from "survey-core";
+import { SvgRegistry, SurveyModel } from "survey-core";
+import { reactive, isReactive } from "vue";
 import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
@@ -129,7 +130,8 @@ export default defineSurveyComponent({
   },
   computed: {
     vueSurvey(): SurveyModel {
-      return !!this.survey ? this.survey : this.model;
+      const survey = !!this.survey ? this.survey : this.model;
+      return isReactive(survey) ? survey : reactive(survey);
     },
     pageId: {
       get() {

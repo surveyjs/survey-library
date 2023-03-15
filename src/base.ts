@@ -224,8 +224,11 @@ export class Base {
   protected isPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
   }
+  public static createPropertiesHash() {
+    return {};
+  }
 
-  private propertyHash: { [index: string]: any } = {};
+  private propertyHash: { [index: string]: any } = Base.createPropertiesHash();
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];

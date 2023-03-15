@@ -1,6 +1,17 @@
-import type { Base } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, isRef } from "vue";
-
+import { Base } from "survey-core";
+import {
+  ref,
+  defineComponent,
+  type ComponentOptions,
+  unref,
+  isRef,
+  markRaw,
+} from "vue";
+Base.createPropertiesHash = () => {
+  const res = {};
+  markRaw(res);
+  return res;
+};
 function makeReactive(surveyElement: Base) {
   surveyElement.iteratePropertiesHash((propertiesHash: any, name: any) => {
     // (<any>Vue.util).defineReactive(propertiesHash, name, propertiesHash[name]);

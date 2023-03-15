@@ -350,7 +350,6 @@ export class DropdownListModel extends Base {
     }
   }
 
-
   keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
     if (this.popupModel.isVisible && event.keyCode === 38) {

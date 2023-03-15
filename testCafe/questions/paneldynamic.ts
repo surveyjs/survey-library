@@ -188,6 +188,7 @@ frameworks.forEach((framework) => {
 
       .click(relativeillnessDropdown)
       .click(getListItemByText("Diabetes"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(relativeillnessDropdown.find(".sv-string-viewer").textContent).eql("Diabetes")
       .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
 

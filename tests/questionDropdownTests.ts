@@ -1066,3 +1066,40 @@ QUnit.test("ItemValue: check action fields", assert => {
   assert.equal(question.visibleChoices[0].selected, false);
   assert.equal(question.visibleChoices[1].selected, true);
 });
+
+QUnit.test("lazy loading placeholder", assert => {
+  const done = assert.async(2);
+
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    setTimeout(() => { opt.setItems([], 0); }, 500);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 0);
+  assert.equal(list.emptyMessage, "Loading...");
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(list.actions.length, 0);
+    assert.equal(list.emptyMessage, "No data to display");
+    assert.equal(question.choices.length, 0);
+
+    setTimeout(() => {
+
+      done();
+    }, 550);
+
+    done();
+  }, 550);
+});

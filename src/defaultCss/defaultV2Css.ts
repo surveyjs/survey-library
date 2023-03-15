@@ -175,6 +175,8 @@ export var defaultV2Css = {
     root: "sd-image",
     image: "sd-image__image",
     adaptive: "sd-image__image--adaptive",
+    noImage: "sd-image__no-image",
+    noImageSvgIconId: "icon-no-image",
     withFrame: ""
   },
   html: {
@@ -336,7 +338,7 @@ export var defaultV2Css = {
     other: "sd-input sd-comment",
     itemNoImage: "sd-imagepicker__no-image",
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
-    itemNoImageSvgIconId: "#icon-no-image",
+    itemNoImageSvgIconId: "icon-no-image",
     column: "sd-selectbase__column sd-imagepicker__column",
     checkedItemDecorator: "sd-imagepicker__check-decorator",
     checkedItemSvgIcon: "sd-imagepicker__check-icon",

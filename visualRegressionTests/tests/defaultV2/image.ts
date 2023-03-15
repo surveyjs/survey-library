@@ -65,5 +65,20 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("image-question-row.png", questionRoot, t, comparer);
     });
   });
-
+  test("Check image loading is broken", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        questions: [
+          {
+            "type": "image",
+            "name": "noimage",
+            "imageLink": "https://surveyjs.io/Cos/image-picker/panda.jpg"
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-question--image");
+      await takeElementScreenshot("image-not-load.png", questionRoot, t, comparer);
+    });
+  });
 });

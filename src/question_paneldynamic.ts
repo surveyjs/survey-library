@@ -265,6 +265,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["isMobile"], () => {
       this.updateFooterActions();
     });
+    this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
   }
   public get hasSingleInput(): boolean {
     return false;
@@ -1279,7 +1280,7 @@ export class QuestionPanelDynamicModel extends Question
   private updateNoEntriesTextDefaultLoc(): void {
     const loc = this.getLocalizableString("noEntriesText");
     if(!loc) return;
-    loc.localizationName = this.isReadOnly ? "noEntriesReadonlyText" : "noEntriesText";
+    loc.localizationName = (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
     loc.strChanged();
   }
   public onSurveyLoad() {
@@ -1300,7 +1301,7 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     this.recalculateIsReadyValue();
-    if(this.isReadOnly) {
+    if(this.isReadOnly || !this.allowAddPanel) {
       this.updateNoEntriesTextDefaultLoc();
     }
     super.onSurveyLoad();

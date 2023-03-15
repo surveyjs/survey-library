@@ -313,6 +313,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set longTap(val: boolean) {
     this.setPropertyValue("longTap", val);
   }
+
+  public get useFullItemSizeForShortcut(): boolean {
+    return this.getPropertyValue("useFullItemSizeForShortcut");
+  }
+  public set useFullItemSizeForShortcut(val: boolean) {
+    this.setPropertyValue("useFullItemSizeForShortcut", val);
+  }
 }
 
 Serializer.addClass(

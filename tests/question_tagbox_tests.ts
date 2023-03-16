@@ -813,3 +813,55 @@ QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {
   assert.equal(question2.closeOnSelect, true);
   settings.tagboxCloseOnSelect = false;
 });
+
+QUnit.test("maxSelectedChoices in tagbox", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      maxSelectedChoices: 2,
+      defaultValue: ["item1"],
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
+  assert.equal(list.actions[0].enabled, true);
+  assert.equal(list.actions[1].enabled, true);
+  assert.equal(list.actions[2].enabled, true);
+  assert.equal(list.actions[3].enabled, true);
+  assert.deepEqual(question.value, ["item1"]);
+
+  list.onItemClick(list.actions[1]);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 2);
+  assert.equal(list.actions[0].enabled, true);
+  assert.equal(list.actions[1].enabled, true);
+  assert.equal(list.actions[2].enabled, false);
+  assert.equal(list.actions[3].enabled, false);
+  assert.deepEqual(question.value, ["item1", "item2"]);
+
+  list.onItemClick(list.actions[3]);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 2);
+  assert.equal(list.actions[0].enabled, true);
+  assert.equal(list.actions[1].enabled, true);
+  assert.equal(list.actions[2].enabled, false);
+  assert.equal(list.actions[3].enabled, false);
+  assert.deepEqual(question.value, ["item1", "item2"]);
+
+  list.onItemClick(list.actions[1]);
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1);
+  assert.equal(list.actions[0].enabled, true);
+  assert.equal(list.actions[1].enabled, true);
+  assert.equal(list.actions[2].enabled, true);
+  assert.equal(list.actions[3].enabled, true);
+  assert.deepEqual(question.value, ["item1"]);
+});

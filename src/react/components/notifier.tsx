@@ -17,10 +17,8 @@ export class NotifierComponent extends SurveyElementBase<INotifierComponentProps
   }
 
   renderElement(): JSX.Element | null {
-    const style = { display: this.notifier.active ? "" : "none" };
-
     return (
-      <div className={this.notifier.css} style={style}>
+      <div className={this.notifier.css}>
         <span>{this.notifier.message}</span>
         <SurveyActionBar model={this.notifier.actionBar}></SurveyActionBar>
       </div>

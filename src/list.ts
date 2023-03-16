@@ -156,7 +156,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
-    return this.getLocalizationString("emptyMessage");
+    return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);

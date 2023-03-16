@@ -19,6 +19,8 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
   }
 
   public onItemClick = (item: T) => {
+    if(this.isItemDisabled(item)) return;
+
     this.isExpanded = false;
     if (this.isItemSelected(item)) {
       this.selectedItems.splice(this.selectedItems.indexOf(item), 1)[0];

@@ -2,7 +2,7 @@
   <input
     type="text"
     autocomplete="off"
-    v-model="model.filterString"
+    v-model="model.inputStringRendered"
     v-bind:class="question.cssClasses.filterStringInput"
     v-bind:placeholder="model.filterStringPlaceholder"
     v-bind:disabled="question.isInputReadOnly"
@@ -11,10 +11,11 @@
     :aria-label="question.placeholder"
     :id="question.getInputId()"
     :readonly="!model.searchEnabled ? true : null"
-    :size="!model.filterString ? 1 : null"
+    :size="!model.inputStringRendered ? 1 : null"
     @change="inputChange"
     @keydown="inputKeyHandler"
     @blur="blur"
+    @focus="focus"
   />
 </template>
 
@@ -42,6 +43,9 @@ export class TagboxFilterComponent extends BaseVue {
   }
   public blur(event: any) {
     this.model.onBlur(event);
+  }
+  public focus(event: any) {
+    this.model.onFocus(event);
   }
 }
 

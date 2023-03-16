@@ -24,7 +24,7 @@
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-label]="model.placeholder"
             [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (change)="inputChange($event)" (blur)="blur($event)" />
+            (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

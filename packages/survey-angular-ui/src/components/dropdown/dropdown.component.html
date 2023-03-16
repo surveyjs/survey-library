@@ -12,10 +12,10 @@
                 <span style="visibility: hidden">{{ dropdownModel.inputStringRendered }}</span>
                 <span>{{ dropdownModel.hintStringSuffix }}</span>
             </div>
-            <ng-container *ngIf="model.showInputFieldComponent">
+            <ng-container *ngIf="dropdownModel.showInputFieldComponent">
                 <ng-template [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
             </ng-container>
-            <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
+            <sv-ng-string *ngIf="dropdownModel.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered" [class]="model.cssClasses.filterStringInput"
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"

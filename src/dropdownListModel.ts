@@ -277,13 +277,14 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     question.onPropertyChanged.add((sender: any, options: any) => {
-      if (options.name == "showInputFieldComponent") {
-        this.showInputFieldComponent = options.newValue;
-      }
-      if (options.name == "showSelectedItemLocText") {
-        this.showSelectedItemLocText = options.newValue;
+      if (options.name == "value") {
+        this.showInputFieldComponent = this.question.showInputFieldComponent;
+        this.showSelectedItemLocText = this.question.showSelectedItemLocText;
       }
     });
+    this.showInputFieldComponent = this.question.showInputFieldComponent;
+    this.showSelectedItemLocText = this.question.showSelectedItemLocText;
+
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);

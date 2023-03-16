@@ -133,8 +133,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
-    if (test.afterRender) test.afterRender(survey)
-    setTimeout(()=>{
+    setTimeout(() => {
       const htmlElement = options.htmlElement;
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
@@ -162,11 +161,11 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       assert.equal(newstr, oldStr,
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
-          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
+          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
       if (test.after) { test.after(); }
-      if(platform.finish)
+      if (platform.finish)
         platform.finish(surveyElement);
-      if(newstr != oldStr) {
+      if (newstr != oldStr) {
         var form = document.createElement("form");
         form.action = "https://text-compare.com/";
         form.target = "_blank";
@@ -175,7 +174,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         reportElement.appendChild(form);
 
         var testTitle = document.createElement("h1");
-        testTitle.innerText = test.name+" ("+test.snapshot+")";
+        testTitle.innerText = test.name + " (" + test.snapshot + ")";
         form.appendChild(testTitle);
 
         var table = document.createElement("table");
@@ -214,8 +213,8 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         tableCell3.appendChild(document.createElement("br"));
 
         var download = document.createElement("a");
-        download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
-        download.setAttribute("download", test.snapshot+".snap.html");
+        download.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(format(newstr)));
+        download.setAttribute("download", test.snapshot + ".snap.html");
         download.innerText = "Download snapshot";
         tableCell3.appendChild(download);
       }

@@ -303,9 +303,12 @@ registerMarkupTests(
           }
         ]
       },
-      afterRender: (survey) => { survey.getQuestionByName("name").dropdownListModel.inputStringRendered = "o"; },
+      initSurvey: (survey) => {
+        survey.focusFirstQuestionAutomatic = false;
+        survey.getQuestionByName("name")["popupModel"];
+        survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
+      },
       snapshot: "dropdown-input-string",
     },
-
   ]
 );

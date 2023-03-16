@@ -422,6 +422,7 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
+          searchEnabled: false,
           choices: [
             "Ford",
             "Vauxhall",
@@ -620,6 +621,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
 
       .click(questionDropdownSelect)
+
       .expect(myListItems.count).eql(10)
       .expect(myListItems.find(".sv-svg-icon").count).eql(10)
 

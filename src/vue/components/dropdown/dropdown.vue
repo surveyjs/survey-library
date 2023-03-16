@@ -7,7 +7,6 @@
       :tabindex="model.inputReadOnly ? undefined : 0"
       @click="click"
       @keydown="keyhandler"
-      @blur="blur"
       :class="question.getControlClass()"
       :role="question.ariaRole"
       :aria-required="question.ariaRequired"
@@ -50,7 +49,6 @@
     :aria-label="question.placeholder"
     :placeholder="model.placeholderRendered"
     @input="inputChange"
-    @blur="blur"
     @focus="focus"
         />
       </div>

@@ -35,10 +35,10 @@ export class TagboxFilterComponent extends BaseVue {
   }
 
   inputChange(event: any) {
-    this.model.filterString = event.target.value;
+    this.model.inputStringRendered = event.target.value;
   }
   inputKeyHandler(event: any) {
-    this.model.filterString = event.target.value;
+    //this.model.filterString = event.target.value;
     this.model.inputKeyHandler(event);
   }
   public blur(event: any) {

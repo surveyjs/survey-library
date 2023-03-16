@@ -133,7 +133,6 @@ export class DropdownListModel extends Base {
   }
 
   protected getAvailableItems(): Array<ItemValue> {
-    this._markdownMode = (this.question.visibleChoices as Array<ItemValue>).some(item => item?.locText.hasHtml);
     return this.question.visibleChoices;
   }
   protected createListModel(): ListModel<ItemValue> {
@@ -204,9 +203,12 @@ export class DropdownListModel extends Base {
     }
   }) inputString: string;
 
+  @property({}) showSelectedItemLocText: boolean;
+  @property({}) showInputFieldComponent: boolean;
+
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
-    if (hasHtml) {
+    if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
       this.inputString = "";
     } else {
@@ -216,16 +218,16 @@ export class DropdownListModel extends Base {
 
   private applyHintString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
-    if (hasHtml) {
+    if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
-      this.inputString = "";
+      this.hintString = "";
     } else {
       this.hintString = item?.title;
     }
   }
 
   public get inputStringRendered() {
-    return this.getPropertyValue("inputString");
+    return this.getPropertyValue("inputString") || "";
   }
 
   public set inputStringRendered(val: string) {
@@ -274,6 +276,14 @@ export class DropdownListModel extends Base {
   }
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
+    question.onPropertyChanged.add((sender: any, options: any) => {
+      if (options.name == "showInputFieldComponent") {
+        this.showInputFieldComponent = options.newValue;
+      }
+      if (options.name == "showSelectedItemLocText") {
+        this.showSelectedItemLocText = options.newValue;
+      }
+    });
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
@@ -386,7 +396,7 @@ export class DropdownListModel extends Base {
     } else if (event.keyCode === 27) {
       this._popupModel.isVisible = false;
       this.hintString = "";
-      if (this.question.searchEnabled && this.question instanceof QuestionDropdownModel) this.inputString = this.question.value;
+      if (this.question.searchEnabled && this.question instanceof QuestionDropdownModel) this.applyInputString(this.question.selectedItem);
     } else {
       if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
         event.preventDefault();

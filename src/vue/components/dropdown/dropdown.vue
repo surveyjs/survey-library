@@ -7,35 +7,35 @@
       :tabindex="model.inputReadOnly ? undefined : 0"
       @click="click"
       @keydown="keyhandler"
-        @blur="blur"
-        :class="question.getControlClass()"
-        :role="question.ariaRole"
-        :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
-        :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaDescribedBy"
-        :required="question.isRequired"
-      >
-        <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
-          <span>{{ model.hintStringPrefix }}</span>
-        </div>
+      @blur="blur"
+      :class="question.getControlClass()"
+      :role="question.ariaRole"
+      :aria-required="question.ariaRequired"
+      :aria-label="question.ariaLabel"
+      :aria-invalid="question.ariaInvalid"
+      :aria-describedby="question.ariaDescribedBy"
+      :required="question.isRequired"
+    >
+      <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
+        <span>{{ model.hintStringPrefix }}</span>
+      </div>
 
-        <div :class="question.cssClasses.controlValue">
-          <survey-string
-            v-if="question.showSelectedItemLocText"
-            :locString="question.selectedItemLocText"
-          />
-          <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
-          <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
-          <span>{{ model.hintStringSuffix }}</span>
-          </div>
-      <component
-        v-if="question.showInputFieldComponent"
-        :is="question.inputFieldComponentName"
-        :item="model.getSelectedAction()"
-        :question="question"
-      >
-      </component>
+      <div :class="question.cssClasses.controlValue">
+        <survey-string
+          v-if="question.showSelectedItemLocText"
+          :locString="question.selectedItemLocText"
+        />
+        <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
+        <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+        <span>{{ model.hintStringSuffix }}</span>
+        </div>
+    <component
+      v-if="question.showInputFieldComponent"
+      :is="question.inputFieldComponentName"
+      :item="model.getSelectedAction()"
+      :question="question"
+    >
+    </component>
     <input
       type="text"
       ref="inputElement"

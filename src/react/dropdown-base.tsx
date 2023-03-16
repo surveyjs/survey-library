@@ -22,6 +22,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     this.question.dropdownListModel?.onBlur(event);
     this.updateInputDomElement();
   };
+  focus = (event: any) => {
+    this.question.dropdownListModel?.onFocus(event);
+  };
   protected getStateElement() {
     return this.question["dropdownListModel"];
   }
@@ -116,6 +119,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           inputMode={dropdownListModel.inputMode}
           onChange={(e) => { onInputChange(e); }}
           onBlur={this.blur}
+          onFocus={this.focus}
         ></input>
       </div>
       {this.createClearButton()}

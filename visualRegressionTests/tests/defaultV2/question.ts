@@ -387,6 +387,7 @@ frameworks.forEach(framework => {
 
   test("Remaining character counter", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         questions: [
           {

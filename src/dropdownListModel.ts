@@ -369,7 +369,7 @@ export class DropdownListModel extends Base {
       event.preventDefault();
       event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && !this.question.searchEnabled)) {
-      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && !this._markdownMode && this.question.value) {
+      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);
       }

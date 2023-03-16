@@ -707,7 +707,7 @@ frameworks.forEach((framework) => {
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(questionValueInput.nth(1).value).eql("item20")
 
       .pressKey("down")

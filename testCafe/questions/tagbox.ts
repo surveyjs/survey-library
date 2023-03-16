@@ -270,14 +270,14 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
   });
@@ -353,13 +353,13 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
   });

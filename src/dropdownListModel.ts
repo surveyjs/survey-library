@@ -1,12 +1,11 @@
 import { IAction } from "./actions/action";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
-import { QuestionTagboxModel } from "./question_tagbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";

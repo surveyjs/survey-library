@@ -14,7 +14,6 @@ $base-unit: var(--base-unit, 8px);
 }
 
 .sv-save-data_root.sv-save-data_root--shown {
-  visibility: visible;
   transition-timing-function: ease-out;
   transition-property: transform, opacity;
   transform: translateX(-50%) translateY(0);
@@ -49,7 +48,6 @@ $base-unit: var(--base-unit, 8px);
   transition-property: transform, opacity;
   transition-delay: 0.25s;
   transition: 0.5s;
-  visibility: hidden;
 }
 
 .sv-save-data_root.sv-save-data_error {

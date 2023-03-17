@@ -285,8 +285,10 @@ export class StylesManager {
     const { rootElement }: ISurveyEnvironment = settings.environment;
     const themeMapper = StylesManager.getAvailableThemes();
 
-    if (!!rootElement) {
-      const styles = getComputedStyle(rootElement);
+    const element = "host" in rootElement ? rootElement.host : rootElement;
+
+    if (!!element) {
+      const styles = getComputedStyle(element);
       if(styles.length) {
         return themeMapper.filter(item => item.theme.variables && styles.getPropertyValue(item.theme.variables.themeMark));
       }
@@ -323,12 +325,13 @@ export class StylesManager {
 
   public static applyTheme(themeName: string = "default", themeSelector?: string): void {
     const { rootElement }: ISurveyEnvironment = settings.environment;
+    const element = "host" in rootElement ? rootElement.host : rootElement;
     surveyCss.currentType = themeName;
 
     if (StylesManager.Enabled) {
 
       if(themeName !== "bootstrap" && themeName !== "bootstrapmaterial") {
-        setCssVariables(StylesManager.ThemeColors[themeName], rootElement);
+        setCssVariables(StylesManager.ThemeColors[themeName], element as HTMLElement);
         if (!!StylesManager.Logger) {
           StylesManager.Logger.log("apply theme " + themeName + " completed");
         }

@@ -698,10 +698,10 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(questionValueInput.value).eql("Nissan")
 
-      .pressKey("space")
+      .pressKey("enter")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(popupContainer.visible).notOk()
       .expect(questionValueInput.value).eql("Volkswagen")
 

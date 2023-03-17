@@ -59,9 +59,9 @@ QUnit.test("action bar: button visibility", function (assert) {
 QUnit.test("message box visibility", function (assert) {
   const done = assert.async(2);
   const notifier = new Notifier(testCssClasses);
-  notifier.notify("Test", "success");
+  notifier.notify("Test", "error");
   assert.equal(notifier.active, true);
-  assert.equal(notifier.css, "alert alert-success alert-shown");
+  assert.equal(notifier.css, "alert alert-error alert-shown");
 
   setTimeout(() => {
     assert.equal(notifier.active, false, "success message is hidden");
@@ -69,7 +69,7 @@ QUnit.test("message box visibility", function (assert) {
 
     done();
 
-    notifier.notify("Error", "error");
+    notifier.notify("Error", "error", true);
     assert.equal(notifier.active, true);
     assert.equal(notifier.css, "alert alert-error alert-shown");
 

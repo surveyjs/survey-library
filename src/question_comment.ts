@@ -4,6 +4,8 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
+import { settings } from "./settings";
+import { ISurveyEnvironment } from "./base-interfaces";
 
 /**
  * A class that describes the Comment question type.
@@ -12,6 +14,7 @@ import { increaseHeightByContent } from "./utils/utils";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
+  private environment: ISurveyEnvironment = settings.environment;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -62,7 +65,8 @@ export class QuestionCommentModel extends QuestionTextBase {
     return "comment";
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
-    this.element = document.getElementById(this.inputId) || el;
+    const { root } = this.environment;
+    this.element = root.getElementById(this.inputId) || el;
     this.updateElement();
     super.afterRenderQuestionElement(el);
   }

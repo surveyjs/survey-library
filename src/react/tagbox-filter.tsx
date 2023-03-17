@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DropdownMultiSelectListModel, QuestionTagboxModel, Helpers } from "survey-core";
+import { DropdownMultiSelectListModel, QuestionTagboxModel, Helpers, settings } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyElementBase } from "./reactquestion_element";
 
@@ -35,7 +35,8 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     }
   }
   onChange(e: any) {
-    if (e.target === document.activeElement) {
+    const { root } = settings.environment;
+    if (e.target === root.activeElement) {
       this.model.filterString = e.target.value;
     }
   }

@@ -8,6 +8,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
+import { ISurveyEnvironment } from "./base-interfaces";
 
 /**
  * A class that describes the Text question type.
@@ -18,6 +19,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
+  private environment: ISurveyEnvironment = settings.environment;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -431,7 +433,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public onChange = (event: any): void => {
-    if (event.target === document.activeElement) {
+    if (event.target === this.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }

@@ -76,8 +76,8 @@ const isShadowDOM = (root: Document | ShadowRoot): root is ShadowRoot => {
 };
 
 const getElement = (element: HTMLElement | string): HTMLElement => {
-  const { getElementById }: ISurveyEnvironment = settings.environment;
-  return typeof element === "string" ? getElementById(element) : element;
+  const { root }: ISurveyEnvironment = settings.environment;
+  return typeof element === "string" ? root.getElementById(element) : element;
 };
 
 function isElementVisible(
@@ -136,8 +136,8 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 function scrollElementByChildId(id: string) {
   const environment : ISurveyEnvironment = settings.environment;
   if (!environment) return;
-  const { getElementById } = environment;
-  const el = getElementById(id);
+  const { root } = environment;
+  const el = root.getElementById(id);
   if (!el) return;
   const scrollableEl = findScrollableParent(el);
   if (!!scrollableEl) {

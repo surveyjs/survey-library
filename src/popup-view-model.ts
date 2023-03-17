@@ -146,12 +146,12 @@ export class PopupBaseViewModel extends Base {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
-      if (document.activeElement === firstFocusableElement) {
+      if (this.environment.root.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (document.activeElement === lastFocusableElement) {
+      if (this.environment.root.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -165,7 +165,7 @@ export class PopupBaseViewModel extends Base {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>document.activeElement;
+    this.prevActiveElement = <HTMLElement>this.environment.root.activeElement;
 
     if (this.isOverlay) {
       this.top = null;

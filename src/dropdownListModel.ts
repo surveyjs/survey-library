@@ -234,7 +234,6 @@ export class DropdownListModel extends Base {
     this.setPropertyValue("inputString", val);
     this.filterString = val;
     this.applyHintString(this.listModel.focusedItem);
-    //if (!val) this.onClear(null);
   }
 
   public get placeholderRendered() {
@@ -342,9 +341,6 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
-    // if (this.listModel.focusedItem && this.inputString == this.listModel.focusedItem.title) {
-    //   this.inputString = "";
-    // }
     if (reverse) {
       this.listModel.focusPrevVisibleItem();
     }

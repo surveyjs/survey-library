@@ -282,14 +282,14 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private get isValueLessMin(): boolean {
     return (
-      !this.isValueEmpty(this.renderedMin) &&
+      !this.isValueEmpty(this.renderedMin) && !this.isEmpty() &&
       this.getCalculatedMinMax(this.value) <
         this.getCalculatedMinMax(this.renderedMin)
     );
   }
   private get isValueGreaterMax(): boolean {
     return (
-      !this.isValueEmpty(this.renderedMax) &&
+      !this.isValueEmpty(this.renderedMax) && !this.isEmpty() &&
       this.getCalculatedMinMax(this.value) >
         this.getCalculatedMinMax(this.renderedMax)
     );
@@ -446,6 +446,9 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateValueOnEvent(event);
     this.updateRemainingCharacterCounter(event.target.value);
   };
+  public onFocus = (event: any): void => {
+    this.updateRemainingCharacterCounter(event.target.value);
+  }
 }
 
 const minMaxTypes = [

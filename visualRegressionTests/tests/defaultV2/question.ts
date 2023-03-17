@@ -387,6 +387,7 @@ frameworks.forEach(framework => {
 
   test("Remaining character counter", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         questions: [
           {
@@ -407,6 +408,20 @@ frameworks.forEach(framework => {
 
       await t.pressKey("tab");
       await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
+    });
+  });
+  test("Check question with indent", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            indent: 1,
+          }]
+      });
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-with-indent.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

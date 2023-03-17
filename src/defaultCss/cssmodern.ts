@@ -6,7 +6,8 @@ export var modernCss = {
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
-  body: "sv-body",
+  bodyContainer: "sv-components-row",
+  body: "sv-components-column sv-components-column--expandable sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
   title: "",
@@ -406,6 +407,7 @@ export var modernCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",

@@ -10,7 +10,7 @@ export class SurveyNavigationBase extends React.Component<any, any> {
     return this.props.survey;
   }
   protected get css(): any {
-    return this.props.css;
+    return this.props.css || this.survey.css;
   }
   private updateStateFunction: any = null;
   componentDidMount() {

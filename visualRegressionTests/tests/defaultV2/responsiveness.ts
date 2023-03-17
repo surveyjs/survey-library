@@ -35,6 +35,24 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-simple-question.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check simple question in small screen with rtl", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await ClientFunction(() => {
+        document.body.setAttribute("dir", "rtl");
+      })();
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            name: "question_with_num",
+            title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
+          },
+        ]
+      });
+      await takeElementScreenshot("responsiveness-simple-question-rtl.png", Selector(".sd-question"), t, comparer);
+    });
+  });
   test("Check questions in one row in small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);

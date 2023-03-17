@@ -36,6 +36,8 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { PageModel } from "../src/page";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
 
@@ -3247,10 +3249,12 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
   question.indent = 1;
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
+  assert.deepEqual(question.getRootStyle(), { "--sv-element-add-padding-left": "20px", "--sv-element-add-padding-right": "40px" });
   survey.css = {
     question: {
       indent: 0
@@ -3258,6 +3262,16 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   };
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
+});
+QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q1", indent: 1 }],
+  });
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.paddingLeft, "20px");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -3602,7 +3616,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: true,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5, imageLink: "test5" }
+      ]
     },
     question
   );
@@ -3629,7 +3649,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: false,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5 }
+      ],
     },
     question
   );
@@ -3650,6 +3676,9 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
     false,
     "The third time is not selected"
   );
+
+  question.value = 5;
+  assert.equal(question.isItemSelected(question.choices[4]), false, "The fifth time is not selected");
 });
 
 QUnit.test("QuestionImagePicker 0 item value test", function (assert) {

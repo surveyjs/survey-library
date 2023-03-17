@@ -1331,3 +1331,81 @@ QUnit.test("PopupViewModel remove correct div even if container is changed", (as
   viewModel.unmountPopupContainer();
   assert.notOk(container.isConnected);
 });
+
+QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel["calculateIsTablet"](300, 300);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](300, 600);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](600, 300);
+  assert.notOk(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](600, 600);
+  assert.ok(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](700, 600);
+  assert.ok(viewModel["isTablet"]);
+  viewModel["calculateIsTablet"](700, 700);
+  assert.ok(viewModel["isTablet"]);
+});
+QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  document.body.appendChild(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  popupContainer.style.width = "550px";
+  popupContainer.style.height = "400px";
+
+  model.displayMode = "overlay";
+  assert.equal(viewModel.styleClass, "sv-popup--overlay");
+
+  assert.equal(viewModel.isVisible, false);
+  assert.equal(viewModel.top, "0px");
+  assert.equal(viewModel.left, "0px");
+  assert.equal(viewModel.height, "auto");
+  assert.equal(viewModel.width, "auto");
+
+  let trace: String = "";
+  model.onHide = () => {
+    trace += "->onHide";
+  };
+  model.onShow = () => {
+    trace += "->onShow";
+  };
+
+  model.toggleVisibility();
+  (<any>window).innerWidth = 600;
+  (<any>window).innerHeight = 400;
+  viewModel.updateOnShowing();
+
+  assert.equal(trace, "->onShow");
+  assert.equal(viewModel.isVisible, true);
+  assert.equal(viewModel.top, "inherit", "onShow top");
+  assert.equal(viewModel.left, "inherit", "onShow left");
+  assert.equal(viewModel.height, "inherit", "onShow height");
+  assert.equal(viewModel.width, "inherit", "onShow width");
+  trace = "";
+
+  model.toggleVisibility();
+  assert.equal(trace, "->onHide");
+  assert.equal(viewModel.isVisible, false);
+  assert.equal(viewModel.top, "0px", "onHide top");
+  assert.equal(viewModel.left, "0px", "onHide left");
+  assert.equal(viewModel.height, "auto", "onHide height");
+  assert.equal(viewModel.width, "auto", "onHide width");
+
+  viewModel.dispose();
+});

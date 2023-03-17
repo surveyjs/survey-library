@@ -12,12 +12,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey-knockout-ui.css",
-    "survey-knockout-ui.min.css",
-    "survey-knockout-ui.d.ts",
-    "survey-knockout-ui.js",
-    "survey-knockout-ui.min.js",
-    "ts3.4/survey-knockout-ui.d.ts"
+    "**/*"
   ],
   "main": "survey-knockout-ui.js",
   "repository": {

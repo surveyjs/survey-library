@@ -1,6 +1,6 @@
 @mixin num_inline {
   float: none;
-  margin-left: 0;
+  margin-inline-start: 0;
   width: auto;
   padding-left: 0;
   padding-right: 0;
@@ -10,13 +10,16 @@
     width: auto;
   }
 }
-
+.sd-element {
+  padding-left: var(--sv-element-add-padding-left, 0px);
+  padding-right: var(--sv-element-add-padding-right, 0px);
+}
 .svc-logic-question-value,
 .sd-element--with-frame:not(.sd-element--collapsed) {
   border-radius: calcSize(0.5);
   box-sizing: border-box;
-  padding-left: var(--sd-base-padding);
-  padding-right: var(--sd-base-padding);
+  padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
+  padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
@@ -130,9 +133,9 @@
       }
     }
   }
-    &.sd-question--image {
-      padding-top: var(--sd-base-vertical-padding);
-    }
+  &.sd-question--image {
+    padding-top: var(--sd-base-vertical-padding);
+  }
   &.sd-panel,
   &.sd-question--paneldynamic {
     border: 1px solid $border-light;

@@ -9,17 +9,20 @@ export class PopupViewModel {
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
     popupViewModel.container.innerHTML = template;
-    popupViewModel.model.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      if (option.isVisible) {
-        ko.tasks.runEarly();
-        popupViewModel.updateOnShowing();
-      }
-    });
+    popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
     ko.applyBindings(popupViewModel, popupViewModel.container);
   }
   dispose() {
     ko.cleanNode(this.popupViewModel.container);
-    this.popupViewModel.dispose();
+    this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
+    this.popupViewModel.unmountPopupContainer();
+    this.popupViewModel.container = undefined;
+  }
+  visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
+    if (option.isVisible) {
+      ko.tasks.runEarly();
+      this.popupViewModel.updateOnShowing();
+    }
   }
 }
 

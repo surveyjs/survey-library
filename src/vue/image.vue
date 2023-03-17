@@ -8,6 +8,8 @@
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
+      @load="(event) => { question.onLoadHandler() }"
+      @error="(event) => { question.onErrorHandler() }"
     /><video
       controls
       v-if="question.renderedMode === 'video'"
@@ -16,6 +18,8 @@
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
+      @loadedmetadata="(event) => { question.onLoadHandler() }"
+      @error="(event) => { question.onErrorHandler() }"
     ></video>
     <iframe
       v-if="question.renderedMode === 'youtube'"
@@ -25,6 +29,10 @@
       :height="question.renderedHeight"
       v-bind:style="{ objectFit: question.imageFit }"
     ></iframe>
+    <div v-if="!question.imageLink || question.contentNotLoaded"
+      :class="question.cssClasses.noImage">
+      <sv-svg-icon :iconName="question.cssClasses.noImageSvgIconId" :size="48"></sv-svg-icon>
+    </div>
   </div>
 </template>
 

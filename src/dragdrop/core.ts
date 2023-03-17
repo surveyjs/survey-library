@@ -33,13 +33,15 @@ export abstract class DragDropCore<T> extends Base {
   isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
   public onGhostPositionChanged: EventBase<{}> = new EventBase<{}>();
   protected ghostPositionChanged(): void {
-    this.onGhostPositionChanged.fire({}, {});
+    this.onGhostPositionChanged.fire(<any>{}, {});
   }
 
   public static PreventScrolling = false;
 
-  public onBeforeDrop: EventBase<DragDropCore<T>> = new EventBase();
-  public onAfterDrop: EventBase<DragDropCore<T>> = new EventBase();
+  public onDragStart: EventBase<DragDropCore<T>> = new EventBase();
+  public onDragEnd: EventBase<DragDropCore<T>> = new EventBase();
+  public onBeforeDrop = this.onDragStart;
+  public onAfterDrop = this.onDragEnd;
 
   public draggedElement: any = null;
   protected abstract get draggedElementType(): string;
@@ -239,9 +241,9 @@ export abstract class DragDropCore<T> extends Base {
   private drop = () => {
     if (this.allowDropHere) {
       const fromElement = this.draggedElement.parent;
-      this.onBeforeDrop.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
+      this.onDragStart.fire(this, { fromElement: fromElement, draggedElement: this.draggedElement });
       const newElement = this.doDrop();
-      this.onAfterDrop.fire(this, { fromElement: fromElement, draggedElement: newElement, toElement: this.dropTarget });
+      this.onDragEnd.fire(this, { fromElement: fromElement, draggedElement: newElement, toElement: this.dropTarget });
     }
 
     this.clear();

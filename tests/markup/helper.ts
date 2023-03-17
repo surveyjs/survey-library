@@ -10,6 +10,7 @@ export interface MarkupTestDescriptor {
   etalon?: string;
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
+  timeout?: number;
 }
 
 export var markupTests: Array<MarkupTestDescriptor> = [];
@@ -217,7 +218,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         tableCell3.appendChild(download);
       }
       done();
-    }, 10);
+    }, test.timeout || 10);
   });
   if (test.initSurvey)
     test.initSurvey(platform.survey);
@@ -268,6 +269,7 @@ function clearClasses(el: Element) {
 
 function clearAttributes(el: Element, removeIds = false) {
   //el.removeAttribute("aria-labelledby");
+  el.removeAttribute("survey");
   el.removeAttribute("data-bind");
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");

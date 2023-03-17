@@ -4,7 +4,8 @@ export var defaultStandardCss = {
   root: "sv_main sv_default_css",
   container: "sv_container",
   header: "sv_header",
-  body: "sv_body",
+  bodyContainer: "sv-components-row",
+  body: "sv-components-column sv-components-column--expandable sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
   title: "",
@@ -172,7 +173,12 @@ export var defaultStandardCss = {
     filterStringInput: "sv_q_dropdown__filter-string-input"
   },
   html: { root: "" },
-  image: { root: "sv_q_image", image: "sv_image_image" },
+  image: {
+    root: "sv_q_image",
+    image: "sv_image_image",
+    noImage: "sv-image__no-image",
+    noImageSvgIconId: "icon-no-image",
+  },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
@@ -289,7 +295,10 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
+    itemNoImage: "sv_q_imgsel__no-image",
+    itemNoImageSvgIcon: "sv_q_imgsel__no-image-svg",
+    itemNoImageSvgIconId: "icon-no-image",
   },
   rating: {
     root: "sv_q_rating",
@@ -330,6 +339,7 @@ export var defaultStandardCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",

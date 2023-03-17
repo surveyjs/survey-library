@@ -30,6 +30,9 @@ export class ListComponent extends BaseAngular implements AfterViewInit {
   onMouseMove(event: Event): void {
     this.model.onMouseMove(event);
   }
+  protected override getPropertiesToUpdateSync(): string[] {
+    return ["renderElements"];
+  }
   ngAfterViewInit(): void {
     if(!!this.listContainerElement?.nativeElement) {
       this.model.initListContainerHtmlElement(this.listContainerElement.nativeElement);

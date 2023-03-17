@@ -65,6 +65,14 @@ export class PopupBaseViewModel extends Base {
     footerActions = this.model.updateFooterActions(footerActions);
     this.footerToolbarValue.setItems(footerActions);
   }
+  protected resetDimensionsAndPositionStyleProperties(): void {
+    const nullableValue = "inherit";
+    this.top = nullableValue;
+    this.left = nullableValue;
+    this.height = nullableValue;
+    this.width = nullableValue;
+    this.minWidth = nullableValue;
+  }
 
   private setupModel(model: PopupModel) {
     if (!!this.model) {
@@ -168,11 +176,7 @@ export class PopupBaseViewModel extends Base {
     this.prevActiveElement = <HTMLElement>this.environment.root.activeElement;
 
     if (this.isOverlay) {
-      this.top = null;
-      this.left = null;
-      this.height = null;
-      this.width = null;
-      this.minWidth = null;
+      this.resetDimensionsAndPositionStyleProperties();
     }
 
     this.switchFocus();

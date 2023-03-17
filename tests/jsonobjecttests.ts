@@ -19,6 +19,7 @@ import { TextValidator } from "../src/validator";
 import { englishStrings } from "../src/localization/english";
 import { SurveyModel } from "../src/survey";
 import { CalculatedValue } from "../src/calculatedValue";
+import { QuestionHtmlModel } from "../src/question_html";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2950,4 +2951,12 @@ QUnit.test("Add defaultFunc attribute support, Bug#5615", function (assert) {
   assert.equal(obj.prop1, 5, "The default value is 5");
   defaultValueForProp1 = 7;
   assert.equal(obj.prop1, 7, "The default value is 7 now");
+});
+QUnit.test("", function (assert) {
+  let html = new QuestionHtmlModel("q1");
+  assert.equal(html.renderAs, "default", "default is default");
+  Serializer.addProperty("html", { name: "renderAs", default: "auto", choices: ["auto", "standard", "image"] });
+  html = new QuestionHtmlModel("q1");
+  assert.equal(html.renderAs, "auto", "default is auto");
+  Serializer.removeProperty("html", "renderAs");
 });

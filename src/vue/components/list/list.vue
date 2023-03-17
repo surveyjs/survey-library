@@ -21,6 +21,7 @@
       <div v-bind:class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
     </div>
     <ul
+      v-if="model.renderElements"
       v-bind:class="model.cssClasses.itemsContainer"
       v-show="!model.isEmpty"
       role="listbox"

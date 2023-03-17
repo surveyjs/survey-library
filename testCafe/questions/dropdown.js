@@ -839,6 +839,60 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.nth(1).textContent).eql("item2");
   });
 
+  test("Check dropdown SPACE press without searchEnabled", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "q1",
+          searchEnabled: false,
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "point",
+            "itemzero",
+            "item 1",
+            "item 2",
+            "stuff"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("space")
+      .expect(questionValueText.textContent).eql("itemzero");
+  });
+
+  test("Check dropdown SPACE press with searchEnabled", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "q1",
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "point2",
+            "itemzero",
+            "item 1",
+            "item 2",
+            "stuff"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("e m space 2")
+      .pressKey("enter")
+      .expect(questionValueInput.value).eql("item 2");
+  });
+
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
       questions: [

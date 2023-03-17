@@ -395,9 +395,12 @@ export class DropdownListModel extends Base {
       this.hintString = "";
       if (this.question.searchEnabled && this.question instanceof QuestionDropdownModel) this.applyInputString(this.question.selectedItem);
     } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
+      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.question.searchEnabled) {
         event.preventDefault();
         event.stopPropagation();
+      }
+      if (event.keyCode === 32 && this.question.searchEnabled) {
+        return;
       }
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }

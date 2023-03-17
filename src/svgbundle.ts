@@ -56,7 +56,7 @@ export class SvgIconRegistry {
   }
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
-    if(!this.environment.getElementById(containerId)) {
+    if(!this.environment.root.getElementById(containerId)) {
       let iconsDiv = document.createElement("div");
       iconsDiv.id = containerId;
       iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";

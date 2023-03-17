@@ -401,3 +401,74 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   matrix.columns.push(new MatrixDropdownColumn("col2"));
   assert.equal(columnName, "col2", "The event raised correctly on adding into array");
 });
+
+QUnit.test("Check matrixdropdown default column min widthes", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columns: [
+          {
+            "name": "file",
+            "cellType": "file",
+          },
+          {
+            "name": "description",
+            "cellType": "comment",
+          }]
+      },
+    ],
+  });
+  const question = <QuestionMatrixDropdownModelBase>survey.getAllQuestions()[0];
+  assert.equal(question.columns[0].minWidth, "240px");
+  assert.equal(question.columns[1].minWidth, "200px");
+
+  const survey2 = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columns: [
+          {
+            "name": "file",
+            "cellType": "file",
+            "minWidth": "300px"
+          },
+          {
+            "name": "description",
+            "cellType": "comment",
+            "minWidth": "300px"
+          }]
+      },
+    ],
+  });
+  const question2 = <QuestionMatrixDropdownModelBase>survey2.getAllQuestions()[0];
+  assert.equal(question2.columns[0].minWidth, "300px");
+  assert.equal(question2.columns[1].minWidth, "300px");
+
+  const survey3 = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columnMinWidth: "300px",
+        columns: [
+          {
+            "name": "file",
+            "cellType": "file",
+          },
+          {
+            "name": "description",
+            "cellType": "comment",
+          }]
+      },
+    ],
+  });
+  const question3 = <QuestionMatrixDropdownModelBase>survey3.getAllQuestions()[0];
+  assert.equal(question3.columns[0].minWidth, "");
+  assert.equal(question3.columns[1].minWidth, "");
+});

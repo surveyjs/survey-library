@@ -10,6 +10,10 @@ import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 
+const columnWidthes: {[index: string] : { width?: string, minWidth?: string }} = {
+  "file": { minWidth: "240px" },
+  "comment": { minWidth: "200px" }
+};
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   getRequiredText(): string;
   hasChoices(): boolean;
@@ -428,8 +432,18 @@ export class MatrixDropdownColumn extends Base
   }
   startLoadingFromJson(json?: any) {
     super.startLoadingFromJson(json);
-    if (!!json && !json.cellType && !!json.choices) {
-      json.cellType = this.colOwner.getCellType();
+    if (!!json) {
+      if(!json.cellType && !!json.choices) {
+        json.cellType = this.colOwner.getCellType();
+      }
+      if(typeof json === "object") {
+        if(!json.minWidth && !(<QuestionMatrixDropdownModelBase>this.colOwner).columnMinWidth) {
+          json.minWidth = columnWidthes[json.cellType]?.minWidth;
+        }
+        if(!json.width) {
+          json.width = columnWidthes[json.cellType]?.width;
+        }
+      }
     }
   }
   public updateCellQuestion(

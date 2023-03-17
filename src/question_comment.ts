@@ -14,7 +14,6 @@ import { ISurveyEnvironment } from "./base-interfaces";
  */
 export class QuestionCommentModel extends QuestionTextBase {
   private element: HTMLElement;
-  private environment: ISurveyEnvironment = settings.environment;
   /**
    * Specifies the visible height of the comment area, measured in lines.
    *
@@ -65,7 +64,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     return "comment";
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
-    const { root } = this.environment;
+    const { root } = settings.environment;
     this.element = root.getElementById(this.inputId) || el;
     this.updateElement();
     super.afterRenderQuestionElement(el);

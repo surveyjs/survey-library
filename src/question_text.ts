@@ -19,7 +19,6 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
-  private environment: ISurveyEnvironment = settings.environment;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -433,7 +432,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public onChange = (event: any): void => {
-    if (event.target === this.environment.root.activeElement) {
+    if (event.target === settings.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }

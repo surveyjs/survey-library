@@ -26,8 +26,6 @@ export class DragDropSurveyElements extends DragDropCore<any> {
   private isRight: boolean;
   protected prevIsRight: boolean;
 
-  private environment: ISurveyEnvironment = settings.environment
-
   public startDragToolboxItem(
     event: PointerEvent,
     draggedElementJson: JsonObject,
@@ -317,7 +315,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected doDrop = (): any => {
     if (this.dropTarget) {
-      (<HTMLElement>this.environment.root.activeElement).blur();
+      (<HTMLElement>settings.environment.root.activeElement).blur();
       return this.insertRealElementIntoSurvey();
     }
 

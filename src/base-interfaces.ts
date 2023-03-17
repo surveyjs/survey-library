@@ -345,7 +345,9 @@ export interface IFindElement {
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
+  _rootElement: HTMLElement | ShadowRoot,
   rootElement: HTMLElement | ShadowRoot,
+  _popupMountContainer: HTMLElement | string,
   popupMountContainer: HTMLElement | string,
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,

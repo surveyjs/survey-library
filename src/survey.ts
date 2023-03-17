@@ -2957,7 +2957,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public notify(message: string, type: string): void {
-    this.notifier.notify(message, type);
+    this.notifier.notify(message, type, type === "error");
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.

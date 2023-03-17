@@ -37,7 +37,7 @@ export class Notifier extends Base {
     this.actionBar.actions.forEach(action => action.visible = (this.actionsVisibility[action.id] === type));
   }
 
-  notify(message: string, type: string = "info"): void {
+  notify(message: string, type: string = "info", waitUserAction = false): void {
     this.updateActionsVisibility(type);
     this.message = message;
     this.active = true;
@@ -47,7 +47,7 @@ export class Notifier extends Base {
       clearTimeout(this.timer);
       this.timer = undefined;
     }
-    if(type !== "error") {
+    if(!waitUserAction) {
       this.timer = setTimeout(() => {
         this.timer = undefined;
         this.active = false;

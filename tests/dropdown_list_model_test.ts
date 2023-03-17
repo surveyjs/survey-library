@@ -1,4 +1,3 @@
-import { drop } from "lodash";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
@@ -357,7 +356,6 @@ QUnit.test("hintString test - no search", function (assert) {
   assert.notOk(dropdownListModel.showHintString, "no search, hint hidden");
 });
 
-
 QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -368,7 +366,7 @@ QUnit.test("dropdown keyboard tests", function (assert) {
     keyCode: 0,
     preventDefault: () => { },
     stopPropagation: () => { }
-  }
+  };
 
   assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
   assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
@@ -380,7 +378,6 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(dropdownListModel.inputString, "", "inputString still empty on first UP");
   assert.equal(dropdownListModel.hintString, "", "hintString still empty on first UP");
   assert.notOk(dropdownListModel.popupModel.isVisible, "popup is still hidden on first UP");
-
 
   event.keyCode = 40;
   dropdownListModel.keyHandler(event);

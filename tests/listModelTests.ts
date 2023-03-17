@@ -285,6 +285,16 @@ QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function 
   document.body.removeChild(element);
 });
 
+QUnit.test("emptyText & isAllDataLoaded", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  list.isAllDataLoaded = false;
+  assert.equal(list.emptyMessage, "Loading...");
+
+  list.isAllDataLoaded = true;
+  assert.equal(list.emptyMessage, "No data to display");
+});
+
 QUnit.test("getItemClass", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, true);

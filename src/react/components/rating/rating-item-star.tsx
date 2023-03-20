@@ -43,7 +43,7 @@ export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
         />
         <SvgIcon
           className={"sv-star"}
-          size={48}
+          size={"auto"}
           iconName={"icon-rating-star"}
           title={this.item.text}
         ></SvgIcon>

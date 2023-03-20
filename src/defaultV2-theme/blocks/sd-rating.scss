@@ -87,6 +87,9 @@ legend+sv-ng-rating-item+.sd-rating__item {
   svg {
     stroke: $border;
     fill: none;
+    width: calcSize(6);
+      height: calcSize(6);
+      display: block;
   }
 
   .sv-star-2 {
@@ -96,14 +99,14 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-star--selected {
   svg {
-    stroke: $primary;
+    stroke: none;
     fill: $primary;
   }
 }
 
 .sd-rating__item-star--error {
   svg {
-    stroke: $red-light;
+    stroke: none;
     fill: $red-light;
   }
 }
@@ -119,7 +122,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-star--selected.sd-rating__item-star--disabled {
   svg {
-    stroke: $border;
+    stroke: none;
     fill: $border;
   }
 }
@@ -133,7 +136,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-star--unhighlighted {
   svg {
-    stroke: $border;
+    stroke: none;
     fill: $border;
   }
 }

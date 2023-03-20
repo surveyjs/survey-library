@@ -295,7 +295,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-rating-stars-selected-disabled.png", questionRoot, t, comparer);
     });
   });
-  test.only("Check rating stars question - baseunit", async (t) => {
+  test("Check rating stars question - baseunit", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => {

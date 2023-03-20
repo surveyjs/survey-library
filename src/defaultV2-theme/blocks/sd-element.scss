@@ -2,8 +2,8 @@
   float: none;
   margin-inline-start: 0;
   width: auto;
-  padding-left: 0;
-  padding-right: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
 
   & + span {
     float: none;
@@ -236,7 +236,10 @@
 
 .sd-element__num {
   float: left;
-  padding: calcSize(0.625) calcSize(1) calcSize(0.375) 0;
+  padding-top: calcSize(0.625);
+  padding-bottom: calcSize(0.375);
+  padding-inline-start: 0;
+  padding-inline-end: calcSize(1);
   width: calcSize(5);
   font-size: calcSize(1.5);
   line-height: calcSize(2);

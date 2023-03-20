@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="model.css" 
+  <div v-bind:class="model.css" v-show="model.isDisplayed"
     :style="{ visibility: model.active ? 'visible' : 'hidden' }">
     <span>{{ model.message }}</span>
     <sv-action-bar :model="model.actionBar"></sv-action-bar>

@@ -1,5 +1,7 @@
+<!-- ko if: notifier.isDisplayed -->
 <div data-bind="css: notifier.css, style: { visibility: notifier.active ? 'visible' : 'hidden' }">
   <span data-bind="text: notifier.message"></span>
   <!-- ko component: { name: "sv-action-bar", params: { model: notifier.actionBar } } -->
   <!-- /ko -->
 </div>
+<!-- /ko -->

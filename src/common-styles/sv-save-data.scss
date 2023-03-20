@@ -13,12 +13,6 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
-.sv-save-data_root.sv-save-data_root--shown {
-  transition-timing-function: ease-out;
-  transition-property: transform, opacity;
-  transform: translateX(-50%) translateY(0);
-  opacity: 0.75;
-}
 .sv-save-data_root {
   position: absolute;
   left: 50%;
@@ -50,10 +44,21 @@ $base-unit: var(--base-unit, 8px);
   transition: 0.5s;
 }
 
+.sv-save-data_root.sv-save-data_root--shown {
+  transition-timing-function: ease-out;
+  transition-property: transform, opacity;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0.25s;
+  opacity: 0.75;
+}
+.sv-save-data_root--shown.sv-save-data_success,
+.sv-save-data_root--shown.sv-save-data_error {
+  opacity: 1;
+}
+
 .sv-save-data_root.sv-save-data_error {
   background-color: $red;
   color: $background;
-  opacity: 1;
   font-weight: 600;
   padding: calcSize(2) calcSize(2) calcSize(2) calcSize(6);
   gap: calcSize(6);
@@ -81,6 +86,5 @@ $base-unit: var(--base-unit, 8px);
 .sv-save-data_root.sv-save-data_success {
   background-color: $primary;
   color: #ffffff;
-  opacity: 1;
   font-weight: 600;
 }

@@ -57,28 +57,34 @@ QUnit.test("action bar: button visibility", function (assert) {
 });
 
 QUnit.test("message box visibility", function (assert) {
-  const done = assert.async(2);
+  const done = assert.async(4);
   const notifier = new Notifier(testCssClasses);
   notifier.notify("Test", "error");
-  assert.equal(notifier.active, true);
-  assert.equal(notifier.css, "alert alert-error alert-shown");
 
   setTimeout(() => {
-    assert.equal(notifier.active, false, "success message is hidden");
-    assert.equal(notifier.css, "alert");
-
-    done();
-
-    notifier.notify("Error", "error", true);
     assert.equal(notifier.active, true);
     assert.equal(notifier.css, "alert alert-error alert-shown");
+    done();
 
     setTimeout(() => {
-      assert.equal(notifier.active, true, "error message is visible");
-      assert.equal(notifier.css, "alert alert-error alert-shown");
+      assert.equal(notifier.active, false, "success message is hidden");
+      assert.equal(notifier.css, "alert alert-error");
 
       done();
-    }, settings.notifications.lifetime + 120);
-  }, settings.notifications.lifetime + 120);
 
+      notifier.notify("Error", "error", true);
+      setTimeout(() => {
+        assert.equal(notifier.active, true);
+        assert.equal(notifier.css, "alert alert-error alert-shown");
+
+        done();
+        setTimeout(() => {
+          assert.equal(notifier.active, true, "error message is visible");
+          assert.equal(notifier.css, "alert alert-error alert-shown");
+
+          done();
+        }, settings.notifications.lifetime + 120);
+      }, 1);
+    }, settings.notifications.lifetime + 120);
+  }, 1);
 });

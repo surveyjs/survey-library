@@ -1,4 +1,4 @@
-import {  ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, ViewEncapsulation } from "@angular/core";
 import { StylesManager } from "survey-core";
 import { TestComponent } from "./test.component";
 

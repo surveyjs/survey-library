@@ -6,6 +6,8 @@ const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
 const questionValueInput = Selector(".sv_q_dropdown__value input");
 const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
+const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
+
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
 frameworks.forEach((framework) => {
@@ -420,6 +422,7 @@ frameworks.forEach((framework) => {
           type: "dropdown",
           name: "cars",
           title: "Dropdown",
+          searchEnabled: false,
           choices: [
             "Ford",
             "Vauxhall",
@@ -618,6 +621,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...")
 
       .click(questionDropdownSelect)
+
       .expect(myListItems.count).eql(10)
       .expect(myListItems.find(".sv-svg-icon").count).eql(10)
 
@@ -692,26 +696,26 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.textContent).eql("Nissan")
+      .expect(questionValueInput.value).eql("Nissan")
 
-      .pressKey("space")
+      .pressKey("enter")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.textContent).eql("Volkswagen")
+      .expect(questionValueInput.value).eql("Volkswagen")
 
       .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
-      .expect(questionValueText.nth(1).textContent).eql("item20")
+      .pressKey("enter")
+      .expect(questionValueInput.nth(1).value).eql("item20")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.nth(1).textContent).eql("item21");
+      .expect(questionValueInput.nth(1).value).eql("item21");
   });
 
   test("Select item after switching focus", async (t) => {
@@ -835,6 +839,60 @@ frameworks.forEach((framework) => {
       .expect(questionValueText.nth(1).textContent).eql("item2");
   });
 
+  test("Check dropdown SPACE press without searchEnabled", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "q1",
+          searchEnabled: false,
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "point",
+            "itemzero",
+            "item 1",
+            "item 2",
+            "stuff"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("space")
+      .expect(questionValueText.textContent).eql("itemzero");
+  });
+
+  test("Check dropdown SPACE press with searchEnabled", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "q1",
+          title: "Dropdown",
+          colCount: 0,
+          choices: [
+            "point2",
+            "itemzero",
+            "item 1",
+            "item 2",
+            "stuff"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    await t
+      .pressKey("e m space 2")
+      .pressKey("enter")
+      .expect(questionValueInput.value).eql("item 2");
+  });
+
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
       questions: [
@@ -895,20 +953,20 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
-      .expect(questionValueText.textContent).eql("item25")
+      .expect(questionValueInput.value).eql("item20")
       .expect(popupContainer.visible).notOk()
 
       .pressKey("down")
       .expect(popupContainer.visible).ok()
       .expect(listItems.filterVisible().count).eql(27)
-      .expect(Selector(".sv-list__item.sv-list__item--selected").textContent).contains("item25")
+      .expect(Selector(".sv-list__item.sv-list__item--selected").textContent).contains("item20")
 
       .pressKey("down")
       .pressKey("esc")
-      .expect(questionValueText.textContent).eql("item25");
+      .expect(questionValueInput.value).eql("item20");
   });
 
-  test("Check reset focused item", async (t) => {
+  test("Check reset focused item - no focus on first popup", async (t) => {
     const jsonWithDropDown = {
       questions: [
         {
@@ -959,7 +1017,7 @@ frameworks.forEach((framework) => {
       .click(questionDropdownSelect)
       .expect(popupContainer.visible).ok()
       .expect(listItems.count).eql(27)
-      .expect(focusedItem.exists).ok()
+      .expect(focusedItem.exists).notOk()
 
       .hover(listItems.nth(2))
       .expect(focusedItem.exists).notOk();
@@ -1032,6 +1090,7 @@ frameworks.forEach((framework) => {
           name: "cars",
           title: "Dropdown",
           defaultValue: "Volkswagen",
+          searchEnabled: "false",
           choices: [
             "Ford",
             "Vauxhall",
@@ -1050,6 +1109,7 @@ frameworks.forEach((framework) => {
           renderAs: "select",
           name: "DropdownRenderAsSelect",
           defaultValue: "Mercedes-Benz",
+          searchEnabled: "false",
           choices: [
             "Ford",
             "Vauxhall",

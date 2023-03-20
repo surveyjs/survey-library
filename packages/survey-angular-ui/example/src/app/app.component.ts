@@ -1,6 +1,5 @@
-import {  Component } from "@angular/core";
+import { Component } from "@angular/core";
 const json = require("../assets/survey.json");
-
 
 @Component({
   selector: "app-root",

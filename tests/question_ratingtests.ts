@@ -418,3 +418,41 @@ QUnit.test("check stars styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
 });
+
+QUnit.test("check stars for rateValues", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateType": "stars",
+        "rateValues": [
+          "not_much",
+          "a_little_bit",
+          "somewhat",
+          "a_lot",
+          "completely"
+        ],
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+  q1.cssClasses.itemStarSelected = "sv_q_selected";
+  q1.cssClasses.itemStarDisabled = "sv_q_disabled";
+  q1.value = "a_little_bit";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "item[2] is empty");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "item[3] is empty");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "item[4] is empty");
+
+  survey.mode = "display";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_disabled", "item[2] is disabled not selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled", "item[3] is disabled not selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled", "item[4] is disabled not selected");
+});

@@ -63,8 +63,7 @@
               "./example/src/testCafe"
             ],
             "styles": [
-              "./example/src/styles.scss",
-              "../../build/survey-core/defaultV2.css"
+              "./example/src/styles.scss"
             ],
             "scripts": []
           },

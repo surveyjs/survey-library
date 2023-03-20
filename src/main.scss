@@ -108,6 +108,21 @@ body {
     position: relative;
   }
 
+  .sv_q_dropdown__hint-prefix {
+    span {
+      word-break: unset;
+    }
+    opacity: 0.5;
+  }
+
+  .sv_q_dropdown__hint-suffix {
+    display: flex;
+
+    span {
+      word-break: unset;
+    }
+    opacity: 0.5;
+  }
   .sv_q_dropdown_control__input-field-component {
     height: auto;
   }

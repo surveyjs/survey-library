@@ -270,14 +270,14 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
   });
@@ -313,7 +313,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(selectedItems.count).eql(2)
       .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item25")
+      .expect(selectedItems.nth(1).textContent).contains("item20")
       .expect(popupContainer.visible).ok()
 
       .pressKey("4")
@@ -353,13 +353,13 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
   });

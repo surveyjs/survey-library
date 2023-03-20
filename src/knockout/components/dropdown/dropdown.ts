@@ -23,11 +23,14 @@ ko.components.register("sv-dropdown", {
       const blur = (_: any, e: any) => {
         q.dropdownListModel?.onBlur(e);
       };
+      const focus = (_: any, e: any) => {
+        q.dropdownListModel?.onFocus(e);
+      };
       if (!q.dropdownListModel) {
         q.dropdownListModel = new DropdownListModel(params.question);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus };
     },
   },
   template: template,

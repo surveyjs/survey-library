@@ -28,6 +28,7 @@ export const modernThemeColors: { [key: string]: string } = {
   "$clean-button-color": "#1948b3",
   "$body-background-color": "#ffffff",
   "$foreground-light": "#909090",
+  "$font-family": "Raleway",
 };
 export const defaultThemeColors: { [key: string]: string } = {
   "$header-background-color": "#e7e7e7",

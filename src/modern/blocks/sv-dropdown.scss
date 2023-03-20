@@ -57,12 +57,34 @@
   font-size: inherit;
   color: var(--text-color, $text-color);
   position: relative;
+  .sv-string-viewer {
+      line-height: 28px;
+  }
 }
 
 .sv_dropdown_control__input-field-component {
   height: auto;
 }
 
+.sv-dropdown__hint-prefix {
+  span {
+    word-break: unset;
+    line-height: 28px;
+  }
+
+  opacity: 0.5;
+}
+
+.sv-dropdown__hint-suffix {
+  display: flex;
+
+  span {
+    word-break: unset;
+    line-height: 28px;
+  }
+
+  opacity: 0.5;
+}
 .sv-dropdown_clean-button {
   padding: 3px 12px;
   margin: auto 0;

@@ -17,8 +17,10 @@ export class NotifierComponent extends SurveyElementBase<INotifierComponentProps
   }
 
   renderElement(): JSX.Element | null {
+    const style = { visibility: this.notifier.active ? "visible" : "hidden" } as React.CSSProperties;
+
     return (
-      <div className={this.notifier.css}>
+      <div className={this.notifier.css} style={style}>
         <span>{this.notifier.message}</span>
         <SurveyActionBar model={this.notifier.actionBar}></SurveyActionBar>
       </div>

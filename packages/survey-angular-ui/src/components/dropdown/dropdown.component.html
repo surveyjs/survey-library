@@ -4,20 +4,27 @@
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
+        <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
+            <span>{{ dropdownModel.hintStringPrefix }}</span>
+        </div>
         <div [class]="model.cssClasses.controlValue">
-            <ng-container *ngIf="model.showInputFieldComponent">
+            <div *ngIf="dropdownModel.showHintString" [class]="model.cssClasses.hintSuffix">
+                <span style="visibility: hidden">{{ dropdownModel.inputStringRendered }}</span>
+                <span>{{ dropdownModel.hintStringSuffix }}</span>
+            </div>
+            <ng-container *ngIf="dropdownModel.showInputFieldComponent">
                 <ng-template [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
             </ng-container>
-            <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
-            <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.filterString" [class]="model.cssClasses.filterStringInput"
+            <sv-ng-string *ngIf="dropdownModel.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
+            <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered" [class]="model.cssClasses.filterStringInput"
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
             [attr.inputmode]="dropdownModel.inputMode"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-label]="model.placeholder"
-            [attr.placeholder]="model.readOnlyText" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
-            (change)="inputChange($event)" (blur)="blur($event)" />
+            [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
+            (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="!model.isEmpty()">

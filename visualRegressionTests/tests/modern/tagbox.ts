@@ -21,7 +21,7 @@ frameworks.forEach(async framework => {
 
   test("Check tagbox with multiple rows", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1280, 1100);
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         "elements": [
           {

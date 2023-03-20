@@ -242,7 +242,7 @@
   line-height: calcSize(2);
   color: $foreground-light;
   margin-inline-start: calcSize(-5); // margin-left
-  text-align: right;
+  text-align: end;
   box-sizing: border-box;
   white-space: nowrap;
   flex-shrink: 0;

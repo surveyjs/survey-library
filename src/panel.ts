@@ -1932,16 +1932,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    const isExpandable = this.state !== "default";
-    return new CssClassBuilder()
-      .append(this.cssClasses.panel.title)
-      .append(this.cssClasses.panel.titleNumInline, (this.no || "").length > 3 || isExpandable)
-      .append(this.cssClasses.panel.titleExpandable, isExpandable)
-      .append(this.cssClasses.panel.titleExpanded, this.isExpanded)
-      .append(this.cssClasses.panel.titleCollapsed, this.isCollapsed)
-      .append(this.cssClasses.panel.titleDisabled, this.isReadOnly)
-      .append(this.cssClasses.panel.titleOnError, this.containsErrors)
-      .toString();
+    return this.getCssTitle(this.cssClasses.panel);
   }
   public get cssError(): string {
     return this.getCssError(this.cssClasses);

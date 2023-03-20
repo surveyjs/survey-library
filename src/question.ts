@@ -798,15 +798,8 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssTitle", val);
   }
   protected getCssTitle(cssClasses: any): string {
-    const isExpandable = this.state !== "default";
     return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleNumInline, (this.no || "").length > 3 || isExpandable)
-      .append(cssClasses.titleExpandable, isExpandable)
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }

@@ -20,6 +20,7 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -899,6 +900,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.state !== "default") {
       this.toggleState();
     }
+  }
+  protected getCssTitle(cssClasses: any) {
+    const isExpandable = this.state !== "default";
+    const numInlineLimit = 4;
+    return new CssClassBuilder()
+      .append(cssClasses.title)
+      .append(cssClasses.titleNumInline, ((<any>this).no || "").length > numInlineLimit || isExpandable)
+      .append(cssClasses.titleExpandable, isExpandable)
+      .append(cssClasses.titleExpanded, this.isExpanded)
+      .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isReadOnly)
+      .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public localeChanged() {
     super.localeChanged();

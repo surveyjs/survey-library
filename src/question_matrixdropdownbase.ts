@@ -69,6 +69,11 @@ export interface IMatrixDropdownData {
   getSurvey(): ISurvey;
 }
 
+const columnWidthsByType: {[index: string] : { width?: string, minWidth?: string }} = {
+  "file": { minWidth: "240px" },
+  "comment": { minWidth: "200px" }
+};
+
 export class MatrixDropdownCell {
   private questionValue: Question;
   constructor(
@@ -1430,7 +1435,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.getColumnByName(columnName);
   }
   public getColumnWidth(column: MatrixDropdownColumn): string {
-    return column.minWidth ? column.minWidth : this.columnMinWidth;
+    return column.minWidth ? column.minWidth : this.columnMinWidth ? this.columnMinWidth : (columnWidthsByType[column.cellType]?.minWidth || "");
   }
   /**
    * Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. You can override this property for individual columns.

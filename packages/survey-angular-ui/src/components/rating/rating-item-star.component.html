@@ -5,7 +5,7 @@
       [attr.name]="model.name" [attr.id]="model.getInputId(index)" [value]="item.value" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"
       [disabled]="model.isInputReadOnly" [checked]="model.value === item.value" (click)="onClick($event)"
       />
-      <svg [iconName]="'icon-rating-star'" [size]="auto" [title]="item.text" [class]="'sv-star'" sv-ng-svg-icon></svg>
-      <svg [iconName]="'icon-rating-star-2'" [size]="auto" [title]="item.text" [class]="'sv-star-2'" sv-ng-svg-icon></svg>
+      <svg [iconName]="'icon-rating-star'" [size]="'auto'" [title]="item.text" [class]="'sv-star'" sv-ng-svg-icon></svg>
+      <svg [iconName]="'icon-rating-star-2'" [size]="'auto'" [title]="item.text" [class]="'sv-star-2'" sv-ng-svg-icon></svg>
   </label>
 </ng-template>

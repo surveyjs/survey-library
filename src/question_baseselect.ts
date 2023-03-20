@@ -957,18 +957,21 @@ export class QuestionSelectBase extends Question {
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
         continue;
       }
       var itemsSelected = question.isItemSelected(choices[i]);
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
       }
     }
     if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
       res.push(new ItemValue(question.otherItem.value, question.comment));
     }
     return res;
+  }
+  private copyChoiceItem(item: ItemValue): ItemValue {
+    return new ItemValue(item.value, item.text);
   }
   protected get hasActiveChoices(): boolean {
     var choices = this.visibleChoices;

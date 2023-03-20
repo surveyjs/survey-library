@@ -424,4 +424,18 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-with-indent.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check question with big number", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        questionStartIndex: "1.1.1",
+        questions: [
+          {
+            name: "name",
+            type: "text",
+          }]
+      });
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-with-big-number.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

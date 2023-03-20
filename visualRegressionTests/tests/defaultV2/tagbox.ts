@@ -370,7 +370,7 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
-  test.only("Check overlay popup (table mode) in tagbox question with long items", async (t) => {
+  test("Check overlay popup (table mode) in tagbox question with long items", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(900, 900);
       await ClientFunction(() => {

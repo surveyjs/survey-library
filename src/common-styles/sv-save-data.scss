@@ -30,7 +30,6 @@ $base-unit: var(--base-unit, 8px);
   font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
   line-height: calcSize(3);
-  white-space: nowrap;
 
   display: flex;
   flex-direction: row;
@@ -50,6 +49,19 @@ $base-unit: var(--base-unit, 8px);
   transform: translateX(-50%) translateY(0);
   transition-delay: 0.25s;
   opacity: 0.75;
+}
+
+.sv-save-data_root {
+  span {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .sv-action-bar {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
 }
 .sv-save-data_root--shown.sv-save-data_success,
 .sv-save-data_root--shown.sv-save-data_error {

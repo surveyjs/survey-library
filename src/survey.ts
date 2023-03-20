@@ -6509,11 +6509,12 @@ export class SurveyModel extends SurveyElementCore
     this.timerModel.stop();
   }
   /**
-   * Returns the time in seconds an end user spends on the survey
+   * Gets or set the time in seconds an end user spends on the survey.
    * @see startTimer
    * @see PageModel.timeSpent
    */
   public get timeSpent(): number { return this.timerModel.spent; }
+  public set timeSpent(val: number) { this.timerModel.spent = val; }
   /**
    * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer

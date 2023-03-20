@@ -143,6 +143,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["no"], () => {
+      this.updateQuestionCss();
+    });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
   protected createLocTitleProperty(): LocalizableString {
@@ -796,12 +799,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.state !== "default")
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }

@@ -16582,3 +16582,42 @@ QUnit.test("setStructuredData function", function (assert) {
   survey.setStructuredData({ page1: { q1: 104 } }),
   assert.deepEqual(survey.data, { q1: 104 }, "#5");
 });
+
+QUnit.test("check titleNumInline cssClass", function (assert) {
+  const survey = new SurveyModel({
+    questionStartIndex: "1.1.1",
+    elements: [{
+      type: "panel",
+      name: "p1",
+      title: "panel",
+      showNumber: true,
+      elements: [
+        {
+          type: "html",
+          name: "html"
+        },
+      ]
+    },
+    {
+      type: "text",
+      name: "q1"
+    }
+    ]
+  });
+  const customInlineClass = "custom_inline_class";
+  survey.css = {
+    question: {
+      titleNumInline: customInlineClass
+    },
+    panel: {
+      titleNumInline: customInlineClass
+    }
+  };
+  const question = survey.getQuestionByName("q1");
+  const panel = survey.getPanelByName("p1");
+  assert.ok(question.cssTitle.includes(customInlineClass));
+  assert.ok(panel.cssTitle.includes(customInlineClass));
+  survey.questionStartIndex = "1.1";
+  assert.notOk(question.cssTitle.includes(customInlineClass));
+  assert.notOk(panel.cssTitle.includes(customInlineClass));
+});

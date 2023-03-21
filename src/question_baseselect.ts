@@ -943,9 +943,7 @@ export class QuestionSelectBase extends Question {
     var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
-  protected getChoicesFromQuestion(
-    question: QuestionSelectBase
-  ): Array<ItemValue> {
+  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -1248,7 +1246,9 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].onVisibleChoicesChanged();
+      const q = this.dependedQuestions[i];
+      q.onVisibleChoicesChanged();
+      q.clearIncorrectValuesCore();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }

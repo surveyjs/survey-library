@@ -438,4 +438,29 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-with-big-number.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check question - baseunit", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            name: "q1",
+            type: "text",
+            title: "Question",
+            description: "Description"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-baseunit.png", questionRoot, t, comparer);
+    });
+  });
 });

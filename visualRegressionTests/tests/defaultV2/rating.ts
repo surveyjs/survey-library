@@ -295,5 +295,34 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-rating-stars-selected-disabled.png", questionRoot, t, comparer);
     });
   });
+  test("Check rating stars question - baseunit", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
 
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "stars",
+            displayMode: "buttons",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-baseunit.png", questionRoot, t, comparer);
+    });
+  });
 });

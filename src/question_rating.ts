@@ -328,7 +328,14 @@ export class QuestionRatingModel extends Question {
   }
 
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
+    let isSelected = this.value == item.value;
+    if (this.isStar) {
+      if (this.rateValues.length == 0) {
+        isSelected = this.value >= item.value;
+      } else {
+        isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
+      }
+    }
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
     const renderedItem = this.renderedRateItems.filter(i => i.itemValue == item)[0];

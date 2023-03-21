@@ -2,6 +2,7 @@
   <li
     tabindex="0"
     role="option"
+    id="model.elementId"
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
     :key="item.id"

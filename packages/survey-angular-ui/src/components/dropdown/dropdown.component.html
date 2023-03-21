@@ -3,7 +3,10 @@
         [attr.disabled]="model.isInputReadOnly ? true : null" (click)="click($event)" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole">
+        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
+        [attr.aria-controls]="dropdownModel.listElementId"
+        [attr.aria-expanded]="model.ariaExpanded ? 'true' : 'false'"
+        [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
         <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
             <span>{{ dropdownModel.hintStringPrefix }}</span>
         </div>
@@ -23,6 +26,9 @@
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-label]="model.placeholder"
+            [attr.aria-controls]="dropdownModel.listElementId"
+            [attr.aria-expanded]="model.ariaExpanded ? 'true' : 'false'"
+            [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
             [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>

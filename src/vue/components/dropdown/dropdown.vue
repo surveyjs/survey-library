@@ -14,6 +14,9 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
+      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-controls="model.listElementId"
+      :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired"
     >
       <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
@@ -48,6 +51,9 @@
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
       :aria-label="question.placeholder"
+      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-controls="model.listElementId"
+      :aria-activedescendant="model.ariaActivedescendant"
       :placeholder="model.placeholderRendered"
       @input="inputChange"
       @blur="blur"

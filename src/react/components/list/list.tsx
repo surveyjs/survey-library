@@ -57,6 +57,7 @@ export class List extends SurveyElementBase<IListProps, any> {
         className={this.model.cssClasses.itemsContainer}
         style={ulStyle as any}
         role="listbox"
+        id={this.model.elementId}
         onMouseDown={(e) => {
           e.preventDefault();
         }}

@@ -144,7 +144,7 @@ export class DropdownListModel extends Base {
         this._popupModel.toggleVisibility();
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
     res.renderElements = false;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
@@ -204,6 +204,7 @@ export class DropdownListModel extends Base {
 
   @property({}) showSelectedItemLocText: boolean;
   @property({}) showInputFieldComponent: boolean;
+  @property() ariaActivedescendant: string;
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
@@ -237,6 +238,10 @@ export class DropdownListModel extends Base {
 
   public get placeholderRendered() {
     return this.hintString ? "" : this.question.readOnlyText;
+  }
+
+  public get listElementId(): string {
+    return this.question.inputId + "_list";
   }
 
   @property({
@@ -354,6 +359,8 @@ export class DropdownListModel extends Base {
     else {
       this.applyHintString(this.listModel.focusedItem);
     }
+
+    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 
   keyHandler(event: any): void {

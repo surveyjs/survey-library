@@ -129,6 +129,7 @@ export interface IAction {
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
   ariaRole?: string;
+  elementId?: string;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {

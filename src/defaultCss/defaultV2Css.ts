@@ -48,6 +48,7 @@ export var defaultV2Css = {
     edit: "",
   },
   panel: {
+    asPage: "sd-panel--as-page",
     number: "sd-element__num",
     title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
@@ -72,6 +73,7 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
+    pageRow: "sd-page__row",
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",

@@ -7,6 +7,25 @@
     row-gap: 0;
   }
 }
+.sd-panel.sd-panel--as-page {
+  .sd-panel__header.sd-panel__header {
+    padding-top: 0;
+    padding-bottom: 0;
+    &:after {
+      content: none;
+    }
+  }
+  .sd-panel__title {
+    @include page_title();
+    span {
+      font-size: inherit;
+      line-height: inherit;
+    }
+  }
+  .sd-panel__description {
+    @include page_description();
+  }
+}
 .sd-panel__required-text {
   color: $red;
 }

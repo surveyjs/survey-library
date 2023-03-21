@@ -771,11 +771,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && !(<any>this.parent).originalPage) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
-  protected get hasFrameV2() {
+  protected getHasFrameV2() : boolean {
     return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
+  }
+  protected get hasFrameV2(): boolean {
+    return this.getHasFrameV2();
   }
 
   /**

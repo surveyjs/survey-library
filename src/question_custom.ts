@@ -131,7 +131,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * A function that is called when the question value is changed.
+   * A function that is called after the question value is changed.
    *
    * Parameters:
    *
@@ -144,8 +144,9 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
-   * A function that is called before a question value is changed. It returns a new value. If you want to change a new value you can return your own value
-   * If function returns undefined the question value will be cleared.
+   * A function that is called before a question value is changed.
+   *
+   * This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
    *
    * Parameters:
    *

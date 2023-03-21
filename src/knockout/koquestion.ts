@@ -93,7 +93,7 @@ export class QuestionImplementor extends ImplementorBase {
     return this.question.getTemplate();
   }
   private getTemplateName(): string {
-    if (
+    if (!!this.question &&
       this.question.customWidget &&
       !this.question.customWidget.widgetJson.isDefaultRender
     )
@@ -116,12 +116,12 @@ export class QuestionImplementor extends ImplementorBase {
       var el = SurveyElement.GetFirstNonTextElement(elements, true);
       if (!!el) {
         this.question.afterRenderQuestionElement(el);
-        if (!!this.question.customWidget) {
+        if (!!this.question && !!this.question.customWidget) {
           this.question.customWidget.afterRender(this.question, el);
         }
         ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
           this.question.beforeDestroyQuestionElement(el);
-          if (!!this.question.customWidget) {
+          if (!!this.question && !!this.question.customWidget) {
             try {
               this.question.customWidget.willUnmount(this.question, el);
             } catch {

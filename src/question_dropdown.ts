@@ -98,7 +98,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     } else if(!selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return this.lastSelectedItemValue || selectedItemValues || new ItemValue(this.value);
+    return this.lastSelectedItemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
   }
   supportGoNextPageAutomatic() {
     return true;

@@ -419,7 +419,26 @@ frameworks.forEach(framework => {
                 "maxLength": 15
               }
             ]
-          }, {
+          }]
+      });
+
+      await takeElementScreenshot("question-text-remaining-character-counter.png", Selector(".sd-text__content"), t, comparer);
+
+      await t.pressKey("tab");
+
+      await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-multipletext-remaining-character-counter.png", Selector(".sd-multipletext__content"), t, comparer);
+    });
+  });
+
+  test("Remaining character counter matrixdynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        questions: [
+          {
             "type": "matrixdynamic",
             "name": "relatives",
             "title": "Please enter all blood relatives you know",
@@ -521,19 +540,11 @@ frameworks.forEach(framework => {
           }]
       });
 
-      await takeElementScreenshot("question-text-remaining-character-counter.png", Selector(".sd-text__content"), t, comparer);
-
-      await t.pressKey("tab");
-
-      await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
-
-      await t.pressKey("tab");
-      await takeElementScreenshot("question-multipletext-remaining-character-counter.png", Selector(".sd-multipletext__content"), t, comparer);
-
-      await t.pressKey("tab tab tab tab");
+      await t.pressKey("tab tab");
       await takeElementScreenshot("question-matrixdynamic-remaining-character-counter.png", Selector(".sd-matrixdynamic__content"), t, comparer);
     });
   });
+
   test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {

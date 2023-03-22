@@ -5192,6 +5192,38 @@ QUnit.test(
     );
   }
 );
+QUnit.test("choicesFromQuestion clear dropdown value on unselect in checkbox, Bug#5833", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3]
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+      {
+        type: "tagbox",
+        name: "q3",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionTagboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2];
+  q2.value = 1;
+  q3.value = [1, 2];
+  q1.value = [2, 3];
+  assert.equal(q2.isEmpty(), true, "Value is cleared in dropdown");
+  assert.deepEqual(q3.value, [2], "One item is cleared in tagbox");
+});
 QUnit.test(
   "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
   function (assert) {

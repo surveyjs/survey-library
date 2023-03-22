@@ -25,7 +25,7 @@
       v-bind:class="model.cssClasses.itemsContainer"
       v-show="!model.isEmpty"
       role="listbox"
-      id="model.elementId"
+      :id="model.elementId"
       @mousedown="
         (event) => {
           event.preventDefault();

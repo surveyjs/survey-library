@@ -11,10 +11,11 @@ export interface MarkupTestDescriptor {
   etalon?: string;
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
+  getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
   timeout?: number;
 }
 
-export var markupTests: Array<MarkupTestDescriptor> = [];
+export var markupTests: Array<MarkupTestDescriptor> = []; //
 
 export function registerMarkupTest(t: MarkupTestDescriptor): void {
   markupTests.push(t);
@@ -134,7 +135,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(() => {
-      const htmlElement = options.htmlElement;
+      let htmlElement = options.htmlElement;
+      if(!!test.getElement) {
+        htmlElement = test.getElement(options.htmlElement);
+      }
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
         clearAttributes(all[i], test.removeIds);

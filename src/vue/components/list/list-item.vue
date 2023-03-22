@@ -2,8 +2,8 @@
   <li
     tabindex="0"
     role="option"
-    id="model.elementId"
-    :aria-selected="model.isItemSelected(item)"
+    :id="item.elementId"
+    :aria-selected="model.isItemSelected(item) ? 'true' : 'false'"
     v-show="model.isItemVisible(item)"
     :key="item.id"
     v-bind:class="model.getItemClass(item)"

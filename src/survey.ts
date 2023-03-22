@@ -3138,8 +3138,10 @@ export class SurveyModel extends SurveyElementCore
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
-    this._isDesignMode = value;
-    this.onQuestionsOnPageModeChanged("standard");
+    if(!!this._isDesignMode != !!value) {
+      this._isDesignMode = !!value;
+      this.onQuestionsOnPageModeChanged("standard");
+    }
   }
   /**
    * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.

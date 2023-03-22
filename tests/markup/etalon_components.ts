@@ -1,4 +1,5 @@
 import { registerMarkupTests } from "./helper";
+import { Question } from "survey-core";
 
 registerMarkupTests(
   [
@@ -19,6 +20,7 @@ registerMarkupTests(
           }
         ]
       },
+      before: () => { Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["dropdownListModel"].listModel.renderElements = true;

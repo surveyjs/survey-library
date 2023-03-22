@@ -1,5 +1,5 @@
 <ng-template #template>
-  <li role="option" [key2click] [visible]="listModel.isItemVisible(model)" [class]="class" [attr.id]="elementId" [attr.aria-selected]="ariaSelected" (click)="click($event)" (pointerdown)="pointerdown($event)">
+  <li role="option" [key2click] [visible]="listModel.isItemVisible(model)" [class]="class" [attr.id]="elementId" [attr.aria-selected]="ariaSelected ? 'true' : 'false'" (click)="click($event)" (pointerdown)="pointerdown($event)">
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>

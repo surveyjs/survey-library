@@ -396,4 +396,35 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("panel-with-number.png", panelRoot, t, comparer);
     });
   });
+  test("Check panel with singlePage mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await t.debug();
+      await initSurvey(framework, {
+        questionsOnPageMode: "singlePage",
+        pages: [
+          {
+            title: "Page title",
+            description: "Page description",
+            elements: [{
+              name: "username",
+              type: "text",
+              title: "Username",
+            }, {
+              name: "email",
+              type: "text",
+              title: "E-mail address"
+            }, {
+              name: "password",
+              type: "text",
+              title: "Password"
+            }]
+          }]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await t.debug();
+      await takeElementScreenshot("panel-single-page.png", panelRoot, t, comparer);
+    });
+  });
 });

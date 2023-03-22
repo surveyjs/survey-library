@@ -16621,3 +16621,16 @@ QUnit.test("check titleNumInline cssClass", function (assert) {
   assert.notOk(question.cssTitle.includes(customInlineClass));
   assert.notOk(panel.cssTitle.includes(customInlineClass));
 });
+
+QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.isSinglePage = true;
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().filter(p => p.isPanel).length, 2, "We should have 2 panels");
+  survey.setDesignMode(false);
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().filter(p => p.isPanel).length, 2, "We should have 2 panels");
+  survey.setDesignMode(true);
+  assert.equal(survey.pages.length, 2, "We should have 2 pages");
+  assert.equal(survey.getAllPanels().filter(p => p.isPanel).length, 0, "We should have 0 panels");
+});

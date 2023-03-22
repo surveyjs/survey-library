@@ -21,7 +21,7 @@ registerMarkupTests(
       },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
-        dropdown.dropdownListModel.listModel.renderElements = true;
+        dropdown["dropdownListModel"].listModel.renderElements = true;
       },
       getElement: () => {
         return document.querySelector(".sv-popup.sv-dropdown-popup") as HTMLElement;

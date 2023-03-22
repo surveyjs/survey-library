@@ -774,11 +774,24 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return (this.parent && !this.parent.isPage && !(<any>this.parent).originalPage) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
-  protected getHasFrameV2() : boolean {
-    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
+
+  private shouldAddRunnerStyles(): boolean {
+    return !this.isDesignMode && this.isDefaultV2Theme;
   }
-  protected get hasFrameV2(): boolean {
-    return this.getHasFrameV2();
+
+  protected getHasFrameV2() : boolean {
+    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+  }
+  protected getIsNested(): boolean {
+    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    return new CssClassBuilder()
+      .append(cssClasses.withFrame, this.getHasFrameV2())
+      .append(cssClasses.collapsed, !!this.isCollapsed)
+      .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.nested, this.getIsNested())
+      .toString();
   }
 
   /**

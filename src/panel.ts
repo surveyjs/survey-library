@@ -249,7 +249,7 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (<any>this.panel).originalPage)
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || !!(<any>this.panel).originalPage)
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
@@ -1963,15 +1963,20 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected getHasFrameV2(): boolean {
     return super.getHasFrameV2() && !(<any>this).originalPage;
   }
-  public getContainerCss() {
-    return new CssClassBuilder().append(this.cssClasses.panel.container)
-      .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
-      .append(this.cssClasses.panel.asPage, !!(<any>this).originalPage)
-      .append(this.cssClasses.panel.nested, !!((this.parent && this.parent.isPanel || !this.isSingleInRow) && !this.isDesignMode))
-      .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
-      .append(this.cssClasses.panel.expanded, !!this.isExpanded)
-      .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
+  protected getIsNested(): boolean {
+    return super.getIsNested() && this.parent !== undefined;
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    var original = super.getCssRoot(cssClasses);
+    return new CssClassBuilder()
+      .append(original)
+      .append(cssClasses.container)
+      .append(cssClasses.asPage, !!(<any>this).originalPage)
+      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
+  }
+  public getContainerCss() {
+    return this.getCssRoot(this.cssClasses.panel);
   }
 }
 

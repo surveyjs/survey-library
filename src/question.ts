@@ -747,8 +747,9 @@ export class Question extends SurveyElement<Question>
   protected setCssRoot(val: string): void {
     this.setPropertyValue("cssRoot", val);
   }
-  protected getCssRoot(cssClasses: any): string {
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
@@ -756,10 +757,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.expanded, !!this.isExpanded)
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.withFrame, this.hasFrameV2)
-      .append(cssClasses.nested, (this.hasParent || !this.isSingleInRow) && this.isDefaultV2Theme)
       .toString();
   }
   public get cssHeader(): string {

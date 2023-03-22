@@ -73,7 +73,6 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
-    pageRow: "sd-page__row",
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",

@@ -729,7 +729,7 @@ export class QuestionSelectBase extends Question {
    * @see showNoneItem
    * @see showOtherItem
    */
-  @property({ defaultValue: false }) separateSpecialChoices: boolean;
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem

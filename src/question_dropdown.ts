@@ -213,7 +213,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property() choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled

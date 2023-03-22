@@ -292,6 +292,7 @@ export var defaultV2Css = {
     itemLabelOnError: "sd-multipletext__item-container--error",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
+    content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
     cell: "sd-multipletext__cell"
   },
@@ -404,6 +405,7 @@ export var defaultV2Css = {
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     tableWrapper: "sd-table-wrapper",
+    content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",
     row: "sd-table__row",
     itemCell: "sd-table__cell--item",

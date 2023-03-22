@@ -284,7 +284,6 @@ export class Question extends SurveyElement<Question>
    * You can use question values as placeholders in the following places:
    *
    * - Survey element titles and descriptions
-   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
    * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
    *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).

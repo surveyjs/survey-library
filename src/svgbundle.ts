@@ -63,5 +63,7 @@ export class SvgIconRegistry {
 export var SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export var SvgBundleViewModel: any;
 const path = (<any>require).context("./images", false, /\.svg$/);
+const pathSmiley = (<any>require).context("./images/smiley", false, /\.svg$/);
 
 SvgRegistry.registerIconsFromFolder(path);
+SvgRegistry.registerIconsFromFolder(pathSmiley);

@@ -456,3 +456,94 @@ QUnit.test("check stars for rateValues", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled", "item[3] is disabled not selected");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled", "item[4] is disabled not selected");
 });
+
+QUnit.test("check smileys for rateValues", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateType": "stars",
+        "rateValues": [
+          "not_much",
+          "a_little_bit",
+          "somewhat",
+          "a_lot",
+          "completely"
+        ]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.rateMin = 200;
+  q1.rateMax = 300;
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "average");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3].itemValue), "good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4].itemValue), "very-good");
+});
+
+QUnit.test("check smileys for min/max", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateType": "stars"
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.rateMin = 2;
+  q1.rateMax = 3;
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "very-good");
+
+  q1.rateMin = 0;
+  q1.rateMax = 2;
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "very-good");
+
+  q1.rateMin = 1;
+  q1.rateMax = 5;
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "average");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3].itemValue), "good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4].itemValue), "very-good");
+});
+
+QUnit.test("check smileys styles", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "smileys",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemSmiley = "";
+  q1.cssClasses.itemSmileySelected = "sv_q_selected";
+  q1.cssClasses.itemSmileyDisabled = "sv_q_disabled";
+  q1.cssClasses.itemSmileyHover = "sv_q_allowhover";
+  q1.value = 2;
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_allowhover");
+
+  survey.mode = "display";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
+});

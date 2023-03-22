@@ -399,7 +399,6 @@ frameworks.forEach(framework => {
   test("Check panel with singlePage mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await t.debug();
       await initSurvey(framework, {
         questionsOnPageMode: "singlePage",
         pages: [
@@ -423,7 +422,6 @@ frameworks.forEach(framework => {
       });
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
-      await t.debug();
       await takeElementScreenshot("panel-single-page.png", panelRoot, t, comparer);
     });
   });

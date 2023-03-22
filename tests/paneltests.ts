@@ -1823,3 +1823,57 @@ QUnit.test("Check panel styles with originalPage", function(assert) {
   assert.ok(question2["getIsNested"]());
   assert.notOk(question2["getHasFrameV2"]());
 });
+
+QUnit.test("Check panel styles with originalPage and showPreview", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "panel",
+        title: "title",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "panel",
+            name: "innerPanel",
+            elements: [
+              {
+                type: "text",
+                name: "q2",
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.css = {
+    root: "sd-root-modern",
+    pageRow: "page_row"
+  };
+  survey.showPreview();
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  const innerPanel = <PanelModel>survey.getPanelByName("innerPanel");
+  const question = survey.getQuestionByName("q1");
+  const question2 = survey.getQuestionByName("q2");
+  //check panels styles
+
+  assert.notOk(panel["getIsNested"]());
+  assert.ok(panel["getHasFrameV2"]());
+
+  assert.ok(innerPanel["getIsNested"]());
+  assert.notOk(innerPanel["getHasFrameV2"]());
+
+  assert.notOk(panel.rows[0].getRowCss().includes("page_row"));
+  assert.notOk(innerPanel.rows[0].getRowCss().includes("page_row"));
+
+  // // //check questions styles
+
+  assert.ok(question["getIsNested"]());
+  assert.notOk(question["getHasFrameV2"]());
+
+  assert.ok(question2["getIsNested"]());
+  assert.notOk(question2["getHasFrameV2"]());
+});

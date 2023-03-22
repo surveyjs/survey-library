@@ -249,7 +249,7 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage || !!(<any>this.panel).originalPage)
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage && !(<any>this.panel.survey).isShowingPreview))
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
@@ -1961,17 +1961,16 @@ export class PanelModel extends PanelModelBase implements IElement {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
   protected getHasFrameV2(): boolean {
-    return super.getHasFrameV2() && !(<any>this).originalPage;
+    return super.getHasFrameV2() && (!(<any>this).originalPage || (<any>this.survey).isShowingPreview);
   }
   protected getIsNested(): boolean {
     return super.getIsNested() && this.parent !== undefined;
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
-    var original = super.getCssRoot(cssClasses);
     return new CssClassBuilder()
-      .append(original)
+      .append(super.getCssRoot(cssClasses))
       .append(cssClasses.container)
-      .append(cssClasses.asPage, !!(<any>this).originalPage)
+      .append(cssClasses.asPage, !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview)
       .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

@@ -81,7 +81,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see rowsVisibleIf
    */
   public get hideIfRowsEmpty(): boolean {
-    return this.getPropertyValue("hideIfRowsEmpty", false);
+    return this.getPropertyValue("hideIfRowsEmpty");
   }
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);

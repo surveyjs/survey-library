@@ -300,7 +300,7 @@ export class MatrixDropdownColumn extends Base
     this.setPropertyValue("isUnique", val);
   }
   public get showInMultipleColumns(): boolean {
-    return this.getPropertyValue("showInMultipleColumns", false);
+    return this.getPropertyValue("showInMultipleColumns");
   }
   public set showInMultipleColumns(val: boolean) {
     this.setPropertyValue("showInMultipleColumns", val);

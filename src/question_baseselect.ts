@@ -165,7 +165,7 @@ export class QuestionSelectBase extends Question {
    * @see noneText
    */
   public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem", false);
+    return this.getPropertyValue("showNoneItem");
   }
   public set showNoneItem(val: boolean) {
     this.setPropertyValue("showNoneItem", val);

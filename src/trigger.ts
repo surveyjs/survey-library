@@ -342,7 +342,7 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.setPropertyValue("setValue", val);
   }
   public get isVariable(): boolean {
-    return this.getPropertyValue("isVariable", false);
+    return this.getPropertyValue("isVariable");
   }
   public set isVariable(val: boolean) {
     this.setPropertyValue("isVariable", val);

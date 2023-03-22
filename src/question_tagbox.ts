@@ -42,7 +42,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: true }) allowClear: boolean;
+  @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */

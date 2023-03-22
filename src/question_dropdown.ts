@@ -193,12 +193,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: true }) allowClear: boolean;
+  @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
-    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.dropdownListModel) {
         target.dropdownListModel.setSearchEnabled(newValue);

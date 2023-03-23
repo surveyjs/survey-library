@@ -395,21 +395,156 @@ frameworks.forEach(framework => {
             type: "text",
             maxLength: 10,
             defaultValue: "Test"
-          },
-          {
+          }, {
             name: "comment",
             type: "comment",
             maxLength: 10,
             defaultValue: "Test"
+          },
+          {
+            "type": "multipletext",
+            "name": "question1",
+            "validators": [
+              {
+                "type": "expression"
+              }
+            ],
+            "items": [
+              {
+                "name": "text1",
+                "maxLength": 10
+              },
+              {
+                "name": "text2",
+                "maxLength": 15
+              }
+            ]
           }]
       });
 
       await takeElementScreenshot("question-text-remaining-character-counter.png", Selector(".sd-text__content"), t, comparer);
 
       await t.pressKey("tab");
+
       await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-comment__content"), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-multipletext-remaining-character-counter.png", Selector(".sd-multipletext__content"), t, comparer);
     });
   });
+
+  test("Remaining character counter matrixdynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        questions: [
+          {
+            "type": "matrixdynamic",
+            "name": "relatives",
+            "title": "Please enter all blood relatives you know",
+            "columns": [
+              {
+                "name": "relativeType",
+                "title": "Relative",
+                "cellType": "dropdown",
+                "isRequired": true,
+                "choices": [
+                  "father",
+                  "mother",
+                  "brother",
+                  "sister",
+                  "son",
+                  "daughter"
+                ]
+              },
+              {
+                "name": "firstName",
+                "title": "First name",
+                "cellType": "text",
+                "isRequired": true,
+                "maxLength": 25
+              },
+              {
+                "name": "lastName",
+                "title": "Last name",
+                "cellType": "text",
+                "isRequired": true,
+                "maxLength": 25
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "radiogroup",
+                "name": "isalive",
+                "startWithNewLine": false,
+                "title": "Alive?",
+                "isRequired": true,
+                "choices": [
+                  "Yes",
+                  "No"
+                ],
+                "colCount": 0
+              },
+              {
+                "type": "dropdown",
+                "name": "liveage",
+                "visibleIf": "{row.isalive} = 'Yes'",
+                "startWithNewLine": false,
+                "title": "Age",
+                "isRequired": true,
+                "choicesMin": 1,
+                "choicesMax": 115
+              },
+              {
+                "type": "dropdown",
+                "name": "deceasedage",
+                "visibleIf": "{row.isalive} = 'No'",
+                "startWithNewLine": false,
+                "title": "Deceased Age",
+                "isRequired": true,
+                "choices": [
+                  {
+                    "value": -1,
+                    "text": "Unknown"
+                  }
+                ],
+                "choicesMin": 1,
+                "choicesMax": 115
+              },
+              {
+                "type": "radiogroup",
+                "name": "causeofdeathknown",
+                "visibleIf": "{row.isalive} = 'No'",
+                "startWithNewLine": false,
+                "title": "Cause of Death Known?",
+                "isRequired": true,
+                "choices": [
+                  "Yes",
+                  "No"
+                ],
+                "colCount": 0
+              },
+              {
+                "type": "text",
+                "name": "causeofdeath",
+                "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'",
+                "startWithNewLine": false,
+                "title": "Cause of Death",
+                "isRequired": true
+              }
+            ],
+            "detailPanelMode": "underRow",
+            "rowCount": 1,
+            "addRowText": "Add a blood relative",
+            "removeRowText": "Remove the relative"
+          }]
+      });
+
+      await t.pressKey("tab tab");
+      await takeElementScreenshot("question-matrixdynamic-remaining-character-counter.png", Selector(".sd-matrixdynamic__content"), t, comparer);
+    });
+  });
+
   test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {

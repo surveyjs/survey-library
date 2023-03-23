@@ -693,7 +693,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
@@ -1736,7 +1736,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see SurveyModel.questionTitlePattern
    */
   public get showNumber(): boolean {
-    return this.getPropertyValue("showNumber", false);
+    return this.getPropertyValue("showNumber");
   }
   public set showNumber(val: boolean) {
     this.setPropertyValue("showNumber", val);

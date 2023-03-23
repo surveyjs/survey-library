@@ -317,7 +317,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   /**
    * Specifies whether to apply shading to alternate matrix rows.
    */
-  @property({ defaultValue: false }) alternateRows: boolean;
+  @property() alternateRows: boolean;
 
   /**
    * Minimum column width in CSS values.

@@ -1080,7 +1080,7 @@ export class SurveyModel extends SurveyElementCore
       .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
-  @property({ defaultValue: false }) showBrandInfo: boolean;
+  @property() showBrandInfo: boolean;
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
@@ -1182,7 +1182,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
    */
   public get sendResultOnPageNext(): boolean {
-    return this.getPropertyValue("sendResultOnPageNext", false);
+    return this.getPropertyValue("sendResultOnPageNext");
   }
   public set sendResultOnPageNext(val: boolean) {
     this.setPropertyValue("sendResultOnPageNext", val);
@@ -1192,7 +1192,7 @@ export class SurveyModel extends SurveyElementCore
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
-    return this.getPropertyValue("surveyShowDataSaving", false);
+    return this.getPropertyValue("surveyShowDataSaving");
   }
   public set surveyShowDataSaving(val: boolean) {
     this.setPropertyValue("surveyShowDataSaving", val);
@@ -1459,7 +1459,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-autonextpage/ (linkStyle))
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
-    return this.getPropertyValue("goNextPageAutomatic", false);
+    return this.getPropertyValue("goNextPageAutomatic");
   }
   public set goNextPageAutomatic(val: boolean | "autogonext") {
     this.setPropertyValue("goNextPageAutomatic", val);
@@ -1587,7 +1587,7 @@ export class SurveyModel extends SurveyElementCore
    * @see clearIncorrectValues
    */
   public get keepIncorrectValues(): boolean {
-    return this.getPropertyValue("keepIncorrectValues", false);
+    return this.getPropertyValue("keepIncorrectValues");
   }
   public set keepIncorrectValues(val: boolean) {
     this.setPropertyValue("keepIncorrectValues", val);
@@ -2216,7 +2216,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
-    return this.getPropertyValue("showPageNumbers", false);
+    return this.getPropertyValue("showPageNumbers");
   }
   public set showPageNumbers(value: boolean) {
     if (value === this.showPageNumbers) return;
@@ -3664,7 +3664,7 @@ export class SurveyModel extends SurveyElementCore
    * An end user cannot navigate to the start page and the start page does not affect a survey progress.
    */
   public get firstPageIsStarted(): boolean {
-    return this.getPropertyValue("firstPageIsStarted", false);
+    return this.getPropertyValue("firstPageIsStarted");
   }
   public set firstPageIsStarted(val: boolean) {
     this.setPropertyValue("firstPageIsStarted", val);

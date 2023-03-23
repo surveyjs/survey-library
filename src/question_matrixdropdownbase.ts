@@ -1148,7 +1148,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("columnColCount", value);
   }
   public get horizontalScroll(): boolean {
-    return this.getPropertyValue("horizontalScroll", false);
+    return this.getPropertyValue("horizontalScroll");
   }
   public set horizontalScroll(val: boolean) {
     this.setPropertyValue("horizontalScroll", val);

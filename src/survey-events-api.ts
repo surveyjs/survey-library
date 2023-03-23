@@ -342,6 +342,10 @@ export interface ProcessHtmlEvent {
    * an HTML that you may change before text processing and then rendering. specifies the modified HTML content
    */
   html: string;
+  /**
+   * a possible reason of processing html. It could be "completed", "completed-before", "loading", "html-question" or empty string if there is no reason is set.
+   */
+  reason: string;
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**

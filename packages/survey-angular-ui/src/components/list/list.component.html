@@ -15,7 +15,7 @@
         <div [class]="model.cssClasses.emptyContainer" [visible]="model.isEmpty">
             <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
-        <ul *ngIf="model.renderElements" [class]="model.cssClasses.itemsContainer" role="listbox" [visible]="!model.isEmpty" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">
+        <ul *ngIf="model.renderElements" [class]="model.cssClasses.itemsContainer" role="listbox" [attr.id]="model.elementId" [visible]="!model.isEmpty" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">
             <sv-ng-list-item *ngFor="let item of model.renderedActions; trackBy: trackItemBy" [listModel]="model" [model]="item"></sv-ng-list-item>
             <!--ko foreach: model.renderedActions -->
             <!-- ko component: { name: 'sv-list-item', params: { item: $data, model: $parent.model } } -->

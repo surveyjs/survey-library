@@ -116,6 +116,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
+  public get ariaExpanded(): boolean {
+    return this.popupModel.isVisible;
+  }
 
   public getControlClass(): string {
     return new CssClassBuilder()

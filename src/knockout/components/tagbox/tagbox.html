@@ -12,7 +12,10 @@
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 
-      'aria-describedby': question.ariaDescribedBy 
+      'aria-describedby': question.ariaDescribedBy,
+      'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+      'aria-controls': model.listElementId,
+      'aria-activedescendant': model.ariaActivedescendant, 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
       <!-- ko foreach: question.selectedChoices -->
@@ -27,6 +30,9 @@
         id: question.getInputId(), 
         role: model.filterStringEnabled ? question.ariaRole : undefined,
         'aria-label': question.placeholder,
+        'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+        'aria-controls': model.listElementId,
+        'aria-activedescendant': model.ariaActivedescendant,
         placeholder: model.filterStringPlaceholder, 
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 

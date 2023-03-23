@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, Input } from "@angular/core";
-import { ListModel, Action } from "survey-core";
+import { ListModel, Action, IAction } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -13,6 +13,10 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   @Input() element: any;
   @Input() model!: Action;
   @Input() listModel!: ListModel;
+
+  get elementId() {
+    return (this.model as IAction)?.elementId;
+  }
 
   get ariaSelected(): boolean | string {
     return this.listModel.isItemSelected(this.model) || "";

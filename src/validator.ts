@@ -347,6 +347,7 @@ export class AnswerCountValidator extends SurveyValidator {
 }
 /**
  * Use it to validate the text by regular expressions.
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class RegexValidator extends SurveyValidator {
   constructor(regex: string = null) {

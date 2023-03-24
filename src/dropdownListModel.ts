@@ -199,6 +199,7 @@ export class DropdownListModel extends Base {
     defaultValue: "",
     onSet: (newValue, target: DropdownListModel) => {
       target.question.inputHasValue = !!newValue;
+      target.showSelectedItemLocText = target.question.showSelectedItemLocText;
     }
   }) inputString: string;
 
@@ -227,11 +228,11 @@ export class DropdownListModel extends Base {
   }
 
   public get inputStringRendered() {
-    return this.getPropertyValue("inputString") || "";
+    return this.inputString || "";
   }
 
   public set inputStringRendered(val: string) {
-    this.setPropertyValue("inputString", val);
+    this.inputString = val;
     this.filterString = val;
     this.applyHintString(this.listModel.focusedItem);
   }
@@ -430,6 +431,7 @@ export class DropdownListModel extends Base {
     this.hintString = "";
     doKey2ClickBlur(event);
     this._popupModel.isVisible = false;
+    event.stopPropagation();
   }
   onFocus(event: any): void {
     if (this.question.searchEnabled) {

@@ -240,7 +240,7 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage)
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage && !(<any>this.panel.survey).isShowingPreview))
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
@@ -452,9 +452,12 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowMultiple: "" };
+    var classes = { panel: {}, error: {}, row: "", rowMultiple: "", pageRow: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
+    if (!!css.pageRow) {
+      classes.pageRow = css.pageRow;
+    }
     if (!!css.row) {
       classes.row = css.row;
     }
@@ -685,7 +688,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
@@ -1545,7 +1548,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see SurveyModel.questionTitlePattern
    */
   public get showNumber(): boolean {
-    return this.getPropertyValue("showNumber", false);
+    return this.getPropertyValue("showNumber");
   }
   public set showNumber(val: boolean) {
     this.setPropertyValue("showNumber", val);
@@ -1769,14 +1772,22 @@ export class PanelModel extends PanelModelBase implements IElement {
     if(!this.survey) return;
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
-  public getContainerCss() {
-    return new CssClassBuilder().append(this.cssClasses.panel.container)
-      .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
-      .append(this.cssClasses.panel.nested, !!((this.parent && this.parent.isPanel || !this.isSingleInRow) && !this.isDesignMode))
-      .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
-      .append(this.cssClasses.panel.expanded, !!this.isExpanded)
-      .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
+  protected getHasFrameV2(): boolean {
+    return super.getHasFrameV2() && (!(<any>this).originalPage || (<any>this.survey).isShowingPreview);
+  }
+  protected getIsNested(): boolean {
+    return super.getIsNested() && this.parent !== undefined;
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
+      .append(cssClasses.container)
+      .append(cssClasses.asPage, !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview)
+      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
+  }
+  public getContainerCss() {
+    return this.getCssRoot(this.cssClasses.panel);
   }
 }
 

@@ -2,7 +2,8 @@
   <li
     tabindex="0"
     role="option"
-    :aria-selected="model.isItemSelected(item)"
+    :id="elementId"
+    :aria-selected="model.isItemSelected(item) ? 'true' : 'false'"
     v-show="model.isItemVisible(item)"
     :key="item.id"
     v-bind:class="model.getItemClass(item)"
@@ -33,7 +34,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base, ListModel, Action } from "survey-core";
+import { Base, ListModel, Action, IAction } from "survey-core";
 import { BaseVue, attachKey2click } from "../../base";
 
 export * from "./list.vue";
@@ -47,6 +48,9 @@ export class ListItem extends BaseVue {
   }
   getModel() {
     return this.item;
+  }
+  get elementId() {
+    return (this.item as IAction)?.elementId;
   }
   public keyUp(event: any) {
     attachKey2click(event);

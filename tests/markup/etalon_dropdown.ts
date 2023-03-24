@@ -308,6 +308,7 @@ registerMarkupTests(
         survey.getQuestionByName("name")["popupModel"];
         survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
       },
+      timeout: 300,
       snapshot: "dropdown-input-string",
     },
   ]

@@ -12,7 +12,10 @@
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 
-      'aria-describedby': question.ariaDescribedBy 
+      'aria-describedby': question.ariaDescribedBy,
+      'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+      'aria-controls': model.listElementId,
+      'aria-activedescendant': model.ariaActivedescendant,
     },">
     <!-- ko if: model.showHintPrefix -->
     <div data-bind="css: question.koCss().hintPrefix">
@@ -38,7 +41,10 @@
       textInput: model.inputStringRendered, 
       css: question.cssClasses.filterStringInput, 
       attr: { 
-        'aria-label': question.placeholder, 
+        'aria-label': question.placeholder,
+        'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+        'aria-controls': model.listElementId,
+        'aria-activedescendant': model.ariaActivedescendant,
         placeholder: model.placeholderRendered, 
         readonly: !model.searchEnabled, 
         role: model.filterStringEnabled ? question.ariaRole : undefined,

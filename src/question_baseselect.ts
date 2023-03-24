@@ -165,7 +165,7 @@ export class QuestionSelectBase extends Question {
    * @see noneText
    */
   public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem", false);
+    return this.getPropertyValue("showNoneItem");
   }
   public set showNoneItem(val: boolean) {
     this.setPropertyValue("showNoneItem", val);
@@ -664,7 +664,7 @@ export class QuestionSelectBase extends Question {
    * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
   public get hideIfChoicesEmpty(): boolean {
-    return this.getPropertyValue("hideIfChoicesEmpty", false);
+    return this.getPropertyValue("hideIfChoicesEmpty");
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
@@ -729,7 +729,7 @@ export class QuestionSelectBase extends Question {
    * @see showNoneItem
    * @see showOtherItem
    */
-  @property({ defaultValue: false }) separateSpecialChoices: boolean;
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem

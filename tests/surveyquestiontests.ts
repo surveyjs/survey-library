@@ -3171,7 +3171,17 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
-
+QUnit.test("Change hideIfChoicesEmpty property default value", function (assert) {
+  let question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #1");
+  const prop = Serializer.findProperty("selectbase", "hideIfChoicesEmpty");
+  prop.defaultValue = true;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, true, "default value #2");
+  prop.defaultValue = undefined;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #3");
+});
 QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

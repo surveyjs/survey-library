@@ -246,7 +246,7 @@ export class QuestionMatrixModel
    * @see isRequired
    */
   public get isAllRowRequired(): boolean {
-    return this.getPropertyValue("isAllRowRequired", false);
+    return this.getPropertyValue("isAllRowRequired");
   }
   public set isAllRowRequired(val: boolean) {
     this.setPropertyValue("isAllRowRequired", val);

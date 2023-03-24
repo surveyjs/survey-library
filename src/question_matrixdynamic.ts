@@ -117,7 +117,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
-    return this.getPropertyValue("confirmDelete", false);
+    return this.getPropertyValue("confirmDelete");
   }
   public set confirmDelete(val: boolean) {
     this.setPropertyValue("confirmDelete", val);
@@ -150,7 +150,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see defaultValue
    */
   public get defaultValueFromLastRow(): boolean {
-    return this.getPropertyValue("defaultValueFromLastRow", false);
+    return this.getPropertyValue("defaultValueFromLastRow");
   }
   public set defaultValueFromLastRow(val: boolean) {
     this.setPropertyValue("defaultValueFromLastRow", val);

@@ -30,17 +30,8 @@ import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
-
-export class DragDropInfo {
-  constructor(
-    public source: IElement,
-    public target: IElement,
-    public nestedPanelDepth: number = -1
-  ) { }
-  public destination: ISurveyElement;
-  public isBottom: boolean;
-  public isEdge: boolean;
-}
+import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
+import { DragDropInfo } from "./drag-drop-helper-v1";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -273,6 +264,8 @@ export class PanelModelBase extends SurveyElement<Question>
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
 
+  private dragDropPanelHelper: DragDropPanelHelperV1;
+
   constructor(name: string = "") {
     super(name);
     this.createNewArray("rows");
@@ -300,6 +293,8 @@ export class PanelModelBase extends SurveyElement<Question>
         this.updateVisibleIndexes();
       }
     );
+
+    this.dragDropPanelHelper = new DragDropPanelHelperV1(this);
   }
   public getType(): string {
     return "panelbase";
@@ -975,7 +970,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.isRequired
     );
   }
-  protected get root(): PanelModelBase {
+  public get root(): PanelModelBase {
     var res = <PanelModelBase>this;
     while (res.parent) res = res.parent;
     return res;
@@ -987,12 +982,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onVisibleChanged();
     }
   }
-  protected createRowAndSetLazy(index: number): QuestionRowModel {
+  public createRowAndSetLazy(index: number): QuestionRowModel {
     const row = this.createRow();
     row.setIsLazyRendering(this.isLazyRenderInRow(index));
     return row;
   }
-  protected createRow(): QuestionRowModel {
+  public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
   public onSurveyLoad() {
@@ -1035,7 +1030,10 @@ export class PanelModelBase extends SurveyElement<Question>
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
-    this.updateRowsOnElementAdded(element, index);
+    if (this.canBuildRows()) {
+      let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
+      this.dragDropPanelHelper.updateRowsOnElementAdded(element, index, dragDropInfo, this);
+    }
     if (element.isPanel) {
       var p = <PanelModel>element;
       if (this.survey) {
@@ -1098,7 +1096,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private canBuildRows() {
+  public canBuildRows() {
     return !this.isLoadingFromJson && this.getChildrenLayoutType() == "row";
   }
   private buildRows(): Array<QuestionRowModel> {
@@ -1126,29 +1124,9 @@ export class PanelModelBase extends SurveyElement<Question>
   protected canRenderFirstRows(): boolean {
     return this.isPage;
   }
-  protected getDragDropInfo(): any {
+  public getDragDropInfo(): any {
     const page: PanelModelBase = <any>this.getPage(this.parent);
     return !!page ? page.getDragDropInfo() : undefined;
-  }
-  private updateRowsOnElementAdded(element: IElement, index: number) {
-    if (!this.canBuildRows()) return;
-    let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
-    if (!dragDropInfo) {
-      dragDropInfo = new DragDropInfo(null, element);
-      dragDropInfo.target = element;
-      dragDropInfo.isEdge = this.elements.length > 1;
-      if (this.elements.length < 2) {
-        dragDropInfo.destination = this;
-      } else {
-        dragDropInfo.isBottom = index > 0;
-        if (index == 0) {
-          dragDropInfo.destination = this.elements[1];
-        } else {
-          dragDropInfo.destination = this.elements[index - 1];
-        }
-      }
-    }
-    this.dragDropAddTargetToRow(dragDropInfo, null);
   }
   private updateRowsOnElementRemoved(element: IElement) {
     if (!this.canBuildRows()) return;
@@ -1157,7 +1135,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.findRowByElement(element)
     );
   }
-  protected updateRowsRemoveElementFromRow(
+  public updateRowsRemoveElementFromRow(
     element: IElement,
     row: QuestionRowModel
   ) {
@@ -1174,7 +1152,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private findRowByElement(el: IElement): QuestionRowModel {
+  public findRowByElement(el: IElement): QuestionRowModel {
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].elements.indexOf(el) > -1) return rows[i];
@@ -1437,183 +1415,17 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>els[i])).checkBindings(valueName, value);
     }
   }
-  protected dragDropAddTarget(dragDropInfo: DragDropInfo) {
-    var prevRow = this.dragDropFindRow(dragDropInfo.target);
-    if (this.dragDropAddTargetToRow(dragDropInfo, prevRow)) {
-      this.updateRowsRemoveElementFromRow(dragDropInfo.target, prevRow);
-    }
+
+  public dragDropAddTarget(dragDropInfo: DragDropInfo) {
+    this.dragDropPanelHelper.dragDropAddTarget(dragDropInfo);
   }
   public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
-    if (!findElement || findElement.isPage) return null;
-    var element = <IElement>findElement;
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(element) > -1) return rows[i];
-    }
-    for (var i = 0; i < this.elements.length; i++) {
-      var pnl = this.elements[i].getPanel();
-      if (!pnl) continue;
-      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
-      if (!!row) return row;
-    }
-    return null;
+    return this.dragDropPanelHelper.dragDropFindRow(findElement);
   }
-  private dragDropAddTargetToRow(
-    dragDropInfo: DragDropInfo,
-    prevRow: QuestionRowModel
-  ): boolean {
-    if (!dragDropInfo.destination) return true;
-    if (this.dragDropAddTargetToEmptyPanel(dragDropInfo)) return true;
-    var dest = dragDropInfo.destination;
-    var destRow = this.dragDropFindRow(dest);
-    if (!destRow) return true;
+  public dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {
+    this.dragDropPanelHelper.dragDropMoveElement(src, target, targetIndex);
+  }
 
-    if (settings.supportCreatorV2 && this.isDesignMode) {
-      if (destRow.elements.length > 1)
-        return this.dragDropAddTargetToExistingRow(
-          dragDropInfo,
-          destRow,
-          prevRow
-        );
-      else
-        return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
-    }
-    if (!dragDropInfo.target.startWithNewLine)
-      return this.dragDropAddTargetToExistingRow(
-        dragDropInfo,
-        destRow,
-        prevRow
-      );
-    return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
-  }
-  private dragDropAddTargetToEmptyPanel(dragDropInfo: DragDropInfo): boolean {
-    if (dragDropInfo.destination.isPage) {
-      this.dragDropAddTargetToEmptyPanelCore(
-        this.root,
-        dragDropInfo.target,
-        dragDropInfo.isBottom
-      );
-      return true;
-    }
-    var dest = <IElement>dragDropInfo.destination;
-    if (dest.isPanel && !dragDropInfo.isEdge) {
-      var panel = <PanelModelBase>(<any>dest);
-      if ((<any>dragDropInfo.target)["template"] === dest) {
-        return false;
-      }
-      if (
-        dragDropInfo.nestedPanelDepth < 0 ||
-        dragDropInfo.nestedPanelDepth >= panel.depth
-      ) {
-        this.dragDropAddTargetToEmptyPanelCore(
-          <PanelModelBase>(<any>dest),
-          dragDropInfo.target,
-          dragDropInfo.isBottom
-        );
-        return true;
-      }
-    }
-    return false;
-  }
-  private dragDropAddTargetToExistingRow(
-    dragDropInfo: DragDropInfo,
-    destRow: QuestionRowModel,
-    prevRow: QuestionRowModel
-  ): boolean {
-    var index = destRow.elements.indexOf(<IElement>dragDropInfo.destination);
-    if (
-      index == 0 &&
-      !dragDropInfo.isBottom) {
-
-      if (this.isDesignMode && settings.supportCreatorV2) {
-
-      }
-      else
-      if (destRow.elements[0].startWithNewLine) {
-        if (destRow.index > 0) {
-          dragDropInfo.isBottom = true;
-          destRow = destRow.panel.rows[destRow.index - 1];
-          dragDropInfo.destination =
-              destRow.elements[destRow.elements.length - 1];
-          return this.dragDropAddTargetToExistingRow(
-            dragDropInfo,
-            destRow,
-            prevRow
-          );
-        } else {
-          return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
-        }
-      }
-    }
-    var prevRowIndex = -1;
-    if (prevRow == destRow) {
-      prevRowIndex = destRow.elements.indexOf(dragDropInfo.target);
-    }
-    if (dragDropInfo.isBottom) index++;
-    var srcRow = this.findRowByElement(dragDropInfo.source);
-    if (
-      srcRow == destRow &&
-      srcRow.elements.indexOf(dragDropInfo.source) == index
-    )
-      return false;
-    if (index == prevRowIndex) return false;
-    if (prevRowIndex > -1) {
-      destRow.elements.splice(prevRowIndex, 1);
-      if (prevRowIndex < index) index--;
-    }
-    destRow.elements.splice(index, 0, dragDropInfo.target);
-    destRow.updateVisible();
-    return prevRowIndex < 0;
-  }
-  private dragDropAddTargetToNewRow(
-    dragDropInfo: DragDropInfo,
-    destRow: QuestionRowModel,
-    prevRow: QuestionRowModel
-  ): boolean {
-    var targetRow = destRow.panel.createRowAndSetLazy(destRow.panel.rows.length);
-    if (this.isDesignMode && settings.supportCreatorV2) {
-      targetRow.setIsLazyRendering(false);
-    }
-    targetRow.addElement(dragDropInfo.target);
-    var index = destRow.index;
-    if (dragDropInfo.isBottom) {
-      index++;
-    }
-    //same row
-    if (!!prevRow && prevRow.panel == targetRow.panel && prevRow.index == index)
-      return false;
-    var srcRow = this.findRowByElement(dragDropInfo.source);
-    if (
-      !!srcRow &&
-      srcRow.panel == targetRow.panel &&
-      srcRow.elements.length == 1 &&
-      srcRow.index == index
-    )
-      return false;
-    destRow.panel.rows.splice(index, 0, targetRow);
-    return true;
-  }
-  private dragDropAddTargetToEmptyPanelCore(
-    panel: PanelModelBase,
-    target: IElement,
-    isBottom: boolean
-  ) {
-    var targetRow = panel.createRow();
-    targetRow.addElement(target);
-    if (panel.elements.length == 0 || isBottom) {
-      panel.rows.push(targetRow);
-    } else {
-      panel.rows.splice(0, 0, targetRow);
-    }
-  }
-  dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {
-    var srcIndex = (<PanelModelBase>src.parent).elements.indexOf(src);
-    if (targetIndex > srcIndex) {
-      targetIndex--;
-    }
-    this.removeElement(src);
-    this.addElement(target, targetIndex);
-  }
   public needResponsiveWidth() {
     let result = false;
     this.elements.forEach((e) => {

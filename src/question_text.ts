@@ -419,15 +419,14 @@ export class QuestionTextModel extends QuestionTextBase {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
         if (event.keyCode === 13) {
-          event.target.blur();
+          (this.survey as SurveyModel).questionEditFinishCallback(this, event.target);
         }
         this._isWaitingForEnter = false;
       }
     } else {
       if (event.keyCode === 13) {
         this.updateValueOnEvent(event);
-        event.target.blur();
-        (this.survey as SurveyModel).questionEditFinishCallback(this);
+        (this.survey as SurveyModel).questionEditFinishCallback(this, event.target);
       }
     }
   };

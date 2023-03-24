@@ -3,6 +3,10 @@
  */
 export var settings = {
   /**
+   *
+   */
+  enterKeyAction: "default" as "moveToNextEditor" | "loseFocus" | "default",
+  /**
    * Options for SurveyJS comparator. By default we trim strings and compare them as case insensitive. To change the behavior you can use following code:
    * settings.comparator.trimStrings = false; //"abc " will not equal to "abc". They are equal by default.
    * settings.comparator.caseSensitive = true; //"abc " will not equal to "Abc". They are equal by default.

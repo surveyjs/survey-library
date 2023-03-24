@@ -434,3 +434,17 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(dropdownListModel.inputString, "item1", "inputString rolled back on Esc");
   assert.equal(question.value, "item1", "value rolled back on Esc");
 });
+
+QUnit.test("always show invisible hint part", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  question.value = "item1";
+  dropdownListModel.onFocus(null);
+  assert.notOk(dropdownListModel.showHintPrefix, "input equal to value, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "input equal to value, hint visible");
+  assert.equal(dropdownListModel.hintString, "item1", "input equal to value, hint string should be set on focus");
+  assert.equal(dropdownListModel.hintStringSuffix, "", "input equal to value, hint suffix empty");
+});

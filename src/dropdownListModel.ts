@@ -272,7 +272,7 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return this.hintStringLC != this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
+    return this.hintStringLC.indexOf(this.inputStringLC) >= 0 && !!this.inputStringLC;
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
@@ -435,6 +435,7 @@ export class DropdownListModel extends Base {
     if (this.question.searchEnabled) {
       if (this.question instanceof QuestionDropdownModel) {
         this.applyInputString(this.question.selectedItem);
+        this.applyHintString(this.question.selectedItem);
       }
       else {
         this.inputString = null;

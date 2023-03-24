@@ -889,11 +889,7 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
 
     this.notifier = new Notifier(this.css.saveData);
-    this.notifier.addAction(<IAction>{
-      id: "save-again",
-      title: this.getLocalizationString("saveAgainButton"),
-      action: () => { this.doComplete(); }
-    }, "error");
+    this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.layoutElements.push({
       id: "timerpanel",
@@ -936,6 +932,19 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       data: this.navigationBar
     });
+  }
+  protected createTryAgainAction(): IAction {
+    return <IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => {
+        if(this.isCompleted) {
+          this.saveDataOnComplete();
+        } else {
+          this.doComplete();
+        }
+      }
+    };
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -3933,11 +3942,15 @@ export class SurveyModel extends SurveyElementCore
       return false;
     }
     this.checkOnPageTriggers(true);
-    let previousCookie = this.hasCookie;
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
+    this.saveDataOnComplete(isCompleteOnTrigger);
+    return true;
+  }
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+    let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
       this.setCompletedState("saving", text);
@@ -3972,7 +3985,6 @@ export class SurveyModel extends SurveyElementCore
     if (!savingDataStarted) {
       this.navigateTo();
     }
-    return true;
   }
   private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
     var options = {

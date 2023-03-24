@@ -225,6 +225,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       done();
     }, test.timeout || 10);
   });
+  platform.survey.focusFirstQuestionAutomatic = false;
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);

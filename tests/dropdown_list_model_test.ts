@@ -421,16 +421,38 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   event.keyCode = 40;
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item1", "inputString is set on DOWN again");
-  assert.equal(dropdownListModel.hintString, "", "hintString is not set on DOWN again");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString is set on DOWN again");
   assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on DOWN again");
 
   event.keyCode = 40;
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item2", "inputString is changed on DOWN one more time");
+  assert.equal(dropdownListModel.hintString, "item2", "hintString is changed too on DOWN one more time");
   assert.ok(!dropdownListModel.hintString || dropdownListModel.hintString == dropdownListModel.inputString, "hintString empty or equal to inputString on DOWN one more time");
 
   event.keyCode = 27;
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item1", "inputString rolled back on Esc");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString equal to inputString when rolled back on Esc");
   assert.equal(question.value, "item1", "value rolled back on Esc");
+});
+
+QUnit.test("always show invisible hint part", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  question.value = "item1";
+  dropdownListModel.onFocus(null);
+  assert.notOk(dropdownListModel.showHintPrefix, "input equal to value, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "input equal to value, hint visible");
+  assert.equal(dropdownListModel.hintString, "item1", "input equal to value, hint string should be set on focus");
+  assert.equal(dropdownListModel.hintStringSuffix, "", "input equal to value, hint suffix empty");
+
+  dropdownListModel["listModel"].onItemClick(dropdownListModel["listModel"].actions[4]);
+  assert.notOk(dropdownListModel.showHintPrefix, "list click, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "list click, hint visible");
+  assert.equal(dropdownListModel.hintString, "item5", "list click, hint string should be set on click");
+  assert.equal(dropdownListModel.hintStringSuffix, "", "list click, hint suffix empty");
 });

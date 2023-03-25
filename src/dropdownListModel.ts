@@ -214,6 +214,7 @@ export class DropdownListModel extends Base {
       this.inputString = "";
     } else {
       this.inputString = item?.title;
+      this.hintString = item?.title;
     }
   }
 
@@ -273,7 +274,7 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return this.hintStringLC != this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
+    return this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
@@ -355,7 +356,6 @@ export class DropdownListModel extends Base {
     this.scrollToFocusedItem();
     if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.applyInputString(this.listModel.focusedItem);
-      this.hintString = "";
     }
     else {
       this.applyHintString(this.listModel.focusedItem);

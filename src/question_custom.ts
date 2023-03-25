@@ -939,8 +939,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      var key = questions[i].getValueName();
-      questions[i].value = !!newValue ? newValue[key] : undefined;
+      const key = questions[i].getValueName();
+      const val = !!newValue ? newValue[key] : undefined;
+      const q = questions[i];
+      if(!this.isTwoValueEquals(q.value, val)) {
+        q.value = val;
+      }
     }
     this.settingNewValue = false;
   }

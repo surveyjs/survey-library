@@ -8,6 +8,7 @@ import {
 import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Triggers");
 
@@ -379,4 +380,32 @@ QUnit.test("Execute trigger on complete", function(assert) {
   survey.doComplete();
   assert.deepEqual(survey.data, { q1: 5, q2: "yes", q3: 50 }, "trigger is executed");
   Serializer.removeClass("runexpression2trigger");
+});
+
+QUnit.test("Trigger with simple matrix", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrix", name: "q1", columns: ["1", "2", "3"], rows: ["a", "b", "c"] },
+      { type: "text", name: "q2" },
+    ],
+    triggers: [
+      {
+        "type": "runexpression",
+        "expression": "{q1.a} notempty and {q1.b} notempty and {q1.c} notempty",
+        "runExpression": "{q1.a} + {q1.b} + {q1.c}",
+        "setToName": "q2"
+      }
+    ],
+  });
+  const q1 = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.value, undefined, "#1");
+  q1.value = { a: 1 };
+  assert.equal(q2.value, undefined, "#2");
+  q1.value = { a: 1, b: 2, c: 3 };
+  assert.equal(q2.value, 6, "#3");
+  q1.value = { a: 3, b: 2, c: 3 };
+  assert.equal(q2.value, 8, "#4");
+  q1.value = { b: 2, c: 3 };
+  assert.equal(q2.value, 8, "#5");
 });

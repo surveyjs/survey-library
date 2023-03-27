@@ -695,7 +695,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
     });
   });
-  test("TOC survey navigation", async (t) => {
+  test.only("TOC survey navigation", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 900);
       const json = {
@@ -759,6 +759,13 @@ frameworks.forEach(framework => {
         window["survey"].tocLocation = "right";
       })();
       await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-navigation__complete-btn");
+      await takeElementScreenshot("survey-completed-no-toc.png", Selector(".sd-root-modern"), t, comparer);
 
       await t.resizeWindow(1920, 1080);
     });

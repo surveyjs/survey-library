@@ -6,12 +6,11 @@ $font-family: var(--font-family);
   height: 100%;
   background: #FFFFFF;
   border-right: 1px solid #D6D6D6;
-  margin-top: 2px;
   box-sizing: border-box;
+  min-width: 256px;
 
   .sv-list__item.sv-list__item--selected .sv-list__item-body {
     background: rgba(25, 179, 148, 0.1);
-    border-radius: 3px;
     color: #161616;
     font-weight: 400;
   }
@@ -23,5 +22,8 @@ $font-family: var(--font-family);
   .sv-list__item-body {
     padding-inline-start: 16px;
     padding-inline-end: 16px;
+    border-radius: 3px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }

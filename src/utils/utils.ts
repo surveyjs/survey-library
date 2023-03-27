@@ -109,7 +109,7 @@ function isElementVisible(
 
 function findScrollableParent(element: HTMLElement): HTMLElement {
   const { root }: ISurveyEnvironment = settings.environment;
-  if (!root) {
+  if (!element) {
     return isShadowDOM(root)
       ? root.host as HTMLElement
       : root.documentElement;

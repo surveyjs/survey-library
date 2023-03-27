@@ -34,7 +34,9 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
-  @property() protected selectedItemValues: any;
+  @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
+    target.onSelectedItemValuesChangedHandler(newVal);
+  } }) protected selectedItemValues: any;
 
   constructor(name: string) {
     super(name);
@@ -318,6 +320,7 @@ export class QuestionSelectBase extends Question {
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
+  protected onSelectedItemValuesChangedHandler(newValue: any): void { }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {

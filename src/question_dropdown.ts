@@ -15,7 +15,7 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  dropdownListModel: DropdownListModel;
+  dropdownListModelValue: DropdownListModel;
   lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
@@ -246,10 +246,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     const item = this.selectedItem;
     return !!item ? item.text : "";
   }
-  public get popupModel(): PopupModel {
-    if (this.renderAs !== "select" && !this.dropdownListModel) {
-      this.dropdownListModel = new DropdownListModel(this);
+  public get dropdownListModel(): DropdownListModel {
+    if (this.renderAs !== "select" && !this.dropdownListModelValue) {
+      this.dropdownListModelValue = new DropdownListModel(this);
     }
+    return this.dropdownListModelValue;
+  }
+  public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
   public get ariaExpanded(): boolean {
@@ -260,7 +263,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
-
+  protected onSelectedItemValuesChangedHandler(newValue: any): void {
+    this.dropdownListModel?.setInputStringFromSelectedItem(newValue);
+  }
   protected hasUnknownValue(
     val: any,
     includeOther: boolean,

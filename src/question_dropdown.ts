@@ -252,6 +252,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
     return this.dropdownListModelValue;
   }
+  public set dropdownListModel(val: DropdownListModel) {
+    this.dropdownListModelValue = val;
+  }
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }

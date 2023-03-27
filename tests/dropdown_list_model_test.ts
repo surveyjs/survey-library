@@ -383,6 +383,7 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "", "inputString still empty on first DOWN");
   assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first DOWN");
+  assert.ok(dropdownListModel.showHintString, "hintString already shown on first DOWN");
   assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on first DOWN");
 
   event.keyCode = 40;

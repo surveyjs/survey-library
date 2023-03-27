@@ -229,11 +229,11 @@ export class DropdownListModel extends Base {
   }
 
   public get inputStringRendered() {
-    return this.inputString || "";
+    return this.getPropertyValue("inputString") || "";
   }
 
   public set inputStringRendered(val: string) {
-    this.inputString = val;
+    this.setPropertyValue("inputString", val);
     this.filterString = val;
     this.applyHintString(this.listModel.focusedItem);
   }
@@ -274,7 +274,7 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
+    return !!this.question.searchEnabled && this.hintStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);

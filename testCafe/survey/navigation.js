@@ -65,7 +65,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test.only("TOC navigation saves entered text https://github.com/surveyjs/survey-library/issues/5870", async (t) => {
+  test("TOC navigation saves entered text https://github.com/surveyjs/survey-library/issues/5870", async (t) => {
     await t.typeText("input[type=text]", "some text");
     await t.click(Selector(".sv-string-viewer").withText("page2"));
     await t.expect(Selector("input[type=date]").visible).ok();

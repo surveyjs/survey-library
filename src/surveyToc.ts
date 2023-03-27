@@ -23,7 +23,7 @@ export function createTOCListModel(survey: SurveyModel) {
       title: page.navigationTitle || page.title || page.name,
       action: () => {
         if(typeof document !== undefined && !!document.activeElement) {
-          (<any>document.activeElement).blur();
+          !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
         return tryNavigateToPage(survey, index);
       }

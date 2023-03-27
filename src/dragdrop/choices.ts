@@ -92,15 +92,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return draggedElementShortcut;
   }
 
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: HTMLElement
-  ): HTMLElement {
-    const result: HTMLElement = dragOverNode.closest(
-      this.dropTargetDataAttributeName
-    );
-    return result;
-  }
-
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: string
   ): ItemValue {

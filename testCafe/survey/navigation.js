@@ -34,3 +34,42 @@ frameworks.forEach((framework) => {
     await t.expect(btnSelector.hasAttribute("disabled")).notOk();
   });
 });
+
+const tocJson = {
+  title: "Survey New Design Test",
+  showTOC: true,
+  pages: [
+    {
+      elements: [{
+        name: "name",
+        type: "text"
+      },
+      ]
+    },
+    {
+      elements: [
+        {
+          name: "birthdate",
+          type: "text",
+          inputType: "date"
+        },
+      ]
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, tocJson);
+    }
+  );
+
+  test("TOC navigation saves entered text https://github.com/surveyjs/survey-library/issues/5870", async (t) => {
+    await t.typeText("input[type=text]", "some text");
+    await t.click(Selector(".sv-string-viewer").withText("page2"));
+    await t.expect(Selector("input[type=date]").visible).ok();
+    await t.click(Selector(".sv-string-viewer").withText("page1"));
+    await t.expect(Selector("input[type=text]").value).eql("some text");
+  });
+});

@@ -452,6 +452,29 @@ QUnit.test("showSelectedItemLocText", assert => {
   question.itemComponent = "my-item";
   assert.equal(question.showSelectedItemLocText, false);
 });
+QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800", assert => {
+  const json = {
+    storeOthersAsComment: false,
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [1, 2, 3],
+        showOtherItem: true
+      }]
+  };
+  const survey = new SurveyModel(json);
+  survey.data = { q1: 4 };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.showSelectedItemLocText, true);
+
+  assert.equal(question.selectedItem.value, "other");
+  assert.equal(question.selectedItemLocText.renderedHtml, "Other (describe)");
+  question.value = 3;
+  assert.equal(question.selectedItem.value, "3");
+  assert.equal(question.selectedItemLocText.renderedHtml, "3");
+});
 QUnit.test("showInputFieldComponent", assert => {
   const json = {
     questions: [

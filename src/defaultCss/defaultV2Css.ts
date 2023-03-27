@@ -48,9 +48,11 @@ export var defaultV2Css = {
     edit: "",
   },
   panel: {
+    asPage: "sd-panel--as-page",
     number: "sd-element__num",
     title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
+    titleNumInline: "sd-element__title--num-inline",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
     titleDisabled: "sd-element__title--disabled",
@@ -141,6 +143,7 @@ export var defaultV2Css = {
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
+    titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",
     titleOnAnswer: "sd-question__title--answer",
     titleOnError: "sd-question__title--error",
@@ -290,6 +293,7 @@ export var defaultV2Css = {
     itemLabelOnError: "sd-multipletext__item-container--error",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
+    content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
     cell: "sd-multipletext__cell"
   },
@@ -317,7 +321,9 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-radio__decorator"
+    materialDecorator: "sd-item__decorator sd-radio__decorator",
+    hintPrefix: "sd-dropdown__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix"
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -400,6 +406,7 @@ export var defaultV2Css = {
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     tableWrapper: "sd-table-wrapper",
+    content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",
     row: "sd-table__row",
     itemCell: "sd-table__cell--item",
@@ -445,6 +452,11 @@ export var defaultV2Css = {
     itemStarDisabled: "sd-rating__item-star--disabled",
     itemStarHighlighted: "sd-rating__item-star--highlighted",
     itemStarUnhighlighted: "sd-rating__item-star--unhighlighted",
+    itemSmiley: "sd-rating__item-smiley",
+    itemSmileyOnError: "sd-rating__item-smiley--error",
+    itemSmileyHover: "sd-rating__item-smiley--allowhover",
+    itemSmileySelected: "sd-rating__item-smiley--selected",
+    itemSmileyDisabled: "sd-rating__item-smiley--disabled",
     minText: "sd-rating__item-text sd-rating__min-text",
     itemText: "sd-rating__item-text",
     maxText: "sd-rating__item-text sd-rating__max-text",

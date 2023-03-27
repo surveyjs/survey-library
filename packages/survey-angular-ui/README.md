@@ -14,7 +14,17 @@
 
 A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your Angular applications.
 
-> **NOTE**: This package requires Angular v13.0.0 or newer. With earlier Angular versions, you can use an [obsolete Knockout-dependent SurveyJS Angular Form Library version](https://www.npmjs.com/package/survey-angular).
+> **NOTE**: SurveyJS for Angular requires Angular v12.0.0 or newer and depends on the `@angular/cdk` package. If your project does not include it yet, run the following command:
+>
+> ```cmd
+> npm install @angular/cdk@^12.0.0 --save
+> ```
+>
+> Earlier Angular versions are supported by the [`survey-angular`](https://www.npmjs.com/package/survey-angular) package. It depends on Knockout and is now obsolete. However, you can use it in your Angular v8&ndash;v11 projects. Refer to the following examples on GitHub for more information:
+> 
+> - [Add SurveyJS Form Library to an Angular v8&ndash;v11 Application](https://github.com/surveyjs/code-examples/tree/main/legacy-angular/form-library)
+> - [Add Survey Creator to an Angular v8&ndash;v11 Application](https://github.com/surveyjs/code-examples/tree/main/legacy-angular/survey-creator).
+
 
 ## Features
 

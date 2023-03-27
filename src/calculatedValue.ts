@@ -43,7 +43,7 @@ export class CalculatedValue extends Base {
    * The calculated value name. It should be non empty and unique.
    */
   public get name(): string {
-    return this.getPropertyValue("name", "");
+    return this.getPropertyValue("name") || "";
   }
   public set name(val: string) {
     this.setPropertyValue("name", val);
@@ -52,7 +52,7 @@ export class CalculatedValue extends Base {
    * Set this property to true to include the non-empty calculated value into survey result, survey.data property.
    */
   public get includeIntoResult(): boolean {
-    return this.getPropertyValue("includeIntoResult", false);
+    return this.getPropertyValue("includeIntoResult");
   }
   public set includeIntoResult(val: boolean) {
     this.setPropertyValue("includeIntoResult", val);
@@ -62,7 +62,7 @@ export class CalculatedValue extends Base {
    * Example: "({quantity} * {price}) * (100 - {discount}) / 100"
    */
   public get expression(): string {
-    return this.getPropertyValue("expression", "");
+    return this.getPropertyValue("expression") || "";
   }
   public set expression(val: string) {
     this.setPropertyValue("expression", val);

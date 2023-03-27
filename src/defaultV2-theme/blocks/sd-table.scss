@@ -139,6 +139,9 @@
   min-width: calcSize(12);
   padding: calcSize(2.5) calcSize(1);
 }
+.sd-matrixdynamic__content .sd-table__question-wrapper {
+  position: relative;
+}
 .sd-table__question-wrapper:not(:focus-within):hover {
   position: relative;
   .sd-question__erbox--tooltip {

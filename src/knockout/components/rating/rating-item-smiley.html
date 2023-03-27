@@ -1,0 +1,8 @@
+<label data-bind="css: question.getItemClass(item.itemValue, item.highlight), event: { mouseover: function () { question.onItemMouseIn(item); }, mouseleave: function () { question.onItemMouseOut(item);} }">
+  <input
+  type="radio"
+  class="sv-visuallyhidden"
+  data-bind="attr: { name: question.name, id: question.getInputId(index), value: item.value, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, enable: !question.isInputReadOnly, event: { click: function(data, event) { question.setValueFromClick(event.target.value); return true; } }"
+  />
+  <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.getItemSmileyIconName(item.itemValue), size: 'auto', title: item.text } } --><!-- /ko -->
+</label>

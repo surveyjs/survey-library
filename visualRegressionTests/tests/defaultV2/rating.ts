@@ -295,5 +295,127 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-rating-stars-selected-disabled.png", questionRoot, t, comparer);
     });
   });
+  test("Check rating stars question - baseunit", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "stars",
+            displayMode: "buttons",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-baseunit.png", questionRoot, t, comparer);
+    });
+  });
+  test("Check rating smileys question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys disabled question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px",
+            defaultValue: 2,
+            readOnly: true
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-selected-disabled.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys error question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px",
+            isRequired: true
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await t.click(Selector("input[value=Complete]"));
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-required.png", questionRoot, t, comparer);
+    });
+  });
 
 });

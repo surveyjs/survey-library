@@ -144,6 +144,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["no"], () => {
+      this.updateQuestionCss();
+    });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
   protected createLocTitleProperty(): LocalizableString {
@@ -282,7 +285,6 @@ export class Question extends SurveyElement<Question>
    * You can use question values as placeholders in the following places:
    *
    * - Survey element titles and descriptions
-   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
    * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
    *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
@@ -746,8 +748,9 @@ export class Question extends SurveyElement<Question>
   protected setCssRoot(val: string): void {
     this.setPropertyValue("cssRoot", val);
   }
-  protected getCssRoot(cssClasses: any): string {
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
@@ -755,10 +758,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.expanded, !!this.isExpanded)
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.withFrame, this.hasFrameV2)
-      .append(cssClasses.nested, (this.hasParent || !this.isSingleInRow) && this.isDefaultV2Theme)
       .toString();
   }
   public get cssHeader(): string {
@@ -798,12 +797,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.state !== "default")
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }

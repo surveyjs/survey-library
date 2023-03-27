@@ -58,7 +58,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         }
       };
     }
-    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
   }
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;

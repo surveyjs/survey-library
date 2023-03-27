@@ -420,6 +420,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 .sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
   .sv-popup__body-content {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
+    --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);
     position: absolute;
     transform: translate(-50%, -50%);
     left: 50%;
@@ -427,7 +428,9 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
     max-height: var(--sv-popup-overlay-max-height);
     min-height: min(var(--sv-popup-overlay-max-height), calcSize(31));
     height: auto;
-    max-width: calcSize(40);
+    width: auto;
+    min-width: min(calcSize(40), var(--sv-popup-overlay-max-width));
+    max-width: var(--sv-popup-overlay-max-width);
     border-radius: calcSize(0.5);
     overflow: hidden;
     margin: 0;

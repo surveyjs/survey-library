@@ -28,16 +28,16 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
   updateDomElement() {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
-      const newValue = this.model.filterString;
+      const newValue = this.model.inputStringRendered;
       if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-        control.value = this.model.filterString;
+        control.value = this.model.inputStringRendered;
       }
     }
   }
   onChange(e: any) {
     const { root } = settings.environment;
     if (e.target === root.activeElement) {
-      this.model.filterString = e.target.value;
+      this.model.inputStringRendered = e.target.value;
     }
   }
   keyhandler(e: any) {
@@ -46,7 +46,9 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
   onBlur(e: any) {
     this.model.onBlur(e);
   }
-
+  onFocus(e: any) {
+    this.model.onFocus(e);
+  }
   constructor(props: any) {
     super(props);
   }
@@ -61,13 +63,17 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
       className={this.question.cssClasses.filterStringInput}
       disabled={this.question.isInputReadOnly}
       readOnly={!this.model.searchEnabled ? true : undefined}
-      size={!this.model.filterString ? 1 : undefined}
+      size={!this.model.inputStringRendered ? 1 : undefined}
       role={ this.model.filterStringEnabled ? this.question.ariaRole : undefined }
       aria-label={this.question.placeholder}
+      aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+      aria-controls={this.model.listElementId}
+      aria-activedescendant={this.model.ariaActivedescendant}
       placeholder={this.model.filterStringPlaceholder}
       onKeyDown={(e) => { this.keyhandler(e); }}
       onChange={(e) => { this.onChange(e); }}
       onBlur={(e) => { this.onBlur(e); }}
+      onFocus={(e) => { this.onFocus(e); }}
     ></input>);
   }
 }

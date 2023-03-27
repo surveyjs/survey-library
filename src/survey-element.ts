@@ -20,6 +20,7 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -772,11 +773,27 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
-  protected get hasFrameV2() {
-    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
+
+  private shouldAddRunnerStyles(): boolean {
+    return !this.isDesignMode && this.isDefaultV2Theme;
+  }
+
+  protected getHasFrameV2() : boolean {
+    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+  }
+  protected getIsNested(): boolean {
+    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    return new CssClassBuilder()
+      .append(cssClasses.withFrame, this.getHasFrameV2())
+      .append(cssClasses.collapsed, !!this.isCollapsed)
+      .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.nested, this.getIsNested())
+      .toString();
   }
 
   /**
@@ -901,6 +918,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.state !== "default") {
       this.toggleState();
     }
+  }
+  protected getCssTitle(cssClasses: any) {
+    const isExpandable = this.state !== "default";
+    const numInlineLimit = 4;
+    return new CssClassBuilder()
+      .append(cssClasses.title)
+      .append(cssClasses.titleNumInline, ((<any>this).no || "").length > numInlineLimit || isExpandable)
+      .append(cssClasses.titleExpandable, isExpandable)
+      .append(cssClasses.titleExpanded, this.isExpanded)
+      .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isReadOnly)
+      .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public localeChanged() {
     super.localeChanged();

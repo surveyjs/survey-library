@@ -1,6 +1,9 @@
 .sd-question {
   position: relative;
 }
+.sd-question__description {
+  font-size: calcSize(2);
+}
 .sd-question__erbox {
   padding: calcSize(1) calcSize(1.5);
   border-radius: calcSize(0.5);

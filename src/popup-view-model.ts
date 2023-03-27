@@ -183,7 +183,9 @@ export class PopupBaseViewModel extends Base {
   }
 
   public updateOnHiding(): void {
-    this.prevActiveElement && this.prevActiveElement.focus();
+    if (this.isFocusedContent && this.prevActiveElement) {
+      this.prevActiveElement.focus();
+    }
   }
   private focusFirstInput() {
     setTimeout(() => {

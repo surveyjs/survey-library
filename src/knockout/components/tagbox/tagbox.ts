@@ -23,6 +23,9 @@ ko.components.register("sv-tagbox", {
       const blur = (_: any, e: any) => {
         q.dropdownListModel?.onBlur(e);
       };
+      const focus = (_: any, e: any) => {
+        q.dropdownListModel?.onFocus(e);
+      };
       const inputKeyHandler = (_: any, e: any) => {
         q.dropdownListModel?.inputKeyHandler(e);
         return true;
@@ -31,7 +34,7 @@ ko.components.register("sv-tagbox", {
         q.dropdownListModel = new DropdownMultiSelectListModel(q);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, inputKeyHandler: inputKeyHandler };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, inputKeyHandler: inputKeyHandler };
     },
   },
   template: template,

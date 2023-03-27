@@ -129,6 +129,7 @@ export interface IAction {
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
   ariaRole?: string;
+  elementId?: string;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -177,7 +178,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() needSeparator: boolean;
   @property() template: string;
   @property({ defaultValue: "large" }) mode: actionModeType;
-  @property() owner: ILocalizableOwner;
+  public owner: ILocalizableOwner;
   @property() visibleIndex: number;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
@@ -307,7 +308,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
-  public owner: ILocalizableOwner;
   location?: string;
   @property() id: string;
   @property({

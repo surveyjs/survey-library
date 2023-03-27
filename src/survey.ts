@@ -889,11 +889,7 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
 
     this.notifier = new Notifier(this.css.saveData);
-    this.notifier.addAction(<IAction>{
-      id: "save-again",
-      title: this.getLocalizationString("saveAgainButton"),
-      action: () => { this.doComplete(); }
-    }, "error");
+    this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.layoutElements.push({
       id: "timerpanel",
@@ -936,6 +932,19 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       data: this.navigationBar
     });
+  }
+  protected createTryAgainAction(): IAction {
+    return <IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => {
+        if(this.isCompleted) {
+          this.saveDataOnComplete();
+        } else {
+          this.doComplete();
+        }
+      }
+    };
   }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
@@ -1080,7 +1089,7 @@ export class SurveyModel extends SurveyElementCore
       .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
-  @property({ defaultValue: false }) showBrandInfo: boolean;
+  @property() showBrandInfo: boolean;
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
@@ -1182,7 +1191,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
    */
   public get sendResultOnPageNext(): boolean {
-    return this.getPropertyValue("sendResultOnPageNext", false);
+    return this.getPropertyValue("sendResultOnPageNext");
   }
   public set sendResultOnPageNext(val: boolean) {
     this.setPropertyValue("sendResultOnPageNext", val);
@@ -1192,7 +1201,7 @@ export class SurveyModel extends SurveyElementCore
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
-    return this.getPropertyValue("surveyShowDataSaving", false);
+    return this.getPropertyValue("surveyShowDataSaving");
   }
   public set surveyShowDataSaving(val: boolean) {
     this.setPropertyValue("surveyShowDataSaving", val);
@@ -1459,7 +1468,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-autonextpage/ (linkStyle))
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
-    return this.getPropertyValue("goNextPageAutomatic", false);
+    return this.getPropertyValue("goNextPageAutomatic");
   }
   public set goNextPageAutomatic(val: boolean | "autogonext") {
     this.setPropertyValue("goNextPageAutomatic", val);
@@ -1587,7 +1596,7 @@ export class SurveyModel extends SurveyElementCore
    * @see clearIncorrectValues
    */
   public get keepIncorrectValues(): boolean {
-    return this.getPropertyValue("keepIncorrectValues", false);
+    return this.getPropertyValue("keepIncorrectValues");
   }
   public set keepIncorrectValues(val: boolean) {
     this.setPropertyValue("keepIncorrectValues", val);
@@ -2216,7 +2225,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
-    return this.getPropertyValue("showPageNumbers", false);
+    return this.getPropertyValue("showPageNumbers");
   }
   public set showPageNumbers(value: boolean) {
     if (value === this.showPageNumbers) return;
@@ -2957,7 +2966,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public notify(message: string, type: string): void {
-    this.notifier.notify(message, type);
+    this.notifier.notify(message, type, type === "error");
   }
   /**
    * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
@@ -3138,8 +3147,10 @@ export class SurveyModel extends SurveyElementCore
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
-    this._isDesignMode = value;
-    this.onQuestionsOnPageModeChanged("standard");
+    if(!!this._isDesignMode != !!value) {
+      this._isDesignMode = !!value;
+      this.onQuestionsOnPageModeChanged("standard");
+    }
   }
   /**
    * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.
@@ -3572,7 +3583,7 @@ export class SurveyModel extends SurveyElementCore
   public nextPageUIClick() {
     if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
     this.mouseDownPage = null;
-    this.nextPage();
+    return this.nextPage();
   }
   public nextPageMouseDown() {
     this.mouseDownPage = this.activePage;
@@ -3662,7 +3673,7 @@ export class SurveyModel extends SurveyElementCore
    * An end user cannot navigate to the start page and the start page does not affect a survey progress.
    */
   public get firstPageIsStarted(): boolean {
-    return this.getPropertyValue("firstPageIsStarted", false);
+    return this.getPropertyValue("firstPageIsStarted");
   }
   public set firstPageIsStarted(val: boolean) {
     this.setPropertyValue("firstPageIsStarted", val);
@@ -3931,11 +3942,15 @@ export class SurveyModel extends SurveyElementCore
       return false;
     }
     this.checkOnPageTriggers(true);
-    let previousCookie = this.hasCookie;
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
+    this.saveDataOnComplete(isCompleteOnTrigger);
+    return true;
+  }
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+    let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
       this.setCompletedState("saving", text);
@@ -3970,7 +3985,6 @@ export class SurveyModel extends SurveyElementCore
     if (!savingDataStarted) {
       this.navigateTo();
     }
-    return true;
   }
   private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
     var options = {
@@ -6510,11 +6524,12 @@ export class SurveyModel extends SurveyElementCore
     this.timerModel.stop();
   }
   /**
-   * Returns the time in seconds an end user spends on the survey
+   * Gets or set the time in seconds an end user spends on the survey.
    * @see startTimer
    * @see PageModel.timeSpent
    */
   public get timeSpent(): number { return this.timerModel.spent; }
+  public set timeSpent(val: number) { this.timerModel.spent = val; }
   /**
    * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer

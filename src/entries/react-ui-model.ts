@@ -33,6 +33,7 @@ export {
 
 export { RatingItem } from "../react/components/rating/rating-item";
 export { RatingItemStar } from "../react/components/rating/rating-item-star";
+export { RatingItemSmiley } from "../react/components/rating/rating-item-smiley";
 
 export { TagboxFilterString } from "../react/tagbox-filter";
 export { SurveyQuestionOptionItem } from "../react/dropdown-item";

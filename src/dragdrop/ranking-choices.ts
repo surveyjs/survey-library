@@ -60,7 +60,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     dragOverNode: HTMLElement
   ): HTMLElement {
     this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
-    return dragOverNode.closest(this.dropTargetDataAttributeName);
+    return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
   private getIsDragOverRootNode(dragOverNode: HTMLElement) {

@@ -1308,7 +1308,7 @@ export class JsonMetadata {
     var props = {};
     this.generateSchemaProperties(classInfo, props, schemaDef);
     if (hasParent) {
-      res.allOff = [
+      res.allOf = [
         { $ref: "#" + classInfo.parentName },
         { properties: props },
       ];

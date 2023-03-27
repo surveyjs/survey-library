@@ -151,16 +151,48 @@ frameworks.forEach((framework) => {
   frameworks.forEach(framework => {
     fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
       async t => {
-        await initSurvey(framework, json);
+        await initSurvey(framework, jsonStars);
       }
     );
 
     test("choose star value", async t => {
-      const label3 = Selector("label").withText("3");
+      const label3 = Selector("label .sv-star").nth(2);
+      let surveyResult;
+      await t.click(label3).click("input[value=Complete]");
+
+      surveyResult = await getSurveyResult();
+
+      await t.expect(surveyResult).eql({
+        satisfaction: 3
+      });
+    });
+  });
+
+  const jsonSmileys = {
+    questions: [
+      {
+        type: "rating",
+        name: "satisfaction",
+        rateType: "smileys",
+        title: "How satisfied are you with the Product?",
+        mininumRateDescription: "Not Satisfied",
+        maximumRateDescription: "Completely satisfied"
+      }
+    ]
+  };
+
+  frameworks.forEach(framework => {
+    fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+      async t => {
+        await initSurvey(framework, jsonSmileys);
+      }
+    );
+
+    test("choose smiley value", async t => {
+      const label3 = Selector("label .sv-svg-icon").nth(2);
       let surveyResult;
 
       await t.click(label3).click("input[value=Complete]");
-
       surveyResult = await getSurveyResult();
 
       await t.expect(surveyResult).eql({

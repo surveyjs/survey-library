@@ -2329,6 +2329,66 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.value).eql("item20");
   });
 
+  test("Check dropdown popup close with mouse, bug #5860", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          defaultValue: "item1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const input = Selector(".sv_q_dropdown_control input").filterVisible();
+    const str = Selector(".sv_q_dropdown_control .sv-string-viewer");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .pressKey("enter")
+      .expect(popupContainer.visible).ok()
+      .expect(input.value).eql("item1")
+      .expect(str.visible).notOk()
+      .pressKey("tab")
+      .expect(str.visible).ok()
+      .expect(str.textContent).eql("item1")
+      .click(input)
+      .expect(input.value).eql("item1")
+      .pressKey("q")
+      .expect(input.value).eql("item1q")
+      .expect(str.visible).notOk();
+  });
+
   test("Check reset focused item - no focus on first popup", async (t) => {
     const jsonWithDropDown = {
       questions: [

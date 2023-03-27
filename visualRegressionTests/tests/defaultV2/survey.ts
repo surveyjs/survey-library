@@ -695,7 +695,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
     });
   });
-  test.only("TOC survey navigation", async (t) => {
+  test("TOC survey navigation", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 900);
       const json = {

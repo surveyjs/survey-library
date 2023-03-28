@@ -6,6 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -386,10 +387,12 @@ export class DropdownListModel extends Base {
       if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       }
       else {
         this.listModel.selectFocusedItem();
         this.onFocus(event);
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       }
       event.preventDefault();
       event.stopPropagation();

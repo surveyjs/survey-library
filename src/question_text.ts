@@ -418,14 +418,14 @@ export class QuestionTextModel extends QuestionTextBase {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
         if (event.keyCode === 13) {
-          (this.survey as SurveyModel).questionEditFinishCallback(this, event.target);
+          (this.survey as SurveyModel).questionEditFinishCallback(this, event);
         }
         this._isWaitingForEnter = false;
       }
     } else {
       if (event.keyCode === 13) {
         this.updateValueOnEvent(event);
-        (this.survey as SurveyModel).questionEditFinishCallback(this, event.target);
+        (this.survey as SurveyModel).questionEditFinishCallback(this, event);
       }
     }
     this.updateRemainingCharacterCounter(event.target.value);

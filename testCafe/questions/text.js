@@ -263,7 +263,6 @@ frameworks.forEach((framework) => {
       .expect(q1Input.focused).ok()
       .pressKey("Enter")
       .expect(q1Input.focused).notOk();
-    await ClientFunction(() => { window["survey"].focusNextQuestionAfterEditFinish = true; })();
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()

@@ -6666,7 +6666,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public questionEditFinishCallback(question: Question, event: any) {
-    if (settings.enterKeyAction != "default") event.target.blur;
+    if (settings.enterKeyAction == "loseFocus") event.target.blur();
     if (settings.enterKeyAction == "moveToNextEditor") {
       const allQuestions = this.currentPage.questions;
       const questionIndex = allQuestions.indexOf(question);

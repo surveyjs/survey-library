@@ -3583,7 +3583,7 @@ export class SurveyModel extends SurveyElementCore
   public nextPageUIClick() {
     if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
     this.mouseDownPage = null;
-    this.nextPage();
+    return this.nextPage();
   }
   public nextPageMouseDown() {
     this.mouseDownPage = this.activePage;

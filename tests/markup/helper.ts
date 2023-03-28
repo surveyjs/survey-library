@@ -4,15 +4,18 @@ export interface MarkupTestDescriptor {
   json: any;
   event?: string;
   before?: () => void;
+  afterRender?: (survey) => void;
   after?: () => void;
   snapshot?: string;
   excludePlatform?: string;
   etalon?: string;
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
+  getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
+  timeout?: number;
 }
 
-export var markupTests: Array<MarkupTestDescriptor> = [];
+export var markupTests: Array<MarkupTestDescriptor> = []; //
 
 export function registerMarkupTest(t: MarkupTestDescriptor): void {
   markupTests.push(t);
@@ -131,8 +134,11 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   });
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
-    setTimeout(()=>{
-      const htmlElement = options.htmlElement;
+    setTimeout(() => {
+      let htmlElement = options.htmlElement;
+      if(!!test.getElement) {
+        htmlElement = test.getElement(options.htmlElement);
+      }
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
         clearAttributes(all[i], test.removeIds);
@@ -159,11 +165,11 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       assert.equal(newstr, oldStr,
         newstr == oldStr ?
           platform.name + " " + test.name + " rendered correctly" :
-          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#"+test.snapshot);
+          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
       if (test.after) { test.after(); }
-      if(platform.finish)
+      if (platform.finish)
         platform.finish(surveyElement);
-      if(newstr != oldStr) {
+      if (newstr != oldStr) {
         var form = document.createElement("form");
         form.action = "https://text-compare.com/";
         form.target = "_blank";
@@ -172,7 +178,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         reportElement.appendChild(form);
 
         var testTitle = document.createElement("h1");
-        testTitle.innerText = test.name+" ("+test.snapshot+")";
+        testTitle.innerText = test.name + " (" + test.snapshot + ")";
         form.appendChild(testTitle);
 
         var table = document.createElement("table");
@@ -211,14 +217,15 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         tableCell3.appendChild(document.createElement("br"));
 
         var download = document.createElement("a");
-        download.setAttribute("href", "data:text/plain;charset=utf-8," +encodeURIComponent(format(newstr)));
-        download.setAttribute("download", test.snapshot+".snap.html");
+        download.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(format(newstr)));
+        download.setAttribute("download", test.snapshot + ".snap.html");
         download.innerText = "Download snapshot";
         tableCell3.appendChild(download);
       }
       done();
-    }, 10);
+    }, test.timeout || 10);
   });
+  platform.survey.focusFirstQuestionAutomatic = false;
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.render(platform.survey, surveyElement);
@@ -268,6 +275,7 @@ function clearClasses(el: Element) {
 
 function clearAttributes(el: Element, removeIds = false) {
   //el.removeAttribute("aria-labelledby");
+  el.removeAttribute("survey");
   el.removeAttribute("data-bind");
   el.removeAttribute("data-key");
   el.removeAttribute("data-rendered");

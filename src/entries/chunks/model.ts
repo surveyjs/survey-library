@@ -37,7 +37,8 @@ export {
   IPage,
   IPanel,
   ISurveyData,
-  ITitleOwner
+  ITitleOwner,
+  ISurveyLayoutElement
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
@@ -135,7 +136,7 @@ export { QuestionHtmlModel } from "../../question_html";
 export { QuestionRadiogroupModel } from "../../question_radiogroup";
 export { QuestionRatingModel, RenderedRatingItem } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
-export { QuestionTextBase } from "../../question_textbase";
+export { QuestionTextBase, CharacterCounter } from "../../question_textbase";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
 export {
@@ -150,6 +151,7 @@ export {
 } from "../../question_paneldynamic";
 export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
+export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export { SurveyModel } from "../../survey";

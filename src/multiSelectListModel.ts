@@ -1,41 +1,42 @@
 import { property } from "./jsonobject";
-import { Action, IAction } from "./actions/action";
+import { Action, BaseAction, IAction } from "./actions/action";
 import { ListModel } from "./list";
 
-export class MultiSelectListModel extends ListModel {
+export class MultiSelectListModel<T extends BaseAction = Action> extends ListModel<T> {
   public selectedItems: Array<IAction>;
   @property() hideSelectedItems: boolean;
 
   private updateItemState() {
     this.actions.forEach(action => {
       const isSelected = this.isItemSelected(action);
-      action.active = isSelected;
       action.visible = this.hideSelectedItems ? !isSelected : true;
     });
   }
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: Action, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void) {
-    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback);
+  constructor(items: Array<IAction>, onSelectionChanged: (item: T, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void, elementId?: string) {
+    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback, elementId);
     this.setSelectedItems(selectedItems || []);
   }
 
-  public onItemClick = (item: Action) => {
+  public onItemClick = (item: T) => {
+    if(this.isItemDisabled(item)) return;
+
     this.isExpanded = false;
     if (this.isItemSelected(item)) {
       this.selectedItems.splice(this.selectedItems.indexOf(item), 1)[0];
-      !!this.onSelectionChanged && (this.onSelectionChanged(<Action>item, "removed"));
+      !!this.onSelectionChanged && (this.onSelectionChanged(<T>item, "removed"));
     } else {
       this.selectedItems.push(item);
       !!this.onSelectionChanged && (this.onSelectionChanged(item, "added"));
     }
   };
 
-  public isItemDisabled: (itemValue: Action) => boolean = (itemValue: Action) => {
+  public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
 
-  public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.allowSelection && this.selectedItems.filter(item => item.id == itemValue.id).length > 0;
+  public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
+    return !!this.allowSelection && this.selectedItems.filter(item => this.areSameItems(item, itemValue)).length > 0;
   };
   public updateState(): void {
     this.updateItemState();

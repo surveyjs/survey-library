@@ -19,7 +19,7 @@ import { IQuestion } from "./base-interfaces";
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue = new ItemValue("selectall");
   private invisibleOldValues: any = {};
-  private initialSelectedItemValues: Array<ItemValue>;
+  protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
     var selectAllItemText = this.createLocalizableString(
@@ -96,7 +96,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see separateSpecialChoices
    */
   public get showSelectAllItem(): boolean {
-    return this.getPropertyValue("showSelectAllItem", false);
+    return this.getPropertyValue("showSelectAllItem");
   }
   public set showSelectAllItem(val: boolean) {
     this.setPropertyValue("showSelectAllItem", val);
@@ -188,24 +188,30 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see enabledChoices
    */
   public get selectedChoices(): Array<ItemValue> {
-    const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return [];
 
     const val = this.renderedValue as Array<any>;
-    const allChoices = !!this.initialSelectedItemValues ? [].concat(this.initialSelectedItemValues, this.visibleChoices) : this.visibleChoices;
+    const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, this.visibleChoices) : this.visibleChoices;
     const itemValues = val.map((item) => { return ItemValue.getItemByValue(allChoices, item); }).filter(item => !!item);
-    if(!itemValues.length && !selectedItemValues) {
+    if(!itemValues.length && !this.selectedItemValues) {
       this.updateSelectedItemValues();
     }
 
-    if(!!itemValues.length) return itemValues;
-    if(!!selectedItemValues && !!selectedItemValues.length) {
-      this.initialSelectedItemValues = [].concat(selectedItemValues);
-      return selectedItemValues;
-    }
-    return val.map((item: any) => new ItemValue(item));
+    return this.validateItemValues(itemValues);
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
+  protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
+    if(!!itemValues.length) return itemValues;
+
+    const selectedItemValues = this.selectedItemValues;
+    if(!!selectedItemValues && !!selectedItemValues.length) {
+      this.defaultSelectedItemValues = [].concat(selectedItemValues);
+      return selectedItemValues;
+    }
+
+    const val = this.renderedValue as Array<any>;
+    return val.map((item: any) => new ItemValue(item));
+  }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);

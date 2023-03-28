@@ -1173,6 +1173,57 @@ QUnit.test("Single: onValueChanged function, value is array", function (assert) 
   assert.equal(q.contentQuestion.html, "", "onValueChanged works #3");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: onValueChanging function", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2",
+        choices: ["A", "B", "C"],
+      },
+    ],
+    onValueChanging: (question: Question, name: string, value: any): any => {
+      if (name == "q2" && value === 1) {
+        return 2;
+      }
+      return value;
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  q.contentPanel.getQuestionByName("q2").value = 1;
+  assert.equal(q.contentPanel.getQuestionByName("q2").value, 2, "onValueChanging works");
+  assert.deepEqual(q.value, { q2: 2 }, "onValueChanging works, composite value");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: onValueChanging function, value is array", function (assert) {
+  var json = {
+    name: "testquestion",
+    questionJSON: {
+      type: "text",
+    },
+    onValueChanging: (question: Question, name: string, value: any) => {
+      if (value === 1) {
+        return 2;
+      }
+      return value;
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  q.value = 1;
+  assert.equal(q.contentQuestion.value, 2, "onValueChanged works #1");
+  assert.equal(q.value, 2, "onValueChanged works #2");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: checkErrorsMode=onValueChanging", function (assert) {
   var json = {
     name: "testquestion",
@@ -1940,5 +1991,49 @@ QUnit.test("Composite: merge data, Bug#5583", function (assert) {
   assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" });
   survey.mergeData({ q1: { firstName: "John", lastName: "Doe" } });
   assert.deepEqual(q.value, { firstName: "John", lastName: "Doe" });
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: Change css rules for content question", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "text" },
+    onUpdateQuestionCssClasses: (question: Question, element: Question, css: any) => {
+      css.root = "css_question";
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.contentQuestion.cssClasses.root, "css_question", "Set the css correctly");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: Change css rules for content questions", function (assert) {
+  const json = {
+    name: "fullname",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
+    ],
+    onLoaded: (question) => {
+      const firstName = question.contentPanel.getQuestionByName("firstName");
+      firstName.value = "Jon";
+    },
+    onUpdateQuestionCssClasses: (question: Question, element: Question, css: any) => {
+      if(element.name === "firstName") {
+        css.root = "css_question1";
+      }
+      if(element.name === "lastName") {
+        css.root = "css_question2";
+      }
+    }
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "fullname", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  assert.equal(q.contentPanel.questions[0].cssClasses.root, "css_question1", "Set the css correctly, #1");
+  assert.equal(q.contentPanel.questions[1].cssClasses.root, "css_question2", "Set the css correctly, #2");
   ComponentCollection.Instance.clear();
 });

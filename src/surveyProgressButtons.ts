@@ -1,3 +1,4 @@
+import { EventBase } from "./base";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
@@ -6,7 +7,7 @@ export class SurveyProgressButtonsModel {
   }
   public isListElementClickable(index: number): boolean {
     if (!this.survey.onServerValidateQuestions ||
-      this.survey.onServerValidateQuestions.isEmpty ||
+      (<EventBase<SurveyModel>>this.survey.onServerValidateQuestions).isEmpty ||
       this.survey.checkErrorsMode === "onComplete") {
       return true;
     }

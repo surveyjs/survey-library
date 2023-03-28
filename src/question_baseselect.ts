@@ -165,7 +165,7 @@ export class QuestionSelectBase extends Question {
    * @see noneText
    */
   public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem", false);
+    return this.getPropertyValue("showNoneItem");
   }
   public set showNoneItem(val: boolean) {
     this.setPropertyValue("showNoneItem", val);
@@ -664,7 +664,7 @@ export class QuestionSelectBase extends Question {
    * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
   public get hideIfChoicesEmpty(): boolean {
-    return this.getPropertyValue("hideIfChoicesEmpty", false);
+    return this.getPropertyValue("hideIfChoicesEmpty");
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
@@ -729,7 +729,7 @@ export class QuestionSelectBase extends Question {
    * @see showNoneItem
    * @see showOtherItem
    */
-  @property({ defaultValue: false }) separateSpecialChoices: boolean;
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
@@ -849,8 +849,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return !this.customWidget && settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
-      this.isDesignMode && !this.isContentElement;
+    return settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
+      this.isDesignMode && !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
     options: {
@@ -943,9 +943,7 @@ export class QuestionSelectBase extends Question {
     var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
-  protected getChoicesFromQuestion(
-    question: QuestionSelectBase
-  ): Array<ItemValue> {
+  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -957,15 +955,21 @@ export class QuestionSelectBase extends Question {
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
         continue;
       }
       var itemsSelected = question.isItemSelected(choices[i]);
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
       }
     }
+    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+      res.push(new ItemValue(question.otherItem.value, question.comment));
+    }
     return res;
+  }
+  private copyChoiceItem(item: ItemValue): ItemValue {
+    return new ItemValue(item.value, item.text);
   }
   protected get hasActiveChoices(): boolean {
     var choices = this.visibleChoices;
@@ -1242,7 +1246,9 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].onVisibleChoicesChanged();
+      const q = this.dependedQuestions[i];
+      q.onVisibleChoicesChanged();
+      q.clearIncorrectValuesCore();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
@@ -1614,6 +1620,20 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
+  }
+  public clickItemHandler(item: ItemValue, checked: boolean): void {
+    const newValue: Array<any> = [].concat(this.renderedValue || []);
+    const index = newValue.indexOf(item.value);
+    if (checked) {
+      if (index < 0) {
+        newValue.push(item.value);
+      }
+    } else {
+      if (index > -1) {
+        newValue.splice(index, 1);
+      }
+    }
+    this.renderedValue = newValue;
   }
   protected onParentChanged() {
     super.onParentChanged();

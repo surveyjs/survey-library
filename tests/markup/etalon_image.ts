@@ -14,6 +14,9 @@ registerMarkupTest(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
+    },
     snapshot: "image"
   }
 );
@@ -32,6 +35,28 @@ registerMarkupTest(
         }
       ]
     },
+    initSurvey: survey => {
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
+    },
     snapshot: "image-video",
+  }
+);
+registerMarkupTest(
+  {
+    name: "Test Image question doesn't load content",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "name": "banner",
+          "imageLink": "#item1.jpg",
+        }
+      ]
+    },
+    timeout: 500,
+    initSurvey: survey => {
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
+    },
+    snapshot: "image-not-load-content"
   }
 );

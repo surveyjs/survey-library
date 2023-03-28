@@ -125,7 +125,57 @@ registerMarkupTests(
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
-    snapshot: "rating-as-wrappable",
-  }
-  ]
+    snapshot: "rating-as-wrappable"
+  },
+  {
+    name: "Test Rating question as stars",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          rateType: "stars",
+          rateMax: 2,
+        }
+      ]
+    },
+    snapshot: "rating-stars",
+  },
+  {
+    name: "Test Rating question as smileys",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          rateType: "smileys",
+          rateMax: 2,
+        }
+      ]
+    },
+    snapshot: "rating-smileys",
+  },
+  {
+    name: "Test Rating question display mode",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          displayMode: "buttons",
+          rateMax: 4,
+        }
+      ]
+    },
+    initSurvey: survey => {
+      survey.mode = "display";
+    },
+    snapshot: "rating-display-mode",
+  }]
 );

@@ -69,16 +69,18 @@ frameworks.forEach(framework => {
       .click(Angular1Row.find(".sv_q_radiogroup_control_item[value=Yes]"))
       .click(Angular1Row.find(questionDropdownClassName).nth(0))
       .click(getListItemByText("2"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .click(Angular1Row.find(".sv_q_checkbox_control_item[value=Fast]"))
       .typeText(Angular1Row.find(".sv_q_text_root"), "why hello world so hard")
       .click(Angular1Row.find(questionDropdownClassName).nth(1))
-      .click(getListItemByText("Excelent"));
-
+      .click(getListItemByText("Excelent"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 });
     // answer for row 3
     await t
       .click(KnockoutRow.find(".sv_q_radiogroup_control_item[value=No]"))
       .click(KnockoutRow.find(questionDropdownClassName).nth(0))
       .click(getListItemByText("5"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .click(KnockoutRow.find(".sv_q_checkbox_control_item[value=Easy]"))
       .click(KnockoutRow.find(".sv_q_checkbox_control_item[value=Powerfull]"))
       .typeText(KnockoutRow.find(".sv_q_text_root"), "it is not 2016")
@@ -88,7 +90,6 @@ frameworks.forEach(framework => {
     await t.click(completeButton);
 
     const surveyResult = await getSurveyResult();
-
     await t.expect(surveyResult.frameworksRate.angularv1).eql({
       using: "Yes",
       knowledge: "why hello world so hard",

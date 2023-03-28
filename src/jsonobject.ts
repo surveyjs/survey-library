@@ -58,19 +58,16 @@ export function property(options?: IPropertyDecoratorOptions) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
         get: function () {
-          const value = this.getPropertyValue(key);
-          if (value !== undefined) {
-            return value;
-          }
+          let defaultVal = null;
           if (!!options) {
             if (typeof options.getDefaultValue === "function") {
-              return options.getDefaultValue(this);
+              defaultVal = options.getDefaultValue(this);
             }
             if (options.defaultValue !== undefined) {
-              return options.defaultValue;
+              defaultVal = options.defaultValue;
             }
           }
-          return undefined;
+          return this.getPropertyValue(key, defaultVal);
         },
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);
@@ -194,6 +191,7 @@ export class JsonObjectProperty implements IObject {
     "classNamePart",
     "baseClassName",
     "defaultValue",
+    "defaultValueFunc",
     "serializationProperty",
     "onGetValue",
     "onSetValue",
@@ -236,6 +234,7 @@ export class JsonObjectProperty implements IObject {
   public classNamePart: string;
   public baseClassName: string;
   public defaultValueValue: any;
+  public defaultValueFunc: () => any;
   public serializationProperty: string;
   public displayName: string;
   public category: string = "";
@@ -305,7 +304,7 @@ export class JsonObjectProperty implements IObject {
     return this.onGetValue || this.serializationProperty;
   }
   public get defaultValue() {
-    let result: any = this.defaultValueValue;
+    let result: any = !!this.defaultValueFunc ? this.defaultValueFunc() : this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
       JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
@@ -734,6 +733,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.default !== undefined) {
         prop.defaultValue = propInfo.default;
+      }
+      if (propInfo.defaultFunc !== undefined) {
+        prop.defaultValueFunc = propInfo.defaultFunc;
       }
       if (!Helpers.isValueEmpty(propInfo.isSerializable)) {
         prop.isSerializable = propInfo.isSerializable;
@@ -1306,7 +1308,7 @@ export class JsonMetadata {
     var props = {};
     this.generateSchemaProperties(classInfo, props, schemaDef);
     if (hasParent) {
-      res.allOff = [
+      res.allOf = [
         { $ref: "#" + classInfo.parentName },
         { properties: props },
       ];

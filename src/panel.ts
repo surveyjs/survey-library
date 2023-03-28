@@ -249,7 +249,7 @@ export class QuestionRowModel extends Base {
   public getRowCss() {
     return new CssClassBuilder()
       .append(this.panel.cssClasses.row)
-      .append(this.panel.cssClasses.pageRow, this.panel.isPage)
+      .append(this.panel.cssClasses.pageRow, this.panel.isPage || (!!(<any>this.panel).originalPage && !(<any>this.panel.survey).isShowingPreview))
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
@@ -350,7 +350,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see isRequired
    */
   public get requiredText(): string {
-    return this.survey != null && this.isRequired
+    return !!this.survey && this.isRequired
       ? this.survey.requiredText
       : "";
   }
@@ -457,9 +457,12 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowMultiple: "" };
+    var classes = { panel: {}, error: {}, row: "", rowMultiple: "", pageRow: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
+    if (!!css.pageRow) {
+      classes.pageRow = css.pageRow;
+    }
     if (!!css.row) {
       classes.row = css.row;
     }
@@ -564,21 +567,39 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public getValue(): any {
     var data: any = {};
-    var questions = this.questions;
-
-    for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
-      if (q.isEmpty()) continue;
-      var valueName = q.getValueName();
-      data[valueName] = q.value;
-      if (!!this.data) {
-        var comment = this.data.getComment(valueName);
-        if (!!comment) {
-          data[valueName + Base.commentSuffix] = comment;
+    this.collectValues(data, 0);
+    return data;
+  }
+  collectValues(data: any, level: number): boolean {
+    let elements = this.elements;
+    if(level === 0) {
+      elements = this.questions;
+    }
+    let hasValue = false;
+    for (var i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      if(el.isPanel || el.isPage) {
+        const panelData = {};
+        if((<PanelModelBase><any>el).collectValues(panelData, level - 1)) {
+          data[el.name] = panelData;
+          hasValue = true;
         }
+      } else {
+        const q = <Question>el;
+        if (!q.isEmpty()) {
+          var valueName = q.getValueName();
+          data[valueName] = q.value;
+          if (!!this.data) {
+            var comment = this.data.getComment(valueName);
+            if (!!comment) {
+              data[valueName + Base.commentSuffix] = comment;
+            }
+          }
+        }
+        hasValue = true;
       }
     }
-    return data;
+    return true;
   }
   /**
    * Returns a JSON object with display texts that correspond to question values nested in the panel/page.
@@ -672,7 +693,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
@@ -1715,7 +1736,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see SurveyModel.questionTitlePattern
    */
   public get showNumber(): boolean {
-    return this.getPropertyValue("showNumber", false);
+    return this.getPropertyValue("showNumber");
   }
   public set showNumber(val: boolean) {
     this.setPropertyValue("showNumber", val);
@@ -1914,14 +1935,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.survey.cancelPreviewByPage(this);
   }
   public get cssTitle(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.panel.title)
-      .append(this.cssClasses.panel.titleExpandable, this.state !== "default")
-      .append(this.cssClasses.panel.titleExpanded, this.isExpanded)
-      .append(this.cssClasses.panel.titleCollapsed, this.isCollapsed)
-      .append(this.cssClasses.panel.titleDisabled, this.isReadOnly)
-      .append(this.cssClasses.panel.titleOnError, this.containsErrors)
-      .toString();
+    return this.getCssTitle(this.cssClasses.panel);
   }
   public get cssError(): string {
     return this.getCssError(this.cssClasses);
@@ -1942,17 +1956,26 @@ export class PanelModel extends PanelModelBase implements IElement {
       return super.needResponsiveWidth();
     }
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
-  public getContainerCss() {
-    return new CssClassBuilder().append(this.cssClasses.panel.container)
-      .append(this.cssClasses.panel.withFrame, this.hasFrameV2)
-      .append(this.cssClasses.panel.nested, !!((this.parent && this.parent.isPanel || !this.isSingleInRow) && !this.isDesignMode))
-      .append(this.cssClasses.panel.collapsed, !!this.isCollapsed)
-      .append(this.cssClasses.panel.expanded, !!this.isExpanded)
-      .append(this.cssClasses.panel.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
+  protected getHasFrameV2(): boolean {
+    return super.getHasFrameV2() && (!(<any>this).originalPage || (<any>this.survey).isShowingPreview);
+  }
+  protected getIsNested(): boolean {
+    return super.getIsNested() && this.parent !== undefined;
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
+      .append(cssClasses.container)
+      .append(cssClasses.asPage, !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview)
+      .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
+  }
+  public getContainerCss() {
+    return this.getCssRoot(this.cssClasses.panel);
   }
 }
 
@@ -2006,8 +2029,8 @@ Serializer.addClass(
     },
     { name: "startWithNewLine:boolean", default: true },
     "width",
-    { name: "minWidth", default: "auto" },
-    { name: "maxWidth", default: settings.maxWidth },
+    { name: "minWidth", defaultFunc: () => "auto" },
+    { name: "maxWidth", defaultFunc: () => settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {

@@ -105,15 +105,15 @@ export class Trigger extends Base {
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return true;
   }
+  protected canBeExecutedOnComplete(): boolean {
+    return false;
+  }
   protected isExecutingOnNextPage: boolean;
-  public checkExpression(
-    isOnNextPage: boolean,
-    keys: any,
-    values: HashTable<any>,
-    properties: HashTable<any> = null
-  ): void {
+  public checkExpression(isOnNextPage: boolean, isOnComplete: boolean,
+    keys: any, values: HashTable<any>, properties: HashTable<any> = null): void {
     this.isExecutingOnNextPage = isOnNextPage;
     if(!this.canBeExecuted(isOnNextPage)) return;
+    if(isOnComplete && !this.canBeExecutedOnComplete()) return;
     if (!this.isCheckRequired(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(values, properties);
@@ -182,7 +182,7 @@ export class Trigger extends Base {
       if (keys.hasOwnProperty(name)) return true;
       var firstName = processValue.getFirstName(name);
       if (!keys.hasOwnProperty(firstName)) continue;
-      if (name == firstName) return true;
+      if (name === firstName) return true;
       var keyValue = keys[firstName];
       if (keyValue == undefined) continue;
       if (
@@ -195,7 +195,7 @@ export class Trigger extends Base {
       var oldValue = processValue.getValue(name, v);
       v[firstName] = keyValue["newValue"];
       var newValue = processValue.getValue(name, v);
-      return !this.isTwoValueEquals(oldValue, newValue);
+      if(!this.isTwoValueEquals(oldValue, newValue)) return true;
     }
     return false;
   }
@@ -342,7 +342,7 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.setPropertyValue("setValue", val);
   }
   public get isVariable(): boolean {
-    return this.getPropertyValue("isVariable", false);
+    return this.getPropertyValue("isVariable");
   }
   public set isVariable(val: boolean) {
     this.setPropertyValue("isVariable", val);

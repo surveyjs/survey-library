@@ -280,7 +280,7 @@ frameworks.forEach(async framework => {
   });
   test("Check overlay popup in tagbox question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(600, 900);
+      await t.resizeWindow(500, 700);
       await ClientFunction(() => {
         window["Survey"]._setIsTouch(true);
       })();
@@ -311,7 +311,80 @@ frameworks.forEach(async framework => {
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .typeText(Selector(".sv-list__input"), "item1", { paste: true });
-      await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
+      await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+    });
+  });
+  test("Check overlay popup (table mode) in tagbox question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            closeOnSelect: false,
+            choices: [
+              "item1",
+              "item2",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+              "item20",
+              "item21",
+              "item22",
+              "item23",
+              "item24",
+              "item25",
+              "item26",
+              "item27",
+              "item28",
+              "item29",
+              "item30",
+              "item31",
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+      await takeElementScreenshot("tagbox-question-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .typeText(Selector(".sv-list__input"), "item", { paste: true, replace: true });
+
+      await takeElementScreenshot("tagbox-question-overlay-tablet-popup-big.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .typeText(Selector(".sv-list__input"), "item3", { paste: true, replace: true });
+      await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+    });
+  });
+  test("Check overlay popup (table mode) in tagbox question with long items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(900, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework,
+        { "elements": [{
+          "type": "tagbox",
+          "name": "q1",
+          "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
+        }]
+        });
+      await t.click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("tagbox-question-long-items-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
   test("Check tagbox focused state", async (t) => {

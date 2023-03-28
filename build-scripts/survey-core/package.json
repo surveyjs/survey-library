@@ -13,27 +13,7 @@
   "homepage": "https://surveyjs.io/",
   "license": "MIT",
   "files": [
-    "survey.css",
-    "survey.min.css",
-    "modern.css",
-    "modern.min.css",
-    "modern.fontless.css",
-    "modern.fontless.min.css",
-    "defaultV2.css",
-    "defaultV2.min.css",
-    "defaultV2.fontless.css",
-    "defaultV2.fontless.min.css",
-    "survey.core.d.ts",
-    "survey.core.js",
-    "survey.core.min.js",
-    "survey.i18n.js",
-    "survey.i18n.min.js",
-    "plugins/bootstrap-integration.d.ts",
-    "plugins/bootstrap-integration.js",
-    "plugins/bootstrap-integration.min.js",
-    "plugins/bootstrap-material-integration.d.ts",
-    "plugins/bootstrap-material-integration.js",
-    "plugins/bootstrap-material-integration.min.js"
+    "**/*"
   ],
   "main": "survey.core.js",
   "repository": {
@@ -41,5 +21,12 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey.core.d.ts",
+  "typesVersions": {
+    "<4.2": {
+      "*": [
+        "ts3.4/*"
+      ]
+    }
+  },
   "dependencies": {}
 }

@@ -46,6 +46,9 @@
 .sd-multipletext__item {
   flex-grow: 1;
 }
+.sd-multipletext__content .sd-multipletext__item-container {
+  position: relative;
+}
 .sd-multipletext__item-container--error {
   background-color: $red-light;
   .sd-input--error {

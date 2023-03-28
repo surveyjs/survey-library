@@ -8,16 +8,18 @@ import {
 } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
+import { BaseAction } from "./actions/action";
+import { QuestionSelectBase } from "./question_baseselect";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue extends Base implements ILocalizableOwner, IShortcutText {
+export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcutText {
   [index: string]: any;
 
   public getMarkdownHtml(text: string, name: string): string {
@@ -182,6 +184,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
   }
   public ownerPropertyName: string = "";
   //private itemValue: any;
+  @property({ defaultValue: true }) private _visible: boolean;
   private locTextValue: LocalizableString;
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
@@ -215,6 +218,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (this.getType() != "itemvalue") {
       CustomPropertiesCollection.createProperties(this);
     }
+    this.data = this;
     this.onCreating();
   }
 
@@ -262,6 +266,7 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     if (!!text) {
       this.text = text;
     }
+    this.id = this.value;
   }
   public get hasText(): boolean {
     return this.locText.pureText ? true : false;
@@ -395,6 +400,48 @@ export class ItemValue extends Base implements ILocalizableOwner, IShortcutText 
     return this.enableConditionRunner;
   }
   public originalItem: any;
+
+  //base action
+  @property() selectedValue: boolean;
+  public get selected(): boolean {
+    if(this._locOwner instanceof QuestionSelectBase && this.selectedValue === undefined) {
+      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this)));
+    }
+    return this.selectedValue;
+  }
+  private componentValue: string;
+  public getComponent(): string {
+    if(this._locOwner instanceof QuestionSelectBase) {
+      return this.componentValue || this._locOwner.itemComponent;
+    }
+    return "";
+  }
+  public setComponent(val: string): void {
+    this.componentValue = val;
+  }
+
+  protected getEnabled(): boolean {
+    return this.isEnabled;
+  }
+  protected setEnabled(val: boolean): void {
+    this.setIsEnabled(val);
+  }
+  protected getVisible(): boolean {
+    const isVisible = this.isVisible === undefined ? true : this.isVisible;
+    const visible = this._visible === undefined ? true : this._visible;
+    return isVisible && visible;
+  }
+  protected setVisible(val: boolean): void {
+    this._visible = val;
+  }
+  protected getLocTitle(): LocalizableString {
+    return this.locText;
+  }
+  protected getTitle(): string {
+    return this.text;
+  }
+  protected setLocTitle(val: LocalizableString): void {}
+  protected setTitle(val: string): void {}
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

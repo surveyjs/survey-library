@@ -76,8 +76,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "";
   }
 
+  public getItemIndexClasses() {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemIndex)
+      .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
+      .toString();
+  }
+
   public getNumberByIndex(index: number): string {
-    return this.isEmpty() ? "\u2013" : index + 1 + "";
+    return this.isEmpty() ? "" : index + 1 + "";
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -279,58 +286,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
     this.value = value;
   };
-
-  protected getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
-    const res = super.getChoicesFromQuestion(question);
-    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
-      res.push(new ItemValue(question.otherItem.value, question.comment));
-    }
-    return res;
-  }
-
-  private setValueFromUI = () => {
-    const value: string[] = [];
-    const textNodes = this.domNode.querySelectorAll(
-      "." + this.cssClasses.controlLabel
-    );
-    textNodes.forEach((textNode: any, index) => {
-      const innerText: string = textNode.innerText;
-      this.visibleChoices.forEach((visibleChoice: ItemValue) => {
-        if (innerText === visibleChoice.text) {
-          value.push(visibleChoice.value);
-        }
-      });
-    });
-    this.value = value;
-  };
-
-  private syncNumbers = () => {
-    if (!this.domNode) return;
-    const selector: string =
-      "." +
-      this.cssClasses.item +
-      ":not(." +
-      this.cssClasses.itemDragMod +
-      ")" +
-      " ." +
-      this.cssClasses.itemIndex;
-
-    const indexNodes: NodeListOf<Element> = this.domNode.querySelectorAll(
-      selector
-    );
-    indexNodes.forEach((indexNode: any, index) => {
-      indexNode.innerText = this.getNumberByIndex(index);
-    });
-  };
-
-  private setGhostText = (text: string) => {
-    const indexNodes: NodeListOf<Element> = this.domNode.querySelectorAll(
-      "." + this.cssClasses.itemIndex
-    );
-    const ghostNode: Element = indexNodes[indexNodes.length - 1];
-    (<any>ghostNode).innerText = text;
-  };
-
   public getIconHoverCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemIcon)
@@ -358,6 +313,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set longTap(val: boolean) {
     this.setPropertyValue("longTap", val);
   }
+
+  public get useFullItemSizeForShortcut(): boolean {
+    return this.getPropertyValue("useFullItemSizeForShortcut");
+  }
+  public set useFullItemSizeForShortcut(val: boolean) {
+    this.setPropertyValue("useFullItemSizeForShortcut", val);
+  }
 }
 
 Serializer.addClass(
@@ -373,6 +335,7 @@ Serializer.addClass(
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
     { name: "maxSelectedChoices", visible: false, isSerializable: false },
+    { name: "separateSpecialChoices", visible: false, isSerializable: false },
     {
       name: "longTap",
       default: true,

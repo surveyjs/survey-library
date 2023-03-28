@@ -33,6 +33,11 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
     draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
 
+    if (this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
+      draggedElementShortcut.style.width = draggedElementNode.offsetWidth + "px";
+      draggedElementShortcut.style.height = draggedElementNode.offsetHeight + "px";
+    }
+
     return draggedElementShortcut;
   }
 
@@ -55,7 +60,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     dragOverNode: HTMLElement
   ): HTMLElement {
     this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
-    return dragOverNode.closest(this.dropTargetDataAttributeName);
+    return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
   private getIsDragOverRootNode(dragOverNode: HTMLElement) {

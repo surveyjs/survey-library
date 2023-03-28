@@ -229,6 +229,23 @@ QUnit.test("Start timer automatically if there is the start page", function(
   survey.stopTimer();
 });
 
+QUnit.test("Allow to modify timeSpent property", (assert) => {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.pages[0].addNewQuestion("text");
+  survey.showTimerPanel = "top";
+  survey.timeSpent = 100;
+  survey.startTimer();
+  assert.equal(survey.timeSpent, 100, "Timer has initial value");
+  doTimer(30);
+  assert.equal(survey.timeSpent, 130, "Add to initial value");
+  survey.timeSpent = 10;
+  assert.equal(survey.timeSpent, 10, "Timer has been changed on running");
+  doTimer(10);
+  assert.equal(survey.timeSpent, 20, "Timer has been updated successfully");
+  survey.stopTimer();
+});
+
 function doTimer(count: number) {
   for (var i = 0; i < count; i++) {
     SurveyTimer.instance.doTimer();

@@ -281,14 +281,14 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private get isValueLessMin(): boolean {
     return (
-      !this.isValueEmpty(this.renderedMin) &&
+      !this.isValueEmpty(this.renderedMin) && !this.isEmpty() &&
       this.getCalculatedMinMax(this.value) <
         this.getCalculatedMinMax(this.renderedMin)
     );
   }
   private get isValueGreaterMax(): boolean {
     return (
-      !this.isValueEmpty(this.renderedMax) &&
+      !this.isValueEmpty(this.renderedMax) && !this.isEmpty() &&
       this.getCalculatedMinMax(this.value) >
         this.getCalculatedMinMax(this.renderedMax)
     );
@@ -401,9 +401,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (
-      !Helpers.isTwoValueEquals(this.value, newValue)
-    ) {
+    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }
@@ -413,6 +411,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }, 1);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyUp = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -429,6 +428,7 @@ export class QuestionTextModel extends QuestionTextBase {
         (this.survey as SurveyModel).questionEditFinishCallback(this, event.target);
       }
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
@@ -443,10 +443,15 @@ export class QuestionTextModel extends QuestionTextBase {
     } else {
       this.updateValueOnEvent(event);
     }
+    this.updateRemainingCharacterCounter(event.target.value);
   };
   public onBlur = (event: any): void => {
     this.updateValueOnEvent(event);
+    this.updateRemainingCharacterCounter(event.target.value);
   };
+  public onFocus = (event: any): void => {
+    this.updateRemainingCharacterCounter(event.target.value);
+  }
 }
 
 const minMaxTypes = [

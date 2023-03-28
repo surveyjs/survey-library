@@ -109,7 +109,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   protected renderOther(): JSX.Element {
     let cssClasses = this.question.cssClasses;
     return (
-      <div className="form-group">
+      <div className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionOtherValueItem
           question={this.question}
           otherCss={cssClasses.other}
@@ -171,6 +171,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(!this.question) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -179,18 +180,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     );
   }
   handleOnChange = (event: any) => {
-    var newValue: Array<any> = [].concat(this.question.renderedValue || []);
-    var index = newValue.indexOf(this.item.value);
-    if (event.target.checked) {
-      if (index < 0) {
-        newValue.push(this.item.value);
-      }
-    } else {
-      if (index > -1) {
-        newValue.splice(index, 1);
-      }
-    }
-    this.question.renderedValue = newValue;
+    this.question.clickItemHandler(this.item, event.target.checked);
   }
   selectAllChanged = (event: any) => {
     this.question.toggleSelectAll();

@@ -832,19 +832,23 @@ QUnit.test("selectbase and otherValue/comment", (assert) => {
   assert.equal(false, question.getStoreOthersAsComment(), "getStoreOthersAsComment() is false");
   assert.notOk(question.otherValue, "other value, #7");
   assert.equal("val2", question.comment, "comment, #8");
+  assert.notOk(question.selectedItem, "selectedItem #1");
   question.value = "other";
   question.otherValue = "val3";
   assert.equal("val3", question.otherValue, "other value, #9");
   assert.equal("val3", question.value, "question value, #10");
   assert.equal("val2", question.comment, "comment, #11");
+  assert.equal(question.selectedItem.value, "other", "selectedItem #2");
   question.comment = "val4";
   assert.equal("val3", question.otherValue, "other value, #12");
   assert.equal("val3", question.value, "question value, #13");
+  assert.equal(question.selectedItem.value, "other", "selectedItem #3");
   assert.equal("val4", question.comment, "comment, #14");
 
   question.otherValue = "";
   question.value = "other";
   assert.equal(true, question.isOtherSelected, "isOtherSelected, #1");
+  assert.equal(question.selectedItem.value, "other", "selectedItem #4");
   assert.notOk(question.otherValue, "other value, #15");
   assert.equal(false, question.supportGoNextPageError(), "supportGoNextPageError, #1");
   question.comment = "";
@@ -865,12 +869,14 @@ QUnit.test("selectbase and otherValue/comment", (assert) => {
   assert.equal("val7", question.otherValue, "other value, #19");
   assert.equal("val7", question.value, "question value, #20");
   assert.equal("val7", question.comment, "comment, #21");
+  assert.equal(question.selectedItem.value, "other", "selectedItem #5");
   assert.deepEqual(survey.data, { q1: "val7" }, "survey data, #2");
 
   question.showCommentArea = true;
   question.value = "other";
   question.otherValue = " ";
   assert.equal(" ", question.otherValue, "other value, #22");
+  assert.equal(question.selectedItem.value, "other", "selectedItem #6");
   assert.equal("other", question.value, "question value, #23");
   assert.equal("", question.comment, "comment, #24");
 });

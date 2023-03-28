@@ -114,7 +114,7 @@ export class QuestionFileModel extends Question {
    * Default value: `false`
    */
   public get allowMultiple() {
-    return this.getPropertyValue("allowMultiple", false);
+    return this.getPropertyValue("allowMultiple");
   }
   public set allowMultiple(val: boolean) {
     this.setPropertyValue("allowMultiple", val);

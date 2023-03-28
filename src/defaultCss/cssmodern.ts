@@ -6,7 +6,8 @@ export var modernCss = {
   container: "sv-container-modern",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
-  body: "sv-body",
+  bodyContainer: "sv-components-row",
+  body: "sv-components-column sv-components-column--expandable sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
   title: "",
@@ -159,6 +160,7 @@ export var modernCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
@@ -230,6 +232,7 @@ export var modernCss = {
   text: {
     root: "sv-text",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
     onError: "sv-text--error",
   },
   multipletext: {
@@ -254,6 +257,8 @@ export var modernCss = {
     filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
     controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    hintPrefix: "sv-dropdown__hint-prefix",
+    hintSuffix: "sv-dropdown__hint-suffix"
   },
   tagbox: {
     root: "",
@@ -368,6 +373,7 @@ export var modernCss = {
   comment: {
     root: "sv-comment",
     small: "sv-row__question--small",
+    remainingCharacterCounter: "sv-remaining-character-counter",
   },
   expression: "",
   file: {
@@ -403,6 +409,7 @@ export var modernCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",

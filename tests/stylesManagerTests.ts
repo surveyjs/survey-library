@@ -17,9 +17,9 @@ QUnit.test("Test styles creation order - default", function (assert) {
   const logger = new Logger();
   StylesManager.Logger = logger;
   const sm = new StylesManager();
-  assert.equal(logger.result, "->style sheet surveyjs-styles created");
+  assert.equal(logger.result, "");
   StylesManager.applyTheme("default");
-  assert.equal(logger.result, "->style sheet surveyjs-styles created->apply theme default completed");
+  assert.equal(logger.result, "->apply theme default completed");
   resetTheme();
 });
 
@@ -28,7 +28,7 @@ QUnit.test("Test styles creation order - bootstrap", function (assert) {
   const logger = new Logger();
   StylesManager.Logger = logger;
   const sm = new StylesManager();
-  assert.equal(logger.result, "->style sheet surveyjs-styles created");
+  assert.equal(logger.result, "");
   assert.equal(bootstrapThemeName, "bootstrap");
   StylesManager.applyTheme("bootstrap");
   assert.equal(logger.result, "->style sheet surveyjs-styles created->style sheet bootstrap.sv_main created->apply theme bootstrap completed");
@@ -40,7 +40,7 @@ QUnit.test("Test styles creation order - bootstrapmaterial", function (assert) {
   const logger = new Logger();
   StylesManager.Logger = logger;
   const sm = new StylesManager();
-  assert.equal(logger.result, "->style sheet surveyjs-styles created");
+  assert.equal(logger.result, "");
   StylesManager.applyTheme("bootstrapmaterial");
   assert.equal(logger.result, "->style sheet surveyjs-styles created->style sheet bootstrapmaterial.sv_main created->apply theme bootstrapmaterial completed");
   resetTheme();
@@ -51,8 +51,8 @@ QUnit.test("Test styles creation order - modern", function (assert) {
   const logger = new Logger();
   StylesManager.Logger = logger;
   const sm = new StylesManager();
-  assert.equal(logger.result, "->style sheet surveyjs-styles created");
+  assert.equal(logger.result, "");
   StylesManager.applyTheme("modern");
-  assert.equal(logger.result, "->style sheet surveyjs-styles created->apply theme modern completed");
+  assert.equal(logger.result, "->apply theme modern completed");
   resetTheme();
 });

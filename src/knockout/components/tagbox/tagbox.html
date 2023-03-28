@@ -12,26 +12,32 @@
       'aria-required': question.ariaRequired, 
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 
-      'aria-describedby': question.ariaDescribedBy 
+      'aria-describedby': question.ariaDescribedBy,
+      'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+      'aria-controls': model.listElementId,
+      'aria-activedescendant': model.ariaActivedescendant, 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
       <!-- ko foreach: question.selectedChoices -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
-      <input type="text" autocomplete="off" data-bind="textInput: model.filterString, 
+       <input type="text" autocomplete="off" data-bind="textInput: model.inputStringRendered, 
        css: question.cssClasses.filterStringInput, 
        attr: { 
         inputmode: model.inputMode,
-        size: !model.filterString ? 1 : null, 
+        size: !model.inputStringRendered ? 1 : null, 
         id: question.getInputId(), 
         role: model.filterStringEnabled ? question.ariaRole : undefined,
         'aria-label': question.placeholder,
+        'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+        'aria-controls': model.listElementId,
+        'aria-activedescendant': model.ariaActivedescendant,
         placeholder: model.filterStringPlaceholder, 
         disabled: question.isInputReadOnly,
         readonly: !model.searchEnabled 
       },
-       event: { keydown: inputKeyHandler, blur: blur }"></input>
+       event: { keydown: inputKeyHandler, blur: blur, focus: focus }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
     <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">

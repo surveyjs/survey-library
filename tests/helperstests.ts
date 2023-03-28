@@ -329,6 +329,8 @@ QUnit.test("Helpers.getNumberByIndex", function(assert) {
   assert.equal(Helpers.getNumberByIndex(2, "1.2."), "1.4.", "2/1.2.");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11"), "1.2.13", "2/1.2.11");
   assert.equal(Helpers.getNumberByIndex(2, "1.2.11."), "1.2.13.", "2/1.2.11.");
+  assert.equal(Helpers.getNumberByIndex(2, "1.01"), "1.03", "2/1.02");
+  assert.equal(Helpers.getNumberByIndex(2, "01"), "03.", "2/01");
 });
 
 class ObjectWithDecoratedProperties extends Base {
@@ -371,9 +373,9 @@ QUnit.test("boolPropertyWithDefault", function(assert) {
   instance.stringPropertyWithDefault = null;
 
   assert.equal(instance.boolPropertyNoDefault, true);
-  assert.equal(instance.boolPropertyWithDefault, null);
+  assert.equal(instance.boolPropertyWithDefault, true);
   assert.equal(instance.stringPropertyNoDefault, "hole");
-  assert.equal(instance.stringPropertyWithDefault, null);
+  assert.equal(instance.stringPropertyWithDefault, "test");
 });
 QUnit.test("isTwoValueEquals compare Base objects", function(assert) {
   var json = {

@@ -237,7 +237,7 @@ export class TextValidator extends SurveyValidator {
   ): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
-      var reg = /^[A-Za-z\s]*$/;
+      var reg = /^[A-Za-z\s\.]*$/;
       if (!reg.test(value)) {
         return new ValidatorResult(null, this.createCustomError(name));
       }
@@ -347,6 +347,8 @@ export class AnswerCountValidator extends SurveyValidator {
 }
 /**
  * Use it to validate the text by regular expressions.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class RegexValidator extends SurveyValidator {
   constructor(regex: string = null) {

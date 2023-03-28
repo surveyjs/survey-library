@@ -220,7 +220,7 @@ export const setOptions = ClientFunction((questionName, modValue) => {
   };
   const q = window["survey"].getQuestionByName(questionName || "car");
   mergeOptions(q, modValue);
-  window["survey"].render();
+  // window["survey"].render();
 });
 
 export const joinElementInnerText = ClientFunction((tagName, index) => {
@@ -279,3 +279,12 @@ export function getListItemByText(text) {
     .filterVisible();
 }
 export var completeButton = Selector(".sv_complete_btn");
+
+export const explicitErrorHandler = ClientFunction(() => {
+  window.addEventListener("error", e => {
+    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+      e.message === "ResizeObserver loop limit exceeded") {
+      e.stopImmediatePropagation();
+    }
+  });
+});

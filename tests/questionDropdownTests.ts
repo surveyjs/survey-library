@@ -452,6 +452,29 @@ QUnit.test("showSelectedItemLocText", assert => {
   question.itemComponent = "my-item";
   assert.equal(question.showSelectedItemLocText, false);
 });
+QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800", assert => {
+  const json = {
+    storeOthersAsComment: false,
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [1, 2, 3],
+        showOtherItem: true
+      }]
+  };
+  const survey = new SurveyModel(json);
+  survey.data = { q1: 4 };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.showSelectedItemLocText, true);
+
+  assert.equal(question.selectedItem.value, "other");
+  assert.equal(question.selectedItemLocText.renderedHtml, "Other (describe)");
+  question.value = 3;
+  assert.equal(question.selectedItem.value, "3");
+  assert.equal(question.selectedItemLocText.renderedHtml, "3");
+});
 QUnit.test("showInputFieldComponent", assert => {
   const json = {
     questions: [
@@ -759,8 +782,8 @@ QUnit.test("selectedItem until all data is loaded", assert => {
   }, 550);
 
 });
-function getObjectArray(skip = 1, count = 25): Array<number> {
-  const result:Array<any> = [];
+function getObjectArray(skip = 1, count = 25): Array<{value: number, text: string}> {
+  const result:Array<{value: number, text: string}> = [];
   for(let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
@@ -859,6 +882,101 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   }, 550);
 });
 
+QUnit.test("lazy loading data is lost: defaultValue", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "defaultValue": 55,
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if(options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+
+  assert.deepEqual(survey.data, { "q1": 55 }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete before item load");
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.value, 55);
+
+    assert.deepEqual(survey.data, { "q1": 55 }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
+QUnit.test("lazy loading data is lost: set survey data", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if(options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+  survey.data = { "q1": 55 };
+  assert.deepEqual(survey.data, { "q1": 55 }, "before doComplete before item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete before item load");
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.value, 55);
+
+    assert.deepEqual(survey.data, { "q1": 55 }, "before doComplete after item load");
+    survey.doComplete();
+    assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete after item load");
+
+    done();
+  }, 550);
+});
+
 QUnit.test("lazy loading + change filter string", assert => {
   const done1 = assert.async();
   const done2 = assert.async();
@@ -941,4 +1059,70 @@ QUnit.test("show comment and show other together", assert => {
   assert.equal(question.getStoreOthersAsComment(), true, "show comment is hidden");
   question.showCommentArea = true;
   assert.equal(question.getStoreOthersAsComment(), false, "show comment again");
+});
+
+QUnit.test("ItemValue: check action fields", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      itemComponent: "custom-component",
+      defaultValue: "Item1",
+      "choices": [{ text: "Item 1", value: "Item1" }, { text: "Item 2", value: "Item2" }]
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.visibleChoices[0].component, "custom-component");
+  assert.equal(question.visibleChoices[0].locTitle.text, "Item 1");
+  assert.equal(question.visibleChoices[0].title, "Item 1");
+  assert.equal(question.visibleChoices[0].id, "Item1");
+  assert.equal(question.visibleChoices[0].data, question.visibleChoices[0]);
+  assert.equal(question.visibleChoices[0].visible, true);
+  question.visibleChoices[0].setIsVisible(false);
+  assert.equal(question.visibleChoices[0].visible, false);
+  assert.equal(question.visibleChoices[0].enabled, true);
+  question.visibleChoices[0].setIsEnabled(false);
+  assert.equal(question.visibleChoices[0].enabled, false);
+  assert.equal(question.visibleChoices[0].selected, true);
+  assert.equal(question.visibleChoices[1].selected, false);
+  question.value = "Item2";
+  assert.equal(question.visibleChoices[0].selected, false);
+  assert.equal(question.visibleChoices[1].selected, true);
+});
+
+QUnit.test("lazy loading placeholder", assert => {
+  const done = assert.async(2);
+
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    setTimeout(() => { opt.setItems([], 0); }, 500);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 0);
+  assert.equal(list.emptyMessage, "Loading...");
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(list.actions.length, 0);
+    assert.equal(list.emptyMessage, "No data to display");
+    assert.equal(question.choices.length, 0);
+
+    setTimeout(() => {
+
+      done();
+    }, 550);
+
+    done();
+  }, 550);
 });

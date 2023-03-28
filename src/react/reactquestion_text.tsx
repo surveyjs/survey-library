@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { CharacterCounterComponent } from "./components/character-counter";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
@@ -18,33 +19,38 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.value}</div>;
     }
+    const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
     return (
-      <input
-        id={this.question.inputId}
-        disabled={this.isDisplayMode}
-        className={inputClass}
-        type={this.question.inputType}
-        //ref={this.controlRef}
-        ref={(input) => (this.setControl(input))}
-        style={this.question.inputStyle}
-        maxLength={this.question.getMaxLength()}
-        min={this.question.renderedMin}
-        max={this.question.renderedMax}
-        step={this.question.renderedStep}
-        size={this.question.inputSize}
-        placeholder={placeholder}
-        list={this.question.dataListId}
-        autoComplete={this.question.autocomplete}
-        onBlur={this.question.onBlur}
-        onChange={this.question.onChange}
-        onKeyUp={this.question.onKeyUp}
-        onKeyDown={this.question.onKeyDown}
-        onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
-        aria-required={this.question.ariaRequired}
-        aria-label={this.question.ariaLabel}
-        aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
-      />
+      <>
+        <input
+          id={this.question.inputId}
+          disabled={this.isDisplayMode}
+          className={inputClass}
+          type={this.question.inputType}
+          //ref={this.controlRef}
+          ref={(input) => (this.setControl(input))}
+          style={this.question.inputStyle}
+          maxLength={this.question.getMaxLength()}
+          min={this.question.renderedMin}
+          max={this.question.renderedMax}
+          step={this.question.renderedStep}
+          size={this.question.inputSize}
+          placeholder={placeholder}
+          list={this.question.dataListId}
+          autoComplete={this.question.autocomplete}
+          onBlur={this.question.onBlur}
+          onFocus={this.question.onFocus}
+          onChange={this.question.onChange}
+          onKeyUp={this.question.onKeyUp}
+          onKeyDown={this.question.onKeyDown}
+          onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
+          aria-required={this.question.ariaRequired}
+          aria-label={this.question.ariaLabel}
+          aria-invalid={this.question.ariaInvalid}
+          aria-describedby={this.question.ariaDescribedBy}
+        />
+        {counter}
+      </>
     );
   }
   protected renderElement(): JSX.Element {

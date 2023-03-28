@@ -1,6 +1,8 @@
 <ng-template #template>
-  <div [visible]="notifier.active" [class]="notifier.css">
-    <span>{{notifier.message}}</span>
-    <sv-action-bar [model]="notifier.actionBar"></sv-action-bar> 
-  </div>
+  <ng-container *ngIf="notifier.isDisplayed">
+    <div [class]="notifier.css" [style]="{ visibility: notifier.active ? 'visible' : 'hidden' }">
+      <span>{{notifier.message}}</span>
+      <sv-action-bar [model]="notifier.actionBar"></sv-action-bar> 
+    </div>
+  </ng-container>
 </ng-template>

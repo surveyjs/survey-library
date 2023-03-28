@@ -107,7 +107,14 @@
   line-height: calcSize(3);
   appearance: none;
 }
+.sd-dropdown__hint-prefix {
+  color: $foreground-light;
+}
 
+.sd-dropdown__hint-suffix {
+  display: flex;
+  color: $foreground-light;
+}
 [dir="rtl"],
 [style*="direction:rtl"],
 [style*="direction: rtl"] {

@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../build/survey-angular-ui",
+  "dest": "./build",
   "lib": {
     "entryFile": "src/angular-ui.ts"
   }

@@ -28,6 +28,7 @@ export const modernThemeColors: { [key: string]: string } = {
   "$clean-button-color": "#1948b3",
   "$body-background-color": "#ffffff",
   "$foreground-light": "#909090",
+  "$font-family": "Raleway",
 };
 export const defaultThemeColors: { [key: string]: string } = {
   "$header-background-color": "#e7e7e7",
@@ -242,7 +243,6 @@ function setCssVariables(vars: { [key: string]: string }, element: HTMLElement):
 
 export class StylesManager {
   private static SurveyJSStylesSheetId = "surveyjs-styles";
-  private sheet: CSSStyleSheet = null;
 
   public static Logger: Logger;
   public static Styles: { [key: string]: string } = {};
@@ -335,6 +335,8 @@ export class StylesManager {
         return;
       }
 
+      StylesManager.insertStylesRulesIntoDocument();
+
       const currentThemeSelector = themeSelector || StylesManager.ThemeSelector[themeName] || StylesManager.ThemeSelector["default"];
       const styleSheetId = (themeName + currentThemeSelector).trim();
       let sheet = StylesManager.findSheet(styleSheetId);
@@ -366,18 +368,16 @@ export class StylesManager {
   public static Enabled = true;
 
   constructor() {
-    if (StylesManager.Enabled) {
-      this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
-      if (!this.sheet) {
-        this.sheet = StylesManager.createSheet(StylesManager.SurveyJSStylesSheetId);
-        this.initializeStyles(this.sheet);
-      }
-    }
     StylesManager.autoApplyTheme();
   }
 
-  public initializeStyles(sheet: CSSStyleSheet): any {
+  public static insertStylesRulesIntoDocument(): any {
     if (StylesManager.Enabled) {
+      let sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
+      if (!sheet) {
+        sheet = StylesManager.createSheet(StylesManager.SurveyJSStylesSheetId);
+      }
+
       if(Object.keys(StylesManager.Styles).length) {
         Object.keys(StylesManager.Styles).forEach((selector) => {
           try {

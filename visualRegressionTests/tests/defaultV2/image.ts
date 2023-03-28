@@ -39,4 +39,46 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("image-question.png", questionRoot, t, comparer);
     });
   });
+  test("Check image in-row question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "image",
+            name: "image_question",
+            imageWidth: "200px",
+            imageHeight: "100px",
+            imageLink: imageSource
+          },
+          {
+            type: "image",
+            name: "image_question",
+            imageWidth: "200px",
+            imageHeight: "100px",
+            imageLink: imageSource,
+            startWithNewLine: false
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("image-question-row.png", questionRoot, t, comparer);
+    });
+  });
+  test("Check image loading is broken", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        questions: [
+          {
+            "type": "image",
+            "name": "noimage",
+            "imageLink": "https://surveyjs.io/Cos/image-picker/panda.jpg"
+          }
+        ]
+      });
+      const questionRoot = Selector(".sd-question--image");
+      await takeElementScreenshot("image-not-load.png", questionRoot, t, comparer);
+    });
+  });
 });

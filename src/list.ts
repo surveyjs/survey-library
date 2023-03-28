@@ -1,6 +1,6 @@
 import { property } from "./jsonobject";
 import { ActionContainer } from "./actions/container";
-import { Action, IAction } from "./actions/action";
+import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 
@@ -30,46 +30,44 @@ export interface IListModel {
   selectedItem?: IAction;
   onFilterStringChangedCallback?: (text: string) => void;
 }
-export class ListModel extends ActionContainer {
+export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
-  private loadingIndicatorValue: Action;
+  private loadingIndicatorValue: T;
 
   @property({
     defaultValue: true,
-    onSet: (newValue: boolean, target: ListModel) => {
+    onSet: (newValue: boolean, target: ListModel<T>) => {
       target.onSet();
     }
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) showFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
+  @property({}) selectedItem: IAction;
+  @property() focusedItem: T;
   @property({
-    onSet: (newValue: boolean, target: ListModel) => {
-      target.updateItemActiveState();
-    }
-  }) selectedItem: IAction;
-  @property() focusedItem: Action;
-  @property({
-    onSet: (_, target: ListModel) => {
+    onSet: (_, target: ListModel<T>) => {
       target.onFilterStringChanged(target.filterString);
     }
   }) filterString: string;
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
+  @property({ defaultValue: true }) renderElements: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
   public scrollHandler: (e?: any) => void;
+  public areSameItemsCallback: (item1: IAction, item2: IAction) => boolean;
 
-  private hasText(item: Action, filterStringInLow: string): boolean {
+  private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
-  public isItemVisible(item: Action): boolean {
+  public isItemVisible(item: T): boolean {
     return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
   }
-  public get visibleItems(): Array<Action> {
+  public get visibleItems(): Array<T> {
     return this.visibleActions.filter(item => this.isItemVisible(item));
   }
   private get shouldProcessFilter(): boolean {
@@ -85,10 +83,11 @@ export class ListModel extends ActionContainer {
 
   constructor(
     items: Array<IAction>,
-    public onSelectionChanged: (item: Action, ...params: any[]) => void,
+    public onSelectionChanged: (item: T, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilterStringChangedCallback?: (text: string) => void
+    private onFilterStringChangedCallback?: (text: string) => void,
+    public elementId?: string
   ) {
     super();
     this.setItems(items);
@@ -97,6 +96,9 @@ export class ListModel extends ActionContainer {
 
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
+    if(this.elementId) {
+      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
+    }
     if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
@@ -109,15 +111,10 @@ export class ListModel extends ActionContainer {
     return defaultListCss;
   }
 
-  protected updateItemActiveState() {
-    this.actions.forEach(action => action.active = this.isItemSelected(action));
-  }
-
-  public onItemClick = (itemValue: Action) => {
-    if (this.isItemDisabled(itemValue)) {
+  public onItemClick = (itemValue: T): void => {
+    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
       return;
     }
-
     this.isExpanded = false;
     if (this.allowSelection) {
       this.selectedItem = itemValue;
@@ -127,19 +124,23 @@ export class ListModel extends ActionContainer {
     }
   };
 
-  public isItemDisabled: (itemValue: Action) => boolean = (itemValue: Action) => {
+  public isItemDisabled: (itemValue: T) => boolean = (itemValue: T) => {
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
 
-  public isItemSelected: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.selectedItem && this.selectedItem.id == itemValue.id;
+  public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
+    return this.areSameItems(this.selectedItem, itemValue);
   };
 
-  public isItemFocused: (itemValue: Action) => boolean = (itemValue: Action) => {
-    return !!this.focusedItem && this.focusedItem.id == itemValue.id;
+  public isItemFocused: (itemValue: T) => boolean = (itemValue: T) => {
+    return this.areSameItems(this.focusedItem, itemValue);
   };
+  protected areSameItems(item1: IAction, item2: IAction): boolean {
+    if(!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
+    return !!item1 && !!item2 && item1.id == item2.id;
+  }
 
-  public getItemClass: (itemValue: Action) => string = (itemValue: Action) => {
+  public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
@@ -159,7 +160,7 @@ export class ListModel extends ActionContainer {
     return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
-    return this.getLocalizationString("emptyMessage");
+    return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
@@ -167,14 +168,14 @@ export class ListModel extends ActionContainer {
   public get loadingText(): string {
     return this.getLocalizationString("loadingFile");
   }
-  public get loadingIndicator(): Action {
+  public get loadingIndicator(): T {
     if (!this.loadingIndicatorValue) {
-      this.loadingIndicatorValue = new Action({
+      this.loadingIndicatorValue = <T><any>(new Action({
         id: "loadingIndicator",
         title: this.loadingText,
         action: () => { },
         css: this.cssClasses.loadingIndicator
-      });
+      }));
     }
     return this.loadingIndicatorValue;
   }
@@ -260,7 +261,7 @@ export class ListModel extends ActionContainer {
   public initListContainerHtmlElement(htmlElement: HTMLElement): void {
     this.listContainerHtmlElement = htmlElement;
   }
-  public onLastItemRended(item: Action): void {
+  public onLastItemRended(item: T): void {
     if (this.isAllDataLoaded) return;
 
     if (item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {

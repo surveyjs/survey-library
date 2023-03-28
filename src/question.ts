@@ -71,6 +71,7 @@ export class Question extends SurveyElement<Question>
   afterRenderQuestionCallback: (question: Question, element: any) => any;
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
+  onUpdateCssClassesCallback: (css: any) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
@@ -142,6 +143,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["no"], () => {
+      this.updateQuestionCss();
+    });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
   protected createLocTitleProperty(): LocalizableString {
@@ -280,7 +284,6 @@ export class Question extends SurveyElement<Question>
    * You can use question values as placeholders in the following places:
    *
    * - Survey element titles and descriptions
-   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
    * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
    *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
@@ -731,6 +734,9 @@ export class Question extends SurveyElement<Question>
     if (this.survey) {
       this.survey.updateQuestionCssClasses(this, classes);
     }
+    if(this.onUpdateCssClassesCallback) {
+      this.onUpdateCssClassesCallback(classes);
+    }
     return classes;
   }
   public get cssRoot(): string {
@@ -740,8 +746,9 @@ export class Question extends SurveyElement<Question>
   protected setCssRoot(val: string): void {
     this.setPropertyValue("cssRoot", val);
   }
-  protected getCssRoot(cssClasses: any): string {
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
@@ -749,10 +756,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.expanded, !!this.isExpanded)
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.withFrame, this.hasFrameV2)
-      .append(cssClasses.nested, (this.hasParent || !this.isSingleInRow) && this.isDefaultV2Theme)
       .toString();
   }
   public get cssHeader(): string {
@@ -792,12 +795,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.state !== "default")
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
@@ -961,7 +959,8 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parent);
     this.expandAllParents((<any>element).parentQuestion);
   }
-  public focusIn = () => {
+  public focusIn(): void {
+    if(!this.survey) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {
@@ -1161,11 +1160,13 @@ export class Question extends SurveyElement<Question>
     return "";
   }
   public onSurveyLoad(): void {
+    this.isCustomWidgetRequested = false;
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
+    this.onIndentChanged();
   }
   protected onSetData(): void {
     super.onSetData();
@@ -1317,6 +1318,9 @@ export class Question extends SurveyElement<Question>
    */
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
+    if(this.survey) {
+      res = this.survey.getQuestionDisplayValue(this, res);
+    }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
   private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
@@ -1595,6 +1599,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionComment(newValue);
     this.updateCommentElements();
   }
+
+  public getCommentAreaCss(isOther: boolean = false): string {
+    return new CssClassBuilder()
+      .append("form-group", isOther)
+      .append(this.cssClasses.formGroup, !isOther)
+      .append(this.cssClasses.commentArea)
+      .toString();
+  }
+
   protected getQuestionComment(): string {
     return this.questionComment;
   }
@@ -1964,8 +1977,7 @@ export class Question extends SurveyElement<Question>
     );
   }
 
-  @property({ defaultValue: "default" })
-  renderAs: string;
+  @property() renderAs: string;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
@@ -2102,8 +2114,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", default: settings.minWidth },
-  { name: "maxWidth", default: settings.maxWidth },
+  { name: "minWidth", defaultFunc: () => settings.minWidth },
+  { name: "maxWidth", defaultFunc: () => settings.maxWidth },
   { name: "startWithNewLine:boolean", default: true, layout: "row" },
   { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {

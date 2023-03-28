@@ -189,50 +189,81 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, {
-        "logoPosition": "right",
-        "pages": [
-          {
-            "name": "page1",
-            "elements": [
-              {
-                "type": "text",
-                "name": "question1"
-              },
-              {
-                "type": "text",
-                "name": "question2"
-              }
-            ]
-          },
-          {
-            "name": "page2",
-            "elements": [
-              {
-                "type": "text",
-                "name": "question3"
-              }
-            ]
-          }
-        ]
-      });
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
-  test("text questions edit end", async (t) => {
+  test("Remaining character counter", async (t) => {
+    const characterCounter = Selector(".sv-remaining-character-counter");
+
+    await initSurvey(framework, {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          maxLength: 10,
+        }]
+    });
+
+    await t
+      .expect(characterCounter.textContent).eql("0/10")
+
+      .pressKey("A")
+      .expect(characterCounter.textContent).eql("1/10")
+
+      .typeText("input", "bcd")
+      .expect(characterCounter.textContent).eql("4/10")
+
+      .pressKey("backspace")
+      .pressKey("backspace")
+      .expect(characterCounter.textContent).eql("2/10")
+
+      .pressKey("backspace")
+      .pressKey("backspace")
+      .expect(characterCounter.textContent).eql("0/10");
+  });
+});
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+
+  test("Remaining character counter", async (t) => {
+    const characterCounter = Selector(".sv-remaining-character-counter");
+
+    await initSurvey(framework, {
+      "logoPosition": "right",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            },
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    });
+
     const q1Input = Selector("div[data-name=question1] input");
     const q2Input = Selector("div[data-name=question2] input");
-
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()
       .pressKey("Enter")
       .expect(q1Input.focused).notOk();
-
     await ClientFunction(() => { window["survey"].focusNextQuestionAfterEditFinish = true; })();
-
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()

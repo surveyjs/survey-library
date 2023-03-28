@@ -57,20 +57,20 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(schema.definitions.page, "page object is here");
   assert.equal(schema.definitions.page.type, "object", "page type is object");
   assert.equal(schema.definitions.page.$id, "#page", "page id is here");
-  assert.ok(schema.definitions.page.allOff, "page has allOff");
+  assert.ok(schema.definitions.page.allOf, "page has allOf");
   assert.equal(
-    schema.definitions.page.allOff.length,
+    schema.definitions.page.allOf.length,
     2,
-    "page.allOff is array with two items"
+    "page.allOf is array with two items"
   );
   assert.equal(
-    schema.definitions.page.allOff[0].$ref,
+    schema.definitions.page.allOf[0].$ref,
     "#panelbase",
     "page parent is here"
   );
   assert.ok(
-    schema.definitions.page.allOff[1].properties,
-    "page.allOff has properties"
+    schema.definitions.page.allOf[1].properties,
+    "page.allOf has properties"
   );
 
   assert.ok(schema.definitions.panelbase, "panelbase object is here");
@@ -147,12 +147,12 @@ QUnit.test("generate survey schema", function (assert) {
     "abstract question is not in panel.elements"
   );
 
-  var propChoices = schema.definitions.selectbase.allOff[1].properties.choices;
+  var propChoices = schema.definitions.selectbase.allOf[1].properties.choices;
   assert.ok(propChoices, "selectbase class and it's choices is here");
   assert.equal(propChoices.type, "array", "choices is array");
   assert.equal(propChoices.items.$ref, "#itemvalue", "item is  itemvalue");
   assert.notOk(
-    schema.definitions.selectbase.allOff[1].properties.name,
+    schema.definitions.selectbase.allOf[1].properties.name,
     "This property should be in question"
   );
 

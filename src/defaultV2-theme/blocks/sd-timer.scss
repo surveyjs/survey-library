@@ -1,8 +1,8 @@
 .sd-timer {
   z-index: 2;
-  float: right;
-  position: sticky;
+  position: fixed;
   bottom: calc(var(--sd-timer-size) / 144 * 32);
+  right: calcSize(1);
   background: white;
   width: var(--sd-timer-size);
   height: var(--sd-timer-size);
@@ -20,26 +20,30 @@
   margin-top: calcSize(4);
   margin-bottom: calc(-1 * var(--sd-timer-size));
 }
+
 .sd-timer--bottom {
   bottom: calc(var(--sd-timer-size) / 144 * 32);
-  margin-top: calc(var(--sd-timer-size) * ( -1 - 32 / 144));
+  margin-top: calc(var(--sd-timer-size) * (-1 - 32 / 144));
 }
+
 .sd-timer__progress {
-  --sd-timer-stroke-background-color:  var(--background-dim, #f3f3f3);
+  --sd-timer-stroke-background-color: var(--background-dim, #f3f3f3);
   --sd-timer-stroke-background-width: 2px;
   stroke-linecap: round;
   height: 100%;
   width: 100%;
   transform: rotate(-90deg);
-  stroke: $primary;  
+  stroke: $primary;
   stroke-dashoffset: 0;
   fill: none;
   stroke-width: 4px;
 }
+
 .sd-timer__progress--animation {
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 1s linear;
 }
+
 .sd-timer__text-container {
   display: flex;
   flex-direction: column;
@@ -53,11 +57,13 @@
   font-weight: 700;
   font-size: calc(var(--sd-timer-size) / 144 * 32);
 }
+
 .sd-timer__text--major {
   color: $primary;
   font-weight: 700;
   font-size: calc(var(--sd-timer-size) / 144 * 32);
 }
+
 .sd-timer__text--minor {
   color: $foreground-light;
   font-weight: 600;

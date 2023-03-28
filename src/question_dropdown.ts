@@ -66,7 +66,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get placeholder(): string {
     return this.getLocalizableStringText("placeholder");
   }
-  set placeholder(val: string) {
+  public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
   }
   get locPlaceholder(): LocalizableString {
@@ -98,7 +98,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     } else if(!selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return this.lastSelectedItemValue || selectedItemValues || new ItemValue(this.value);
+    return this.lastSelectedItemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -193,12 +193,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: true }) allowClear: boolean;
+  @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
-    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.dropdownListModel) {
         target.dropdownListModel.setSearchEnabled(newValue);
@@ -213,7 +212,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property() choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled
@@ -253,10 +252,23 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
     return this.dropdownListModel?.popupModel;
   }
+  public get ariaExpanded(): boolean {
+    return this.popupModel.isVisible;
+  }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
+  }
+
+  protected hasUnknownValue(
+    val: any,
+    includeOther: boolean,
+    isFilteredChoices: boolean,
+    checkEmptyValue: boolean
+  ): boolean {
+    if(this.choicesLazyLoadEnabled) { return false; }
+    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
 
   protected onVisibleChoicesChanged(): void {

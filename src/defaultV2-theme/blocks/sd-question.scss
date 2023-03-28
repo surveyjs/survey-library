@@ -1,6 +1,9 @@
 .sd-question {
   position: relative;
 }
+.sd-question__description {
+  font-size: calcSize(2);
+}
 .sd-question__erbox {
   padding: calcSize(1) calcSize(1.5);
   border-radius: calcSize(0.5);
@@ -67,9 +70,14 @@
   color: $red;
   vertical-align: top;
 }
-.sd-question__form-group {
+.sd-question__comment-area {
+  font-size: calcSize(2);
   margin-top: calcSize(2);
+  display: flex;
+  flex-direction: column;
+  gap: calcSize(1);
   color: $foreground;
+  white-space: normal;
 }
 .sd-question__erbox--tooltip {
   display: none;

@@ -101,6 +101,19 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires an update of its CSS classes.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A composite question.
+   * - `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A nested question.
+   * - `cssClasses`: `any`\
+   * An object with CSS classes applied to a nested question, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
+   */
+  onUpdateQuestionCssClasses?(question: Question, element: Question, cssClasses: any): void;
+  /**
    * A function that is called when a custom question type property is changed. Use it to handle property changes.
    *
    * Parameters:
@@ -118,7 +131,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * A function that is called when the question value is changed.
+   * A function that is called after the question value is changed.
    *
    * Parameters:
    *
@@ -130,6 +143,21 @@ export interface ICustomQuestionTypeConfiguration {
    * A new value for the question.
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
+  /**
+   * A function that is called before a question value is changed.
+   *
+   * This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A custom question.
+   * - `name`: `String`\
+   * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
+   * - `newValue`: `any`\
+   * A new value for the question.
+   */
+  onValueChanging?(question: Question, name: string, newValue: any): any;
   /**
    * A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
    *
@@ -218,6 +246,10 @@ export class ComponentQuestionJSON {
     if (!this.json.onAfterRenderContentElement) return;
     this.json.onAfterRenderContentElement(question, element, htmlElement);
   }
+  public onUpdateQuestionCssClasses(question: Question, element: Question, css: any): void {
+    if (!this.json.onUpdateQuestionCssClasses) return;
+    this.json.onUpdateQuestionCssClasses(question, element, css);
+  }
   public onPropertyChanged(
     question: Question,
     propertyName: string,
@@ -226,9 +258,13 @@ export class ComponentQuestionJSON {
     if (!this.json.onPropertyChanged) return;
     this.json.onPropertyChanged(question, propertyName, newValue);
   }
-  public onValueChanged(question: Question, name: string, newValue: any) {
+  public onValueChanged(question: Question, name: string, newValue: any): void {
     if (!this.json.onValueChanged) return;
     this.json.onValueChanged(question, name, newValue);
+  }
+  public onValueChanging(question: Question, name: string, newValue: any): any {
+    if (!this.json.onValueChanging) return newValue;
+    return this.json.onValueChanging(question, name, newValue);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -418,6 +454,11 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onAfterRender(this, el);
     }
   }
+  protected onUpdateQuestionCssClasses(element: Question, css: any): void {
+    if (!!this.customQuestion) {
+      this.customQuestion.onUpdateQuestionCssClasses(this, element, css);
+    }
+  }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
@@ -440,12 +481,7 @@ export abstract class QuestionCustomModelBase extends Question
   getValue(name: string): any {
     return this.value;
   }
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean
-  ): any {
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     var newName = this.convertDataName(name);
     this.data.setValue(
@@ -459,6 +495,23 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!this.customQuestion) {
       this.customQuestion.onValueChanged(this, name, newValue);
     }
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return undefined;
+  }
+  protected isValueChanging(name: string, newValue: any): boolean {
+    if (!!this.customQuestion) {
+      const qValue = newValue;
+      newValue = this.customQuestion.onValueChanging(this, name, newValue);
+      if(!Helpers.isTwoValueEquals(newValue, qValue)) {
+        const q = this.getQuestionByName(name);
+        if(!!q) {
+          q.value = newValue;
+          return true;
+        }
+      }
+    }
+    return false;
   }
   protected convertDataName(name: string): string {
     return this.getValueName();
@@ -539,6 +592,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.onAnyValueChanged(name);
     }
   }
+  protected getQuestionByName(name: string): IQuestion {
+    return this.contentQuestion;
+  }
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
+    if(this.isValueChanging(name, newValue)) return;
+    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (!this.contentQuestion) return false;
     var res = this.contentQuestion.hasErrors(fireCallback, rec);
@@ -564,7 +624,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;
-    var res = null;
+    var res: any = null;
     if (!!json.questionJSON) {
       var qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
@@ -583,6 +643,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       if (!res.name) {
         res.name = "question";
       }
+      res.onUpdateCssClassesCallback = (css: any): void => {
+        this.onUpdateQuestionCssClasses(res, css);
+      };
     }
 
     return res;
@@ -760,6 +823,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     this.initElement(res);
     res.readOnly = this.isReadOnly;
+    res.questions.forEach(q => q.onUpdateCssClassesCallback = (css: any): void => {
+      this.onUpdateQuestionCssClasses(q, css);
+    });
     this.setAfterRenderCallbacks(res);
     return res;
   }
@@ -819,14 +885,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     var val = this.value;
     return !!val ? val[name] : null;
   }
+  protected getQuestionByName(name: string): IQuestion {
+    return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
+  }
   private settingNewValue: boolean = false;
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean
-  ): any {
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (this.settingNewValue) return;
+    if(this.isValueChanging(name, newValue)) return;
     this.settingNewValue = true;
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
       const panelValue = this.contentPanel.getValue();
@@ -874,8 +939,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      var key = questions[i].getValueName();
-      questions[i].value = !!newValue ? newValue[key] : undefined;
+      const key = questions[i].getValueName();
+      const val = !!newValue ? newValue[key] : undefined;
+      const q = questions[i];
+      if(!this.isTwoValueEquals(q.value, val)) {
+        q.value = val;
+      }
     }
     this.settingNewValue = false;
   }

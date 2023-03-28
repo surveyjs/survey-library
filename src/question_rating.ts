@@ -15,8 +15,13 @@ export class RenderedRatingItem extends Base {
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
+  @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
+
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
+  }
+  public get text(): string {
+    return this.itemValue.text;
   }
   constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
@@ -280,6 +285,20 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
+  @property({ defaultValue: "number" }) rateType: "numbers" | "labels" | "stars" | "smileys";
+  @property({ defaultValue: "monochrome" }) smileysColorMode: "monochrome" | "colored";
+  public get isStar() {
+    return this.rateType == "stars";
+  }
+  public get isSmiley() {
+    return this.rateType == "smileys";
+  }
+  public get itemComponentName() {
+    if (this.isStar) return "sv-rating-item-star";
+    if (this.isSmiley) return "sv-rating-item-smiley";
+    return "sv-rating-item";
+  }
+
   protected valueToData(val: any): any {
     if (this.rateValues.length > 0) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
@@ -287,7 +306,6 @@ export class QuestionRatingModel extends Question {
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
-
   public setValueFromClick(value: any) {
     if (this.value === parseFloat(value)) {
       this.clearValue();
@@ -295,23 +313,89 @@ export class QuestionRatingModel extends Question {
       this.value = value;
     }
   }
+  public onItemMouseIn(item: RenderedRatingItem) {
+    if (this.isReadOnly || !item.itemValue.isEnabled) return;
+    let high = true;
+    let selected = this.value != null;
+    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+      this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
+      if (this.renderedRateItems[i] == item) high = false;
+      if (this.renderedRateItems[i].itemValue.value == this.value) selected = false;
+    }
+  }
+  public onItemMouseOut(item: RenderedRatingItem) {
+    this.renderedRateItems.forEach(item => item.highlight = "none");
+  }
 
   public get ratingRootCss(): string {
     return ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
-  public getItemClass(item: ItemValue) {
-    const isSelected = this.value == item.value;
+  public getItemSmiley(item: ItemValue) {
+    const icons = ["terrible", "very-poor", "poor", "not-good", "average", "normal", "good", "very-good", "excellent", "perfect"];
+    const priority = ["very-good", "not-good", "normal", "good", "average", "excellent", "poor", "perfect", "very-poor", "terrible"];
+    const count = this.rateValues.length || this.rateMax - this.rateMin + 1;
+    const selectedPriority = priority.slice(0, count);
+    const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
+    if (this.rateValues.length == 0) {
+      return selectedIcons[item.value - this.rateMin];
+    } else {
+      return selectedIcons[this.rateValues.indexOf(item)];
+    }
+  }
+
+  public getItemSmileyIconName(item: ItemValue) {
+    return "icon-" + this.getItemSmiley(item);
+  }
+
+  public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
+    let isSelected = this.value == item.value;
+    if (this.isStar) {
+      if (this.rateValues.length == 0) {
+        isSelected = this.value >= item.value;
+      } else {
+        isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
+      }
+    }
     const isDisabled = this.isReadOnly || !item.isEnabled;
-    const allowHover = !isDisabled && !isSelected && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
+    const renderedItem = this.renderedRateItems.filter(i => i.itemValue == item)[0];
+    const isHighlighted = this.isStar && renderedItem?.highlight == "highlighted";
+    const isUnhighlighted = this.isStar && renderedItem?.highlight == "unhighlighted";
+    let itemClass = this.cssClasses.item;
+    let itemSelectedClass = this.cssClasses.selected;
+    let itemDisabledClass = this.cssClasses.itemDisabled;
+    let itemHoverClass = this.cssClasses.itemHover;
+    let itemitemOnErrorClass = this.cssClasses.itemOnError;
+    let itemHighlightedClass = null;
+    let itemUnhighlightedClass = null;
+
+    if (this.isStar) {
+      itemClass = this.cssClasses.itemStar;
+      itemSelectedClass = this.cssClasses.itemStarSelected;
+      itemDisabledClass = this.cssClasses.itemStarDisabled;
+      itemHoverClass = this.cssClasses.itemStarHover;
+      itemitemOnErrorClass = this.cssClasses.itemStarOnError;
+      itemHighlightedClass = this.cssClasses.itemStarHighlighted;
+      itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
+    }
+    if (this.isSmiley) {
+      itemClass = this.cssClasses.itemSmiley;
+      itemSelectedClass = this.cssClasses.itemSmileySelected;
+      itemDisabledClass = this.cssClasses.itemSmileyDisabled;
+      itemHoverClass = this.cssClasses.itemSmileyHover;
+      itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
+    }
 
     return new CssClassBuilder()
-      .append(this.cssClasses.item)
-      .append(this.cssClasses.selected, this.value == item.value)
-      .append(this.cssClasses.itemDisabled, this.isReadOnly)
-      .append(this.cssClasses.itemHover, allowHover)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0)
+      .append(itemClass)
+      .append(itemSelectedClass, isSelected)
+      .append(itemDisabledClass, this.isReadOnly)
+      .append(itemHoverClass, allowHover)
+      .append(itemHighlightedClass, isHighlighted)
+      .append(itemUnhighlightedClass, isUnhighlighted)
+      .append(itemitemOnErrorClass, this.errors.length > 0)
       .toString();
   }
   //methods for mobile view
@@ -339,7 +423,7 @@ export class QuestionRatingModel extends Question {
   get searchEnabled(): boolean {
     return false;
   }
-  public get renderedValue(): boolean {
+  public get renderedValue(): any {
     return this.value;
   }
   public set renderedValue(val: any) {
@@ -446,6 +530,12 @@ Serializer.addClass(
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+    },
+    {
+      name: "rateType",
+      visible: false,
+      default: "number",
+      choices: ["numbers", "labels", "stars", "smileys"],
     }
   ],
   function () {

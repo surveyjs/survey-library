@@ -21,11 +21,6 @@
             color: $foreground-light;
         }
     }
-    & .sd-paneldynamic__panel-wrapper > .sd-panel {
-        & > .sd-panel__header ~ .sd-panel__content {
-            margin-top: calcSize(1);
-        }
-    }
 }
 .sd-question__content:first-child > .sd-paneldynamic {
     & > .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {

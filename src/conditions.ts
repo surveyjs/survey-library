@@ -15,7 +15,7 @@ export interface IExpresionExecutor {
   /**
    * The expression as string, property with get
    */
-  get expression(): string;
+  expression: string;
   /**
    * Returns true if the expression is valid and can be executed
    */

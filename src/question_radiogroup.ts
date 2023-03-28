@@ -42,7 +42,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     if(!itemValue && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return itemValue || selectedItemValues || new ItemValue(this.value);
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
   }
   /**
    * Specifies whether to display a button that clears the question value.
@@ -66,6 +66,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   public get showClearButtonInContent(): boolean {
     return !this.isDefaultV2Theme && this.canShowClearButton;
+  }
+  public clickItemHandler(item: ItemValue): void {
+    this.renderedValue = item.value;
   }
 
   protected getDefaultTitleActions(): Array<Action> {

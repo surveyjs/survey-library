@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionImageModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyQuestionImage extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -21,9 +22,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected get question(): QuestionImageModel {
     return this.questionBase as QuestionImageModel;
   }
-  protected canRender(): boolean {
-    return super.canRender() && !!this.question.imageLink;
-  }
+
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit };
@@ -38,6 +37,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           height={this.question.renderedHeight}
           //alt={item.text || item.value}
           style={style}
+          onLoad={(event: any) => { this.question.onLoadHandler(); } }
+          onError={(event: any) => { this.question.onErrorHandler(); } }
         />
       );
     }
@@ -49,6 +50,8 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
+          onLoadedMetadata={(event: any) => { this.question.onLoadHandler(); } }
+          onError={(event: any) => { this.question.onErrorHandler(); } }
         ></video>
       );
     }
@@ -63,7 +66,19 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         ></iframe>
       );
     }
-    return <div className={this.question.cssClasses.root}>{control}</div>;
+    var noImage: JSX.Element | null = null;
+    if(!this.question.imageLink || this.question.contentNotLoaded) {
+      noImage = (
+        <div className={this.question.cssClasses.noImage}>
+          <SvgIcon
+            iconName={this.question.cssClasses.noImageSvgIconId}
+            size={48}
+          >
+          </SvgIcon>
+        </div>
+      );
+    }
+    return <div className={this.question.cssClasses.root}>{control}{noImage}</div>;
   }
 }
 

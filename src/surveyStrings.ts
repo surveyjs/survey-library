@@ -23,27 +23,31 @@ export var surveyLocalization = {
   getLocaleStrings(loc: string): any {
     return this.locales[loc];
   },
-  getCurrentStrings(locale?: string): any {
-    let loc = locale && this.locales[locale];
-    if (!loc) loc = this.currentLocale ? this.locales[this.currentLocale] : this.locales[this.defaultLocale];
-    if (!loc) loc = this.locales[this.defaultLocale];
-    if (!loc) loc = this.locales["en"];
-    return loc;
-  },
   getString: function (strName: string, locale: string = null) {
-    const originalLocale = locale;
-    locale = locale || this.currentLocale || this.defaultLocale;
-    var loc = this.getCurrentStrings(locale);
-    if (!!loc[strName]) return loc[strName];
-    const index = !!locale ? locale.indexOf("-") : -1;
-    if(index > -1) return this.getString(strName, locale.substring(0, index));
-    loc = this.locales[this.defaultLocale];
-    var result = loc[strName];
-    if (result === undefined) {
-      result = this.locales["en"][strName];
+    const locs = new Array<any>();
+    const addLocaleCore = (locName: string): void => {
+      const strs = this.locales[locName];
+      if(!!strs) locs.push(strs);
+    };
+    const addLocale = (locName: string): void => {
+      if(!locName) return;
+      addLocaleCore(locName);
+      const index = locName.indexOf("-");
+      if(index < 1) return;
+      locName = locName.substring(0, index);
+      addLocaleCore(locName);
+    };
+    addLocale(locale);
+    addLocale(this.currentLocale);
+    addLocale(this.defaultLocale);
+    if(this.defaultLocale !== "en") {
+      addLocaleCore("en");
     }
-    if(result === undefined) return this.onGetExternalString(strName, originalLocale);
-    return result;
+    for(let i = 0; i < locs.length; i ++) {
+      const res = locs[i][strName];
+      if(res !== undefined) return res;
+    }
+    return this.onGetExternalString(strName, locale);
   },
   getLocales: function (removeDefaultLoc: boolean = false): Array<string> {
     var res = [];

@@ -528,7 +528,7 @@ jobs:
       displayName: "Build Angular"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/examples/angular-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/example
         npm install
       displayName: "NPM install examples/angular-ui"
 
@@ -743,6 +743,16 @@ jobs:
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/build/survey-react-ui
+        sed -i 's/"survey-core": .*"/"survey-core": "latest"/g' package.json
+      displayName: 'Change survey-core dependency version from release next ver to local dependency'
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui
+        sed -i 's/"survey-core": .*"/"survey-core": "latest"/g' package.json
+      displayName: 'Change survey-core dependency version from release next ver to local dependency'
 
     - task: CopyFiles@2
       inputs:

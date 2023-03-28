@@ -4,7 +4,8 @@ export var defaultStandardCss = {
   root: "sv_main sv_default_css",
   container: "sv_container",
   header: "sv_header",
-  body: "sv_body",
+  bodyContainer: "sv-components-row",
+  body: "sv-components-column sv-components-column--expandable sv_body",
   bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
   title: "",
@@ -144,6 +145,7 @@ export var defaultStandardCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
@@ -154,7 +156,9 @@ export var defaultStandardCss = {
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking-item--drag",
   },
-  comment: "",
+  comment: {
+    remainingCharacterCounter: "sv-remaining-character-counter",
+  },
   dropdown: {
     root: "",
     popup: "sv-dropdown-popup",
@@ -166,10 +170,17 @@ export var defaultStandardCss = {
     cleanButtonSvg: "sv_q_dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv_q_dropdown__value",
-    filterStringInput: "sv_q_dropdown__filter-string-input"
+    filterStringInput: "sv_q_dropdown__filter-string-input",
+    hintPrefix: "sv_q_dropdown__hint-prefix",
+    hintSuffix: "sv_q_dropdown__hint-suffix"
   },
   html: { root: "" },
-  image: { root: "sv_q_image", image: "sv_image_image" },
+  image: {
+    root: "sv_q_image",
+    image: "sv_image_image",
+    noImage: "sv-image__no-image",
+    noImageSvgIconId: "icon-no-image",
+  },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
@@ -286,7 +297,10 @@ export var defaultStandardCss = {
     itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear",
-    column: "sv_q_select_column"
+    column: "sv_q_select_column",
+    itemNoImage: "sv_q_imgsel__no-image",
+    itemNoImageSvgIcon: "sv_q_imgsel__no-image-svg",
+    itemNoImageSvgIconId: "icon-no-image",
   },
   rating: {
     root: "sv_q_rating",
@@ -296,7 +310,10 @@ export var defaultStandardCss = {
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
   },
-  text: "sv_q_text_root",
+  text: {
+    root: "sv_q_text_root",
+    remainingCharacterCounter: "sv-remaining-character-counter",
+  },
   expression: "",
   file: {
     root: "sv_q_file",
@@ -324,6 +341,7 @@ export var defaultStandardCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",

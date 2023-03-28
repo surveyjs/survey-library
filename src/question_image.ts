@@ -1,5 +1,5 @@
 import { QuestionNonValue } from "./questionnonvalue";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -24,6 +24,8 @@ function isUrlYoutubeVideo(url: string): boolean {
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-image/ (linkStyle))
  */
 export class QuestionImageModel extends QuestionNonValue {
+  @property({ defaultValue: false }) contentNotLoaded: boolean;
+
   constructor(name: string) {
     super(name);
     const locImageLink = this.createLocalizableString("imageLink", this, false);
@@ -83,8 +85,12 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
+  private getRenderedSize(val: string): string {
+    return isNaN(Number(val)) ? val : val + "px";
+  }
+
   public get renderedHeight(): string {
-    return this.imageHeight ? this.imageHeight + "px" : undefined;
+    return this.imageHeight ? this.getRenderedSize(this.imageHeight) : undefined;
   }
   /**
    * Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
@@ -102,7 +108,7 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setPropertyValue("imageWidth", val);
   }
   public get renderedWidth(): string {
-    return this.imageWidth ? this.imageWidth + "px" : undefined;
+    return this.imageWidth ? this.getRenderedSize(this.imageWidth) : undefined;
   }
   /**
    * Specifies how to resize the image or video to fit it into its container.
@@ -153,6 +159,13 @@ export class QuestionImageModel extends QuestionNonValue {
       .append(this.cssClasses.image)
       .append(this.cssClasses.adaptive, isDefaultSize)
       .toString();
+  }
+
+  public onLoadHandler(): void {
+    this.contentNotLoaded = false;
+  }
+  public onErrorHandler(): void {
+    this.contentNotLoaded = true;
   }
 
   private setRenderedMode(val: string) {
@@ -212,8 +225,8 @@ Serializer.addClass(
       default: "contain",
       choices: ["none", "contain", "cover", "fill"],
     },
-    { name: "imageHeight:number", default: 150, minValue: 0 },
-    { name: "imageWidth:number", default: 200, minValue: 0 },
+    { name: "imageHeight", default: "150" },
+    { name: "imageWidth", default: "200" },
   ],
   function () {
     return new QuestionImageModel("");

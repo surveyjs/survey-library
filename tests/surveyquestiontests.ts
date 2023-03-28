@@ -36,6 +36,8 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { PageModel } from "../src/page";
+import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
 
@@ -2432,6 +2434,38 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
 
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  page.addElement(qText);
+  assert.equal(qText.characterCounter.remainingCharacterCounter, undefined, "By default it is undefined");
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string");
+  qText.maxLength = 10;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10");
+  qText.maxLength = 0;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "makes it empty string");
+  qText.maxLength = 5;
+  qText.updateRemainingCharacterCounter("Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/5");
+  qText.updateRemainingCharacterCounter("");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "0/5");
+});
+
+QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields and there is defaultValue", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qText = new QuestionTextModel("q1");
+  qText.maxLength = 10;
+  qText.defaultValue = "Test";
+  page.addElement(qText);
+  assert.equal(qText.value, "Test");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10", "By default it is undefined");
+});
+
 QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -3137,7 +3171,17 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
-
+QUnit.test("Change hideIfChoicesEmpty property default value", function (assert) {
+  let question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #1");
+  const prop = Serializer.findProperty("selectbase", "hideIfChoicesEmpty");
+  prop.defaultValue = true;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, true, "default value #2");
+  prop.defaultValue = undefined;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #3");
+});
 QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -3215,10 +3259,12 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
   question.indent = 1;
   question.rightIndent = 2;
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
+  assert.deepEqual(question.getRootStyle(), { "--sv-element-add-padding-left": "20px", "--sv-element-add-padding-right": "40px" });
   survey.css = {
     question: {
       indent: 0
@@ -3226,6 +3272,16 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   };
   assert.equal(question.paddingLeft, "", "left is empty");
   assert.equal(question.paddingRight, "", "right is empty");
+  assert.deepEqual(question.getRootStyle(), { });
+});
+QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
+  StylesManager.applyTheme("defaultV2");
+  const survey = new SurveyModel({
+    questions: [{ type: "text", name: "q1", indent: 1 }],
+  });
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.paddingLeft, "20px");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test(
@@ -3570,7 +3626,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: true,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5, imageLink: "test5" }
+      ]
     },
     question
   );
@@ -3597,7 +3659,13 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
       type: "imagepicker",
       name: "question3",
       multiSelect: false,
-      choices: [1, 2, 3, 4, 5],
+      choices: [
+        { value: 1, imageLink: "test1" },
+        { value: 2, imageLink: "test2" },
+        { value: 3, imageLink: "test3" },
+        { value: 4, imageLink: "test4" },
+        { value: 5 }
+      ],
     },
     question
   );
@@ -3618,6 +3686,9 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function (assert) {
     false,
     "The third time is not selected"
   );
+
+  question.value = 5;
+  assert.equal(question.isItemSelected(question.choices[4]), false, "The fifth time is not selected");
 });
 
 QUnit.test("QuestionImagePicker 0 item value test", function (assert) {
@@ -5074,6 +5145,31 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
   assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
 });
+QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      {
+        type: "checkbox",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+
+  assert.deepEqual(q2.visibleChoices, []);
+  assert.deepEqual(q2.isEmpty(), true);
+
+  q1.value = [2, 3, "other"];
+  assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
+  q1.comment = "someText";
+  assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
+  assert.equal(q2.visibleChoices[2].value, "other", "other value");
+  assert.equal(q2.visibleChoices[2].text, "someText", "other text");
+});
 QUnit.test(
   "choicesFromQuestion hasSelectAll, hasNone, hasOther properties, Bug#",
   function (assert) {
@@ -5106,6 +5202,38 @@ QUnit.test(
     );
   }
 );
+QUnit.test("choicesFromQuestion clear dropdown value on unselect in checkbox, Bug#5833", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3]
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+      {
+        type: "tagbox",
+        name: "q3",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionTagboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2];
+  q2.value = 1;
+  q3.value = [1, 2];
+  q1.value = [2, 3];
+  assert.equal(q2.isEmpty(), true, "Value is cleared in dropdown");
+  assert.deepEqual(q3.value, [2], "One item is cleared in tagbox");
+});
 QUnit.test(
   "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
   function (assert) {
@@ -5585,6 +5713,32 @@ QUnit.test("Creator V2: do not add into visibleChoices items for custom widgets"
   );
   assert.equal(q1.visibleChoices.length, 3, "Show only 3 choice items");
   settings.supportCreatorV2 = false;
+  CustomWidgetCollection.Instance.clear();
+});
+QUnit.test("isFit custom widgets on renderAs", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "pretty",
+    isFit: (question) => {
+      return question.renderAs == "pretty";
+    },
+  });
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        renderAs: "pretty",
+        choices: [1, 2, 3]
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.ok(q1.customWidget, "Custom widget is apply");
+  assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
   CustomWidgetCollection.Instance.clear();
 });
 QUnit.test("Update choices order on changing locale, bug #2832", function (

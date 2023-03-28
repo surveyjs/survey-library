@@ -1,0 +1,15 @@
+{
+  "name": "survey-angular-ui-example",
+  "version": "0.0.1",
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/node": "^16.11.10"
+  },
+  "dependencies": {
+    "@angular/router": "^12.0.0",
+    "bootstrap": "^3.3.7",
+    "survey-core": "../../../build/survey-core",
+    "surveyjs-widgets": "^1.9.40",
+    "tslib": "^2.3.0"
+  }
+}

@@ -21,7 +21,7 @@
   img,
   .sd-imagepicker__image-container>div {
       border-radius: calcSize(0.5);
-      background-color: $background-dim;
+    background-color: $background-dim-light;
   }
 }
 .sd-imagepicker__item-decorator {
@@ -84,6 +84,7 @@
 .sd-imagepicker__no-image {
   display: flex;
   background-color: $background-dim-light;
+  inset-block-start: 0;
 }
 .sd-imagepicker__no-image-svg {
   height: calcSize(6);

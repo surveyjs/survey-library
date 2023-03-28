@@ -135,6 +135,7 @@ export var defaultCss = {
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
+    itemIndexEmptyMode: "sv-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
@@ -157,6 +158,8 @@ export var defaultCss = {
     cleanButtonSvg: "sv_q_dd_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     filterStringInput: "sv_q_dd_filter-string-input",
+    hintPrefix: "sv_q_dd_hint-prefix",
+    hintSuffix: "sv_q_dd_hint-suffix"
   },
   tagbox: {
     root: "sv_q_dd_root",

@@ -1115,7 +1115,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"expression"`
    * - `"rating"`
    *
-   * Default value: "dropdown" (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */
   public get cellType(): string {
     return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
@@ -1148,7 +1148,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setPropertyValue("columnColCount", value);
   }
   public get horizontalScroll(): boolean {
-    return this.getPropertyValue("horizontalScroll", false);
+    return this.getPropertyValue("horizontalScroll");
   }
   public set horizontalScroll(val: boolean) {
     this.setPropertyValue("horizontalScroll", val);
@@ -2265,8 +2265,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !!this.data &&
       !!this.visibleTotalRow &&
       !this.isUpdateLocked &&
-      !this.isSett &&
-      !this.isReadOnly
+      !this.isSett
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,

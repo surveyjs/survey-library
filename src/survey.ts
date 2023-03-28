@@ -6673,6 +6673,9 @@ export class SurveyModel extends SurveyElementCore
       if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {
         allQuestions[questionIndex + 1].focus();
       }
+      else {
+        event.target.blur();
+      }
     }
   }
 

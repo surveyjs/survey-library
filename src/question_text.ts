@@ -417,15 +417,11 @@ export class QuestionTextModel extends QuestionTextBase {
     if(this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
-        if (event.keyCode === 13) {
-          (this.survey as SurveyModel).questionEditFinishCallback(this, event);
-        }
         this._isWaitingForEnter = false;
       }
     } else {
       if (event.keyCode === 13) {
         this.updateValueOnEvent(event);
-        (this.survey as SurveyModel).questionEditFinishCallback(this, event);
       }
     }
     this.updateRemainingCharacterCounter(event.target.value);
@@ -433,6 +429,9 @@ export class QuestionTextModel extends QuestionTextBase {
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
+    }
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
     }
   }
   public onChange = (event: any): void => {

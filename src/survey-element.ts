@@ -917,6 +917,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.toggleState();
     }
   }
+  public get additionalTitleToolbar(): ActionContainer {
+    return this.getAdditionalTitleToolbar();
+  }
+  protected getAdditionalTitleToolbar() : ActionContainer | null {
+    return null;
+  }
   protected getCssTitle(cssClasses: any) {
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;

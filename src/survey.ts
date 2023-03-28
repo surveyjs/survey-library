@@ -355,7 +355,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
-   * Use this event to modify the HTML content before rendering, for example `completeHtml` or `loadingHtml`.
+   * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html
@@ -4138,7 +4138,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
-    return !!html ? this.processHtml(html) : "";
+    return !!html ? this.processHtml(html, "completed") : "";
   }
   /**
    * Returns the HTML content, that is shown to a user that had completed the survey before.
@@ -4146,13 +4146,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.processHtml(this.completedBeforeHtml);
+    return this.processHtml(this.completedBeforeHtml, "completed-before");
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    return this.processHtml(this.loadingHtml);
+    return this.processHtml(this.loadingHtml, "loading");
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
@@ -6178,8 +6178,9 @@ export class SurveyModel extends SurveyElementCore
     this.onValidatePanel.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  processHtml(html: string): string {
-    var options = { html: html };
+  processHtml(html: string, reason?: string): string {
+    if(!reason) reason = "";
+    var options = { html: html, reason: reason };
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
   }

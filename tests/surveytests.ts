@@ -16654,3 +16654,37 @@ QUnit.test("Try again button should call onComplete", function (assert) {
   assert.equal(survey.state, "completed", "the survey is completed");
   assert.equal(attempts, 3, "There were 3 attempts");
 });
+QUnit.test("Use variables as default values in expression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q2",
+        title: "myB = {myB}",
+        defaultValueExpression: "{myB}",
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "myA = {myA}",
+        defaultValueExpression: "{myA}",
+      },
+
+      {
+        type: "text",
+        name: "q3",
+        title: "myC = {myC}",
+        defaultValueExpression: "{myC}",
+      },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("myA", "AAA");
+  survey.setValue("myB", "BBB");
+  survey.setValue("myC", "CCC");
+  assert.equal(q1.value, "AAA", "q1.value");
+  assert.equal(q2.value, "BBB", "q2.value");
+  assert.equal(q3.value, "CCC", "q3.value");
+});

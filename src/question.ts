@@ -1529,7 +1529,9 @@ export class Question extends SurveyElement<Question>
       this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
       (val) => {
-        this.value = val;
+        if(!Helpers.isTwoValueEquals(this.value, val)) {
+          this.value = val;
+        }
       }
     );
   }
@@ -1561,7 +1563,11 @@ export class Question extends SurveyElement<Question>
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
-        this.runExpressionSetValue(val, (val: any): void => { this.value = val; });
+        this.runExpressionSetValue(val, (val: any): void => {
+          if(!Helpers.isTwoValueEquals(this.value, val)) {
+            this.value = val;
+          }
+        });
       };
     }
     if (!values) values = this.data.getFilteredValues();

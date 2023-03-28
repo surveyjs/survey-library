@@ -5708,6 +5708,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
+    if(!!this.valuesHash) {
+      delete this.valuesHash[name];
+    }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);

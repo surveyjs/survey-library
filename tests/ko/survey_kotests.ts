@@ -2537,3 +2537,37 @@ QUnit.test("koRenderedHtml: check onProcessHtml event", function (
   const q = survey.getAllQuestions()[0];
   assert.equal(q.locHtml.koRenderedHtml(), "processed_html", "#onProcessHtml doesn't work with koRenderedHtml");
 });
+QUnit.test("Use variables as default values in expression", function (assert) {
+  const survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "q2",
+        title: "myB = {myB}",
+        defaultValueExpression: "{myB}",
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "myA = {myA}",
+        defaultValueExpression: "{myA}",
+      },
+
+      {
+        type: "text",
+        name: "q3",
+        title: "myC = {myC}",
+        defaultValueExpression: "{myC}",
+      },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("myA", "AAA");
+  survey.setValue("myB", "BBB");
+  survey.setValue("myC", "CCC");
+  assert.equal(q1.koValue(), "AAA", "q1.value");
+  assert.equal(q2.koValue(), "BBB", "q2.value");
+  assert.equal(q3.koValue(), "CCC", "q3.value");
+});

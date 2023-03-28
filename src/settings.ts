@@ -7,7 +7,13 @@
  * settings.settingName = "value";
  * ```
  */
-export var settings = {
+
+export interface ISettings {
+  [index: string]: any;
+  columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } };
+}
+
+export var settings: ISettings = {
   /**
    * An object that configures string comparison.
    *
@@ -454,5 +460,9 @@ export var settings = {
       "email",
       "impp",
     ]
+  },
+  columnWidthsByType: {
+    "file": { minWidth: "240px" },
+    "comment": { minWidth: "200px" }
   }
 };

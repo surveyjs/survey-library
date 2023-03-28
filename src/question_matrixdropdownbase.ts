@@ -69,11 +69,6 @@ export interface IMatrixDropdownData {
   getSurvey(): ISurvey;
 }
 
-const columnWidthsByType: {[index: string] : { width?: string, minWidth?: string }} = {
-  "file": { minWidth: "240px" },
-  "comment": { minWidth: "200px" }
-};
-
 export class MatrixDropdownCell {
   private questionValue: Question;
   constructor(
@@ -410,13 +405,13 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     this.setValueCore(name, newValue, true);
   }
   findQuestionByName(name: string): IQuestion {
-    if(!name) return undefined;
+    if (!name) return undefined;
     const prefix = MatrixDropdownRowModelBase.RowVariableName + ".";
-    if(name.indexOf(prefix) === 0) {
+    if (name.indexOf(prefix) === 0) {
       return this.getQuestionByName(name.substring(prefix.length));
     }
     const survey = this.getSurvey();
-    return !!survey ? survey.getQuestionByName(name): null;
+    return !!survey ? survey.getQuestionByName(name) : null;
   }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue) return;
@@ -820,14 +815,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       "columns",
       (item: any) => {
         item.colOwner = this;
-        if(this.onAddColumn) this.onAddColumn(item);
-        if(this.survey) {
+        if (this.onAddColumn) this.onAddColumn(item);
+        if (this.survey) {
           this.survey.matrixColumnAdded(this, item);
         }
       },
       (item: any) => {
         item.colOwner = null;
-        if(this.onRemoveColumn) this.onRemoveColumn(item);
+        if (this.onRemoveColumn) this.onRemoveColumn(item);
       }
     );
   }
@@ -1354,8 +1349,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       const column = this.visibleColumns[i];
       if (!column.requiredIf) continue;
       let required = rows.length > 0;
-      for(var j = 0; j < rows.length; j ++) {
-        if(!rows[j].cells[i].question.isRequired) {
+      for (var j = 0; j < rows.length; j++) {
+        if (!rows[j].cells[i].question.isRequired) {
           required = false;
           break;
         }
@@ -1435,7 +1430,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.getColumnByName(columnName);
   }
   public getColumnWidth(column: MatrixDropdownColumn): string {
-    return column.minWidth ? column.minWidth : this.columnMinWidth ? this.columnMinWidth : (columnWidthsByType[column.cellType]?.minWidth || "");
+    return column.minWidth ? column.minWidth : this.columnMinWidth ? this.columnMinWidth : (settings.columnWidthsByType[column.cellType]?.minWidth || "");
   }
   /**
    * Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. You can override this property for individual columns.
@@ -1761,7 +1756,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       );
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
-    if(res.requiredQuestionCount === 0 && this.isRequired) {
+    if (res.requiredQuestionCount === 0 && this.isRequired) {
       res.requiredQuestionCount = 1;
       res.requiredAnsweredQuestionCount = !this.isEmpty() ? 1 : 0;
     }
@@ -1771,7 +1766,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
     for (var i = 0; i < this.columns.length; i++) {
       const col = this.columns[i];
-      if(!col.templateQuestion.hasInput) continue;
+      if (!col.templateQuestion.hasInput) continue;
       res.questionCount += 1;
       res.requiredQuestionCount += col.isRequired;
       const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);

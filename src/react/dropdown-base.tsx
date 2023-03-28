@@ -64,7 +64,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   renderValueElement(dropdownListModel: DropdownListModel): JSX.Element | null {
     if (this.question.showInputFieldComponent) {
       return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
-    } else if (dropdownListModel.showSelectedItemLocText) {
+    } else if (this.question.showSelectedItemLocText) {
       return this.renderLocString(this.question.selectedItemLocText);
     }
     return null;

@@ -9,6 +9,10 @@
           <!-- /ko -->
         </div>
     <!-- /ko -->
+    <!-- ko if: question.isRenderModeTab -->
+    <!-- ko component: { name: 'sv-action-bar', params: { model: question.tabToolbarValue } } -->
+    <!-- /ko -->
+    <!-- /ko -->
     <!-- ko if: question.koIsList() -->
       <!-- ko foreach: { data: question.panels } -->
         <div data-bind="css: question.getPanelWrapperCss()">

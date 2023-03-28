@@ -854,6 +854,9 @@ export class QuestionPanelDynamicModel extends Question
   public get isRenderModeList() {
     return this.renderMode === "list";
   }
+  public get isRenderModeTab() {
+    return this.renderMode === "tabs";
+  }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
     var startIndex = this.showQuestionNumbers == "onSurvey" ? value : 0;
@@ -1861,6 +1864,14 @@ export class QuestionPanelDynamicModel extends Question
     if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
+  private tabToolbarValue: ActionContainer;
+  public get tabToolbar(): ActionContainer {
+    if (!this.tabToolbarValue) {
+      this.tabToolbarValue = this.createActionContainer(true);
+    }
+    return this.tabToolbarValue;
+  }
+
   private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
@@ -1875,6 +1886,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!!this.updateFooterActionsCallback) {
       this.updateFooterActionsCallback();
     }
+    this.updateTabToolbar();
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
@@ -1934,6 +1946,14 @@ export class QuestionPanelDynamicModel extends Question
     };
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);
+  }
+  private updateTabToolbar() {
+    const items = [];
+    for(let i = 0; i < this.panelCount; i++) {
+      const newItem = new Action({ id: i.toString(), title: "Panel" + (i + 1), action: () => { this.currentIndex = parseInt(newItem.id); } });
+      items.push(newItem);
+    }
+    this.tabToolbar.setItems(items);
   }
   private get showLegacyNavigation() {
     return !this.isDefaultV2Theme;

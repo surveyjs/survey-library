@@ -5120,3 +5120,152 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(panel.value, [{ matrix: [{ col1: 10, col2: 20 }] }], "panel value");
   assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 10, col2: 20 }] }] }, "survey.data");
 });
+
+QUnit.test("renderMode: tabs, issue#5829", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tabs",
+        templateTitle: "Information about: {panel.relativeType}",
+        templateElements: [
+          {
+            name: "relativeType",
+            type: "dropdown",
+            title: "Relative",
+            choices: [
+              "father",
+              "mother",
+              "brother",
+              "sister",
+              "son",
+              "daughter"
+            ],
+          },
+          {
+            name: "isalive",
+            type: "radiogroup",
+            title: "Alive?",
+            startWithNewLine: false,
+            colCount: 0,
+            choices: ["Yes", "No"]
+          },
+          {
+            name: "liveage",
+            type: "dropdown",
+            title: "Age",
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'Yes'",
+            choicesMin: 1,
+            choicesMax: 115
+          },
+          {
+            name: "deceasedage",
+            type: "dropdown",
+            title: "Deceased Age",
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'No'",
+            choices: [
+              {
+                value: -1,
+                text: "Unknown"
+              }
+            ],
+            choicesMin: 1,
+            choicesMax: 115
+          },
+          {
+            name: "causeofdeathknown",
+            type: "radiogroup",
+            title: "Cause of Death Known?",
+            colCount: 0,
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'No'",
+            choices: ["Yes", "No"]
+          },
+          {
+            name: "causeofdeath",
+            type: "text",
+            title: "Cause of Death",
+            startWithNewLine: false,
+            visibleIf:
+              "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+          },
+          {
+            type: "panel",
+            name: "moreInfo",
+            state: "expanded",
+            title: "Detail Information about: {panel.relativeType}",
+            elements: [
+              {
+                type: "matrixdynamic",
+                name: "relativeillness",
+                title: "Describe the illness or condition.",
+                rowCount: 0,
+                columns: [
+                  {
+                    name: "illness",
+                    cellType: "dropdown",
+                    title: "Illness/Condition",
+                    choices: [
+                      "Cancer",
+                      "Heart Disease",
+                      "Diabetes",
+                      "Stroke/TIA",
+                      "High Blood Pressure",
+                      "High Cholesterol or Triglycerides",
+                      "Liver Disease",
+                      "Alcohol or Drug Abuse",
+                      "Anxiety, Depression or Psychiatric Illness",
+                      "Tuberculosis",
+                      "Anesthesia Complications",
+                      "Genetic Disorder",
+                      "Other – describe"
+                    ],
+                    isRequired: true
+                  },
+                  {
+                    name: "description",
+                    cellType: "text",
+                    title: "Describe",
+                    isRequired: true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        panelCount: 2,
+        panelAddText: "Add a blood relative",
+        panelRemoveText: "Remove the relative"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  const panelTabToolbar = panel.tabToolbar;
+  assert.ok(!!panel["tabToolbarValue"], "tabToolbarValue exist");
+  assert.ok(panel.isRenderModeTab, "isRenderModeTab");
+  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
+  assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
+  assert.equal(panelTabToolbar.actions[0].title, "Panel1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[1].title, "Panel2", "Panel 2");
+
+  panel.addPanel();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+  assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
+  assert.equal(panelTabToolbar.actions[0].title, "Panel1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[1].title, "Panel2", "Panel 2");
+  assert.equal(panelTabToolbar.actions[2].title, "Panel3", "Panel 3");
+
+  panelTabToolbar.actions[1].action();
+  assert.equal(panel.currentIndex, 1, "currentIndex is 1");
+
+  panelTabToolbar.actions[2].action();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+
+  panelTabToolbar.actions[0].action();
+  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
+});
+

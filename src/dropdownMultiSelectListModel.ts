@@ -139,4 +139,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       event.stopPropagation();
     }
   }
+
+  public setInputStringFromSelectedItem(newValue: any): void {
+    if (this.question.searchEnabled) {
+      this.inputString = null;
+    }
+  }
 }

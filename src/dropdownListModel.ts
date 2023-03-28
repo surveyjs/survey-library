@@ -434,15 +434,17 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
   onFocus(event: any): void {
+    this.setInputStringFromSelectedItem();
+  }
+
+  public setInputStringFromSelectedItem(newValue?: any): void {
     if (this.question.searchEnabled) {
-      if (this.question instanceof QuestionDropdownModel) {
-        this.applyInputString(this.question.selectedItem);
-      }
-      else {
-        this.inputString = null;
-      }
+      this.applyInputString(newValue || this.question.selectedItem);
+    } else {
+      this.inputString = null;
     }
   }
+
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();
   }

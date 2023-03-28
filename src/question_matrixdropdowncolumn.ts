@@ -665,7 +665,14 @@ Serializer.addClass(
       serializationProperty: "locRequiredErrorText",
     },
     "readOnly:boolean",
-    "minWidth",
+    {
+      name: "minWidth",
+      onPropertyEditorUpdate: function (obj: any, editor: any) {
+        if (!!obj && !!editor) {
+          editor.value = obj.minWidth;
+        }
+      }
+    },
     "width",
     "visibleIf:condition",
     "enableIf:condition",

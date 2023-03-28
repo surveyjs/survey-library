@@ -355,7 +355,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
-   * An event that is raised when the survey processes HTML content. Handle this event to modify the HTML content before display.
+   * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html

@@ -339,11 +339,11 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
 }
 export interface ProcessHtmlEvent {
   /**
-   * an HTML that you may change before text processing and then rendering. specifies the modified HTML content
+   * HTML markup. You can modify this parameter's value.
    */
   html: string;
   /**
-   * a possible reason of processing html. It could be "completed", "completed-before", "loading", "html-question" or empty string if there is no reason is set.
+   * Indicates a page, question, or message for which the HTML content is intended: [`"completed"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml) | [`"completed-before"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml) | [`"loading"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml) | [`"html-question"`](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html).
    */
   reason: string;
 }

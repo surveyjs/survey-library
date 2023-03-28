@@ -760,6 +760,13 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
 
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-navigation__complete-btn");
+      await takeElementScreenshot("survey-completed-no-toc.png", Selector(".sd-root-modern"), t, comparer);
+
       await t.resizeWindow(1920, 1080);
     });
   });

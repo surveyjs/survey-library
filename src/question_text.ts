@@ -125,7 +125,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", "");
+    return this.getPropertyValue("autocomplete", null);
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);

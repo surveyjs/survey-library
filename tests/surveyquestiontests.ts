@@ -3252,6 +3252,25 @@ QUnit.test("Question Html ignore Html processing = true", function (assert) {
   assert.equal(question.locHtml.renderedHtml, "text2", "do not proccess html");
 });
 
+QUnit.test("Survey.onProcessHtml add reason property into options", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  question.html = "text";
+  survey.completedHtml = "complete survey";
+  survey.completedBeforeHtml = "complete before survey";
+  survey.loadingHtml = "loading survey";
+  survey.onProcessHtml.add(function (survey, options) {
+    options.html = options.html + "-add-" + options.reason;
+  });
+  assert.equal(question.locHtml.renderedHtml, "text-add-html-question", "#1");
+  assert.equal(survey.processedCompletedHtml, "complete survey-add-completed", "#2");
+  assert.equal(survey.processedCompletedBeforeHtml, "complete before survey-add-completed-before", "#3");
+  assert.equal(survey.processedLoadingHtml, "loading survey-add-loading", "#4");
+});
+
 QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "dropdown", name: "q1" }],

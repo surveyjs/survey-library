@@ -199,6 +199,7 @@ export class DropdownListModel extends Base {
     defaultValue: "",
     onSet: (newValue, target: DropdownListModel) => {
       target.question.inputHasValue = !!newValue;
+      target.showSelectedItemLocText = target.question.showSelectedItemLocText;
     }
   }) inputString: string;
 
@@ -213,6 +214,7 @@ export class DropdownListModel extends Base {
       this.inputString = "";
     } else {
       this.inputString = item?.title;
+      this.hintString = item?.title;
     }
   }
 
@@ -272,7 +274,7 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return this.hintStringLC != this.inputStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
+    return !!this.question.searchEnabled && this.hintStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0;
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
@@ -354,7 +356,6 @@ export class DropdownListModel extends Base {
     this.scrollToFocusedItem();
     if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.applyInputString(this.listModel.focusedItem);
-      this.hintString = "";
     }
     else {
       this.applyHintString(this.listModel.focusedItem);
@@ -430,17 +431,20 @@ export class DropdownListModel extends Base {
     this.hintString = "";
     doKey2ClickBlur(event);
     this._popupModel.isVisible = false;
+    event.stopPropagation();
   }
   onFocus(event: any): void {
+    this.setInputStringFromSelectedItem();
+  }
+
+  public setInputStringFromSelectedItem(newValue?: any): void {
     if (this.question.searchEnabled) {
-      if (this.question instanceof QuestionDropdownModel) {
-        this.applyInputString(this.question.selectedItem);
-      }
-      else {
-        this.inputString = null;
-      }
+      this.applyInputString(newValue || this.question.selectedItem);
+    } else {
+      this.inputString = null;
     }
   }
+
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();
   }

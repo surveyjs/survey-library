@@ -66,6 +66,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   border-color: $primary;
   color: $primary-foreground;
   font-weight: 600;
+  box-shadow: 0px 1px 2px transparent;
 }
 
 .sd-rating__item--selected:focus-within {

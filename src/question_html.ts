@@ -15,7 +15,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
     var locHtml = this.createLocalizableString("html", this);
     locHtml.onGetTextCallback = (str: string): string => {
       return !!this.survey && !this.ignoreHtmlProgressing
-        ? this.survey.processHtml(str)
+        ? this.processHtml(str)
         : str;
     };
   }
@@ -44,7 +44,10 @@ export class QuestionHtmlModel extends QuestionNonValue {
     return this.getLocalizableString("html");
   }
   public get processedHtml() {
-    return this.survey ? this.survey.processHtml(this.html) : this.html;
+    return this.processHtml(this.html);
+  }
+  private processHtml(html: string): string {
+    return this.survey ? this.survey.processHtml(html, "html-question") : this.html;
   }
 }
 Serializer.addClass(

@@ -182,7 +182,7 @@ export class Trigger extends Base {
       if (keys.hasOwnProperty(name)) return true;
       var firstName = processValue.getFirstName(name);
       if (!keys.hasOwnProperty(firstName)) continue;
-      if (name == firstName) return true;
+      if (name === firstName) return true;
       var keyValue = keys[firstName];
       if (keyValue == undefined) continue;
       if (
@@ -195,7 +195,7 @@ export class Trigger extends Base {
       var oldValue = processValue.getValue(name, v);
       v[firstName] = keyValue["newValue"];
       var newValue = processValue.getValue(name, v);
-      return !this.isTwoValueEquals(oldValue, newValue);
+      if(!this.isTwoValueEquals(oldValue, newValue)) return true;
     }
     return false;
   }

@@ -63,6 +63,7 @@ import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -16633,4 +16634,23 @@ QUnit.test("Survey setDesignMode should not trigger pages regeneration if not ch
   survey.setDesignMode(true);
   assert.equal(survey.pages.length, 2, "We should have 2 pages");
   assert.equal(survey.getAllPanels().length, 0, "We should have 0 panels");
+});
+QUnit.test("Try again button should call onComplete", function (assert) {
+  class SurveyModelTester extends SurveyModel {
+    public doErrorAction(): void {
+      const action = this.createTryAgainAction().action;
+      if(!!action) action();
+    }
+  }
+  var survey = new SurveyModelTester({ elements: [{ type: "text", name: "q1" }] });
+  let attempts = 0;
+  survey.onComplete.add((sender, options) => {
+    attempts ++;
+    if(attempts < 3) {
+      survey.doErrorAction();
+    }
+  });
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "the survey is completed");
+  assert.equal(attempts, 3, "There were 3 attempts");
 });

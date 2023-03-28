@@ -836,6 +836,54 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   }, 550);
 });
 
+QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "defaultValue": { id: 55 },
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if(options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item.id)));
+    }
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value.id, 55);
+  assert.equal(question.selectedItem.value.id, 55);
+  assert.equal(question.selectedItem.text, "DisplayText_55");
+  assert.equal(question.dropdownListModel.inputString, "DisplayText_55");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(question.value.id, 55);
+    assert.equal(question.selectedItem.value.id, 55);
+    assert.equal(question.selectedItem.text, "DisplayText_55");
+    assert.equal(question.dropdownListModel.inputString, "DisplayText_55");
+    done();
+  }, 550);
+});
+
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
   const done = assert.async();
   const json = {

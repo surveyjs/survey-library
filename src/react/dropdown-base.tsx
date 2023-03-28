@@ -45,7 +45,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         <div>{this.question.readOnlyText}</div>
       </div>;
     } else {
-      if (!(this.question as any).hasOwnProperty("dropdownListModel")) {
+      if (!(this.question as any)["dropdownListModel"]) {
         (this.question as any)["dropdownListModel"] = new DropdownListModel(this.question);
       }
       selectElement = <>

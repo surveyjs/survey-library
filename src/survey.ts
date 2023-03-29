@@ -6711,10 +6711,10 @@ export class SurveyModel extends SurveyElementCore
    * This method accepts an object with the following layout element properties:
    *
    * - `id`: `String` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
-   * A layout element identifier. You can use the possible values to access and relocate or customize predefined layout elements.
+   * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
    *
    * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
-   * A layout container that holds the element. If you want to display the element within multiple containers, set this property to an array of the possible values.
+   * A layout container that holds the element. If you want to display the element within multiple containers, set this property to an array of possible values.
    *
    * - `component`: `String`\
    * The name of the component that renders the layout element.

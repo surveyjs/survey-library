@@ -46,9 +46,9 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && (<any>this.survey).showPageTitles;
   }
   /**
-   * A caption displayed on a navigation button in the progress bar. Applies only when [`showProgressBar`](https://surveyjs.io/form-library/documentation/surveymodel#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is `"buttons"`.
+   * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when [`showProgressBar`](https://surveyjs.io/form-library/documentation/surveymodel#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is `"buttons"`.
    *
-   * If this property is undefined, the navigation button displays the page's [`name`](https://surveyjs.io/form-library/documentation/pagemodel#name).
+   * If this property is undefined, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
    */
   public get navigationTitle(): string {
     return this.getLocalizableStringText("navigationTitle");

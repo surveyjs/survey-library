@@ -425,4 +425,37 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("panel-single-page.png", panelRoot, t, comparer);
     });
   });
+  test("Check inner panel with singlePage mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questionsOnPageMode: "singlePage",
+        pages: [
+          {
+            title: "Page",
+            elements: [
+              {
+                "type": "panel",
+                "name": "panel",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question1"
+                  }
+                ],
+                "title": "Panel"
+              }
+            ]
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await takeElementScreenshot("inner-panel-single-page.png", panelRoot, t, comparer);
+    });
+  });
 });

@@ -3655,12 +3655,13 @@ export class SurveyModel extends SurveyElementCore
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   /**
-   * Gets or sets a value that specifies how the survey combines questions, panels, and pages.
+   * Specifies how to distribute survey elements between pages.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `singlePage` - combine all survey pages in a single page. Pages will be converted to panels.
-   * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
+   * - `"singlePage"` - Combines all survey pages into a single page.
+   * - `"questionPerPage"` - Creates a separate page for every question.
+   * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
     return this.getPropertyValue("questionsOnPageMode");

@@ -2505,6 +2505,37 @@ frameworks.forEach((framework) => {
       .expect(clearButton.visible).notOk();
   });
 
+  test("Check dropdown close popup on selected item click", async (t) => {
+    const jsonWithDropdown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          defaultValue: "item2",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropdown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+    const selectedItem = Selector(".sv-list__item--selected");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).ok()
+      .expect(questionValueInput.value).eql("item2")
+      .expect(selectedItem.exists).ok()
+      .click(selectedItem)
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueInput.value).eql("item2");
+  });
+
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
       questions: [

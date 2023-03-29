@@ -462,6 +462,15 @@ export var settings = {
       "impp",
     ]
   },
+  /**
+   * Contains properties that apply to [Single-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multiple-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
+   *
+   * Nested properties:
+   *
+   * - `columnWidthsByType`: `Object`\
+   * An object that specifies fixed and minimum column width based on the column type.\
+   * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
+   */
   matrix: {
     columnWidthsByType: columnWidthsByType
   }

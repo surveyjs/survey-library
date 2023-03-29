@@ -1,3 +1,9 @@
+
+const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
+  "file": { minWidth: "240px" },
+  "comment": { minWidth: "200px" }
+};
+
 /**
  * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
  *
@@ -8,12 +14,7 @@
  * ```
  */
 
-export interface ISettings {
-  [index: string]: any;
-  columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } };
-}
-
-export var settings: ISettings = {
+export var settings = {
   /**
    * An object that configures string comparison.
    *
@@ -461,8 +462,7 @@ export var settings: ISettings = {
       "impp",
     ]
   },
-  columnWidthsByType: {
-    "file": { minWidth: "240px" },
-    "comment": { minWidth: "200px" }
+  matrix: {
+    columnWidthsByType: columnWidthsByType
   }
 };

@@ -1430,7 +1430,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.getColumnByName(columnName);
   }
   public getColumnWidth(column: MatrixDropdownColumn): string {
-    return column.minWidth ? column.minWidth : this.columnMinWidth ? this.columnMinWidth : (settings.columnWidthsByType[column.cellType]?.minWidth || "");
+    return column.minWidth ? column.minWidth : this.columnMinWidth ? this.columnMinWidth : (settings.matrix.columnWidthsByType[column.cellType]?.minWidth || "");
   }
   /**
    * Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. You can override this property for individual columns.

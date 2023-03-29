@@ -1258,6 +1258,8 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets the visibility of the table of contents.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see tocLocation
    */
   public get showTOC(): boolean {
@@ -1273,6 +1275,8 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"left"` (default)
    * - `"right"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see showTOC
    */
   public get tocLocation(): "left" | "right" {
@@ -6718,6 +6722,27 @@ export class SurveyModel extends SurveyElementCore
 
   @propertyArray() private layoutElements: Array<ISurveyLayoutElement>;
 
+  /**
+   * Adds an element to the survey layout.
+   *
+   * This method accepts an object with the following layout element properties:
+   *
+   * - `id`: `String` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
+   * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
+   *
+   * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
+   * A layout container that holds the element. If you want to display the element within multiple containers, set this property to an array of possible values.
+   *
+   * - `component`: `String`\
+   * The name of the component that renders the layout element.
+   *
+   * - `data`: `any`\
+   * Data passed as props to `component`.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/progress-bar-with-percentage/ (linkStyle))
+   * @param layoutElement A layout element configuration.
+   * @returns The configuration of the previous layout element with the same `id`.
+   */
   public addLayoutElement(layoutElement: ISurveyLayoutElement): ISurveyLayoutElement {
     const existingLayoutElement = this.removeLayoutElement(layoutElement.id);
     this.layoutElements.push(layoutElement);

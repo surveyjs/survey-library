@@ -60,6 +60,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
     return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
   }
+  protected resetFilterString(): void {
+    super.resetFilterString();
+    this.inputString = null;
+  }
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;
   private get shouldResetAfterCancel() {

@@ -27,6 +27,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
     clone.style.cssText = `
+      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
       box-shadow: rgb(0 0 0 / 10%) 0px 8px 16px;
       background-color: white;
       display: flex;

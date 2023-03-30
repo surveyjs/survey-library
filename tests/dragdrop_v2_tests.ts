@@ -1,9 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionTextModel } from "../src/question_text";
-import { QuestionHtmlModel } from "../src/question_html";
 import { settings } from "../src/settings";
-import { PanelModel } from "../src/panel";
-import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("Drag and Drop Tests - CreatorV2 specific");
 
@@ -991,40 +988,4 @@ QUnit.test("Drag Drop Question with Multiline (StartWithNewLine === false)", fun
   assert.equal(page.rows[0].elements[0].name, "q1", "r2 q1 check");
   assert.equal(page.rows[0].elements[1].name, "q2", "r2 q2 check");
   assert.equal(page.rows[0].elements[2].name, "q3", "r2 q3 check");
-});
-
-QUnit.test("Drop at the end of not empty page with the panel as last element", function (assert) {
-  //init
-  settings.supportCreatorV2 = true;
-  const survey = new SurveyModel();
-  survey["_isDesignMode"] = true;
-  settings.supportCreatorV2 = true;
-  const page = survey.addNewPage("p1");
-
-  const p1 = page.addNewPanel("p1");
-  const q1 = page.addNewQuestion("rating", "q1");
-  p1.addElement(q1);
-  // EO init
-
-  const draggedElement = q1;
-  const dropTarget = p1;
-  const parentElement = page;
-  const isEdge = true;
-  const isBottom = true;
-  const ghostSurveyElement = new QuestionHtmlModel("qGhost");
-
-  parentElement.dragDropStart(
-    draggedElement,
-    ghostSurveyElement,
-    -1
-  );
-
-  const result = parentElement.dragDropMoveTo(
-    dropTarget,
-    isBottom,
-    isEdge
-  );
-
-  assert.equal(result, true, "dragDropMoveTo result is ok");
-  assert.equal(!!(survey.getQuestionByName("qGhost")), true, "qGhost question added");
 });

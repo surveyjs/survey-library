@@ -112,7 +112,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public onItemClick = (itemValue: T): void => {
-    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
+    if (this.isItemDisabled(itemValue)) {
       return;
     }
     this.isExpanded = false;

@@ -67,8 +67,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   flex-shrink: 0;
   width: calcSize(3);
   height: calcSize(4);
-  margin-right: calcSize(1);
-  margin-left: calcSize(1);
 }
 
 .sv-ranking-item__icon.sv-ranking-item__icon {
@@ -76,7 +74,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   fill: $primary;
   position: absolute;
   top: calcSize(1);
-  margin-right: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
 }
@@ -206,8 +203,11 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  margin-left: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
   top: calcSize(1);
+}
+
+.sv-ranking-shortcut .sv-ranking-item__icon-container {
+  margin-left: calcSize(1);
 }

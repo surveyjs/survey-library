@@ -146,9 +146,6 @@ export interface ShowingPreviewEvent {
    * Set this property to `false` if you want to cancel the preview.
    */
   allow: boolean;
-  /**
-  * @deprecated Use the `allow` property instead.
-  */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
@@ -279,7 +276,7 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
-   * An array of errors. The array is empty if the validated question satisfy all validation rules.
+   * An array of errors. The array is empty if the validated question satisfies all validation rules.
    */
   errors: Array<SurveyError>;
 }

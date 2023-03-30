@@ -109,11 +109,17 @@
 }
 .sd-dropdown__hint-prefix {
   color: $foreground-light;
+  span {
+      white-space: pre;
+    }
 }
 
 .sd-dropdown__hint-suffix {
   display: flex;
   color: $foreground-light;
+  span {
+      white-space: pre;
+    }
 }
 [dir="rtl"],
 [style*="direction:rtl"],

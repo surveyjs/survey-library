@@ -9,7 +9,13 @@
  */
 export var settings = {
   /**
+   * Specifies an action to perform when users press the Enter key within a survey.
    *
+   * Possible values:
+   *
+   * - `"moveToNextEditor"` - Moves focus to the next editor.
+   * - `"loseFocus"` - Removes focus from the current editor.
+   * - `"default"` - Behaves as a standard `<input>` element.
    */
   enterKeyAction: "default" as "moveToNextEditor" | "loseFocus" | "default",
   /**

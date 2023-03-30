@@ -917,3 +917,37 @@ QUnit.test("maxSelectedChoices in tagbox", function (assert) {
   assert.equal(list.actions[3].enabled, true);
   assert.deepEqual(question.value, ["item1"]);
 });
+
+QUnit.test("reset filterstring after select item", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      defaultValue: ["item1"],
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 4);
+  assert.equal(dropdownListModel.inputStringRendered, "");
+  assert.equal(dropdownListModel.filterString, "");
+
+  dropdownListModel.inputStringRendered = "1";
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
+  assert.equal(dropdownListModel.inputStringRendered, "1");
+  assert.equal(dropdownListModel.filterString, "1");
+
+  list.onItemClick(list.renderedActions.filter(item => list.isItemVisible(item))[0]);
+  assert.equal(dropdownListModel.inputStringRendered, "");
+  assert.equal(dropdownListModel.filterString, "");
+});

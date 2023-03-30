@@ -2960,3 +2960,15 @@ QUnit.test("", function (assert) {
   assert.equal(html.renderAs, "auto", "default is auto");
   Serializer.removeProperty("html", "renderAs");
 });
+QUnit.test("Ignore type for typed array elements", function (assert) {
+  const survey = new SurveyModel({
+    "completedHtmlOnCondition": [{
+      "type": "runexpression",
+      "expression": "{question1} = 'item1'",
+      "html": "custom text"
+    }]
+  });
+  const htmls = survey.completedHtmlOnCondition;
+  assert.equal(htmls.length, 1, "completedHtmlOnCondition is loaded");
+  assert.equal(htmls[0].getType(), "htmlconditionitem", "It has corrected type");
+});

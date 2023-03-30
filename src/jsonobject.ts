@@ -370,12 +370,6 @@ export class JsonObjectProperty implements IObject {
     if (!this.classNamePart) return objType;
     return objType.replace(this.classNamePart, "");
   }
-  public getClassName(className: string): string {
-    if (className) className = className.toLowerCase();
-    return this.classNamePart && className.indexOf(this.classNamePart) < 0
-      ? className + this.classNamePart
-      : className;
-  }
   /**
    * Depricated, please use getChoices
    */
@@ -1627,11 +1621,7 @@ export class JsonObject {
   }
   private createNewObj(value: any, property: JsonObjectProperty): any {
     var result: any = { newObj: null, error: null };
-    var className = value[JsonObject.typePropertyName];
-    if (!className && property != null && property.className) {
-      className = property.className;
-    }
-    className = property.getClassName(className);
+    const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
       ? JsonObject.metaData.createClass(className, value)
       : null;
@@ -1642,6 +1632,19 @@ export class JsonObject {
       className
     );
     return result;
+  }
+  private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
+    var res = property != null && property.className ? property.className : undefined;
+    if (!res) {
+      res = value[JsonObject.typePropertyName];
+    }
+    if(!res) return res;
+    res = res.toLowerCase();
+    const classNamePart = property.classNamePart;
+    if(classNamePart && res.indexOf(classNamePart) < 0) {
+      res += classNamePart;
+    }
+    return res;
   }
   private checkNewObjectOnErrors(
     newObj: any,

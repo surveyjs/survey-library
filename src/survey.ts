@@ -6674,6 +6674,20 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
 
+  public questionEditFinishCallback(question: Question, event: any) {
+    if (settings.enterKeyAction == "loseFocus") event.target.blur();
+    if (settings.enterKeyAction == "moveToNextEditor") {
+      const allQuestions = this.currentPage.questions;
+      const questionIndex = allQuestions.indexOf(question);
+      if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {
+        allQuestions[questionIndex + 1].focus();
+      }
+      else {
+        event.target.blur();
+      }
+    }
+  }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";

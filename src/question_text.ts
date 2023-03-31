@@ -8,6 +8,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Text question type.
@@ -428,6 +429,9 @@ export class QuestionTextModel extends QuestionTextBase {
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
+    }
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
     }
   }
   public onChange = (event: any): void => {

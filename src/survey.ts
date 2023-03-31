@@ -2807,7 +2807,7 @@ export class SurveyModel extends SurveyElementCore
     return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
-   * Returns [`startedPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startedPage) if the survey is displaying a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+   * Returns [`startedPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startedPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
    * @see startedPage
    * @see currentPage
    * @see firstPageIsStarted

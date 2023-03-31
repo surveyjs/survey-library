@@ -7,7 +7,14 @@ import { AngularComponentFactory } from "../component-factory";
   selector: "sv-ng-text-question",
   templateUrl: "./text.component.html",
   styleUrls: ["./text.component.scss"]
-  })
-export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {}
+})
+export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
+  get value(): string {
+    return this.model.value || "";
+  }
+  set value(val: string) {
+    this.model.value = val || "";
+  }
+}
 
 AngularComponentFactory.Instance.registerComponent("text-question", TextQuestionComponent);

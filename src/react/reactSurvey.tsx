@@ -108,7 +108,7 @@ export class Survey extends SurveyElementBase<any, any>
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
         <form onSubmit={onSubmit}>
           {customHeader}
-          <div className={this.css.container}>
+          <div className={this.survey.containerCss}>
             {header}
             <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
             {renderResult}

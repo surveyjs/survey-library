@@ -2,7 +2,7 @@
   <div :class="survey.getRootCss()">
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
-      <div :class="css.container">
+      <div :class="vueSurvey.containerCss">
         <survey-header :survey="vueSurvey" />
         <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
         <template

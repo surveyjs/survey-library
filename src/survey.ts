@@ -150,9 +150,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public onComplete: EventBase<SurveyModel, CompleteEvent> = this.addEvent<SurveyModel, CompleteEvent>();
   /**
-   * An event that is raised before the survey displays a [preview](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
-   *
+   * An event that is raised before the survey displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
    * @see showPreviewBeforeComplete
+   * @see showPreview
+   * @see cancelPreview
    */
   public onShowingPreview: EventBase<SurveyModel, ShowingPreviewEvent> = this.addEvent<SurveyModel, ShowingPreviewEvent>();
   /**
@@ -965,9 +966,10 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Returns a list of all pages in the survey, including invisible pages.
+   * Returns an array of all pages in the survey.
+   *
+   * To get an array of only visible pages, use the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
    * @see PageModel
-   * @see visiblePages
    */
   public get pages(): Array<PageModel> {
     return this.getPropertyValue("pages");
@@ -1129,11 +1131,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("triggers", val);
   }
   /**
-   * Gets or sets a list of calculated values in the survey.
-   * @see CalculatedValue
-   *
-   * For more information, refer to [Calculated Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
-   *
+   * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
    */
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getPropertyValue("calculatedValues");
@@ -1458,18 +1456,15 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Gets or ses whether user proceeds to the next page without pressing the "Next" button after answering all page questions.
-   * The available options:
+   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
    *
-   * - `true` - navigate to the next page and submit survey data automatically.
-   * - `autogonext` - navigate to the next page automatically but do not submit survey data.
-   * - `false` - do not navigate to the next page and do not submit survey data automatically.
+   * Default value: `false`
    *
-   * > If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * If you enable this property, the survey is also completed automatically. Set the [`allowCompleteSurveyAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#allowCompleteSurveyAutomatic) property to `false` if you want to disable this behavior.
    *
-   * @see showNavigationButtons
+   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-autonextpage/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
     return this.getPropertyValue("goNextPageAutomatic");
@@ -1478,8 +1473,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Gets or sets whether a survey is automatically completed when `goNextPageAutomatic = true`. Set it to `false` if you do not want to submit survey automatically on completing the last survey page.
-   * @see goNextPageAutomatic
+   * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
+   *
+   * Default value: `true`
    */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
@@ -1488,14 +1484,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
   }
   /**
-   * Gets or sets a value that specifies how the survey validates the question answers.
+   * Specifies when the survey validates answers.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
-   * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
-   * - `onValueChanging` - check errors before setting value into survey. If there is an error, then survey data is not changed, but question value will be keeped.
-   * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
+   * - `"onNextPage"` (default) - Triggers validation before the survey is switched to the next page or completed.
+   * - `"onValueChanged"` - Triggers validation each time a question value is changed.
+   * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
+   *
+   * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -1504,9 +1501,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether the text area of [comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions/elements automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
-   * Default value is false.
-   * @see QuestionCommentModel.autoGrow
+   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   *
+   * Default value: `false`
+   *
+   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -2051,11 +2050,10 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completeText");
   }
   /**
-   *  Gets or sets the 'Preview' button caption.
-   * @see locale
+   * Gets or sets a caption for the Preview button.
    * @see showPreviewBeforeComplete
-   * @see editText
    * @see showPreview
+   * @see editText
    */
   public get previewText(): string {
     return this.getLocalizableStringText("previewText");
@@ -2067,11 +2065,10 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("previewText");
   }
   /**
-   *  Gets or sets the 'Edit' button caption.
-   * @see locale
+   * Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
    * @see showPreviewBeforeComplete
-   * @see previewText
    * @see cancelPreview
+   * @see previewText
    */
   public get editText(): string {
     return this.getLocalizableStringText("editText");
@@ -2700,10 +2697,10 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of visible pages. If all pages are visible, then this property returns the same list as the `pages` property.
-   * @see pages
-   * @see PageModel.visible
-   * @see PageModel.visibleIf
+   * Returns an array of visible pages without the start page.
+   *
+   * To get an array of all pages, use the [`pages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pages) property. If all pages are visible, the `pages` and `visiblePages` arrays are identical.
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    */
   public get visiblePages(): Array<PageModel> {
     if (this.isDesignMode) return this.pages;
@@ -2728,24 +2725,30 @@ export class SurveyModel extends SurveyElementCore
     return this.pageCount;
   }
   /**
-   * Returns the survey page count.
-   * @see visiblePageCount
+   * Returns a total number of survey pages.
+   *
+   * To get the number of visible pages, use the [`visiblePageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePageCount) property.
    * @see pages
    */
   public get pageCount(): number {
     return this.pages.length;
   }
   /**
-   * Returns a number of visible pages within the survey.
-   * @see pageCount
+   * Returns the number of visible survey pages.
+   *
+   * To get a total number of survey pages, use the [`pageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pageCount) property.
    * @see visiblePages
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    */
   public get visiblePageCount(): number {
     return this.visiblePages.length;
   }
   /**
-   * Returns the started page. This property works if the `firstPageIsStarted` property is set to `true`.
+   * Returns the start page. Applies only if the [`firstPageIsStarted`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStarted) property is set to `true`.
+   *
+   * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStarted
+   * @see activePage
    */
   public get startedPage(): PageModel {
     var page =
@@ -2757,7 +2760,17 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   /**
-   * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
+   * Gets or sets the current page.
+   *
+   * If you want to change the current page, set this property to a `PageModel` object. You can get this object in different ways. For example, you can call the [`getPageByName()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getPageByName) method to obtain a `PageModel` object with a specific name:
+   *
+   * ```js
+   * survey.currentPage = survey.getPageByName("my-page-name");
+   * ```
+   *
+   * Alternatively, you can change the current page if you set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   *
+   * The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
    */
   public get currentPage(): any {
     return this.getPropertyValue("currentPage", null);
@@ -2794,10 +2807,10 @@ export class SurveyModel extends SurveyElementCore
     return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
-   * Returns the currentPage, unless the started page is showing. In this case returns the started page.
+   * Returns [`startedPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startedPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+   * @see startedPage
    * @see currentPage
    * @see firstPageIsStarted
-   * @see startedPage
    */
   public get activePage(): any {
     return this.getPropertyValue("activePage");
@@ -2836,9 +2849,10 @@ export class SurveyModel extends SurveyElementCore
     return value;
   }
   /**
-   * The zero-based index of the current page in the visible pages array.
+   * A zero-based index of the current page in the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
+   * @see visiblePages
    */
   public get currentPageNo(): number {
     return this.visiblePages.indexOf(this.currentPage);
@@ -2849,13 +2863,16 @@ export class SurveyModel extends SurveyElementCore
     this.currentPage = vPages[value];
   }
   /**
-   * Gets or sets the question display order. Use this property to randomize questions. You can randomize questions on a specific page.
+   * Specifies the sort order of questions in the survey.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `random` - randomize questions
-   * - `initial` - keep questions in the same order, as in a survey model.
-   * @see SurveyPage.questionsOrder
+   * - `"initial"` (default) - Preserves the original order of questions.
+   * - `"random"` - Displays questions in random order.
+   *
+   * You can override this property for individual pages and panels.
+   * @see PageModel.questionsOrder
+   * @see PanelModel.questionsOrder
    */
   public get questionsOrder() {
     return this.getPropertyValue("questionsOrder");
@@ -2973,14 +2990,11 @@ export class SurveyModel extends SurveyElementCore
     this.notifier.notify(message, type, type === "error");
   }
   /**
-   * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
-   * @param clearData clear the data
-   * @param gotoFirstPage make the first page as a current page.
-   * @see data
-   * @see state
-   * @see currentPage
+   * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.
+   * @param clearData *Optional.* Specifies whether to clear survey data. Default value: `true`.
+   * @param goToFirstPage *Optional.* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
-  public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+  public clear(clearData: boolean = true, goToFirstPage: boolean = true) {
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -2996,7 +3010,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].passed = false;
     }
     this.onFirstPageIsStartedChanged();
-    if (gotoFirstPage) {
+    if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
     }
     if (clearData) {
@@ -3594,14 +3608,11 @@ export class SurveyModel extends SurveyElementCore
     return this.navigationMouseDown();
   }
   /**
-   * Shows preview for the survey. Switches the survey to the "preview" state.
-   *
-   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
-   * @see showPreviewBeforeComplete
+   * Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
    * @see cancelPreview
+   * @see showPreviewBeforeComplete
+   * @see onShowingPreview
    * @see state
-   * @see previewText
-   * @see editText
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
@@ -3616,12 +3627,10 @@ export class SurveyModel extends SurveyElementCore
     this.isShowingPreview = options.allowShowPreview && options.allow;
   }
   /**
-   * Cancels preview and switches back to the "running" state.
-   *
-   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
-   * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
-   * @see showPreviewBeforeComplete
+   * Cancels a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) and switches the survey to the page specified by the `curPage` parameter.
+   * @param curPage A new current page. If you do not specify this parameter, the survey displays the last page.
    * @see showPreview
+   * @see showPreviewBeforeComplete
    * @see state
    */
   public cancelPreview(curPage: any = null) {
@@ -3674,8 +3683,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
-   * Gets or sets whether the first survey page is a start page. Set this property to `true`, to make the first page a starting page.
-   * An end user cannot navigate to the start page and the start page does not affect a survey progress.
+   * Gets or sets a Boolean value that specifies whether the first page is a start page.
+   *
+   * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+   * @see startedPage
+   * @see activePage
    */
   public get firstPageIsStarted(): boolean {
     return this.getPropertyValue("firstPageIsStarted");
@@ -4742,9 +4754,10 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Adds an existing page to the survey.
-   * @param page a newly added page
-   * @param index - a page index to where insert a page. It is -1 by default and the page will be added into the end.
+   * @param page A page to add.
+   * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
    * @see addNewPage
+   * @see createNewPage
    */
   public addPage(page: PageModel, index: number = -1) {
     if (page == null) return;
@@ -4755,10 +4768,12 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
-   * @param name a page name
-   * @param index - a page index to where insert a new page. It is -1 by default and the page will be added into the end.
+   * Creates a new page and adds it to the survey.
+   * @param name A page name. If you do not specify this parameter, it will be generated automatically.
+   * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
+   * @returns The created and added page.
    * @see addPage
+   * @see createNewPage
    */
   public addNewPage(name: string = null, index: number = -1) {
     var page = this.createNewPage(name);
@@ -4972,8 +4987,9 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Creates and returns a new page, but do not add it into the survey.
-   * You can use addPage(page) function to add it into survey later.
+   * Creates and returns a new page but does not add it to the survey.
+   *
+   * Call the [`addPage(page)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addPage) method to add the created page to the survey later or the [`addNewPage(name, index)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addNewPage) method to create _and_ add a page to the survey.
    * @see addPage
    * @see addNewPage
    */

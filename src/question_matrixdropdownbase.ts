@@ -2305,10 +2305,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.SurveyModel.getMatrixCellTemplateData(cell);
   }
   public getCellWrapperComponentName(cell: MatrixDropdownCell) {
-    return this.SurveyModel.getElementWrapperComponentName(cell, "cell");
+    return this.SurveyModel.getElementWrapperComponentName(cell, cell.row instanceof MatrixDropdownTotalRowModel ? "row-footer" : "cell");
   }
   public getCellWrapperComponentData(cell: MatrixDropdownCell) {
-    return this.SurveyModel.getElementWrapperComponentData(cell, "cell");
+    return this.SurveyModel.getElementWrapperComponentData(cell, cell.row instanceof MatrixDropdownTotalRowModel ? "row-footer" : "cell");
   }
   public getColumnHeaderWrapperComponentName(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentName(

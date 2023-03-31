@@ -2,6 +2,9 @@
   color: var(--text-color, $text-color);
   font-size: var(--font-size, $font-size);
   font-family: var(--font-family, $font-family);
+}
+
+.sv-container-modern--brand-info {
   margin-bottom: calcSize(10);
 }
 

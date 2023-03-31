@@ -2,7 +2,7 @@
   <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()">
     <form onsubmit="return false;">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
-      <div [class]="model.css.container">
+      <div [class]="model.containerCss">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header', needRenderWrapper: false } }"></ng-template>
         <div *ngIf="model.isShowingPage" [class]="model.bodyContainerCss">

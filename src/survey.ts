@@ -1012,6 +1012,9 @@ export class SurveyModel extends SurveyElementCore
     this.rootCss = this.getRootCss();
     this.updateNavigationCss();
     this.updateCompletedPageCss();
+    if(this.showBrandInfo) {
+      this.containerCss += " " + this.css.brandInfoContainer;
+    }
   }
   public get css(): any {
     if (!this.cssValue) {

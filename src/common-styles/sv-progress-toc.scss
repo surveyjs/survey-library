@@ -5,7 +5,6 @@ $font-family: var(--font-family);
   max-width: 336px;
   height: 100%;
   background: #FFFFFF;
-  border-right: 1px solid #D6D6D6;
   box-sizing: border-box;
   min-width: 256px;
 
@@ -26,4 +25,12 @@ $font-family: var(--font-family);
     padding-top: 12px;
     padding-bottom: 12px;
   }
+}
+
+.sv_progress-toc--left {
+  border-right: 1px solid #D6D6D6;
+}
+
+.sv_progress-toc--right {
+  border-left: 1px solid #D6D6D6;
 }

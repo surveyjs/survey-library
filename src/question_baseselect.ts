@@ -321,6 +321,18 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected getSingleSelectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
+    if (this.isEmpty()) return null;
+
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    this.onGetSingleSelectedItem(itemValue);
+    if(!itemValue && !selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
+  }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {

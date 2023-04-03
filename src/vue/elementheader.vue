@@ -6,8 +6,8 @@
       :class="element.cssDescription"
     >
       <survey-string :locString="element.locDescription" />
-      <sv-action-bar v-if=!!element.additionalTitleToolbar :model="element.additionalTitleToolbar"></sv-action-bar>
     </div>
+    <sv-action-bar v-if=!!element.additionalTitleToolbar :model="element.additionalTitleToolbar"></sv-action-bar>
   </div>
 </template>
 

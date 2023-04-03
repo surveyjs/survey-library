@@ -874,8 +874,10 @@ export class QuestionPanelDynamicModel extends Question
     return this.renderMode === "tab";
   }
   get hasTitleOnLeftTop(): boolean {
+    if(this.isRenderModeTab && !!this.panelCount) return true;
+    if(!this.hasTitle) return false;
     const location = this.getTitleLocation();
-    return this.isRenderModeTab || location === "left" || location === "top";
+    return location === "left" || location === "top";
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -1837,7 +1839,7 @@ export class QuestionPanelDynamicModel extends Question
   public get cssHeader(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.header)
-      .append(this.cssClasses.headerTab, this.isRenderModeTab)
+      .append(this.cssClasses.headerTab, this.isRenderModeTab && !!this.panelCount)
       .toString();
   }
   public getPanelWrapperCss(): string {

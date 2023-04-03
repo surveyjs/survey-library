@@ -5296,3 +5296,53 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
   panel.tabAlign = "center";
   assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--center", "tabAlign default value is center");
 });
+
+QUnit.test("question.cssHeader class", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        tabAlign: "left"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+  panel.addPanel();
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+  panel.renderMode = undefined;
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+});
+
+QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        titleLocation: "hidden",
+        tabAlign: "left"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  assert.equal(panel.hasTitleOnLeftTop, false, "titleLocation hidden");
+
+  panel.renderMode = "tab";
+  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is tab");
+
+  panel.addPanel();
+  assert.equal(panel.hasTitleOnLeftTop, true, "panelCount is 1");
+
+  panel.renderMode = undefined;
+  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is default");
+});

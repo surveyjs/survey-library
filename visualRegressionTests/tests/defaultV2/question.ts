@@ -20,6 +20,25 @@ frameworks.forEach(framework => {
     await applyTheme(theme);
   });
 
+  test("Check question without title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            titleLocation: "hidden",
+            name: "question",
+            width: "708px",
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-without-title.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check question num", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

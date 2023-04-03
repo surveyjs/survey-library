@@ -458,4 +458,35 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("inner-panel-single-page.png", panelRoot, t, comparer);
     });
   });
+  test("Check collapsed questions inside panel", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel",
+            "elements": [
+              {
+                "type": "text",
+                state: "collapsed",
+                "name": "question2"
+              },
+              {
+                "type": "text",
+                state: "collapsed",
+                "name": "question1"
+              }
+            ],
+            "title": "Panel"
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await takeElementScreenshot("collapsed-questions-inside-panel.png", panelRoot, t, comparer);
+      await t.hover(Selector(".sd-question__header"));
+      await takeElementScreenshot("collapsed-questions-inside-panel-hover.png", panelRoot, t, comparer);
+    });
+  });
 });

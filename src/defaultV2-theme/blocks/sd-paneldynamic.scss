@@ -184,9 +184,9 @@
     align-items: center;
 }
 
-.sd-paneldynamic__header.sd-element__header--location-top.sd-paneldynamic__header-tab {
+.sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {
     padding-bottom: 0;
 }
-.sd-paneldynamic__header.sd-element__header--location-top.sd-paneldynamic__header-tab::after {
+.sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab::after {
     bottom: 0;
 }

@@ -5319,6 +5319,15 @@ QUnit.test("question.cssHeader class", function (assert) {
   panel.renderMode = undefined;
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
+  panel.titleLocation = "hidden";
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+  panel.renderMode = "tab";
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+  panel.removePanelUI(0);
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
 });
 
 QUnit.test("question.hasTitleOnLeftTop class", function (assert) {

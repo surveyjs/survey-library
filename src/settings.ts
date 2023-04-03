@@ -1,3 +1,5 @@
+import { ISurveyEnvironment } from "./base-interfaces";
+
 /**
  * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
  *
@@ -385,6 +387,32 @@ export var settings = {
    * - `"icon"` - Users can only use the choice item icon as a drag handle.
    */
   rankingDragHandleArea: "entireItem",
+
+  /**
+   * Specifies environment in which SurveyJS will exist
+   */
+  environment: {
+    root: document,
+
+    _rootElement: document.body,
+    get rootElement(): HTMLElement | ShadowRoot {
+      return settings.environment._rootElement ?? document.body;
+    },
+    set rootElement(rootElement: HTMLElement | ShadowRoot) {
+      (settings.environment._rootElement as any) = rootElement;
+    },
+
+    _popupMountContainer: document.body,
+    get popupMountContainer(): HTMLElement | string {
+      return settings.environment._popupMountContainer ?? document.body;
+    },
+    set popupMountContainer(popupMountContainer: HTMLElement | string) {
+      (settings.environment._popupMountContainer as any) = popupMountContainer;
+    },
+    svgMountContainer: document.head,
+    stylesSheetsMountContainer: document.head,
+  },
+
   titleTags: {
     survey: "h3",
     page: "h4",

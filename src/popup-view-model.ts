@@ -4,6 +4,9 @@ import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
+import { ISurveyEnvironment } from "./base-interfaces";
+import { settings } from "survey-core";
+import { getElement } from "./utils/utils";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -21,6 +24,7 @@ export class PopupBaseViewModel extends Base {
 
   public container: HTMLElement;
   private createdContainer: HTMLElement;
+  private environment: ISurveyEnvironment = settings.environment
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -150,12 +154,12 @@ export class PopupBaseViewModel extends Base {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
-      if (document.activeElement === firstFocusableElement) {
+      if (this.environment.root.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (document.activeElement === lastFocusableElement) {
+      if (this.environment.root.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -169,7 +173,7 @@ export class PopupBaseViewModel extends Base {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>document.activeElement;
+    this.prevActiveElement = <HTMLElement>this.environment.root.activeElement;
 
     if (this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();
@@ -211,14 +215,9 @@ export class PopupBaseViewModel extends Base {
       this.container = this.createdContainer = container;
     }
 
-    const mountContainer = document.body.querySelector(".sv-popup-mount");
-
-    if (mountContainer) {
-      mountContainer.appendChild(this.container);
-    } else {
-      document.body.appendChild(this.container);
-    }
+    getElement(this.environment.popupMountContainer).appendChild(this.container);
   }
+
   public unmountPopupContainer(): void {
     this.createdContainer.remove();
   }

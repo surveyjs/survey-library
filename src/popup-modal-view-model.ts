@@ -2,6 +2,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IAction } from "./actions/action";
+import { ISurveyEnvironment } from "./base-interfaces";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
 

@@ -343,6 +343,14 @@ export interface IFindElement {
   str: LocalizableString;
 }
 
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
+}
+
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
 
 export interface ISurveyLayoutElement {

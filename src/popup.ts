@@ -16,7 +16,7 @@ export interface IPopupOptionsBase {
   isModal?: boolean;
   displayMode?: "popup" | "overlay";
 }
-export interface IDialogOptions extends IPopupOptionsBase{
+export interface IDialogOptions extends IPopupOptionsBase {
   componentName: string;
   data: any;
   onApply: () => boolean;

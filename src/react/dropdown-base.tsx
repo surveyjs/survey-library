@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel } from "survey-core";
+import { Helpers, Question, DropdownListModel, settings } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
@@ -72,9 +72,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
     let valueElement: JSX.Element | null = this.renderValueElement(dropdownListModel);
+    const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
-      if (e.target === document.activeElement) {
+      if (e.target === root.activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };

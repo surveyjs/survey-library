@@ -14,6 +14,7 @@ export { innerKo as ko };
 
 import { registerTemplateEngine } from "../knockout/kosurvey";
 import { SurveyModel } from "../survey";
+import { settings } from "../settings";
 
 export class ReactSurveyModel extends Survey {
   constructor(
@@ -30,11 +31,12 @@ export class ReactSurveyModel extends Survey {
 
 export class SurveyNG {
   public static render(elementId: string | Element, props: any): void {
-    var element: Element =
+    const { root } = settings.environment;
+    const element: Element | null =
       typeof elementId === "string"
-        ? document.getElementById(elementId)
+        ? root.getElementById(elementId)
         : elementId;
-    var model: SurveyModel = props.model;
+    const model: SurveyModel = props.model;
     model.updateSurvey(props);
     model.render(element);
   }

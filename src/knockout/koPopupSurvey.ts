@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { SurveyModel, PopupSurveyModel } from "survey-core";
+import { SurveyModel, PopupSurveyModel, settings } from "survey-core";
 import { ImplementorBase } from "./kobase";
 var koTemplate = require("html-loader?interpolate!val-loader!./templates/window.html");
 
@@ -15,13 +15,14 @@ export class PopupSurveyImplementor extends ImplementorBase {
   }
   private doShowingChanged() {
     const windowElement = this.window.windowElement;
+    const { rootElement } = settings.environment;
     if (this.window.isShowing) {
       windowElement.innerHTML = this.template;
       ko.cleanNode(windowElement);
       ko.applyBindings(this.window, windowElement);
-      document.body.appendChild(windowElement);
+      rootElement.appendChild(windowElement);
     } else {
-      document.body.removeChild(windowElement);
+      rootElement.removeChild(windowElement);
       windowElement.innerHTML = "";
     }
   }

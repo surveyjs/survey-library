@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, ISurveyEnvironment } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -76,6 +76,7 @@ export class Question extends SurveyElement<Question>
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
+  private environment: ISurveyEnvironment = settings.environment
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -684,7 +685,8 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        let el = document.getElementById(id);
+        const { root } = this.environment;
+        let el = root.getElementById(id);
         if(el) this.commentElements.push(el);
       });
       this.updateCommentElements();

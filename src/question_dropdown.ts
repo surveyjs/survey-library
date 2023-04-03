@@ -89,16 +89,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get ariaRole(): string {
     return "combobox";
   }
-  public get selectedItem(): ItemValue {
-    const selectedItemValues = this.selectedItemValues;
-    if (this.isEmpty()) return null;
-    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
-    if(!!itemValue) {
-      this.lastSelectedItemValue = itemValue;
-    } else if(!selectedItemValues) {
-      this.updateSelectedItemValues();
+  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
+    if(!!selectedItemByValue) {
+      this.lastSelectedItemValue = selectedItemByValue;
     }
-    return this.lastSelectedItemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
   }
   supportGoNextPageAutomatic() {
     return true;

@@ -82,6 +82,7 @@ export var defaultV2Css = {
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-element__title sd-question__title",
     header: "sd-paneldynamic__header sd-element__header sd-element__header--location-top",
+    headerTab: "sd-paneldynamic__header-tab",
     button: "sd-action sd-paneldynamic__btn",
     buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",

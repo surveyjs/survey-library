@@ -133,7 +133,6 @@
     }
 }
 .sv-tabs-toolbar.sv-action-bar {
-    top: calcSize(4);
     gap: calcSize(4);
 }
 
@@ -183,4 +182,11 @@
     height: calcSize(3);
     display: flex;
     align-items: center;
+}
+
+.sd-paneldynamic__header.sd-element__header--location-top.sd-paneldynamic__header-tab {
+    padding-bottom: 0;
+}
+.sd-paneldynamic__header.sd-element__header--location-top.sd-paneldynamic__header-tab::after {
+    bottom: 0;
 }

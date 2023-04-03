@@ -1834,6 +1834,12 @@ export class QuestionPanelDynamicModel extends Question
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
+  public get cssHeader(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.header)
+      .append(this.cssClasses.headerTab, this.isRenderModeTab)
+      .toString();
+  }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper)

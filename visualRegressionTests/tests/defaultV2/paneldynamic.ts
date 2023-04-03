@@ -166,3 +166,160 @@ frameworks.forEach(framework => {
     });
   });
 });
+
+frameworks.forEach(framework => {
+  const json = {
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            type: "paneldynamic",
+            name: "relatives",
+            title: "Panel Dynamic",
+            renderMode: "tab",
+            templateTitle: "Information about: {panel.relativeType}",
+            templateElements: [
+              {
+                name: "relativeType",
+                type: "dropdown",
+                title: "Relative",
+                choices: [
+                  "father",
+                  "mother",
+                  "brother",
+                  "sister",
+                  "son",
+                  "daughter"
+                ],
+                isRequired: true
+              },
+              {
+                name: "isalive",
+                type: "radiogroup",
+                title: "Alive?",
+                startWithNewLine: false,
+                isRequired: true,
+                colCount: 0,
+                choices: ["Yes", "No"]
+              },
+              {
+                name: "liveage",
+                type: "dropdown",
+                title: "Age",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'Yes'",
+                choicesMin: 1,
+                choicesMax: 115
+              },
+              {
+                name: "deceasedage",
+                type: "dropdown",
+                title: "Deceased Age",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'No'",
+                choices: [
+                  {
+                    value: -1,
+                    text: "Unknown"
+                  }
+                ],
+                choicesMin: 1,
+                choicesMax: 115
+              },
+              {
+                name: "causeofdeathknown",
+                type: "radiogroup",
+                title: "Cause of Death Known?",
+                isRequired: true,
+                colCount: 0,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'No'",
+                choices: ["Yes", "No"]
+              },
+              {
+                name: "causeofdeath",
+                type: "text",
+                title: "Cause of Death",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf:
+                "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+              },
+              {
+                type: "panel",
+                name: "moreInfo",
+                state: "expanded",
+                title: "Detail Information about: {panel.relativeType}",
+                elements: [
+                  {
+                    type: "matrixdynamic",
+                    name: "relativeillness",
+                    title: "Describe the illness or condition.",
+                    rowCount: 0,
+                    columns: [
+                      {
+                        name: "illness",
+                        cellType: "dropdown",
+                        title: "Illness/Condition",
+                        choices: [
+                          "Cancer",
+                          "Heart Disease",
+                          "Diabetes",
+                          "Stroke/TIA",
+                          "High Blood Pressure",
+                          "High Cholesterol or Triglycerides",
+                          "Liver Disease",
+                          "Alcohol or Drug Abuse",
+                          "Anxiety, Depression or Psychiatric Illness",
+                          "Tuberculosis",
+                          "Anesthesia Complications",
+                          "Genetic Disorder",
+                          "Other – describe"
+                        ],
+                        isRequired: true
+                      },
+                      {
+                        name: "description",
+                        cellType: "text",
+                        title: "Describe",
+                        isRequired: true
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            panelCount: 2,
+            panelAddText: "Add a blood relative",
+            panelRemoveText: "Remove the relative"
+          }
+        ]
+      }
+    ]
+  };
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    await explicitErrorHandler();
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
+  test("Navigation panel by tabs", async (t)=>{
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("paneldynamic-tabs-with-title", Selector(".sd-question--paneldynamic"), t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.getQuestionByName("relatives").titleLocation = "hidden";
+      })();
+
+      await takeElementScreenshot("paneldynamic-tabs-without-title", Selector(".sd-question--paneldynamic"), t, comparer);
+    });
+  });
+});

@@ -12,6 +12,9 @@ import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 
 export class RenderedRatingItem extends Base {
+  private onStringChangedCallback() {
+    this.text = this.itemValue.text;
+  }
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
@@ -20,11 +23,11 @@ export class RenderedRatingItem extends Base {
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  public get text(): string {
-    return this.itemValue.text;
-  }
+  @property({ defaultValue: "" }) text: string;
   constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
+    this.locText.onStringChanged.add(this.onStringChangedCallback.bind(this));
+    this.onStringChangedCallback();
   }
 }
 
@@ -388,6 +391,16 @@ export class QuestionRatingModel extends Question {
       itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
     }
 
+    const hasFixedSize =
+      !this.isStar &&
+      !this.isSmiley &&
+      (!this.displayRateDescriptionsAsExtremeItems ||
+        this.rateValues.length > 0 && item != this.rateValues[0] && item != this.rateValues[this.rateValues.length - 1] ||
+        this.rateValues.length == 0 && item.value != this.rateMin && item.value != this.rateMax
+      ) &&
+      item.locText.calculatedText.length <= 2 &&
+      Number.isInteger(Number(item.locText.calculatedText));
+
     return new CssClassBuilder()
       .append(itemClass)
       .append(itemSelectedClass, isSelected)
@@ -396,6 +409,7 @@ export class QuestionRatingModel extends Question {
       .append(itemHighlightedClass, isHighlighted)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
   }
   //methods for mobile view

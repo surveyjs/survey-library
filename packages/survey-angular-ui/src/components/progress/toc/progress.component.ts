@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectorRef } from "@angular/core";
 import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
-import { createTOCListModel, ListModel, SurveyModel } from "survey-core";
+import { createTOCListModel, getTocRootCss, ListModel, SurveyModel } from "survey-core";
 import { AngularComponentFactory } from "../../../component-factory";
 
 @Component({
@@ -13,6 +13,7 @@ export class ProgressTocComponent extends EmbeddedViewContentComponent implement
   public containerCss = "sv_progress-toc";
   @Input() model!: SurveyModel;
   private createProgressTOCModel() {
+    this.containerCss = getTocRootCss(this.model);
     this.listModel = createTOCListModel(this.model);
   }
   override ngOnInit(): void {

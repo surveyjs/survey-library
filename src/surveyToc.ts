@@ -46,3 +46,7 @@ export function createTOCListModel(survey: SurveyModel) {
   });
   return listModel;
 }
+
+export function getTocRootCss(survey: SurveyModel): string {
+  return "sv_progress-toc" + (" sv_progress-toc--" + (survey.tocLocation || "").toLowerCase());
+}

@@ -4,7 +4,6 @@ export var modernCss = {
   root: "sv-root-modern",
   timerRoot: "sv-body__timer",
   container: "sv-container-modern",
-  brandInfoContainer: "sv-container-modern--brand-info",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
   bodyContainer: "sv-components-row",

@@ -1012,9 +1012,6 @@ export class SurveyModel extends SurveyElementCore
     this.rootCss = this.getRootCss();
     this.updateNavigationCss();
     this.updateCompletedPageCss();
-    if(this.showBrandInfo) {
-      this.containerCss += " " + this.css.brandInfoContainer;
-    }
   }
   public get css(): any {
     if (!this.cssValue) {
@@ -6826,7 +6823,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);

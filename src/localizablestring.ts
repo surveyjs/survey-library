@@ -319,6 +319,7 @@ export class LocalizableString implements ILocalizableString {
     return (<any>this).htmlValues[loc];
   }
   private deleteValuesEqualsToDefault(defaultValue: string) {
+    if(settings.storeDuplicatedTranslations) return;
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == this.defaultLoc) continue;

@@ -342,7 +342,7 @@
   }
 }
 .sd-table__cell--detail-panel {
-  .sd-element:not(.sd-element--collapsed) {
-    padding-top: calcSize(0.5);
+  .sd-panel__content {
+    padding-top: calcSize(1);
   }
 }

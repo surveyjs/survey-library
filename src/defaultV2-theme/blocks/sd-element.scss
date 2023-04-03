@@ -116,7 +116,7 @@
 .sd-element__title--expandable.sd-element__title--expanded:before {
   transform: rotate(90deg);
 }
-//with frame styles
+//with borders styles
 .svc-logic-question-value,
 .sd-element--with-frame {
   border-radius: calcSize(0.5);
@@ -138,11 +138,9 @@
   }
 }
 //complex (panel, paneldynamic, matrixes) styles
-.sd-element.sd-element--complex {
+.sd-element--complex {
   & > .sd-element__header--location-top {
     margin-top: 0;
-    padding-top: var(--sd-base-vertical-padding);
-    padding-bottom: var(--sd-base-vertical-padding);
     &:after {
       content: " ";
       display: block;
@@ -155,6 +153,9 @@
   &.sd-element--with-frame {
     padding-top: 0;
     & > .sd-element__header--location-top {
+      margin-top: 0;
+      padding-top: var(--sd-base-vertical-padding);
+      padding-bottom: var(--sd-base-vertical-padding);
       &:after {
         bottom: calc(-1 * var(--sd-base-vertical-padding));
         left: calc(-1 * var(--sd-base-padding));
@@ -177,7 +178,11 @@
     box-sizing: border-box;
     background-color: $background;
   }
-
+  &.sd-element--complex > .sd-element__header--location-top {
+    &:after {
+      display: none;
+    }
+  }
   &.sd-element--with-frame {
     padding-top: 0;
     padding-bottom: 0;
@@ -205,8 +210,6 @@
 .sd-element--nested {
   &.sd-element--complex {
     & > .sd-element__header--location-top {
-      padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-
       &:after {
         bottom: calc(-0.5 * var(--sd-base-vertical-padding));
       }

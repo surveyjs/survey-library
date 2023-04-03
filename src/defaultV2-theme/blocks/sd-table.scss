@@ -184,6 +184,7 @@
     min-height: 100%;
     width: calc(var(--sd-base-padding) - #{$base-unit});
     flex-shrink: 0;
+    background: $question-background;
     z-index: 11;
   }
   &::before {

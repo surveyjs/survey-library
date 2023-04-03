@@ -131,7 +131,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * A function that is called when the question value is changed.
+   * A function that is called after the question value is changed.
    *
    * Parameters:
    *
@@ -144,8 +144,9 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
   /**
-   * A function that is called before a question value is changed. It returns a new value. If you want to change a new value you can return your own value
-   * If function returns undefined the question value will be cleared.
+   * A function that is called before a question value is changed.
+   *
+   * This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
    *
    * Parameters:
    *
@@ -938,8 +939,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      var key = questions[i].getValueName();
-      questions[i].value = !!newValue ? newValue[key] : undefined;
+      const key = questions[i].getValueName();
+      const val = !!newValue ? newValue[key] : undefined;
+      const q = questions[i];
+      if(!this.isTwoValueEquals(q.value, val)) {
+        q.value = val;
+      }
     }
     this.settingNewValue = false;
   }

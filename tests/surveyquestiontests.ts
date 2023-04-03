@@ -3171,7 +3171,17 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
-
+QUnit.test("Change hideIfChoicesEmpty property default value", function (assert) {
+  let question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #1");
+  const prop = Serializer.findProperty("selectbase", "hideIfChoicesEmpty");
+  prop.defaultValue = true;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, true, "default value #2");
+  prop.defaultValue = undefined;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #3");
+});
 QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -3240,6 +3250,25 @@ QUnit.test("Question Html ignore Html processing = true", function (assert) {
   question.ignoreHtmlProgressing = true;
   question.html = "text2";
   assert.equal(question.locHtml.renderedHtml, "text2", "do not proccess html");
+});
+
+QUnit.test("Survey.onProcessHtml add reason property into options", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  question.html = "text";
+  survey.completedHtml = "complete survey";
+  survey.completedBeforeHtml = "complete before survey";
+  survey.loadingHtml = "loading survey";
+  survey.onProcessHtml.add(function (survey, options) {
+    options.html = options.html + "-add-" + options.reason;
+  });
+  assert.equal(question.locHtml.renderedHtml, "text-add-html-question", "#1");
+  assert.equal(survey.processedCompletedHtml, "complete survey-add-completed", "#2");
+  assert.equal(survey.processedCompletedBeforeHtml, "complete before survey-add-completed-before", "#3");
+  assert.equal(survey.processedLoadingHtml, "loading survey-add-loading", "#4");
 });
 
 QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
@@ -5192,6 +5221,38 @@ QUnit.test(
     );
   }
 );
+QUnit.test("choicesFromQuestion clear dropdown value on unselect in checkbox, Bug#5833", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3]
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+      {
+        type: "tagbox",
+        name: "q3",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionTagboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2];
+  q2.value = 1;
+  q3.value = [1, 2];
+  q1.value = [2, 3];
+  assert.equal(q2.isEmpty(), true, "Value is cleared in dropdown");
+  assert.deepEqual(q3.value, [2], "One item is cleared in tagbox");
+});
 QUnit.test(
   "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
   function (assert) {

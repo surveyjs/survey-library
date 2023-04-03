@@ -146,9 +146,6 @@ export interface ShowingPreviewEvent {
    * Set this property to `false` if you want to cancel the preview.
    */
   allow: boolean;
-  /**
-  * @deprecated Use the `allow` property instead.
-  */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
@@ -279,7 +276,7 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
-   * An array of errors. The array is empty if the validated question satisfy all validation rules.
+   * An array of errors. The array is empty if the validated question satisfies all validation rules.
    */
   errors: Array<SurveyError>;
 }
@@ -339,9 +336,13 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
 }
 export interface ProcessHtmlEvent {
   /**
-   * an HTML that you may change before text processing and then rendering. specifies the modified HTML content
+   * HTML markup. You can modify this parameter's value.
    */
   html: string;
+  /**
+   * Indicates a page, question, or message for which HTML content is intended: [`"completed"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml) | [`"completed-before"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml) | [`"loading"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml) | [`"html-question"`](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html).
+   */
+  reason: string;
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**

@@ -424,7 +424,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
     const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: JSX.Element | null = null;
     if (survey) {
-      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell);
+      wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, this.props.reason);
     }
     return wrapper ?? element;
   }

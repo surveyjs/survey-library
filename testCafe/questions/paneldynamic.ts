@@ -161,6 +161,7 @@ frameworks.forEach((framework) => {
 
       .click(ageDropdown)
       .click(getListItemByText("72"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("72")
 
       .click(".sv-paneldynamic__next-btn")
@@ -168,17 +169,20 @@ frameworks.forEach((framework) => {
 
       .click(ageDropdown)
       .click(getListItemByText("65"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(ageDropdown.find(".sv-string-viewer").textContent).eql("65")
 
       .click(Selector(".sv-paneldynamic__add-btn").withText("Add a blood relative"))
 
       .click(relativeTypeDropdown)
       .click(getListItemByText("sister"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(relativeTypeDropdown.find(".sv-string-viewer").textContent).eql("sister")
       .click("input[value=\"No\"]")
 
       .click(deceasedAgeDropdown)
       .click(getListItemByText("42"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(deceasedAgeDropdown.find(".sv-string-viewer").textContent).eql("42")
       .click("div[data-name='causeofdeathknown'] input[value=\"No\"]")
       .click(".sv-paneldynamic__prev-btn")
@@ -188,6 +192,7 @@ frameworks.forEach((framework) => {
 
       .click(relativeillnessDropdown)
       .click(getListItemByText("Diabetes"))
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(relativeillnessDropdown.find(".sv-string-viewer").textContent).eql("Diabetes")
       .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
 

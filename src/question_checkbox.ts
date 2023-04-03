@@ -96,7 +96,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see separateSpecialChoices
    */
   public get showSelectAllItem(): boolean {
-    return this.getPropertyValue("showSelectAllItem", false);
+    return this.getPropertyValue("showSelectAllItem");
   }
   public set showSelectAllItem(val: boolean) {
     this.setPropertyValue("showSelectAllItem", val);

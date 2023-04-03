@@ -88,7 +88,7 @@ export class Panel extends PanelModel {
     super.onBaseCreating();
     this._implementor = new PanelImplementorBase(this);
   }
-  protected createRow(): QuestionRowModel {
+  public createRow(): QuestionRowModel {
     return new QuestionRow(this);
   }
   protected onCreating() { }
@@ -114,7 +114,7 @@ export class Page extends PageModel {
     super.onBaseCreating();
     this._implementor = new ImplementorBase(this);
   }
-  protected createRow(): QuestionRowModel {
+  public createRow(): QuestionRowModel {
     return new QuestionRow(this);
   }
   protected onCreating() { }

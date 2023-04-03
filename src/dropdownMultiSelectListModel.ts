@@ -58,7 +58,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         }
       };
     }
-    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
+  }
+  protected resetFilterString(): void {
+    super.resetFilterString();
+    this.inputString = null;
   }
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;
@@ -137,6 +141,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();
+    }
+  }
+
+  public setInputStringFromSelectedItem(newValue: any): void {
+    if (this.question.searchEnabled) {
+      this.inputString = null;
     }
   }
 }

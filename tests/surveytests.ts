@@ -63,6 +63,7 @@ import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -16581,4 +16582,109 @@ QUnit.test("setStructuredData function", function (assert) {
   assert.deepEqual(survey.data, { q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 }, "#4");
   survey.setStructuredData({ page1: { q1: 104 } }),
   assert.deepEqual(survey.data, { q1: 104 }, "#5");
+});
+
+QUnit.test("check titleNumInline cssClass", function (assert) {
+  const survey = new SurveyModel({
+    questionStartIndex: "1.1.1",
+    elements: [{
+      type: "panel",
+      name: "p1",
+      title: "panel",
+      showNumber: true,
+      elements: [
+        {
+          type: "html",
+          name: "html"
+        },
+      ]
+    },
+    {
+      type: "text",
+      name: "q1"
+    }
+    ]
+  });
+  const customInlineClass = "custom_inline_class";
+  survey.css = {
+    question: {
+      titleNumInline: customInlineClass
+    },
+    panel: {
+      titleNumInline: customInlineClass
+    }
+  };
+  const question = survey.getQuestionByName("q1");
+  const panel = survey.getPanelByName("p1");
+  assert.ok(question.cssTitle.includes(customInlineClass));
+  assert.ok(panel.cssTitle.includes(customInlineClass));
+  survey.questionStartIndex = "1.1";
+  assert.notOk(question.cssTitle.includes(customInlineClass));
+  assert.notOk(panel.cssTitle.includes(customInlineClass));
+});
+
+QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.isSinglePage = true;
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  survey.setDesignMode(false);
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  survey.setDesignMode(true);
+  assert.equal(survey.pages.length, 2, "We should have 2 pages");
+  assert.equal(survey.getAllPanels().length, 0, "We should have 0 panels");
+});
+QUnit.test("Try again button should call onComplete", function (assert) {
+  class SurveyModelTester extends SurveyModel {
+    public doErrorAction(): void {
+      const action = this.createTryAgainAction().action;
+      if(!!action) action();
+    }
+  }
+  var survey = new SurveyModelTester({ elements: [{ type: "text", name: "q1" }] });
+  let attempts = 0;
+  survey.onComplete.add((sender, options) => {
+    attempts ++;
+    if(attempts < 3) {
+      survey.doErrorAction();
+    }
+  });
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "the survey is completed");
+  assert.equal(attempts, 3, "There were 3 attempts");
+});
+QUnit.test("Use variables as default values in expression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q2",
+        title: "myB = {myB}",
+        defaultValueExpression: "{myB}",
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "myA = {myA}",
+        defaultValueExpression: "{myA}",
+      },
+
+      {
+        type: "text",
+        name: "q3",
+        title: "myC = {myC}",
+        defaultValueExpression: "{myC}",
+      },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("myA", "AAA");
+  survey.setValue("myB", "BBB");
+  survey.setValue("myC", "CCC");
+  assert.equal(q1.value, "AAA", "q1.value");
+  assert.equal(q2.value, "BBB", "q2.value");
+  assert.equal(q3.value, "CCC", "q3.value");
 });

@@ -474,6 +474,58 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   }, 550);
 });
 
+QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
+  const done = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [{ id: 52 }, { id: 55 }],
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    setTimeout(() => {
+      if (options.skip + options.take < total) {
+        options.setItems(getObjectArray(options.skip + 1, options.take), total);
+      } else {
+        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+      }
+    }, 500);
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item.id)));
+    }
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.deepEqual(question.value, [{ id: 52 }, { id: 55 }]);
+  assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
+  assert.equal(question.selectedItems[0].value.id, 52, "question.selectedItems[0] value");
+  assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+  assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
+  assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.deepEqual(question.value, [{ id: 52 }, { id: 55 }]);
+    assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
+    assert.equal(question.selectedItems[0].value.id, 52, "question.selectedItems[0] value");
+    assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+    assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
+    assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+    done();
+  }, 550);
+});
+
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
   const done = assert.async();
   const json = {
@@ -864,4 +916,38 @@ QUnit.test("maxSelectedChoices in tagbox", function (assert) {
   assert.equal(list.actions[2].enabled, true);
   assert.equal(list.actions[3].enabled, true);
   assert.deepEqual(question.value, ["item1"]);
+});
+
+QUnit.test("reset filterstring after select item", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      defaultValue: ["item1"],
+      choices: [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 4);
+  assert.equal(dropdownListModel.inputStringRendered, "");
+  assert.equal(dropdownListModel.filterString, "");
+
+  dropdownListModel.inputStringRendered = "1";
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
+  assert.equal(dropdownListModel.inputStringRendered, "1");
+  assert.equal(dropdownListModel.filterString, "1");
+
+  list.onItemClick(list.renderedActions.filter(item => list.isItemVisible(item))[0]);
+  assert.equal(dropdownListModel.inputStringRendered, "");
+  assert.equal(dropdownListModel.filterString, "");
 });

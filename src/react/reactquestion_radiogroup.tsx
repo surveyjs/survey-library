@@ -165,6 +165,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(!this.question) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||

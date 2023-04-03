@@ -16,6 +16,7 @@ export class RenderedRatingItem extends Base {
     return this.itemValue.getPropertyValue("value");
   }
   @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
+
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
@@ -289,8 +290,12 @@ export class QuestionRatingModel extends Question {
   public get isStar() {
     return this.rateType == "stars";
   }
+  public get isSmiley() {
+    return this.rateType == "smileys";
+  }
   public get itemComponentName() {
     if (this.isStar) return "sv-rating-item-star";
+    if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
   }
 
@@ -327,8 +332,32 @@ export class QuestionRatingModel extends Question {
       this.cssClasses.rootWrappable : this.cssClasses.root;
   }
 
+  public getItemSmiley(item: ItemValue) {
+    const icons = ["terrible", "very-poor", "poor", "not-good", "average", "normal", "good", "very-good", "excellent", "perfect"];
+    const priority = ["very-good", "not-good", "normal", "good", "average", "excellent", "poor", "perfect", "very-poor", "terrible"];
+    const count = this.rateValues.length || this.rateMax - this.rateMin + 1;
+    const selectedPriority = priority.slice(0, count);
+    const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
+    if (this.rateValues.length == 0) {
+      return selectedIcons[item.value - this.rateMin];
+    } else {
+      return selectedIcons[this.rateValues.indexOf(item)];
+    }
+  }
+
+  public getItemSmileyIconName(item: ItemValue) {
+    return "icon-" + this.getItemSmiley(item);
+  }
+
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
+    let isSelected = this.value == item.value;
+    if (this.isStar) {
+      if (this.rateValues.length == 0) {
+        isSelected = this.value >= item.value;
+      } else {
+        isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
+      }
+    }
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
     const renderedItem = this.renderedRateItems.filter(i => i.itemValue == item)[0];
@@ -350,6 +379,13 @@ export class QuestionRatingModel extends Question {
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
       itemHighlightedClass = this.cssClasses.itemStarHighlighted;
       itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
+    }
+    if (this.isSmiley) {
+      itemClass = this.cssClasses.itemSmiley;
+      itemSelectedClass = this.cssClasses.itemSmileySelected;
+      itemDisabledClass = this.cssClasses.itemSmileyDisabled;
+      itemHoverClass = this.cssClasses.itemSmileyHover;
+      itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
     }
 
     return new CssClassBuilder()

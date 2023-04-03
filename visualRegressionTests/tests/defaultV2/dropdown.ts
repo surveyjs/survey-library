@@ -489,4 +489,34 @@ frameworks.forEach(framework => {
 
   });
 
+  test("Dropdown search with spaces", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "q1",
+            hasOther: "true",
+            choices: [
+              "item abc",
+              "item def",
+            ]
+          }
+        ]
+      });
+
+      const popupContainer = Selector(".sd-dropdown").filterVisible();
+      await t
+        .typeText(".sd-dropdown__filter-string-input", "a")
+        .wait(100);
+      await takeElementScreenshot("dropdown-search-spaces-prefix.png", popupContainer, t, comparer);
+      await t
+        .typeText(".sd-dropdown__filter-string-input", "m", { replace: true })
+        .wait(100);
+      await takeElementScreenshot("dropdown-search-spaces-suffix.png", popupContainer, t, comparer);
+    });
+  });
+
 });

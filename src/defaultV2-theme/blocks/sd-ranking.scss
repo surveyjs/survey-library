@@ -8,20 +8,6 @@
   left: calcSize(-3);
 }
 
-.sd-element--with-frame .sv-ranking-item__icon {
-  margin-left: calcSize(1);
-  width: calcSize(1.75);
-  height: calcSize(2);
-  top: calcSize(1);
-}
-
-.sd-element--with-frame .sv-ranking-item__icon-container {
-  position: relative;
-  width: calcSize(3);
-  height: calcSize(4);
-  margin-right: calcSize(1);
-  margin-left: calcSize(1);
-}
 
 .sd-element--with-frame .sv-ranking--mobile {
   .sv-ranking-item__icon-container {

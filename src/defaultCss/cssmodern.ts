@@ -257,6 +257,8 @@ export var modernCss = {
     filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
     controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    hintPrefix: "sv-dropdown__hint-prefix",
+    hintSuffix: "sv-dropdown__hint-suffix"
   },
   tagbox: {
     root: "",

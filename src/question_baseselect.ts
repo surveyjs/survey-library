@@ -34,7 +34,9 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
-  @property() protected selectedItemValues: any;
+  @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
+    target.onSelectedItemValuesChangedHandler(newVal);
+  } }) protected selectedItemValues: any;
 
   constructor(name: string) {
     super(name);
@@ -165,7 +167,7 @@ export class QuestionSelectBase extends Question {
    * @see noneText
    */
   public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem", false);
+    return this.getPropertyValue("showNoneItem");
   }
   public set showNoneItem(val: boolean) {
     this.setPropertyValue("showNoneItem", val);
@@ -318,6 +320,19 @@ export class QuestionSelectBase extends Question {
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
+  protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected getSingleSelectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
+    if (this.isEmpty()) return null;
+
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    this.onGetSingleSelectedItem(itemValue);
+    if(!itemValue && !selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
+  }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {
@@ -664,7 +679,7 @@ export class QuestionSelectBase extends Question {
    * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
   public get hideIfChoicesEmpty(): boolean {
-    return this.getPropertyValue("hideIfChoicesEmpty", false);
+    return this.getPropertyValue("hideIfChoicesEmpty");
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
@@ -729,7 +744,7 @@ export class QuestionSelectBase extends Question {
    * @see showNoneItem
    * @see showOtherItem
    */
-  @property({ defaultValue: false }) separateSpecialChoices: boolean;
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
@@ -943,9 +958,7 @@ export class QuestionSelectBase extends Question {
     var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
-  protected getChoicesFromQuestion(
-    question: QuestionSelectBase
-  ): Array<ItemValue> {
+  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -957,18 +970,21 @@ export class QuestionSelectBase extends Question {
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
         continue;
       }
       var itemsSelected = question.isItemSelected(choices[i]);
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
       }
     }
     if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
       res.push(new ItemValue(question.otherItem.value, question.comment));
     }
     return res;
+  }
+  private copyChoiceItem(item: ItemValue): ItemValue {
+    return new ItemValue(item.value, item.text);
   }
   protected get hasActiveChoices(): boolean {
     var choices = this.visibleChoices;
@@ -1245,7 +1261,9 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].onVisibleChoicesChanged();
+      const q = this.dependedQuestions[i];
+      q.onVisibleChoicesChanged();
+      q.clearIncorrectValuesCore();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }

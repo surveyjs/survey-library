@@ -15,6 +15,9 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
+      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-controls="model.listElementId"
+      :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired"
     >
       <div :class="question.cssClasses.controlValue">

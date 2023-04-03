@@ -13,8 +13,8 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
     });
   }
 
-  constructor(items: Array<IAction>, onSelectionChanged: (item: T, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void) {
-    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback);
+  constructor(items: Array<IAction>, onSelectionChanged: (item: T, status: string) => void, allowSelection: boolean, selectedItems?: Array<IAction>, onFilterStringChangedCallback?: (text: string) => void, elementId?: string) {
+    super(items, onSelectionChanged, allowSelection, undefined, onFilterStringChangedCallback, elementId);
     this.setSelectedItems(selectedItems || []);
   }
 

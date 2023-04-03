@@ -86,7 +86,8 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     public onSelectionChanged: (item: T, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilterStringChangedCallback?: (text: string) => void
+    private onFilterStringChangedCallback?: (text: string) => void,
+    public elementId?: string
   ) {
     super();
     this.setItems(items);
@@ -95,6 +96,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
+    if(this.elementId) {
+      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
+    }
     if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
@@ -108,7 +112,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public onItemClick = (itemValue: T): void => {
-    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
+    if (this.isItemDisabled(itemValue)) {
       return;
     }
     this.isExpanded = false;

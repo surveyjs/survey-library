@@ -7,6 +7,7 @@ import { IAction } from "./actions/action";
 
 export class Notifier extends Base {
   @property({ defaultValue: false }) active: boolean;
+  @property({ defaultValue: false }) isDisplayed: boolean;
   @property() message: string;
   @property() css: string;
   timeout = settings.notifications.lifetime;
@@ -38,22 +39,26 @@ export class Notifier extends Base {
   }
 
   notify(message: string, type: string = "info", waitUserAction = false): void {
-    this.updateActionsVisibility(type);
-    this.message = message;
-    this.active = true;
-    this.css = this.getCssClass(type);
+    this.isDisplayed = true;
+    setTimeout(() => {
 
-    if(!!this.timer) {
-      clearTimeout(this.timer);
-      this.timer = undefined;
-    }
-    if(!waitUserAction) {
-      this.timer = setTimeout(() => {
+      this.updateActionsVisibility(type);
+      this.message = message;
+      this.active = true;
+      this.css = this.getCssClass(type);
+
+      if(!!this.timer) {
+        clearTimeout(this.timer);
         this.timer = undefined;
-        this.active = false;
-        this.css = this.cssClasses.root;
-      }, this.timeout);
-    }
+      }
+      if(!waitUserAction) {
+        this.timer = setTimeout(() => {
+          this.timer = undefined;
+          this.active = false;
+          this.css = this.getCssClass(type);
+        }, this.timeout);
+      }
+    }, 1);
   }
 
   public addAction(action: IAction, notificationType: string): void {

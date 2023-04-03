@@ -48,6 +48,7 @@ import { ListComponent } from "./components/list/list.component";
 import { ListItemComponent } from "./components/list/list-item.component";
 import { RatingItemComponent } from "./components/rating/rating-item.component";
 import { RatingItemStarComponent } from "./components/rating/rating-item-star.component";
+import { RatingItemSmileyComponent } from "./components/rating/rating-item-smiley.component";
 import { RowComponent } from "./row.component";
 import { RatingDropdownComponent } from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 import { BooleanCheckboxComponent } from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
@@ -116,7 +117,7 @@ import { ComponentsContainerComponent } from "./components-container.component";
     QuestionSkeletonComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
@@ -137,7 +138,7 @@ import { ComponentsContainerComponent } from "./components-container.component";
     CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentOtherComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,

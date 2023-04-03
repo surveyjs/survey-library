@@ -402,7 +402,7 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   assert.equal(columnName, "col2", "The event raised correctly on adding into array");
 });
 
-QUnit.test("Check matrixdropdown default column min widthes", function (assert) {
+QUnit.test("Check matrixdropdown default column min widths", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -435,4 +435,52 @@ QUnit.test("Check matrixdropdown default column min widthes", function (assert) 
   assert.equal(question.getColumnWidth(question.columns[0]), "320px");
   assert.equal(question.getColumnWidth(question.columns[1]), "340px");
 
+});
+class TestElementWrapperSurveyModel extends SurveyModel {
+  constructor(json: any) {
+    super(json);
+  }
+  public getElementWrapperComponentName(element: any, reason?: string): string {
+    this.reason = "name->" + reason;
+    return super.getElementWrapperComponentName(element, reason);
+  }
+  public getElementWrapperComponentData(element: any, reason?: string): string {
+    this.reason = "data->" + reason;
+    return super.getElementWrapperComponentData(element, reason);
+  }
+  public reason?: string;
+}
+
+QUnit.test("getCellWrapper name and data", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "Column 1",
+            totalType: "sum",
+          },
+        ],
+        rows: ["First"]
+      },
+    ],
+  };
+  var survey = new TestElementWrapperSurveyModel(json);
+  var matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+
+  var totalRow = matrix.visibleTotalRow;
+  var totalCell = totalRow.cells[0];
+  matrix.getCellWrapperComponentName(totalCell);
+  assert.equal(survey.reason, "name->row-footer", "Total cell component name");
+  matrix.getCellWrapperComponentData(totalCell);
+  assert.equal(survey.reason, "data->row-footer", "Total cell component data");
+
+  var ordinaryRow = matrix.visibleRows[0];
+  var ordinaryCell = ordinaryRow.cells[0];
+  matrix.getCellWrapperComponentName(ordinaryCell);
+  assert.equal(survey.reason, "name->cell", "Ordinary cell component name");
+  matrix.getCellWrapperComponentData(ordinaryCell);
+  assert.equal(survey.reason, "data->cell", "Ordinary cell component data");
 });

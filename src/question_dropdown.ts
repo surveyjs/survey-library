@@ -15,7 +15,7 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-  dropdownListModel: DropdownListModel;
+  dropdownListModelValue: DropdownListModel;
   lastSelectedItemValue: ItemValue = null;
 
   updateReadOnlyText(): void {
@@ -89,16 +89,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get ariaRole(): string {
     return "combobox";
   }
-  public get selectedItem(): ItemValue {
-    const selectedItemValues = this.selectedItemValues;
-    if (this.isEmpty()) return null;
-    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
-    if(!!itemValue) {
-      this.lastSelectedItemValue = itemValue;
-    } else if(!selectedItemValues) {
-      this.updateSelectedItemValues();
+  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
+    if(!!selectedItemByValue) {
+      this.lastSelectedItemValue = selectedItemByValue;
     }
-    return this.lastSelectedItemValue || selectedItemValues || new ItemValue(this.value);
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -193,12 +188,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: true }) allowClear: boolean;
+  @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
-    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.dropdownListModel) {
         target.dropdownListModel.setSearchEnabled(newValue);
@@ -213,7 +207,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property() choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled
@@ -247,18 +241,29 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     const item = this.selectedItem;
     return !!item ? item.text : "";
   }
-  public get popupModel(): PopupModel {
-    if (this.renderAs !== "select" && !this.dropdownListModel) {
-      this.dropdownListModel = new DropdownListModel(this);
+  public get dropdownListModel(): DropdownListModel {
+    if (this.renderAs !== "select" && !this.dropdownListModelValue) {
+      this.dropdownListModelValue = new DropdownListModel(this);
     }
+    return this.dropdownListModelValue;
+  }
+  public set dropdownListModel(val: DropdownListModel) {
+    this.dropdownListModelValue = val;
+  }
+  public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
+  }
+  public get ariaExpanded(): boolean {
+    return this.popupModel.isVisible;
   }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
   public onOpenedCallBack(): void {
     this.onOpened.fire(this, { question: this, choices: this.choices });
   }
-
+  protected onSelectedItemValuesChangedHandler(newValue: any): void {
+    this.dropdownListModel?.setInputStringFromSelectedItem(newValue);
+  }
   protected hasUnknownValue(
     val: any,
     includeOther: boolean,

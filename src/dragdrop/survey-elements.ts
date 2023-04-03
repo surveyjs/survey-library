@@ -94,6 +94,24 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     return newElement;
   }
 
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+
+    const ghostRow = dragOverNode.closest(".svc-row--ghost");
+    if (!!ghostRow) {
+      const ghostDataAttrSelector: string = "[data-sv-drop-target-survey-element='sv-drag-drop-ghost-survey-element-name']";
+      const ghostNode: HTMLElement = dragOverNode.closest(ghostDataAttrSelector) || dragOverNode.querySelector(ghostDataAttrSelector);
+      if (!!ghostNode) {
+        return ghostNode;
+      }
+    }
+
+    const dropTargetNode: HTMLElement =
+      dragOverNode.closest(this.dropTargetDataAttributeName);
+    return dropTargetNode;
+  }
+
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: string,
     dropTargetNode: HTMLElement,

@@ -753,3 +753,30 @@ QUnit.test("Do not reset values in any locale", function(assert) {
   }, "Do not reset any locale value");
   settings.storeDuplicatedTranslations = false;
 });
+QUnit.test("Do not reset values in any locale on changing the default", function(assert) {
+  settings.storeDuplicatedTranslations = true;
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.text = "default";
+  locString.setLocaleText("de", "default-de");
+  locString.setLocaleText("it", "default-it");
+  assert.deepEqual(locString.getJson(), {
+    default: "default",
+    de: "default-de",
+    it: "default-it"
+  }, "Default values");
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), {
+    default: "default-de",
+    de: "default-de",
+    it: "default-it"
+  }, "Do not remove keys, #1");
+  owner.locale = "it";
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), {
+    default: "default-de",
+    de: "default-de",
+    it: "default-de"
+  }, "Do not remove keys, #2");
+  settings.storeDuplicatedTranslations = false;
+});

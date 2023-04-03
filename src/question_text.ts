@@ -8,6 +8,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Text question type.
@@ -125,7 +126,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", "");
+    return this.getPropertyValue("autocomplete", null);
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);
@@ -428,6 +429,9 @@ export class QuestionTextModel extends QuestionTextBase {
   public onKeyDown = (event: any) => {
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
+    }
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
     }
   }
   public onChange = (event: any): void => {

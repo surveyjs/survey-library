@@ -13,7 +13,7 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
       return this.model?.dropdownListModel;
     }
     protected getModel() {
-      return this.model;
+      return this.model.dropdownListModel;
     }
 
     override ngOnInit(): void {
@@ -41,15 +41,18 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
       this.dropdownModel?.onBlur(event);
       this.updateInputDomElement();
     }
+  focus(event: any) {
+    this.dropdownModel?.onFocus(event);
+  }
     inputChange(event: any) {
       this.detectChanges();
     }
     updateInputDomElement() {
       if (!!this.inputElementRef?.nativeElement) {
         const control: any = this.inputElementRef.nativeElement;
-        const newValue = this.model.filterString;
+        const newValue = this.model.inputStringRendered;
         if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-          control.value = this.model.filterString || "";
+          control.value = this.model.inputStringRendered || "";
         }
       }
     }

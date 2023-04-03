@@ -93,3 +93,6 @@
 .sv-tagbox--error::-ms-input-placeholder {
   color: var(--error-color, $error-color);
 }
+.sv-tagbox .sv-dropdown__filter-string-input {
+  height: auto;
+}

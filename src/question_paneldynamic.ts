@@ -459,7 +459,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
-    return this.getPropertyValue("confirmDelete", false);
+    return this.getPropertyValue("confirmDelete");
   }
   public set confirmDelete(val: boolean) {
     this.setPropertyValue("confirmDelete", val);
@@ -968,7 +968,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see defaultValue
    */
   public get defaultValueFromLastPanel(): boolean {
-    return this.getPropertyValue("defaultValueFromLastPanel", false);
+    return this.getPropertyValue("defaultValueFromLastPanel");
   }
   public set defaultValueFromLastPanel(val: boolean) {
     this.setPropertyValue("defaultValueFromLastPanel", val);

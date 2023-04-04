@@ -5,6 +5,7 @@ import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
+import { ItemValue } from "../src/itemvalue";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -546,4 +547,125 @@ QUnit.test("check smileys styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
+});
+
+QUnit.test("rateCount changing rateMin/rateMax", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+
+  q1.rateCount = 6;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 6);
+});
+
+QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateMax = 6;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 6);
+  assert.equal(q1.rateCount, 6);
+
+  q1.rateMin = 2;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 2);
+  assert.equal(q1.visibleRateValues.length, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateStep = 3;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 2);
+  assert.equal(q1.visibleRateValues.length, 2);
+  assert.equal(q1.rateCount, 2);
+});
+
+QUnit.test("rateValues changing rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateValues.push(new ItemValue("d"));
+  assert.equal(q1.rateCount, 4);
+});
+
+QUnit.test("rateCount changing rateValues", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.rateCount = 2;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b"]);
+
+  q1.rateCount = 4;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", undefined, undefined]);
+});
+
+QUnit.test("rateMin/rateMax/rateStep does not change rateValues and rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateMax = 100;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateMin = 50;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateStep = 3;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
 });

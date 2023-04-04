@@ -52,12 +52,54 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
+    this.initPropertyDependencies();
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
+    this.updateRateCount();
     this.createRenderedRateItems();
+  }
+
+  private _syncPropertiesChanging: boolean = false;
+  private registerSychProperties(names: Array<string>, func: any) {
+    this.registerFunctionOnPropertiesValueChanged(names,
+      () => {
+        if (!this._syncPropertiesChanging) {
+          this._syncPropertiesChanging = true;
+          func();
+          this._syncPropertiesChanging = false;
+        }
+      });
+  }
+
+  private updateRateCount() {
+    if (this.rateValues.length) this.rateCount = this.rateValues.length;
+  }
+  initPropertyDependencies() {
+    this.registerSychProperties(["rateCount"],
+      () => {
+        if (this.rateValues.length == 0) {
+          this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+        } else {
+          if (this.rateCount < this.rateValues.length) {
+            this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
+          } else {
+            for (let i = this.rateValues.length; i < this.rateCount; i++) this.rateValues.push(new ItemValue(undefined));
+          }
+        }
+      });
+    this.registerSychProperties(["rateMin", "rateMax", "rateStep"],
+      () => {
+        if (this.rateValues.length == 0) {
+          this.rateCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
+        }
+      });
+    this.registerSychProperties(["rateValues"],
+      () => {
+        this.updateRateCount();
+      });
   }
   /**
    * A list of rate values.
@@ -132,6 +174,9 @@ export class QuestionRatingModel extends Question {
   public set rateStep(val: number) {
     this.setPropertyValue("rateStep", val);
   }
+
+  @property({ defaultValue: 5 }) rateCount: number;
+
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
@@ -488,6 +533,10 @@ Serializer.addClass(
   "rating",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    {
+      name: "rateCount:number",
+      default: 5
+    },
     {
       name: "rateValues:itemvalue[]",
       baseValue: function () {

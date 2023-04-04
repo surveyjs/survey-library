@@ -2715,6 +2715,95 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
+  test("Recalculate popup position after window resize", async t => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          isRequired: true,
+          hasNone: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          hasOther: "true",
+          startWithNewLine: false,
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .resizeWindow(900, 600)
+      .expect(popupContainer.visible).notOk()
+      .click(questionDropdownSelect.nth(1))
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(460, 470)
+      .expect(popupContainer.offsetHeight).within(490, 500)
+      .expect(popupContainer.offsetWidth).within(395, 400)
+
+      .resizeWindow(1280, 1100)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(650, 660)
+      .expect(popupContainer.offsetHeight).within(985, 990)
+      .expect(popupContainer.offsetWidth).within(585, 595)
+
+      .resizeWindow(800, 600)
+      .resizeWindow(900, 600)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(460, 470)
+      .expect(popupContainer.offsetHeight).within(490, 500)
+      .expect(popupContainer.offsetWidth).within(395, 400);
+  });
+
   const theme = "defaultV2";
   test.page(`${url_test}${theme}/${framework}.html`)("Check rating as dropdown", async (t) => {
     await applyTheme(theme);

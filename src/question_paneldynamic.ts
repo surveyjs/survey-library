@@ -2107,7 +2107,7 @@ Serializer.addClass(
     {
       name: "renderMode",
       default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom"],
+      choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
     },
     {
       name: "tabAlign", default: "center", choices: ["center", "left", "right"],

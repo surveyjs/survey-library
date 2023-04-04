@@ -27,11 +27,6 @@ sv-popup {
 }
 
 .sv-popup {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
   outline: none;
   z-index: 1500;
 }
@@ -59,6 +54,15 @@ sv-popup {
   flex-direction: column;
   max-height: 90vh;
   max-width: 90vw;
+}
+
+.sv-popup.sv-popup--modal,
+.sv-popup.sv-popup--overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
 }
 
 .sv-popup--modal {

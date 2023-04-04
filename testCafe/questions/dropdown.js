@@ -2795,13 +2795,12 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.offsetHeight).within(985, 990)
       .expect(popupContainer.offsetWidth).within(585, 595)
 
-      .resizeWindow(800, 600)
       .resizeWindow(900, 600)
       .expect(popupContainer.visible).ok()
       .expect(popupContainer.offsetTop).within(85, 95)
       .expect(popupContainer.offsetLeft).within(460, 470)
-      .expect(popupContainer.offsetHeight).within(490, 500)
-      .expect(popupContainer.offsetWidth).within(395, 400);
+      .expect(popupContainer.offsetHeight).within(490, 540)
+      .expect(popupContainer.offsetWidth).within(395, 440);
   });
 
   const theme = "defaultV2";

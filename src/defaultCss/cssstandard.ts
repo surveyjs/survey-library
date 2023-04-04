@@ -237,6 +237,8 @@ export var defaultStandardCss = {
   paneldynamic: {
     root: "sv_panel_dynamic",
     title: "sv_p_title",
+    header: "sv-paneldynamic__header sv_header",
+    headerTab: "sv-paneldynamic__header-tab",
     button: "",
     buttonAdd: "sv-paneldynamic__add-btn",
     buttonRemove: "sv_p_remove_btn",

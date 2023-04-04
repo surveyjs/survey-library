@@ -248,49 +248,6 @@ frameworks.forEach(framework => {
                 startWithNewLine: false,
                 visibleIf:
                 "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
-              },
-              {
-                type: "panel",
-                name: "moreInfo",
-                state: "expanded",
-                title: "Detail Information about: {panel.relativeType}",
-                elements: [
-                  {
-                    type: "matrixdynamic",
-                    name: "relativeillness",
-                    title: "Describe the illness or condition.",
-                    rowCount: 0,
-                    columns: [
-                      {
-                        name: "illness",
-                        cellType: "dropdown",
-                        title: "Illness/Condition",
-                        choices: [
-                          "Cancer",
-                          "Heart Disease",
-                          "Diabetes",
-                          "Stroke/TIA",
-                          "High Blood Pressure",
-                          "High Cholesterol or Triglycerides",
-                          "Liver Disease",
-                          "Alcohol or Drug Abuse",
-                          "Anxiety, Depression or Psychiatric Illness",
-                          "Tuberculosis",
-                          "Anesthesia Complications",
-                          "Genetic Disorder",
-                          "Other – describe"
-                        ],
-                        isRequired: true
-                      },
-                      {
-                        name: "description",
-                        cellType: "text",
-                        title: "Describe",
-                        isRequired: true
-                      }
-                    ]
-                  }
-                ]
               }
             ],
             panelCount: 2,

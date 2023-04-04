@@ -1284,3 +1284,23 @@ QUnit.test("Value property editor test", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Check column min width property is set correctly to editor", function (assert) {
+  const question = new QuestionMatrixDynamicModel("q1");
+  question.addColumn("col1");
+  const column = question.columns[0];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "minWidth"
+      },
+    ],
+  });
+  survey.editingObj = column;
+  const editor = survey.getAllQuestions()[0];
+  const property = Serializer.findProperty(column.getType(), "minWidth");
+  assert.equal(editor.value, "300px");
+  property.onPropertyEditorUpdate(column, editor);
+  assert.equal(editor.value, "");
+});

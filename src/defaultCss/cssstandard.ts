@@ -309,6 +309,10 @@ export var defaultStandardCss = {
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
+    itemStar: "sv_q_rating__item-star",
+    itemStarSelected: "sv_q_rating__item-star--selected",
+    itemSmiley: "sv_q_rating__item-smiley",
+    itemSmileySelected: "sv_q_rating__item-smiley--selected",
   },
   text: {
     root: "sv_q_text_root",

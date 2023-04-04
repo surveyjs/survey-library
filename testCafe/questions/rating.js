@@ -131,27 +131,33 @@ frameworks.forEach((framework) => {
         }
       ]
     });
-
     await t.expect(Selector(".sd-question select").visible).ok;
   });
 
+  var jsonR = {
+    questions: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateValues": [
+          0,
+          1,
+          2,
+        ]
+      },
+    ],
+  };
+  frameworks.forEach((framework) => {
+    fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+      async (t) => {
+        await initSurvey(framework, jsonR);
+      }
+    );
+  });
   test("check fixed width observability", async (t) => {
-    var json = {
-      questions: [
-        {
-          "type": "rating",
-          "name": "q1",
-          "rateValues": [
-            0,
-            1,
-            2,
-          ]
-        },
-      ],
-    };
-    await initSurvey(framework, json);
+    await t.expect(Selector(".sv_q_rating_item").withText("1").visible).ok();
     await t.expect(Selector(".sv_q_rating_item").withText("1").classNames).contains("sv_q_rating_item_fixed");
-    await ClientFunction(() => { window["survey"].getQuestionByName("q1").rateValues[0].value = "a"; })();
+    await ClientFunction(() => { window["survey"].getQuestionByName("q1").rateValues[1].value = "a"; })();
     await t.expect(Selector(".sv_q_rating_item").withText("a").classNames).notContains("sv_q_rating_item_fixed");
   });
 

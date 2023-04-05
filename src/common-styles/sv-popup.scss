@@ -12,6 +12,7 @@ $foreground: var(--foreground, #161616);
 $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 $foreground-light: var(--foreground-light, #909090);
 $font-family: var(--font-family, "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
+$popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 
 $base-unit: var(--base-unit, 8px);
 
@@ -27,6 +28,10 @@ sv-popup {
 }
 
 .sv-popup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
   outline: none;
   z-index: 1500;
 }
@@ -58,10 +63,6 @@ sv-popup {
 
 .sv-popup.sv-popup--modal,
 .sv-popup.sv-popup--overlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
   height: 100vh;
 }
 
@@ -82,8 +83,6 @@ sv-popup {
     padding: calcSize(4);
   }
 }
-
-$popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 
 .sv-popup--overlay.sv-popup--overlay {
   width: 100%;

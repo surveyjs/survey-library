@@ -1,4 +1,4 @@
-import { ClientFunction } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 import { createScreenshotsComparer, ScreenshotsComparer } from "devextreme-screenshot-comparer";
 
 export const getSurveyJSFramework = ClientFunction(() => {
@@ -30,10 +30,11 @@ export async function wrapVisualTest(t: TestController, fn: (t: TestController, 
     .ok(comparer.compareResults.errorMessages());
 }
 
-export async function takeElementScreenshot(screenshotName: string, element: Selector, t: TestController, comparer: ScreenshotsComparer): Promise<void> {
-  await t
-    .wait(1000)
-    .expect(element.visible).ok("element is invisible for " + screenshotName);
+export async function takeElementScreenshot(screenshotName: string, element: Selector | string | null, t: TestController, comparer: ScreenshotsComparer): Promise<void> {
+  await t.wait(1000);
+  if(!!element) {
+    await t.expect(Selector(element).visible).ok("element is invisible for " + screenshotName);
+  }
   await comparer.takeScreenshot(screenshotName, element, screenshotComparerOptions);
 }
 

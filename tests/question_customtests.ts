@@ -540,6 +540,7 @@ QUnit.test("Single: defaultValue", function (assert) {
     2,
     "defaultValue is set for contentQuestion"
   );
+  assert.deepEqual(survey.data, { q1: 2 }, "set data into survey");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: defaultValue", function (assert) {
@@ -558,6 +559,7 @@ QUnit.test("Composite: defaultValue", function (assert) {
   var firstName = q.contentPanel.getQuestionByName("firstName");
   assert.equal(firstName.value, "Jon", "firstName defaultValue");
   assert.deepEqual(q.value, { firstName: "Jon" }, "question defaultValue");
+  assert.deepEqual(survey.data, { q1: { firstName: "Jon" } }, "survey.data");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: defaultValue and survey in design mode", function (assert) {

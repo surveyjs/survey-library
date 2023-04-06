@@ -16,6 +16,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
 import { StylesManager } from "../src/stylesmanager";
 import { settings } from "../src/settings";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -5354,4 +5355,125 @@ QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
 
   panel.renderMode = undefined;
   assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is default");
+});
+QUnit.test("Pass isMobile to the nested questions", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "quality1",
+            "title": "Please indicate if you agree or disagree with the following statements",
+            "alternateRows": true,
+            "columns": [
+              {
+                "value": 5,
+                "text": "Strongly agree"
+              },
+              {
+                "value": 4,
+                "text": "Agree"
+              },
+              {
+                "value": 3,
+                "text": "Neutral"
+              },
+              {
+                "value": 2,
+                "text": "Disagree"
+              },
+              {
+                "value": 1,
+                "text": "Strongly disagree"
+              }
+            ],
+            "rows": [
+              {
+                "value": "affordable",
+                "text": "Product is affordable"
+              },
+              {
+                "value": "does what it claims",
+                "text": "Product does what it claims"
+              },
+              {
+                "value": "better than others",
+                "text": "Product is better than other products on the market"
+              },
+              {
+                "value": "easy to use",
+                "text": "Product is easy to use"
+              }
+            ],
+            "isAllRowRequired": true
+          },
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "panelCount": 1,
+            "templateElements": [
+              {
+                "type": "matrix",
+                "name": "quality",
+                "title": "Please indicate if you agree or disagree with the following statements",
+                "alternateRows": true,
+                "columns": [
+                  {
+                    "value": 5,
+                    "text": "Strongly agree"
+                  },
+                  {
+                    "value": 4,
+                    "text": "Agree"
+                  },
+                  {
+                    "value": 3,
+                    "text": "Neutral"
+                  },
+                  {
+                    "value": 2,
+                    "text": "Disagree"
+                  },
+                  {
+                    "value": 1,
+                    "text": "Strongly disagree"
+                  }
+                ],
+                "rows": [
+                  {
+                    "value": "affordable",
+                    "text": "Product is affordable"
+                  },
+                  {
+                    "value": "does what it claims",
+                    "text": "Product does what it claims"
+                  },
+                  {
+                    "value": "better than others",
+                    "text": "Product is better than other products on the market"
+                  },
+                  {
+                    "value": "easy to use",
+                    "text": "Product is easy to use"
+                  }
+                ],
+                "isAllRowRequired": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("quality1");
+  const dynPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+
+  survey.setIsMobile();
+  assert.equal(matrix.isMobile, true, "Matrix is mobile");
+  assert.equal(dynPanel.isMobile, true, "dynPanel is mobile");
+
+  const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
+  assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
 });

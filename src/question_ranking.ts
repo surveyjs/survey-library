@@ -1,4 +1,4 @@
-import { ISurvey, ISurveyImpl } from "./base-interfaces";
+import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
@@ -7,7 +7,6 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
-import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "../src/settings";
 
 /**
@@ -195,7 +194,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
 
-    const target:HTMLElement = <HTMLElement>event.target;
+    const target: HTMLElement = <HTMLElement>event.target;
 
     if (!this.isDragStartNodeValid(target)) return;
 
@@ -314,6 +313,19 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("longTap", val);
   }
 
+  /**
+   * Toggle Ranking to Choose Items To Order Mode.
+   *
+   * Default value: `false`
+  */
+  public get chooseItemsToOrder(): boolean {
+    return this.getPropertyValue("chooseItemsToOrder");
+  }
+  public set chooseItemsToOrder(val: boolean) {
+    this.setPropertyValue("chooseItemsToOrder", val);
+  }
+
+
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");
   }
@@ -338,6 +350,12 @@ Serializer.addClass(
     { name: "separateSpecialChoices", visible: false, isSerializable: false },
     {
       name: "longTap",
+      default: true,
+      visible: false,
+      isSerializable: false,
+    },
+    {
+      name: "chooseItemsToOrder",
       default: true,
       visible: false,
       isSerializable: false,

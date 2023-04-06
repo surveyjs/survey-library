@@ -6,35 +6,35 @@ export default QUnit.module("SurveyProgressButtons");
 QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
   let json: any = {
     "pages": [
-     {
-      "name": "page1",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question1"
-       }
-      ]
-     },
-     {
-      "name": "page2",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question2"
-       }
-      ]
-     },
-     {
-      "name": "page3",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question3"
-       }
-      ]
-     }
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
     ]
-   };
+  };
   let survey: SurveyModel = new SurveyModel(json);
   let progress: SurveyProgressButtonsModel = new SurveyProgressButtonsModel(survey);
   assert.equal(progress.getListElementCss(0),
@@ -70,35 +70,35 @@ QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
 QUnit.test("SurveyProgressButtonsModel list elements non clickable", function(assert) {
   let json: any = {
     "pages": [
-     {
-      "name": "page1",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question1"
-       }
-      ]
-     },
-     {
-      "name": "page2",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question2"
-       }
-      ]
-     },
-     {
-      "name": "page3",
-      "elements": [
-       {
-        "type": "text",
-        "name": "question3"
-       }
-      ]
-     }
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
     ]
-   };
+  };
   let survey: SurveyModel = new SurveyModel(json);
   survey.onServerValidateQuestions.add((_: any, options: any) => options.complete());
   let progress: SurveyProgressButtonsModel = new SurveyProgressButtonsModel(survey);

@@ -10,6 +10,8 @@ module.exports = {
           context.report(node, testOnlyMessage);
         } else if (node.object.type === "CallExpression" && node.property.name === "only" ){
           context.report(node, testOnlyMessage);
+        } else if (node.object.name === "QUnit" && node.property.name === "only" ){
+          context.report(node, testOnlyMessage);
         }
       }
     }),

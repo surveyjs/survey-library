@@ -11,7 +11,9 @@ $secondary-foreground: var(--secondary-foreground, #fff);
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
 $background-dim-light: var(--background-dim-light, #f9f9f9);
-$background-for-editors: $background-dim-light;
+
+$editor-background: var(--sjs-editor-background, #f9f9f9);
+$question-background: var(--sjs-question-background, #fff);
 
 $foreground: var(--foreground, #161616);
 $foreground-light: var(--foreground-light, #909090);

@@ -42,7 +42,7 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
+    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax", "rateType",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
     this.createLocalizableString(
@@ -173,6 +173,8 @@ export class QuestionRatingModel extends Question {
       }
       rateValues = res;
     }
+
+    if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
     this.renderedRateItems = rateValues.map((v, i) => {
       if (this.displayRateDescriptionsAsExtremeItems) {

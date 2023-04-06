@@ -3,7 +3,7 @@
   width: max-content;
   position: relative;
   padding: calcSize(0.5);
-  background: $background-for-editors;
+  background: $editor-background;
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border-radius: calcSize(12.5);
 }

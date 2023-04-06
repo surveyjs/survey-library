@@ -7,7 +7,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel, createTOCListModel } from "survey-core";
+import { SurveyModel, createTOCListModel, getTocRootCss } from "survey-core";
 
 @Component
 export class ProgressToc extends Vue {
@@ -17,6 +17,7 @@ export class ProgressToc extends Vue {
   public listModel: any = undefined;
   constructor() {
     super();
+    this.containerCss = getTocRootCss(this.survey);
     this.listModel = createTOCListModel(this.survey);
   }
 }

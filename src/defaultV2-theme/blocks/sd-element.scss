@@ -23,7 +23,7 @@
   padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
-  background: $background;
+  background: $question-background;
   box-shadow: 0px 1px 2px $shadow-inner;
 
   & > .sd-question__erbox--outside-question {

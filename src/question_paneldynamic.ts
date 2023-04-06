@@ -29,6 +29,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { AdaptiveActionContainer } from "./actions/adaptive-container";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -435,6 +436,7 @@ export class QuestionPanelDynamicModel extends Question
       if (val >= this.panelCount) val = this.panelCount - 1;
       this.currentIndexValue = val;
       this.updateFooterActions();
+      this.updateTabToolbarItemsPressedState();
       this.fireCallback(this.currentIndexChangedCallback);
     }
   }
@@ -647,6 +649,7 @@ export class QuestionPanelDynamicModel extends Question
     for (let i = this.panelCount; i < val; i++) {
       var panel = this.createNewPanel();
       this.panels.push(panel);
+      this.addTabFromToolbar(panel);
       if (this.renderMode == "list" && this.panelsState != "default") {
         if (this.panelsState === "expand") {
           panel.expand();
@@ -657,12 +660,16 @@ export class QuestionPanelDynamicModel extends Question
         }
       }
     }
-    if (val < this.panelCount) this.panels.splice(val, this.panelCount - val);
+    let removedPanels:Array<PanelModel> = [];
+    if (val < this.panelCount) {
+      removedPanels = this.panels.splice(val, this.panelCount - val);
+    }
     this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
+    (removedPanels.length > 0) && this.removeTabFromToolbar(removedPanels);
   }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
@@ -851,8 +858,26 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
+  public get tabAlign(): "center" | "left" | "right" {
+    return this.getPropertyValue("tabAlign");
+  }
+  public set tabAlign(val: "center" | "left" | "right") {
+    this.setPropertyValue("tabAlign", val);
+    if(this.isRenderModeTab) {
+      this.additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss();
+    }
+  }
   public get isRenderModeList() {
     return this.renderMode === "list";
+  }
+  public get isRenderModeTab() {
+    return this.renderMode === "tab";
+  }
+  get hasTitleOnLeftTop(): boolean {
+    if(this.isRenderModeTab && !!this.panelCount) return true;
+    if(!this.hasTitle) return false;
+    const location = this.getTitleLocation();
+    return location === "left" || location === "top";
   }
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
@@ -949,6 +974,7 @@ export class QuestionPanelDynamicModel extends Question
     this.reRunCondition();
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
+    this.updateTabToolbar();
   }
   /**
    * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
@@ -1136,6 +1162,7 @@ export class QuestionPanelDynamicModel extends Question
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
     this.isValueChangingInternally = false;
+    this.removeTabFromToolbar([panel]);
   }
   private getPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -1809,6 +1836,14 @@ export class QuestionPanelDynamicModel extends Question
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
+  public get cssHeader(): string {
+    const showTab = this.isRenderModeTab && !!this.panelCount;
+    return new CssClassBuilder()
+      .append(this.cssClasses.header)
+      .append(this.cssClasses.headerTop, this.hasTitleOnTop || showTab)
+      .append(this.cssClasses.headerTab, showTab)
+      .toString();
+  }
   public getPanelWrapperCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.panelWrapper)
@@ -1861,6 +1896,24 @@ export class QuestionPanelDynamicModel extends Question
     if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
+  private additionalTitleToolbarValue: ActionContainer;
+  protected getAdditionalTitleToolbar() : ActionContainer | null {
+    if(!this.isRenderModeTab) return null;
+
+    if (!this.additionalTitleToolbarValue) {
+      this.additionalTitleToolbarValue = new AdaptiveActionContainer();
+      this.additionalTitleToolbarValue.containerCss = this.getAdditionalTitleToolbarCss();
+      this.additionalTitleToolbarValue.cssClasses = {
+        item: "sv-tab-item",
+        itemPressed: "sv-tab-item--pressed",
+        itemAsIcon: "sv-tab-item--icon",
+        itemIcon: "sv-tab-item__icon",
+        itemTitle: "sv-tab-item__title"
+      };
+    }
+    return this.additionalTitleToolbarValue;
+  }
+
   private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
@@ -1935,6 +1988,59 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);
   }
+  private createTabByPanel(panel: PanelModel) {
+    if(!this.isRenderModeTab) return;
+
+    const index = this.getPanelIndex(panel);
+    const title = this.getLocalizationFormatString("panelDynamicTabTextFormat", index + 1);
+    const newItem = new Action({
+      id: index.toString(),
+      css: "sv-tab-item__root",
+      pressed: index === this.currentIndex,
+      title: title,
+      action: () => {
+        this.currentIndex = parseInt(newItem.id);
+        this.updateTabToolbarItemsPressedState();
+      }
+    });
+    return newItem;
+  }
+  private getAdditionalTitleToolbarCss(): string {
+    return new CssClassBuilder()
+      .append("sv-tabs-toolbar")
+      .append("sv-tabs-toolbar--left", this.tabAlign === "left")
+      .append("sv-tabs-toolbar--right", this.tabAlign === "right")
+      .append("sv-tabs-toolbar--center", this.tabAlign === "center")
+      .toString();
+  }
+  private updateTabToolbarItemsPressedState() {
+    if(!this.isRenderModeTab) return;
+    this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = parseInt(action.id) === this.currentIndex);
+  }
+  private updateTabToolbar() {
+    if(!this.isRenderModeTab) return;
+
+    const items: Array<Action> = [];
+    this.panels.forEach(panel => items.push(this.createTabByPanel(panel)));
+    this.additionalTitleToolbar.setItems(items);
+  }
+  private addTabFromToolbar(panel: PanelModel) {
+    if(!this.isRenderModeTab) return;
+
+    const newItem = this.createTabByPanel(panel);
+    this.additionalTitleToolbar.actions.push(newItem);
+    this.updateTabToolbarItemsPressedState();
+  }
+  private removeTabFromToolbar(panels: PanelModel[]) {
+    if(!this.isRenderModeTab) return;
+
+    panels.forEach(panel => {
+      const index = this.getPanelIndex(panel);
+      const removedItem = this.additionalTitleToolbar.getActionById(index.toString());
+      this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
+    });
+    this.updateTabToolbarItemsPressedState();
+  }
   private get showLegacyNavigation() {
     return !this.isDefaultV2Theme;
   }
@@ -2001,7 +2107,10 @@ Serializer.addClass(
     {
       name: "renderMode",
       default: "list",
-      choices: ["list", "progressTop", "progressBottom", "progressTopBottom"],
+      choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
+    },
+    {
+      name: "tabAlign", default: "center", choices: ["center", "left", "right"],
     },
     {
       name: "templateTitleLocation",

@@ -439,7 +439,6 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
-   * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
    */
@@ -1140,7 +1139,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * Gets or sets an identifier of a survey model loaded from the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey JSON is automatically loaded from [api.surveyjs.io](https://api.surveyjs.io) service.
+   * The identifier of a survey JSON schema to load from the [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see loadSurveyFromService
    * @see onLoadedSurveyFromService
    */
@@ -1151,7 +1152,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * Gets or sets an identifier of a survey model saved to the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey data is automatically saved to the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * An identifier used to save survey results to the [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see onComplete
    * @see surveyShowDataSaving
    */
@@ -1162,9 +1165,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyPostId", val);
   }
   /**
-   * Gets or sets user's identifier (e.g., e-mail or unique customer id) in your web application.
-   * If you load survey or post survey results from/to [api.surveyjs.io](https://api.surveyjs.io) service, then the library do not allow users to run the same survey the second time.
-   * On the second run, the user will see the survey complete page.
+   * A user identifier (e-mail or other unique ID).
+   *
+   * If your application works with the [SurveyJS Service](https://api.surveyjs.io), the ID ensures that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   * @see cookieName
    */
   public get clientId(): string {
     return this.getPropertyValue("clientId", "");
@@ -1173,9 +1177,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("clientId", val);
   }
   /**
-   * Gets or sets a cookie name used to save information about completing the survey.
-   * If the property is not empty, before starting the survey, the Survey library checks if the cookie with this name exists.
-   * If it is `true`, the survey goes to complete mode and a user sees the survey complete page. On completing the survey the cookie with this name is created.
+   * A cookie name used to save information about survey completion.
+   *
+   * When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   * @see cliendId
    */
   public get cookieName(): string {
     return this.getPropertyValue("cookieName", "");
@@ -1530,15 +1535,17 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("textUpdateMode", val);
   }
   /**
-   * Gets or sets a value that specifies how the invisible data is included in survey data.
+   * Specifies when to remove values of invisible questions from [survey results](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data).
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `none` - include the invisible values into the survey data.
-   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * - `onHiddenContainer` - clear the question value when it or its parent (page or panel) becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
-   * @see Question.visible
+   * - `"onComplete"` (default) - Clears invisible question values when the survey is complete.
+   * - `"onHidden"` - Clears a question value when the question becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"onHiddenContainer"` - Clears a question value when the question or its containter (page or panel) becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"none"` - Keeps invisible values in survey results.
+   * - `true` - Equivalent to `"onComplete"`.
+   * - `false` - Equivalent to `"none"`.
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    * @see onComplete
    */
   public get clearInvisibleValues(): any {
@@ -1550,20 +1557,18 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("clearInvisibleValues", val);
   }
   /**
-   * Call this function to remove all question values from the survey, that end-user will not be able to enter.
-   * For example the value that doesn't exists in a radiogroup/dropdown/checkbox choices or matrix rows/columns.
-   * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
-   * In fact this function just call clearIncorrectValues function of all questions in the survey
-   * @param removeNonExisingRootKeys - set this parameter to true to remove keys from survey.data that doesn't have corresponded questions and calculated values
-   * @see Question.clearIncorrectValues
-   * @see Page.clearIncorrectValues
-   * @see Panel.clearIncorrectValues
+   * Removes values that cannot be assigned to a question, for example, choices unlisted in the `choices` array.
+   *
+   * Call this method after you assign new question values in code to ensure that they are acceptable.
+   *
+   * > This method does not remove values that fail validation. Call the [`validate()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validate) method to validate newly assigned values.
+   * @param removeNonExistingRootKeys Pass `true` to remove values that do not correspond to any question or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values).
    */
-  public clearIncorrectValues(removeNonExisingRootKeys: boolean = false) {
+  public clearIncorrectValues(removeNonExistingRootKeys: boolean = false) {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
     }
-    if (!removeNonExisingRootKeys) return;
+    if (!removeNonExistingRootKeys) return;
     var data = this.data;
     var hasChanges = false;
     for (var key in data) {
@@ -1593,7 +1598,7 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the choices array.
+   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    * @see clearIncorrectValues
@@ -1869,12 +1874,11 @@ export class SurveyModel extends SurveyElementCore
     return "";
   }
   /**
-   * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
+   * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/modify-survey-navigation-settings/ (linkStyle))
    * @see showCompletedPage
    * @see completedHtmlOnCondition
-   * @see locale
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get completedHtml(): string {
     return this.getLocalizableStringText("completedHtml");
@@ -1886,9 +1890,11 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedHtml");
   }
   /**
-   * The list of HTML condition items. If the expression of this item returns `true`, then a survey will use this item HTML instead of `completedHtml`.
-   * @see HtmlConditionItem
-   * @see completeHtml
+   * An array of objects that allows you to specify different HTML content for the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   *
+   * Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem#expression) and [`html`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem#html) properties. When `expression` evaluates to `true`, the survey uses the corresponding HTML markup instead of [`completedHtml`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml). Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
     return this.getPropertyValue("completedHtmlOnCondition");
@@ -1943,9 +1949,10 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * The HTML content displayed to an end user that has already completed the survey.
+   * HTML content displayed to a user who has completed the survey before.
    * @see clientId
-   * @see locale
+   * @see cookieName
+   * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
     return this.getLocalizableStringText("completedBeforeHtml");
@@ -1957,9 +1964,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * The HTML that shows on loading survey Json from the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * HTML content displayed while a survey JSON schema is being loaded from the [SurveyJS Service](https://api.surveyjs.io).
    * @see surveyId
-   * @see locale
+   * @see processedLoadingHtml
    */
   public get loadingHtml(): string {
     return this.getLocalizableStringText("loadingHtml");
@@ -1970,10 +1977,6 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
-  /**
-   * Default value for loadingHtml property
-   * @see loadingHtml
-   */
   public get defaultLoadingHtml(): string {
     return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
@@ -2682,8 +2685,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns all comments from the data.
-   * @see data
+   * An object with all comment values.
+   * @see Question.showCommentArea
+   * @see storeOthersAsComment
    */
   public get comments(): any {
     var result: { [index: string]: any } = {};
@@ -3576,11 +3580,11 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   /**
-   * Completes the survey, if the current page is the last one. It returns `false` if the last page has errors.
-   * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
+   * Completes the survey if it currently displays the last page and the page contains no validation errors. If both these conditions are met, this method returns `true`; otherwise, `false`.
+   *
+   * If you want to complete the survey regardless of the current page and validation errors, use the [`doComplete()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) event.
    * @see isCurrentPageValid
    * @see nextPage
-   * @see doComplete
    */
   public completeLastPage(): boolean {
     var res = this.doCurrentPageComplete(true);
@@ -3931,26 +3935,19 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Completes the survey.
    *
-   * Calling this function performs the following tasks:
+   * When you call this method, Form Library performs the following actions:
    *
-   * - writes cookie if the `cookieName` property is not empty
-   * - sets the survey into `completed` state
-   * - fires the `onComplete` event
-   * - calls `sendResult` function.
+   * 1. Saves a cookie if the [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) property is set.
+   * 1. Switches the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) to `"completed"`.
+   * 1. Raises the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event.
+   * 1. Navigates the user to a URL specified by the [`navigateToUrl`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrl) or [`navigateToUrlOnCondition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrlOnCondition) property.
+   * 1. Calls the [`sendResult()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResult) method if Form Library works with the [SurveyJS Service](https://api.surveyjs.io/).
    *
-   * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
-   * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
-   * It calls `navigateToUrl` after calling `onComplete` event.
-   * In case calling `options.showSaveInProgress` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showSaveSuccess` callback.
-   * @see completeLastPage
-   * @see onCompleting
-   * @see cookieName
-   * @see state
-   * @see onComplete
+   * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
+   *
+   * @param isCompleteOnTrigger For internal use.
+   * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
-   * @see completeLastPage
-   * @see navigateToUrl
-   * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
     if (this.isCompleted) return;
@@ -4677,13 +4674,6 @@ export class SurveyModel extends SurveyElementCore
       callback: callback,
     });
   }
-  /**
-   * Clears files from server.
-   * @param question question
-   * @param name question name
-   * @param value file question value
-   * @param callback call back function to get the status of the clearing operation
-   */
   public clearFiles(
     question: QuestionFileModel,
     name: string,
@@ -5964,8 +5954,11 @@ export class SurveyModel extends SurveyElementCore
     this.setComment(name, null);
   }
   /**
-   * Gets or sets whether to clear value on disable items in checkbox, dropdown and radiogroup questions.
-   * By default, values are not cleared on disabled the corresponded items. This property is not persisted in survey JSON and you have to set it in code.
+   * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
+   *
+   * Default value: `false`
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
   public get clearValueOnDisableItems(): boolean {
     return this.getPropertyValue("clearValueOnDisableItems", false);
@@ -6823,7 +6816,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);

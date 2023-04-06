@@ -1945,7 +1945,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
+   * > This method does not remove values that fail validation. Call the `validate()` method to validate newly assigned values.
    *
    * @see validate
    */

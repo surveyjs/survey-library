@@ -547,3 +547,30 @@ QUnit.test("check smileys styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
 });
+
+QUnit.test("rating smileys max item count", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "smileys",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.renderedRateItems.length, 5);
+  q1.rateMax = 10;
+  assert.equal(q1.renderedRateItems.length, 10);
+  q1.rateMax = 15;
+  assert.equal(q1.renderedRateItems.length, 10);
+
+  q1.rateType = "numbers";
+  assert.equal(q1.renderedRateItems.length, 15);
+  q1.renderedRateItems[0].itemValue.value = "a";
+
+  q1.rateType = "smileys";
+  assert.equal(q1.renderedRateItems.length, 10);
+});

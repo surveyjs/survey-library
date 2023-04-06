@@ -23,6 +23,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const visualViewport = window.visualViewport;
     document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
+  private resizeWindowCallback = () => {
+    if(!this.isOverlay) {
+      this.updatePosition(true, false);
+    }
+  };
   private clientY: number = 0;
   @property() private isTablet = false;
   private touchStartEventCallback = (event: any) => {
@@ -176,6 +181,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
+    window.addEventListener("resize", this.resizeWindowCallback);
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.addEventListener("resize", this.resizeEventCallback);
       if(this.container) {
@@ -207,6 +213,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
+    window.removeEventListener("resize", this.resizeWindowCallback);
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
       if(this.container) {

@@ -54,10 +54,22 @@ export class QuestionRatingModel extends Question {
     );
     this.initPropertyDependencies();
   }
+  private jsonObj: any;
+  startLoadingFromJson(jsonObj: any) {
+    super.startLoadingFromJson(jsonObj);
+    this.jsonObj = jsonObj;
+  }
+
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
+    if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
+      this.updateRateMax();
+    }
+    if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
+      this.updateRateMin();
+    }
     this.updateRateCount();
     this.createRenderedRateItems();
   }
@@ -73,9 +85,19 @@ export class QuestionRatingModel extends Question {
         }
       });
   }
-
+  private updateRateMax() {
+    this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+  }
+  private updateRateMin() {
+    this.rateMin = this.rateMax - this.rateStep * (this.rateCount - 1);
+  }
   private updateRateCount() {
-    if (this.rateValues.length) this.rateCount = this.rateValues.length;
+    if (this.rateValues.length) {
+      this.rateCount = this.rateValues.length;
+    }
+    else {
+      this.rateCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
+    }
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
@@ -90,13 +112,7 @@ export class QuestionRatingModel extends Question {
           }
         }
       });
-    this.registerSychProperties(["rateMin", "rateMax", "rateStep"],
-      () => {
-        if (this.rateValues.length == 0) {
-          this.rateCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
-        }
-      });
-    this.registerSychProperties(["rateValues"],
+    this.registerSychProperties(["rateMin", "rateMax", "rateStep", "rateValues"],
       () => {
         this.updateRateCount();
       });

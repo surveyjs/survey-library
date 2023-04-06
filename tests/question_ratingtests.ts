@@ -669,3 +669,70 @@ QUnit.test("rateMin/rateMax/rateStep does not change rateValues and rateCount", 
   assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
   assert.equal(q1.rateCount, 3);
 });
+
+QUnit.test("rate params loading from json", (assert) => {
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMin: 2
+      },
+    ],
+  });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMin -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMin -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMin -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMax: 7
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3]
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 3, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+});

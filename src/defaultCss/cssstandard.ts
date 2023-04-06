@@ -307,6 +307,7 @@ export var defaultStandardCss = {
   rating: {
     root: "sv_q_rating",
     item: "sv_q_rating_item",
+    itemFixedSize: "sv_q_rating_item_fixed",
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",

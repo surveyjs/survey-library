@@ -438,6 +438,57 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(question.value, "item1", "value rolled back on Esc");
 });
 
+QUnit.test("dropdown keyboard tests - empty question, search disabled", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.searchEnabled = false;
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  // TODO: change this behaviour (show popup on UP key)
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first UP");
+  assert.equal(dropdownListModel.hintString, "", "hintString still empty on first UP");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is still hidden on first UP");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first DOWN");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first DOWN");
+  assert.ok(dropdownListModel.showHintString, "hintString already shown on first DOWN");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on first DOWN");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on second DOWN");
+  assert.equal(dropdownListModel.hintString, "item2", "hintString changed on second DOWN");
+  assert.equal(question.value, undefined, "value not changed on second DOWN");
+
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on UP");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on UP");
+  assert.equal(question.value, undefined, "value not changed on UP");
+
+  event.keyCode = 27;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString cleared on Escape");
+  assert.equal(dropdownListModel.hintString, "", "hintString cleared on Escape");
+  assert.equal(question.value, undefined, "value not changed on Escape");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
+});
+
 QUnit.test("always show invisible hint part", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

@@ -18,12 +18,11 @@ const json = {
 
 const theme = "defaultV2";
 
-const popupSelector = Selector(".sv-popup").filterVisible();
 const clickButton = Selector(".sv-action").filterVisible();
 
 function addDropdownActions(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -43,7 +42,7 @@ function addDropdownActions(_, opt) {
 
 function addDropdownActionsWithSeparators(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
     }
@@ -81,7 +80,7 @@ function addDropdownActionsWithIcons(_, opt) {
 
 function addActionsWithModalPopupLongList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -103,7 +102,7 @@ function addActionsWithModalPopupLongList(_, opt) {
 
 function addActionsWithModalPopupWideList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -127,7 +126,7 @@ function addActionsWithModalPopupWideList(_, opt) {
 
 function addActionsWithModalPopupShortList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -149,7 +148,7 @@ function addActionsWithModalPopupShortList(_, opt) {
 
 function addActionsWithOverlayPopupShortList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -170,7 +169,7 @@ function addActionsWithOverlayPopupShortList(_, opt) {
 
 function addActionsWithOverlayPopupLongList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
-    const list = [];
+    const list: Array<any> = [];
     for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
@@ -206,12 +205,12 @@ frameworks.forEach(framework => {
         .resizeWindow(1000, 600)
         .wait(1000)
         .click(clickButton.withText("Long List"));
-      await takeElementScreenshot("popup-dropdown-long-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-dropdown-long-list.png", null, t, comparer);
 
       await t
         .click(clickButton.withText("Long List"))
         .click(clickButton.withText("Short List"));
-      await takeElementScreenshot("popup-dropdown-short-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-dropdown-short-list.png", null, t, comparer);
     });
   });
 
@@ -223,7 +222,7 @@ frameworks.forEach(framework => {
         .resizeWindow(1000, 600)
         .wait(1000)
         .click(clickButton.withText("Long List"));
-      await takeElementScreenshot("popup-dropdown-separators-long-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-dropdown-separators-long-list.png", null, t, comparer);
     });
   });
 
@@ -235,7 +234,7 @@ frameworks.forEach(framework => {
         .resizeWindow(1000, 600)
         .wait(1000)
         .click(clickButton.withText("List Icons"));
-      await takeElementScreenshot("popup-dropdown-list-with-icons.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-dropdown-list-with-icons.png", null, t, comparer);
     });
   });
 
@@ -244,12 +243,12 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupLongList });
       await t.click(clickButton.withText("Modal"));
-      await takeElementScreenshot("popup-modal-long-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-modal-long-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Modal with title"));
-      await takeElementScreenshot("popup-modal-long-list-with-title.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-modal-long-list-with-title.png", null, t, comparer);
     });
   });
 
@@ -260,7 +259,7 @@ frameworks.forEach(framework => {
 
       await t
         .click(clickButton.withText("Modal with title"));
-      await takeElementScreenshot("popup-modal-wide-list-with-title.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-modal-wide-list-with-title.png", null, t, comparer);
     });
   });
 
@@ -269,12 +268,12 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithModalPopupShortList });
       await t.click(clickButton.withText("Modal"));
-      await takeElementScreenshot("popup-modal-short-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-modal-short-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Modal with title"));
-      await takeElementScreenshot("popup-modal-short-list-with-title.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-modal-short-list-with-title.png", null, t, comparer);
     });
   });
 
@@ -283,12 +282,12 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
       await t.click(clickButton.withText("Overlay"));
-      await takeElementScreenshot("popup-overlay-short-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
-      await takeElementScreenshot("popup-overlay-short-list-with-title.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-overlay-short-list-with-title.png", null, t, comparer);
     });
   });
 
@@ -297,12 +296,12 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
       await t.click(clickButton.withText("Overlay"));
-      await takeElementScreenshot("popup-overlay-long-list.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
 
       await t
         .click(Selector(".sv-popup__button.sv-popup__button--cancel").filterVisible())
         .click(clickButton.withText("Overlay with title"));
-      await takeElementScreenshot("popup-overlay-long-list-with-title.png", popupSelector, t, comparer);
+      await takeElementScreenshot("popup-overlay-long-list-with-title.png", null, t, comparer);
     });
   });
 });

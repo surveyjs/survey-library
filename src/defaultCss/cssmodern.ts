@@ -368,7 +368,11 @@ export var modernCss = {
     cleanButtonSvg: "sv-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv-dropdown__value",
-    controlInputFieldComponent: "sv_dropdown_control__input-field-component"
+    controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    itemSmiley: "sv-rating__item-smiley",
+    itemStar: "sv-rating__item-star",
+    itemSmileySelected: "sv-rating__item-smiley--selected",
+    itemStarSelected: "sv-rating__item-star--selected"
   },
   comment: {
     root: "sv-comment",

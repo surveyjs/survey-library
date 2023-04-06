@@ -1,7 +1,7 @@
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
-import {settings as Settings} from "../src/settings";
+import { settings as Settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("question ranking");
@@ -227,7 +227,7 @@ QUnit.test("Ranking: design mode", function (assert) {
   var q = <QuestionRankingModel>survey.getQuestionByName("q");
   q["handleArrowUp"] = () => { upCalled++; };
   q["handleArrowDown"] = () => { downCalled++; };
-  function preventDefault() { preventDefaultCalled++ };
+  function preventDefault() { preventDefaultCalled++; }
 
   q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
   assert.equal(upCalled, 1);
@@ -250,7 +250,6 @@ QUnit.test("Ranking: design mode", function (assert) {
 QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   let result;
   let dragStartTargetNode;
-  
 
   var survey = new SurveyModel({
     elements: [
@@ -264,7 +263,6 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
   const iconHoverClass = rankingQuestion.cssClasses.itemIconHoverMod;
 
-
   Settings.rankingDragHandleArea = "icon"; // 1
   dragStartTargetNode = document.createElement("div");
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
@@ -273,7 +271,6 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   dragStartTargetNode.classList.add(iconHoverClass);
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
-  
 
   Settings.rankingDragHandleArea = "entireItem"; // 2
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
@@ -283,7 +280,6 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
 
-
   Settings.rankingDragHandleArea = "some"; // 3
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
@@ -292,5 +288,5 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
   const prop = "separateSpecialChoices";
   assert.ok(Serializer.findProperty("checkbox", prop).visible, "checkbox separateSpecialChoices is visible");
-  assert.notOk(Serializer.findProperty("ranking", prop).visible, "ranking separateSpecialChoices is invisible")
+  assert.notOk(Serializer.findProperty("ranking", prop).visible, "ranking separateSpecialChoices is invisible");
 });

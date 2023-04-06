@@ -237,6 +237,8 @@ export var defaultStandardCss = {
   paneldynamic: {
     root: "sv_panel_dynamic",
     title: "sv_p_title",
+    header: "sv-paneldynamic__header sv_header",
+    headerTab: "sv-paneldynamic__header-tab",
     button: "",
     buttonAdd: "sv-paneldynamic__add-btn",
     buttonRemove: "sv_p_remove_btn",
@@ -305,10 +307,15 @@ export var defaultStandardCss = {
   rating: {
     root: "sv_q_rating",
     item: "sv_q_rating_item",
+    itemFixedSize: "sv_q_rating_item_fixed",
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
+    itemStar: "sv_q_rating__item-star",
+    itemStarSelected: "sv_q_rating__item-star--selected",
+    itemSmiley: "sv_q_rating__item-smiley",
+    itemSmileySelected: "sv_q_rating__item-smiley--selected",
   },
   text: {
     root: "sv_q_text_root",

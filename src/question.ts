@@ -95,7 +95,11 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  @property({ defaultValue: false }) isMobile: boolean;
+  protected setIsMobile(val: boolean) { }
+
+  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.setIsMobile(val);
+  } }) isMobile: boolean;
 
   constructor(name: string) {
     super(name);
@@ -1945,7 +1949,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
+   * > This method does not remove values that fail validation. Call the `validate()` method to validate newly assigned values.
    *
    * @see validate
    */

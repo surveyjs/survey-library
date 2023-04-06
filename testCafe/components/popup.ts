@@ -67,7 +67,7 @@ function addDropdownTitleAction(_, opt) {
   opt.titleActions = [item];
 }
 
-const popupSelector = Selector(".sv-popup");
+const popupSelector = Selector(".sv-popup .sv-popup__container");
 const popupModalSelector = Selector(".sv-popup.sv-popup--modal");
 const clickButton = Selector(".sv-action-bar-item");
 const popupButtonSelector = Selector(".sv-popup__button");
@@ -290,17 +290,17 @@ frameworks.forEach(async framework => {
       const surveyEl = document.getElementById("surveyElement");
       surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
     });
-    const popupContainerSelector = Selector(".sv-popup__container");
+
     await insertContainer();
     await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(346)
+      .expect(popupSelector.offsetHeight).eql(346)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupContainerSelector.offsetHeight).eql(346);
+      .expect(popupSelector.offsetHeight).eql(346);
   });
 });

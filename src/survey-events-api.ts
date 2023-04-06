@@ -124,21 +124,9 @@ export interface CompleteEvent extends CompleteBaseEvent {
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
    */
   showSaveInProgress: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveInProgress()` method instead.
-  */
   showDataSaving: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveError()` method instead.
-  */
   showDataSavingError: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveSuccess()` method instead.
-  */
   showDataSavingSuccess: (text?: string) => void;
-  /**
-  * @deprecated Use the `clearSaveMessages()` method instead.
-  */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {
@@ -181,9 +169,6 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * Set this property to `false` if you do not want to switch the current page.
    */
   allow: boolean;
-  /**
-  * @deprecated Use the `allow` property instead.
-  */
   allowChanging: boolean;
 }
 

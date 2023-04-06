@@ -93,6 +93,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
   public get titleAriaExpanded(): any { return undefined; }
+  public get titleAriaRole(): any { return undefined; }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -393,6 +394,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded" ? "true" : "false";
   }
+
+  public get titleAriaRole(): any {
+    if (this.isPage || this.state === "default") return undefined;
+    return "button";
+  }
+
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
@@ -916,6 +923,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.state !== "default") {
       this.toggleState();
     }
+  }
+  public get additionalTitleToolbar(): ActionContainer {
+    return this.getAdditionalTitleToolbar();
+  }
+  protected getAdditionalTitleToolbar() : ActionContainer | null {
+    return null;
   }
   protected getCssTitle(cssClasses: any) {
     const isExpandable = this.state !== "default";

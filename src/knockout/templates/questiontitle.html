@@ -8,5 +8,8 @@
       <!-- ko template: { name: 'survey-string', data: $data.locDescription } --><!-- /ko -->
     </div>
     <!-- /ko -->
+    <!-- ko if: !!$data.additionalTitleToolbar -->
+    <!-- ko component: { name: 'sv-action-bar', params: { model: $data.additionalTitleToolbar } } --><!-- /ko -->
+    <!-- /ko -->
   </div>
 </script>

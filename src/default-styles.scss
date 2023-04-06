@@ -526,7 +526,8 @@ f-panel {
 
 .sv-ranking-item:focus .sv-ranking-item__index {
   background: white;
-  border: 2px solid var(--primary, #19b394);
+  // border: 2px solid var(--primary, #19b394);
+  box-shadow: 0 0 0 2px var(--primary, #19b394);
 }
 
 .sv-ranking-item__content {

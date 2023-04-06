@@ -95,7 +95,11 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  @property({ defaultValue: false }) isMobile: boolean;
+  protected setIsMobile(val: boolean) { }
+
+  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.setIsMobile(val);
+  } }) isMobile: boolean;
 
   constructor(name: string) {
     super(name);

@@ -777,6 +777,7 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
     this.createLocalizableString("logo", this, false);
+    this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -1872,6 +1873,31 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     return "";
+  }
+  /**
+   * Gets or sets a survey backgroundImage.
+   */
+  public get backgroundImage(): string {
+    return this.getLocalizableStringText("backgroundImage");
+  }
+  public set backgroundImage(value: string) {
+    this.setLocalizableStringText("backgroundImage", value);
+  }
+  get locBackgroundImage(): LocalizableString {
+    return this.getLocalizableString("backgroundImage");
+  }
+  get renderBackgroundImage(): string {
+    return ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+  }
+  public get backgroundOpacity(): number {
+    return this.getPropertyValue("backgroundOpacity");
+  }
+  public set backgroundOpacity(val: number) {
+    this.setPropertyValue("backgroundOpacity", val);
+  }
+  public get renderBackgroundOpacity(): string {
+    const alpha = 1 - this.backgroundOpacity;
+    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -7088,5 +7114,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   "width",
+  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

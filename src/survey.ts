@@ -7114,7 +7114,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   "width",
-  { name: "backgroundImage", serializationProperty: "locBackgroundImage" },
-  { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1 },
+  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

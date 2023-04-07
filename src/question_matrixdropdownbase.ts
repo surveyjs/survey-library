@@ -809,6 +809,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   ) => void;
   onAddColumn: (column: MatrixDropdownColumn) => void;
   onRemoveColumn: (column: MatrixDropdownColumn) => void;
+  cellValueChangingCallback: (row: any, columnName: string, value: any, oldValue: any) => any;
 
   protected createColumnValues() {
     return this.createNewArray(
@@ -2090,11 +2091,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     columnName: string,
     rowValue: any
   ): any {
-    if (!this.survey) return !!rowValue ? rowValue[columnName] : null;
+    if (!this.survey && !this.cellValueChangingCallback) return !!rowValue ? rowValue[columnName] : null;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     var oldRowValue = this.getRowValueCore(row, this.createNewValue(), true);
     options.oldValue = !!oldRowValue ? oldRowValue[columnName] : null;
-    this.survey.matrixCellValueChanging(this, options);
+    if(!!this.cellValueChangingCallback) {
+      options.value = this.cellValueChangingCallback(row, columnName, options.value, options.oldValue);
+    }
+    if(!!this.survey) {
+      this.survey.matrixCellValueChanging(this, options);
+    }
     return options.value;
   }
   onRowChanged(

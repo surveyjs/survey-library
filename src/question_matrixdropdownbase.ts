@@ -153,7 +153,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
-    if (this.column.totalType == "none") return "";
+    if (this.column.totalType == "none") return "''";
     var funName = this.column.totalType + "InArray";
     if (!FunctionFactory.Instance.hasFunction(funName)) return "";
     return funName + "({self}, '" + this.column.name + "')";

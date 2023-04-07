@@ -1,7 +1,5 @@
 @import "../variables.scss";
 
-
-
 .sd-btn {
   appearance: none;
   -webkit-appearance: none;
@@ -24,7 +22,6 @@
 }
 
 .sd-btn:not(:disabled) {
-
   &:hover,
   &:focus {
     box-shadow: 0 0 0 2px $primary;
@@ -32,7 +29,8 @@
 }
 
 .sd-btn:disabled {
-  color: $foreground-disabled;
+  color: $foreground;
+  opacity: 0.25;
   cursor: default;
 }
 
@@ -42,7 +40,6 @@
 }
 
 .sd-btn--action:not(:disabled) {
-
   &:hover,
   &:focus {
     color: $primary;

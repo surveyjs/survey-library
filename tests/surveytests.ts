@@ -16765,5 +16765,4 @@ QUnit.test("backgroundOpacity", assert => {
 
   survey.backgroundOpacity = 1;
   assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
-
 });

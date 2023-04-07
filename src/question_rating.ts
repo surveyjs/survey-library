@@ -139,10 +139,7 @@ export class QuestionRatingModel extends Question {
    *
    * If you need to specify only the `value` property, you can set the `rateValues` property to an array of numbers, for example, `[ 3, 6, 10 ]`. These values are both saved in survey results and used as display text.
    *
-   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the `rateMin`, `rateMax`, and `rateStep` property values.
-   * @see rateMin
-   * @see rateMax
-   * @see rateStep
+   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin), [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax), [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep), and [`rateCount`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateCount) property values.
    */
   public get rateValues(): Array<any> {
     return this.getPropertyValue("rateValues");
@@ -152,12 +149,12 @@ export class QuestionRatingModel extends Question {
     this.createRenderedRateItems();
   }
   /**
-   * Specifies the first rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
    * @see rateMax
    * @see rateStep
+   * @see rateCount
    */
   public get rateMin(): number {
     return this.getPropertyValue("rateMin");
@@ -166,12 +163,12 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMin", val);
   }
   /**
-   * Specifies the last rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 5
-   * @see rateValues
    * @see rateMin
    * @see rateStep
+   * @see rateCount
    */
   public get rateMax(): number {
     return this.getPropertyValue("rateMax");
@@ -180,12 +177,12 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMax", val);
   }
   /**
-   * Specifies a step with which to generate rate values. Applies if the `rateValues` array is empty.
+   * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
    * @see rateMin
    * @see rateMax
+   * @see rateCount
    */
   public get rateStep(): number {
     return this.getPropertyValue("rateStep");
@@ -193,7 +190,11 @@ export class QuestionRatingModel extends Question {
   public set rateStep(val: number) {
     this.setPropertyValue("rateStep", val);
   }
-
+  /**
+   * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
+   *
+   * Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin) or [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax) property to specify the first or the last rate value. Use the [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep) property to specify a step with which to generate rate values.
+   */
   @property({ defaultValue: 5 }) rateCount: number;
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

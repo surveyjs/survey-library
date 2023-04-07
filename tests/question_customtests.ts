@@ -1203,6 +1203,39 @@ QUnit.test("Composite: onValueChanging function", function (assert) {
   assert.deepEqual(q.value, { q2: 2 }, "onValueChanging works, composite value");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: onMatrixCellValueChanging function", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        rowCount: 1,
+        columns: [{ name: "col1", cellType: "text" }]
+      },
+    ],
+    onCreated: (question: Question): void => {
+      const matrix = question.contentPanel.getQuestionByName("q2");
+      matrix.cellValueChangingCallback = (row: any, columnName: string, value: any): any => {
+        if(columnName === "col1" && value === 1) return 2;
+        return value;
+      };
+    }
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "q1" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const matrix = q.contentPanel.getQuestionByName("q2");
+  const rows = matrix.visibleRows;
+  rows[0].cells[0].question.value = 1;
+  assert.equal(rows[0].cells[0].question.value, 2, "change value in matrix cell");
+  assert.deepEqual(q.value, { q2: [{ col1: 2 }] }, "onValueChanging works, composite value");
+  assert.deepEqual(survey.data, { q1: { q2: [{ col1: 2 }] } }, "survey.data has correct values");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Single: onValueChanging function, value is array", function (assert) {
   var json = {
     name: "testquestion",

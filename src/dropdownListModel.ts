@@ -114,6 +114,10 @@ export class DropdownListModel extends Base {
     this.listModel.resetFocusedItem();
     if (this.question.selectedItem && this.question.selectedItem.text.indexOf(newValue) >= 0) {
       this.listModel.focusedItem = <any>this.getAvailableItems().filter(item => item.id == this.question.selectedItem.value)[0];
+      if (this.listModel.filterString) {
+        this.listModel.actions.map(a => a.selectedValue = false);
+      }
+
       return;
     }
     if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
@@ -358,11 +362,11 @@ export class DropdownListModel extends Base {
     }
     if (this.question.value && focusedItem && this.question instanceof QuestionDropdownModel) {
       focusedItem.selectedValue = false;
-      this.listModel.focusedItem.selectedValue = true;
+      this.listModel.focusedItem.selectedValue = !this.listModel.filterString;
       this.question.suggestedItem = this.listModel.focusedItem;
     }
     this.scrollToFocusedItem();
-    if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
+    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.applyInputString(this.listModel.focusedItem);
     }
     else {

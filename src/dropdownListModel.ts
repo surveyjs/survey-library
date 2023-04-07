@@ -129,6 +129,7 @@ export class DropdownListModel extends Base {
 
   protected onHidePopup(): void {
     this.resetFilterString();
+    this.question.suggestedItem = null;
     this.listModel.refresh();
   }
 
@@ -323,7 +324,7 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     this._popupModel.toggleVisibility();
-
+    if (this._popupModel.isVisible && this.question.value && this.question instanceof QuestionDropdownModel) this.changeSelectionWithKeyboard(false);
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
       if (!!input) {
@@ -348,11 +349,17 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
+    let focusedItem = this.listModel.focusedItem;
     if (reverse) {
       this.listModel.focusPrevVisibleItem();
     }
     else {
       this.listModel.focusNextVisibleItem();
+    }
+    if (this.question.value && focusedItem && this.question instanceof QuestionDropdownModel) {
+      focusedItem.selectedValue = false;
+      this.listModel.focusedItem.selectedValue = true;
+      this.question.suggestedItem = this.listModel.focusedItem;
     }
     this.scrollToFocusedItem();
     if (this.question.value && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {

@@ -16766,3 +16766,15 @@ QUnit.test("backgroundOpacity", assert => {
   survey.backgroundOpacity = 1;
   assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
 });
+QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
+  const titleProp = Serializer.findProperty("survey", "title");
+  titleProp.isLocalizable = false;
+  const survey = new SurveyModel();
+  survey.title = "val1";
+  survey.locale = "de";
+  survey.title = "val2";
+  survey.locale = "fr";
+  survey.title = "val3";
+  assert.equal(survey.locTitle.getJson(), "val3", "It supports only one locale");
+  titleProp.isLocalizable = true;
+});

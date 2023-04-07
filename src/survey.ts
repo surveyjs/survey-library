@@ -839,6 +839,7 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
+    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1886,8 +1887,9 @@ export class SurveyModel extends SurveyElementCore
   get locBackgroundImage(): LocalizableString {
     return this.getLocalizableString("backgroundImage");
   }
-  get renderBackgroundImage(): string {
-    return ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+  @property() renderBackgroundImage: string;
+  private updateRenderBackgroundImage(): void {
+    this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
   public get backgroundOpacity(): number {
     return this.getPropertyValue("backgroundOpacity");
@@ -1896,6 +1898,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("backgroundOpacity", val);
   }
   public get renderBackgroundOpacity(): string {
+    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
+    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
+      return "";
+    }
+
     const alpha = 1 - this.backgroundOpacity;
     return ["rgba(255, 255, 255, ", alpha, ")"].join("");
   }
@@ -5501,6 +5508,7 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
     this.updateHasLogo();
+    this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
     this.setCalculatedWidthModeUpdater();

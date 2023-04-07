@@ -82,12 +82,12 @@ export var germanSurveyStrings = {
   confirmRemoveFile: "Sind Sie sicher, dass Sie diese Datei löschen möchten: {0}?",
   confirmRemoveAllFiles: "Sind Sie sicher, dass Sie alle Dateien löschen möchten?",
   questionTitlePatternText: "Fragentitel",
-  modalCancelButtonText: "Stornieren",
+  modalCancelButtonText: "Abbrechen",
   modalApplyButtonText: "Anwenden",
   filterStringPlaceholder: "Tippe um zu suchen...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Es gibt noch keine Daten.",
   noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
-  // more: "More"
+  more: "Mehr"
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

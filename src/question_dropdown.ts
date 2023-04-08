@@ -224,8 +224,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }
+
+  @property() suggestedItem: ItemValue;
   public get selectedItemLocText() {
-    const item = this.selectedItem;
+    const item = this.suggestedItem || this.selectedItem;
     return item?.locText;
   }
   public get inputFieldComponentName(): string {

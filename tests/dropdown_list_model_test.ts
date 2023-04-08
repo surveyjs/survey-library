@@ -508,3 +508,38 @@ QUnit.test("always show invisible hint part", function (assert) {
   assert.equal(dropdownListModel.hintString, "item5", "list click, hint string should be set on click");
   assert.equal(dropdownListModel.hintStringSuffix, "", "list click, hint suffix empty");
 });
+
+QUnit.test("change selection on keyboard", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.onClick(null);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when no value");
+  assert.notOk(question.selectedItemLocText, "no selected text when no value");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "still no selected items when no value");
+  assert.notOk(question.selectedItemLocText, "still no selected text when no value");
+  dropdownListModel.onClick(null);
+
+  question.value = "item1";
+  dropdownListModel.onClick(null);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
+  assert.equal(question.selectedItemLocText.calculatedText, "item1");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2");
+  assert.equal(question.selectedItemLocText.calculatedText, "item2", "selected item is changed too on DOWN one more time");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item3");
+  assert.equal(question.selectedItemLocText.calculatedText, "item3", "selected item is changed too on DOWN one more time");
+
+  (dropdownListModel as any).onHidePopup();
+  assert.equal(question.selectedItemLocText.calculatedText, "item1");
+});

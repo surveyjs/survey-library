@@ -1,6 +1,10 @@
 <template>
-  <div :class="survey.getRootCss()">
-    <form onsubmit="return false;">
+  <div :class="survey.getRootCss()"
+    :style="{ backgroundImage: vueSurvey.renderBackgroundImage }"
+    >
+    <form onsubmit="return false;"
+    :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"
+    >
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />

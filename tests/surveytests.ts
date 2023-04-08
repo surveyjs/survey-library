@@ -16746,3 +16746,35 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   assert.equal(q2.value, "BBB", "q2.value");
   assert.equal(q3.value, "CCC", "q3.value");
 });
+
+QUnit.test("backgroundImage", assert => {
+  const imageUrl = "https://image.shutterstock.com/image-photo/agave-cactus-abstract-natural-pattern-600w-1056037874.jpg";
+  const survey = new SurveyModel({
+    "backgroundImage": imageUrl,
+  });
+  assert.equal(survey.backgroundImage, imageUrl, "backgroundImage");
+  assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
+});
+
+QUnit.test("backgroundOpacity", assert => {
+  const survey = new SurveyModel({
+    "backgroundOpacity": 0.6,
+  });
+  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
+  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
+
+  survey.backgroundOpacity = 1;
+  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
+});
+QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
+  const titleProp = Serializer.findProperty("survey", "title");
+  titleProp.isLocalizable = false;
+  const survey = new SurveyModel();
+  survey.title = "val1";
+  survey.locale = "de";
+  survey.title = "val2";
+  survey.locale = "fr";
+  survey.title = "val3";
+  assert.equal(survey.locTitle.getJson(), "val3", "It supports only one locale");
+  titleProp.isLocalizable = true;
+});

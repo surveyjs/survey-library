@@ -45,6 +45,7 @@ export class LocalizableString implements ILocalizableString {
   public sharedData: LocalizableString;
   public searchText: string;
   public searchIndex: number;
+  public disableLocalization: boolean;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -166,6 +167,9 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string): void {
+    if(this.disableLocalization) {
+      loc = settings.defaultLocaleName;
+    }
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;

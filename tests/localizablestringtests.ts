@@ -432,8 +432,7 @@ QUnit.test(
     assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
   }
 );
-QUnit.test(
-  "Call changed on setting value for non-default locale",
+QUnit.test("Call changed on setting value for non-default locale. It used in Creator",
   function(assert) {
     var owner = new LocalizableOwnerTester("");
 

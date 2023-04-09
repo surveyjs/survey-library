@@ -3070,15 +3070,10 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel) {
-    var options = {
-      oldCurrentPage: oldValue,
-      newCurrentPage: newValue,
-      allowChanging: true,
-      allow: true,
-      isNextPage: this.isNextPage(newValue, oldValue),
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    };
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel): boolean {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    options.allow = true;
+    options.allowChanging = true;
     this.onCurrentPageChanging.fire(this, options);
     const allow = options.allowChanging && options.allow;
     if (allow) {
@@ -3086,25 +3081,23 @@ export class SurveyModel extends SurveyElementCore
     }
     return allow;
   }
-  protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
-    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
-    if (isNextPage) {
+  protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    if (options.isNextPage) {
       oldValue.passed = true;
     }
-    this.onCurrentPageChanged.fire(this, {
+    this.onCurrentPageChanged.fire(this, options);
+  }
+  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
+    const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
+    return {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: isNextPage,
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    });
-  }
-  private isNextPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex == oldValue.visibleIndex + 1;
-  }
-  private isPrevPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex + 1 == oldValue.visibleIndex;
+      isNextPage: diff === 1,
+      isPrevPage: diff === -1,
+      isGoingForwards: diff > 0,
+      isGoingBackwards: diff < 0
+    };
   }
   /**
    * Returns the progress that a user made while going through the survey.

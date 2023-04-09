@@ -2612,133 +2612,80 @@ QUnit.test("survey.onCurrentPageChanging + isNextPage/isPrevPage", function (
   );
 });
 
-QUnit.test(
-  "survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage",
-  function (assert) {
-    var survey = twoPageSimplestSurvey();
-    survey.addNewPage("page3");
-    survey.pages[2].addNewQuestion("test", "q5");
-    survey.addNewPage("page4");
-    survey.pages[3].addNewQuestion("test", "q6");
-    var isNextPageChangedCounter = 0;
-    var isNextPageChangingCounter = 0;
-    var isPrevPageChangedCounter = 0;
-    var isPrevPageChangingCounter = 0;
-    survey.onCurrentPageChanging.add(function (survey, options) {
-      if (options.isPrevPage) isPrevPageChangingCounter++;
-      if (options.isNextPage) isNextPageChangingCounter++;
-    });
-    survey.onCurrentPageChanged.add(function (surey, options) {
-      if (options.isPrevPage) isPrevPageChangedCounter++;
-      if (options.isNextPage) isNextPageChangedCounter++;
-    });
-    survey.nextPage();
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      0,
-      "isPrevPageChangedCounter, nextPage"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      0,
-      "isPrevPageChangingCounter, nextPage"
-    );
-    survey.prevPage();
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage"
-    );
-    survey.currentPageNo = 2;
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    survey.currentPageNo = 1;
-    assert.equal(
-      isNextPageChangedCounter,
-      2,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      2,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    survey.currentPageNo = 0;
-    assert.equal(
-      isNextPageChangedCounter,
-      2,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      2,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      2,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      2,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-  }
-);
+QUnit.test("survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage/isGoingForwards/isGoingBackwards", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  survey.addNewPage("page3");
+  survey.pages[2].addNewQuestion("text", "q5");
+  survey.addNewPage("page4");
+  survey.pages[3].addNewQuestion("text", "q6");
+  assert.equal(survey.visiblePageCount, 4, "There are 4 pages");
+  var isNextPageChangedCounter = 0;
+  var isNextPageChangingCounter = 0;
+  var isGoingForwardsPageChangingCounter = 0;
+  var isGoingBackwardsPageChangingCounter = 0;
+  var isPrevPageChangedCounter = 0;
+  var isPrevPageChangingCounter = 0;
+  var isGoingForwardsPageChangedCounter = 0;
+  var isGoingBackwardsPageChangedCounter = 0;
+  survey.onCurrentPageChanging.add(function (survey, options) {
+    if (options.isPrevPage) isPrevPageChangingCounter++;
+    if (options.isNextPage) isNextPageChangingCounter++;
+    if (options.isGoingBackwards) isGoingBackwardsPageChangingCounter++;
+    if (options.isGoingForwards) isGoingForwardsPageChangingCounter++;
+  });
+  survey.onCurrentPageChanged.add(function (surey, options) {
+    if (options.isPrevPage) isPrevPageChangedCounter++;
+    if (options.isNextPage) isNextPageChangedCounter++;
+    if (options.isGoingBackwards) isGoingBackwardsPageChangedCounter++;
+    if (options.isGoingForwards) isGoingForwardsPageChangedCounter++;
+  });
+  survey.nextPage();
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage");
+  assert.equal(isPrevPageChangedCounter, 0, "isPrevPageChangedCounter, nextPage");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage");
+  assert.equal(isPrevPageChangingCounter, 0, "isPrevPageChangingCounter, nextPage");
+  assert.equal(isGoingForwardsPageChangingCounter, 1, "isGoingForwardsPageChangingCounter, nextPage");
+  assert.equal(isGoingBackwardsPageChangingCounter, 0, "isGoingBackwardsPageChangingCounter, nextPage");
+  assert.equal(isGoingForwardsPageChangedCounter, 1, "isGoingForwardsPageChangedCounter, nextPage");
+  assert.equal(isGoingBackwardsPageChangedCounter, 0, "isGoingBackwardsPageChangedCounter, nextPage");
+  survey.prevPage();
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingForwardsPageChangingCounter, 1, "isGoingForwardsPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingBackwardsPageChangingCounter, 1, "isGoingBackwardsPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingForwardsPageChangedCounter, 1, "isGoingForwardsPageChangedCounter, nextPage/prevPage");
+  assert.equal(isGoingBackwardsPageChangedCounter, 1, "isGoingBackwardsPageChangedCounter, nextPage/prevPage");
+  survey.currentPageNo = 3;
+  assert.equal(survey.currentPage.name, "page4", "goes to have 3");
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingForwardsPageChangingCounter, 2, "isGoingForwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingBackwardsPageChangingCounter, 1, "isGoingBackwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingForwardsPageChangedCounter, 2, "isGoingForwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingBackwardsPageChangedCounter, 1, "isGoingBackwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  survey.currentPageNo = 1;
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingForwardsPageChangingCounter, 2, "isGoingForwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingBackwardsPageChangingCounter, 2, "isGoingBackwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingForwardsPageChangedCounter, 2, "isGoingForwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingBackwardsPageChangedCounter, 2, "isGoingBackwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  survey.currentPageNo = 0;
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isPrevPageChangedCounter, 2, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isPrevPageChangingCounter, 2, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingForwardsPageChangingCounter, 2, "isGoingForwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingBackwardsPageChangingCounter, 3, "isGoingBackwardsPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingForwardsPageChangedCounter, 2, "isGoingForwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingBackwardsPageChangedCounter, 3, "isGoingBackwardsPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+});
 
 QUnit.test("survey.onCurrentPageChanging, allowChanging option", function (
   assert

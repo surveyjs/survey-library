@@ -543,3 +543,26 @@ QUnit.test("change selection on keyboard", function (assert) {
   (dropdownListModel as any).onHidePopup();
   assert.equal(question.selectedItemLocText.calculatedText, "item1");
 });
+
+QUnit.test("filtering on question with value", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  question.value = "item1";
+
+  dropdownListModel.onClick(null);
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
+  assert.equal(dropdownListModel.inputStringRendered, "item1", "input string is set to value");
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2", "selected item changed");
+  assert.equal(dropdownListModel.inputStringRendered, "item2", "input string rendered changed");
+
+  dropdownListModel.inputStringRendered = "i";
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering and move key");
+
+});

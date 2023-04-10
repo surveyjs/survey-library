@@ -19,6 +19,11 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
+@mixin borderLight {
+  box-shadow: 0 0 0 calcSize(0.25) $border-light;
+  border-radius: 3px;
+}
+
 .sv-list {
   padding: 0;
   margin: 0;
@@ -48,6 +53,7 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-list__item {
   width: 100%;
+  padding: calcSize(0.25);
   align-items: center;
   box-sizing: border-box;
   color: $foreground;
@@ -62,9 +68,9 @@ $base-unit: var(--base-unit, 8px);
   align-items: center;
   box-sizing: border-box;
   // padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
-  padding-block: calcSize(1);
+  padding-block: calcSize(0.75);
   padding-inline-end: calcSize(8);
-  padding-inline-start: calcSize(2);
+  padding-inline-start: calcSize(1.75);
   color: $foreground;
   font-size: calcSize(2);
   line-height: calcSize(3);
@@ -74,11 +80,18 @@ $base-unit: var(--base-unit, 8px);
   white-space: nowrap;
 }
 
-.sv-list__item.sv-list__item--focused,
-.sv-list__item:hover,
-.sv-list__item:focus {
+.sv-list__item:hover {
   .sv-list__item-body {
     background-color: $background-dim;
+  }
+
+  outline: none;
+}
+
+.sv-list__item.sv-list__item.sv-list__item--focused:not(.sv-list__item--selected),
+.sv-list__item.sv-list__item:focus:not(.sv-list__item--selected) {
+  .sv-list__item-body {
+    @include borderLight;
   }
 
   outline: none;

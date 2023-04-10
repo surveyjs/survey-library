@@ -3095,8 +3095,8 @@ export class SurveyModel extends SurveyElementCore
       newCurrentPage: newValue,
       isNextPage: diff === 1,
       isPrevPage: diff === -1,
-      isGoingForwards: diff > 0,
-      isGoingBackwards: diff < 0
+      isGoingForward: diff > 0,
+      isGoingBackward: diff < 0
     };
   }
   /**

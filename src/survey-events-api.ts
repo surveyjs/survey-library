@@ -148,21 +148,21 @@ export interface NavigateToUrlEvent {
 }
 export interface CurrentPageChangedEvent {
   /**
-   * Returns `true` if the respondent is going previous page, that is, `newCurrentPage` is a page right before `oldCurrentPage` in the survey.
+   * Returns `true` if the respondent is switching to the previous page.
    */
   isPrevPage: boolean;
   /**
-   * Returns `true` if the respondent is going next page along the survey.
+   * Returns `true` if the respondent is switching to the next page.
    */
   isNextPage: boolean;
   /**
-   * Returns `true` if the respondent is going backwards, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
+   * Returns `true` if the respondent is going backward, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
    */
-  isGoingBackwards: boolean;
+  isGoingBackward: boolean;
   /**
    * Returns `true` if the respondent is going forward along the survey.
    */
-  isGoingForwards: boolean;
+  isGoingForward: boolean;
   /**
    * The current page.
    */

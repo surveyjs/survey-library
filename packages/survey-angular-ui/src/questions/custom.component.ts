@@ -12,7 +12,7 @@ export class CustomQuestionComponent extends QuestionAngular<QuestionCustomModel
   get contentQuestion(): Question {
     return this.model.contentQuestion;
   }
-  getComponentName(element: Question): string { return getComponentName(this.model); }
+  getComponentName(element: Question): string { return getComponentName(element); }
 }
 
 AngularComponentFactory.Instance.registerComponent("custom-question", CustomQuestionComponent);

@@ -148,11 +148,11 @@ export interface NavigateToUrlEvent {
 }
 export interface CurrentPageChangedEvent {
   /**
-   * Returns `true` if the respondent has switched to the previous page.
+   * Returns `true` if the respondent is switching to the previous page.
    */
   isPrevPage: boolean;
   /**
-   * Returns `true` if the respondent has switched to the next page.
+   * Returns `true` if the respondent is switching to the next page.
    */
   isNextPage: boolean;
   /**

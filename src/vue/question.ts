@@ -30,4 +30,10 @@ export class QuestionVue<T extends Question> extends BaseVue {
   }
 }
 
+export function getComponentName(question: Question): string {
+  if (question.customWidget) return "survey-customwidget";
+  if(question.isDefaultRendering() || question.isPanel) return "survey-" + question.getTemplate();
+  return question.getComponentName();
+}
+
 export default QuestionVue;

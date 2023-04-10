@@ -1,25 +1,37 @@
+:root {
+  $primary-foreground-disabled: rgba(#fff, 0.25);
+
+  --foreground: #161616;
+  --foreground-light: #909090;
+  --primary-foreground: #fff;
+  --primary-foreground-disabled: #{$primary-foreground-disabled};
+
+  --sjs-general-forecolor: var(--foreground);
+  --sjs-general-forecolor-light: var(--foreground-light);
+  --sjs-primary-forecolor: var(--primary-foreground);
+  --sjs-primary-forecolor-light: var(--primary-foreground-disabled);
+}
+
 $primary: var(--primary, #19b394);
 $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-$primary-foreground: var(--primary-foreground, #fff);
-$primary-foreground-disabled: var(--primary-foreground-disabled, rgba(#fff, 0.25));
+$primary-foreground: var(--sjs-primary-forecolor, #fff);
+$primary-foreground-disabled: var(--sjs-primary-forecolor-light, rgba(#fff, 0.25));
 
 $secondary: var(--secondary, #ff9814);
 $secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
 
-$secondary-foreground: var(--secondary-foreground, #fff);
-
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
 $background-dim-light: var(--background-dim-light, #f9f9f9);
+$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
 
 $editor-background: var(--sjs-editor-background, #f9f9f9);
 $question-background: var(--sjs-question-background, #fff);
 
-$foreground: var(--foreground, #161616);
-$foreground-light: var(--foreground-light, #909090);
-//todo: discuss this variable
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-$foreground-disabled-for-editors: var(--foreground-disabled, rgba(#161616, 0.25));
+$foreground: var(--sjs-general-forecolor, #161616);
+$foreground-light: var(--sjs-general-forecolor-light, #909090);
+$foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
+$foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
 $border: var(--border, #d6d6d6);
 $border-light: var(--border-light, #eaeaea);

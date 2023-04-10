@@ -55,13 +55,17 @@ legend+sv-ng-rating-item+.sd-rating__item {
 }
 
 .sd-rating__item.sd-rating__item--disabled {
-  color: $foreground-disabled-for-editors;
-  fill: $foreground-disabled-for-editors;
+  color: $foreground;
+  fill: $foreground;
 }
 
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
-  color: $primary-foreground-disabled;
-  fill: $foreground-disabled-for-editors;
+  color: $primary-foreground;
+  fill: $foreground;
+}
+
+.sd-question--disabled .sd-rating__item-text {
+  opacity: 0.25;
 }
 
 .sd-rating__item--allowhover:hover,
@@ -206,7 +210,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     fill: $border;
   }
 }
-
 
 .sd-rating__item-star--highlighted {
   svg {

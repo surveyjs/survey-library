@@ -1,25 +1,6 @@
-$primary: var(--primary, #19b394);
-$primary-foreground: var(--primary-foreground, #fff);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
+@import "../defaultV2-theme/variables.scss";
 
-$background: var(--background, #fff);
-$background-dim: var(--background-dim, #f3f3f3);
-$background-dim-light: var(--background-dim-light, #f9f9f9);
-$border-light: var(--border-light, #eaeaea);
-$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
-$foreground: var(--foreground, #161616);
-//todo: discuss this variable
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-$foreground-light: var(--foreground-light, #909090);
-$font-family: var(--font-family, "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
 $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
-
-$base-unit: var(--base-unit, 8px);
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
 
 sv-popup {
   display: block;
@@ -255,7 +236,8 @@ sv-popup {
 }
 
 .sv-popup__button:disabled {
-  color: $foreground-disabled;
+  color: $foreground;
+  opacity: 0.25;
   cursor: default;
 }
 

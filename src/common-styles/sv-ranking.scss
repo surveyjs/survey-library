@@ -1,17 +1,4 @@
-$base-unit: var(--base-unit, 8px);
-$primary: var(--primary, #19b394);
-$main-color: $primary;
-$foreground: var(--foreground, #161616);
-$foreground-light: var(--foreground-light, #909090);
-$background: var(--background, #fff);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-//todo: discuss this variable
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
+@import "../defaultV2-theme/variables.scss";
 
 .sv-ranking {
   outline: none;
@@ -114,7 +101,8 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 }
 
 .sd-ranking--disabled .sv-ranking-item__text {
-  color: $foreground-disabled;
+  color: $foreground;
+  opacity: 0.25;
 }
 
 .sv-ranking-item__ghost.sv-ranking-item__ghost {

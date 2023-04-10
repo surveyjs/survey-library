@@ -30,6 +30,8 @@ $question-background: var(--sjs-question-background, #fff);
 
 $foreground: var(--sjs-general-forecolor, #161616);
 $foreground-light: var(--sjs-general-forecolor-light, #909090);
+$foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
+$foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
 $border: var(--border, #d6d6d6);
 $border-light: var(--border-light, #eaeaea);

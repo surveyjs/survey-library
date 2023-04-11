@@ -7,12 +7,13 @@ import {
   MatrixDropdownRowModelBase,
   SurveyModel
 } from "survey-core";
+import { getComponentName } from "../question";
 
 @Component({
   selector: "sv-ng-matrix-cell",
   templateUrl: "./matrixcell.component.html",
   styles: [":host { display: none; }"]
-  })
+})
 export class MatrixCellComponent extends BaseAngular<Question> {
   @Input() question!: QuestionMatrixDropdownModelBase;
   @Input() cell!: QuestionMatrixDropdownRenderedCell;
@@ -54,12 +55,7 @@ export class MatrixCellComponent extends BaseAngular<Question> {
     };
   }
 
-  getComponentName(element: Question) {
-    if (element.customWidget) {
-      return "survey-customwidget";
-    }
-    return element.getType()+"-question";
-  }
+  getComponentName(element: Question) { return getComponentName(element); }
   getHeaders(): string {
     return this.cell.headers;
   }

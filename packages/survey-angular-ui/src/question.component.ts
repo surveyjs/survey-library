@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { Question } from "survey-core";
 import { AngularComponentFactory } from "./component-factory";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
+import { getComponentName } from "./question";
 
 @Component({
   selector: "sv-ng-question",
@@ -18,13 +19,7 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
-  public getComponentName(): string {
-    if (this.model.customWidget) return "survey-customwidget";
-    if (this.model.isDefaultRendering()) {
-      return this.model.getTemplate() + "-question";
-    }
-    return this.model.getComponentName();
-  }
+  public getComponentName(): string { return getComponentName(this.model); }
   public getQuestionContentWrapperComponentName(): string {
     return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model) || this.getComponentName();
   }

@@ -68,7 +68,11 @@ legend+sv-ng-rating-item+.sd-rating__item {
   opacity: 0.25;
 }
 
-.sd-rating__item--allowhover:hover,
+.sd-rating__item--allowhover:hover {
+  background-color: $background-dark;
+  border-color: $background-dark;
+}
+
 .sd-rating__item:focus-within {
   border-color: $primary;
 }
@@ -124,7 +128,10 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   fill: $primary-foreground;
 }
 
-.sd-rating__item-smiley--allowhover:hover,
+.sd-rating__item-smiley--allowhover:hover {
+  background-color: $background-dark;
+}
+
 .sd-rating__item-smiley:focus-within {
   border-color: $primary;
 }
@@ -213,8 +220,8 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-star--highlighted {
   svg {
-    stroke: $primary;
-    fill: none;
+    stroke: $border;
+    fill: $background-dark;
   }
 }
 

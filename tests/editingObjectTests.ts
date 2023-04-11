@@ -515,6 +515,34 @@ QUnit.test("Edit choices in matrix", function (assert) {
     "set text property from matrix"
   );
 });
+QUnit.test("Edit choices in matrix and localization", function (assert) {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  const cell = matrix.visibleRows[1].cells[1];
+  const itemValue = <ItemValue>question.choices[1];
+  assert.equal(cell.value, "Item 2", "Initial");
+  itemValue.text = "Item 2_1";
+  assert.equal(cell.value, "Item 2_1", "Change #3");
+  itemValue.locText.setLocaleText("default", "Item 2_2");
+  assert.equal(cell.value, "Item 2_2", "Change #2");
+  itemValue.locText.setLocaleText("de", "Item 2_3-de");
+  assert.equal(cell.value, "Item 2_2", "Ignore change");
+});
 QUnit.test("Do not re-create rows and rendered table on adding new choice item", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];

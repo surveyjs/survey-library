@@ -36,6 +36,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Question } from "survey-core";
 import { SurveyModel } from "survey-core";
 import { FlowPanelModel } from "survey-core";
+import { getComponentName } from "./question";
 
 @Component
 export class FlowPanelElement extends Vue {
@@ -95,10 +96,7 @@ export class FlowPanelElement extends Vue {
   }
   //duplicated code from element.vue
   getComponentName(element: Question) {
-    if (element.customWidget) {
-      return "survey-customwidget";
-    }
-    return "survey-" + element.getTemplate();
+    return getComponentName(element);
   }
   // duplicated code from reactpages.tsx
   private hasTextChildNodesOnly(node: Node): boolean {

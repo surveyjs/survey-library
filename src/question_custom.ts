@@ -471,9 +471,6 @@ export abstract class QuestionCustomModelBase extends Question
   getSurveyData(): ISurveyData {
     return this;
   }
-  // getSurvey(): ISurvey {
-  //   return this.survey;
-  // }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
   }
@@ -598,6 +595,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if(this.isValueChanging(name, newValue)) return;
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    if (!!this.survey && !this.isEmpty()) {
+      this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
+    }
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (!this.contentQuestion) return false;

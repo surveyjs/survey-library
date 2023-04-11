@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { default as QuestionVue } from "./question";
+import { default as QuestionVue, getComponentName } from "./question";
 import { Question } from "survey-core";
 import { QuestionCustomModel } from "survey-core";
 
@@ -19,10 +19,7 @@ export class Custom extends QuestionVue<QuestionCustomModel> {
     return this.question.contentQuestion;
   }
   getComponentName(element: Question): string {
-    if (element.customWidget) {
-      return "survey-customwidget";
-    }
-    return "survey-" + element.getTemplate();
+    return getComponentName(element);
   }
 }
 Vue.component("survey-custom", Custom);

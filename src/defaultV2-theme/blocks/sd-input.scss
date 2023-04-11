@@ -40,7 +40,8 @@
 
 .sd-input--disabled,
 .sd-input--disabled::placeholder {
-  color: $foreground-disabled-for-editors;
+  color: $foreground;
+  opacity: 0.25;
 }
 
 .sd-root--readonly .sd-input--disabled,

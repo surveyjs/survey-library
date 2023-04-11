@@ -1,7 +1,7 @@
 import { Question } from "survey-core";
 import { QuestionCustomModel } from "survey-core";
 import { Component } from "@angular/core";
-import { QuestionAngular } from "../question";
+import { QuestionAngular, getComponentName } from "../question";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -12,12 +12,7 @@ export class CustomQuestionComponent extends QuestionAngular<QuestionCustomModel
   get contentQuestion(): Question {
     return this.model.contentQuestion;
   }
-  getComponentName(element: Question): string {
-    if (element.customWidget) {
-      return "survey-customwidget";
-    }
-    return element.getTemplate() + "-question";
-  }
+  getComponentName(element: Question): string { return getComponentName(element); }
 }
 
 AngularComponentFactory.Instance.registerComponent("custom-question", CustomQuestionComponent);

@@ -1,6 +1,7 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler } from "../../helper";
+import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
 
@@ -219,6 +220,28 @@ frameworks.forEach(framework => {
         ]
       });
       await takeElementScreenshot("survey-title-with-logo.png", Selector(".sd-title"), t, comparer); // without title and progress
+    });
+
+  });
+  test("Check survey with backgroundImage", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await initSurvey(framework, {
+        "backgroundImage": backgroundImage,
+        "backgroundOpacity": 0.7,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("survey-with-backgroundImage.png", Selector(".sd-root-modern"), t, comparer);
     });
 
   });

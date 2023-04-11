@@ -30,6 +30,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
+import { element } from "angular";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -627,6 +628,14 @@ export class QuestionPanelDynamicModel extends Question
       super.setValueCore(newValue);
     }
   }
+  protected setIsMobile(val: boolean) {
+    (this.panels || []).forEach(panel => panel.elements.forEach(element => {
+      if(element instanceof Question) {
+        (element as Question).isMobile = val;
+      }
+    }));
+  }
+
   /**
    * The number of panels in Dynamic Panel.
    * @see minPanelCount

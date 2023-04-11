@@ -1,6 +1,6 @@
 <ng-template #template>
-  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()">
-    <form onsubmit="return false;">
+  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style.backgroundImage]="model.renderBackgroundImage">
+    <form onsubmit="return false;" [style.backgroundColor]="model.renderBackgroundOpacity">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>

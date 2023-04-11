@@ -777,6 +777,7 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
     this.createLocalizableString("logo", this, false);
+    this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -838,6 +839,7 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
+    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1872,6 +1874,37 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     return "";
+  }
+  /**
+   * Gets or sets a survey backgroundImage.
+   */
+  public get backgroundImage(): string {
+    return this.getLocalizableStringText("backgroundImage");
+  }
+  public set backgroundImage(value: string) {
+    this.setLocalizableStringText("backgroundImage", value);
+  }
+  get locBackgroundImage(): LocalizableString {
+    return this.getLocalizableString("backgroundImage");
+  }
+  @property() renderBackgroundImage: string;
+  private updateRenderBackgroundImage(): void {
+    this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+  }
+  public get backgroundOpacity(): number {
+    return this.getPropertyValue("backgroundOpacity");
+  }
+  public set backgroundOpacity(val: number) {
+    this.setPropertyValue("backgroundOpacity", val);
+  }
+  public get renderBackgroundOpacity(): string {
+    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
+    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
+      return "";
+    }
+
+    const alpha = 1 - this.backgroundOpacity;
+    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3037,15 +3070,10 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel) {
-    var options = {
-      oldCurrentPage: oldValue,
-      newCurrentPage: newValue,
-      allowChanging: true,
-      allow: true,
-      isNextPage: this.isNextPage(newValue, oldValue),
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    };
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel): boolean {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    options.allow = true;
+    options.allowChanging = true;
     this.onCurrentPageChanging.fire(this, options);
     const allow = options.allowChanging && options.allow;
     if (allow) {
@@ -3053,25 +3081,23 @@ export class SurveyModel extends SurveyElementCore
     }
     return allow;
   }
-  protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
-    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
-    if (isNextPage) {
+  protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    if (options.isNextPage) {
       oldValue.passed = true;
     }
-    this.onCurrentPageChanged.fire(this, {
+    this.onCurrentPageChanged.fire(this, options);
+  }
+  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
+    const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
+    return {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: isNextPage,
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    });
-  }
-  private isNextPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex == oldValue.visibleIndex + 1;
-  }
-  private isPrevPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex + 1 == oldValue.visibleIndex;
+      isNextPage: diff === 1,
+      isPrevPage: diff === -1,
+      isGoingForward: diff > 0,
+      isGoingBackward: diff < 0
+    };
   }
   /**
    * Returns the progress that a user made while going through the survey.
@@ -5475,6 +5501,7 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
     this.updateHasLogo();
+    this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
     this.setCalculatedWidthModeUpdater();
@@ -7088,5 +7115,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   "width",
+  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

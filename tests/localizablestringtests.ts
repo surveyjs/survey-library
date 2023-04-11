@@ -432,8 +432,7 @@ QUnit.test(
     assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
   }
 );
-QUnit.test(
-  "Call changed on setting value for non-default locale",
+QUnit.test("Call changed on setting value for non-default locale. It used in Creator",
   function(assert) {
     var owner = new LocalizableOwnerTester("");
 
@@ -779,4 +778,18 @@ QUnit.test("Do not reset values in any locale on changing the default", function
     it: "default-de"
   }, "Do not remove keys, #2");
   settings.storeDuplicatedTranslations = false;
+});
+QUnit.test("Support disableLocalization", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.disableLocalization = true;
+  locString.text = "default";
+  locString.setLocaleText("de", "default-de");
+  locString.setLocaleText("it", "default-it");
+  assert.equal(locString.getJson(), "default-it", "#1");
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), "default-de", "#2");
+  owner.locale = "fr";
+  locString.text = "default-fr";
+  assert.deepEqual(locString.getJson(), "default-fr", "#3");
 });

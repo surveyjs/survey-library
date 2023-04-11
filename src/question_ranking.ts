@@ -337,7 +337,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("chooseItemsToOrder", val);
   }
 
-
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");
   }

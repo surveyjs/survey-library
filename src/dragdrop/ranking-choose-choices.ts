@@ -22,10 +22,10 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
     event: PointerEvent
   ): any {
     if (dropTargetNode.dataset.ranking === "to-container") {
-      return "to-container"
+      return "to-container";
     }
 
-    return super.getDropTargetByNode(dropTargetNode, event)
+    return super.getDropTargetByNode(dropTargetNode, event);
   }
 
   protected isDropTargetValid(

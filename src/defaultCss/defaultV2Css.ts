@@ -5,7 +5,7 @@ export var surveyCss: any = {
     if (!loc) loc = defaultV2Css;
     return loc;
   },
-  getAvailableThemes: function() {
+  getAvailableThemes: function () {
     return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
   }
 };
@@ -555,6 +555,7 @@ export var defaultV2Css = {
     rootDisabled: "sd-ranking--disabled",
     rootDesignMode: "sv-ranking--design-mode",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
+    rootChooseItemsToOrderMod: "sv-ranking--choose-items-to-order",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",
@@ -569,6 +570,9 @@ export var defaultV2Css = {
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
+    fromContainerClass: "sv-ranking__from-container",
+    toContainerClass: "sv-ranking__to-container",
+    containersDivider: "sv-ranking__containers-divider",
   },
   buttongroup: {
     root: "sv-button-group",

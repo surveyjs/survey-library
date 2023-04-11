@@ -142,6 +142,7 @@ export var defaultStandardCss = {
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
+    rootChooseItemsToOrderMod: "sv-ranking--choose-items-to-order",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -155,6 +156,9 @@ export var defaultStandardCss = {
     itemIconFocusMod: "sv-ranking-item__icon--focus",
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking-item--drag",
+    fromContainerClass: "sv-ranking__from-container",
+    toContainerClass: "sv-ranking__to-container",
+    containersDivider: "sv-ranking__containers-divider",
   },
   comment: {
     remainingCharacterCounter: "sv-remaining-character-counter",

@@ -1,5 +1,6 @@
 import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
+import { DragDropRankingChooseChoices } from "./dragdrop/ranking-choose-choices";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -42,6 +43,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
+      .append(this.cssClasses.rootChooseItemsToOrderMod, this.isChooseItemsToOrder)
       .toString();
   }
 
@@ -158,6 +160,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
     const newRankingChoices: ItemValue[] = [];
 
+    if (this.isChooseItemsToOrder && this.isEmpty()) {
+      this.setPropertyValue("rankingChoices", []);
+      return;
+    }
+
     // ranking question with only one choice doesn't make sense
     if (this.visibleChoices.length === 1) {
       this.setPropertyValue("rankingChoices", newRankingChoices);
@@ -185,7 +192,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
+
+    if (this.isChooseItemsToOrder) {
+      this.dragDropRankingChoices = new DragDropRankingChooseChoices(this.survey, null, this.longTap);
+    } else {
+      this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
+    }
   }
 
   public handlePointerDown = (
@@ -318,10 +330,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Default value: `false`
   */
-  public get chooseItemsToOrder(): boolean {
+  public get isChooseItemsToOrder(): boolean {
     return this.getPropertyValue("chooseItemsToOrder");
   }
-  public set chooseItemsToOrder(val: boolean) {
+  public set isChooseItemsToOrder(val: boolean) {
     this.setPropertyValue("chooseItemsToOrder", val);
   }
 
@@ -355,7 +367,7 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "chooseItemsToOrder",
+      name: "isChooseItemsToOrder",
       default: true,
       visible: false,
       isSerializable: false,

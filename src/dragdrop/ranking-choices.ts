@@ -135,7 +135,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     }
   }
 
-  private updateDraggedElementShortcut(newIndex: number) {
+  protected updateDraggedElementShortcut(newIndex: number) {
     const newIndexText = newIndex + "";
     // TODO should avoid direct DOM manipulation, do through the frameworks instead
     const indexNode: HTMLElement = this.draggedElementShortcut.querySelector(

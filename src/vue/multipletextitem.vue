@@ -48,6 +48,7 @@ import { default as QuestionVue } from "./question";
 import { MultipleTextItemModel, Question } from "survey-core";
 import { QuestionMultipleTextModel } from "survey-core";
 import BaseVue from "./base";
+import { getComponentName } from "./question";
 
 @Component
 export class MultipleTextItem extends BaseVue {
@@ -60,10 +61,7 @@ export class MultipleTextItem extends BaseVue {
     return this.item.editor;
   }
   getComponentName(question: Question) {
-    if (question.customWidget) {
-      return "survey-customwidget";
-    }
-    return "survey-text";
+    return getComponentName(question);
   }
 }
 Vue.component("survey-multipletext-item", MultipleTextItem);

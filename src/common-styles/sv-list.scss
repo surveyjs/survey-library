@@ -1,23 +1,4 @@
-$primary: var(--primary, #19b394);
-$primary-foreground: var(--primary-foreground, #fff);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-
-$background: var(--background, #fff);
-$background-dim: var(--background-dim, #f3f3f3);
-
-$foreground-light: var(--foreground-light, #909090);
-//todo: discuss this variable
-$foreground: var(--foreground, #161616);
-$border: var(--border, #d6d6d6);
-$border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
-$font-family: var(--font-family);
-
-$base-unit: var(--base-unit, 8px);
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
+@import "../defaultV2-theme/variables.scss";
 
 @mixin borderLight {
   box-shadow: 0 0 0 calcSize(0.25) $border-light;

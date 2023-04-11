@@ -5,17 +5,11 @@
   --foreground-light: #909090;
   --primary-foreground: #fff;
   --primary-foreground-disabled: #{$primary-foreground-disabled};
-  --border: rgba(0, 0, 0, 0.16);
-  --border-light: rgba(0, 0, 0, 0.09);
-  --border-inside: rgba(0, 0, 0, 0.16);
 
   --sjs-general-forecolor: var(--foreground);
   --sjs-general-forecolor-light: var(--foreground-light);
   --sjs-primary-forecolor: var(--primary-foreground);
   --sjs-primary-forecolor-light: var(--primary-foreground-disabled);
-  --sjs-border-default: var(--border);
-  --sjs-border-light: var(--border-light);
-  --sjs-border-inside: var(--border-inside);
 }
 
 $primary: var(--primary, #19b394);
@@ -42,9 +36,9 @@ $foreground-light: var(--sjs-general-forecolor-light, #909090);
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
-$border: var(--sjs-border-default, #d6d6d6);
-$border-light: var(--sjs-border-light, #eaeaea);
-$border-inside: var(--sjs-border-inside, rgba(0, 0, 0, 0.16));
+$border: var(--sjs-border-default, var(--border, rgba(0, 0, 0, 0.16)));
+$border-light: var(--sjs-border-light, var(--border-light, rgba(0, 0, 0, 0.09)));
+$border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
 $shadow-medium: rgba(0, 0, 0, 0.1);
 $shadow-inner: rgba(0, 0, 0, 0.15);

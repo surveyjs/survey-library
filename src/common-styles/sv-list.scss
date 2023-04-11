@@ -139,9 +139,14 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-multi-select-list .sv-list__item.sv-list__item--selected:hover {
   .sv-list__item-body {
     background-color: $primary-light;
+    box-shadow: 0 0 0 calcSize(0.25) $primary-light;
     color: $foreground;
     font-weight: 400;
   }
+}
+
+.sv-list__item .sv-string-viewer {
+  margin-inline-start: calcSize(-0.25);
 }
 
 .sv-list__item.sv-list__item--disabled {

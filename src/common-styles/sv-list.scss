@@ -67,6 +67,7 @@ $base-unit: var(--base-unit, 8px);
   width: 100%;
   align-items: center;
   box-sizing: border-box;
+  border-radius: 3px;
   // padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
   padding-block: calcSize(0.75);
   padding-inline-end: calcSize(8);
@@ -143,6 +144,7 @@ $base-unit: var(--base-unit, 8px);
 li:focus .sv-list__item.sv-list__item--selected {
   .sv-list__item-body {
     background-color: $primary;
+    box-shadow: 0 0 0 calcSize(0.25) $primary;
     color: $primary-foreground;
     font-weight: 600;
   }

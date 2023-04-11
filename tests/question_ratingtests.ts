@@ -568,7 +568,7 @@ QUnit.test("rating smileys max item count", (assert) => {
   q1.rateMax = 15;
   assert.equal(q1.renderedRateItems.length, 10);
 
-  q1.rateType = "numbers";
+  q1.rateType = "labels";
   assert.equal(q1.renderedRateItems.length, 15);
   q1.renderedRateItems[0].itemValue.value = "a";
 
@@ -824,4 +824,91 @@ QUnit.test("rate params loading from json", (assert) => {
   assert.equal(q1.rateCount, 3, "rateCount, rateMax -> rateCount");
   assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
   assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+});
+
+QUnit.test("autoGenerate change creates rateValues", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateValues.length, 0);
+
+  q1.autoGenerate = false;
+  assert.equal(q1.rateValues.length, 5);
+});
+
+QUnit.test("when autoGenerate true rateValues ignored", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.autoGenerate = true;
+  assert.deepEqual(q1.visibleRateValues.map(i => i.value), [1, 2, 3]);
+});
+
+QUnit.test("rate autoGenerate loading from json", (assert) => {
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMin: 2
+      },
+    ],
+  });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.ok(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 6);
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3]
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.notOk(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 3);
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3],
+        autoGenerate: true
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.ok(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 6);
 });

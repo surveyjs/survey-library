@@ -8,8 +8,13 @@
   box-sizing: border-box;
   min-width: 256px;
 
+  .sv-list__item {
+    padding: 0;
+  }
+
   .sv-list__item.sv-list__item--selected .sv-list__item-body {
     background: rgba(25, 179, 148, 0.1);
+    box-shadow: none;
     color: #161616;
     font-weight: 400;
   }

@@ -8,8 +8,13 @@ $font-family: var(--font-family);
   box-sizing: border-box;
   min-width: calcSize(32);
 
+  .sv-list__item {
+    padding: 0;
+  }
+
   .sv-list__item.sv-list__item--selected .sv-list__item-body {
     background: $primary-light;
+    box-shadow: none;
     color: $foreground;
     font-weight: 400;
   }

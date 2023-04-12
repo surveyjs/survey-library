@@ -80,11 +80,9 @@
 }
 
 .sv-list__item--with-icon.sv-list__item--with-icon {
-  padding: 0;
-
   .sv-list__item-body {
-    padding-top: calcSize(1.5);
-    padding-bottom: calcSize(1.5);
+    padding-top: calcSize(1.25);
+    padding-bottom: calcSize(1.25);
     gap: calcSize(2);
     display: flex;
   }
@@ -113,7 +111,8 @@
 }
 
 .sv-list__item-separator {
-  margin: calcSize(1) 0;
+  margin-top: calcSize(0.75);
+  margin-bottom: calcSize(1);
   height: 1px;
   background-color: $border;
 }

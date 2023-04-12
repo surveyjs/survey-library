@@ -1112,6 +1112,10 @@ sv-popup {
   width: 100vw;
   outline: none;
   z-index: 1500;
+  height: 100vh;
+}
+.sv-dropdown-popup {
+  height: 0;
 }
 
 .sv-popup__container {
@@ -1130,11 +1134,6 @@ sv-popup {
   flex-direction: column;
   max-height: 90vh;
   max-width: 90vw;
-}
-
-.sv-popup.sv-popup--modal,
-.sv-popup.sv-popup--overlay {
-  height: 100vh;
 }
 
 .sv-popup--modal .sv-list__filter {

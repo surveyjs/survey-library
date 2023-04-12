@@ -96,13 +96,19 @@ frameworks.forEach(async framework => {
       .click(clickButton)
       .expect(popupSelector.exists).ok()
       .expect(popupSelector.visible).notOk()
-
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).ok()
       .pressKey("esc")
       .expect(popupSelector.exists).ok()
       .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
+      .expect(popupSelector.visible).notOk()
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .click(Selector("body"), {
+        offsetX: 10,
+        offsetY: 10
+      })
       .expect(popupSelector.visible).notOk();
 
     await disposeSurvey(framework);

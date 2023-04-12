@@ -1893,7 +1893,7 @@ export class SurveyModel extends SurveyElementCore
     this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
   /**
-   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, 1 makes it opaque.
+   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
    * @see backgroundImage
    */
   public get backgroundOpacity(): number {

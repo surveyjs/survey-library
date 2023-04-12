@@ -42,9 +42,22 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax", "rateType",
+    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax", "rateDisplayMode",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
+    this.registerFunctionOnPropertiesValueChanged(["rateValues"],
+      () => {
+        this.autoGenerate = false;
+        this.createRenderedRateItems();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
+      () => {
+        if (!this.autoGenerate && this.rateValues.length === 0) {
+          this.setPropertyValue("rateValues", this.visibleRateValues);
+        }
+        if (this.autoGenerate) this.updateRateMax();
+        this.createRenderedRateItems();
+      });
     this.createLocalizableString(
       "minRateDescription",
       this,
@@ -73,6 +86,7 @@ export class QuestionRatingModel extends Question {
     if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
       this.updateRateMin();
     }
+    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
     this.createRenderedRateItems();
   }
@@ -88,6 +102,9 @@ export class QuestionRatingModel extends Question {
         }
       });
   }
+  private useRateValues() {
+    return !!this.rateValues.length && !this.autoGenerate;
+  }
   private updateRateMax() {
     this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
   }
@@ -95,7 +112,7 @@ export class QuestionRatingModel extends Question {
     this.rateMin = this.rateMax - this.rateStep * (this.rateCount - 1);
   }
   private updateRateCount() {
-    if (this.rateValues.length) {
+    if (this.useRateValues()) {
       this.rateCount = this.rateValues.length;
     }
     else {
@@ -105,7 +122,7 @@ export class QuestionRatingModel extends Question {
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
       () => {
-        if (this.rateValues.length == 0) {
+        if (!this.useRateValues()) {
           this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
         } else {
           if (this.rateCount < this.rateValues.length) {
@@ -120,6 +137,9 @@ export class QuestionRatingModel extends Question {
         this.updateRateCount();
       });
   }
+
+  @property({ defaultValue: true }) autoGenerate: boolean;
+
   /**
    * A list of rate values.
    *
@@ -211,12 +231,12 @@ export class QuestionRatingModel extends Question {
     oldValue: any,
     newValue: any
   ) {
-    if (this.rateValues.length === 0 && newValue !== undefined) this.setPropertyValue("rateValues", this.visibleRateValues);
+    if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
   private createRenderedRateItems() {
     let rateValues = [];
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       rateValues = this.rateValues;
     }
     else {
@@ -352,7 +372,14 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "number" }) rateType: "numbers" | "labels" | "stars" | "smileys";
+  @property({ defaultValue: "labels" }) rateDisplayMode: "labels" | "stars" | "smileys";
+
+  public get rateType() {
+    return this.rateDisplayMode;
+  }
+  public set rateType(val: "labels" | "stars" | "smileys") {
+    this.rateDisplayMode = val;
+  }
   @property({ defaultValue: "monochrome" }) smileysColorMode: "monochrome" | "colored";
   public get isStar() {
     return this.rateType == "stars";
@@ -367,7 +394,7 @@ export class QuestionRatingModel extends Question {
   }
 
   protected valueToData(val: any): any {
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
       return !!item ? item.value : val;
     }
@@ -402,10 +429,10 @@ export class QuestionRatingModel extends Question {
   public getItemSmiley(item: ItemValue) {
     const icons = ["terrible", "very-poor", "poor", "not-good", "average", "normal", "good", "very-good", "excellent", "perfect"];
     const priority = ["very-good", "not-good", "normal", "good", "average", "excellent", "poor", "perfect", "very-poor", "terrible"];
-    const count = this.rateValues.length || this.rateMax - this.rateMin + 1;
+    const count = this.useRateValues() ? this.rateValues.length : this.rateMax - this.rateMin + 1;
     const selectedPriority = priority.slice(0, count);
     const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
-    if (this.rateValues.length == 0) {
+    if (!this.useRateValues()) {
       return selectedIcons[item.value - this.rateMin];
     } else {
       return selectedIcons[this.rateValues.indexOf(item)];
@@ -419,7 +446,7 @@ export class QuestionRatingModel extends Question {
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     let isSelected = this.value == item.value;
     if (this.isStar) {
-      if (this.rateValues.length == 0) {
+      if (!this.useRateValues()) {
         isSelected = this.value >= item.value;
       } else {
         isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
@@ -459,8 +486,8 @@ export class QuestionRatingModel extends Question {
       !this.isStar &&
       !this.isSmiley &&
       (!this.displayRateDescriptionsAsExtremeItems ||
-        this.rateValues.length > 0 && item != this.rateValues[0] && item != this.rateValues[this.rateValues.length - 1] ||
-        this.rateValues.length == 0 && item.value != this.rateMin && item.value != this.rateMax
+        this.useRateValues() && item != this.rateValues[0] && item != this.rateValues[this.rateValues.length - 1] ||
+        !this.useRateValues() && item.value != this.rateMin && item.value != this.rateMax
       ) &&
       item.locText.calculatedText.length <= 2 &&
       Number.isInteger(Number(item.locText.calculatedText));
@@ -567,26 +594,57 @@ Serializer.addClass(
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
+      name: "rateDisplayMode",
+      alternativeName: "rateType",
+      default: "labels",
+      category: "rateValues",
+      choices: ["labels", "stars", "smileys"],
+      visibleIndex: 0
+    },
+    {
+      name: "autoGenerate",
+      displayName: "How to specify rate values?",
+      category: "rateValues",
+      default: true,
+      choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],
+      visibleIndex: 2
+    },
+    {
       name: "rateCount:number",
-      default: 5
+      default: 5,
+      category: "rateValues",
+      visibleIndex: 1
     },
     {
       name: "rateValues:itemvalue[]",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
+      category: "rateValues",
+      visibleIf: function (obj: any) {
+        return !obj.autoGenerate;
+      },
+      visibleIndex: 3
     },
     {
       name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
         return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 4
     },
     {
       name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
         return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 5
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -595,30 +653,31 @@ Serializer.addClass(
         if (val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 6
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
       serializationProperty: "locMinRateDescription",
+      visibleIndex: 17
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
+      visibleIndex: 18
     },
-    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false, visibleIndex: 19 },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+      visibleIndex: 20
     },
-    {
-      name: "rateType",
-      visible: false,
-      default: "number",
-      choices: ["numbers", "labels", "stars", "smileys"],
-    }
   ],
   function () {
     return new QuestionRatingModel("");

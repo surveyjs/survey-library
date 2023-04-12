@@ -290,3 +290,27 @@ QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
   assert.ok(Serializer.findProperty("checkbox", prop).visible, "checkbox separateSpecialChoices is visible");
   assert.notOk(Serializer.findProperty("ranking", prop).visible, "ranking separateSpecialChoices is invisible");
 });
+QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2] },
+      {
+        type: "ranking",
+        name: "q2",
+        choices: [
+          { value: "a", visibleIf: "{q1} contains 1" },
+          { value: "b", visibleIf: "{q1} contains 1" },
+          { value: "c", visibleIf: "{q1} contains 2" },
+          { value: "d", visibleIf: "{q1} contains 2" },
+        ]
+      }
+    ]
+  });
+  var q1 = survey.getQuestionByName("q1");
+  q1.value = [1, 2];
+  var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
+  q2.value = ["c", "d", "a", "b"];
+  q1.value = [1];
+  assert.deepEqual(q2.value, ["a", "b"], "value is correct");
+  assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
+});

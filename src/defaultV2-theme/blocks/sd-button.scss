@@ -21,11 +21,12 @@
   outline: none;
 }
 
-.sd-btn:not(:disabled) {
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 0 2px $primary;
-  }
+.sd-btn:not(:disabled):hover {
+  background-color: $background-dark;
+}
+
+.sd-btn:not(:disabled):focus {
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-btn:disabled {
@@ -39,12 +40,9 @@
   color: $primary-foreground;
 }
 
-.sd-btn--action:not(:disabled) {
-  &:hover,
-  &:focus {
-    color: $primary;
-    background-color: $background;
-  }
+.sd-btn--action:not(:disabled):hover {
+  color: $primary-foreground;
+  background-color: $primary-background-dark;
 }
 
 .sd-btn--action:disabled {

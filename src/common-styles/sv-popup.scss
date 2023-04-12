@@ -14,8 +14,8 @@ sv-popup {
   top: 0;
   width: 100vw;
   outline: none;
+  z-index: 2000;
   height: 100vh;
-  z-index: 1500;
 }
 .sv-dropdown-popup {
   height: 0;

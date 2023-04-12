@@ -543,6 +543,29 @@ QUnit.test("Single: defaultValue", function (assert) {
   assert.deepEqual(survey.data, { q1: 2 }, "set data into survey");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: defaultValue + valueName", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5],
+      defaultValue: 2,
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", isRequired: true, valueName: "QQQ1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.value, 2, "defaultValue is set");
+  assert.equal(
+    q.contentQuestion.value,
+    2,
+    "defaultValue is set for contentQuestion"
+  );
+  assert.deepEqual(survey.data, { QQQ1: 2 }, "set data into survey");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: defaultValue", function (assert) {
   var json = {
     name: "customerinfo",

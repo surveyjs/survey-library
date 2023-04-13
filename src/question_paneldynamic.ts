@@ -2092,7 +2092,8 @@ Serializer.addClass(
       isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
-    { name: "templateTabTitle", serializationProperty: "locTemplateTabTitle" },
+    { name: "templateTabTitle", serializationProperty: "locTemplateTabTitle",
+      visibleIf: (obj: any) => { return obj.renderMode === "tab"; } },
     {
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
@@ -2146,6 +2147,7 @@ Serializer.addClass(
     },
     {
       name: "tabAlign", default: "center", choices: ["center", "left", "right"],
+      visibleIf: (obj: any) => { return obj.renderMode === "tab"; }
     },
     {
       name: "templateTitleLocation",

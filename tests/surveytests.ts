@@ -16725,3 +16725,76 @@ QUnit.test("If localizable string has isLocalizable set to false then it should 
   assert.equal(survey.locTitle.getJson(), "val3", "It supports only one locale");
   titleProp.isLocalizable = true;
 });
+
+QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibility", function (assert) {
+  const json = {
+    pages: [
+      {
+        "navigationButtonsVisibility": "hide",
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "navigationButtonsVisibility": "show",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.equal(survey.showNavigationButtons, "bottom");
+
+  assert.deepEqual(getContainerContent("header"), [], "nav none header");
+  assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "nav none contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "nav none contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "nav none left");
+  assert.deepEqual(getContainerContent("right"), [], "nav none right");
+
+  survey.nextPage();
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.showNavigationButtons = "none";
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+});

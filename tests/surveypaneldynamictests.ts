@@ -5250,19 +5250,19 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
   assert.ok(panel.isRenderModeTab, "isRenderModeTab");
   assert.equal(panel.currentIndex, 0, "currentIndex is 0");
   assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
-  assert.equal(panelTabToolbar.actions[0].title, "Panel 1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
   assert.equal(panelTabToolbar.actions[0].pressed, true, "Panel 1 pressed true");
-  assert.equal(panelTabToolbar.actions[1].title, "Panel 2", "Panel 2");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
   assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
 
   panel.addPanel();
   assert.equal(panel.currentIndex, 2, "currentIndex is 2");
   assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
-  assert.equal(panelTabToolbar.actions[0].title, "Panel 1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
   assert.equal(panelTabToolbar.actions[0].pressed, false, "Panel 1 pressed false");
-  assert.equal(panelTabToolbar.actions[1].title, "Panel 2", "Panel 2");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
   assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
-  assert.equal(panelTabToolbar.actions[2].title, "Panel 3", "Panel 3");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3", "Panel 3");
   assert.equal(panelTabToolbar.actions[2].pressed, true, "Panel 3 pressed true");
 
   panelTabToolbar.actions[1].action();
@@ -5476,4 +5476,69 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
 
   const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
   assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
+});
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
+  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+});
+QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab",
+        templateTabTitle: "#{panelIndex} {panel.q1}"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  let counter = 0;
+  panelTabToolbar.actions[0].locTitle.onStringChanged.add((sender, options) => {
+    counter++;
+  });
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(counter, 1, "str has been changed");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.addPanel();
+  assert.strictEqual(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[2].locTitle.owner), 2, "Set correct panel as owner");
+  panel.panels[2].getQuestionByName("q1").value = "q3-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3 q3-value");
+  panel.removePanel(1);
+  assert.equal(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[1].locTitle.owner), 1, "Keep correct panel as owner");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value");
+  panel.panels[1].getQuestionByName("q1").value = "q3-value!";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
